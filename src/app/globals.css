@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --usha-black: #0a0a0b;
+  --usha-white: #fafaf9;
+  --usha-cream: #f5f0e8;
+  --usha-gold: #c8a445;
+  --usha-gold-light: #e8d48b;
+  --usha-accent: #ff6b35;
+  --usha-accent-soft: #ff8c5e;
+  --usha-muted: #6b6b6b;
+  --usha-border: #1f1f23;
+  --usha-card: #111113;
+  --usha-card-hover: #18181b;
+  --radius: 0.75rem;
+}
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--usha-black);
+  color: var(--usha-white);
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-mono { font-family: 'JetBrains Mono', monospace; }
+
+.grain::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1;
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, var(--usha-gold), var(--usha-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.glow-gold { box-shadow: 0 0 60px rgba(200,164,69,0.15), 0 0 120px rgba(200,164,69,0.05); }
+.glow-accent { box-shadow: 0 0 60px rgba(255,107,53,0.15); }
+
+html { scroll-behavior: smooth; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up { animation: fadeUp 0.8s ease-out forwards; }
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
