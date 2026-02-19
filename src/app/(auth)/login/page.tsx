@@ -8,6 +8,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [status, setStatus] = useState("");
 
   const supabase = createClient();
 
@@ -15,14 +16,31 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setStatus("Loggar in...");
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (error) {
-      setError(error.message);
+      if (error) {
+        setError(error.message);
+        setStatus("");
+        setLoading(false);
+        return;
+      }
+
+      if (data.session) {
+        setStatus("Inloggad! Omdirigerar...");
+        window.location.href = "/app";
+      } else {
+        setError("Ingen session returnerad. Kontrollera din email.");
+        setLoading(false);
+      }
+    } catch (err: any) {
+      setError("Oväntat fel: " + (err?.message || String(err)));
       setLoading(false);
-    } else {
-      window.location.href = "/dashboard";
     }
   }
 
@@ -41,7 +59,9 @@ export default function LoginPage() {
             <span className="text-lg font-bold text-black">U</span>
           </div>
           <h1 className="text-2xl font-bold">Välkommen tillbaka</h1>
-          <p className="mt-1 text-sm text-[var(--usha-muted)]">Logga in på ditt konto</p>
+          <p className="mt-1 text-sm text-[var(--usha-muted)]">
+            Logga in på ditt konto
+          </p>
         </div>
 
         <button
@@ -59,27 +79,42 @@ export default function LoginPage() {
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">Email</label>
+            <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">
+              Email
+            </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              placeholder="demo@usha.se"
               className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
               required
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">Lösenord</label>
+            <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">
+              Lösenord
+            </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              placeholder="demo1234"
               className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
               required
             />
           </div>
 
-          {error && <p className="text-sm text-red-400">{error}</p>}
+          {error && (
+            <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400">
+              {error}
+            </p>
+          )}
+          {status && (
+            <p className="rounded-lg bg-green-500/10 px-3 py-2 text-sm text-green-400">
+              {status}
+            </p>
+          )}
 
           <button
             type="submit"
@@ -92,7 +127,12 @@ export default function LoginPage() {
 
         <p className="mt-6 text-center text-sm text-[var(--usha-muted)]">
           Inget konto?{" "}
-          <a href="/signup" className="text-[var(--usha-gold)] hover:underline">Registrera dig</a>
+          <a
+            href="/signup"
+            className="text-[var(--usha-gold)] hover:underline"
+          >
+            Registrera dig
+          </a>
         </p>
       </div>
     </div>

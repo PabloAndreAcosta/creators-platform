@@ -58,3 +58,19 @@ html { scroll-behavior: smooth; }
 .delay-200 { animation-delay: 0.2s; }
 .delay-300 { animation-delay: 0.3s; }
 .delay-400 { animation-delay: 0.4s; }
+
+/* Hide scrollbar for horizontal scroll sections */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Safe area for mobile bottom nav */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}

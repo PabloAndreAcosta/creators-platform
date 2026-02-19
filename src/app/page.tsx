@@ -71,16 +71,10 @@ function Nav() {
 
         <div className="flex items-center gap-3">
           <a
-            href="/login"
-            className="hidden text-sm text-[var(--usha-muted)] transition hover:text-white sm:block"
-          >
-            Logga in
-          </a>
-          <a
-            href="/signup"
+            href="/app"
             className="rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-sm font-semibold text-black transition hover:opacity-90"
           >
-            Kom igång
+            Öppna appen
           </a>
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
@@ -106,11 +100,11 @@ function Nav() {
               </a>
             ))}
             <a
-              href="/login"
+              href="/app"
               onClick={() => setMobileOpen(false)}
-              className="py-2 text-sm text-[var(--usha-muted)] transition hover:text-white sm:hidden"
+              className="py-2 text-sm font-semibold text-[var(--usha-gold)] transition hover:text-white sm:hidden"
             >
-              Logga in
+              Öppna appen
             </a>
           </div>
         </div>
@@ -168,10 +162,10 @@ function Hero() {
           style={{ opacity: 0 }}
         >
           <a
-            href="/signup"
+            href="/app"
             className="glow-gold inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-8 py-4 text-base font-bold text-black transition hover:scale-[1.02] hover:opacity-90"
           >
-            Starta din resa
+            Utforska plattformen
             <ArrowRight size={16} />
           </a>
           <a
@@ -332,7 +326,7 @@ function ThreePillars() {
         { icon: CreditCard, text: "Automatiska betalningar och fakturering via Stripe" },
         { icon: TrendingUp, text: "Bättre rykte → fler kunder → mer intäkter" },
       ],
-      cta: { label: "Bli kreatör", href: "/signup", filled: true },
+      cta: { label: "Bli kreatör", href: "/app", filled: true },
     },
     {
       badge: "Upplevelser",
@@ -347,7 +341,7 @@ function ThreePillars() {
         { icon: Waves, text: "SPA och wellness med tidsbokning" },
         { icon: TreePine, text: "Retreat centers och resor med paketbokningar" },
       ],
-      cta: { label: "Registrera verksamhet", href: "/signup", filled: true },
+      cta: { label: "Registrera verksamhet", href: "/app", filled: true },
     },
     {
       badge: "Kunder",
@@ -821,7 +815,7 @@ function Pricing() {
               </ul>
 
               <a
-                href="/signup"
+                href="/app"
                 className={`block w-full rounded-xl py-3 text-center text-sm font-semibold transition ${
                   plan.popular
                     ? "bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] text-black hover:opacity-90"
@@ -942,10 +936,10 @@ function VisionCTA() {
 
         <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
           <a
-            href="/signup"
+            href="/app"
             className="glow-gold inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-8 py-4 text-base font-bold text-black transition hover:scale-[1.02] hover:opacity-90"
           >
-            Gå med i Usha idag
+            Testa Usha nu
             <ArrowRight size={16} />
           </a>
           <a

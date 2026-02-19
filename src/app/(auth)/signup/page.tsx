@@ -18,7 +18,7 @@ export default function SignupPage() {
     setLoading(true);
     setError("");
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -29,9 +29,18 @@ export default function SignupPage() {
 
     if (error) {
       setError(error.message);
-    } else {
-      setSuccess(true);
+      setLoading(false);
+      return;
     }
+
+    // If session exists, user is auto-confirmed — redirect immediately
+    if (data.session) {
+      window.location.href = "/app";
+      return;
+    }
+
+    // Otherwise email confirmation is required
+    setSuccess(true);
     setLoading(false);
   }
 
@@ -52,6 +61,12 @@ export default function SignupPage() {
             Vi har skickat en bekräftelselänk till <strong>{email}</strong>.
             Klicka på länken för att aktivera ditt konto.
           </p>
+          <a
+            href="/login"
+            className="mt-6 inline-block text-sm text-[var(--usha-gold)] hover:underline"
+          >
+            Tillbaka till login
+          </a>
         </div>
       </div>
     );
