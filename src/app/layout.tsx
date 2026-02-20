@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { ToastProvider } from "@/components/ui/toaster";
-import { ServiceWorkerRegistrar } from "@/components/service-worker-registrar";
+import Script from "next/script";
 import "./globals.css";
 
 export const viewport: Viewport = {
@@ -39,7 +39,13 @@ export default function RootLayout({
     <html lang="sv" className="dark">
       <body className="grain min-h-screen bg-[var(--usha-black)] text-[var(--usha-white)] antialiased">
         <ToastProvider>{children}</ToastProvider>
-        <ServiceWorkerRegistrar />
+        <Script id="sw-register" strategy="afterInteractive">{`
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+              .then(function(reg) { console.log('[SW] Registered:', reg.scope) })
+              .catch(function(err) { console.log('[SW] Failed:', err) })
+          }
+        `}</Script>
       </body>
     </html>
   );

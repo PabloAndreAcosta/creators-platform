@@ -6,11 +6,17 @@ const STATIC_ASSETS = [
   '/offline',
 ];
 
-// Install: cache static assets
+// Install: cache static assets (best-effort, don't block on failures)
 self.addEventListener('install', (event) => {
   console.log('[SW] Install');
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
+    caches.open(CACHE_NAME).then((cache) =>
+      Promise.allSettled(
+        STATIC_ASSETS.map((url) =>
+          cache.add(url).catch((err) => console.log('[SW] Cache skip:', url, err))
+        )
+      )
+    )
   );
   self.skipWaiting();
 });
@@ -38,6 +44,9 @@ self.addEventListener('fetch', (event) => {
 
   // Skip chrome-extension and other non-http requests
   if (!url.protocol.startsWith('http')) return;
+
+  // In development, don't intercept Next.js HMR and dynamic chunks
+  if (url.pathname.startsWith('/_next/webpack-hmr')) return;
 
   // API calls: network-first
   if (url.pathname.startsWith('/api/')) {
