@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { useRole } from "./role-context";
 
-export function BottomNav() {
+export function SidebarNav() {
   const pathname = usePathname();
   const { role } = useRole();
 
@@ -39,8 +39,17 @@ export function BottomNav() {
           ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-[var(--usha-border)] bg-[var(--usha-black)]/95 backdrop-blur-lg md:hidden">
-      <div className="mx-auto flex max-w-lg items-center justify-around py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+    <aside className="hidden md:flex md:w-56 lg:w-64 flex-shrink-0 sticky top-0 h-screen flex-col justify-center border-r border-[var(--usha-border)] bg-[var(--usha-black)]">
+      {/* Logo */}
+      <div className="flex items-center gap-2.5 px-6 pb-6">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
+          <span className="text-sm font-bold text-black">U</span>
+        </div>
+        <span className="text-xl font-bold tracking-tight">Usha</span>
+      </div>
+
+      {/* Navigation */}
+      <nav className="space-y-0.5 px-4">
         {tabs.map((tab) => {
           const isActive =
             tab.href === "/app"
@@ -50,20 +59,18 @@ export function BottomNav() {
             <Link
               key={tab.href}
               href={tab.href}
-              className={`flex flex-col items-center gap-0.5 px-3 py-1.5 text-xs transition-colors ${
+              className={`flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
                 isActive
-                  ? "text-[var(--usha-gold)]"
-                  : "text-[var(--usha-muted)] hover:text-white"
+                  ? "bg-[var(--usha-gold)]/10 text-[var(--usha-gold)]"
+                  : "text-[var(--usha-muted)] hover:bg-[var(--usha-card)] hover:text-white"
               }`}
             >
-              <tab.icon size={22} strokeWidth={isActive ? 2.5 : 1.5} />
-              <span className={isActive ? "font-semibold" : "font-normal"}>
-                {tab.label}
-              </span>
+              <tab.icon size={20} strokeWidth={isActive ? 2.5 : 1.5} />
+              {tab.label}
             </Link>
           );
         })}
-      </div>
-    </nav>
+      </nav>
+    </aside>
   );
 }

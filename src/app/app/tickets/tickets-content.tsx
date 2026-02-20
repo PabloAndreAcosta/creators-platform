@@ -84,7 +84,7 @@ export function TicketsContent() {
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-[var(--usha-muted)]">
           Aktiva Biljetter
         </h2>
-        <div className="space-y-4">
+        <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
           {activeTickets.map((ticket) => (
             <TicketCard
               key={ticket.id}
@@ -101,7 +101,7 @@ export function TicketsContent() {
           <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-[var(--usha-muted)]">
             Använda Biljetter
           </h2>
-          <div className="space-y-4 opacity-60">
+          <div className="space-y-4 opacity-60 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
             {usedTickets.map((ticket) => (
               <TicketCard key={ticket.id} ticket={ticket} />
             ))}

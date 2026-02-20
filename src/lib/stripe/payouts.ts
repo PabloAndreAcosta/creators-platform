@@ -73,7 +73,7 @@ export async function weeklyPayoutBatch(): Promise<BatchResult> {
 
   const total = creatorTotals.size;
 
-  for (const [creatorId, grossAmount] of creatorTotals) {
+  for (const [creatorId, grossAmount] of Array.from(creatorTotals)) {
     try {
       // Get creator tier
       const { data: profile, error: profileError } = await supabase

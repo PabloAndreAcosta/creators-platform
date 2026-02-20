@@ -15,7 +15,7 @@ export async function POST() {
 
   for (const user of users) {
     if (!user.email_confirmed_at) {
-      const { error } = await supabase.auth.admin.updateUser(user.id, {
+      const { error } = await supabase.auth.admin.updateUserById(user.id, {
         email_confirm: true,
       });
       if (!error) {

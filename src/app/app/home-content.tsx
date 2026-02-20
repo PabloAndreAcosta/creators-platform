@@ -125,11 +125,11 @@ function AnvandareHome({
             Visa alla
           </Link>
         </div>
-        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide md:grid md:grid-cols-2 lg:grid-cols-3 md:overflow-x-visible">
           {mockEvents.map((event, i) => (
             <div
               key={i}
-              className="min-w-[220px] overflow-hidden rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)]"
+              className="min-w-[220px] md:min-w-0 overflow-hidden rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)]"
             >
               <div className="relative h-32">
                 <img
@@ -165,7 +165,7 @@ function AnvandareHome({
             Visa alla
           </Link>
         </div>
-        <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+        <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide md:grid md:grid-cols-5 md:overflow-x-visible">
           {(topCreators.length > 0
             ? topCreators
             : [
@@ -179,7 +179,7 @@ function AnvandareHome({
             <Link
               key={creator.id}
               href={`/creators/${creator.id}`}
-              className="flex min-w-[80px] flex-col items-center gap-2"
+              className="flex min-w-[80px] md:min-w-0 flex-col items-center gap-2"
             >
               <div className="relative">
                 <div className="h-16 w-16 rounded-full border-2 border-[var(--usha-gold)] p-0.5">
@@ -214,7 +214,7 @@ function AnvandareHome({
             Visa alla
           </Link>
         </div>
-        <div className="space-y-3">
+        <div className="space-y-3 md:grid md:grid-cols-2 md:gap-3 md:space-y-0">
           {clubsStudios.map((club, i) => (
             <div
               key={i}
@@ -321,7 +321,7 @@ function KreatorHome({
       {/* Today's Classes */}
       <section>
         <h2 className="mb-4 text-lg font-bold">Dagens Klasser</h2>
-        <div className="space-y-3">
+        <div className="space-y-3 md:grid md:grid-cols-2 md:gap-3 md:space-y-0 lg:grid-cols-3">
           {todaysClasses.map((cls, i) => (
             <div
               key={i}
@@ -362,7 +362,7 @@ function KreatorHome({
             Visa alla
           </Link>
         </div>
-        <div className="space-y-3">
+        <div className="space-y-3 md:grid md:grid-cols-2 md:gap-3 md:space-y-0 lg:grid-cols-3">
           {recentBookings.map((booking, i) => (
             <div
               key={i}
@@ -465,7 +465,7 @@ function UpplevelseHome({
             Hantera
           </Link>
         </div>
-        <div className="space-y-3">
+        <div className="space-y-3 md:grid md:grid-cols-2 md:gap-3 md:space-y-0 lg:grid-cols-3">
           {upcomingEvents.map((event, i) => (
             <div
               key={i}
@@ -501,7 +501,7 @@ function UpplevelseHome({
           <h2 className="text-lg font-bold">Aktiva Kreatörer</h2>
           <span className="text-xs text-[var(--usha-gold)]">Bjud in</span>
         </div>
-        <div className="space-y-3">
+        <div className="space-y-3 md:grid md:grid-cols-2 md:gap-3 md:space-y-0 lg:grid-cols-3">
           {activeCreators.map((creator, i) => (
             <div
               key={i}

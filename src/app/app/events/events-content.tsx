@@ -116,7 +116,7 @@ export function EventsContent() {
       </div>
 
       {/* Event list */}
-      <div className="space-y-4">
+      <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0 lg:grid-cols-3">
         {events.map((event) => (
           <EventCard key={event.id} event={event} />
         ))}

@@ -37,7 +37,7 @@ export function ProfileContent({
   const { role } = useRole();
 
   return (
-    <div className="px-4 py-6 space-y-6">
+    <div className="px-4 py-6 space-y-6 md:max-w-2xl md:mx-auto">
       {/* Avatar & Name */}
       <div className="flex flex-col items-center">
         <div className="relative mb-3">

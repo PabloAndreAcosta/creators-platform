@@ -131,7 +131,7 @@ export function CalendarContent() {
           <h3 className="mb-3 text-sm font-semibold text-[var(--usha-muted)]">
             {selectedDate.split("-").reverse().join("/")}
           </h3>
-          <div className="space-y-3">
+          <div className="space-y-3 md:grid md:grid-cols-2 md:gap-3 md:space-y-0">
             {selectedEvents.map((event, i) => (
               <div
                 key={i}
@@ -157,7 +157,7 @@ export function CalendarContent() {
       {/* Upcoming events */}
       <section>
         <h2 className="mb-4 text-lg font-bold">Kommande Evenemang</h2>
-        <div className="space-y-3">
+        <div className="space-y-3 md:grid md:grid-cols-2 md:gap-3 md:space-y-0">
           {allUpcoming.map((event, i) => (
             <div
               key={i}

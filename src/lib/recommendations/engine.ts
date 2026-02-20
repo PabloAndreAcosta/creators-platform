@@ -67,7 +67,7 @@ export async function getRecommendations(
 
   console.log('Recommendation interests:', {
     userId,
-    categories: [...categories],
+    categories: Array.from(categories),
     bookedCreators: bookedCreatorIds.size,
     bookedListings: bookedListingIds.size,
   });
@@ -79,7 +79,7 @@ export async function getRecommendations(
       'id, title, description, category, price, duration_minutes, event_tier, created_at, user_id'
     )
     .eq('is_active', true)
-    .in('category', [...categories]);
+    .in('category', Array.from(categories));
 
   if (candidatesError) {
     console.error('Failed to fetch candidates:', candidatesError);
@@ -110,7 +110,7 @@ export async function getRecommendations(
   }
 
   // Get creator profiles
-  const creatorIds = [...new Set(filtered.map((l) => l.user_id))];
+  const creatorIds = Array.from(new Set(filtered.map((l) => l.user_id)));
   const { data: creators } = await supabase
     .from('profiles')
     .select('id, full_name, avatar_url, tier')
@@ -186,7 +186,7 @@ async function getPopularEvents(limit: number): Promise<RecommendedListing[]> {
   }
 
   // Get creator profiles
-  const creatorIds = [...new Set(listings.map((l) => l.user_id))];
+  const creatorIds = Array.from(new Set(listings.map((l) => l.user_id)));
   const { data: creators } = await supabase
     .from('profiles')
     .select('id, full_name, avatar_url, tier')

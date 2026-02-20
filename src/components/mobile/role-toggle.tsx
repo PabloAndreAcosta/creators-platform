@@ -13,7 +13,7 @@ export function RoleToggle() {
         <button
           key={r}
           onClick={() => setRole(r)}
-          className={`rounded-full px-3 py-1.5 text-[10px] font-medium transition-all ${
+          className={`rounded-full px-3 py-1.5 text-[10px] sm:text-xs font-medium transition-all ${
             role === r
               ? "bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] text-black shadow-lg"
               : "text-[var(--usha-muted)] hover:text-white"
