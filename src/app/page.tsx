@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { InstallPrompt } from "@/components/install-prompt";
 import {
   Menu,
   X,
@@ -1060,6 +1061,7 @@ export default function Home() {
       <FAQ />
       <VisionCTA />
       <Footer />
+      <InstallPrompt />
     </main>
   );
 }
