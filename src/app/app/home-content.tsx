@@ -197,7 +197,7 @@ function AnvandareHome({
                 <div className="mt-0.5 flex items-center gap-0.5">
                   <Star size={8} className="fill-[var(--usha-gold)] text-[var(--usha-gold)]" />
                   <span className="text-[10px] text-[var(--usha-muted)]">
-                    {(4.5 + Math.random() * 0.5).toFixed(1)}
+                    {[4.8, 4.6, 4.9, 4.7, 4.5][i % 5]}
                   </span>
                 </div>
               </div>
