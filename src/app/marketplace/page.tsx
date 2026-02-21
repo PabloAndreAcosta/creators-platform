@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORIES, CATEGORY_LABELS } from "@/lib/categories";
 import type { Metadata } from "next";
