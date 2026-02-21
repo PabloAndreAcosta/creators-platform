@@ -357,7 +357,7 @@ function ThreePillars() {
         { icon: Shield, text: "Säkra betalningar och trygga transaktioner" },
         { icon: Star, text: "Läs omdömen från andra kunder innan du bokar" },
       ],
-      cta: { label: "Utforska marketplace", href: "/marketplace", filled: false },
+      cta: { label: "Utforska marketplace", href: "/marketplace", filled: true },
     },
   ];
 
@@ -383,8 +383,8 @@ function ThreePillars() {
       badge: "border border-white/20 bg-white/5 text-white",
       icon: "bg-white/10",
       iconText: "text-white",
-      ctaFilled: "bg-white/10 text-white hover:bg-white/15",
-      ctaOutline: "border border-[var(--usha-border)] text-[var(--usha-muted)] hover:border-[var(--usha-gold)]/30 hover:text-white",
+      ctaFilled: "bg-white/15 border border-white/25 text-white hover:bg-white/25",
+      ctaOutline: "border border-white/20 text-white hover:bg-white/10",
     },
   };
 
