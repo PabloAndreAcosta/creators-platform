@@ -379,7 +379,7 @@ function ThreePillars() {
       ctaOutline: "border border-[var(--usha-accent)]/30 text-[var(--usha-accent)] hover:bg-[var(--usha-accent)]/10",
     },
     muted: {
-      border: "border-sky-500/20",
+      border: "border-sky-500/40",
       badge: "bg-sky-500/10 text-sky-400",
       icon: "bg-sky-500/10",
       iconText: "text-sky-400",
