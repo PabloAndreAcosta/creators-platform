@@ -363,15 +363,15 @@ function ThreePillars() {
 
   const colorMap = {
     gold: {
-      border: "border-[var(--usha-gold)]/20",
+      border: "border-white/20",
       badge: "bg-[var(--usha-gold)]/10 text-[var(--usha-gold)]",
       icon: "bg-[var(--usha-gold)]/10",
       iconText: "text-[var(--usha-gold)]",
-      ctaFilled: "bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] text-black hover:opacity-90",
+      ctaFilled: "bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] text-white hover:opacity-90",
       ctaOutline: "border border-[var(--usha-gold)]/30 text-[var(--usha-gold)] hover:bg-[var(--usha-gold)]/10",
     },
     accent: {
-      border: "border-[var(--usha-accent)]/20",
+      border: "border-white/20",
       badge: "bg-[var(--usha-accent)]/10 text-[var(--usha-accent)]",
       icon: "bg-[var(--usha-accent)]/10",
       iconText: "text-[var(--usha-accent)]",
@@ -379,7 +379,7 @@ function ThreePillars() {
       ctaOutline: "border border-[var(--usha-accent)]/30 text-[var(--usha-accent)] hover:bg-[var(--usha-accent)]/10",
     },
     muted: {
-      border: "border-sky-400/60",
+      border: "border-white/20",
       badge: "bg-sky-500/10 text-sky-400",
       icon: "bg-sky-500/10",
       iconText: "text-sky-400",
