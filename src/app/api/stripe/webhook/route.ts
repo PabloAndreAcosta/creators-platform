@@ -3,11 +3,13 @@ import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
 
-// Use service role for webhook (no user context)
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Use service role for webhook (no user context) — lazy init to avoid build errors
+function getSupabaseAdmin() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -36,7 +38,7 @@ export async function POST(req: NextRequest) {
           const tier = session.metadata.tier as "gold" | "platinum";
           const userId = session.metadata.userId;
 
-          const { error: tierError } = await supabaseAdmin
+          const { error: tierError } = await getSupabaseAdmin()
             .from("profiles")
             .update({ tier })
             .eq("id", userId);
@@ -51,7 +53,7 @@ export async function POST(req: NextRequest) {
           // Store subscription record if present
           if (session.subscription) {
             const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
-            await supabaseAdmin.from("subscriptions").upsert({
+            await getSupabaseAdmin().from("subscriptions").upsert({
               user_id: userId,
               stripe_customer_id: session.customer as string,
               stripe_subscription_id: subscription.id,
@@ -67,7 +69,7 @@ export async function POST(req: NextRequest) {
         // Regular plan subscription
         const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
 
-        await supabaseAdmin.from("subscriptions").upsert({
+        await getSupabaseAdmin().from("subscriptions").upsert({
           user_id: session.metadata?.userId,
           stripe_customer_id: session.customer as string,
           stripe_subscription_id: subscription.id,
@@ -83,7 +85,7 @@ export async function POST(req: NextRequest) {
         const subscription = event.data.object as Stripe.Subscription;
 
         // Update subscription record
-        await supabaseAdmin
+        await getSupabaseAdmin()
           .from("subscriptions")
           .update({
             status: subscription.status === "active" ? "active" : "past_due",
@@ -93,7 +95,7 @@ export async function POST(req: NextRequest) {
           .eq("stripe_subscription_id", subscription.id);
 
         // Check if this is a creator tier subscription
-        const { data: sub } = await supabaseAdmin
+        const { data: sub } = await getSupabaseAdmin()
           .from("subscriptions")
           .select("user_id, plan")
           .eq("stripe_subscription_id", subscription.id)
@@ -102,10 +104,10 @@ export async function POST(req: NextRequest) {
         if (sub?.plan?.startsWith("creator_")) {
           const tier = sub.plan.replace("creator_", "") as "gold" | "platinum";
           if (subscription.status === "active") {
-            await supabaseAdmin.from("profiles").update({ tier }).eq("id", sub.user_id);
+            await getSupabaseAdmin().from("profiles").update({ tier }).eq("id", sub.user_id);
             console.log(`Creator tier reactivated: ${sub.user_id} -> ${tier}`);
           } else if (subscription.status === "canceled" || subscription.status === "unpaid") {
-            await supabaseAdmin.from("profiles").update({ tier: "silver" }).eq("id", sub.user_id);
+            await getSupabaseAdmin().from("profiles").update({ tier: "silver" }).eq("id", sub.user_id);
             console.log(`Creator tier reverted: ${sub.user_id} -> silver`);
           }
         }
@@ -116,21 +118,21 @@ export async function POST(req: NextRequest) {
         const subscription = event.data.object as Stripe.Subscription;
 
         // Check if this is a creator tier subscription — revert to silver
-        const { data: deletedSub } = await supabaseAdmin
+        const { data: deletedSub } = await getSupabaseAdmin()
           .from("subscriptions")
           .select("user_id, plan")
           .eq("stripe_subscription_id", subscription.id)
           .single();
 
         if (deletedSub?.plan?.startsWith("creator_")) {
-          await supabaseAdmin
+          await getSupabaseAdmin()
             .from("profiles")
             .update({ tier: "silver" })
             .eq("id", deletedSub.user_id);
           console.log(`Creator tier cancelled: ${deletedSub.user_id} -> silver`);
         }
 
-        await supabaseAdmin
+        await getSupabaseAdmin()
           .from("subscriptions")
           .update({ status: "canceled" })
           .eq("stripe_subscription_id", subscription.id);
