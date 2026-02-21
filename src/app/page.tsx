@@ -379,12 +379,12 @@ function ThreePillars() {
       ctaOutline: "border border-[var(--usha-accent)]/30 text-[var(--usha-accent)] hover:bg-[var(--usha-accent)]/10",
     },
     muted: {
-      border: "border-white/15",
-      badge: "border border-white/20 bg-white/5 text-white",
-      icon: "bg-white/10",
-      iconText: "text-white",
-      ctaFilled: "bg-white/15 border border-white/25 text-white hover:bg-white/25",
-      ctaOutline: "border border-white/20 text-white hover:bg-white/10",
+      border: "border-sky-500/20",
+      badge: "bg-sky-500/10 text-sky-400",
+      icon: "bg-sky-500/10",
+      iconText: "text-sky-400",
+      ctaFilled: "bg-gradient-to-r from-sky-500 to-blue-500 text-white hover:opacity-90",
+      ctaOutline: "border border-sky-500/30 text-sky-400 hover:bg-sky-500/10",
     },
   };
 
