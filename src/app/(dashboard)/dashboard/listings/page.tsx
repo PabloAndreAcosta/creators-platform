@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Plus } from "lucide-react";
 import ListingRow from "./listing-row";
+import { NoListings } from "@/components/ui/empty-state";
 
 export default async function ListingsPage() {
   const supabase = await createClient();
@@ -44,15 +45,7 @@ export default async function ListingsPage() {
       </div>
 
       {!listings || listings.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[var(--usha-border)] py-16 text-center">
-          <p className="mb-1 text-[var(--usha-muted)]">Inga tjänster ännu.</p>
-          <p className="text-sm text-[var(--usha-muted)]">
-            <Link href="/dashboard/listings/new" className="text-[var(--usha-gold)] hover:underline">
-              Skapa din första tjänst
-            </Link>{" "}
-            för att bli synlig i marketplace.
-          </p>
-        </div>
+        <NoListings />
       ) : (
         <div className="space-y-3">
           {listings.map((listing) => (

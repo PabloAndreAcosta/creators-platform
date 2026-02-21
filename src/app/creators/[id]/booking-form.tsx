@@ -41,9 +41,9 @@ export default function BookingForm({
     startTransition(async () => {
       const result = await createBooking(formData);
       if (result.error) {
-        toast({ title: "Fel", description: result.error, variant: "error" });
+        toast.error("Kunde inte skicka bokning", result.error);
       } else {
-        toast({ title: "Bokning skickad", description: "Inväntar bekräftelse från skaparen." });
+        toast.success("Bokning skickad", "Inväntar bekräftelse från skaparen.");
         setOpen(false);
       }
     });

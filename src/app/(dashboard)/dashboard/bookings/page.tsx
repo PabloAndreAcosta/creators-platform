@@ -7,6 +7,7 @@ import {
   CancelButton,
   CompleteButton,
 } from "./booking-actions";
+import { NoBookings } from "@/components/ui/empty-state";
 
 const STATUS_LABELS: Record<string, { text: string; className: string }> = {
   pending: { text: "Väntande", className: "bg-yellow-500/10 text-yellow-400" },
@@ -114,9 +115,7 @@ export default async function BookingsPage() {
           Inkommande bokningar
         </h2>
         {!hasIncoming ? (
-          <p className="text-sm text-[var(--usha-muted)]">
-            Inga inkommande bokningar.
-          </p>
+          <NoBookings />
         ) : (
           <div className="space-y-3">
             {incoming.map((booking) => {
@@ -178,15 +177,7 @@ export default async function BookingsPage() {
           Mina bokningar
         </h2>
         {!hasOutgoing ? (
-          <p className="text-sm text-[var(--usha-muted)]">
-            Du har inte bokat någon tjänst ännu.{" "}
-            <Link
-              href="/marketplace"
-              className="text-[var(--usha-gold)] hover:underline"
-            >
-              Utforska marketplace
-            </Link>
-          </p>
+          <NoBookings />
         ) : (
           <div className="space-y-3">
             {outgoing.map((booking) => {

@@ -26,7 +26,9 @@ export default function ListingRow({ listing }: { listing: Listing }) {
     startTransition(async () => {
       const result = await toggleListingActive(listing.id, !listing.is_active);
       if (result.error) {
-        toast({ title: "Fel", description: result.error, variant: "error" });
+        toast.error("Kunde inte uppdatera tjänst", result.error);
+      } else {
+        toast.success(listing.is_active ? "Tjänst inaktiverad" : "Tjänst aktiverad");
       }
     });
   }
@@ -36,9 +38,9 @@ export default function ListingRow({ listing }: { listing: Listing }) {
     startTransition(async () => {
       const result = await deleteListing(listing.id);
       if (result.error) {
-        toast({ title: "Fel", description: result.error, variant: "error" });
+        toast.error("Kunde inte ta bort tjänst", result.error);
       } else {
-        toast({ title: "Tjänst borttagen" });
+        toast.success("Tjänst borttagen");
       }
     });
   }

@@ -27,7 +27,9 @@ export default function ListingForm({
     startTransition(async () => {
       const result = await action(formData);
       if (result && "error" in result) {
-        toast({ title: "Fel", description: result.error, variant: "error" });
+        toast.error("Kunde inte spara tjänst", result.error);
+      } else {
+        toast.success(listing ? "Tjänst sparad" : "Tjänst skapad");
       }
     });
   }

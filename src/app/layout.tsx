@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { ToastProvider } from "@/components/ui/toaster";
+import { ConnectionStatus } from "@/components/ConnectionStatus";
 import Script from "next/script";
 import "./globals.css";
 
@@ -38,6 +39,7 @@ export default function RootLayout({
   return (
     <html lang="sv" className="dark">
       <body className="grain min-h-screen bg-[var(--usha-black)] text-[var(--usha-white)] antialiased">
+        <ConnectionStatus />
         <ToastProvider>{children}</ToastProvider>
         <Script id="sw-register" strategy="afterInteractive">{`
           if ('serviceWorker' in navigator) {

@@ -16,9 +16,9 @@ export function ConfirmButton({ bookingId }: { bookingId: string }) {
     startTransition(async () => {
       const result = await updateBookingStatus(bookingId, "confirmed");
       if (result.error) {
-        toast({ title: "Fel", description: result.error, variant: "error" });
+        toast.error("Kunde inte bekräfta bokning", result.error);
       } else {
-        toast({ title: "Bokning bekräftad" });
+        toast.success("Bokning bekräftad");
       }
     });
   }
@@ -44,9 +44,9 @@ export function CancelButton({ bookingId }: { bookingId: string }) {
     startTransition(async () => {
       const result = await updateBookingStatus(bookingId, "canceled");
       if (result.error) {
-        toast({ title: "Fel", description: result.error, variant: "error" });
+        toast.error("Kunde inte avboka", result.error);
       } else {
-        toast({ title: "Bokning avbokad" });
+        toast.success("Bokning avbokad");
       }
     });
   }
@@ -71,9 +71,9 @@ export function CompleteButton({ bookingId }: { bookingId: string }) {
     startTransition(async () => {
       const result = await updateBookingStatus(bookingId, "completed");
       if (result.error) {
-        toast({ title: "Fel", description: result.error, variant: "error" });
+        toast.error("Kunde inte uppdatera bokning", result.error);
       } else {
-        toast({ title: "Bokning markerad som slutförd" });
+        toast.success("Bokning markerad som slutförd");
       }
     });
   }

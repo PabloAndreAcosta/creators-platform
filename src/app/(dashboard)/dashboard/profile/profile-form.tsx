@@ -32,12 +32,12 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      toast({ title: "Ogiltig fil", description: "Välj en bildfil.", variant: "error" });
+      toast.error("Ogiltig fil", "Välj en bildfil (JPG, PNG eller WebP).");
       return;
     }
 
     if (file.size > 2 * 1024 * 1024) {
-      toast({ title: "För stor fil", description: "Max 2 MB.", variant: "error" });
+      toast.error("För stor fil", "Max 2 MB.");
       return;
     }
 
@@ -51,7 +51,7 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
       .upload(path, file, { upsert: true });
 
     if (uploadError) {
-      toast({ title: "Uppladdning misslyckades", description: uploadError.message, variant: "error" });
+      toast.error("Uppladdning misslyckades", uploadError.message);
       setUploading(false);
       return;
     }
@@ -61,10 +61,10 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
 
     const result = await updateAvatar(newUrl);
     if (result.error) {
-      toast({ title: "Fel", description: result.error, variant: "error" });
+      toast.error("Kunde inte spara avatar", result.error);
     } else {
       setAvatarUrl(newUrl);
-      toast({ title: "Avatar uppdaterad" });
+      toast.success("Avatar uppdaterad");
     }
     setUploading(false);
   }
@@ -73,9 +73,9 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
     startTransition(async () => {
       const result = await updateProfile(formData);
       if (result.error) {
-        toast({ title: "Fel", description: result.error, variant: "error" });
+        toast.error("Kunde inte spara profil", result.error);
       } else {
-        toast({ title: "Profil sparad" });
+        toast.success("Profil sparad");
       }
     });
   }
@@ -134,7 +134,7 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
             name="full_name"
             type="text"
             defaultValue={profile.full_name || ""}
-            className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+            className="w-full min-h-[44px] rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-base sm:text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
           />
         </div>
         <div>
@@ -145,7 +145,7 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
             id="category"
             name="category"
             defaultValue={profile.category || ""}
-            className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+            className="w-full min-h-[44px] rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-base sm:text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
           >
             <option value="">Välj kategori...</option>
             {CATEGORIES.map((c) => (
@@ -184,7 +184,7 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
             type="text"
             defaultValue={profile.location || ""}
             placeholder="t.ex. Stockholm"
-            className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+            className="w-full min-h-[44px] rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-base sm:text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
           />
         </div>
         <div>
@@ -195,10 +195,11 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
             id="hourly_rate"
             name="hourly_rate"
             type="number"
+            inputMode="numeric"
             min={0}
             defaultValue={profile.hourly_rate ?? ""}
             placeholder="t.ex. 500"
-            className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+            className="w-full min-h-[44px] rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-base sm:text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
           />
         </div>
       </div>
@@ -214,7 +215,7 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
           type="url"
           defaultValue={profile.website || ""}
           placeholder="https://..."
-          className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+          className="w-full min-h-[44px] rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-base sm:text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
         />
       </div>
 
@@ -239,7 +240,7 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-8 py-3 text-sm font-bold text-black transition hover:opacity-90 disabled:opacity-50"
+          className="min-h-[44px] rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-8 py-3 text-sm font-bold text-black transition hover:opacity-90 disabled:opacity-50"
         >
           {isPending ? "Sparar..." : "Spara profil"}
         </button>

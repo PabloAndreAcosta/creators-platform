@@ -27,19 +27,11 @@ export function CheckoutButton({
       if (data.url) {
         window.location.href = data.url;
       } else {
-        toast({
-          title: "Fel",
-          description: data.error || "Kunde inte starta checkout.",
-          variant: "error",
-        });
+        toast.error("Kunde inte starta checkout", data.error || "Försök igen.");
         setLoading(false);
       }
     } catch {
-      toast({
-        title: "Fel",
-        description: "Något gick fel. Försök igen.",
-        variant: "error",
-      });
+      toast.error("Något gick fel", "Ingen anslutning. Försök igen.");
       setLoading(false);
     }
   }
@@ -71,19 +63,11 @@ export function PortalButton() {
       if (data.url) {
         window.location.href = data.url;
       } else {
-        toast({
-          title: "Fel",
-          description: data.error || "Kunde inte öppna portalen.",
-          variant: "error",
-        });
+        toast.error("Kunde inte öppna portalen", data.error || "Försök igen.");
         setLoading(false);
       }
     } catch {
-      toast({
-        title: "Fel",
-        description: "Något gick fel. Försök igen.",
-        variant: "error",
-      });
+      toast.error("Något gick fel", "Ingen anslutning. Försök igen.");
       setLoading(false);
     }
   }
