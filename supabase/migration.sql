@@ -28,7 +28,7 @@ CREATE TABLE public.subscriptions (
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   stripe_customer_id TEXT,
   stripe_subscription_id TEXT UNIQUE,
-  plan TEXT NOT NULL CHECK (plan IN ('basic', 'premium', 'enterprise')),
+  plan TEXT NOT NULL CHECK (plan IN ('basic', 'premium', 'enterprise', 'creator_gold', 'creator_platinum')),
   status TEXT NOT NULL CHECK (status IN ('active', 'canceled', 'past_due', 'trialing')) DEFAULT 'trialing',
   current_period_start TIMESTAMPTZ,
   current_period_end TIMESTAMPTZ,

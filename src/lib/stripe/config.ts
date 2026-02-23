@@ -12,7 +12,7 @@ export const PLANS = {
       "Grundläggande statistik",
       "Email-support",
     ],
-    stripePriceId: process.env.STRIPE_PRICE_BASIC || "",
+    stripePriceId: process.env.STRIPE_BASIC_PRICE_ID || "",
   },
   premium: {
     name: "Premium",
@@ -29,7 +29,7 @@ export const PLANS = {
       "Direkt bokningssystem",
       "Prioriterad support",
     ],
-    stripePriceId: process.env.STRIPE_PRICE_PREMIUM || "",
+    stripePriceId: process.env.STRIPE_PREMIUM_PRICE_ID || "",
   },
   enterprise: {
     name: "Enterprise",
@@ -46,7 +46,7 @@ export const PLANS = {
       "SLA-garanti",
       "White-label alternativ",
     ],
-    stripePriceId: process.env.STRIPE_PRICE_ENTERPRISE || "",
+    stripePriceId: process.env.STRIPE_ENTERPRISE_PRICE_ID || "",
   },
 } as const;
 
