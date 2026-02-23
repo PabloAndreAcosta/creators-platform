@@ -18,12 +18,45 @@ import {
   PartyPopper,
   Waves,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 
+interface Profile {
+  id: string;
+  email: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  bio: string | null;
+  website: string | null;
+  category: string | null;
+  location: string | null;
+  hourly_rate: number | null;
+  is_public: boolean;
+  tier: string | null;
+  stripe_account_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+interface Listing {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string | null;
+  category: string;
+  price: number | null;
+  duration_minutes: number | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+type TopCreator = Pick<Profile, "id" | "full_name" | "category" | "avatar_url">;
+
 interface HomeContentProps {
-  profile: any;
-  listings: any[];
-  topCreators: any[];
+  profile: Profile | null;
+  listings: Listing[];
+  topCreators: TopCreator[];
   bookingsCount: number;
 }
 
@@ -66,9 +99,9 @@ function AnvandareHome({
   listings,
   topCreators,
 }: {
-  profile: any;
-  listings: any[];
-  topCreators: any[];
+  profile: Profile | null;
+  listings: Listing[];
+  topCreators: TopCreator[];
 }) {
   const eventImages = [
     "https://images.unsplash.com/photo-1504609813442-a8924e83f76e?w=400&h=250&fit=crop",
@@ -79,7 +112,7 @@ function AnvandareHome({
     "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=250&fit=crop",
   ];
 
-  const events = listings.map((listing: any) => ({
+  const events = listings.map((listing) => ({
     title: listing.title,
     date: listing.created_at
       ? new Date(listing.created_at).toLocaleDateString("sv-SE", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })
@@ -88,7 +121,7 @@ function AnvandareHome({
     category: listing.category || "Övrigt",
   }));
 
-  const categoryIconMap: Record<string, any> = {
+  const categoryIconMap: Record<string, LucideIcon> = {
     dance: Music,
     musik: Music,
     music: Music,
@@ -106,9 +139,9 @@ function AnvandareHome({
   };
 
   const venueListings = listings
-    .filter((l: any) => l.category)
+    .filter((l) => l.category)
     .slice(0, 4)
-    .map((l: any) => ({
+    .map((l) => ({
       name: l.title,
       type: l.category,
       icon: categoryIconMap[l.category?.toLowerCase()] || Ticket,
@@ -144,7 +177,7 @@ function AnvandareHome({
           </Link>
         </div>
         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide md:grid md:grid-cols-2 lg:grid-cols-3 md:overflow-x-visible">
-          {events.length > 0 ? events.map((event: any, i: number) => (
+          {events.length > 0 ? events.map((event, i) => (
             <div
               key={i}
               className="min-w-[220px] md:min-w-0 overflow-hidden rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)]"
@@ -189,7 +222,7 @@ function AnvandareHome({
           </Link>
         </div>
         <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide md:grid md:grid-cols-5 md:overflow-x-visible">
-          {topCreators.length > 0 ? topCreators.map((creator: any) => (
+          {topCreators.length > 0 ? topCreators.map((creator) => (
             <Link
               key={creator.id}
               href={`/creators/${creator.id}`}
@@ -231,7 +264,7 @@ function AnvandareHome({
           </Link>
         </div>
         <div className="space-y-3 md:grid md:grid-cols-2 md:gap-3 md:space-y-0">
-          {venueListings.length > 0 ? venueListings.map((venue: any, i: number) => {
+          {venueListings.length > 0 ? venueListings.map((venue, i) => {
             const IconComponent = venue.icon;
             return (
               <div
@@ -266,9 +299,9 @@ function KreatorHome({
   bookingsCount,
   listings,
 }: {
-  profile: any;
+  profile: Profile | null;
   bookingsCount: number;
-  listings: any[];
+  listings: Listing[];
 }) {
   const stats = [
     {
@@ -289,7 +322,7 @@ function KreatorHome({
     },
   ];
 
-  const todaysListings = listings.slice(0, 3).map((listing: any) => ({
+  const todaysListings = listings.slice(0, 3).map((listing) => ({
     title: listing.title,
     time: listing.duration_minutes ? `${listing.duration_minutes} min` : "-",
     category: listing.category || "Ovrigt",
@@ -332,7 +365,7 @@ function KreatorHome({
       <section>
         <h2 className="mb-4 text-lg font-bold">Dina Tjänster</h2>
         <div className="space-y-3 md:grid md:grid-cols-2 md:gap-3 md:space-y-0 lg:grid-cols-3">
-          {todaysListings.length > 0 ? todaysListings.map((cls: any, i: number) => (
+          {todaysListings.length > 0 ? todaysListings.map((cls, i) => (
             <div
               key={i}
               className="flex items-center gap-4 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4"
@@ -401,9 +434,9 @@ function UpplevelseHome({
   bookingsCount,
   listings,
 }: {
-  profile: any;
+  profile: Profile | null;
   bookingsCount: number;
-  listings: any[];
+  listings: Listing[];
 }) {
   const stats = [
     { label: "Bokningar", value: String(bookingsCount), icon: Calendar },
@@ -411,7 +444,7 @@ function UpplevelseHome({
     { label: "Intäkter", value: "-", icon: DollarSign },
   ];
 
-  const upcomingEvents = listings.slice(0, 3).map((listing: any) => ({
+  const upcomingEvents = listings.slice(0, 3).map((listing) => ({
     title: listing.title,
     date: listing.created_at
       ? new Date(listing.created_at).toLocaleDateString("sv-SE", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })
@@ -454,7 +487,7 @@ function UpplevelseHome({
           </Link>
         </div>
         <div className="space-y-3 md:grid md:grid-cols-2 md:gap-3 md:space-y-0 lg:grid-cols-3">
-          {upcomingEvents.length > 0 ? upcomingEvents.map((event: any, i: number) => (
+          {upcomingEvents.length > 0 ? upcomingEvents.map((event, i) => (
             <div
               key={i}
               className="flex items-center gap-4 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4"

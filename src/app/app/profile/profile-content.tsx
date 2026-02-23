@@ -20,9 +20,27 @@ import {
   Building2,
   Ticket,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+
+interface Profile {
+  id: string;
+  email: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  bio: string | null;
+  website: string | null;
+  category: string | null;
+  location: string | null;
+  hourly_rate: number | null;
+  is_public: boolean;
+  tier: string | null;
+  stripe_account_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
 
 interface ProfileContentProps {
-  profile: any;
+  profile: Profile | null;
   email: string;
   listingsCount: number;
   bookingsCount: number;
@@ -157,7 +175,7 @@ function StatBox({
   label,
   value,
 }: {
-  icon: any;
+  icon: LucideIcon;
   label: string;
   value: string;
 }) {
@@ -176,7 +194,7 @@ function SettingsRow({
   href,
   comingSoon,
 }: {
-  icon: any;
+  icon: LucideIcon;
   label: string;
   href?: string;
   comingSoon?: boolean;
