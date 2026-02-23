@@ -876,6 +876,11 @@ const FOOTER_LINKS = {
     { label: "Priser", href: "#pricing" },
     { label: "FAQ", href: "#faq" },
   ],
+  Juridiskt: [
+    { label: "Användarvillkor", href: "/terms" },
+    { label: "Integritetspolicy", href: "/privacy" },
+    { label: "Cookiepolicy", href: "/cookies" },
+  ],
 };
 
 function Footer() {

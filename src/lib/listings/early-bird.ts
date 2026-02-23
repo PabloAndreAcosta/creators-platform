@@ -1,4 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/admin';
+import { getResend, getFromEmail } from '@/lib/email/resend';
 
 /**
  * Sets the Gold-exclusive release date for a listing and notifies
@@ -45,9 +46,34 @@ export async function releaseEventToGoldMembers(
     `Early bird: "${title}" released to ${goldMembers?.length ?? 0} Gold/Platinum members, public at ${releaseDate.toISOString()}`
   );
 
-  // TODO: Send email to each Gold/Platinum member
-  // Subject: "Nytt event exklusivt för dig!"
-  // Body: `${title} — tillgängligt för alla om 48 timmar.`
+  if (goldMembers && goldMembers.length > 0) {
+    try {
+      const resend = getResend();
+      const from = getFromEmail();
+
+      await Promise.allSettled(
+        goldMembers
+          .filter((m) => m.email)
+          .map((member) =>
+            resend.emails.send({
+              from,
+              to: member.email,
+              subject: 'Nytt event exklusivt för dig!',
+              html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px;">
+                <h2 style="color:#c8a445;">Exklusiv tidig tillgång</h2>
+                <p>Hej ${member.full_name || 'medlem'},</p>
+                <p><strong>${title}</strong> &mdash; tillgängligt för alla om 48 timmar.</p>
+                <p>Som Gold/Platinum-medlem får du boka före alla andra.</p>
+                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://usha.se'}/app" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#c8a445;color:#000;text-decoration:none;border-radius:8px;font-weight:bold;">Boka nu</a>
+                <p style="margin-top:24px;color:#888;font-size:12px;">Usha Platform</p>
+              </div>`,
+            })
+          )
+      );
+    } catch (e) {
+      console.error('Failed to send early-bird emails:', e);
+    }
+  }
 }
 
 /**

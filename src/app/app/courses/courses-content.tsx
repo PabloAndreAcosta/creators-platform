@@ -2,87 +2,101 @@
 
 import { useState } from "react";
 import {
-  Users,
   Clock,
   Edit2,
   Trash2,
   Plus,
   MoreVertical,
   DollarSign,
+  BookOpen,
 } from "lucide-react";
+import Link from "next/link";
 
-interface Course {
+interface CourseData {
   id: string;
   title: string;
   schedule: string;
-  students: number;
-  maxStudents: number;
   price: string;
   active: boolean;
   image: string;
   level: string;
 }
 
-const MOCK_COURSES: Course[] = [
-  {
-    id: "1",
-    title: "Salsa Nybörjare",
-    schedule: "Mån & Ons, 18:00 - 19:30",
-    students: 12,
-    maxStudents: 20,
-    price: "1,200 kr/mån",
-    active: true,
-    image:
-      "https://images.unsplash.com/photo-1504609813442-a8924e83f76e?w=400&h=200&fit=crop",
-    level: "Nybörjare",
-  },
-  {
-    id: "2",
-    title: "Bachata Medel",
-    schedule: "Tis & Tor, 19:00 - 20:30",
-    students: 8,
-    maxStudents: 15,
-    price: "1,400 kr/mån",
-    active: true,
-    image:
-      "https://images.unsplash.com/photo-1547153760-18fc86324498?w=400&h=200&fit=crop",
-    level: "Medel",
-  },
-  {
-    id: "3",
-    title: "Street Dance Avancerad",
-    schedule: "Fre, 17:00 - 18:30",
-    students: 15,
-    maxStudents: 15,
-    price: "1,600 kr/mån",
-    active: true,
-    image:
-      "https://images.unsplash.com/photo-1508700929628-666bc8bd84ea?w=400&h=200&fit=crop",
-    level: "Avancerad",
-  },
-  {
-    id: "4",
-    title: "Kizomba Workshop",
-    schedule: "Lör, 14:00 - 17:00",
-    students: 0,
-    maxStudents: 25,
-    price: "499 kr",
-    active: false,
-    image:
-      "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&h=200&fit=crop",
-    level: "Alla nivåer",
-  },
+const COURSE_IMAGES = [
+  "https://images.unsplash.com/photo-1504609813442-a8924e83f76e?w=400&h=200&fit=crop",
+  "https://images.unsplash.com/photo-1547153760-18fc86324498?w=400&h=200&fit=crop",
+  "https://images.unsplash.com/photo-1508700929628-666bc8bd84ea?w=400&h=200&fit=crop",
+  "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&h=200&fit=crop",
 ];
 
-export function CoursesContent() {
-  const [courses] = useState(MOCK_COURSES);
+interface ListingData {
+  id: string;
+  title: string;
+  description: string | null;
+  category: string;
+  price: number | null;
+  duration_minutes: number | null;
+  is_active: boolean;
+  created_at: string;
+}
+
+interface CoursesContentProps {
+  listings: ListingData[];
+}
+
+function listingToCourse(listing: ListingData, index: number): CourseData {
+  return {
+    id: listing.id,
+    title: listing.title,
+    schedule: listing.duration_minutes ? `${listing.duration_minutes} min` : "-",
+    price: listing.price ? `${listing.price} kr` : "Gratis",
+    active: listing.is_active,
+    image: COURSE_IMAGES[index % COURSE_IMAGES.length],
+    level: listing.category || "Övrigt",
+  };
+}
+
+export function CoursesContent({ listings }: CoursesContentProps) {
+  const courses = listings.map(listingToCourse);
+  const activeCount = courses.filter((c) => c.active).length;
+
+  if (courses.length === 0) {
+    return (
+      <div className="px-4 py-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold">Mina Kurser</h1>
+          <span className="rounded-full bg-[var(--usha-gold)]/10 px-3 py-1 text-xs font-medium text-[var(--usha-gold)]">
+            0 aktiva
+          </span>
+        </div>
+
+        <div className="flex flex-col items-center justify-center rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] py-16">
+          <BookOpen size={40} className="mb-4 text-[var(--usha-muted)]" />
+          <p className="text-base font-medium text-[var(--usha-muted)]">
+            Inga kurser ännu
+          </p>
+          <p className="mt-1 text-sm text-[var(--usha-muted)]">
+            Skapa din första kurs för att komma igång
+          </p>
+        </div>
+
+        <Link
+          href="/dashboard/listings/new"
+          className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--usha-border)] bg-[var(--usha-card)] py-4 text-sm font-medium text-[var(--usha-muted)] transition-colors hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-gold)]"
+        >
+          <Plus size={18} />
+          Lägg till ny kurs
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="px-4 py-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Mina Kurser</h1>
         <span className="rounded-full bg-[var(--usha-gold)]/10 px-3 py-1 text-xs font-medium text-[var(--usha-gold)]">
-          {courses.filter((c) => c.active).length} aktiva
+          {activeCount} aktiva
         </span>
       </div>
 
@@ -94,15 +108,18 @@ export function CoursesContent() {
       </div>
 
       {/* Add new course button */}
-      <button className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--usha-border)] bg-[var(--usha-card)] py-4 text-sm font-medium text-[var(--usha-muted)] transition-colors hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-gold)]">
+      <Link
+        href="/dashboard/listings/new"
+        className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--usha-border)] bg-[var(--usha-card)] py-4 text-sm font-medium text-[var(--usha-muted)] transition-colors hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-gold)]"
+      >
         <Plus size={18} />
         Lägg till ny kurs
-      </button>
+      </Link>
     </div>
   );
 }
 
-function CourseCard({ course }: { course: Course }) {
+function CourseCard({ course }: { course: CourseData }) {
   const [showMenu, setShowMenu] = useState(false);
 
   return (
@@ -122,7 +139,6 @@ function CourseCard({ course }: { course: Course }) {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
 
-        {/* Status badge */}
         <span
           className={`absolute left-3 top-3 rounded-full px-2.5 py-1 text-[10px] font-semibold ${
             course.active
@@ -133,12 +149,10 @@ function CourseCard({ course }: { course: Course }) {
           {course.active ? "Aktiv" : "Inaktiv"}
         </span>
 
-        {/* Level badge */}
         <span className="absolute right-3 top-3 rounded-full bg-black/50 px-2.5 py-1 text-[10px] font-medium text-white backdrop-blur-sm">
           {course.level}
         </span>
 
-        {/* Title overlay */}
         <div className="absolute bottom-0 left-0 right-0 p-3">
           <h3 className="text-base font-bold text-white">{course.title}</h3>
         </div>
@@ -146,33 +160,19 @@ function CourseCard({ course }: { course: Course }) {
 
       {/* Course info */}
       <div className="p-4">
-        <div className="mb-3 flex items-center justify-between">
-          <div className="flex items-center gap-3 text-xs text-[var(--usha-muted)]">
-            <span className="flex items-center gap-1">
-              <Clock size={12} />
-              {course.schedule}
-            </span>
-          </div>
+        <div className="mb-3 flex items-center gap-3 text-xs text-[var(--usha-muted)]">
+          <span className="flex items-center gap-1">
+            <Clock size={12} />
+            {course.schedule}
+          </span>
         </div>
 
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1.5">
-              <Users size={14} className="text-[var(--usha-gold)]" />
-              <span className="text-sm font-medium">
-                {course.students}
-                <span className="text-[var(--usha-muted)]">
-                  /{course.maxStudents}
-                </span>
-              </span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <DollarSign size={14} className="text-[var(--usha-gold)]" />
-              <span className="text-sm font-medium">{course.price}</span>
-            </div>
+          <div className="flex items-center gap-1.5">
+            <DollarSign size={14} className="text-[var(--usha-gold)]" />
+            <span className="text-sm font-medium">{course.price}</span>
           </div>
 
-          {/* Actions */}
           <div className="relative">
             <button
               onClick={() => setShowMenu(!showMenu)}
@@ -198,18 +198,6 @@ function CourseCard({ course }: { course: Course }) {
                 </div>
               </>
             )}
-          </div>
-        </div>
-
-        {/* Capacity bar */}
-        <div className="mt-3">
-          <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--usha-border)]">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)]"
-              style={{
-                width: `${(course.students / course.maxStudents) * 100}%`,
-              }}
-            />
           </div>
         </div>
       </div>

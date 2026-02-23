@@ -75,6 +75,22 @@ export async function POST(req: NextRequest) {
           current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
           current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
         });
+
+        // Record payment
+        if (session.amount_total && session.metadata?.userId) {
+          await getSupabaseAdmin().from("payments").insert({
+            user_id: session.metadata.userId,
+            stripe_payment_id: session.payment_intent as string,
+            amount: session.amount_total,
+            currency: session.currency || "sek",
+            status: "succeeded",
+            description: session.metadata?.plan
+              ? `Prenumeration: ${session.metadata.plan}`
+              : session.metadata?.type === "creator_tier"
+                ? `Kreatör: ${session.metadata.tier}`
+                : "Betalning",
+          });
+        }
         break;
       }
 
