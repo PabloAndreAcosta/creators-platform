@@ -49,16 +49,6 @@ export async function POST(req: NextRequest) {
         ? Math.round((1 - discountedPrice / originalPrice) * 100)
         : 0;
 
-    console.log('Checkout:', {
-      eventId,
-      userId: user.id,
-      userTier,
-      eventTier: listing.event_tier,
-      originalPrice,
-      discountedPrice,
-      discountPercent,
-    });
-
     // Create Stripe checkout session with one-time payment
     const session = await stripe.checkout.sessions.create({
       customer_email: user.email,

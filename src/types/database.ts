@@ -13,11 +13,14 @@ export interface Database {
           location: string | null;
           hourly_rate: number | null;
           is_public: boolean;
+          tier: string | null;
+          stripe_account_id: string | null;
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["profiles"]["Row"], "created_at" | "updated_at" | "is_public"> & {
+        Insert: Omit<Database["public"]["Tables"]["profiles"]["Row"], "created_at" | "updated_at" | "is_public" | "tier"> & {
           is_public?: boolean;
+          tier?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["profiles"]["Insert"]>;
       };
@@ -27,7 +30,7 @@ export interface Database {
           user_id: string;
           stripe_customer_id: string | null;
           stripe_subscription_id: string | null;
-          plan: "basic" | "premium" | "enterprise";
+          plan: "basic" | "premium" | "enterprise" | "creator_gold" | "creator_platinum";
           status: "active" | "canceled" | "past_due" | "trialing";
           current_period_start: string | null;
           current_period_end: string | null;
@@ -93,6 +96,25 @@ export interface Database {
           status?: "pending" | "confirmed" | "completed" | "canceled";
         };
         Update: Partial<Database["public"]["Tables"]["bookings"]["Insert"]>;
+      };
+      payouts: {
+        Row: {
+          id: string;
+          creator_id: string;
+          amount_gross: number;
+          amount_commission: number;
+          amount_net: number;
+          payout_type: "batch" | "instant";
+          stripe_payout_id: string | null;
+          status: "pending" | "processing" | "completed" | "failed";
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["payouts"]["Row"], "id" | "created_at" | "updated_at" | "status"> & {
+          id?: string;
+          status?: "pending" | "processing" | "completed" | "failed";
+        };
+        Update: Partial<Database["public"]["Tables"]["payouts"]["Insert"]>;
       };
     };
   };

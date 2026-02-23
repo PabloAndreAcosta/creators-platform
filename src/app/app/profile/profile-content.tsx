@@ -135,9 +135,9 @@ export function ProfileContent({
       <div className="space-y-1 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] overflow-hidden">
         <SettingsRow icon={Edit2} label="Redigera Profil" href="/dashboard/profile" />
         <SettingsRow icon={CreditCard} label="Betalningsmetoder" href="/dashboard/billing" />
-        <SettingsRow icon={Bell} label="Notifikationer" />
-        <SettingsRow icon={Shield} label="Integritetsinställningar" />
-        <SettingsRow icon={HelpCircle} label="Hjälp & Support" />
+        <SettingsRow icon={Bell} label="Notifikationer" comingSoon />
+        <SettingsRow icon={Shield} label="Integritetsinställningar" comingSoon />
+        <SettingsRow icon={HelpCircle} label="Hjälp & Support" comingSoon />
         <form action="/api/auth/signout" method="POST">
           <button
             type="submit"
@@ -174,15 +174,24 @@ function SettingsRow({
   icon: Icon,
   label,
   href,
+  comingSoon,
 }: {
   icon: any;
   label: string;
   href?: string;
+  comingSoon?: boolean;
 }) {
   const inner = (
     <>
       <Icon size={18} className="text-[var(--usha-muted)]" />
-      <span className="flex-1 text-sm font-medium">{label}</span>
+      <span className="flex-1 text-sm font-medium">
+        {label}
+        {comingSoon && (
+          <span className="ml-2 text-[10px] font-normal text-[var(--usha-muted)]">
+            (Kommer snart)
+          </span>
+        )}
+      </span>
       <ChevronRight size={16} className="text-[var(--usha-muted)]" />
     </>
   );
@@ -199,8 +208,8 @@ function SettingsRow({
   }
 
   return (
-    <button className="flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-[var(--usha-card-hover)]">
+    <div className={`flex w-full items-center gap-3 px-4 py-3.5${comingSoon ? " opacity-50 cursor-default" : " cursor-pointer transition-colors hover:bg-[var(--usha-card-hover)]"}`}>
       {inner}
-    </button>
+    </div>
   );
 }

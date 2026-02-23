@@ -6,10 +6,6 @@ import {
   Menu,
   X,
   ArrowRight,
-  Instagram,
-  Twitter,
-  Youtube,
-  Mail,
   UserPlus,
   ListPlus,
   Search,
@@ -193,26 +189,6 @@ function Hero() {
           </a>
         </div>
 
-        {/* Stats bar */}
-        <div
-          className="animate-fade-up delay-400 mt-20 inline-flex flex-wrap items-center justify-center gap-8 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-10 py-6 sm:gap-12"
-          style={{ opacity: 0 }}
-        >
-          {[
-            { value: "500+", label: "Kreatörer", icon: Palette },
-            { value: "200+", label: "Upplevelser", icon: Sparkles },
-            { value: "10k+", label: "Bokningar", icon: CalendarCheck },
-            { value: "4.9", label: "Snittbetyg", icon: Star },
-          ].map((stat) => (
-            <div key={stat.label} className="flex items-center gap-3">
-              <stat.icon size={18} className="text-[var(--usha-gold)]" />
-              <div className="text-left">
-                <div className="text-lg font-bold sm:text-xl">{stat.value}</div>
-                <div className="text-xs text-[var(--usha-muted)]">{stat.label}</div>
-              </div>
-            </div>
-          ))}
-        </div>
       </div>
 
       {/* Scroll indicator */}
@@ -647,85 +623,6 @@ function Pillars() {
   );
 }
 
-/* ─────────────── TESTIMONIALS ─────────────── */
-const TESTIMONIALS = [
-  {
-    name: "Sara Lindström",
-    role: "Dansinstruktör",
-    avatar: "S",
-    quote:
-      "Usha har förändrat hur jag driver min dansverksamhet. Jag får bokningar varje vecka utan att behöva jaga kunder.",
-  },
-  {
-    name: "Erik Johansson",
-    role: "Fotograf",
-    avatar: "E",
-    quote:
-      "Äntligen en plattform som förstår kreativa yrken. Enkel att använda och mina kunder älskar bokningsflödet.",
-  },
-  {
-    name: "Maria Nguyen",
-    role: "Yogainstruktör",
-    avatar: "M",
-    quote:
-      "Från noll till 30 bokningar i månaden. Usha gav mig synligheten jag behövde för att växa.",
-  },
-];
-
-function Testimonials() {
-  return (
-    <section className="relative py-28 px-6">
-      <div className="pointer-events-none absolute top-1/2 left-1/4 -translate-y-1/2">
-        <div className="h-[300px] w-[400px] rounded-full bg-[var(--usha-gold)] opacity-[0.03] blur-[120px]" />
-      </div>
-
-      <div className="relative z-10 mx-auto max-w-6xl">
-        <div className="mb-16 text-center">
-          <p className="mb-3 font-mono text-sm uppercase tracking-widest text-[var(--usha-gold)]">
-            Community
-          </p>
-          <h2 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
-            Kreatörer som redan{" "}
-            <span className="text-gradient">är med på resan</span>
-          </h2>
-        </div>
-
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {TESTIMONIALS.map((t) => (
-            <div
-              key={t.name}
-              className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 transition-colors hover:border-[var(--usha-gold)]/20"
-            >
-              <div className="mb-4 flex gap-1">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star
-                    key={i}
-                    size={14}
-                    className="fill-[var(--usha-gold)] text-[var(--usha-gold)]"
-                  />
-                ))}
-              </div>
-              <p className="mb-6 text-sm leading-relaxed text-[var(--usha-muted)]">
-                &ldquo;{t.quote}&rdquo;
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[var(--usha-gold)]/20 to-[var(--usha-accent)]/20">
-                  <span className="text-sm font-bold text-[var(--usha-gold)]">
-                    {t.avatar}
-                  </span>
-                </div>
-                <div>
-                  <p className="text-sm font-semibold">{t.name}</p>
-                  <p className="text-xs text-[var(--usha-muted)]">{t.role}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
 
 /* ─────────────── PRICING ─────────────── */
 const PLANS = [
@@ -979,17 +876,6 @@ const FOOTER_LINKS = {
     { label: "Priser", href: "#pricing" },
     { label: "FAQ", href: "#faq" },
   ],
-  Företag: [
-    { label: "Om oss", href: "#" },
-    { label: "Blogg", href: "#" },
-    { label: "Karriär", href: "#" },
-    { label: "Kontakt", href: "#" },
-  ],
-  Juridiskt: [
-    { label: "Användarvillkor", href: "#" },
-    { label: "Integritetspolicy", href: "#" },
-    { label: "Cookies", href: "#" },
-  ],
 };
 
 function Footer() {
@@ -1009,23 +895,6 @@ function Footer() {
               Hela kretsloppet för kreativitet och upplevelser. Kreatörer,
               företag och kunder — förenade på en plattform.
             </p>
-            <div className="flex items-center gap-3">
-              {[
-                { icon: Instagram, label: "Instagram" },
-                { icon: Twitter, label: "Twitter" },
-                { icon: Youtube, label: "YouTube" },
-                { icon: Mail, label: "Email" },
-              ].map((s) => (
-                <a
-                  key={s.label}
-                  href="#"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--usha-border)] text-[var(--usha-muted)] transition-colors hover:border-[var(--usha-gold)]/30 hover:text-white"
-                  aria-label={s.label}
-                >
-                  <s.icon size={16} />
-                </a>
-              ))}
-            </div>
           </div>
 
           {/* Link columns */}
@@ -1072,7 +941,6 @@ export default function Home() {
       <ThreePillars />
       <Categories />
       <Pillars />
-      <Testimonials />
       <Pricing />
       <FAQ />
       <VisionCTA />

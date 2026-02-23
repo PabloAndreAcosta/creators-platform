@@ -45,9 +45,6 @@ export async function POST(req: NextRequest) {
 
           if (tierError) {
             console.error("Failed to update creator tier:", tierError);
-          } else {
-            const commissionRate = tier === "platinum" ? 5 : 10;
-            console.log(`Creator subscription: ${userId} -> ${tier} (${commissionRate}% commission)`);
           }
 
           // Store subscription record if present
@@ -105,10 +102,8 @@ export async function POST(req: NextRequest) {
           const tier = sub.plan.replace("creator_", "") as "gold" | "platinum";
           if (subscription.status === "active") {
             await getSupabaseAdmin().from("profiles").update({ tier }).eq("id", sub.user_id);
-            console.log(`Creator tier reactivated: ${sub.user_id} -> ${tier}`);
           } else if (subscription.status === "canceled" || subscription.status === "unpaid") {
             await getSupabaseAdmin().from("profiles").update({ tier: "silver" }).eq("id", sub.user_id);
-            console.log(`Creator tier reverted: ${sub.user_id} -> silver`);
           }
         }
         break;
@@ -129,7 +124,6 @@ export async function POST(req: NextRequest) {
             .from("profiles")
             .update({ tier: "silver" })
             .eq("id", deletedSub.user_id);
-          console.log(`Creator tier cancelled: ${deletedSub.user_id} -> silver`);
         }
 
         await getSupabaseAdmin()

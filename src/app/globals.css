@@ -53,11 +53,24 @@ html { scroll-behavior: smooth; }
   from { opacity: 0; transform: translateY(30px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
 .animate-fade-up { animation: fadeUp 0.8s ease-out forwards; }
 .delay-100 { animation-delay: 0.1s; }
+.delay-150 { animation-delay: 0.15s; }
 .delay-200 { animation-delay: 0.2s; }
 .delay-300 { animation-delay: 0.3s; }
 .delay-400 { animation-delay: 0.4s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+}
 
 /* Hide scrollbar for horizontal scroll sections */
 .scrollbar-hide {

@@ -49,7 +49,6 @@ export async function getRecommendations(
 
   // No history — return popular events as fallback
   if (!bookings || bookings.length === 0) {
-    console.log(`No booking history for user ${userId}, returning popular events`);
     return getPopularEvents(limit);
   }
 
@@ -64,13 +63,6 @@ export async function getRecommendations(
     const category = (booking.listings as unknown as { category: string })?.category;
     if (category) categories.add(category);
   }
-
-  console.log('Recommendation interests:', {
-    userId,
-    categories: Array.from(categories),
-    bookedCreators: bookedCreatorIds.size,
-    bookedListings: bookedListingIds.size,
-  });
 
   // 3. Find matching active listings in the same categories, excluding already booked
   const { data: candidates, error: candidatesError } = await supabase
@@ -92,7 +84,6 @@ export async function getRecommendations(
   );
 
   if (filtered.length === 0) {
-    console.log('No matching candidates, returning popular events');
     return getPopularEvents(limit);
   }
 
