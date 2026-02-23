@@ -87,7 +87,7 @@ export function ProfileContent({
             : "nyligen"}
         </p>
         <p className="mt-1 text-xs text-[var(--usha-gold)]">
-          Poäng: {role === "kreator" ? "8,240" : role === "upplevelse" ? "12,500" : "2,450"}
+          Poäng: -
         </p>
       </div>
 
@@ -95,23 +95,23 @@ export function ProfileContent({
       <div className="grid grid-cols-3 gap-3">
         {role === "anvandare" && (
           <>
-            <StatBox icon={Calendar} label="Evenemang" value={String(bookingsCount || 12)} />
-            <StatBox icon={BookOpen} label="Kurser" value="3" />
-            <StatBox icon={Heart} label="Favoriter" value="8" />
+            <StatBox icon={Calendar} label="Evenemang" value={String(bookingsCount)} />
+            <StatBox icon={BookOpen} label="Kurser" value="-" />
+            <StatBox icon={Heart} label="Favoriter" value="-" />
           </>
         )}
         {role === "kreator" && (
           <>
-            <StatBox icon={BookOpen} label="Kurser" value={String(listingsCount || 8)} />
-            <StatBox icon={Users} label="Elever" value="156" />
-            <StatBox icon={Star} label="Betyg" value="4.8" />
+            <StatBox icon={BookOpen} label="Kurser" value={String(listingsCount)} />
+            <StatBox icon={Users} label="Elever" value={String(bookingsCount)} />
+            <StatBox icon={Star} label="Betyg" value="-" />
           </>
         )}
         {role === "upplevelse" && (
           <>
-            <StatBox icon={Ticket} label="Evenemang" value={String(listingsCount || 12)} />
-            <StatBox icon={Users} label="Besökare" value="1,240" />
-            <StatBox icon={Star} label="Betyg" value="4.6" />
+            <StatBox icon={Ticket} label="Evenemang" value={String(listingsCount)} />
+            <StatBox icon={Users} label="Besökare" value={String(bookingsCount)} />
+            <StatBox icon={Star} label="Betyg" value="-" />
           </>
         )}
       </div>
@@ -123,7 +123,7 @@ export function ProfileContent({
             <div>
               <p className="text-xs text-[var(--usha-muted)]">Intäkter denna månad</p>
               <p className="text-2xl font-bold">
-                {role === "kreator" ? "15,600" : "45,200"} kr
+                - kr
               </p>
             </div>
             <DollarSign size={24} className="text-[var(--usha-gold)]" />

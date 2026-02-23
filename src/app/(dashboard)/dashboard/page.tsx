@@ -24,6 +24,8 @@ export default async function DashboardPage() {
     { data: subscription },
     { count: listingsCount },
     { count: bookingsCount },
+    { count: completedCount },
+    { data: completedBookings },
   ] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", user.id).single(),
     supabase
@@ -42,7 +44,22 @@ export default async function DashboardPage() {
       .select("*", { count: "exact", head: true })
       .eq("creator_id", user.id)
       .in("status", ["pending", "confirmed"]),
+    supabase
+      .from("bookings")
+      .select("*", { count: "exact", head: true })
+      .eq("creator_id", user.id)
+      .eq("status", "completed"),
+    supabase
+      .from("bookings")
+      .select("listing_id, listings(price)")
+      .eq("creator_id", user.id)
+      .eq("status", "completed"),
   ]);
+
+  const revenue = (completedBookings ?? []).reduce((sum, b: any) => {
+    const price = b.listings?.price ?? 0;
+    return sum + price;
+  }, 0);
 
   return (
     <>
@@ -60,8 +77,8 @@ export default async function DashboardPage() {
         {[
           { label: "Aktiva tjänster", value: String(listingsCount ?? 0), icon: List },
           { label: "Bokningar", value: String(bookingsCount ?? 0), icon: Calendar },
-          { label: "Intäkter", value: "0 SEK", icon: CreditCard },
-          { label: "Visningar", value: "0", icon: BarChart3 },
+          { label: "Intäkter", value: `${revenue} SEK`, icon: CreditCard },
+          { label: "Slutförda", value: String(completedCount ?? 0), icon: BarChart3 },
         ].map((stat) => (
           <div
             key={stat.label}

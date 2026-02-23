@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, MapPin, Clock } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin, Clock, Calendar } from "lucide-react";
 import { useRole } from "@/components/mobile/role-context";
 
 const DAYS = ["Mån", "Tis", "Ons", "Tor", "Fre", "Lör", "Sön"];
@@ -10,32 +10,29 @@ const MONTHS = [
   "Juli", "Augusti", "September", "Oktober", "November", "December",
 ];
 
-// Mock events with dates
-const MOCK_EVENTS: Record<string, { title: string; time: string; location: string; color: string }[]> = {
-  "2026-02-15": [
-    { title: "Street Dance Workshop", time: "18:00 - 19:30", location: "Dansens Hus", color: "border-l-[var(--usha-gold)]" },
-  ],
-  "2026-02-18": [
-    { title: "Salsa Social", time: "20:00 - 23:00", location: "Club Havana", color: "border-l-[var(--usha-accent)]" },
-  ],
-  "2026-02-20": [
-    { title: "Akustisk Kväll", time: "19:00 - 21:00", location: "Malmö Live", color: "border-l-emerald-400" },
-  ],
-  "2026-02-22": [
-    { title: "Foto Workshop", time: "10:00 - 14:00", location: "Fotografiska", color: "border-l-blue-400" },
-    { title: "Yoga i Parken", time: "16:00 - 17:30", location: "Folkets Park", color: "border-l-purple-400" },
-  ],
-  "2026-02-25": [
-    { title: "Jazz på Taket", time: "21:00 - 23:00", location: "Rooftop Bar", color: "border-l-[var(--usha-gold)]" },
-  ],
-  "2026-02-28": [
-    { title: "Wellness Retreat", time: "09:00 - 17:00", location: "Ribersborg Spa", color: "border-l-teal-400" },
-  ],
-};
+const EVENT_COLORS = [
+  "border-l-[var(--usha-gold)]",
+  "border-l-[var(--usha-accent)]",
+  "border-l-emerald-400",
+  "border-l-blue-400",
+  "border-l-purple-400",
+  "border-l-teal-400",
+];
 
-export function CalendarContent() {
+interface CalendarBooking {
+  id: string;
+  scheduled_at: string;
+  status: string;
+  listings: { title: string } | null;
+}
+
+interface CalendarContentProps {
+  bookings: CalendarBooking[];
+}
+
+export function CalendarContent({ bookings }: CalendarContentProps) {
   const { role } = useRole();
-  const [currentDate, setCurrentDate] = useState(new Date(2026, 1, 12));
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   const year = currentDate.getFullYear();
@@ -54,16 +51,37 @@ export function CalendarContent() {
   const getDateKey = (day: number) =>
     `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 
-  const hasEvents = (day: number) => !!MOCK_EVENTS[getDateKey(day)];
+  // Transform bookings into date-keyed events
+  const eventsByDate: Record<string, { title: string; time: string; location: string; color: string }[]> = {};
+  bookings.forEach((booking, i) => {
+    const date = new Date(booking.scheduled_at);
+    const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    const timeStr = date.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
+    const event = {
+      title: booking.listings?.title || "Bokning",
+      time: timeStr,
+      location: booking.status === "confirmed" ? "Bekräftad" : "Väntande",
+      color: EVENT_COLORS[i % EVENT_COLORS.length],
+    };
+    if (!eventsByDate[dateKey]) eventsByDate[dateKey] = [];
+    eventsByDate[dateKey].push(event);
+  });
 
-  const selectedEvents = selectedDate ? MOCK_EVENTS[selectedDate] || [] : [];
+  const hasEvents = (day: number) => !!eventsByDate[getDateKey(day)];
+
+  const selectedEvents = selectedDate ? eventsByDate[selectedDate] || [] : [];
 
   // Get all upcoming events sorted
-  const allUpcoming = Object.entries(MOCK_EVENTS)
+  const allUpcoming = Object.entries(eventsByDate)
     .flatMap(([date, events]) =>
       events.map((e) => ({ ...e, date }))
     )
     .sort((a, b) => a.date.localeCompare(b.date));
+
+  // Check if a day is today
+  const today = new Date();
+  const isToday = (day: number) =>
+    day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
 
   return (
     <div className="px-4 py-6 space-y-6">
@@ -98,7 +116,7 @@ export function CalendarContent() {
             if (day === null) return <div key={`empty-${i}`} />;
             const dateKey = getDateKey(day);
             const isSelected = selectedDate === dateKey;
-            const isToday = day === 12 && month === 1 && year === 2026;
+            const todayDay = isToday(day);
             const eventDay = hasEvents(day);
 
             return (
@@ -108,7 +126,7 @@ export function CalendarContent() {
                 className={`relative flex h-10 flex-col items-center justify-center rounded-lg text-sm transition-all ${
                   isSelected
                     ? "bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)] font-bold text-black"
-                    : isToday
+                    : todayDay
                       ? "bg-[var(--usha-gold)]/10 font-semibold text-[var(--usha-gold)]"
                       : "hover:bg-[var(--usha-card-hover)]"
                 }`}
@@ -158,7 +176,7 @@ export function CalendarContent() {
       <section>
         <h2 className="mb-4 text-lg font-bold">Kommande Evenemang</h2>
         <div className="space-y-3 md:grid md:grid-cols-2 md:gap-3 md:space-y-0">
-          {allUpcoming.map((event, i) => (
+          {allUpcoming.length > 0 ? allUpcoming.map((event, i) => (
             <div
               key={i}
               className={`rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 border-l-4 ${event.color}`}
@@ -182,7 +200,12 @@ export function CalendarContent() {
                 </span>
               </div>
             </div>
-          ))}
+          )) : (
+            <div className="col-span-full flex flex-col items-center justify-center rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] py-12">
+              <Calendar size={32} className="mb-3 text-[var(--usha-muted)]" />
+              <p className="text-sm text-[var(--usha-muted)]">Inga kommande evenemang</p>
+            </div>
+          )}
         </div>
       </section>
     </div>

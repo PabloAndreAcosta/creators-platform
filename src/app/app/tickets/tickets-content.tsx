@@ -14,86 +14,98 @@ interface TicketData {
   type: string;
 }
 
-const MOCK_TICKETS: TicketData[] = [
-  {
-    id: "1",
-    code: "USH-2026-4821",
-    title: "Street Dance Workshop",
-    date: "15 februari 2026",
-    time: "18:00 - 19:30",
-    location: "Dansens Hus, Stockholm",
-    status: "active",
-    type: "Workshop",
-  },
-  {
-    id: "2",
-    code: "USH-2026-4935",
-    title: "Summer Salsa Social",
-    date: "18 februari 2026",
-    time: "20:00 - 23:00",
-    location: "Club Havana, Malmö",
-    status: "active",
-    type: "Social",
-  },
-  {
-    id: "3",
-    code: "USH-2026-5102",
-    title: "Akustisk Kväll",
-    date: "20 februari 2026",
-    time: "19:00 - 21:00",
-    location: "Malmö Live",
-    status: "upcoming",
-    type: "Konsert",
-  },
-  {
-    id: "4",
-    code: "USH-2026-3847",
-    title: "Bachata Bootcamp",
-    date: "5 januari 2026",
-    time: "10:00 - 16:00",
-    location: "Dansens Hus, Stockholm",
-    status: "used",
-    type: "Workshop",
-  },
-  {
-    id: "5",
-    code: "USH-2026-3621",
-    title: "Nyårskonsert",
-    date: "31 december 2025",
-    time: "21:00 - 01:00",
-    location: "Konserthuset, Göteborg",
-    status: "used",
-    type: "Konsert",
-  },
-];
+interface BookingData {
+  id: string;
+  scheduled_at: string;
+  status: string;
+  notes: string | null;
+  listings: { title: string; category: string } | null;
+}
 
-export function TicketsContent() {
+interface TicketsContentProps {
+  bookings: BookingData[];
+}
+
+function bookingToTicket(booking: BookingData): TicketData {
+  const scheduledDate = new Date(booking.scheduled_at);
+  const now = new Date();
+  const isPast = scheduledDate < now;
+  const isCompleted = booking.status === "completed" || booking.status === "canceled";
+
+  let status: "active" | "used" | "upcoming";
+  if (isCompleted || isPast) {
+    status = "used";
+  } else {
+    const hoursUntil = (scheduledDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+    status = hoursUntil <= 24 ? "active" : "upcoming";
+  }
+
+  return {
+    id: booking.id,
+    code: `USH-${booking.id.slice(0, 8).toUpperCase()}`,
+    title: booking.listings?.title || "Bokning",
+    date: scheduledDate.toLocaleDateString("sv-SE", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }),
+    time: scheduledDate.toLocaleTimeString("sv-SE", {
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
+    location: booking.notes || "-",
+    status,
+    type: booking.listings?.category || "Bokning",
+  };
+}
+
+export function TicketsContent({ bookings }: TicketsContentProps) {
   const [selectedTicket, setSelectedTicket] = useState<TicketData | null>(null);
 
-  const activeTickets = MOCK_TICKETS.filter(
+  const tickets = bookings.map(bookingToTicket);
+  const activeTickets = tickets.filter(
     (t) => t.status === "active" || t.status === "upcoming"
   );
-  const usedTickets = MOCK_TICKETS.filter((t) => t.status === "used");
+  const usedTickets = tickets.filter((t) => t.status === "used");
+
+  if (tickets.length === 0) {
+    return (
+      <div className="px-4 py-6 space-y-8">
+        <h1 className="text-2xl font-bold">Mina Biljetter</h1>
+        <div className="flex flex-col items-center justify-center rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] py-16">
+          <Ticket size={40} className="mb-4 text-[var(--usha-muted)]" />
+          <p className="text-base font-medium text-[var(--usha-muted)]">
+            Du har inga biljetter ännu
+          </p>
+          <p className="mt-1 text-sm text-[var(--usha-muted)]">
+            Boka ett evenemang för att få din första biljett
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="px-4 py-6 space-y-8">
       <h1 className="text-2xl font-bold">Mina Biljetter</h1>
 
       {/* Active Tickets */}
-      <section>
-        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-[var(--usha-muted)]">
-          Aktiva Biljetter
-        </h2>
-        <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
-          {activeTickets.map((ticket) => (
-            <TicketCard
-              key={ticket.id}
-              ticket={ticket}
-              onShowQR={() => setSelectedTicket(ticket)}
-            />
-          ))}
-        </div>
-      </section>
+      {activeTickets.length > 0 && (
+        <section>
+          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-[var(--usha-muted)]">
+            Aktiva Biljetter
+          </h2>
+          <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
+            {activeTickets.map((ticket) => (
+              <TicketCard
+                key={ticket.id}
+                ticket={ticket}
+                onShowQR={() => setSelectedTicket(ticket)}
+              />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Used Tickets */}
       {usedTickets.length > 0 && (
@@ -164,10 +176,12 @@ function TicketCard({
             <Clock size={12} />
             <span>{ticket.time}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <MapPin size={12} />
-            <span>{ticket.location}</span>
-          </div>
+          {ticket.location !== "-" && (
+            <div className="flex items-center gap-2">
+              <MapPin size={12} />
+              <span>{ticket.location}</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -278,9 +292,11 @@ function QRModal({
           <p className="mt-1 text-sm text-[var(--usha-muted)]">
             {ticket.date} · {ticket.time}
           </p>
-          <p className="mt-0.5 text-sm text-[var(--usha-muted)]">
-            {ticket.location}
-          </p>
+          {ticket.location !== "-" && (
+            <p className="mt-0.5 text-sm text-[var(--usha-muted)]">
+              {ticket.location}
+            </p>
+          )}
           <p className="mt-3 font-mono text-xs text-[var(--usha-gold)]">
             {ticket.code}
           </p>

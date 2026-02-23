@@ -11,93 +11,106 @@ import {
   MapPin,
   Ticket,
   TrendingUp,
+  Calendar,
 } from "lucide-react";
+import Link from "next/link";
 
 interface EventData {
   id: string;
   title: string;
   date: string;
   time: string;
-  capacity: number;
-  sold: number;
   price: string;
   active: boolean;
   image: string;
   category: string;
-  creator?: string;
 }
 
-const MOCK_EVENTS: EventData[] = [
-  {
-    id: "1",
-    title: "Latin Night",
-    date: "15 februari 2026",
-    time: "21:00 - 02:00",
-    capacity: 150,
-    sold: 120,
-    price: "249 kr",
-    active: true,
-    image: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&h=200&fit=crop",
-    category: "Fest & Dans",
-    creator: "DJ Carlos & Maria Lindström",
-  },
-  {
-    id: "2",
-    title: "Wine & Jazz",
-    date: "18 februari 2026",
-    time: "19:00 - 22:00",
-    capacity: 60,
-    sold: 45,
-    price: "399 kr",
-    active: true,
-    image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=200&fit=crop",
-    category: "Musik & Mat",
-    creator: "Erik Johansson Quartet",
-  },
-  {
-    id: "3",
-    title: "Wellness Retreat",
-    date: "22 februari 2026",
-    time: "09:00 - 17:00",
-    capacity: 20,
-    sold: 18,
-    price: "1,499 kr",
-    active: true,
-    image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=200&fit=crop",
-    category: "Wellness",
-    creator: "Sofia Andersson",
-  },
-  {
-    id: "4",
-    title: "Vårmarknad",
-    date: "8 mars 2026",
-    time: "10:00 - 18:00",
-    capacity: 500,
-    sold: 0,
-    price: "Gratis",
-    active: false,
-    image: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=400&h=250&fit=crop",
-    category: "Marknad",
-  },
+const EVENT_IMAGES = [
+  "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&h=200&fit=crop",
+  "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=200&fit=crop",
+  "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=200&fit=crop",
+  "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=400&h=250&fit=crop",
+  "https://images.unsplash.com/photo-1504609813442-a8924e83f76e?w=400&h=250&fit=crop",
+  "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&h=250&fit=crop",
 ];
 
-export function EventsContent() {
-  const [events] = useState(MOCK_EVENTS);
+interface ListingData {
+  id: string;
+  title: string;
+  description: string | null;
+  category: string;
+  price: number | null;
+  duration_minutes: number | null;
+  is_active: boolean;
+  created_at: string;
+}
 
-  const totalSold = events.reduce((acc, e) => acc + e.sold, 0);
-  const totalRevenue = events
-    .filter((e) => e.active)
-    .reduce((acc, e) => {
-      const price = parseInt(e.price.replace(/[^\d]/g, "")) || 0;
-      return acc + price * e.sold;
-    }, 0);
+interface EventsContentProps {
+  listings: ListingData[];
+}
+
+function listingToEvent(listing: ListingData, index: number): EventData {
+  const createdDate = new Date(listing.created_at);
+  return {
+    id: listing.id,
+    title: listing.title,
+    date: createdDate.toLocaleDateString("sv-SE", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }),
+    time: listing.duration_minutes ? `${listing.duration_minutes} min` : "-",
+    price: listing.price ? `${listing.price} kr` : "Gratis",
+    active: listing.is_active,
+    image: EVENT_IMAGES[index % EVENT_IMAGES.length],
+    category: listing.category || "Övrigt",
+  };
+}
+
+export function EventsContent({ listings }: EventsContentProps) {
+  const events = listings.map(listingToEvent);
+
+  const activeCount = events.filter((e) => e.active).length;
+
+  if (events.length === 0) {
+    return (
+      <div className="px-4 py-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold">Mina Evenemang</h1>
+          <span className="rounded-full bg-[var(--usha-gold)]/10 px-3 py-1 text-xs font-medium text-[var(--usha-gold)]">
+            0 aktiva
+          </span>
+        </div>
+
+        <div className="flex flex-col items-center justify-center rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] py-16">
+          <Calendar size={40} className="mb-4 text-[var(--usha-muted)]" />
+          <p className="text-base font-medium text-[var(--usha-muted)]">
+            Inga evenemang ännu
+          </p>
+          <p className="mt-1 text-sm text-[var(--usha-muted)]">
+            Skapa ditt första evenemang för att komma igång
+          </p>
+        </div>
+
+        {/* Add new event */}
+        <Link
+          href="/dashboard/listings/new"
+          className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--usha-border)] bg-[var(--usha-card)] py-4 text-sm font-medium text-[var(--usha-muted)] transition-colors hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-gold)]"
+        >
+          <Plus size={18} />
+          Skapa nytt evenemang
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="px-4 py-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Mina Evenemang</h1>
         <span className="rounded-full bg-[var(--usha-gold)]/10 px-3 py-1 text-xs font-medium text-[var(--usha-gold)]">
-          {events.filter((e) => e.active).length} aktiva
+          {activeCount} aktiva
         </span>
       </div>
 
@@ -105,13 +118,13 @@ export function EventsContent() {
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-xl border border-[var(--usha-gold)]/20 bg-gradient-to-br from-[var(--usha-gold)]/10 to-transparent p-4">
           <Ticket size={16} className="mb-1 text-[var(--usha-gold)]" />
-          <p className="text-xl font-bold">{totalSold}</p>
-          <p className="text-[11px] text-[var(--usha-muted)]">Sålda biljetter</p>
+          <p className="text-xl font-bold">{events.length}</p>
+          <p className="text-[11px] text-[var(--usha-muted)]">Totalt evenemang</p>
         </div>
         <div className="rounded-xl border border-[var(--usha-gold)]/20 bg-gradient-to-br from-[var(--usha-gold)]/10 to-transparent p-4">
           <TrendingUp size={16} className="mb-1 text-[var(--usha-gold)]" />
-          <p className="text-xl font-bold">{totalRevenue.toLocaleString("sv")} kr</p>
-          <p className="text-[11px] text-[var(--usha-muted)]">Intäkter</p>
+          <p className="text-xl font-bold">{activeCount}</p>
+          <p className="text-[11px] text-[var(--usha-muted)]">Aktiva</p>
         </div>
       </div>
 
@@ -123,17 +136,19 @@ export function EventsContent() {
       </div>
 
       {/* Add new event */}
-      <button className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--usha-border)] bg-[var(--usha-card)] py-4 text-sm font-medium text-[var(--usha-muted)] transition-colors hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-gold)]">
+      <Link
+        href="/dashboard/listings/new"
+        className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--usha-border)] bg-[var(--usha-card)] py-4 text-sm font-medium text-[var(--usha-muted)] transition-colors hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-gold)]"
+      >
         <Plus size={18} />
         Skapa nytt evenemang
-      </button>
+      </Link>
     </div>
   );
 }
 
 function EventCard({ event }: { event: EventData }) {
   const [showMenu, setShowMenu] = useState(false);
-  const fillPercent = (event.sold / event.capacity) * 100;
 
   return (
     <div
@@ -160,9 +175,6 @@ function EventCard({ event }: { event: EventData }) {
 
         <div className="absolute bottom-0 left-0 right-0 p-3">
           <h3 className="text-base font-bold text-white">{event.title}</h3>
-          {event.creator && (
-            <p className="text-xs text-white/70">med {event.creator}</p>
-          )}
         </div>
       </div>
 
@@ -173,21 +185,16 @@ function EventCard({ event }: { event: EventData }) {
             <Clock size={12} />
             {event.date}
           </span>
-          <span className="flex items-center gap-1">
-            <MapPin size={12} />
-            {event.time}
-          </span>
+          {event.time !== "-" && (
+            <span className="flex items-center gap-1">
+              <MapPin size={12} />
+              {event.time}
+            </span>
+          )}
         </div>
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1.5">
-              <Users size={14} className="text-[var(--usha-gold)]" />
-              <span className="text-sm font-medium">
-                {event.sold}
-                <span className="text-[var(--usha-muted)]">/{event.capacity}</span>
-              </span>
-            </div>
             <span className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-xs font-medium text-[var(--usha-gold)]">
               {event.price}
             </span>
@@ -215,20 +222,6 @@ function EventCard({ event }: { event: EventData }) {
                 </div>
               </>
             )}
-          </div>
-        </div>
-
-        {/* Capacity bar */}
-        <div className="mt-3">
-          <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--usha-border)]">
-            <div
-              className={`h-full rounded-full ${
-                fillPercent > 90
-                  ? "bg-gradient-to-r from-orange-400 to-red-400"
-                  : "bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)]"
-              }`}
-              style={{ width: `${fillPercent}%` }}
-            />
           </div>
         </div>
       </div>

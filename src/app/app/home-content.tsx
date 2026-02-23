@@ -6,7 +6,6 @@ import {
   Star,
   Heart,
   MapPin,
-  TrendingUp,
   Users,
   DollarSign,
   Clock,
@@ -57,7 +56,7 @@ export function HomeContent({
   }
 
   return (
-    <UpplevelseHome profile={profile} bookingsCount={bookingsCount} />
+    <UpplevelseHome profile={profile} bookingsCount={bookingsCount} listings={listings} />
   );
 }
 
@@ -80,21 +79,40 @@ function AnvandareHome({
     "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=250&fit=crop",
   ];
 
-  const mockEvents = [
-    { title: "Street Dance Workshop", date: "15 feb, 18:00", price: "299 kr", category: "Dans" },
-    { title: "Summer Salsa Social", date: "18 feb, 20:00", price: "199 kr", category: "Dans" },
-    { title: "Akustisk Kväll", date: "20 feb, 19:00", price: "349 kr", category: "Musik" },
-    { title: "Foto Workshop", date: "22 feb, 10:00", price: "599 kr", category: "Foto" },
-    { title: "Jazz på Taket", date: "25 feb, 21:00", price: "249 kr", category: "Musik" },
-    { title: "Yoga & Meditation", date: "28 feb, 08:00", price: "199 kr", category: "Wellness" },
-  ];
+  const events = listings.map((listing: any) => ({
+    title: listing.title,
+    date: listing.created_at
+      ? new Date(listing.created_at).toLocaleDateString("sv-SE", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })
+      : "",
+    price: listing.price ? `${listing.price} kr` : "Gratis",
+    category: listing.category || "Övrigt",
+  }));
 
-  const clubsStudios = [
-    { name: "Dansens Hus", type: "Dansstudio", icon: Music },
-    { name: "Fotografiska", type: "Galleri & Studio", icon: Camera },
-    { name: "Malmö Live", type: "Konserthus", icon: PartyPopper },
-    { name: "Ribersborgs Kallbadhus", type: "Spa & Wellness", icon: Waves },
-  ];
+  const categoryIconMap: Record<string, any> = {
+    dance: Music,
+    musik: Music,
+    music: Music,
+    foto: Camera,
+    photo: Camera,
+    konst: Palette,
+    art: Palette,
+    restaurant: UtensilsCrossed,
+    mat: UtensilsCrossed,
+    wellness: Waves,
+    spa: Waves,
+    yoga: Waves,
+    concert: PartyPopper,
+    konsert: PartyPopper,
+  };
+
+  const venueListings = listings
+    .filter((l: any) => l.category)
+    .slice(0, 4)
+    .map((l: any) => ({
+      name: l.title,
+      type: l.category,
+      icon: categoryIconMap[l.category?.toLowerCase()] || Ticket,
+    }));
 
   return (
     <div className="px-4 py-6 space-y-8">
@@ -126,7 +144,7 @@ function AnvandareHome({
           </Link>
         </div>
         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide md:grid md:grid-cols-2 lg:grid-cols-3 md:overflow-x-visible">
-          {mockEvents.map((event, i) => (
+          {events.length > 0 ? events.map((event: any, i: number) => (
             <div
               key={i}
               className="min-w-[220px] md:min-w-0 overflow-hidden rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)]"
@@ -153,7 +171,12 @@ function AnvandareHome({
                 </div>
               </div>
             </div>
-          ))}
+          )) : (
+            <div className="col-span-full flex flex-col items-center justify-center rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] py-12">
+              <Calendar size={32} className="mb-3 text-[var(--usha-muted)]" />
+              <p className="text-sm text-[var(--usha-muted)]">Inga evenemang ännu</p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -166,16 +189,7 @@ function AnvandareHome({
           </Link>
         </div>
         <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide md:grid md:grid-cols-5 md:overflow-x-visible">
-          {(topCreators.length > 0
-            ? topCreators
-            : [
-                { id: "1", full_name: "Maria Lindström", category: "Dans", avatar_url: null },
-                { id: "2", full_name: "Erik Johansson", category: "Musik", avatar_url: null },
-                { id: "3", full_name: "Sofia Andersson", category: "Foto", avatar_url: null },
-                { id: "4", full_name: "Oscar Nilsson", category: "Konst", avatar_url: null },
-                { id: "5", full_name: "Emma Karlsson", category: "Yoga", avatar_url: null },
-              ]
-          ).map((creator: any, i: number) => (
+          {topCreators.length > 0 ? topCreators.map((creator: any) => (
             <Link
               key={creator.id}
               href={`/creators/${creator.id}`}
@@ -192,17 +206,19 @@ function AnvandareHome({
               </div>
               <div className="text-center">
                 <p className="text-xs font-medium leading-tight">
-                  {(creator.full_name || "Kreatör").split(" ")[0]}
+                  {(creator.full_name || "Kreator").split(" ")[0]}
                 </p>
-                <div className="mt-0.5 flex items-center gap-0.5">
-                  <Star size={8} className="fill-[var(--usha-gold)] text-[var(--usha-gold)]" />
-                  <span className="text-[10px] text-[var(--usha-muted)]">
-                    {[4.8, 4.6, 4.9, 4.7, 4.5][i % 5]}
-                  </span>
-                </div>
+                <p className="text-[10px] text-[var(--usha-muted)]">
+                  {creator.category || "Kreator"}
+                </p>
               </div>
             </Link>
-          ))}
+          )) : (
+            <div className="col-span-full flex flex-col items-center justify-center rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] py-8">
+              <Users size={28} className="mb-2 text-[var(--usha-muted)]" />
+              <p className="text-sm text-[var(--usha-muted)]">Inga kreatorer annu</p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -215,21 +231,29 @@ function AnvandareHome({
           </Link>
         </div>
         <div className="space-y-3 md:grid md:grid-cols-2 md:gap-3 md:space-y-0">
-          {clubsStudios.map((club, i) => (
-            <div
-              key={i}
-              className="flex items-center gap-4 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 transition-colors hover:border-[var(--usha-gold)]/20"
-            >
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--usha-gold)]/10 to-[var(--usha-accent)]/10">
-                <club.icon size={20} className="text-[var(--usha-gold)]" />
+          {venueListings.length > 0 ? venueListings.map((venue: any, i: number) => {
+            const IconComponent = venue.icon;
+            return (
+              <div
+                key={i}
+                className="flex items-center gap-4 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 transition-colors hover:border-[var(--usha-gold)]/20"
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--usha-gold)]/10 to-[var(--usha-accent)]/10">
+                  <IconComponent size={20} className="text-[var(--usha-gold)]" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-sm font-semibold">{venue.name}</h3>
+                  <p className="text-xs text-[var(--usha-muted)]">{venue.type}</p>
+                </div>
+                <ChevronRight size={16} className="text-[var(--usha-muted)]" />
               </div>
-              <div className="flex-1">
-                <h3 className="text-sm font-semibold">{club.name}</h3>
-                <p className="text-xs text-[var(--usha-muted)]">{club.type}</p>
-              </div>
-              <ChevronRight size={16} className="text-[var(--usha-muted)]" />
+            );
+          }) : (
+            <div className="col-span-full flex flex-col items-center justify-center rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] py-8">
+              <MapPin size={28} className="mb-2 text-[var(--usha-muted)]" />
+              <p className="text-sm text-[var(--usha-muted)]">Inga platser att visa annu</p>
             </div>
-          ))}
+          )}
         </div>
       </section>
     </div>
@@ -251,33 +275,25 @@ function KreatorHome({
       label: "Bokningar",
       value: String(bookingsCount),
       icon: Calendar,
-      trend: "+12%",
     },
     {
       label: "Intäkter",
       value: `${(profile?.hourly_rate || 0) * bookingsCount} kr`,
       icon: DollarSign,
-      trend: "+8%",
     },
     {
       label: "Betyg",
-      value: "4.8",
+      value: "-",
       icon: Star,
       sub: "/5.0",
     },
   ];
 
-  const todaysClasses = [
-    { title: "Salsa Nybörjare", time: "10:00 - 11:30", students: 12, status: "Pågår" },
-    { title: "Bachata Medel", time: "13:00 - 14:30", students: 8, status: "Kommande" },
-    { title: "Street Dance", time: "17:00 - 18:30", students: 15, status: "Kommande" },
-  ];
-
-  const recentBookings = [
-    { name: "Anna Eriksson", service: "Privat Salsalektion", time: "Igår", status: "Bekräftad" },
-    { name: "Johan Berg", service: "Gruppklass Bachata", time: "2 dagar sedan", status: "Ny" },
-    { name: "Lisa Holm", service: "Street Dance Workshop", time: "3 dagar sedan", status: "Bekräftad" },
-  ];
+  const todaysListings = listings.slice(0, 3).map((listing: any) => ({
+    title: listing.title,
+    time: listing.duration_minutes ? `${listing.duration_minutes} min` : "-",
+    category: listing.category || "Ovrigt",
+  }));
 
   return (
     <div className="px-4 py-6 space-y-8">
@@ -308,21 +324,15 @@ function KreatorHome({
               )}
             </p>
             <p className="text-[11px] text-[var(--usha-muted)]">{stat.label}</p>
-            {stat.trend && (
-              <div className="mt-1 flex items-center gap-0.5">
-                <TrendingUp size={10} className="text-green-400" />
-                <span className="text-[10px] text-green-400">{stat.trend}</span>
-              </div>
-            )}
           </div>
         ))}
       </div>
 
-      {/* Today's Classes */}
+      {/* Today's Listings */}
       <section>
-        <h2 className="mb-4 text-lg font-bold">Dagens Klasser</h2>
+        <h2 className="mb-4 text-lg font-bold">Dina Tjänster</h2>
         <div className="space-y-3 md:grid md:grid-cols-2 md:gap-3 md:space-y-0 lg:grid-cols-3">
-          {todaysClasses.map((cls, i) => (
+          {todaysListings.length > 0 ? todaysListings.map((cls: any, i: number) => (
             <div
               key={i}
               className="flex items-center gap-4 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4"
@@ -335,66 +345,50 @@ function KreatorHome({
                 <p className="text-xs text-[var(--usha-muted)]">{cls.time}</p>
               </div>
               <div className="text-right">
-                <div className="flex items-center gap-1 text-xs text-[var(--usha-muted)]">
-                  <Users size={10} />
-                  <span>{cls.students}</span>
-                </div>
-                <span
-                  className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                    cls.status === "Pågår"
-                      ? "bg-green-500/20 text-green-400"
-                      : "bg-[var(--usha-gold)]/10 text-[var(--usha-gold)]"
-                  }`}
-                >
-                  {cls.status}
+                <span className="inline-block rounded-full px-2 py-0.5 text-[10px] font-medium bg-[var(--usha-gold)]/10 text-[var(--usha-gold)]">
+                  {cls.category}
                 </span>
               </div>
             </div>
-          ))}
+          )) : (
+            <div className="col-span-full flex flex-col items-center justify-center rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] py-8">
+              <Clock size={28} className="mb-2 text-[var(--usha-muted)]" />
+              <p className="text-sm text-[var(--usha-muted)]">Inga tjänster ännu</p>
+            </div>
+          )}
         </div>
       </section>
 
-      {/* Recent Bookings */}
+      {/* Bookings Summary */}
       <section>
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-bold">Senaste Bokningar</h2>
+          <h2 className="text-lg font-bold">Bokningar</h2>
           <Link href="/app/calendar" className="text-xs text-[var(--usha-gold)]">
             Visa alla
           </Link>
         </div>
-        <div className="space-y-3 md:grid md:grid-cols-2 md:gap-3 md:space-y-0 lg:grid-cols-3">
-          {recentBookings.map((booking, i) => (
-            <div
-              key={i}
-              className="flex items-center gap-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[var(--usha-gold)]/20 to-[var(--usha-accent)]/20">
-                <span className="text-sm font-bold text-[var(--usha-gold)]">
-                  {booking.name[0]}
-                </span>
-              </div>
-              <div className="flex-1">
-                <h3 className="text-sm font-semibold">{booking.name}</h3>
-                <p className="text-xs text-[var(--usha-muted)]">
-                  {booking.service}
-                </p>
-              </div>
-              <div className="text-right">
-                <span
-                  className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                    booking.status === "Ny"
-                      ? "bg-blue-500/20 text-blue-400"
-                      : "bg-green-500/20 text-green-400"
-                  }`}
-                >
-                  {booking.status}
-                </span>
-                <p className="mt-0.5 text-[10px] text-[var(--usha-muted)]">
-                  {booking.time}
-                </p>
-              </div>
+        <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[var(--usha-gold)]/20 to-[var(--usha-accent)]/20">
+              <Calendar size={18} className="text-[var(--usha-gold)]" />
             </div>
-          ))}
+            <div className="flex-1">
+              <h3 className="text-sm font-semibold">
+                Du har {bookingsCount} aktiva bokningar
+              </h3>
+              <p className="text-xs text-[var(--usha-muted)]">
+                {bookingsCount > 0
+                  ? "Se din kalender for detaljer"
+                  : "Inga bokningar just nu"}
+              </p>
+            </div>
+            <Link
+              href="/app/calendar"
+              className="rounded-lg bg-[var(--usha-gold)]/10 px-3 py-1.5 text-xs font-medium text-[var(--usha-gold)]"
+            >
+              Kalender
+            </Link>
+          </div>
         </div>
       </section>
     </div>
@@ -405,27 +399,25 @@ function KreatorHome({
 function UpplevelseHome({
   profile,
   bookingsCount,
+  listings,
 }: {
   profile: any;
   bookingsCount: number;
+  listings: any[];
 }) {
   const stats = [
-    { label: "Bokningar", value: String(bookingsCount), icon: Calendar, trend: "+18%" },
-    { label: "Besökare", value: "342", icon: Users, trend: "+24%" },
-    { label: "Intäkter", value: "45,200 kr", icon: DollarSign, trend: "+15%" },
+    { label: "Bokningar", value: String(bookingsCount), icon: Calendar },
+    { label: "Besökare", value: String(bookingsCount), icon: Users },
+    { label: "Intäkter", value: "-", icon: DollarSign },
   ];
 
-  const upcomingEvents = [
-    { title: "Latin Night", date: "15 feb, 21:00", capacity: "120/150", status: "Aktiv" },
-    { title: "Wine & Jazz", date: "18 feb, 19:00", capacity: "45/60", status: "Aktiv" },
-    { title: "Wellness Retreat", date: "22 feb, 09:00", capacity: "18/20", status: "Nästan full" },
-  ];
-
-  const activeCreators = [
-    { name: "Maria Lindström", type: "Dansinstruktör", sessions: 8 },
-    { name: "Erik Johansson", type: "DJ & Musiker", sessions: 4 },
-    { name: "Sofia Andersson", type: "Yogainstruktör", sessions: 6 },
-  ];
+  const upcomingEvents = listings.slice(0, 3).map((listing: any) => ({
+    title: listing.title,
+    date: listing.created_at
+      ? new Date(listing.created_at).toLocaleDateString("sv-SE", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })
+      : "",
+    status: listing.is_active ? "Aktiv" : "Utkast",
+  }));
 
   return (
     <div className="px-4 py-6 space-y-8">
@@ -449,10 +441,6 @@ function UpplevelseHome({
             <stat.icon size={18} className="mb-2 text-[var(--usha-gold)]" />
             <p className="text-xl font-bold">{stat.value}</p>
             <p className="text-[11px] text-[var(--usha-muted)]">{stat.label}</p>
-            <div className="mt-1 flex items-center gap-0.5">
-              <TrendingUp size={10} className="text-green-400" />
-              <span className="text-[10px] text-green-400">{stat.trend}</span>
-            </div>
           </div>
         ))}
       </div>
@@ -466,7 +454,7 @@ function UpplevelseHome({
           </Link>
         </div>
         <div className="space-y-3 md:grid md:grid-cols-2 md:gap-3 md:space-y-0 lg:grid-cols-3">
-          {upcomingEvents.map((event, i) => (
+          {upcomingEvents.length > 0 ? upcomingEvents.map((event: any, i: number) => (
             <div
               key={i}
               className="flex items-center gap-4 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4"
@@ -479,11 +467,10 @@ function UpplevelseHome({
                 <p className="text-xs text-[var(--usha-muted)]">{event.date}</p>
               </div>
               <div className="text-right">
-                <p className="text-xs font-medium">{event.capacity}</p>
                 <span
                   className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                    event.status === "Nästan full"
-                      ? "bg-orange-500/20 text-orange-400"
+                    event.status === "Utkast"
+                      ? "bg-[var(--usha-muted)]/20 text-[var(--usha-muted)]"
                       : "bg-green-500/20 text-green-400"
                   }`}
                 >
@@ -491,7 +478,12 @@ function UpplevelseHome({
                 </span>
               </div>
             </div>
-          ))}
+          )) : (
+            <div className="col-span-full flex flex-col items-center justify-center rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] py-8">
+              <Ticket size={28} className="mb-2 text-[var(--usha-muted)]" />
+              <p className="text-sm text-[var(--usha-muted)]">Inga evenemang ännu</p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -502,26 +494,10 @@ function UpplevelseHome({
           <span className="text-xs text-[var(--usha-gold)]">Bjud in</span>
         </div>
         <div className="space-y-3 md:grid md:grid-cols-2 md:gap-3 md:space-y-0 lg:grid-cols-3">
-          {activeCreators.map((creator, i) => (
-            <div
-              key={i}
-              className="flex items-center gap-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[var(--usha-gold)]/30 bg-gradient-to-br from-[var(--usha-gold)]/20 to-[var(--usha-accent)]/20">
-                <span className="text-sm font-bold text-[var(--usha-gold)]">
-                  {creator.name[0]}
-                </span>
-              </div>
-              <div className="flex-1">
-                <h3 className="text-sm font-semibold">{creator.name}</h3>
-                <p className="text-xs text-[var(--usha-muted)]">{creator.type}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-xs font-medium">{creator.sessions} sessioner</p>
-                <p className="text-[10px] text-[var(--usha-muted)]">denna månad</p>
-              </div>
-            </div>
-          ))}
+          <div className="col-span-full flex flex-col items-center justify-center rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] py-8">
+            <Users size={28} className="mb-2 text-[var(--usha-muted)]" />
+            <p className="text-sm text-[var(--usha-muted)]">Inga aktiva kreatorer ännu</p>
+          </div>
         </div>
       </section>
     </div>

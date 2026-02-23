@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { handleCapacityReached, autoPromoteFromQueue } from "@/lib/bookings/queue";
 
 export async function createBooking(formData: FormData) {
   const supabase = await createClient();
@@ -27,6 +28,20 @@ export async function createBooking(formData: FormData) {
   const scheduledDate = new Date(scheduled_at);
   if (scheduledDate <= new Date()) {
     return { error: "Välj ett datum i framtiden." };
+  }
+
+  // Check capacity if the listing has a duration_minutes field (used as max capacity)
+  const { data: listing } = await supabase
+    .from("listings")
+    .select("id, duration_minutes")
+    .eq("id", listing_id)
+    .single();
+
+  if (listing?.duration_minutes) {
+    const isFull = await handleCapacityReached(listing_id, listing.duration_minutes);
+    if (isFull) {
+      return { error: "Denna tjänst är fullbokad." };
+    }
   }
 
   const { error } = await supabase.from("bookings").insert({
@@ -98,6 +113,24 @@ export async function updateBookingStatus(
     .eq("id", bookingId);
 
   if (error) return { error: "Kunde inte uppdatera bokningen." };
+
+  // When a booking is canceled, try to promote the next person in the queue
+  if (status === "canceled") {
+    const { data: canceledBooking } = await supabase
+      .from("bookings")
+      .select("listing_id")
+      .eq("id", bookingId)
+      .single();
+
+    if (canceledBooking?.listing_id) {
+      try {
+        await autoPromoteFromQueue(canceledBooking.listing_id);
+      } catch (err) {
+        // booking_queue table may not exist yet — log and continue
+        console.error("autoPromoteFromQueue failed (queue table may not exist):", err);
+      }
+    }
+  }
 
   revalidatePath("/dashboard/bookings");
   return { success: true };
