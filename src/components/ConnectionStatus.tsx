@@ -3,10 +3,12 @@
 import { useEffect, useState } from "react";
 
 export function ConnectionStatus() {
+  const [mounted, setMounted] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
   const [showOnline, setShowOnline] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     // Set initial state from browser
     setIsOnline(navigator.onLine);
 
@@ -31,6 +33,9 @@ export function ConnectionStatus() {
       window.removeEventListener("offline", handleOffline);
     };
   }, []);
+
+  // Don't render anything until mounted to avoid hydration mismatch
+  if (!mounted) return null;
 
   // Offline banner — always visible when offline
   if (!isOnline) {
