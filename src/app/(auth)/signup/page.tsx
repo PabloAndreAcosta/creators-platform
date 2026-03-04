@@ -104,10 +104,24 @@ export default function SignupPage() {
     setLoading(false);
   }
 
+  function storeRoleForOAuth() {
+    document.cookie = `pending_role=${selectedRole};path=/;max-age=600;SameSite=Lax`;
+  }
+
   async function handleGoogleSignup() {
     if (!selectedRole) return;
+    storeRoleForOAuth();
     await supabase.auth.signInWithOAuth({
       provider: "google",
+      options: { redirectTo: `${window.location.origin}/callback` },
+    });
+  }
+
+  async function handleFacebookSignup() {
+    if (!selectedRole) return;
+    storeRoleForOAuth();
+    await supabase.auth.signInWithOAuth({
+      provider: "facebook",
       options: { redirectTo: `${window.location.origin}/callback` },
     });
   }
@@ -197,9 +211,16 @@ export default function SignupPage() {
 
         <button
           onClick={handleGoogleSignup}
-          className="mb-4 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium transition hover:bg-[var(--usha-card)]"
+          className="mb-2 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium transition hover:bg-[var(--usha-card)]"
         >
           Fortsätt med Google
+        </button>
+
+        <button
+          onClick={handleFacebookSignup}
+          className="mb-4 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium transition hover:bg-[var(--usha-card)]"
+        >
+          Fortsätt med Facebook
         </button>
 
         <div className="mb-4 flex items-center gap-3">

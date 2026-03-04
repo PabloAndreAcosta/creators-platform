@@ -81,7 +81,13 @@ export default function LoginPage() {
 
       if (data.session) {
         setStatus("Inloggad! Omdirigerar...");
-        window.location.href = "/app";
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", data.session.user.id)
+          .single();
+        const role = profile?.role;
+        window.location.href = (role === "creator" || role === "experience") ? "/dashboard" : "/app";
       } else {
         setError("Ingen session returnerades. Kontrollera din e-post.");
         setLoading(false);
@@ -100,6 +106,13 @@ export default function LoginPage() {
     });
   }
 
+  async function handleFacebookLogin() {
+    await supabase.auth.signInWithOAuth({
+      provider: "facebook",
+      options: { redirectTo: `${window.location.origin}/callback` },
+    });
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center px-6">
       <div className="w-full max-w-sm">
@@ -113,9 +126,16 @@ export default function LoginPage() {
 
         <button
           onClick={handleGoogleLogin}
-          className="mb-4 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium transition hover:bg-[var(--usha-card)]"
+          className="mb-2 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium transition hover:bg-[var(--usha-card)]"
         >
           Fortsätt med Google
+        </button>
+
+        <button
+          onClick={handleFacebookLogin}
+          className="mb-4 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium transition hover:bg-[var(--usha-card)]"
+        >
+          Fortsätt med Facebook
         </button>
 
         <div className="mb-4 flex items-center gap-3">

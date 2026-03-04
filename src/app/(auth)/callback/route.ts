@@ -10,31 +10,40 @@ export async function GET(req: NextRequest) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      // If explicit redirect was provided, use it
-      if (next) {
-        return NextResponse.redirect(`${origin}${next}`);
-      }
-
-      // Check user's role to determine redirect
       const {
         data: { user },
       } = await supabase.auth.getUser();
 
       if (user) {
+        // Check if a pending role was set during OAuth signup
+        const pendingRole = req.cookies.get("pending_role")?.value;
+        const validRoles = ["creator", "experience", "customer"];
+
+        if (pendingRole && validRoles.includes(pendingRole)) {
+          // Update profile with the selected role
+          await supabase
+            .from("profiles")
+            .update({ role: pendingRole })
+            .eq("id", user.id);
+        }
+
+        // Fetch the (possibly updated) role
         const { data: profile } = await supabase
           .from("profiles")
           .select("role")
           .eq("id", user.id)
           .single();
 
-        const role = profile?.role;
+        const role = pendingRole && validRoles.includes(pendingRole)
+          ? pendingRole
+          : profile?.role;
 
-        if (!role || role === "customer") {
-          return NextResponse.redirect(`${origin}/app`);
-        }
-
-        // creator or experience → dashboard
-        return NextResponse.redirect(`${origin}/dashboard`);
+        // Clear the pending_role cookie
+        const destination = (!role || role === "customer") ? "/app" : "/dashboard";
+        const redirectUrl = next || destination;
+        const response = NextResponse.redirect(`${origin}${redirectUrl}`);
+        response.cookies.set("pending_role", "", { path: "/", maxAge: 0 });
+        return response;
       }
 
       return NextResponse.redirect(`${origin}/app`);
