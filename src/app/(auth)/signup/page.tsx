@@ -2,12 +2,22 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { Palette, Store, Search } from "lucide-react";
+
+type Role = "creator" | "experience" | "customer";
+
+const ROLES: { value: Role; label: string; description: string; icon: typeof Palette }[] = [
+  { value: "creator", label: "Kreatör", description: "Jag erbjuder kreativa tjänster", icon: Palette },
+  { value: "experience", label: "Upplevelse", description: "Jag driver en verksamhet", icon: Store },
+  { value: "customer", label: "Kund", description: "Jag vill boka upplevelser", icon: Search },
+];
 
 function FieldError({ message }: { message: string }) {
   return <p className="mt-1 text-xs text-red-400">{message}</p>;
 }
 
 export default function SignupPage() {
+  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -70,7 +80,7 @@ export default function SignupPage() {
       email,
       password,
       options: {
-        data: { full_name: fullName },
+        data: { full_name: fullName, role: selectedRole },
         emailRedirectTo: `${window.location.origin}/callback`,
       },
     });
@@ -86,7 +96,7 @@ export default function SignupPage() {
     }
 
     if (data.session) {
-      window.location.href = "/app";
+      window.location.href = selectedRole === "customer" ? "/app" : "/dashboard";
       return;
     }
 
@@ -95,6 +105,7 @@ export default function SignupPage() {
   }
 
   async function handleGoogleSignup() {
+    if (!selectedRole) return;
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: `${window.location.origin}/callback` },
@@ -122,6 +133,49 @@ export default function SignupPage() {
     );
   }
 
+  // Step 1: Role selection
+  if (!selectedRole) {
+    return (
+      <div className="flex min-h-screen items-center justify-center px-6">
+        <div className="w-full max-w-md">
+          <div className="mb-8 text-center">
+            <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
+              <span className="text-lg font-bold text-black">U</span>
+            </div>
+            <h1 className="text-2xl font-bold">Välj din roll</h1>
+            <p className="mt-1 text-sm text-[var(--usha-muted)]">Hur vill du använda Usha?</p>
+          </div>
+
+          <div className="space-y-3">
+            {ROLES.map((role) => (
+              <button
+                key={role.value}
+                onClick={() => setSelectedRole(role.value)}
+                className="flex w-full items-center gap-4 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5 text-left transition hover:border-[var(--usha-gold)]/40"
+              >
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-[var(--usha-gold)]/10">
+                  <role.icon size={24} className="text-[var(--usha-gold)]" />
+                </div>
+                <div>
+                  <h3 className="font-semibold">{role.label}</h3>
+                  <p className="text-sm text-[var(--usha-muted)]">{role.description}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+
+          <p className="mt-6 text-center text-sm text-[var(--usha-muted)]">
+            Har redan konto?{" "}
+            <a href="/login" className="text-[var(--usha-gold)] hover:underline">
+              Logga in
+            </a>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Step 2: Registration form
   return (
     <div className="flex min-h-screen items-center justify-center px-6">
       <div className="w-full max-w-sm">
@@ -130,7 +184,15 @@ export default function SignupPage() {
             <span className="text-lg font-bold text-black">U</span>
           </div>
           <h1 className="text-2xl font-bold">Skapa konto</h1>
-          <p className="mt-1 text-sm text-[var(--usha-muted)]">14 dagars gratis provperiod</p>
+          <p className="mt-1 text-sm text-[var(--usha-muted)]">
+            {ROLES.find((r) => r.value === selectedRole)?.label} — 14 dagars gratis provperiod
+          </p>
+          <button
+            onClick={() => setSelectedRole(null)}
+            className="mt-1 text-xs text-[var(--usha-gold)] hover:underline"
+          >
+            Byt roll
+          </button>
         </div>
 
         <button

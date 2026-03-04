@@ -12,15 +12,17 @@ export interface Database {
           category: string | null;
           location: string | null;
           hourly_rate: number | null;
+          role: "creator" | "experience" | "customer";
           is_public: boolean;
           tier: string | null;
           stripe_account_id: string | null;
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["profiles"]["Row"], "created_at" | "updated_at" | "is_public" | "tier"> & {
+        Insert: Omit<Database["public"]["Tables"]["profiles"]["Row"], "created_at" | "updated_at" | "is_public" | "tier" | "role"> & {
           is_public?: boolean;
           tier?: string | null;
+          role?: "creator" | "experience" | "customer";
         };
         Update: Partial<Database["public"]["Tables"]["profiles"]["Insert"]>;
       };

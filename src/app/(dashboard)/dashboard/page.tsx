@@ -6,6 +6,9 @@ import {
   BarChart3,
   Settings,
   List,
+  Search,
+  Heart,
+  Clock,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -19,15 +22,26 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .single();
+
+  const role = (profile?.role as string) ?? "customer";
+
+  if (role === "customer") {
+    return <CustomerDashboard profile={profile} />;
+  }
+
+  // Creator / Experience dashboard
   const [
-    { data: profile },
     { data: subscription },
     { count: listingsCount },
     { count: bookingsCount },
     { count: completedCount },
     { data: completedBookings },
   ] = await Promise.all([
-    supabase.from("profiles").select("*").eq("id", user.id).single(),
     supabase
       .from("subscriptions")
       .select("*")
@@ -61,10 +75,12 @@ export default async function DashboardPage() {
     return sum + price;
   }, 0);
 
+  const roleLabel = role === "creator" ? "Kreatör" : "Upplevelseföretag";
+
   return (
     <>
       <h1 className="mb-2 text-3xl font-bold">
-        Hej, {profile?.full_name || "Creator"}! 👋
+        Hej, {profile?.full_name || roleLabel}! 👋
       </h1>
       <p className="mb-10 text-[var(--usha-muted)]">
         {subscription
@@ -153,6 +169,63 @@ export default async function DashboardPage() {
             {subscription
               ? `${subscription.plan.charAt(0).toUpperCase() + subscription.plan.slice(1)}-planen`
               : "Välj en plan för att låsa upp alla funktioner"}
+          </p>
+        </Link>
+      </div>
+    </>
+  );
+}
+
+function CustomerDashboard({ profile }: { profile: any }) {
+  return (
+    <>
+      <h1 className="mb-2 text-3xl font-bold">
+        Hej, {profile?.full_name || "du"}! 👋
+      </h1>
+      <p className="mb-10 text-[var(--usha-muted)]">
+        Hitta och boka fantastiska upplevelser.
+      </p>
+
+      {/* Quick actions for customers */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <Link
+          href="/app"
+          className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 transition-colors hover:border-[var(--usha-gold)]/30"
+        >
+          <Search size={20} className="mb-3 text-[var(--usha-gold)]" />
+          <h3 className="mb-1 font-semibold">Utforska</h3>
+          <p className="text-sm text-[var(--usha-muted)]">
+            Hitta kreatörer och upplevelser
+          </p>
+        </Link>
+        <Link
+          href="/dashboard/bookings"
+          className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 transition-colors hover:border-[var(--usha-gold)]/30"
+        >
+          <Clock size={20} className="mb-3 text-[var(--usha-gold)]" />
+          <h3 className="mb-1 font-semibold">Mina bokningar</h3>
+          <p className="text-sm text-[var(--usha-muted)]">
+            Se dina kommande och tidigare bokningar
+          </p>
+        </Link>
+        <Link
+          href="/dashboard/favorites"
+          className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 transition-colors hover:border-[var(--usha-gold)]/30"
+        >
+          <Heart size={20} className="mb-3 text-[var(--usha-gold)]" />
+          <h3 className="mb-1 font-semibold">Favoriter</h3>
+          <p className="text-sm text-[var(--usha-muted)]">
+            Dina sparade kreatörer och upplevelser
+          </p>
+        </Link>
+        <Link
+          href="/dashboard/profile"
+          className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 transition-colors hover:border-[var(--usha-gold)]/30"
+        >
+          <Settings size={20} className="mb-3 text-[var(--usha-gold)]" />
+          <h3 className="mb-1 font-semibold">Profilinställningar</h3>
+          <p className="text-sm text-[var(--usha-muted)]">
+            Uppdatera dina uppgifter
           </p>
         </Link>
       </div>
