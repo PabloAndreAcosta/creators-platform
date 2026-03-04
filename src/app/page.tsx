@@ -627,17 +627,18 @@ function Pillars() {
 /* ─────────────── PRICING ─────────────── */
 const PLANS = [
   {
-    name: "Basic",
-    price: 99,
-    desc: "Perfekt för att komma igång",
+    name: "Gratis",
+    price: 0,
+    desc: "Kom igång utan kostnad",
     features: [
-      "Skapa din profil",
-      "Visa upp dina tjänster",
-      "Upp till 5 aktiva listor",
+      "Skapa profil med bio och portfolio",
+      "Upp till 3 aktiva listor",
+      "Synas på marketplace",
+      "Ta emot bokningar",
       "Grundläggande statistik",
-      "Email-support",
+      "12% plattformsavgift per bokning",
     ],
-    cta: "Starta Basic",
+    cta: "Skapa konto gratis",
     popular: false,
   },
   {
@@ -645,12 +646,14 @@ const PLANS = [
     price: 199,
     desc: "För den seriösa kreatören",
     features: [
-      "Allt i Basic",
+      "Allt i Gratis",
       "Obegränsade listor",
-      "Prioriterad visning",
-      "Avancerad statistik",
-      "Direkt bokningssystem",
-      "Prioriterad support",
+      "Prioriterad visning på marketplace",
+      "Lägre plattformsavgift (8%)",
+      "Avancerad statistik och trender",
+      "Kalendersynk och bokningssystem",
+      "Verifierad-badge",
+      "Prioriterad support (24h)",
     ],
     cta: "Starta Premium",
     popular: true,
@@ -658,14 +661,15 @@ const PLANS = [
   {
     name: "Enterprise",
     price: 499,
-    desc: "Full kontroll och support",
+    desc: "För verksamheter med hög volym",
     features: [
       "Allt i Premium",
-      "Anpassad profil-design",
+      "Lägst plattformsavgift (5%)",
+      "Upp till 10 teammedlemmar",
       "API-tillgång",
       "Dedikerad account manager",
       "Custom integrationer",
-      "SLA-garanti",
+      "SLA-garanti (99.9%)",
     ],
     cta: "Kontakta oss",
     popular: false,
@@ -688,8 +692,8 @@ function Pricing() {
             Investera i din <span className="text-gradient">tillväxt</span>
           </h2>
           <p className="mx-auto max-w-xl text-[var(--usha-muted)]">
-            Alla planer inkluderar 14 dagars gratis provperiod. Uppgradera,
-            nedgradera eller avsluta när du vill.
+            Börja gratis och uppgradera när du växer. Du betalar bara
+            plattformsavgift på bokningar — lägre avgift med högre plan.
           </p>
         </div>
 
@@ -715,8 +719,12 @@ function Pricing() {
               </p>
 
               <div className="my-6 flex items-baseline gap-1">
-                <span className="text-4xl font-extrabold">{plan.price}</span>
-                <span className="text-[var(--usha-muted)]">SEK/mån</span>
+                <span className="text-4xl font-extrabold">
+                  {plan.price === 0 ? "0" : plan.price}
+                </span>
+                <span className="text-[var(--usha-muted)]">
+                  {plan.price === 0 ? "SEK — för alltid" : "SEK/mån"}
+                </span>
               </div>
 
               <ul className="mb-8 space-y-3">
