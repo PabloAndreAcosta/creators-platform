@@ -189,8 +189,11 @@ function PublikHome({
                   className="h-full w-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                <button className="absolute right-2 top-2 rounded-full bg-black/40 p-1.5 backdrop-blur-sm">
-                  <Heart size={14} className="text-white" />
+                <button
+                  className="absolute right-1 top-1 flex h-11 w-11 items-center justify-center rounded-full bg-black/40 backdrop-blur-sm"
+                  aria-label="Spara som favorit"
+                >
+                  <Heart size={16} className="text-white" />
                 </button>
                 <span className="absolute bottom-2 left-2 rounded-full bg-[var(--usha-gold)]/90 px-2 py-0.5 text-[10px] font-semibold text-black">
                   {event.price}
@@ -249,7 +252,7 @@ function PublikHome({
           )) : (
             <div className="col-span-full flex flex-col items-center justify-center rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] py-8">
               <Users size={28} className="mb-2 text-[var(--usha-muted)]" />
-              <p className="text-sm text-[var(--usha-muted)]">Inga kreatorer annu</p>
+              <p className="text-sm text-[var(--usha-muted)]">Inga kreatörer ännu</p>
             </div>
           )}
         </div>
@@ -284,7 +287,7 @@ function PublikHome({
           }) : (
             <div className="col-span-full flex flex-col items-center justify-center rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] py-8">
               <MapPin size={28} className="mb-2 text-[var(--usha-muted)]" />
-              <p className="text-sm text-[var(--usha-muted)]">Inga platser att visa annu</p>
+              <p className="text-sm text-[var(--usha-muted)]">Inga platser att visa ännu</p>
             </div>
           )}
         </div>
@@ -411,7 +414,7 @@ function KreatorHome({
               </h3>
               <p className="text-xs text-[var(--usha-muted)]">
                 {bookingsCount > 0
-                  ? "Se din kalender for detaljer"
+                  ? "Se din kalender för detaljer"
                   : "Inga bokningar just nu"}
               </p>
             </div>
@@ -529,7 +532,7 @@ function UpplevelseHome({
         <div className="space-y-3 md:grid md:grid-cols-2 md:gap-3 md:space-y-0 lg:grid-cols-3">
           <div className="col-span-full flex flex-col items-center justify-center rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] py-8">
             <Users size={28} className="mb-2 text-[var(--usha-muted)]" />
-            <p className="text-sm text-[var(--usha-muted)]">Inga aktiva kreatorer ännu</p>
+            <p className="text-sm text-[var(--usha-muted)]">Inga aktiva kreatörer ännu</p>
           </div>
         </div>
       </section>

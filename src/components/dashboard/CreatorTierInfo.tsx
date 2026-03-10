@@ -32,9 +32,9 @@ const TIER_CONFIG = {
   premium: {
     label: 'Premium',
     rate: 0.03,
-    badgeStyle: 'bg-purple-500/15 text-purple-400 border-purple-500/20',
-    cardBorder: 'border-purple-500/20',
-    accentColor: 'text-purple-400',
+    badgeStyle: 'bg-[var(--usha-premium)]/15 text-[var(--usha-premium)] border-[var(--usha-premium)]/20',
+    cardBorder: 'border-[var(--usha-premium)]/20',
+    accentColor: 'text-[var(--usha-premium)]',
     nextTier: null,
     nextLabel: null,
     message: 'Du har bästa möjliga kommissionsgrad',
@@ -128,7 +128,7 @@ export default function CreatorTierInfo({
             'rounded-2xl border p-5',
             config.nextTier === 'guld'
               ? 'border-[var(--usha-gold)]/20 bg-[var(--usha-gold)]/5'
-              : 'border-purple-500/20 bg-purple-500/5'
+              : 'border-[var(--usha-premium)]/20 bg-[var(--usha-premium)]/5'
           )}
         >
           <div className="flex items-start gap-3">
@@ -137,7 +137,7 @@ export default function CreatorTierInfo({
                 'w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0',
                 config.nextTier === 'guld'
                   ? 'bg-[var(--usha-gold)]/15'
-                  : 'bg-purple-500/15'
+                  : 'bg-[var(--usha-premium)]/15'
               )}
             >
               <svg
@@ -145,7 +145,7 @@ export default function CreatorTierInfo({
                   'w-4 h-4',
                   config.nextTier === 'guld'
                     ? 'text-[var(--usha-gold)]'
-                    : 'text-purple-400'
+                    : 'text-[var(--usha-premium)]'
                 )}
                 fill="none"
                 viewBox="0 0 24 24"
@@ -166,7 +166,7 @@ export default function CreatorTierInfo({
                   className={
                     config.nextTier === 'guld'
                       ? 'text-[var(--usha-gold)]'
-                      : 'text-purple-400'
+                      : 'text-[var(--usha-premium)]'
                   }
                 >
                   {sek(config.nextTier === 'guld' ? guldSavings : premiumSavings)} SEK
@@ -211,7 +211,7 @@ export default function CreatorTierInfo({
                       'text-xs font-bold uppercase w-16',
                       tier === 'gratis' && 'text-zinc-400',
                       tier === 'guld' && 'text-[var(--usha-gold)]',
-                      tier === 'premium' && 'text-purple-400'
+                      tier === 'premium' && 'text-[var(--usha-premium)]'
                     )}
                   >
                     {t.label}
@@ -251,7 +251,7 @@ export default function CreatorTierInfo({
             'w-full font-semibold text-base h-12',
             config.nextTier === 'guld'
               ? 'bg-[var(--usha-gold)] hover:bg-[var(--usha-gold-light)] text-black'
-              : 'bg-purple-600 hover:bg-purple-500 text-white'
+              : 'bg-[var(--usha-premium)] hover:bg-[var(--usha-premium-light)] text-white'
           )}
         >
           Uppgradera till {config.nextLabel}

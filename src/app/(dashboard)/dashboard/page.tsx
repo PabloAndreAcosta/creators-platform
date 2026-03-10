@@ -7,7 +7,6 @@ import {
   Settings,
   List,
   Search,
-  Heart,
   Clock,
 } from "lucide-react";
 import Link from "next/link";
@@ -206,16 +205,6 @@ function CustomerDashboard({ profile }: { profile: any }) {
           <h3 className="mb-1 font-semibold">Mina bokningar</h3>
           <p className="text-sm text-[var(--usha-muted)]">
             Se dina kommande och tidigare bokningar
-          </p>
-        </Link>
-        <Link
-          href="/dashboard/favorites"
-          className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 transition-colors hover:border-[var(--usha-gold)]/30"
-        >
-          <Heart size={20} className="mb-3 text-[var(--usha-gold)]" />
-          <h3 className="mb-1 font-semibold">Favoriter</h3>
-          <p className="text-sm text-[var(--usha-muted)]">
-            Dina sparade kreatörer och upplevelser
           </p>
         </Link>
         <Link

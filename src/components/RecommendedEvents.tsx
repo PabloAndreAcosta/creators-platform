@@ -149,7 +149,7 @@ function EventCard({ event }: { event: Recommendation }) {
           {event.creator.avatar ? (
             <img
               src={event.creator.avatar}
-              alt=""
+              alt={event.creator.name ?? 'Kreatör'}
               className="w-5 h-5 rounded-full object-cover"
             />
           ) : (

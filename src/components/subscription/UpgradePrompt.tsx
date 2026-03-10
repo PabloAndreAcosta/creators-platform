@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { X, Star } from "lucide-react";
 import Link from "next/link";
 
@@ -15,6 +15,23 @@ export function UpgradePrompt({
   onClose,
   message = "Uppgradera till Guld eller Premium för att låsa upp denna funktion.",
 }: UpgradePromptProps) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    },
+    [onClose]
+  );
+
+  useEffect(() => {
+    if (open) {
+      document.addEventListener("keydown", handleKeyDown);
+      dialogRef.current?.focus();
+      return () => document.removeEventListener("keydown", handleKeyDown);
+    }
+  }, [open, handleKeyDown]);
+
   if (!open) return null;
 
   return (
@@ -23,7 +40,12 @@ export function UpgradePrompt({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md bg-[var(--usha-card)] border border-[var(--usha-gold)]/20 rounded-t-2xl sm:rounded-2xl p-6 space-y-5"
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="upgrade-title"
+        tabIndex={-1}
+        className="w-full max-w-md bg-[var(--usha-card)] border border-[var(--usha-gold)]/20 rounded-t-2xl sm:rounded-2xl p-6 space-y-5 outline-none"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
@@ -31,11 +53,12 @@ export function UpgradePrompt({
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
               <Star size={16} className="text-black" />
             </div>
-            <h3 className="text-lg font-bold">Uppgradera</h3>
+            <h3 id="upgrade-title" className="text-lg font-bold">Uppgradera</h3>
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-1.5 text-[var(--usha-muted)] transition hover:text-white"
+            className="flex h-11 w-11 items-center justify-center rounded-lg text-[var(--usha-muted)] transition hover:text-white"
+            aria-label="Stäng"
           >
             <X size={18} />
           </button>

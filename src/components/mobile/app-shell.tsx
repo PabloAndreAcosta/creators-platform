@@ -33,7 +33,7 @@ export function AppShell({ children, userName }: AppShellProps) {
           </header>
 
           {/* Content */}
-          <main className="pb-24 md:pb-8">{children}</main>
+          <main className="pb-[calc(5rem+env(safe-area-inset-bottom,0px))] md:pb-8">{children}</main>
 
           {/* Bottom navigation – mobile only */}
           <BottomNav />

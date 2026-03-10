@@ -75,7 +75,7 @@ function Nav() {
           </a>
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="ml-1 rounded-lg p-2 text-[var(--usha-muted)] transition hover:text-white md:hidden"
+            className="ml-1 flex h-11 w-11 items-center justify-center rounded-lg text-[var(--usha-muted)] transition hover:text-white md:hidden"
             aria-label="Meny"
           >
             {mobileOpen ? <X size={20} /> : <Menu size={20} />}

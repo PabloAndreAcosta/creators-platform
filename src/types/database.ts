@@ -81,6 +81,8 @@ export interface Database {
           price: number | null;
           duration_minutes: number | null;
           is_active: boolean;
+          event_tier: string | null;
+          release_to_gold_at: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -117,13 +119,13 @@ export interface Database {
           amount_net: number;
           payout_type: "batch" | "instant";
           stripe_payout_id: string | null;
-          status: "pending" | "processing" | "completed" | "failed";
+          status: "pending" | "in_transit" | "paid" | "failed";
           created_at: string;
           updated_at: string;
         };
         Insert: Omit<Database["public"]["Tables"]["payouts"]["Row"], "id" | "created_at" | "updated_at" | "status"> & {
           id?: string;
-          status?: "pending" | "processing" | "completed" | "failed";
+          status?: "pending" | "in_transit" | "paid" | "failed";
         };
         Update: Partial<Database["public"]["Tables"]["payouts"]["Insert"]>;
       };

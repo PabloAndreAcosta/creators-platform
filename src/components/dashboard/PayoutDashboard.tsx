@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { createBrowserClient } from '@supabase/ssr';
@@ -57,6 +57,18 @@ export default function PayoutDashboard({ creatorId }: PayoutDashboardProps) {
   const [availableBalance, setAvailableBalance] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [payoutLoading, setPayoutLoading] = useState(false);
+
+  const payoutModalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!showModal) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShowModal(false);
+    };
+    document.addEventListener('keydown', handleKey);
+    payoutModalRef.current?.focus();
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [showModal]);
 
   const commissionRate = COMMISSION_RATES[tier] ?? 0.15;
   const weeklyCommission = Math.round(weeklyGross * commissionRate);
@@ -298,16 +310,22 @@ export default function PayoutDashboard({ creatorId }: PayoutDashboardProps) {
           onClick={() => setShowModal(false)}
         >
           <div
-            className="w-full max-w-md bg-[var(--usha-card)] border border-[var(--usha-border)] rounded-t-2xl sm:rounded-2xl p-6 space-y-4"
+            ref={payoutModalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="payout-modal-title"
+            tabIndex={-1}
+            className="w-full max-w-md bg-[var(--usha-card)] border border-[var(--usha-border)] rounded-t-2xl sm:rounded-2xl p-6 space-y-4 outline-none"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-[var(--usha-white)]">
+              <h3 id="payout-modal-title" className="text-lg font-bold text-[var(--usha-white)]">
                 Snabbutbetalning
               </h3>
               <button
                 onClick={() => setShowModal(false)}
-                className="text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
+                className="flex h-11 w-11 items-center justify-center rounded-lg text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
+                aria-label="Stäng"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />

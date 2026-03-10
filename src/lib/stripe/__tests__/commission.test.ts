@@ -20,41 +20,41 @@ function assertEq(actual: number, expected: number, name: string) {
 // ─── getCreatorCommissionRate ───
 console.log('\ngetCreatorCommissionRate:');
 
-assertEq(getCreatorCommissionRate('silver'), 0.20, 'Silver → 20%');
-assertEq(getCreatorCommissionRate('gold'), 0.10, 'Gold → 10%');
-assertEq(getCreatorCommissionRate('platinum'), 0.05, 'Platinum → 5%');
+assertEq(getCreatorCommissionRate('gratis'), 0.15, 'Gratis → 15%');
+assertEq(getCreatorCommissionRate('guld'), 0.08, 'Guld → 8%');
+assertEq(getCreatorCommissionRate('premium'), 0.03, 'Premium → 3%');
 
-// ─── calculateCreatorPayout: Silver ───
-console.log('\ncalculateCreatorPayout (Silver, 1000 SEK):');
+// ─── calculateCreatorPayout: Gratis ───
+console.log('\ncalculateCreatorPayout (Gratis, 1000 SEK):');
 
-const silver = calculateCreatorPayout(1000, 'silver');
-assertEq(silver.gross, 1000, 'Gross = 1000');
-assertEq(silver.commission, 200, 'Commission = 200');
-assertEq(silver.net, 800, 'Net = 800');
-assertEq(silver.commissionRate, 0.20, 'Rate = 0.20');
+const gratis = calculateCreatorPayout(1000, 'gratis');
+assertEq(gratis.gross, 1000, 'Gross = 1000');
+assertEq(gratis.commission, 150, 'Commission = 150');
+assertEq(gratis.net, 850, 'Net = 850');
+assertEq(gratis.commissionRate, 0.15, 'Rate = 0.15');
 
-// ─── calculateCreatorPayout: Gold ───
-console.log('\ncalculateCreatorPayout (Gold, 1000 SEK):');
+// ─── calculateCreatorPayout: Guld ───
+console.log('\ncalculateCreatorPayout (Guld, 1000 SEK):');
 
-const gold = calculateCreatorPayout(1000, 'gold');
-assertEq(gold.gross, 1000, 'Gross = 1000');
-assertEq(gold.commission, 100, 'Commission = 100');
-assertEq(gold.net, 900, 'Net = 900');
-assertEq(gold.commissionRate, 0.10, 'Rate = 0.10');
+const guld = calculateCreatorPayout(1000, 'guld');
+assertEq(guld.gross, 1000, 'Gross = 1000');
+assertEq(guld.commission, 80, 'Commission = 80');
+assertEq(guld.net, 920, 'Net = 920');
+assertEq(guld.commissionRate, 0.08, 'Rate = 0.08');
 
-// ─── calculateCreatorPayout: Platinum ───
-console.log('\ncalculateCreatorPayout (Platinum, 1000 SEK):');
+// ─── calculateCreatorPayout: Premium ───
+console.log('\ncalculateCreatorPayout (Premium, 1000 SEK):');
 
-const platinum = calculateCreatorPayout(1000, 'platinum');
-assertEq(platinum.gross, 1000, 'Gross = 1000');
-assertEq(platinum.commission, 50, 'Commission = 50');
-assertEq(platinum.net, 950, 'Net = 950');
-assertEq(platinum.commissionRate, 0.05, 'Rate = 0.05');
+const premium = calculateCreatorPayout(1000, 'premium');
+assertEq(premium.gross, 1000, 'Gross = 1000');
+assertEq(premium.commission, 30, 'Commission = 30');
+assertEq(premium.net, 970, 'Net = 970');
+assertEq(premium.commissionRate, 0.03, 'Rate = 0.03');
 
 // ─── Verify: net = gross - commission ───
 console.log('\nVerify net = gross - commission:');
 
-for (const tier of ['silver', 'gold', 'platinum'] as const) {
+for (const tier of ['gratis', 'guld', 'premium'] as const) {
   const p = calculateCreatorPayout(1000, tier);
   assert(p.net === p.gross - p.commission, `${tier}: ${p.net} === ${p.gross} - ${p.commission}`);
 }
@@ -63,12 +63,12 @@ for (const tier of ['silver', 'gold', 'platinum'] as const) {
 console.log('\nEdge cases:');
 
 const unknown = calculateCreatorPayout(1000, 'unknown');
-assertEq(unknown.commissionRate, 0.20, 'Unknown tier defaults to 20%');
-assertEq(unknown.net, 800, 'Unknown tier net = 800');
+assertEq(unknown.commissionRate, 0.15, 'Unknown tier defaults to 15%');
+assertEq(unknown.net, 850, 'Unknown tier net = 850');
 
-const small = calculateCreatorPayout(99.50, 'gold');
-assertEq(small.commission, 9.95, 'Small amount: 99.50 * 10% = 9.95');
-assertEq(small.net, 89.55, 'Small amount net: 89.55');
+const small = calculateCreatorPayout(99.50, 'guld');
+assertEq(small.commission, 7.96, 'Small amount: 99.50 * 8% = 7.96');
+assertEq(small.net, 91.54, 'Small amount net: 91.54');
 
 // ─── Summary ───
 console.log(`\n${passed} passed, ${failed} failed\n`);
