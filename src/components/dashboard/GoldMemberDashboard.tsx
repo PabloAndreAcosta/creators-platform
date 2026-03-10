@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface Subscription {
-  tier: 'gold' | 'platinum';
+  tier: 'guld' | 'premium';
   currentPeriodEnd: Date;
   status: string;
 }
@@ -16,29 +16,25 @@ interface UpcomingMasterclass {
   date: Date;
 }
 
-interface GoldMemberDashboardProps {
+interface GuldMemberDashboardProps {
   subscription: Subscription;
   discountsSavedThisMonth: number;
   upcomingMasterclass?: UpcomingMasterclass;
 }
 
 const BENEFITS = {
-  gold: [
-    '20% rabatt på Tier A event',
-    '10% rabatt på Tier B event',
-    '5% rabatt på Tier C event',
-    '48 timmar tidigt tillgång',
-    'Prioritetskö garanti',
+  guld: [
+    '10% rabatt på bokningar',
+    '48 timmar tidig tillgång',
+    'Prioritetskö',
     'Månatlig masterclass',
   ],
-  platinum: [
-    '30% rabatt på Tier A event',
-    '20% rabatt på Tier B event',
-    '10% rabatt på Tier C event',
-    '48 timmar tidigt tillgång',
-    'Prioritetskö garanti',
+  premium: [
+    '20% rabatt på bokningar',
+    'VIP — aldrig i kö',
+    'Exklusivt innehåll',
+    '72 timmar tidig tillgång',
     'Månatlig masterclass',
-    'Gratis instant payouts',
     'Dedicerad support',
   ],
 };
@@ -60,26 +56,26 @@ function formatDateTime(date: Date): string {
   }).format(date);
 }
 
-export default function GoldMemberDashboard({
+export default function GuldMemberDashboard({
   subscription,
   discountsSavedThisMonth,
   upcomingMasterclass,
-}: GoldMemberDashboardProps) {
+}: GuldMemberDashboardProps) {
   const [earlyAccessHours, setEarlyAccessHours] = useState<number | null>(null);
 
-  const isGold = subscription.tier === 'gold';
-  const isPlatinum = subscription.tier === 'platinum';
-  const tierLabel = isGold ? 'Gold' : 'Platinum';
+  const isGuld = subscription.tier === 'guld';
+  const isPremium = subscription.tier === 'premium';
+  const tierLabel = isGuld ? 'Guld' : 'Premium';
   const benefits = BENEFITS[subscription.tier];
 
-  // Calculate early access countdown (48h window)
+  // Calculate early access countdown (48h/72h window)
   useEffect(() => {
     function updateCountdown() {
       const now = new Date();
-      // Early access is based on subscription period — simplified as 48h rolling window
+      const window = isPremium ? 72 : 48;
       const hoursRemaining = Math.max(
         0,
-        48 - ((now.getTime() % (48 * 60 * 60 * 1000)) / (60 * 60 * 1000))
+        window - ((now.getTime() % (window * 60 * 60 * 1000)) / (60 * 60 * 1000))
       );
       setEarlyAccessHours(Math.round(hoursRemaining * 10) / 10);
     }
@@ -87,7 +83,9 @@ export default function GoldMemberDashboard({
     updateCountdown();
     const interval = setInterval(updateCountdown, 60 * 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [isPremium]);
+
+  const earlyAccessWindow = isPremium ? 72 : 48;
 
   return (
     <div className="space-y-5">
@@ -96,7 +94,7 @@ export default function GoldMemberDashboard({
         className={cn(
           'relative overflow-hidden rounded-2xl p-6',
           'border',
-          isGold
+          isGuld
             ? 'border-[var(--usha-gold)]/30 bg-gradient-to-br from-[var(--usha-gold)]/10 to-[var(--usha-card)]'
             : 'border-purple-500/30 bg-gradient-to-br from-purple-500/10 to-[var(--usha-card)]'
         )}
@@ -105,7 +103,7 @@ export default function GoldMemberDashboard({
           <svg viewBox="0 0 100 100" fill="none" className="w-full h-full">
             <polygon
               points="50,5 63,35 95,40 72,62 78,95 50,78 22,95 28,62 5,40 37,35"
-              fill={isGold ? 'var(--usha-gold)' : '#a855f7'}
+              fill={isGuld ? 'var(--usha-gold)' : '#a855f7'}
             />
           </svg>
         </div>
@@ -114,12 +112,12 @@ export default function GoldMemberDashboard({
           <div
             className={cn(
               'px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider',
-              isGold
+              isGuld
                 ? 'bg-[var(--usha-gold)]/20 text-[var(--usha-gold)]'
                 : 'bg-purple-500/20 text-purple-400'
             )}
           >
-            {tierLabel} Member
+            {tierLabel} Medlem
           </div>
           {subscription.status === 'active' && (
             <span className="text-xs text-green-500 font-medium">Aktiv</span>
@@ -129,7 +127,7 @@ export default function GoldMemberDashboard({
         <h2
           className={cn(
             'text-2xl font-bold mb-1',
-            isGold ? 'text-gradient' : 'text-purple-300'
+            isGuld ? 'text-gradient' : 'text-purple-300'
           )}
         >
           {tierLabel} Medlem
@@ -151,11 +149,11 @@ export default function GoldMemberDashboard({
       </div>
 
       {/* Early Access Countdown */}
-      {earlyAccessHours !== null && earlyAccessHours < 48 && (
+      {earlyAccessHours !== null && earlyAccessHours < earlyAccessWindow && (
         <div
           className={cn(
             'rounded-2xl border p-5',
-            isGold
+            isGuld
               ? 'border-[var(--usha-gold)]/20 bg-[var(--usha-gold)]/5'
               : 'border-purple-500/20 bg-purple-500/5'
           )}
@@ -163,7 +161,7 @@ export default function GoldMemberDashboard({
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-[var(--usha-white)]">
-                Tidigt tillgång aktiv
+                Tidig tillgång aktiv
               </p>
               <p className="text-xs text-[var(--usha-muted)]">
                 Boka innan alla andra
@@ -173,7 +171,7 @@ export default function GoldMemberDashboard({
               <p
                 className={cn(
                   'text-2xl font-bold font-mono',
-                  isGold ? 'text-[var(--usha-gold)]' : 'text-purple-400'
+                  isGuld ? 'text-[var(--usha-gold)]' : 'text-purple-400'
                 )}
               >
                 {Math.floor(earlyAccessHours)}h{' '}
@@ -196,7 +194,7 @@ export default function GoldMemberDashboard({
               <svg
                 className={cn(
                   'w-4 h-4 mt-0.5 flex-shrink-0',
-                  isGold ? 'text-[var(--usha-gold)]' : 'text-purple-400'
+                  isGuld ? 'text-[var(--usha-gold)]' : 'text-purple-400'
                 )}
                 fill="none"
                 viewBox="0 0 24 24"
@@ -222,7 +220,7 @@ export default function GoldMemberDashboard({
         <div
           className={cn(
             'rounded-2xl border p-5',
-            isGold
+            isGuld
               ? 'border-[var(--usha-gold)]/20 bg-gradient-to-br from-[var(--usha-card)] to-[var(--usha-gold)]/5'
               : 'border-purple-500/20 bg-gradient-to-br from-[var(--usha-card)] to-purple-500/5'
           )}
@@ -242,7 +240,7 @@ export default function GoldMemberDashboard({
           <Button
             className={cn(
               'w-full font-semibold',
-              isGold
+              isGuld
                 ? 'bg-[var(--usha-gold)] hover:bg-[var(--usha-gold-light)] text-black'
                 : 'bg-purple-600 hover:bg-purple-500 text-white'
             )}
@@ -255,8 +253,8 @@ export default function GoldMemberDashboard({
   );
 }
 
-/** Loading skeleton for GoldMemberDashboard */
-export function GoldMemberDashboardSkeleton() {
+/** Loading skeleton for GuldMemberDashboard */
+export function GuldMemberDashboardSkeleton() {
   return (
     <div className="space-y-5 animate-pulse">
       <div className="rounded-2xl bg-[var(--usha-card)] border border-[var(--usha-border)] h-36" />

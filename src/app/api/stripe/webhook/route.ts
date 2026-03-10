@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
+import type { MemberTier } from "@/types/database";
 
 // Use service role for webhook (no user context) — lazy init to avoid build errors
 function getSupabaseAdmin() {
@@ -9,6 +10,49 @@ function getSupabaseAdmin() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
+}
+
+/**
+ * Extracts the unified tier from any plan key (new or legacy).
+ * 'kreator_guld' → 'guld', 'creator_gold' → 'guld', 'premium' → 'premium', etc.
+ */
+function extractTierFromPlan(plan: string): MemberTier {
+  // New format: role_tier (e.g. kreator_guld, publik_premium)
+  if (plan.endsWith('_guld')) return 'guld';
+  if (plan.endsWith('_premium')) return 'premium';
+
+  // Legacy formats
+  switch (plan) {
+    case 'creator_gold':
+    case 'gold':
+      return 'guld';
+    case 'creator_platinum':
+    case 'platinum':
+    case 'enterprise':
+      return 'premium';
+    case 'basic':
+    case 'silver':
+    default:
+      return 'gratis';
+  }
+}
+
+/**
+ * Extracts role from plan metadata or plan key.
+ */
+function extractRoleFromPlan(plan: string, metadataRole?: string): string {
+  if (metadataRole) return metadataRole;
+
+  // Try to extract from new format plan key
+  const parts = plan.split('_');
+  if (parts.length === 2 && ['publik', 'kreator', 'upplevelse'].includes(parts[0])) {
+    return parts[0];
+  }
+
+  // Legacy plans were creator-focused
+  if (plan.startsWith('creator_')) return 'kreator';
+
+  return 'publik';
 }
 
 export async function POST(req: NextRequest) {
@@ -32,63 +76,48 @@ export async function POST(req: NextRequest) {
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
+        const userId = session.metadata?.userId;
 
-        // Creator tier subscription
-        if (session.metadata?.type === "creator_tier" && session.metadata?.userId) {
-          const tier = session.metadata.tier as "gold" | "platinum";
-          const userId = session.metadata.userId;
+        if (!userId || !session.subscription) break;
 
-          const { error: tierError } = await getSupabaseAdmin()
-            .from("profiles")
-            .update({ tier })
-            .eq("id", userId);
+        const planKey = session.metadata?.plan || "basic";
+        const tier = extractTierFromPlan(planKey);
+        const role = extractRoleFromPlan(planKey, session.metadata?.role);
 
-          if (tierError) {
-            console.error("Failed to update creator tier:", tierError);
-          }
+        const subscription = await stripe.subscriptions.retrieve(
+          session.subscription as string
+        );
 
-          // Store subscription record if present
-          if (session.subscription) {
-            const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
-            await getSupabaseAdmin().from("subscriptions").upsert({
-              user_id: userId,
-              stripe_customer_id: session.customer as string,
-              stripe_subscription_id: subscription.id,
-              plan: `creator_${tier}`,
-              status: "active",
-              current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-              current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-            });
-          }
-          break;
-        }
+        // Update profile tier and role
+        await getSupabaseAdmin()
+          .from("profiles")
+          .update({ tier, role })
+          .eq("id", userId);
 
-        // Regular plan subscription
-        const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
-
+        // Upsert subscription record
         await getSupabaseAdmin().from("subscriptions").upsert({
-          user_id: session.metadata?.userId,
+          user_id: userId,
           stripe_customer_id: session.customer as string,
           stripe_subscription_id: subscription.id,
-          plan: session.metadata?.plan || "basic",
+          plan: planKey,
           status: "active",
-          current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-          current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+          current_period_start: new Date(
+            subscription.current_period_start * 1000
+          ).toISOString(),
+          current_period_end: new Date(
+            subscription.current_period_end * 1000
+          ).toISOString(),
         });
 
         // Record payment
-        if (session.amount_total && session.metadata?.userId) {
+        if (session.amount_total) {
           await getSupabaseAdmin().from("payments").insert({
-            user_id: session.metadata.userId,
+            user_id: userId,
             stripe_payment_id: session.payment_intent as string,
             amount: session.amount_total,
             currency: session.currency || "sek",
             status: "succeeded",
-            description: session.metadata?.plan
-              ? `Prenumeration: ${session.metadata.plan}`
-              : session.metadata?.type === "creator_tier"
-                ? `Kreatör: ${session.metadata.tier}`
-                : "Betalning",
+            description: `Prenumeration: ${planKey}`,
           });
         }
         break;
@@ -97,29 +126,42 @@ export async function POST(req: NextRequest) {
       case "customer.subscription.updated": {
         const subscription = event.data.object as Stripe.Subscription;
 
-        // Update subscription record
+        // Update subscription status
         await getSupabaseAdmin()
           .from("subscriptions")
           .update({
             status: subscription.status === "active" ? "active" : "past_due",
-            current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
-            current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+            current_period_start: new Date(
+              subscription.current_period_start * 1000
+            ).toISOString(),
+            current_period_end: new Date(
+              subscription.current_period_end * 1000
+            ).toISOString(),
           })
           .eq("stripe_subscription_id", subscription.id);
 
-        // Check if this is a creator tier subscription
+        // Sync tier on profile
         const { data: sub } = await getSupabaseAdmin()
           .from("subscriptions")
           .select("user_id, plan")
           .eq("stripe_subscription_id", subscription.id)
           .single();
 
-        if (sub?.plan?.startsWith("creator_")) {
-          const tier = sub.plan.replace("creator_", "") as "gold" | "platinum";
+        if (sub) {
+          const tier = extractTierFromPlan(sub.plan);
           if (subscription.status === "active") {
-            await getSupabaseAdmin().from("profiles").update({ tier }).eq("id", sub.user_id);
-          } else if (subscription.status === "canceled" || subscription.status === "unpaid") {
-            await getSupabaseAdmin().from("profiles").update({ tier: "silver" }).eq("id", sub.user_id);
+            await getSupabaseAdmin()
+              .from("profiles")
+              .update({ tier })
+              .eq("id", sub.user_id);
+          } else if (
+            subscription.status === "canceled" ||
+            subscription.status === "unpaid"
+          ) {
+            await getSupabaseAdmin()
+              .from("profiles")
+              .update({ tier: "gratis" })
+              .eq("id", sub.user_id);
           }
         }
         break;
@@ -128,17 +170,17 @@ export async function POST(req: NextRequest) {
       case "customer.subscription.deleted": {
         const subscription = event.data.object as Stripe.Subscription;
 
-        // Check if this is a creator tier subscription — revert to silver
+        // Revert tier to gratis
         const { data: deletedSub } = await getSupabaseAdmin()
           .from("subscriptions")
-          .select("user_id, plan")
+          .select("user_id")
           .eq("stripe_subscription_id", subscription.id)
           .single();
 
-        if (deletedSub?.plan?.startsWith("creator_")) {
+        if (deletedSub) {
           await getSupabaseAdmin()
             .from("profiles")
-            .update({ tier: "silver" })
+            .update({ tier: "gratis" })
             .eq("id", deletedSub.user_id);
         }
 
@@ -151,7 +193,10 @@ export async function POST(req: NextRequest) {
     }
   } catch (error) {
     console.error("Webhook handler error:", error);
-    return NextResponse.json({ error: "Webhook handler failed" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Webhook handler failed" },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json({ received: true });

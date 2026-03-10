@@ -1,6 +1,6 @@
 import { stripe } from '@/lib/stripe/client';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { getCreatorCommissionRate, type CreatorTier } from '@/lib/stripe/commission';
+import { getCreatorCommissionRate } from '@/lib/stripe/commission';
 
 interface BatchResult {
   processed: number;
@@ -93,9 +93,7 @@ export async function weeklyPayoutBatch(): Promise<BatchResult> {
       }
 
       // Calculate commission
-      const commissionRate = getCreatorCommissionRate(
-        (profile.tier as CreatorTier) ?? 'silver'
-      );
+      const commissionRate = getCreatorCommissionRate(profile.tier ?? 'gratis');
       const commissionAmount = Math.round(grossAmount * commissionRate * 100) / 100;
       const netAmount = Math.round((grossAmount - commissionAmount) * 100) / 100;
 
@@ -184,9 +182,7 @@ export async function createInstantPayout(
     const payoutAmount = Math.round((amount - fee) * 100) / 100;
 
     // Calculate commission
-    const commissionRate = getCreatorCommissionRate(
-      (profile.tier as CreatorTier) ?? 'silver'
-    );
+    const commissionRate = getCreatorCommissionRate(profile.tier ?? 'gratis');
     const commissionAmount = Math.round(payoutAmount * commissionRate * 100) / 100;
     const netAmount = Math.round((payoutAmount - commissionAmount) * 100) / 100;
 

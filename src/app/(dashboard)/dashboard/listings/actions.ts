@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { requirePaidSubscription } from "@/lib/subscription/check";
 
 const CATEGORIES = ["dance", "music", "photo", "video", "design", "yoga", "fitness", "other"] as const;
 
@@ -37,6 +38,13 @@ export async function createListing(formData: FormData) {
 
   if (!user) return { error: "Ej inloggad" };
 
+  // Require paid subscription to create listings
+  try {
+    await requirePaidSubscription();
+  } catch {
+    return { error: "Du behöver en Guld- eller Premium-prenumeration för att skapa tjänster." };
+  }
+
   const parsed = parseListingForm(formData);
   if ("error" in parsed) return { error: parsed.error };
 
@@ -59,6 +67,12 @@ export async function updateListing(id: string, formData: FormData) {
   } = await supabase.auth.getUser();
 
   if (!user) return { error: "Ej inloggad" };
+
+  try {
+    await requirePaidSubscription();
+  } catch {
+    return { error: "Du behöver en Guld- eller Premium-prenumeration för att redigera tjänster." };
+  }
 
   const parsed = parseListingForm(formData);
   if ("error" in parsed) return { error: parsed.error };

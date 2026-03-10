@@ -35,7 +35,7 @@ export async function releaseEventToGoldMembers(
   const { data: goldMembers, error: membersError } = await supabase
     .from('profiles')
     .select('id, email, full_name')
-    .in('tier', ['gold', 'platinum']);
+    .in('tier', ['guld', 'premium']);
 
   if (membersError) {
     console.error('Failed to fetch Gold members:', membersError);
@@ -43,7 +43,7 @@ export async function releaseEventToGoldMembers(
   }
 
   console.log(
-    `Early bird: "${title}" released to ${goldMembers?.length ?? 0} Gold/Platinum members, public at ${releaseDate.toISOString()}`
+    `Early bird: "${title}" released to ${goldMembers?.length ?? 0} Guld/Premium members, public at ${releaseDate.toISOString()}`
   );
 
   if (goldMembers && goldMembers.length > 0) {
@@ -63,7 +63,7 @@ export async function releaseEventToGoldMembers(
                 <h2 style="color:#c8a445;">Exklusiv tidig tillgång</h2>
                 <p>Hej ${member.full_name || 'medlem'},</p>
                 <p><strong>${title}</strong> &mdash; tillgängligt för alla om 48 timmar.</p>
-                <p>Som Gold/Platinum-medlem får du boka före alla andra.</p>
+                <p>Som Guld/Premium-medlem får du boka före alla andra.</p>
                 <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://usha.se'}/app" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#c8a445;color:#000;text-decoration:none;border-radius:8px;font-weight:bold;">Boka nu</a>
                 <p style="margin-top:24px;color:#888;font-size:12px;">Usha Platform</p>
               </div>`,
@@ -96,7 +96,7 @@ export function isGoldExclusive(
 export function filterByGoldExclusivity<
   T extends { release_to_gold_at: string | null },
 >(events: T[], userTier: string | null): T[] {
-  if (userTier === 'gold' || userTier === 'platinum') {
+  if (userTier === 'guld' || userTier === 'premium') {
     return events;
   }
 

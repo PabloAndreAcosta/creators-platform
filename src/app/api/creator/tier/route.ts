@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { getCreatorCommissionRate, type CreatorTier } from '@/lib/stripe/commission';
+import { getCreatorCommissionRate } from '@/lib/stripe/commission';
 
 export async function GET() {
   try {
@@ -15,7 +15,7 @@ export async function GET() {
 
     const { data: profile, error } = await supabase
       .from('profiles')
-      .select('tier')
+      .select('tier, role')
       .eq('id', user.id)
       .single();
 
@@ -26,10 +26,14 @@ export async function GET() {
       );
     }
 
-    const tier = (profile.tier as CreatorTier) ?? 'silver';
+    const tier = profile.tier ?? 'gratis';
     const commission = getCreatorCommissionRate(tier);
 
-    return NextResponse.json({ tier, commission });
+    return NextResponse.json({
+      tier,
+      role: profile.role ?? 'publik',
+      commission,
+    });
   } catch (error) {
     console.error('Creator tier error:', error);
     return NextResponse.json(

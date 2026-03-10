@@ -1,3 +1,12 @@
+export type MemberTier = 'gratis' | 'guld' | 'premium';
+export type MemberRole = 'publik' | 'kreator' | 'upplevelse';
+export type PlanKey =
+  | 'publik_guld' | 'publik_premium'
+  | 'kreator_guld' | 'kreator_premium'
+  | 'upplevelse_guld' | 'upplevelse_premium';
+// Legacy plan keys kept for transition
+export type LegacyPlanKey = 'basic' | 'premium' | 'enterprise' | 'creator_gold' | 'creator_platinum';
+
 export interface Database {
   public: {
     Tables: {
@@ -12,17 +21,17 @@ export interface Database {
           category: string | null;
           location: string | null;
           hourly_rate: number | null;
-          role: "creator" | "experience" | "customer";
           is_public: boolean;
-          tier: string | null;
+          tier: MemberTier | null;
+          role: MemberRole;
           stripe_account_id: string | null;
           created_at: string;
           updated_at: string;
         };
         Insert: Omit<Database["public"]["Tables"]["profiles"]["Row"], "created_at" | "updated_at" | "is_public" | "tier" | "role"> & {
           is_public?: boolean;
-          tier?: string | null;
-          role?: "creator" | "experience" | "customer";
+          tier?: MemberTier | null;
+          role?: MemberRole;
         };
         Update: Partial<Database["public"]["Tables"]["profiles"]["Insert"]>;
       };
@@ -32,7 +41,7 @@ export interface Database {
           user_id: string;
           stripe_customer_id: string | null;
           stripe_subscription_id: string | null;
-          plan: "basic" | "premium" | "enterprise" | "creator_gold" | "creator_platinum";
+          plan: PlanKey | LegacyPlanKey;
           status: "active" | "canceled" | "past_due" | "trialing";
           current_period_start: string | null;
           current_period_end: string | null;

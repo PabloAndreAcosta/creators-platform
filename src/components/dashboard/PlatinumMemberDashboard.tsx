@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 
-interface PlatinumSubscription {
-  tier: 'platinum';
+interface PremiumSubscription {
+  tier: 'premium';
   currentPeriodEnd: Date;
 }
 
@@ -14,21 +14,21 @@ interface UpcomingMasterclass {
   date: Date;
 }
 
-interface PlatinumMemberDashboardProps {
-  subscription: PlatinumSubscription;
+interface PremiumMemberDashboardProps {
+  subscription: PremiumSubscription;
   discountsSavedThisMonth: number;
   upcomingMasterclass?: UpcomingMasterclass;
 }
 
-const PLATINUM_BENEFITS = [
-  '30% rabatt på Tier A event (max 500 SEK)',
-  '20% rabatt på Tier B event',
-  '10% rabatt på Tier C event',
+const PREMIUM_BENEFITS = [
+  '20% rabatt på bokningar',
   'VIP-garanterad plats (aldrig i kö)',
-  'Prioritetskö',
+  'Exklusivt innehåll',
+  '72 timmar tidig tillgång',
   'Månatlig masterclass',
-  'Advanced analytics',
-  'Gratis instant payouts',
+  'Avancerad analys',
+  'Gratis snabbutbetalningar',
+  'Dedicerad support',
 ];
 
 function formatDate(date: Date): string {
@@ -48,11 +48,11 @@ function formatDateTime(date: Date): string {
   }).format(date);
 }
 
-export default function PlatinumMemberDashboard({
+export default function PremiumMemberDashboard({
   subscription,
   discountsSavedThisMonth,
   upcomingMasterclass,
-}: PlatinumMemberDashboardProps) {
+}: PremiumMemberDashboardProps) {
   const [earlyAccessHours, setEarlyAccessHours] = useState<number | null>(null);
 
   useEffect(() => {
@@ -60,7 +60,7 @@ export default function PlatinumMemberDashboard({
       const now = new Date();
       const hoursRemaining = Math.max(
         0,
-        48 - ((now.getTime() % (48 * 60 * 60 * 1000)) / (60 * 60 * 1000))
+        72 - ((now.getTime() % (72 * 60 * 60 * 1000)) / (60 * 60 * 1000))
       );
       setEarlyAccessHours(Math.round(hoursRemaining * 10) / 10);
     }
@@ -72,7 +72,7 @@ export default function PlatinumMemberDashboard({
 
   return (
     <div className="space-y-5">
-      {/* Platinum Badge — premium glow */}
+      {/* Premium Badge — premium glow */}
       <div className="relative overflow-hidden rounded-2xl p-6 border border-purple-400/30 bg-gradient-to-br from-purple-600/15 via-[var(--usha-card)] to-indigo-600/10 shadow-[0_0_60px_rgba(168,85,247,0.12),0_0_120px_rgba(168,85,247,0.05)]">
         {/* Animated shimmer overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-400/5 to-transparent animate-[shimmer_3s_ease-in-out_infinite] pointer-events-none" />
@@ -94,13 +94,13 @@ export default function PlatinumMemberDashboard({
         <div className="relative">
           <div className="flex items-center gap-3 mb-2">
             <div className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-purple-500/25 to-indigo-500/25 text-purple-300 border border-purple-400/20">
-              Platinum Member
+              Premium Medlem
             </div>
             <span className="text-xs text-green-500 font-medium">Aktiv</span>
           </div>
 
           <h2 className="text-2xl font-bold text-purple-200 mb-1">
-            Platinum Medlem
+            Premium Medlem
           </h2>
           <p className="text-sm text-[var(--usha-muted)]">
             Giltig till {formatDate(subscription.currentPeriodEnd)}
@@ -120,12 +120,12 @@ export default function PlatinumMemberDashboard({
       </div>
 
       {/* Early Access Countdown */}
-      {earlyAccessHours !== null && earlyAccessHours < 48 && (
+      {earlyAccessHours !== null && earlyAccessHours < 72 && (
         <div className="rounded-2xl border border-purple-500/20 bg-purple-500/5 p-5">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-[var(--usha-white)]">
-                VIP tidigt tillgång aktiv
+                VIP tidig tillgång aktiv
               </p>
               <p className="text-xs text-[var(--usha-muted)]">
                 Boka innan alla andra — garanterad plats
@@ -158,10 +158,10 @@ export default function PlatinumMemberDashboard({
       {/* Benefits List */}
       <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5">
         <h3 className="text-sm font-semibold text-[var(--usha-white)] mb-3">
-          Dina Platinum-förmåner
+          Dina Premium-förmåner
         </h3>
         <ul className="space-y-2.5">
-          {PLATINUM_BENEFITS.map((benefit) => (
+          {PREMIUM_BENEFITS.map((benefit) => (
             <li key={benefit} className="flex items-start gap-2.5">
               <svg
                 className="w-4 h-4 mt-0.5 flex-shrink-0 text-purple-400"
@@ -206,7 +206,7 @@ export default function PlatinumMemberDashboard({
   );
 }
 
-export function PlatinumMemberDashboardSkeleton() {
+export function PremiumMemberDashboardSkeleton() {
   return (
     <div className="space-y-5 animate-pulse">
       <div className="rounded-2xl bg-[var(--usha-card)] border border-purple-500/10 h-36" />

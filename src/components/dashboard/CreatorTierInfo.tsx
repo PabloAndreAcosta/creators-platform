@@ -4,40 +4,40 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface CreatorTierInfoProps {
-  creatorTier: 'silver' | 'gold' | 'platinum';
+  creatorTier: 'gratis' | 'guld' | 'premium';
   creatorEarningsThisMonth: number;
 }
 
 const TIER_CONFIG = {
-  silver: {
-    label: 'Silver',
-    rate: 0.20,
+  gratis: {
+    label: 'Gratis',
+    rate: 0.15,
     badgeStyle: 'bg-zinc-500/15 text-zinc-400 border-zinc-500/20',
     cardBorder: 'border-[var(--usha-border)]',
     accentColor: 'text-zinc-400',
-    nextTier: 'gold' as const,
-    nextLabel: 'Gold',
-    message: 'Uppgradera till Gold och spara på provision',
+    nextTier: 'guld' as const,
+    nextLabel: 'Guld',
+    message: 'Uppgradera till Guld och spara på kommission',
   },
-  gold: {
-    label: 'Gold',
-    rate: 0.10,
+  guld: {
+    label: 'Guld',
+    rate: 0.08,
     badgeStyle: 'bg-[var(--usha-gold)]/15 text-[var(--usha-gold)] border-[var(--usha-gold)]/20',
     cardBorder: 'border-[var(--usha-gold)]/20',
     accentColor: 'text-[var(--usha-gold)]',
-    nextTier: 'platinum' as const,
-    nextLabel: 'Platinum',
-    message: 'Uppgradera till Platinum för bästa villkoren',
+    nextTier: 'premium' as const,
+    nextLabel: 'Premium',
+    message: 'Uppgradera till Premium för bästa villkoren',
   },
-  platinum: {
-    label: 'Platinum',
-    rate: 0.05,
+  premium: {
+    label: 'Premium',
+    rate: 0.03,
     badgeStyle: 'bg-purple-500/15 text-purple-400 border-purple-500/20',
     cardBorder: 'border-purple-500/20',
     accentColor: 'text-purple-400',
     nextTier: null,
     nextLabel: null,
-    message: 'Du har bästa möjliga provisionsgrad',
+    message: 'Du har bästa möjliga kommissionsgrad',
   },
 };
 
@@ -54,13 +54,13 @@ export default function CreatorTierInfo({
   const net = creatorEarningsThisMonth - commission;
 
   // Calculate savings comparison
-  const goldSavings =
-    creatorTier === 'silver'
-      ? Math.round(creatorEarningsThisMonth * (0.20 - 0.10))
+  const guldSavings =
+    creatorTier === 'gratis'
+      ? Math.round(creatorEarningsThisMonth * (0.15 - 0.08))
       : 0;
-  const platinumSavings =
-    creatorTier !== 'platinum'
-      ? Math.round(creatorEarningsThisMonth * (config.rate - 0.05))
+  const premiumSavings =
+    creatorTier !== 'premium'
+      ? Math.round(creatorEarningsThisMonth * (config.rate - 0.03))
       : 0;
 
   return (
@@ -83,7 +83,7 @@ export default function CreatorTierInfo({
               {config.label}
             </div>
             <span className={cn('text-sm font-semibold', config.accentColor)}>
-              {Math.round(config.rate * 100)}% provision
+              {Math.round(config.rate * 100)}% kommission
             </span>
           </div>
         </div>
@@ -105,7 +105,7 @@ export default function CreatorTierInfo({
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-[var(--usha-muted)]">
-              Provision ({Math.round(config.rate * 100)}%)
+              Kommission ({Math.round(config.rate * 100)}%)
             </span>
             <span className="text-red-400">-{sek(commission)} SEK</span>
           </div>
@@ -126,7 +126,7 @@ export default function CreatorTierInfo({
         <div
           className={cn(
             'rounded-2xl border p-5',
-            config.nextTier === 'gold'
+            config.nextTier === 'guld'
               ? 'border-[var(--usha-gold)]/20 bg-[var(--usha-gold)]/5'
               : 'border-purple-500/20 bg-purple-500/5'
           )}
@@ -135,7 +135,7 @@ export default function CreatorTierInfo({
             <div
               className={cn(
                 'w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0',
-                config.nextTier === 'gold'
+                config.nextTier === 'guld'
                   ? 'bg-[var(--usha-gold)]/15'
                   : 'bg-purple-500/15'
               )}
@@ -143,7 +143,7 @@ export default function CreatorTierInfo({
               <svg
                 className={cn(
                   'w-4 h-4',
-                  config.nextTier === 'gold'
+                  config.nextTier === 'guld'
                     ? 'text-[var(--usha-gold)]'
                     : 'text-purple-400'
                 )}
@@ -164,19 +164,19 @@ export default function CreatorTierInfo({
                 Med {config.nextLabel} hade du sparat{' '}
                 <span
                   className={
-                    config.nextTier === 'gold'
+                    config.nextTier === 'guld'
                       ? 'text-[var(--usha-gold)]'
                       : 'text-purple-400'
                   }
                 >
-                  {sek(config.nextTier === 'gold' ? goldSavings : platinumSavings)} SEK
+                  {sek(config.nextTier === 'guld' ? guldSavings : premiumSavings)} SEK
                 </span>{' '}
                 denna månad
               </p>
               <p className="text-xs text-[var(--usha-muted)] mt-0.5">
-                {config.nextTier === 'gold'
-                  ? 'Gold-kreatörer betalar bara 10% provision'
-                  : 'Platinum-kreatörer betalar bara 5% provision'}
+                {config.nextTier === 'guld'
+                  ? 'Guld-kreatörer betalar bara 8% kommission'
+                  : 'Premium-kreatörer betalar bara 3% kommission'}
               </p>
             </div>
           </div>
@@ -189,7 +189,7 @@ export default function CreatorTierInfo({
           Jämför nivåer
         </h3>
         <div className="space-y-2">
-          {(['silver', 'gold', 'platinum'] as const).map((tier) => {
+          {(['gratis', 'guld', 'premium'] as const).map((tier) => {
             const t = TIER_CONFIG[tier];
             const isActive = tier === creatorTier;
             const tierNet = Math.round(
@@ -209,9 +209,9 @@ export default function CreatorTierInfo({
                   <span
                     className={cn(
                       'text-xs font-bold uppercase w-16',
-                      tier === 'silver' && 'text-zinc-400',
-                      tier === 'gold' && 'text-[var(--usha-gold)]',
-                      tier === 'platinum' && 'text-purple-400'
+                      tier === 'gratis' && 'text-zinc-400',
+                      tier === 'guld' && 'text-[var(--usha-gold)]',
+                      tier === 'premium' && 'text-purple-400'
                     )}
                   >
                     {t.label}
@@ -249,7 +249,7 @@ export default function CreatorTierInfo({
           }}
           className={cn(
             'w-full font-semibold text-base h-12',
-            config.nextTier === 'gold'
+            config.nextTier === 'guld'
               ? 'bg-[var(--usha-gold)] hover:bg-[var(--usha-gold-light)] text-black'
               : 'bg-purple-600 hover:bg-purple-500 text-white'
           )}

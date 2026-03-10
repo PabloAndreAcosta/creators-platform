@@ -1,9 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { PLAN_LIST } from "@/lib/stripe/config";
+import { getPlanList, GRATIS_PLAN } from "@/lib/stripe/config";
 import Link from "next/link";
 import { ArrowLeft, Check } from "lucide-react";
 import { CheckoutButton, PortalButton } from "./checkout-button";
+import type { MemberRole } from "@/types/database";
 
 export default async function BillingPage() {
   const supabase = await createClient();
@@ -13,6 +14,12 @@ export default async function BillingPage() {
 
   if (!user) redirect("/login");
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
   const { data: subscription } = await supabase
     .from("subscriptions")
     .select("*")
@@ -21,6 +28,17 @@ export default async function BillingPage() {
     .single();
 
   const currentPlan = subscription?.plan ?? null;
+  const userRole = (profile?.role as MemberRole) ?? "publik";
+
+  // Get plans for user's role
+  const rolePlans = getPlanList(userRole);
+
+  // Plan name for display
+  const currentPlanDisplay = currentPlan
+    ? currentPlan.includes("_")
+      ? currentPlan.split("_").map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")
+      : currentPlan.charAt(0).toUpperCase() + currentPlan.slice(1)
+    : "Gratis";
 
   return (
     <>
@@ -44,10 +62,7 @@ export default async function BillingPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm text-[var(--usha-muted)]">Nuvarande plan</p>
-              <p className="text-xl font-bold">
-                {subscription.plan.charAt(0).toUpperCase() +
-                  subscription.plan.slice(1)}
-              </p>
+              <p className="text-xl font-bold">{currentPlanDisplay}</p>
               <div className="mt-1 flex items-center gap-3 text-sm text-[var(--usha-muted)]">
                 <span
                   className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
@@ -81,7 +96,49 @@ export default async function BillingPage() {
 
       {/* Plan cards */}
       <div className="grid gap-6 lg:grid-cols-3">
-        {PLAN_LIST.map((plan) => {
+        {/* Gratis plan card */}
+        <div
+          className={`relative rounded-2xl border p-8 transition-all ${
+            !currentPlan || currentPlan === "gratis"
+              ? "border-[var(--usha-gold)]/40 bg-[var(--usha-card)]"
+              : "border-[var(--usha-border)] bg-[var(--usha-card)]"
+          }`}
+        >
+          <h3 className="text-xl font-bold">{GRATIS_PLAN.name}</h3>
+          <p className="mt-1 text-sm text-[var(--usha-muted)]">
+            {GRATIS_PLAN.description}
+          </p>
+
+          <div className="my-6 flex items-baseline gap-1">
+            <span className="text-4xl font-extrabold">0</span>
+            <span className="text-[var(--usha-muted)]">SEK/mån</span>
+          </div>
+
+          <ul className="mb-8 space-y-3">
+            {GRATIS_PLAN.features.map((f) => (
+              <li key={f} className="flex items-start gap-2 text-sm">
+                <Check
+                  size={14}
+                  className="mt-0.5 shrink-0 text-[var(--usha-gold)]"
+                />
+                <span className="text-[var(--usha-muted)]">{f}</span>
+              </li>
+            ))}
+          </ul>
+
+          {!currentPlan || currentPlan === "gratis" ? (
+            <div className="block w-full rounded-xl border border-[var(--usha-gold)]/30 py-3 text-center text-sm font-semibold text-[var(--usha-gold)]">
+              Nuvarande plan
+            </div>
+          ) : (
+            <div className="block w-full rounded-xl border border-[var(--usha-border)] py-3 text-center text-sm font-semibold text-[var(--usha-muted)]">
+              Gratis
+            </div>
+          )}
+        </div>
+
+        {/* Paid plan cards for user's role */}
+        {rolePlans.map((plan) => {
           const isCurrent = currentPlan === plan.key;
 
           return (

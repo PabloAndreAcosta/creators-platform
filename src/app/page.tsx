@@ -625,58 +625,124 @@ function Pillars() {
 
 
 /* ─────────────── PRICING ─────────────── */
-const PLANS = [
-  {
-    name: "Gratis",
-    price: 0,
-    desc: "Kom igång utan kostnad",
-    features: [
-      "Skapa profil med bio och portfolio",
-      "Upp till 3 aktiva listor",
-      "Synas på marketplace",
-      "Ta emot bokningar",
-      "Grundläggande statistik",
-      "12% plattformsavgift per bokning",
-    ],
-    cta: "Skapa konto gratis",
-    popular: false,
-  },
-  {
-    name: "Premium",
-    price: 199,
-    desc: "För den seriösa kreatören",
-    features: [
-      "Allt i Gratis",
-      "Obegränsade listor",
-      "Prioriterad visning på marketplace",
-      "Lägre plattformsavgift (8%)",
-      "Avancerad statistik och trender",
-      "Kalendersynk och bokningssystem",
-      "Verifierad-badge",
-      "Prioriterad support (24h)",
-    ],
-    cta: "Starta Premium",
-    popular: true,
-  },
-  {
-    name: "Enterprise",
-    price: 499,
-    desc: "För verksamheter med hög volym",
-    features: [
-      "Allt i Premium",
-      "Lägst plattformsavgift (5%)",
-      "Upp till 10 teammedlemmar",
-      "API-tillgång",
-      "Dedikerad account manager",
-      "Custom integrationer",
-      "SLA-garanti (99.9%)",
-    ],
-    cta: "Kontakta oss",
-    popular: false,
-  },
+const ROLE_TABS = [
+  { key: "publik" as const, label: "Publik" },
+  { key: "kreator" as const, label: "Kreatör" },
+  { key: "upplevelse" as const, label: "Upplevelse" },
 ];
 
+const PRICING_DATA: Record<string, { gratis: { features: string[] }; guld: { price: number; features: string[]; popular: boolean }; premium: { price: number; features: string[]; popular: boolean } }> = {
+  publik: {
+    gratis: {
+      features: [
+        "Skapa profil och logga in",
+        "Bläddra i marknadsplatsen",
+        "Köpa biljetter och boka kreatörer",
+        "Grundläggande statistik",
+      ],
+    },
+    guld: {
+      price: 199,
+      popular: true,
+      features: [
+        "10% rabatt på bokningar",
+        "Tidig tillgång 48h före alla andra",
+        "Prioriterad support",
+        "Kalendersync",
+      ],
+    },
+    premium: {
+      price: 499,
+      popular: false,
+      features: [
+        "20% rabatt på bokningar",
+        "VIP — aldrig i kö",
+        "Exklusivt innehåll",
+        "Tidig tillgång 72h före alla andra",
+        "Prioriterad support",
+      ],
+    },
+  },
+  kreator: {
+    gratis: {
+      features: [
+        "Skapa profil och logga in",
+        "Upp till 3 tjänster",
+        "15% kommission",
+        "Grundläggande statistik",
+      ],
+    },
+    guld: {
+      price: 299,
+      popular: true,
+      features: [
+        "Upp till 15 tjänster",
+        "8% kommission (istället för 15%)",
+        "Sälj digitalt material",
+        "Skapa events",
+        "Avancerad statistik",
+        "Prioriterad synlighet",
+      ],
+    },
+    premium: {
+      price: 599,
+      popular: false,
+      features: [
+        "Obegränsade tjänster",
+        "3% kommission (istället för 15%)",
+        "Toppsynlighet + utvalda",
+        "Facebook-sync",
+        "Kalender läs + skriv",
+        "Dedikerad support",
+        "Statistikexport",
+      ],
+    },
+  },
+  upplevelse: {
+    gratis: {
+      features: [
+        "Skapa profil och logga in",
+        "Upp till 3 events",
+        "15% kommission",
+        "Grundläggande statistik",
+      ],
+    },
+    guld: {
+      price: 299,
+      popular: true,
+      features: [
+        "Upp till 15 events",
+        "8% kommission (istället för 15%)",
+        "Boka kreatörer",
+        "Sälj digitalt material",
+        "Avancerad statistik",
+      ],
+    },
+    premium: {
+      price: 599,
+      popular: false,
+      features: [
+        "Obegränsade events",
+        "3% kommission (istället för 15%)",
+        "Toppsynlighet + utvalda",
+        "Facebook-sync",
+        "Boka kreatörer + analys",
+        "Dedikerad support",
+      ],
+    },
+  },
+};
+
 function Pricing() {
+  const [activeRole, setActiveRole] = useState<"publik" | "kreator" | "upplevelse">("kreator");
+  const data = PRICING_DATA[activeRole];
+
+  const tiers = [
+    { name: "Gratis", price: 0, desc: "Perfekt för att komma igång", features: data.gratis.features, cta: "Kom igång gratis", popular: false },
+    { name: "Guld", price: data.guld.price, desc: "Väx din verksamhet", features: data.guld.features, cta: "Starta Guld", popular: data.guld.popular },
+    { name: "Premium", price: data.premium.price, desc: "Full kontroll och maximal synlighet", features: data.premium.features, cta: "Starta Premium", popular: data.premium.popular },
+  ];
+
   return (
     <section id="pricing" className="relative py-28 px-6">
       <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -684,7 +750,7 @@ function Pricing() {
       </div>
 
       <div className="relative z-10 mx-auto max-w-6xl">
-        <div className="mb-16 text-center">
+        <div className="mb-10 text-center">
           <p className="mb-3 font-mono text-sm uppercase tracking-widest text-[var(--usha-gold)]">
             Priser
           </p>
@@ -692,13 +758,31 @@ function Pricing() {
             Investera i din <span className="text-gradient">tillväxt</span>
           </h2>
           <p className="mx-auto max-w-xl text-[var(--usha-muted)]">
-            Börja gratis och uppgradera när du växer. Du betalar bara
-            plattformsavgift på bokningar — lägre avgift med högre plan.
+            Börja gratis, uppgradera när du vill. Priser varierar beroende på roll.
           </p>
         </div>
 
+        {/* Role tabs */}
+        <div className="mb-12 flex justify-center">
+          <div className="inline-flex rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-1">
+            {ROLE_TABS.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveRole(tab.key)}
+                className={`rounded-lg px-6 py-2.5 text-sm font-medium transition ${
+                  activeRole === tab.key
+                    ? "bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] text-black"
+                    : "text-[var(--usha-muted)] hover:text-white"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="grid gap-6 lg:grid-cols-3">
-          {PLANS.map((plan) => (
+          {tiers.map((plan) => (
             <div
               key={plan.name}
               className={`relative rounded-2xl border p-8 transition-all ${
@@ -730,7 +814,7 @@ function Pricing() {
               <ul className="mb-8 space-y-3">
                 {plan.features.map((f) => (
                   <li key={f} className="flex items-start gap-2 text-sm">
-                    <span className="mt-0.5 text-[var(--usha-gold)]">✓</span>
+                    <span className="mt-0.5 text-[var(--usha-gold)]">&#10003;</span>
                     <span className="text-[var(--usha-muted)]">{f}</span>
                   </li>
                 ))}
@@ -762,7 +846,7 @@ const FAQS = [
   },
   {
     q: "Kostar det något att registrera sig?",
-    a: "Alla planer har 14 dagars gratis provperiod. Basic börjar på 99 SEK/mån. Du betalar inget förrän provperioden är över.",
+    a: "Nej, Gratis-planen kostar ingenting. Du kan uppgradera till Guld eller Premium när du vill för mer funktioner och lägre kommission.",
   },
   {
     q: "Hur fungerar betalningar?",

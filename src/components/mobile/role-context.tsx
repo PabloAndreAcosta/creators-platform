@@ -3,17 +3,20 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { createClient } from "@/lib/supabase/client";
 
-export type UserRole = "anvandare" | "kreator" | "upplevelse";
+export type UserRole = "publik" | "kreator" | "upplevelse";
 
 // Map DB roles to mobile app roles
 const DB_TO_APP_ROLE: Record<string, UserRole> = {
-  customer: "anvandare",
+  publik: "publik",
+  customer: "publik",
   creator: "kreator",
+  kreator: "kreator",
   experience: "upplevelse",
+  upplevelse: "upplevelse",
 };
 
 export const ROLE_LABELS: Record<UserRole, string> = {
-  anvandare: "Användare",
+  publik: "Publik",
   kreator: "Kreatör",
   upplevelse: "Upplevelse",
 };
@@ -24,17 +27,20 @@ interface RoleContextType {
 }
 
 const RoleContext = createContext<RoleContextType>({
-  role: "anvandare",
+  role: "publik",
   setRole: () => {},
 });
 
 export function RoleProvider({ children }: { children: ReactNode }) {
-  const [role, setRole] = useState<UserRole>("anvandare");
+  const [role, setRole] = useState<UserRole>("publik");
 
   useEffect(() => {
-    // Load from localStorage first for instant display
-    const saved = localStorage.getItem("usha-role") as UserRole | null;
-    if (saved === "anvandare" || saved === "kreator" || saved === "upplevelse") {
+    const saved = localStorage.getItem("usha-role") as string | null;
+    // Migrate legacy "anvandare" role to "publik"
+    if (saved === "anvandare") {
+      localStorage.setItem("usha-role", "publik");
+      setRole("publik");
+    } else if (saved === "publik" || saved === "kreator" || saved === "upplevelse") {
       setRole(saved);
     }
 
@@ -49,7 +55,7 @@ export function RoleProvider({ children }: { children: ReactNode }) {
         .single()
         .then(({ data }) => {
           if (data?.role) {
-            const appRole = DB_TO_APP_ROLE[data.role] ?? "anvandare";
+            const appRole = DB_TO_APP_ROLE[data.role] ?? "publik";
             setRole(appRole);
             localStorage.setItem("usha-role", appRole);
           }

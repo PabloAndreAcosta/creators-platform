@@ -84,8 +84,8 @@ export default async function DashboardPage() {
       </h1>
       <p className="mb-10 text-[var(--usha-muted)]">
         {subscription
-          ? `Du har ${subscription.plan}-planen.`
-          : "Du har ingen aktiv prenumeration ännu."}
+          ? `Du har ${subscription.plan.includes('_') ? subscription.plan.split('_').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : subscription.plan.charAt(0).toUpperCase() + subscription.plan.slice(1)}-planen.`
+          : "Du har Gratis-planen."}
       </p>
 
       {/* Quick stats */}
@@ -167,7 +167,7 @@ export default async function DashboardPage() {
           </h3>
           <p className="text-sm text-[var(--usha-muted)]">
             {subscription
-              ? `${subscription.plan.charAt(0).toUpperCase() + subscription.plan.slice(1)}-planen`
+              ? `${subscription.plan.includes('_') ? subscription.plan.split('_').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : subscription.plan.charAt(0).toUpperCase() + subscription.plan.slice(1)}-planen`
               : "Välj en plan för att låsa upp alla funktioner"}
           </p>
         </Link>

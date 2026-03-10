@@ -40,14 +40,14 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
 };
 
 const COMMISSION_RATES: Record<string, number> = {
-  silver: 0.20,
-  gold: 0.10,
-  platinum: 0.05,
+  gratis: 0.15,
+  guld: 0.08,
+  premium: 0.03,
 };
 
 export default function PayoutDashboard({ creatorId }: PayoutDashboardProps) {
   const [loading, setLoading] = useState(true);
-  const [tier, setTier] = useState<string>('silver');
+  const [tier, setTier] = useState<string>('gratis');
   const [weeklyGross, setWeeklyGross] = useState(0);
   const [lifetimeGross, setLifetimeGross] = useState(0);
   const [lifetimeCommission, setLifetimeCommission] = useState(0);
@@ -58,7 +58,7 @@ export default function PayoutDashboard({ creatorId }: PayoutDashboardProps) {
   const [showModal, setShowModal] = useState(false);
   const [payoutLoading, setPayoutLoading] = useState(false);
 
-  const commissionRate = COMMISSION_RATES[tier] ?? 0.20;
+  const commissionRate = COMMISSION_RATES[tier] ?? 0.15;
   const weeklyCommission = Math.round(weeklyGross * commissionRate);
   const weeklyNet = weeklyGross - weeklyCommission;
   const instantFee = instantCount >= 1;

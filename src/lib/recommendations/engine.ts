@@ -127,7 +127,7 @@ export async function getRecommendations(
         id: l.user_id,
         full_name: creator?.full_name ?? null,
         avatar_url: creator?.avatar_url ?? null,
-        tier: creator?.tier ?? 'silver',
+        tier: creator?.tier ?? 'gratis',
       },
       bookingCount: countMap.get(l.id) ?? 0,
     };
@@ -202,7 +202,7 @@ async function getPopularEvents(limit: number): Promise<RecommendedListing[]> {
         id: l.user_id,
         full_name: creator?.full_name ?? null,
         avatar_url: creator?.avatar_url ?? null,
-        tier: creator?.tier ?? 'silver',
+        tier: creator?.tier ?? 'gratis',
       },
       bookingCount: countMap.get(l.id) ?? 0,
     };

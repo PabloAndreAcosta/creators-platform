@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { handleCapacityReached, autoPromoteFromQueue } from "@/lib/bookings/queue";
+import { requirePaidSubscription } from "@/lib/subscription/check";
 
 export async function createBooking(formData: FormData) {
   const supabase = await createClient();
@@ -11,6 +12,13 @@ export async function createBooking(formData: FormData) {
   } = await supabase.auth.getUser();
 
   if (!user) return { error: "Du måste vara inloggad för att boka." };
+
+  // Require paid subscription to create bookings
+  try {
+    await requirePaidSubscription();
+  } catch {
+    return { error: "Du behöver en Guld- eller Premium-prenumeration för att boka." };
+  }
 
   const listing_id = formData.get("listing_id") as string;
   const creator_id = formData.get("creator_id") as string;

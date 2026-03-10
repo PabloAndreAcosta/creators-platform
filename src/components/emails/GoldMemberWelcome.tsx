@@ -12,16 +12,14 @@ function formatDate(date: Date): string {
 }
 
 export function getGoldWelcomeSubject(): string {
-  return 'Välkommen till Usha Gold!';
+  return 'Välkommen till Usha Guld!';
 }
 
 const BENEFITS = [
-  { text: '20% rabatt på Tier A event', icon: '💰' },
-  { text: '10% rabatt på Tier B event', icon: '💰' },
-  { text: '5% rabatt på Tier C event', icon: '💰' },
-  { text: '48 timmar tidigt tillgång till nya event', icon: '⏰' },
-  { text: 'Prioritetskö — aldrig missa ett event', icon: '🎯' },
-  { text: 'Månatlig exklusiv masterclass', icon: '🎓' },
+  { text: '10% rabatt på alla bokningar', icon: '💰' },
+  { text: '48 timmar tidig tillgång till nya event', icon: '⏰' },
+  { text: 'Prioritetskö', icon: '🎯' },
+  { text: 'Prioriterad support', icon: '🎓' },
 ];
 
 export default function GoldMemberWelcome({
@@ -82,7 +80,7 @@ export default function GoldMemberWelcome({
                                   color: '#c8a445',
                                   border: '1px solid rgba(200,164,69,0.2)',
                                 }}>
-                                  Gold Member
+                                  Guld Medlem
                                 </span>
                               </td>
                             </tr>
@@ -94,13 +92,13 @@ export default function GoldMemberWelcome({
                           Hej {memberName}!
                         </p>
                         <p style={{ fontSize: 14, color: '#6b6b6b', margin: '0 0 28px', lineHeight: 1.6, textAlign: 'center' }}>
-                          Välkommen till Usha Gold! Du har nu tillgång till exklusiva förmåner
+                          Välkommen till Usha Guld! Du har nu tillgång till exklusiva förmåner
                           som gör din upplevelse ännu bättre.
                         </p>
 
                         {/* Benefits */}
                         <p style={{ fontSize: 13, fontWeight: 600, color: '#fafaf9', margin: '0 0 16px' }}>
-                          Dina Gold-förmåner
+                          Dina Guld-förmåner
                         </p>
                         <table width="100%" cellPadding={0} cellSpacing={0} style={{ marginBottom: 28 }}>
                           <tbody>
@@ -140,7 +138,7 @@ export default function GoldMemberWelcome({
                                 textAlign: 'center',
                               }}>
                                 <p style={{ fontSize: 12, color: '#6b6b6b', margin: '0 0 2px' }}>
-                                  Ditt Gold-medlemskap gäller till
+                                  Ditt Guld-medlemskap gäller till
                                 </p>
                                 <p style={{ fontSize: 15, fontWeight: 600, color: '#c8a445', margin: 0 }}>
                                   {formatDate(expiryDate)}

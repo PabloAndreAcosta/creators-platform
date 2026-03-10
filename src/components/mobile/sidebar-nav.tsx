@@ -17,7 +17,7 @@ export function SidebarNav() {
   const { role } = useRole();
 
   const tabs =
-    role === "anvandare"
+    role === "publik"
       ? [
           { href: "/app", label: "Hem", icon: Home },
           { href: "/app/calendar", label: "Kalender", icon: Calendar },

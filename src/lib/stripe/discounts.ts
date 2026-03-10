@@ -1,21 +1,15 @@
-import type { EventTier } from '@/lib/stripe/commission';
-
-const discountMap: Record<string, Record<EventTier, number>> = {
-  gold: { a: 0.20, b: 0.10, c: 0.05 },
-  platinum: { a: 0.30, b: 0.20, c: 0.10 },
-};
+import { DISCOUNT_RATES } from '@/lib/stripe/commission';
 
 /**
- * Returns the discount percentage (as a decimal 0–0.30) based on
- * the user's subscription tier and the event's pricing tier.
- * Silver users and unauthenticated users receive no discount.
+ * Returns the flat discount percentage (as a decimal 0–0.20) based on
+ * the user's membership tier.
+ * Gratis users receive no discount. Guld: 10%, Premium: 20%.
  */
 export function getDiscountPercentage(
-  userTier: string | null,
-  eventTier: string
+  userTier: string | null
 ): number {
-  if (!userTier) return 0;
-  return discountMap[userTier]?.[eventTier as EventTier] ?? 0;
+  if (!userTier || userTier === 'gratis') return 0;
+  return DISCOUNT_RATES[userTier as 'guld' | 'premium'] ?? 0;
 }
 
 /**

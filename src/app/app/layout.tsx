@@ -2,6 +2,8 @@ export const dynamic = 'force-dynamic';
 
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/mobile/app-shell";
+import { SubscriptionProvider } from "@/lib/subscription/context";
+import type { MemberTier, MemberRole } from "@/types/database";
 
 export const metadata = {
   title: "Usha App",
@@ -14,6 +16,10 @@ export default async function MobileAppLayout({
   children: React.ReactNode;
 }) {
   let userName = "Användare";
+  let tier: MemberTier = "gratis";
+  let role: MemberRole = "publik";
+  let plan: string | null = null;
+  let hasActiveSubscription = false;
 
   try {
     const supabase = await createClient();
@@ -24,18 +30,34 @@ export default async function MobileAppLayout({
     if (user) {
       const { data: profile } = await supabase
         .from("profiles")
-        .select("full_name")
+        .select("full_name, tier, role")
         .eq("id", user.id)
         .single();
       userName = profile?.full_name || user.email || "Användare";
+      tier = (profile?.tier as MemberTier) ?? "gratis";
+      role = (profile?.role as MemberRole) ?? "publik";
+
+      const { data: sub } = await supabase
+        .from("subscriptions")
+        .select("plan, status")
+        .eq("user_id", user.id)
+        .eq("status", "active")
+        .single();
+
+      if (sub) {
+        plan = sub.plan;
+        hasActiveSubscription = true;
+      }
     }
   } catch {
     // Continue without auth
   }
 
   return (
-    <AppShell userName={userName}>
-      {children}
-    </AppShell>
+    <SubscriptionProvider value={{ tier, role, hasActiveSubscription, plan }}>
+      <AppShell userName={userName}>
+        {children}
+      </AppShell>
+    </SubscriptionProvider>
   );
 }

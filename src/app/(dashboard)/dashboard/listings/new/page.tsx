@@ -1,9 +1,17 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { redirect } from "next/navigation";
 import ListingForm from "../listing-form";
 import { createListing } from "../actions";
+import { getSubscriptionStatus } from "@/lib/subscription/check";
 
-export default function NewListingPage() {
+export default async function NewListingPage() {
+  // Server-side guard: redirect gratis users
+  const { tier } = await getSubscriptionStatus();
+  if (tier === "gratis") {
+    redirect("/dashboard/billing");
+  }
+
   return (
     <>
       <div className="mb-8">

@@ -41,8 +41,7 @@ export async function POST(req: NextRequest) {
     const originalPrice = listing.price ?? 0;
     const discountedPrice = calculateDiscountedPrice(
       originalPrice,
-      userTier,
-      listing.event_tier
+      userTier
     );
     const discountPercent =
       originalPrice > 0

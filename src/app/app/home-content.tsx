@@ -68,9 +68,9 @@ export function HomeContent({
 }: HomeContentProps) {
   const { role } = useRole();
 
-  if (role === "anvandare") {
+  if (role === "publik") {
     return (
-      <AnvandareHome
+      <PublikHome
         profile={profile}
         listings={listings}
         topCreators={topCreators}
@@ -93,8 +93,8 @@ export function HomeContent({
   );
 }
 
-/* ─── Användare (Customer) Home ─── */
-function AnvandareHome({
+/* ─── Publik (Customer) Home ─── */
+function PublikHome({
   profile,
   listings,
   topCreators,

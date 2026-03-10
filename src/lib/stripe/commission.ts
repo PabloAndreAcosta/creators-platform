@@ -1,5 +1,4 @@
-export type CreatorTier = 'silver' | 'gold' | 'platinum';
-export type EventTier = 'a' | 'b' | 'c';
+export type MemberTier = 'gratis' | 'guld' | 'premium';
 
 export interface PayoutBreakdown {
   gross: number;
@@ -8,24 +7,23 @@ export interface PayoutBreakdown {
   commissionRate: number;
 }
 
-const COMMISSION_RATES: Record<CreatorTier, number> = {
-  silver: 0.20,
-  gold: 0.10,
-  platinum: 0.05,
+export const COMMISSION_RATES: Record<MemberTier, number> = {
+  gratis: 0.15,
+  guld: 0.08,
+  premium: 0.03,
 };
 
-const DISCOUNT_MATRIX: Record<'gold' | 'platinum', Record<EventTier, number>> = {
-  gold: { a: 0.20, b: 0.10, c: 0.05 },
-  platinum: { a: 0.30, b: 0.20, c: 0.10 },
+export const DISCOUNT_RATES: Record<'guld' | 'premium', number> = {
+  guld: 0.10,
+  premium: 0.20,
 };
 
 /**
  * Returns the commission rate for a creator based on their tier.
- * Silver: 20%, Gold: 10%, Platinum: 5%.
- * Defaults to 20% if tier is not recognized.
+ * Gratis: 15%, Guld: 8%, Premium: 3%.
  */
-export function getCreatorCommissionRate(creatorTier: CreatorTier): number {
-  return COMMISSION_RATES[creatorTier] ?? 0.20;
+export function getCreatorCommissionRate(tier: string): number {
+  return COMMISSION_RATES[tier as MemberTier] ?? 0.15;
 }
 
 /**
@@ -36,7 +34,7 @@ export function calculateCreatorPayout(
   bookingAmount: number,
   creatorTier: string
 ): PayoutBreakdown {
-  const rate = COMMISSION_RATES[creatorTier as CreatorTier] ?? 0.20;
+  const rate = COMMISSION_RATES[creatorTier as MemberTier] ?? 0.15;
   const commission = Math.round(bookingAmount * rate * 100) / 100;
   const net = Math.round((bookingAmount - commission) * 100) / 100;
 
@@ -49,22 +47,17 @@ export function calculateCreatorPayout(
 }
 
 /**
- * Calculates the discounted price for a user based on their tier and the event's pricing tier.
- * Silver users and unauthenticated users pay full price.
- * Gold and Platinum members receive tiered discounts depending on event tier (a/b/c).
- * Returns the discounted price rounded to 2 decimals.
+ * Calculates the discounted price for a user based on their membership tier.
+ * Gratis users pay full price.
+ * Guld members get 10% discount, Premium members get 20% discount.
  */
 export function calculateDiscountedPrice(
   originalPrice: number,
-  userTier: string | null,
-  eventTier: string
+  userTier: string | null
 ): number {
-  if (!userTier || userTier === 'silver') return originalPrice;
+  if (!userTier || userTier === 'gratis') return originalPrice;
 
-  const discounts = DISCOUNT_MATRIX[userTier as 'gold' | 'platinum'];
-  if (!discounts) return originalPrice;
-
-  const discount = discounts[eventTier as EventTier];
+  const discount = DISCOUNT_RATES[userTier as 'guld' | 'premium'];
   if (discount === undefined) return originalPrice;
 
   return Math.round(originalPrice * (1 - discount) * 100) / 100;

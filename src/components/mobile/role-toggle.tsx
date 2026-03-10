@@ -2,7 +2,7 @@
 
 import { useRole, UserRole, ROLE_LABELS } from "./role-context";
 
-const ROLES: UserRole[] = ["anvandare", "kreator", "upplevelse"];
+const ROLES: UserRole[] = ["publik", "kreator", "upplevelse"];
 
 export function RoleToggle() {
   const { role, setRole } = useRole();

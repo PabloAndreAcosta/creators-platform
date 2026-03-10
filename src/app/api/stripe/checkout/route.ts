@@ -15,20 +15,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Support both planKey (new) and priceId+planName (legacy)
-    let priceId: string;
-    let planName: string;
+    const planKey = body.planKey as string;
 
-    if (body.planKey && body.planKey in PLANS) {
-      const key = body.planKey as PlanKey;
-      priceId = PLANS[key].stripePriceId;
-      planName = key;
-    } else if (body.priceId) {
-      priceId = body.priceId;
-      planName = body.planName || "basic";
-    } else {
-      return NextResponse.json({ error: "Missing plan" }, { status: 400 });
+    if (!planKey || !(planKey in PLANS)) {
+      return NextResponse.json({ error: "Ogiltig plan" }, { status: 400 });
     }
+
+    const plan = PLANS[planKey as PlanKey];
+    const priceId = plan.stripePriceId;
 
     if (!priceId) {
       return NextResponse.json(
@@ -45,7 +39,9 @@ export async function POST(req: NextRequest) {
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/billing`,
       metadata: {
         userId: user.id,
-        plan: planName,
+        plan: planKey,
+        role: plan.role,
+        tier: plan.tier,
       },
     });
 

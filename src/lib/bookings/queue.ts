@@ -26,8 +26,8 @@ export async function handleCapacityReached(
 
 /**
  * Adds a user to the booking queue for a listing.
- * Gold and Platinum members are placed at position 1 (priority).
- * Regular users are placed at the back of the queue.
+ * Guld and Premium members are placed at position 1 (priority).
+ * Gratis users are placed at the back of the queue.
  */
 export async function addToQueue(
   listingId: string,
@@ -35,7 +35,7 @@ export async function addToQueue(
   userTier: string | null
 ): Promise<{ queuePosition: number; estimatedTime?: string }> {
   const supabase = createAdminClient();
-  const isPriority = userTier === 'gold' || userTier === 'platinum';
+  const isPriority = userTier === 'guld' || userTier === 'premium';
 
   // Get current max position
   const { data: existing, error: fetchError } = await supabase

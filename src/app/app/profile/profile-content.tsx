@@ -111,7 +111,7 @@ export function ProfileContent({
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3">
-        {role === "anvandare" && (
+        {role === "publik" && (
           <>
             <StatBox icon={Calendar} label="Evenemang" value={String(bookingsCount)} />
             <StatBox icon={BookOpen} label="Kurser" value="-" />
