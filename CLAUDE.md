@@ -30,12 +30,12 @@ The Stripe webhook handler (`src/app/api/stripe/webhook/route.ts`) is an excepti
 
 - Route groups `(auth)` and `(dashboard)` organize without affecting URLs — `/login`, `/signup`, `/dashboard`
 - Auth callback at `/callback` handles OAuth code exchange (Google login)
-- API routes: `POST /api/stripe/checkout` (create Stripe session), `POST /api/stripe/webhook` (handle Stripe events)
+- API routes: `POST /api/stripe/checkout` (create Stripe session), `POST /api/stripe/portal` (billing portal), `POST /api/stripe/webhook` (handle Stripe events)
 - Dashboard page is a Server Component that fetches profile + subscription data, redirects to `/login` if unauthenticated
 
 ### Stripe Integration
 
-Pricing plans (Basic 99 SEK, Premium 199 SEK, Enterprise 499 SEK) are defined in `src/lib/stripe/config.ts`. Price IDs come from environment variables (`STRIPE_BASIC_PRICE_ID`, etc.). The webhook handles `checkout.session.completed`, `customer.subscription.updated`, and `customer.subscription.deleted` events, upserting/updating the `subscriptions` table.
+Six role-based pricing plans defined in `src/lib/stripe/config.ts`: Publik Guld (199 SEK), Publik Premium (499 SEK), Kreatör Guld (299 SEK), Kreatör Premium (599 SEK), Upplevelse Guld (299 SEK), Upplevelse Premium (599 SEK). Price IDs come from environment variables (`STRIPE_PUBLIK_GULD_PRICE_ID`, `STRIPE_KREATOR_GULD_PRICE_ID`, etc.). API routes: `POST /api/stripe/checkout` (create session), `POST /api/stripe/portal` (billing portal), `POST /api/stripe/webhook` (handle events). The webhook handles `checkout.session.completed`, `customer.subscription.updated`, and `customer.subscription.deleted` events, upserting/updating the `subscriptions` table.
 
 ### Database
 

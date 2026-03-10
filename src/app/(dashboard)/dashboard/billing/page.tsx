@@ -6,7 +6,12 @@ import { ArrowLeft, Check } from "lucide-react";
 import { CheckoutButton, PortalButton } from "./checkout-button";
 import type { MemberRole } from "@/types/database";
 
-export default async function BillingPage() {
+export default async function BillingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ success?: string }>;
+}) {
+  const { success } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -42,6 +47,12 @@ export default async function BillingPage() {
 
   return (
     <>
+      {success && (
+        <div className="mb-6 rounded-xl border border-green-500/20 bg-green-500/10 px-4 py-3 text-sm font-medium text-green-400">
+          Betalningen lyckades! Din plan är nu aktiv.
+        </div>
+      )}
+
       <div className="mb-8">
         <Link
           href="/dashboard"
