@@ -12,6 +12,17 @@ function getSupabaseAdmin() {
   );
 }
 
+/** Safely convert a Stripe timestamp (number | string | object) to ISO string */
+function toISO(value: unknown): string {
+  if (typeof value === "number") {
+    // Unix timestamp (seconds) — only multiply if it looks like seconds (< year 2100 in seconds)
+    const ms = value < 1e12 ? value * 1000 : value;
+    return new Date(ms).toISOString();
+  }
+  if (typeof value === "string") return new Date(value).toISOString();
+  return new Date().toISOString();
+}
+
 /**
  * Extracts the unified tier from any plan key (new or legacy).
  * 'kreator_guld' → 'guld', 'creator_gold' → 'guld', 'premium' → 'premium', etc.
@@ -101,12 +112,8 @@ export async function POST(req: NextRequest) {
           stripe_subscription_id: subscription.id,
           plan: planKey,
           status: "active",
-          current_period_start: new Date(
-            subscription.current_period_start * 1000
-          ).toISOString(),
-          current_period_end: new Date(
-            subscription.current_period_end * 1000
-          ).toISOString(),
+          current_period_start: toISO(subscription.current_period_start),
+          current_period_end: toISO(subscription.current_period_end),
         });
 
         // Record payment
@@ -131,12 +138,8 @@ export async function POST(req: NextRequest) {
           .from("subscriptions")
           .update({
             status: subscription.status === "active" ? "active" : "past_due",
-            current_period_start: new Date(
-              subscription.current_period_start * 1000
-            ).toISOString(),
-            current_period_end: new Date(
-              subscription.current_period_end * 1000
-            ).toISOString(),
+            current_period_start: toISO(subscription.current_period_start),
+            current_period_end: toISO(subscription.current_period_end),
           })
           .eq("stripe_subscription_id", subscription.id);
 
