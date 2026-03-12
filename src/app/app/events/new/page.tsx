@@ -11,5 +11,5 @@ export default async function NewEventPage() {
 
   if (!user) redirect("/login");
 
-  return <EventForm action={createEvent} />;
+  return <EventForm action={createEvent} userId={user.id} />;
 }

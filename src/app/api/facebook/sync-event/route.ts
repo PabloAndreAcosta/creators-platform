@@ -36,45 +36,43 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Ingen Facebook-sida ansluten" }, { status: 400 });
   }
 
-  // Build event payload
-  // Facebook requires start_time in ISO 8601
-  // Since our listings don't have a specific event date, use tomorrow as a sensible default
-  const startTime = new Date(Date.now() + 86400000).toISOString();
-
-  const fbPayload: Record<string, string | number> = {
-    name: listing.title,
-    start_time: startTime,
-    description: listing.description ?? "",
-  };
-
-  if (listing.price) {
-    fbPayload.ticket_uri = process.env.NEXT_PUBLIC_APP_URL + `/marketplace`;
-  }
+  // Build page post payload (Facebook deprecated the Page Events API,
+  // so we publish as a page post instead)
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";
+  const priceText = listing.price ? `\n💰 Pris: ${listing.price} SEK` : "\n🆓 Gratis";
+  const message = `${listing.title}\n\n${listing.description ?? ""}${priceText}\n\n👉 Boka här: ${appUrl}/marketplace`;
 
   const existingFbId = listing.facebook_event_id;
 
   let fbRes: Response;
-  let fbEventId: string;
+  let fbPostId: string;
 
   if (existingFbId) {
-    // Update existing FB event
+    // Update existing post
     fbRes = await fetch(
-      `https://graph.facebook.com/v19.0/${existingFbId}?access_token=${profile.facebook_page_access_token}`,
+      `https://graph.facebook.com/v19.0/${existingFbId}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(fbPayload),
+        body: JSON.stringify({
+          message,
+          access_token: profile.facebook_page_access_token,
+        }),
       }
     );
-    fbEventId = existingFbId;
-  } else {
-    // Create new FB event
+    fbPostId = existingFbId;
+  } else if (listing.image_url) {
+    // Create new photo post with image
     fbRes = await fetch(
-      `https://graph.facebook.com/v19.0/${profile.facebook_page_id}/events?access_token=${profile.facebook_page_access_token}`,
+      `https://graph.facebook.com/v19.0/${profile.facebook_page_id}/photos`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(fbPayload),
+        body: JSON.stringify({
+          url: listing.image_url,
+          message,
+          access_token: profile.facebook_page_access_token,
+        }),
       }
     );
 
@@ -87,19 +85,49 @@ export async function POST(req: NextRequest) {
     }
 
     const fbData = await fbRes.json();
-    fbEventId = fbData.id;
+    fbPostId = fbData.post_id || fbData.id;
 
-    // Save Facebook event ID back to listing
+    // Save Facebook post ID back to listing
     await supabase
       .from("listings")
-      .update({ facebook_event_id: fbEventId })
+      .update({ facebook_event_id: fbPostId })
+      .eq("id", listing_id);
+  } else {
+    // Create new page post (text only)
+    fbRes = await fetch(
+      `https://graph.facebook.com/v19.0/${profile.facebook_page_id}/feed`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message,
+          access_token: profile.facebook_page_access_token,
+        }),
+      }
+    );
+
+    if (!fbRes.ok) {
+      const err = await fbRes.json();
+      return NextResponse.json(
+        { error: "Facebook-fel: " + (err.error?.message ?? "okänt fel") },
+        { status: 500 }
+      );
+    }
+
+    const fbData = await fbRes.json();
+    fbPostId = fbData.id;
+
+    // Save Facebook post ID back to listing
+    await supabase
+      .from("listings")
+      .update({ facebook_event_id: fbPostId })
       .eq("id", listing_id);
   }
 
   return NextResponse.json({
     success: true,
-    facebook_event_id: fbEventId,
-    facebook_event_url: `https://www.facebook.com/events/${fbEventId}`,
+    facebook_event_id: fbPostId,
+    facebook_event_url: `https://www.facebook.com/${fbPostId}`,
     page_name: profile.facebook_page_name,
   });
 }

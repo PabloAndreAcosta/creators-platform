@@ -47,6 +47,7 @@ interface ListingData {
   is_active: boolean;
   created_at: string;
   facebook_event_id: string | null;
+  image_url: string | null;
 }
 
 interface EventsContentProps {
@@ -154,7 +155,7 @@ function EventCard({
   const router = useRouter();
 
   const categoryLabel = EVENT_CATEGORY_LABELS[listing.category] ?? listing.category;
-  const image = EVENT_IMAGES[index % EVENT_IMAGES.length];
+  const image = listing.image_url || EVENT_IMAGES[index % EVENT_IMAGES.length];
   const price = listing.price ? `${listing.price} kr` : "Gratis";
   const duration = listing.duration_minutes ? `${listing.duration_minutes} min` : null;
 

@@ -13,7 +13,7 @@ export default async function EditEventPage({ params }: { params: { id: string }
 
   const { data: event } = await supabase
     .from("listings")
-    .select("id, title, description, category, price, duration_minutes, event_tier")
+    .select("id, title, description, category, price, duration_minutes, event_tier, image_url")
     .eq("id", params.id)
     .eq("user_id", user.id)
     .single();
@@ -22,5 +22,5 @@ export default async function EditEventPage({ params }: { params: { id: string }
 
   const action = updateEvent.bind(null, event.id);
 
-  return <EventForm event={event} action={action} />;
+  return <EventForm event={event} action={action} userId={user.id} />;
 }

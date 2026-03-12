@@ -12,11 +12,16 @@ function parseEventForm(formData: FormData) {
   const priceRaw = formData.get("price") as string;
   const durationRaw = formData.get("duration_minutes") as string;
   const eventTier = (formData.get("event_tier") as string) || null;
+  const imageUrl = (formData.get("image_url") as string)?.trim() || null;
 
   if (!title) return { error: "Titel krävs" } as const;
   if (!category || !EVENT_CATEGORIES.includes(category as (typeof EVENT_CATEGORIES)[number])) {
     return { error: "Välj en giltig kategori" } as const;
   }
+
+  // Map form tier values to DB constraint values: '' → 'a', 'guld' → 'b', 'premium' → 'c'
+  const tierMap: Record<string, string> = { guld: "b", premium: "c" };
+  const dbTier = eventTier ? tierMap[eventTier] ?? "a" : "a";
 
   return {
     data: {
@@ -25,7 +30,8 @@ function parseEventForm(formData: FormData) {
       category,
       price: priceRaw ? parseInt(priceRaw, 10) : null,
       duration_minutes: durationRaw ? parseInt(durationRaw, 10) : null,
-      event_tier: eventTier || null,
+      event_tier: dbTier,
+      image_url: imageUrl,
     },
   } as const;
 }

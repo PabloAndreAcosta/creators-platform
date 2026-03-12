@@ -1,9 +1,10 @@
 "use client";
 
-import { useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ImagePlus, X, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
+import { createClient } from "@/lib/supabase/client";
 import { EVENT_CATEGORY_LABELS } from "./constants";
 
 interface EventData {
@@ -14,6 +15,7 @@ interface EventData {
   price: number | null;
   duration_minutes: number | null;
   event_tier: string | null;
+  image_url: string | null;
 }
 
 const CATEGORIES = Object.entries(EVENT_CATEGORY_LABELS).map(([value, label]) => ({ value, label }));
@@ -27,13 +29,52 @@ const TIERS = [
 export default function EventForm({
   event,
   action,
+  userId,
 }: {
   event?: EventData;
   action: (formData: FormData) => Promise<{ error?: string } | void>;
+  userId: string;
 }) {
   const { toast } = useToast();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [imageUrl, setImageUrl] = useState<string>(event?.image_url ?? "");
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Ogiltig fil", "Välj en bildfil (JPG, PNG eller WebP).");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("För stor fil", "Max 5 MB.");
+      return;
+    }
+
+    setUploading(true);
+    const supabase = createClient();
+    const ext = file.name.split(".").pop();
+    const path = `${userId}/${crypto.randomUUID()}.${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("event-images")
+      .upload(path, file, { upsert: true });
+
+    if (uploadError) {
+      toast.error("Uppladdning misslyckades", uploadError.message);
+      setUploading(false);
+      return;
+    }
+
+    const { data: urlData } = supabase.storage.from("event-images").getPublicUrl(path);
+    setImageUrl(`${urlData.publicUrl}?t=${Date.now()}`);
+    setUploading(false);
+  }
 
   function handleSubmit(formData: FormData) {
     startTransition(async () => {
@@ -62,6 +103,63 @@ export default function EventForm({
       </div>
 
       <form action={handleSubmit} className="space-y-5">
+        {/* Event image */}
+        <div>
+          <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">
+            Evenemangsbild
+          </label>
+          <div
+            onClick={() => !uploading && fileInputRef.current?.click()}
+            className="group relative cursor-pointer overflow-hidden rounded-xl border border-dashed border-[var(--usha-border)] bg-[var(--usha-card)] transition hover:border-[var(--usha-gold)]/40"
+          >
+            {imageUrl ? (
+              <div className="relative h-48">
+                <img
+                  src={imageUrl}
+                  alt="Evenemangsbild"
+                  className="h-full w-full object-cover"
+                />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                  <ImagePlus size={24} className="text-white" />
+                </div>
+              </div>
+            ) : (
+              <div className="flex h-48 flex-col items-center justify-center gap-2 text-[var(--usha-muted)]">
+                {uploading ? (
+                  <Loader2 size={24} className="animate-spin" />
+                ) : (
+                  <>
+                    <ImagePlus size={24} />
+                    <span className="text-xs">Klicka för att ladda upp bild</span>
+                    <span className="text-[10px]">JPG, PNG eller WebP. Max 5 MB.</span>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+          {imageUrl && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setImageUrl("");
+              }}
+              className="mt-2 flex items-center gap-1 text-xs text-red-400 hover:text-red-300"
+            >
+              <X size={12} />
+              Ta bort bild
+            </button>
+          )}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleImageUpload}
+            className="hidden"
+          />
+          <input type="hidden" name="image_url" value={imageUrl} />
+        </div>
+
         {/* Title */}
         <div>
           <label htmlFor="title" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
