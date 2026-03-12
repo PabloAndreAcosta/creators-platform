@@ -1,0 +1,26 @@
+import { createClient } from "@/lib/supabase/server";
+import { redirect, notFound } from "next/navigation";
+import EventForm from "../../event-form";
+import { updateEvent } from "../../actions";
+
+export default async function EditEventPage({ params }: { params: { id: string } }) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) redirect("/login");
+
+  const { data: event } = await supabase
+    .from("listings")
+    .select("id, title, description, category, price, duration_minutes, event_tier")
+    .eq("id", params.id)
+    .eq("user_id", user.id)
+    .single();
+
+  if (!event) notFound();
+
+  const action = updateEvent.bind(null, event.id);
+
+  return <EventForm event={event} action={action} />;
+}
