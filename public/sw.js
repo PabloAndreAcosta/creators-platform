@@ -1,4 +1,4 @@
-const CACHE_NAME = 'usha-v1';
+const CACHE_NAME = 'usha-v2';
 
 const STATIC_ASSETS = [
   '/',
@@ -45,8 +45,9 @@ self.addEventListener('fetch', (event) => {
   // Skip chrome-extension and other non-http requests
   if (!url.protocol.startsWith('http')) return;
 
-  // In development, don't intercept Next.js HMR and dynamic chunks
-  if (url.pathname.startsWith('/_next/webpack-hmr')) return;
+  // Skip all Next.js internal requests — dev chunks lack content hashes,
+  // so cache-first causes stale JS to be served after code changes → hydration errors
+  if (url.pathname.startsWith('/_next/')) return;
 
   // API calls: network-first
   if (url.pathname.startsWith('/api/')) {
@@ -62,11 +63,8 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Static assets (JS, CSS, images, fonts): cache-first
-  if (
-    url.pathname.startsWith('/_next/static/') ||
-    url.pathname.match(/\.(js|css|png|jpg|jpeg|svg|webp|woff2?|ttf|ico)$/)
-  ) {
+  // Static assets (images, fonts): cache-first
+  if (url.pathname.match(/\.(png|jpg|jpeg|svg|webp|woff2?|ttf|ico)$/)) {
     event.respondWith(
       caches.match(request).then(
         (cached) =>

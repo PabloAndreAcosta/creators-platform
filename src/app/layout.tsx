@@ -38,7 +38,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="sv" className="dark">
-      <body className="grain min-h-screen bg-[var(--usha-black)] text-[var(--usha-white)] antialiased">
+      <body className="grain min-h-screen bg-[var(--usha-black)] text-[var(--usha-white)] antialiased" suppressHydrationWarning>
         <ConnectionStatus />
         <ToastProvider>{children}</ToastProvider>
         <Script id="sw-register" strategy="afterInteractive">{`

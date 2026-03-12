@@ -154,6 +154,7 @@ function Hero() {
             muted
             playsInline
             className="w-full"
+            suppressHydrationWarning
           >
             <source src="/hero-video.mp4" type="video/mp4" />
           </video>
