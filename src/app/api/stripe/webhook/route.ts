@@ -89,6 +89,40 @@ export async function POST(req: NextRequest) {
         const session = event.data.object as Stripe.Checkout.Session;
         const userId = session.metadata?.userId;
 
+        // Handle ticket purchases (one-time payments via Connect)
+        if (session.metadata?.type === "ticket" && userId) {
+          const listingId = session.metadata.listingId;
+          const creatorId = session.metadata.creatorId;
+          const amountPaid = session.amount_total; // already in öre
+
+          // Create confirmed booking
+          await getSupabaseAdmin().from("bookings").insert({
+            listing_id: listingId,
+            creator_id: creatorId,
+            customer_id: userId,
+            status: "confirmed",
+            scheduled_at: new Date().toISOString(),
+            booking_type: "ticket",
+            stripe_payment_id: session.payment_intent as string,
+            amount_paid: amountPaid,
+          });
+
+          // Record payment
+          if (amountPaid) {
+            await getSupabaseAdmin().from("payments").insert({
+              user_id: userId,
+              stripe_payment_id: session.payment_intent as string,
+              amount: amountPaid,
+              currency: session.currency || "sek",
+              status: "succeeded",
+              description: `Biljett: ${session.metadata.listingId}`,
+            });
+          }
+
+          break;
+        }
+
+        // Handle subscription checkouts
         if (!userId || !session.subscription) break;
 
         const planKey = session.metadata?.plan || "basic";

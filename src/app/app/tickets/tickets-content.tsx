@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Calendar, MapPin, Clock, QrCode, X, Ticket } from "lucide-react";
+import { useToast } from "@/components/ui/toaster";
 
 interface TicketData {
   id: string;
@@ -12,6 +14,8 @@ interface TicketData {
   location: string;
   status: "active" | "used" | "upcoming";
   type: string;
+  amountPaid: number | null;
+  bookingType: string;
 }
 
 interface BookingData {
@@ -19,7 +23,9 @@ interface BookingData {
   scheduled_at: string;
   status: string;
   notes: string | null;
-  listings: { title: string; category: string } | null;
+  amount_paid: number | null;
+  booking_type: string | null;
+  listings: { title: string; category: string; image_url?: string | null } | null;
 }
 
 interface TicketsContentProps {
@@ -56,11 +62,23 @@ function bookingToTicket(booking: BookingData): TicketData {
     location: booking.notes || "-",
     status,
     type: booking.listings?.category || "Bokning",
+    amountPaid: booking.amount_paid,
+    bookingType: booking.booking_type || "manual",
   };
 }
 
 export function TicketsContent({ bookings }: TicketsContentProps) {
   const [selectedTicket, setSelectedTicket] = useState<TicketData | null>(null);
+  const searchParams = useSearchParams();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (searchParams.get("success") === "true") {
+      toast.success("Biljett köpt!", "Din biljett finns nu här nedanför.");
+      // Clean up URL
+      window.history.replaceState({}, "", "/app/tickets");
+    }
+  }, [searchParams, toast]);
 
   const tickets = bookings.map(bookingToTicket);
   const activeTickets = tickets.filter(
@@ -198,6 +216,11 @@ function TicketCard({
           <p className="font-mono text-xs text-[var(--usha-muted)]">
             {ticket.code}
           </p>
+          {ticket.amountPaid != null && ticket.bookingType === "ticket" && (
+            <p className="mt-0.5 text-xs font-semibold text-[var(--usha-gold)]">
+              Betalt: {(ticket.amountPaid / 100).toFixed(0)} kr
+            </p>
+          )}
         </div>
         {ticket.status !== "used" && onShowQR && (
           <button

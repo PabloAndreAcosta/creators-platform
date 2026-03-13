@@ -8,6 +8,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { MapPin, Clock, Globe, ArrowLeft } from "lucide-react";
 import BookingForm from "./booking-form";
+import { BuyTicketButton } from "@/components/buy-ticket-button";
+import { calculateDiscountedPrice } from "@/lib/stripe/commission";
 
 interface Props {
   params: { id: string };
@@ -49,7 +51,7 @@ export default async function CreatorProfilePage({ params }: Props) {
     supabase
       .from("profiles")
       .select(
-        "id, full_name, avatar_url, bio, category, location, hourly_rate, website"
+        "id, full_name, avatar_url, bio, category, location, hourly_rate, website, stripe_account_id"
       )
       .eq("id", params.id)
       .eq("is_public", true)
@@ -66,12 +68,24 @@ export default async function CreatorProfilePage({ params }: Props) {
     .eq("is_active", true)
     .order("created_at", { ascending: false });
 
+  // Get visitor's tier for discount calculation
+  let visitorTier: string | null = null;
+  if (user) {
+    const { data: visitorProfile } = await supabase
+      .from("profiles")
+      .select("tier")
+      .eq("id", user.id)
+      .single();
+    visitorTier = visitorProfile?.tier ?? null;
+  }
+
   const categoryLabel = profile.category
     ? CATEGORY_LABELS[profile.category]
     : null;
 
   const isLoggedIn = !!user;
   const isOwnProfile = user?.id === profile.id;
+  const hasConnect = !!profile.stripe_account_id;
 
   return (
     <div className="min-h-screen">
@@ -218,11 +232,22 @@ export default async function CreatorProfilePage({ params }: Props) {
                       )}
                     </div>
                     {!isOwnProfile && (
-                      <BookingForm
-                        listing={listing}
-                        creatorId={profile.id}
-                        isLoggedIn={isLoggedIn}
-                      />
+                      <div className="flex items-center gap-2">
+                        {listing.price != null && listing.price > 0 && (
+                          <BuyTicketButton
+                            listingId={listing.id}
+                            originalPrice={listing.price}
+                            discountedPrice={calculateDiscountedPrice(listing.price, visitorTier)}
+                            isLoggedIn={isLoggedIn}
+                            hasConnect={hasConnect}
+                          />
+                        )}
+                        <BookingForm
+                          listing={listing}
+                          creatorId={profile.id}
+                          isLoggedIn={isLoggedIn}
+                        />
+                      </div>
                     )}
                   </div>
                 </div>

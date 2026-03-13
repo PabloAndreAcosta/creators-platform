@@ -101,12 +101,16 @@ export interface Database {
           status: "pending" | "confirmed" | "completed" | "canceled";
           scheduled_at: string;
           notes: string | null;
+          stripe_payment_id: string | null;
+          amount_paid: number | null;
+          booking_type: "manual" | "ticket";
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["bookings"]["Row"], "id" | "created_at" | "updated_at" | "status"> & {
+        Insert: Omit<Database["public"]["Tables"]["bookings"]["Row"], "id" | "created_at" | "updated_at" | "status" | "booking_type"> & {
           id?: string;
           status?: "pending" | "confirmed" | "completed" | "canceled";
+          booking_type?: "manual" | "ticket";
         };
         Update: Partial<Database["public"]["Tables"]["bookings"]["Insert"]>;
       };

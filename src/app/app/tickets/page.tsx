@@ -13,7 +13,7 @@ export default async function TicketsPage() {
     if (user) {
       const { data } = await supabase
         .from("bookings")
-        .select("id, scheduled_at, status, notes, listings(title, category)")
+        .select("id, scheduled_at, status, notes, amount_paid, booking_type, listings(title, category, image_url)")
         .eq("customer_id", user.id)
         .order("scheduled_at", { ascending: false });
 
