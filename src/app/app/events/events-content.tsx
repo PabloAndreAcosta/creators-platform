@@ -193,7 +193,7 @@ function EventCard({
       } ${isPending ? "pointer-events-none opacity-50" : ""}`}
     >
       {/* Image */}
-      <div className="relative h-36">
+      <div className="relative aspect-[1.91/1]">
         <img src={image} alt={listing.title} className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
 

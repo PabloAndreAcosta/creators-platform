@@ -113,7 +113,7 @@ export default function EventForm({
             className="group relative cursor-pointer overflow-hidden rounded-xl border border-dashed border-[var(--usha-border)] bg-[var(--usha-card)] transition hover:border-[var(--usha-gold)]/40"
           >
             {imageUrl ? (
-              <div className="relative h-48">
+              <div className="relative aspect-[1.91/1] bg-black">
                 <img
                   src={imageUrl}
                   alt="Evenemangsbild"
@@ -124,14 +124,14 @@ export default function EventForm({
                 </div>
               </div>
             ) : (
-              <div className="flex h-48 flex-col items-center justify-center gap-2 text-[var(--usha-muted)]">
+              <div className="flex aspect-[1.91/1] flex-col items-center justify-center gap-2 text-[var(--usha-muted)]">
                 {uploading ? (
                   <Loader2 size={24} className="animate-spin" />
                 ) : (
                   <>
                     <ImagePlus size={24} />
                     <span className="text-xs">Klicka för att ladda upp bild</span>
-                    <span className="text-[10px]">JPG, PNG eller WebP. Max 5 MB.</span>
+                    <span className="text-[10px]">JPG, PNG eller WebP. Max 5 MB. Bäst i 1200x630px (Facebook-format).</span>
                   </>
                 )}
               </div>
