@@ -13,6 +13,9 @@ function parseEventForm(formData: FormData) {
   const durationRaw = formData.get("duration_minutes") as string;
   const eventTier = (formData.get("event_tier") as string) || null;
   const imageUrl = (formData.get("image_url") as string)?.trim() || null;
+  const eventDate = (formData.get("event_date") as string)?.trim() || null;
+  const eventTime = (formData.get("event_time") as string)?.trim() || null;
+  const eventLocation = (formData.get("event_location") as string)?.trim() || null;
 
   if (!title) return { error: "Titel krävs" } as const;
   if (!category || !EVENT_CATEGORIES.includes(category as (typeof EVENT_CATEGORIES)[number])) {
@@ -32,6 +35,9 @@ function parseEventForm(formData: FormData) {
       duration_minutes: durationRaw ? parseInt(durationRaw, 10) : null,
       event_tier: dbTier,
       image_url: imageUrl,
+      event_date: eventDate,
+      event_time: eventTime,
+      event_location: eventLocation,
     },
   } as const;
 }

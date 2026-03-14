@@ -95,13 +95,25 @@ export async function POST(req: NextRequest) {
           const creatorId = session.metadata.creatorId;
           const amountPaid = session.amount_total; // already in öre
 
+          // Build scheduled_at from event date/time if available
+          const eventDate = session.metadata.eventDate;
+          const eventTime = session.metadata.eventTime;
+          let scheduledAt: string;
+          if (eventDate) {
+            scheduledAt = eventTime
+              ? new Date(`${eventDate}T${eventTime}`).toISOString()
+              : new Date(`${eventDate}T00:00:00`).toISOString();
+          } else {
+            scheduledAt = new Date().toISOString();
+          }
+
           // Create confirmed booking
           await getSupabaseAdmin().from("bookings").insert({
             listing_id: listingId,
             creator_id: creatorId,
             customer_id: userId,
             status: "confirmed",
-            scheduled_at: new Date().toISOString(),
+            scheduled_at: scheduledAt,
             booking_type: "ticket",
             stripe_payment_id: session.payment_intent as string,
             amount_paid: amountPaid,

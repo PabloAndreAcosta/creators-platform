@@ -6,7 +6,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin, Clock, Globe, ArrowLeft } from "lucide-react";
+import { MapPin, Clock, Globe, ArrowLeft, Calendar } from "lucide-react";
 import BookingForm from "./booking-form";
 import { BuyTicketButton } from "@/components/buy-ticket-button";
 import { calculateDiscountedPrice } from "@/lib/stripe/commission";
@@ -63,7 +63,7 @@ export default async function CreatorProfilePage({ params }: Props) {
 
   const { data: listings } = await supabase
     .from("listings")
-    .select("id, title, description, category, price, duration_minutes")
+    .select("id, title, description, category, price, duration_minutes, event_date, event_time, event_location")
     .eq("user_id", profile.id)
     .eq("is_active", true)
     .order("created_at", { ascending: false });
@@ -220,15 +220,39 @@ export default async function CreatorProfilePage({ params }: Props) {
                     </p>
                   )}
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 text-xs text-[var(--usha-muted)]">
-                      <span className="rounded-full border border-[var(--usha-border)] px-2 py-0.5">
-                        {CATEGORY_LABELS[listing.category] || listing.category}
-                      </span>
-                      {listing.duration_minutes != null && (
-                        <span className="flex items-center gap-1">
-                          <Clock size={11} />
-                          {listing.duration_minutes} min
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-3 text-xs text-[var(--usha-muted)]">
+                        <span className="rounded-full border border-[var(--usha-border)] px-2 py-0.5">
+                          {CATEGORY_LABELS[listing.category] || listing.category}
                         </span>
+                        {listing.duration_minutes != null && (
+                          <span className="flex items-center gap-1">
+                            <Clock size={11} />
+                            {listing.duration_minutes} min
+                          </span>
+                        )}
+                      </div>
+                      {(listing.event_date || listing.event_time || listing.event_location) && (
+                        <div className="flex flex-wrap items-center gap-3 text-xs text-[var(--usha-muted)]">
+                          {listing.event_date && (
+                            <span className="flex items-center gap-1">
+                              <Calendar size={11} />
+                              {new Date(listing.event_date + "T00:00").toLocaleDateString("sv-SE", { day: "numeric", month: "short", year: "numeric" })}
+                            </span>
+                          )}
+                          {listing.event_time && (
+                            <span className="flex items-center gap-1">
+                              <Clock size={11} />
+                              {listing.event_time.slice(0, 5)}
+                            </span>
+                          )}
+                          {listing.event_location && (
+                            <span className="flex items-center gap-1">
+                              <MapPin size={11} />
+                              {listing.event_location}
+                            </span>
+                          )}
+                        </div>
                       )}
                     </div>
                     {!isOwnProfile && (

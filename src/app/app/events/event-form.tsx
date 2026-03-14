@@ -16,6 +16,9 @@ interface EventData {
   duration_minutes: number | null;
   event_tier: string | null;
   image_url: string | null;
+  event_date: string | null;
+  event_time: string | null;
+  event_location: string | null;
 }
 
 const CATEGORIES = Object.entries(EVENT_CATEGORY_LABELS).map(([value, label]) => ({ value, label }));
@@ -188,6 +191,50 @@ export default function EventForm({
             defaultValue={event?.description ?? ""}
             placeholder="Beskriv evenemanget – vad händer, vad ingår, vad ska gäster förvänta sig..."
             className="w-full resize-none rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+          />
+        </div>
+
+        {/* Date + Time */}
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor="event_date" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
+              Datum
+            </label>
+            <input
+              id="event_date"
+              name="event_date"
+              type="date"
+              defaultValue={event?.event_date ?? ""}
+              className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="event_time" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
+              Tid
+            </label>
+            <input
+              id="event_time"
+              name="event_time"
+              type="time"
+              defaultValue={event?.event_time ?? ""}
+              className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+            />
+          </div>
+        </div>
+
+        {/* Location */}
+        <div>
+          <label htmlFor="event_location" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
+            Plats
+          </label>
+          <input
+            id="event_location"
+            name="event_location"
+            type="text"
+            defaultValue={event?.event_location ?? ""}
+            placeholder="t.ex. Kulturhuset, Stockholm"
+            className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
           />
         </div>
 

@@ -10,6 +10,7 @@ import {
   Ticket,
   TrendingUp,
   Calendar,
+  MapPin,
   ToggleLeft,
   ToggleRight,
 } from "lucide-react";
@@ -48,6 +49,9 @@ interface ListingData {
   created_at: string;
   facebook_event_id: string | null;
   image_url: string | null;
+  event_date: string | null;
+  event_time: string | null;
+  event_location: string | null;
 }
 
 interface EventsContentProps {
@@ -216,15 +220,39 @@ function EventCard({
 
       {/* Info */}
       <div className="p-4 space-y-3">
-        <div className="flex items-center gap-4 text-xs text-[var(--usha-muted)]">
-          {duration && (
-            <span className="flex items-center gap-1">
-              <Clock size={12} />
-              {duration}
-            </span>
-          )}
-          {listing.description && (
-            <span className="line-clamp-1 flex-1">{listing.description}</span>
+        <div className="space-y-1.5 text-xs text-[var(--usha-muted)]">
+          <div className="flex items-center gap-4">
+            {duration && (
+              <span className="flex items-center gap-1">
+                <Clock size={12} />
+                {duration}
+              </span>
+            )}
+            {listing.description && (
+              <span className="line-clamp-1 flex-1">{listing.description}</span>
+            )}
+          </div>
+          {(listing.event_date || listing.event_time || listing.event_location) && (
+            <div className="flex flex-wrap items-center gap-3">
+              {listing.event_date && (
+                <span className="flex items-center gap-1">
+                  <Calendar size={12} />
+                  {new Date(listing.event_date + "T00:00").toLocaleDateString("sv-SE", { day: "numeric", month: "short", year: "numeric" })}
+                </span>
+              )}
+              {listing.event_time && (
+                <span className="flex items-center gap-1">
+                  <Clock size={12} />
+                  {listing.event_time.slice(0, 5)}
+                </span>
+              )}
+              {listing.event_location && (
+                <span className="flex items-center gap-1">
+                  <MapPin size={12} />
+                  {listing.event_location}
+                </span>
+              )}
+            </div>
           )}
         </div>
 

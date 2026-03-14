@@ -82,6 +82,9 @@ export interface Database {
           duration_minutes: number | null;
           is_active: boolean;
           event_tier: string | null;
+          event_date: string | null;
+          event_time: string | null;
+          event_location: string | null;
           release_to_gold_at: string | null;
           created_at: string;
           updated_at: string;

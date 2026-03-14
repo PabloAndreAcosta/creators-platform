@@ -25,7 +25,7 @@ interface BookingData {
   notes: string | null;
   amount_paid: number | null;
   booking_type: string | null;
-  listings: { title: string; category: string; image_url?: string | null } | null;
+  listings: { title: string; category: string; image_url?: string | null; event_date?: string | null; event_time?: string | null; event_location?: string | null } | null;
 }
 
 interface TicketsContentProps {
@@ -46,22 +46,45 @@ function bookingToTicket(booking: BookingData): TicketData {
     status = hoursUntil <= 24 ? "active" : "upcoming";
   }
 
-  return {
-    id: booking.id,
-    code: `USH-${booking.id.slice(0, 8).toUpperCase()}`,
-    title: booking.listings?.title || "Bokning",
-    date: scheduledDate.toLocaleDateString("sv-SE", {
+  // Prefer event_date/event_time from listing over scheduled_at
+  const listing = booking.listings;
+  let displayDate: string;
+  let displayTime: string;
+
+  if (listing?.event_date) {
+    displayDate = new Date(listing.event_date + "T00:00").toLocaleDateString("sv-SE", {
       day: "numeric",
       month: "long",
       year: "numeric",
-    }),
-    time: scheduledDate.toLocaleTimeString("sv-SE", {
+    });
+  } else {
+    displayDate = scheduledDate.toLocaleDateString("sv-SE", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  }
+
+  if (listing?.event_time) {
+    displayTime = listing.event_time.slice(0, 5);
+  } else {
+    displayTime = scheduledDate.toLocaleTimeString("sv-SE", {
       hour: "2-digit",
       minute: "2-digit",
-    }),
-    location: booking.notes || "-",
+    });
+  }
+
+  const displayLocation = listing?.event_location || booking.notes || "-";
+
+  return {
+    id: booking.id,
+    code: `USH-${booking.id.slice(0, 8).toUpperCase()}`,
+    title: listing?.title || "Bokning",
+    date: displayDate,
+    time: displayTime,
+    location: displayLocation,
     status,
-    type: booking.listings?.category || "Bokning",
+    type: listing?.category || "Bokning",
     amountPaid: booking.amount_paid,
     bookingType: booking.booking_type || "manual",
   };

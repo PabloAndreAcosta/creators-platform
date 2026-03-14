@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     // Get listing details
     const { data: listing, error: listingError } = await supabase
       .from('listings')
-      .select('id, title, price, user_id, is_active')
+      .select('id, title, price, user_id, is_active, event_date, event_time')
       .eq('id', listingId)
       .single();
 
@@ -116,6 +116,8 @@ export async function POST(req: NextRequest) {
         creatorId: listing.user_id,
         originalPrice: String(originalPrice),
         discountedPrice: String(discountedPrice),
+        eventDate: listing.event_date || '',
+        eventTime: listing.event_time || '',
       },
     });
 
