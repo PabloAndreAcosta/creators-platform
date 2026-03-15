@@ -7,6 +7,7 @@ export default async function ProfilePage() {
   let listingsCount = 0;
   let bookingsCount = 0;
   let favoritesCount = 0;
+  let averageRating: number | null = null;
 
   try {
     const supabase = await createClient();
@@ -35,6 +36,16 @@ export default async function ProfilePage() {
       listingsCount = listingsRes.count ?? 0;
       bookingsCount = bookingsRes.count ?? 0;
       favoritesCount = favoritesRes.count ?? 0;
+
+      // Fetch average rating for this user (as creator)
+      const { data: reviewsData } = await supabase
+        .from("reviews")
+        .select("rating")
+        .eq("creator_id", user.id);
+      const ratings = (reviewsData || []).map((r) => r.rating);
+      if (ratings.length > 0) {
+        averageRating = Math.round((ratings.reduce((a, b) => a + b, 0) / ratings.length) * 10) / 10;
+      }
     }
   } catch {
     // Continue with defaults
@@ -47,6 +58,7 @@ export default async function ProfilePage() {
       listingsCount={listingsCount}
       bookingsCount={bookingsCount}
       favoritesCount={favoritesCount}
+      averageRating={averageRating}
     />
   );
 }

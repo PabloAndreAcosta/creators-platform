@@ -39,6 +39,7 @@ export default async function AppHomePage() {
   let topCreators: TopCreator[] = [];
   let bookingsCount = 0;
   let monthlyRevenue = 0;
+  let averageRating: number | null = null;
 
   try {
     const supabase = await createClient();
@@ -69,7 +70,7 @@ export default async function AppHomePage() {
       startOfMonth.setDate(1);
       startOfMonth.setHours(0, 0, 0, 0);
 
-      const [creatorsRes, revenueRes] = await Promise.all([
+      const [creatorsRes, revenueRes, reviewsRes] = await Promise.all([
         supabase
           .from("profiles")
           .select("id, full_name, avatar_url, category, hourly_rate")
@@ -81,6 +82,10 @@ export default async function AppHomePage() {
           .eq("user_id", user.id)
           .eq("status", "succeeded")
           .gte("created_at", startOfMonth.toISOString()),
+        supabase
+          .from("reviews")
+          .select("rating")
+          .eq("creator_id", user.id),
       ]);
 
       topCreators = (creatorsRes.data || []) as TopCreator[];
@@ -90,6 +95,12 @@ export default async function AppHomePage() {
         (sum, p) => sum + (p.amount || 0),
         0
       ) / 100;
+
+      // Calculate average rating
+      const ratings = (reviewsRes.data || []).map((r) => r.rating);
+      if (ratings.length > 0) {
+        averageRating = Math.round((ratings.reduce((a, b) => a + b, 0) / ratings.length) * 10) / 10;
+      }
     }
   } catch {
     // Continue with mock data
@@ -102,6 +113,7 @@ export default async function AppHomePage() {
       topCreators={topCreators}
       bookingsCount={bookingsCount}
       monthlyRevenue={monthlyRevenue}
+      averageRating={averageRating}
     />
   );
 }

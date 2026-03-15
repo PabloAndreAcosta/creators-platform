@@ -45,6 +45,7 @@ interface ProfileContentProps {
   listingsCount: number;
   bookingsCount: number;
   favoritesCount?: number;
+  averageRating?: number | null;
 }
 
 export function ProfileContent({
@@ -53,6 +54,7 @@ export function ProfileContent({
   listingsCount,
   bookingsCount,
   favoritesCount = 0,
+  averageRating = null,
 }: ProfileContentProps) {
   const { role } = useRole();
 
@@ -124,14 +126,14 @@ export function ProfileContent({
           <>
             <StatBox icon={BookOpen} label="Kurser" value={String(listingsCount)} />
             <StatBox icon={Users} label="Elever" value={String(bookingsCount)} />
-            <StatBox icon={Star} label="Betyg" value="-" />
+            <StatBox icon={Star} label="Betyg" value={averageRating != null ? `${averageRating}/5` : "-"} />
           </>
         )}
         {role === "upplevelse" && (
           <>
             <StatBox icon={Ticket} label="Evenemang" value={String(listingsCount)} />
             <StatBox icon={Users} label="Besökare" value={String(bookingsCount)} />
-            <StatBox icon={Star} label="Betyg" value="-" />
+            <StatBox icon={Star} label="Betyg" value={averageRating != null ? `${averageRating}/5` : "-"} />
           </>
         )}
       </div>

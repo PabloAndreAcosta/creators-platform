@@ -21,6 +21,7 @@ import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import RecommendedEvents from "@/components/RecommendedEvents";
 import { FavoriteButton } from "@/components/favorite-button";
+import { SearchBar } from "@/components/search-bar";
 
 interface Profile {
   id: string;
@@ -60,6 +61,7 @@ interface HomeContentProps {
   topCreators: TopCreator[];
   bookingsCount: number;
   monthlyRevenue?: number;
+  averageRating?: number | null;
 }
 
 export function HomeContent({
@@ -68,6 +70,7 @@ export function HomeContent({
   topCreators,
   bookingsCount,
   monthlyRevenue = 0,
+  averageRating = null,
 }: HomeContentProps) {
   const { role } = useRole();
 
@@ -88,12 +91,13 @@ export function HomeContent({
         bookingsCount={bookingsCount}
         listings={listings}
         monthlyRevenue={monthlyRevenue}
+        averageRating={averageRating}
       />
     );
   }
 
   return (
-    <UpplevelseHome profile={profile} bookingsCount={bookingsCount} listings={listings} monthlyRevenue={monthlyRevenue} />
+    <UpplevelseHome profile={profile} bookingsCount={bookingsCount} listings={listings} monthlyRevenue={monthlyRevenue} averageRating={averageRating} />
   );
 }
 
@@ -165,13 +169,7 @@ function PublikHome({
       </div>
 
       {/* Search */}
-      <div className="relative">
-        <input
-          type="text"
-          placeholder="Sök evenemang, kreatörer, platser..."
-          className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm text-white placeholder:text-[var(--usha-muted)] focus:border-[var(--usha-gold)]/50 focus:outline-none"
-        />
-      </div>
+      <SearchBar />
 
       {/* Popular Events */}
       <section>
@@ -307,11 +305,13 @@ function KreatorHome({
   bookingsCount,
   listings,
   monthlyRevenue = 0,
+  averageRating = null,
 }: {
   profile: Profile | null;
   bookingsCount: number;
   listings: Listing[];
   monthlyRevenue?: number;
+  averageRating?: number | null;
 }) {
   const stats = [
     {
@@ -326,7 +326,7 @@ function KreatorHome({
     },
     {
       label: "Betyg",
-      value: "-",
+      value: averageRating != null ? String(averageRating) : "-",
       icon: Star,
       sub: "/5.0",
     },
@@ -444,15 +444,17 @@ function UpplevelseHome({
   bookingsCount,
   listings,
   monthlyRevenue = 0,
+  averageRating = null,
 }: {
   profile: Profile | null;
   bookingsCount: number;
   listings: Listing[];
   monthlyRevenue?: number;
+  averageRating?: number | null;
 }) {
   const stats = [
     { label: "Bokningar", value: String(bookingsCount), icon: Calendar },
-    { label: "Besökare", value: String(bookingsCount), icon: Users },
+    { label: "Betyg", value: averageRating != null ? `${averageRating}/5` : "-", icon: Star },
     { label: "Intäkter", value: `${monthlyRevenue.toLocaleString("sv-SE")} kr`, icon: DollarSign },
   ];
 

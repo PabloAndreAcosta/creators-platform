@@ -1,32 +1,61 @@
 "use client";
 
-import { useState } from "react";
-import { ArrowLeft, Bell } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { ArrowLeft, Bell, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 interface NotifSetting {
   id: string;
+  dbKey: string;
   label: string;
   description: string;
-  enabled: boolean;
 }
 
-const defaultSettings: NotifSetting[] = [
-  { id: "booking_new", label: "Nya bokningar", description: "Få notis när någon bokar en av dina tjänster", enabled: true },
-  { id: "booking_confirmed", label: "Bekräftade bokningar", description: "Få notis när en bokning bekräftas", enabled: true },
-  { id: "booking_canceled", label: "Avbokningar", description: "Få notis vid avbokningar", enabled: true },
-  { id: "payout", label: "Utbetalningar", description: "Få notis när en utbetalning genomförs", enabled: true },
-  { id: "marketing", label: "Tips och nyheter", description: "Få nyhetsbrev och plattformstips", enabled: false },
+const NOTIF_SETTINGS: NotifSetting[] = [
+  { id: "booking_new", dbKey: "notif_booking_new", label: "Nya bokningar", description: "Få notis när någon bokar en av dina tjänster" },
+  { id: "booking_confirmed", dbKey: "notif_booking_confirmed", label: "Bekräftade bokningar", description: "Få notis när en bokning bekräftas" },
+  { id: "booking_canceled", dbKey: "notif_booking_canceled", label: "Avbokningar", description: "Få notis vid avbokningar" },
+  { id: "payout", dbKey: "notif_payout", label: "Utbetalningar", description: "Få notis när en utbetalning genomförs" },
+  { id: "marketing", dbKey: "notif_marketing", label: "Tips och nyheter", description: "Få nyhetsbrev och plattformstips" },
 ];
 
 export default function NotificationsPage() {
-  const [settings, setSettings] = useState(defaultSettings);
+  const [values, setValues] = useState<Record<string, boolean>>({});
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState<string | null>(null);
 
-  function toggleSetting(id: string) {
-    setSettings((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, enabled: !s.enabled } : s))
-    );
-  }
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((data) => {
+        const s = data.settings ?? {};
+        const v: Record<string, boolean> = {};
+        for (const ns of NOTIF_SETTINGS) {
+          v[ns.dbKey] = s[ns.dbKey] ?? (ns.id !== "marketing");
+        }
+        setValues(v);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const toggleSetting = useCallback(async (dbKey: string) => {
+    const newVal = !values[dbKey];
+    setValues((prev) => ({ ...prev, [dbKey]: newVal }));
+    setSaving(dbKey);
+    try {
+      await fetch("/api/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [dbKey]: newVal }),
+      });
+    } catch {
+      // Revert on error
+      setValues((prev) => ({ ...prev, [dbKey]: !newVal }));
+    } finally {
+      setSaving(null);
+    }
+  }, [values]);
 
   return (
     <div className="px-4 py-6 space-y-6 md:max-w-2xl md:mx-auto">
@@ -47,34 +76,41 @@ export default function NotificationsPage() {
         </p>
       </div>
 
-      <div className="space-y-1 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] overflow-hidden">
-        {settings.map((setting) => (
-          <label
-            key={setting.id}
-            className="flex items-center gap-4 px-4 py-4 cursor-pointer transition-colors hover:bg-[var(--usha-card-hover)]"
-          >
-            <div className="flex-1">
-              <p className="text-sm font-medium">{setting.label}</p>
-              <p className="text-xs text-[var(--usha-muted)]">{setting.description}</p>
-            </div>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={setting.enabled}
-              onClick={() => toggleSetting(setting.id)}
-              className={`relative inline-flex h-6 w-11 shrink-0 rounded-full transition-colors ${
-                setting.enabled ? "bg-[var(--usha-gold)]" : "bg-[var(--usha-border)]"
-              }`}
+      {loading ? (
+        <div className="flex justify-center py-12">
+          <Loader2 size={24} className="animate-spin text-[var(--usha-muted)]" />
+        </div>
+      ) : (
+        <div className="space-y-1 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] overflow-hidden">
+          {NOTIF_SETTINGS.map((setting) => (
+            <label
+              key={setting.id}
+              className="flex items-center gap-4 px-4 py-4 cursor-pointer transition-colors hover:bg-[var(--usha-card-hover)]"
             >
-              <span
-                className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
-                  setting.enabled ? "translate-x-5" : "translate-x-0.5"
-                } mt-0.5`}
-              />
-            </button>
-          </label>
-        ))}
-      </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium">{setting.label}</p>
+                <p className="text-xs text-[var(--usha-muted)]">{setting.description}</p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={values[setting.dbKey] ?? false}
+                onClick={() => toggleSetting(setting.dbKey)}
+                disabled={saving === setting.dbKey}
+                className={`relative inline-flex h-6 w-11 shrink-0 rounded-full transition-colors ${
+                  values[setting.dbKey] ? "bg-[var(--usha-gold)]" : "bg-[var(--usha-border)]"
+                } ${saving === setting.dbKey ? "opacity-50" : ""}`}
+              >
+                <span
+                  className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
+                    values[setting.dbKey] ? "translate-x-5" : "translate-x-0.5"
+                  } mt-0.5`}
+                />
+              </button>
+            </label>
+          ))}
+        </div>
+      )}
 
       <p className="text-xs text-[var(--usha-muted)] text-center">
         Inställningarna sparas automatiskt.
