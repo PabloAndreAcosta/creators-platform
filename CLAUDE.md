@@ -10,7 +10,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run db:generate` — Regenerate Supabase TypeScript types into `src/lib/database.types.ts`
 - `npm run stripe:listen` — Forward Stripe webhooks to `localhost:3000/api/stripe/webhook`
 
-No test framework is configured.
+- `npm test` — Run tests (Vitest)
+- `npm run test:watch` — Run tests in watch mode
 
 ## Architecture
 

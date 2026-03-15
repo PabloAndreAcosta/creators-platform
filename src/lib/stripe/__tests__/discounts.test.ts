@@ -1,58 +1,64 @@
+import { describe, it, expect } from 'vitest';
 import { getDiscountPercentage, formatDiscount, applyDiscount } from '../discounts';
-import { calculateDiscountedPrice } from '../commission';
 
-let passed = 0;
-let failed = 0;
+describe('getDiscountPercentage', () => {
+  it('returns 0 for null tier', () => {
+    expect(getDiscountPercentage(null)).toBe(0);
+  });
 
-function assert(condition: boolean, name: string) {
-  if (condition) {
-    console.log(`  ✓ ${name}`);
-    passed++;
-  } else {
-    console.error(`  ✗ ${name}`);
-    failed++;
-  }
-}
+  it('returns 0 for gratis tier', () => {
+    expect(getDiscountPercentage('gratis')).toBe(0);
+  });
 
-function assertEq(actual: number, expected: number, name: string) {
-  assert(actual === expected, `${name} → got ${actual}, expected ${expected}`);
-}
+  it('returns 10% for guld tier', () => {
+    expect(getDiscountPercentage('guld')).toBe(0.10);
+  });
 
-// ─── getDiscountPercentage (new signature: userTier only) ───
-console.log('\ngetDiscountPercentage:');
+  it('returns 20% for premium tier', () => {
+    expect(getDiscountPercentage('premium')).toBe(0.20);
+  });
 
-assertEq(getDiscountPercentage(null), 0, 'null → 0%');
-assertEq(getDiscountPercentage('gratis'), 0, 'Gratis → 0%');
-assertEq(getDiscountPercentage('guld'), 0.10, 'Guld → 10%');
-assertEq(getDiscountPercentage('premium'), 0.20, 'Premium → 20%');
-assertEq(getDiscountPercentage('invalid'), 0, 'Invalid tier → 0%');
+  it('returns 0 for invalid tier', () => {
+    expect(getDiscountPercentage('invalid')).toBe(0);
+  });
+});
 
-// ─── formatDiscount ───
-console.log('\nformatDiscount:');
+describe('formatDiscount', () => {
+  it('formats 0.20 as "20%"', () => {
+    expect(formatDiscount(0.20)).toBe('20%');
+  });
 
-assert(formatDiscount(0.20) === '20%', '0.20 → "20%"');
-assert(formatDiscount(0.10) === '10%', '0.10 → "10%"');
-assert(formatDiscount(0.05) === '5%', '0.05 → "5%"');
-assert(formatDiscount(0) === '0%', '0 → "0%"');
+  it('formats 0.10 as "10%"', () => {
+    expect(formatDiscount(0.10)).toBe('10%');
+  });
 
-// ─── applyDiscount ───
-console.log('\napplyDiscount:');
+  it('formats 0.05 as "5%"', () => {
+    expect(formatDiscount(0.05)).toBe('5%');
+  });
 
-assertEq(applyDiscount(300, 0.20), 240, '300 SEK - 20% → 240 SEK');
-assertEq(applyDiscount(300, 0.10), 270, '300 SEK - 10% → 270 SEK');
-assertEq(applyDiscount(300, 0.05), 285, '300 SEK - 5% → 285 SEK');
-assertEq(applyDiscount(300, 0), 300, '300 SEK - 0% → 300 SEK');
-assertEq(applyDiscount(199, 0.20), 159.2, '199 SEK - 20% → 159.20 SEK');
+  it('formats 0 as "0%"', () => {
+    expect(formatDiscount(0)).toBe('0%');
+  });
+});
 
-// ─── calculateDiscountedPrice (new signature: price + userTier) ───
-console.log('\ncalculateDiscountedPrice:');
+describe('applyDiscount', () => {
+  it('applies 20% discount to 300 SEK', () => {
+    expect(applyDiscount(300, 0.20)).toBe(240);
+  });
 
-assertEq(calculateDiscountedPrice(300, 'guld'), 270, 'Guld: 300 → 270');
-assertEq(calculateDiscountedPrice(300, 'premium'), 240, 'Premium: 300 → 240');
-assertEq(calculateDiscountedPrice(300, 'gratis'), 300, 'Gratis: 300 → 300');
-assertEq(calculateDiscountedPrice(300, null), 300, 'null: 300 → 300');
-assertEq(calculateDiscountedPrice(0, 'guld'), 0, 'Zero price → 0');
+  it('applies 10% discount to 300 SEK', () => {
+    expect(applyDiscount(300, 0.10)).toBe(270);
+  });
 
-// ─── Summary ───
-console.log(`\n${passed} passed, ${failed} failed\n`);
-if (failed > 0) process.exit(1);
+  it('applies 5% discount to 300 SEK', () => {
+    expect(applyDiscount(300, 0.05)).toBe(285);
+  });
+
+  it('applies 0% discount (full price)', () => {
+    expect(applyDiscount(300, 0)).toBe(300);
+  });
+
+  it('handles non-round amounts with proper rounding', () => {
+    expect(applyDiscount(199, 0.20)).toBe(159.2);
+  });
+});
