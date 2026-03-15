@@ -9,6 +9,7 @@ import {
   BookOpen,
   User,
   Building2,
+  MessageCircle,
 } from "lucide-react";
 import { useRole } from "./role-context";
 
@@ -20,20 +21,20 @@ export function BottomNav() {
     role === "publik"
       ? [
           { href: "/app", label: "Hem", icon: Home },
-          { href: "/app/calendar", label: "Kalender", icon: Calendar },
+          { href: "/app/messages", label: "Chatt", icon: MessageCircle },
           { href: "/app/tickets", label: "Biljetter", icon: Ticket },
           { href: "/app/profile", label: "Profil", icon: User },
         ]
       : role === "kreator"
         ? [
             { href: "/app", label: "Hem", icon: Home },
-            { href: "/app/calendar", label: "Kalender", icon: Calendar },
+            { href: "/app/messages", label: "Chatt", icon: MessageCircle },
             { href: "/app/courses", label: "Kurser", icon: BookOpen },
             { href: "/app/profile", label: "Profil", icon: User },
           ]
         : [
             { href: "/app", label: "Hem", icon: Home },
-            { href: "/app/calendar", label: "Kalender", icon: Calendar },
+            { href: "/app/messages", label: "Chatt", icon: MessageCircle },
             { href: "/app/events", label: "Evenemang", icon: Building2 },
             { href: "/app/profile", label: "Profil", icon: User },
           ];

@@ -154,6 +154,16 @@ export default async function DashboardPage() {
           </p>
         </Link>
         <Link
+          href="/dashboard/analytics"
+          className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 transition-colors hover:border-[var(--usha-gold)]/30"
+        >
+          <BarChart3 size={20} className="mb-3 text-[var(--usha-gold)]" />
+          <h3 className="mb-1 font-semibold">Analytics</h3>
+          <p className="text-sm text-[var(--usha-muted)]">
+            Bokningar, intäkter och trender
+          </p>
+        </Link>
+        <Link
           href="/dashboard/payouts"
           className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 transition-colors hover:border-[var(--usha-gold)]/30"
         >

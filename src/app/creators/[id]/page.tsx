@@ -6,7 +6,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin, Clock, Globe, ArrowLeft, Calendar } from "lucide-react";
+import { MapPin, Clock, Globe, ArrowLeft, Calendar, MessageCircle } from "lucide-react";
 import BookingForm from "./booking-form";
 import { BuyTicketButton } from "@/components/buy-ticket-button";
 import { CreatorReviews } from "@/components/creator-reviews";
@@ -193,6 +193,15 @@ export default async function CreatorProfilePage({ params }: Props) {
               <p className="max-w-2xl whitespace-pre-line text-sm leading-relaxed text-[var(--usha-muted)]">
                 {profile.bio}
               </p>
+            )}
+            {isLoggedIn && !isOwnProfile && (
+              <Link
+                href={`/app/messages?to=${profile.id}`}
+                className="mt-4 inline-flex items-center gap-2 rounded-xl border border-[var(--usha-border)] px-4 py-2 text-sm font-medium transition hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-gold)]"
+              >
+                <MessageCircle size={14} />
+                Skicka meddelande
+              </Link>
             )}
           </div>
         </div>
