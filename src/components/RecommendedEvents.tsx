@@ -146,7 +146,7 @@ function EventCard({ event }: { event: Recommendation }) {
 
         {/* Creator */}
         <div className="flex items-center gap-2">
-          {event.creator.avatar ? (
+          {event.creator?.avatar ? (
             <img
               src={event.creator.avatar}
               alt={event.creator.name ?? 'Kreatör'}
@@ -155,12 +155,12 @@ function EventCard({ event }: { event: Recommendation }) {
           ) : (
             <div className="w-5 h-5 rounded-full bg-[var(--usha-border)] flex items-center justify-center">
               <span className="text-[9px] font-bold text-[var(--usha-muted)]">
-                {(event.creator.name ?? '?')[0]?.toUpperCase()}
+                {(event.creator?.name ?? '?')[0]?.toUpperCase()}
               </span>
             </div>
           )}
           <span className="text-xs text-[var(--usha-muted)] truncate">
-            {event.creator.name ?? 'Okänd kreatör'}
+            {event.creator?.name ?? 'Okänd kreatör'}
           </span>
         </div>
 
@@ -173,7 +173,7 @@ function EventCard({ event }: { event: Recommendation }) {
             size="sm"
             className="bg-[var(--usha-gold)] hover:bg-[var(--usha-gold-light)] text-black text-xs font-semibold px-4"
             onClick={() => {
-              window.location.href = `/creators/${event.creator.id}?listing=${event.id}`;
+              window.location.href = `/creators/${event.creator?.id ?? event.id}?listing=${event.id}`;
             }}
           >
             Boka Nu
