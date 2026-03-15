@@ -35,7 +35,7 @@ export async function sendPayoutConfirmationEmail({
 }: SendPayoutParams): Promise<void> {
   const resend = getResend();
 
-  const html = renderEmailToHtml(
+  const html = await renderEmailToHtml(
     createElement(PayoutConfirmation, {
       creatorName,
       amount,

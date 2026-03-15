@@ -1,11 +1,11 @@
-import { createElement, type ReactElement } from 'react';
-import { renderToStaticMarkup } from 'react-dom/server';
+import { type ReactElement } from 'react';
 
 /**
  * Renders a React email component to an HTML string.
- * Uses ReactDOMServer.renderToStaticMarkup for clean HTML output
- * without React-specific data attributes.
+ * Uses a dynamic import of react-dom/server to avoid Next.js
+ * webpack restrictions on importing it at the module level.
  */
-export function renderEmailToHtml(component: ReactElement): string {
+export async function renderEmailToHtml(component: ReactElement): Promise<string> {
+  const { renderToStaticMarkup } = await import('react-dom/server');
   return renderToStaticMarkup(component);
 }

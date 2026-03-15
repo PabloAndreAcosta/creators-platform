@@ -19,7 +19,7 @@ export async function sendGoldWelcomeEmail({
 }: SendWelcomeParams): Promise<void> {
   const resend = getResend();
 
-  const html = renderEmailToHtml(
+  const html = await renderEmailToHtml(
     createElement(GoldMemberWelcome, { memberName, expiryDate })
   );
 

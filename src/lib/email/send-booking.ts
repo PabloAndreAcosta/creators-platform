@@ -23,7 +23,7 @@ export async function sendBookingConfirmationEmail({
 }: SendBookingConfirmationParams): Promise<void> {
   try {
     const resend = getResend();
-    const html = renderEmailToHtml(
+    const html = await renderEmailToHtml(
       createElement(BookingConfirmation, { customerName, serviceName, scheduledAt, creatorName, location })
     );
 
@@ -59,7 +59,7 @@ export async function sendBookingCancellationEmail({
 }: SendBookingCancellationParams): Promise<void> {
   try {
     const resend = getResend();
-    const html = renderEmailToHtml(
+    const html = await renderEmailToHtml(
       createElement(BookingCancellation, { recipientName, serviceName, scheduledAt })
     );
 
