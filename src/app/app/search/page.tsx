@@ -60,7 +60,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     ]);
 
     creators = creatorsRes.data ?? [];
-    listings = (listingsRes.data as typeof listings) ?? [];
+    listings = (listingsRes.data as unknown as typeof listings) ?? [];
   }
 
   const totalResults = creators.length + listings.length;
