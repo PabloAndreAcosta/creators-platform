@@ -5,12 +5,17 @@ import { getRecommendations } from '@/lib/recommendations/engine';
 export async function GET(req: NextRequest) {
   try {
     const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+
+    let user;
+    try {
+      const { data } = await supabase.auth.getUser();
+      user = data.user;
+    } catch {
+      return NextResponse.json({ recommendations: [] });
+    }
 
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ recommendations: [] });
     }
 
     const { searchParams } = req.nextUrl;

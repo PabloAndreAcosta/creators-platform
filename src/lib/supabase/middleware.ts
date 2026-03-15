@@ -31,6 +31,17 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  await supabase.auth.getUser();
+  try {
+    await supabase.auth.getUser();
+  } catch {
+    // Invalid or corrupted session — clear auth cookies so the browser
+    // client doesn't keep hitting "Invalid UTF-8 sequence" errors.
+    const authCookies = [...request.cookies.getAll()]
+      .filter((c) => c.name.includes("-auth-token"))
+      .map((c) => c.name);
+    for (const name of authCookies) {
+      response.cookies.delete(name);
+    }
+  }
   return response;
 }

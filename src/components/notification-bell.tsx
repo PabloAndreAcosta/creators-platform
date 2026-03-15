@@ -44,8 +44,8 @@ export function NotificationBell() {
       const res = await fetch("/api/notifications?limit=10");
       if (!res.ok) return;
       const data = await res.json();
-      setNotifications(data.notifications);
-      setUnreadCount(data.unreadCount);
+      setNotifications(data.notifications ?? []);
+      setUnreadCount(data.unreadCount ?? 0);
     } catch {
       // ignore
     }
