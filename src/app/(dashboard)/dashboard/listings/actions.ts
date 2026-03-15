@@ -13,6 +13,7 @@ function parseListingForm(formData: FormData) {
   const category = formData.get("category") as string;
   const priceRaw = formData.get("price") as string;
   const durationRaw = formData.get("duration_minutes") as string;
+  const imageUrl = (formData.get("image_url") as string)?.trim() || null;
 
   if (!title) return { error: "Titel krävs" } as const;
   if (!category || !CATEGORIES.includes(category as (typeof CATEGORIES)[number])) {
@@ -26,6 +27,7 @@ function parseListingForm(formData: FormData) {
       category,
       price: priceRaw ? parseInt(priceRaw, 10) : null,
       duration_minutes: durationRaw ? parseInt(durationRaw, 10) : null,
+      image_url: imageUrl,
     },
   } as const;
 }

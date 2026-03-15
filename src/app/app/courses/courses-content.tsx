@@ -9,8 +9,10 @@ import {
   MoreVertical,
   DollarSign,
   BookOpen,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface CourseData {
   id: string;
@@ -37,6 +39,7 @@ interface ListingData {
   price: number | null;
   duration_minutes: number | null;
   is_active: boolean;
+  image_url: string | null;
   created_at: string;
 }
 
@@ -51,7 +54,7 @@ function listingToCourse(listing: ListingData, index: number): CourseData {
     schedule: listing.duration_minutes ? `${listing.duration_minutes} min` : "-",
     price: listing.price ? `${listing.price} kr` : "Gratis",
     active: listing.is_active,
-    image: COURSE_IMAGES[index % COURSE_IMAGES.length],
+    image: listing.image_url || COURSE_IMAGES[index % COURSE_IMAGES.length],
     level: listing.category || "Övrigt",
   };
 }
@@ -121,6 +124,25 @@ export function CoursesContent({ listings }: CoursesContentProps) {
 
 function CourseCard({ course }: { course: CourseData }) {
   const [showMenu, setShowMenu] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const router = useRouter();
+
+  async function handleDelete() {
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/listings/${course.id}`, { method: "DELETE" });
+      if (res.ok) {
+        router.refresh();
+      }
+    } catch {
+      // ignore
+    } finally {
+      setDeleting(false);
+      setShowConfirm(false);
+      setShowMenu(false);
+    }
+  }
 
   return (
     <div
@@ -187,11 +209,18 @@ function CourseCard({ course }: { course: CourseData }) {
                   onClick={() => setShowMenu(false)}
                 />
                 <div className="absolute bottom-full right-0 z-20 mb-1 rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] py-1 shadow-xl">
-                  <button className="flex w-full items-center gap-2 px-4 py-2 text-xs hover:bg-[var(--usha-card-hover)]">
+                  <Link
+                    href={`/dashboard/listings/${course.id}/edit`}
+                    className="flex w-full items-center gap-2 px-4 py-2 text-xs hover:bg-[var(--usha-card-hover)]"
+                    onClick={() => setShowMenu(false)}
+                  >
                     <Edit2 size={12} />
                     Redigera
-                  </button>
-                  <button className="flex w-full items-center gap-2 px-4 py-2 text-xs text-red-400 hover:bg-[var(--usha-card-hover)]">
+                  </Link>
+                  <button
+                    onClick={() => { setShowMenu(false); setShowConfirm(true); }}
+                    className="flex w-full items-center gap-2 px-4 py-2 text-xs text-red-400 hover:bg-[var(--usha-card-hover)]"
+                  >
                     <Trash2 size={12} />
                     Ta bort
                   </button>
@@ -201,6 +230,34 @@ function CourseCard({ course }: { course: CourseData }) {
           </div>
         </div>
       </div>
+
+      {/* Delete confirmation modal */}
+      {showConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowConfirm(false)}>
+          <div className="w-full max-w-sm rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6" onClick={(e) => e.stopPropagation()}>
+            <h3 className="mb-2 text-lg font-bold">Ta bort kurs?</h3>
+            <p className="mb-5 text-sm text-[var(--usha-muted)]">
+              Är du säker på att du vill ta bort &ldquo;{course.title}&rdquo;? Detta kan inte ångras.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowConfirm(false)}
+                className="flex-1 rounded-xl border border-[var(--usha-border)] py-2.5 text-sm font-medium transition hover:bg-[var(--usha-card-hover)]"
+              >
+                Avbryt
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-red-500 py-2.5 text-sm font-semibold text-white transition hover:bg-red-600 disabled:opacity-50"
+              >
+                {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                Ta bort
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

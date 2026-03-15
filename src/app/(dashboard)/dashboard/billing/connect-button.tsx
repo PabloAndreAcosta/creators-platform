@@ -87,23 +87,59 @@ export default function ConnectButton() {
       </div>
 
       {!isFullyConnected && (
-        <button
-          onClick={handleConnect}
-          disabled={connecting}
-          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-6 py-3 text-sm font-bold text-black transition hover:opacity-90 disabled:opacity-50"
-        >
-          {connecting ? (
-            <>
-              <Loader2 size={14} className="animate-spin" />
-              Ansluter...
-            </>
-          ) : (
-            <>
-              <ExternalLink size={14} />
-              {status?.connected ? 'Slutför anslutning' : 'Anslut bankkonto'}
-            </>
-          )}
-        </button>
+        <>
+          {/* Step-by-step guide */}
+          <div className="mt-4 space-y-2">
+            {[
+              { step: 1, label: 'Skapa Stripe-konto', done: !!status?.connected },
+              { step: 2, label: 'Verifiera identitet', done: !!status?.detailsSubmitted },
+              { step: 3, label: 'Aktivera utbetalningar', done: !!status?.payoutsEnabled },
+            ].map((s) => (
+              <div key={s.step} className="flex items-center gap-3">
+                <div className={`flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold ${
+                  s.done
+                    ? 'bg-green-500/10 text-green-400'
+                    : 'bg-[var(--usha-border)] text-[var(--usha-muted)]'
+                }`}>
+                  {s.done ? <CheckCircle size={14} /> : s.step}
+                </div>
+                <span className={`text-xs ${s.done ? 'text-green-400' : 'text-[var(--usha-muted)]'}`}>
+                  {s.label}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <button
+            onClick={handleConnect}
+            disabled={connecting}
+            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-6 py-3 text-sm font-bold text-black transition hover:opacity-90 disabled:opacity-50"
+          >
+            {connecting ? (
+              <>
+                <Loader2 size={14} className="animate-spin" />
+                Ansluter...
+              </>
+            ) : (
+              <>
+                <ExternalLink size={14} />
+                {status?.connected ? 'Slutför anslutning' : 'Anslut bankkonto'}
+              </>
+            )}
+          </button>
+
+          <p className="mt-2 text-[10px] text-[var(--usha-muted)]">
+            Du omdirigeras till Stripe för att slutföra verifieringen. Det tar ca 5 minuter.
+          </p>
+        </>
+      )}
+
+      {isFullyConnected && (
+        <div className="mt-4 rounded-lg bg-green-500/5 border border-green-500/20 p-3">
+          <p className="text-xs text-green-400">
+            Allt klart! Utbetalningar betalas ut automatiskt varje vecka, eller gör ett direkt uttag via utbetalningssidan.
+          </p>
+        </div>
       )}
     </div>
   );

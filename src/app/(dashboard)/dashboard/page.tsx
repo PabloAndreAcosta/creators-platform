@@ -8,6 +8,7 @@ import {
   List,
   Search,
   Clock,
+  Wallet,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -150,6 +151,16 @@ export default async function DashboardPage() {
           <h3 className="mb-1 font-semibold">Bokningar</h3>
           <p className="text-sm text-[var(--usha-muted)]">
             Hantera inkommande och utgående bokningar
+          </p>
+        </Link>
+        <Link
+          href="/dashboard/payouts"
+          className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 transition-colors hover:border-[var(--usha-gold)]/30"
+        >
+          <Wallet size={20} className="mb-3 text-[var(--usha-gold)]" />
+          <h3 className="mb-1 font-semibold">Utbetalningar</h3>
+          <p className="text-sm text-[var(--usha-muted)]">
+            Intäkter, kommission och uttag
           </p>
         </Link>
         <Link

@@ -1,13 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
-// GET — return user's favorite listing IDs
-export async function GET() {
+// GET — return user's favorite listing IDs (or detailed listings with ?details=1)
+export async function GET(req: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
     return NextResponse.json({ favorites: [] });
+  }
+
+  const details = req.nextUrl.searchParams.get('details') === '1';
+
+  if (details) {
+    const { data } = await supabase
+      .from('favorites')
+      .select('listing_id, listings(id, title, category, price, profiles(full_name, location))')
+      .eq('user_id', user.id);
+
+    const favorites = (data ?? []).map((f) => {
+      const listing = f.listings as unknown as {
+        id: string; title: string; category: string; price: number | null;
+        profiles: { full_name: string | null; location: string | null } | null;
+      };
+      return listing;
+    }).filter(Boolean);
+
+    return NextResponse.json({ favorites });
   }
 
   const { data } = await supabase

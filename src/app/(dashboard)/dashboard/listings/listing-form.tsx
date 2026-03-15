@@ -1,8 +1,10 @@
 "use client";
 
-import { useTransition } from "react";
+import { useTransition, useState, useRef } from "react";
 import { useToast } from "@/components/ui/toaster";
 import { CATEGORIES } from "@/lib/categories";
+import { createBrowserClient } from "@supabase/ssr";
+import { ImagePlus, Loader2, X } from "lucide-react";
 
 interface Listing {
   id: string;
@@ -11,6 +13,7 @@ interface Listing {
   category: string;
   price: number | null;
   duration_minutes: number | null;
+  image_url?: string | null;
 }
 
 export default function ListingForm({
@@ -22,8 +25,45 @@ export default function ListingForm({
 }) {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
+  const [imageUrl, setImageUrl] = useState<string | null>(listing?.image_url ?? null);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
+      const ext = file.name.split(".").pop();
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+
+      const { error } = await supabase.storage
+        .from("listing-images")
+        .upload(path, file, { upsert: true });
+
+      if (error) {
+        toast.error("Uppladdning misslyckades", error.message);
+        return;
+      }
+
+      const { data: urlData } = supabase.storage.from("listing-images").getPublicUrl(path);
+      setImageUrl(urlData.publicUrl);
+    } catch {
+      toast.error("Fel vid uppladdning");
+    } finally {
+      setUploading(false);
+    }
+  }
 
   function handleSubmit(formData: FormData) {
+    if (imageUrl) {
+      formData.set("image_url", imageUrl);
+    }
     startTransition(async () => {
       const result = await action(formData);
       if (result && "error" in result) {
@@ -36,6 +76,46 @@ export default function ListingForm({
 
   return (
     <form action={handleSubmit} className="space-y-6">
+      {/* Image Upload */}
+      <div>
+        <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">Bild</label>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          onChange={handleImageUpload}
+          className="hidden"
+        />
+        {imageUrl ? (
+          <div className="relative w-full overflow-hidden rounded-xl border border-[var(--usha-border)]">
+            <img src={imageUrl} alt="Listing" className="h-40 w-full object-cover" />
+            <button
+              type="button"
+              onClick={() => { setImageUrl(null); if (fileRef.current) fileRef.current.value = ""; }}
+              className="absolute right-2 top-2 rounded-full bg-black/60 p-1.5 text-white transition hover:bg-black/80"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            disabled={uploading}
+            className="flex h-32 w-full items-center justify-center rounded-xl border-2 border-dashed border-[var(--usha-border)] transition hover:border-[var(--usha-gold)]/30 disabled:opacity-50"
+          >
+            {uploading ? (
+              <Loader2 size={20} className="animate-spin text-[var(--usha-muted)]" />
+            ) : (
+              <div className="flex flex-col items-center gap-1 text-[var(--usha-muted)]">
+                <ImagePlus size={20} />
+                <span className="text-xs">Ladda upp bild</span>
+              </div>
+            )}
+          </button>
+        )}
+      </div>
+
       {/* Title */}
       <div>
         <label htmlFor="title" className="mb-1.5 block text-sm text-[var(--usha-muted)]">

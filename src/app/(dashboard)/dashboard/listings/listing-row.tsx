@@ -4,7 +4,7 @@ import { useTransition } from "react";
 import { deleteListing, toggleListingActive } from "./actions";
 import { useToast } from "@/components/ui/toaster";
 import Link from "next/link";
-import { Clock, Pencil, Trash2 } from "lucide-react";
+import { Clock, Pencil, Trash2, Crown } from "lucide-react";
 import { CATEGORY_LABELS } from "@/lib/categories";
 
 interface Listing {
@@ -15,6 +15,7 @@ interface Listing {
   price: number | null;
   duration_minutes: number | null;
   is_active: boolean;
+  release_to_gold_at?: string | null;
   created_at: string;
 }
 
@@ -44,6 +45,29 @@ export default function ListingRow({ listing }: { listing: Listing }) {
       }
     });
   }
+
+  function handleEarlyBird() {
+    if (!confirm("Aktivera 48h Gold-exklusiv tillgång för denna tjänst?")) return;
+    startTransition(async () => {
+      try {
+        const res = await fetch("/api/listings/early-bird", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ listingId: listing.id }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          toast.success("Gold-exklusiv tillgång aktiverad (48h)");
+        } else {
+          toast.error("Misslyckades", data.error);
+        }
+      } catch {
+        toast.error("Något gick fel");
+      }
+    });
+  }
+
+  const hasEarlyBird = listing.release_to_gold_at && new Date(listing.release_to_gold_at) > new Date();
 
   return (
     <div
@@ -77,6 +101,22 @@ export default function ListingRow({ listing }: { listing: Listing }) {
       </div>
 
       <div className="ml-4 flex shrink-0 items-center gap-2">
+        {listing.is_active && !hasEarlyBird && (
+          <button
+            onClick={handleEarlyBird}
+            className="flex items-center gap-1.5 rounded-lg border border-[var(--usha-gold)]/30 px-3 py-1.5 text-xs font-medium text-[var(--usha-gold)] transition-colors hover:bg-[var(--usha-gold)]/10"
+            title="Ge Guld-medlemmar 48h exklusiv tillgång"
+          >
+            <Crown size={12} />
+            Early Bird
+          </button>
+        )}
+        {hasEarlyBird && (
+          <span className="flex items-center gap-1 rounded-full bg-[var(--usha-gold)]/10 px-2.5 py-1 text-[10px] font-medium text-[var(--usha-gold)]">
+            <Crown size={10} />
+            Gold-exklusiv
+          </span>
+        )}
         <button
           onClick={handleToggle}
           className="rounded-lg border border-[var(--usha-border)] px-3 py-1.5 text-xs font-medium transition-colors hover:bg-[var(--usha-card-hover)]"

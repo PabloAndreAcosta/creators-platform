@@ -5,6 +5,8 @@ import Link from "next/link";
 import { ArrowLeft, Check } from "lucide-react";
 import { CheckoutButton, PortalButton } from "./checkout-button";
 import type { MemberRole } from "@/types/database";
+import CreatorTierInfo from "@/components/dashboard/CreatorTierInfo";
+import ConnectButton from "./connect-button";
 
 export default async function BillingPage({
   searchParams,
@@ -21,7 +23,7 @@ export default async function BillingPage({
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, tier")
     .eq("id", user.id)
     .single();
 
@@ -34,6 +36,27 @@ export default async function BillingPage({
 
   const currentPlan = subscription?.plan ?? null;
   const userRole = (profile?.role as MemberRole) ?? "publik";
+  const userTier = (profile?.tier as 'gratis' | 'guld' | 'premium') ?? 'gratis';
+  const isCreatorRole = userRole === "kreator" || userRole === "upplevelse";
+
+  // Fetch monthly earnings for creator tier info
+  let monthlyEarnings = 0;
+  if (isCreatorRole) {
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    const { data: completedBookings } = await supabase
+      .from("bookings")
+      .select("listing_id, listings(price)")
+      .eq("creator_id", user.id)
+      .eq("status", "completed")
+      .gte("updated_at", startOfMonth.toISOString());
+
+    monthlyEarnings = (completedBookings ?? []).reduce((sum, b: any) => {
+      return sum + (b.listings?.price ?? 0);
+    }, 0);
+  }
 
   // Get plans for user's role
   const rolePlans = getPlanList(userRole);
@@ -204,6 +227,25 @@ export default async function BillingPage({
           );
         })}
       </div>
+
+      {/* Stripe Connect for creators */}
+      {isCreatorRole && (
+        <div className="mt-10">
+          <h2 className="mb-4 text-xl font-bold">Utbetalningar</h2>
+          <ConnectButton />
+        </div>
+      )}
+
+      {/* Creator tier info section */}
+      {isCreatorRole && (
+        <div className="mt-10">
+          <h2 className="mb-4 text-xl font-bold">Din kommissionsnivå</h2>
+          <CreatorTierInfo
+            creatorTier={userTier}
+            creatorEarningsThisMonth={monthlyEarnings}
+          />
+        </div>
+      )}
     </>
   );
 }
