@@ -23,7 +23,7 @@ export default function TermsPage() {
             <h2 className="mb-3 text-lg font-semibold text-white">1. Allmänt</h2>
             <p>
               Dessa användarvillkor (&ldquo;Villkor&rdquo;) reglerar din användning av Usha-plattformen
-              (&ldquo;Plattformen&rdquo;) som tillhandahålls av Usha AB, org.nr 559XXX-XXXX, med säte i
+              (&ldquo;Plattformen&rdquo;) som tillhandahålls av Usha AB, med säte i
               Malmö, Sverige (&ldquo;Usha&rdquo;, &ldquo;vi&rdquo;, &ldquo;oss&rdquo;). Genom att skapa ett konto eller använda
               Plattformen godkänner du dessa Villkor.
             </p>

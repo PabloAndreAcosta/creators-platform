@@ -22,7 +22,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="mb-3 text-lg font-semibold text-white">1. Personuppgiftsansvarig</h2>
             <p>
-              Usha AB, org.nr 559XXX-XXXX, är personuppgiftsansvarig för behandlingen av dina
+              Usha AB är personuppgiftsansvarig för behandlingen av dina
               personuppgifter. Vi behandlar dina uppgifter i enlighet med EU:s dataskyddsförordning
               (GDPR) och svensk lag.
             </p>
