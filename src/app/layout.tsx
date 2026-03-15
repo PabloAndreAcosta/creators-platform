@@ -20,6 +20,9 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
     title: "Usha",
   },
+  other: {
+    "mobile-web-app-capable": "yes",
+  },
   icons: {
     icon: "/icon-192.png",
     apple: "/icon-192.png",

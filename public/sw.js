@@ -1,4 +1,4 @@
-const CACHE_NAME = 'usha-v2';
+const CACHE_NAME = 'usha-v3';
 
 const STATIC_ASSETS = [
   '/',
@@ -49,13 +49,20 @@ self.addEventListener('fetch', (event) => {
   // so cache-first causes stale JS to be served after code changes → hydration errors
   if (url.pathname.startsWith('/_next/')) return;
 
+  // Only cache complete, successful responses (skip 206, opaque, errors)
+  function safeCachePut(cache, req, response) {
+    if (response.status === 200 && response.type !== 'opaque') {
+      cache.put(req, response);
+    }
+  }
+
   // API calls: network-first
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(
       fetch(request)
         .then((response) => {
           const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          caches.open(CACHE_NAME).then((cache) => safeCachePut(cache, request, clone));
           return response;
         })
         .catch(() => caches.match(request))
@@ -71,7 +78,7 @@ self.addEventListener('fetch', (event) => {
           cached ||
           fetch(request).then((response) => {
             const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+            caches.open(CACHE_NAME).then((cache) => safeCachePut(cache, request, clone));
             return response;
           })
       )
@@ -84,7 +91,7 @@ self.addEventListener('fetch', (event) => {
     fetch(request)
       .then((response) => {
         const clone = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+        caches.open(CACHE_NAME).then((cache) => safeCachePut(cache, request, clone));
         return response;
       })
       .catch(() =>
