@@ -5,7 +5,7 @@ import { CATEGORIES, CATEGORY_LABELS } from "@/lib/categories";
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin, Clock } from "lucide-react";
+import { MapPin, Clock, SlidersHorizontal, X } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Marketplace – Usha Platform",
@@ -16,6 +16,10 @@ export const metadata: Metadata = {
 interface SearchParams {
   category?: string;
   q?: string;
+  location?: string;
+  minPrice?: string;
+  maxPrice?: string;
+  sort?: string;
 }
 
 export default async function MarketplacePage({
@@ -24,14 +28,13 @@ export default async function MarketplacePage({
   searchParams: SearchParams;
 }) {
   const supabase = await createClient();
-  const { category, q } = searchParams;
+  const { category, q, location, minPrice, maxPrice, sort } = searchParams;
 
   // Fetch public profiles
   let profilesQuery = supabase
     .from("profiles")
     .select("id, full_name, avatar_url, bio, category, location, hourly_rate")
-    .eq("is_public", true)
-    .order("created_at", { ascending: false });
+    .eq("is_public", true);
 
   if (category && category !== "all") {
     profilesQuery = profilesQuery.eq("category", category);
@@ -41,6 +44,33 @@ export default async function MarketplacePage({
     profilesQuery = profilesQuery.or(
       `full_name.ilike.%${q}%,location.ilike.%${q}%,bio.ilike.%${q}%`
     );
+  }
+
+  if (location) {
+    profilesQuery = profilesQuery.ilike("location", `%${location}%`);
+  }
+
+  if (minPrice) {
+    profilesQuery = profilesQuery.gte("hourly_rate", parseInt(minPrice));
+  }
+
+  if (maxPrice) {
+    profilesQuery = profilesQuery.lte("hourly_rate", parseInt(maxPrice));
+  }
+
+  // Sort
+  switch (sort) {
+    case "price_asc":
+      profilesQuery = profilesQuery.order("hourly_rate", { ascending: true, nullsFirst: false });
+      break;
+    case "price_desc":
+      profilesQuery = profilesQuery.order("hourly_rate", { ascending: false, nullsFirst: false });
+      break;
+    case "name":
+      profilesQuery = profilesQuery.order("full_name", { ascending: true });
+      break;
+    default:
+      profilesQuery = profilesQuery.order("created_at", { ascending: false });
   }
 
   const { data: profiles } = await profilesQuery;
@@ -66,6 +96,27 @@ export default async function MarketplacePage({
       );
     }
   }
+
+  // Get unique locations for the filter dropdown
+  const { data: allLocations } = await supabase
+    .from("profiles")
+    .select("location")
+    .eq("is_public", true)
+    .not("location", "is", null);
+
+  const uniqueLocations = Array.from(
+    new Set((allLocations ?? []).map((p) => p.location).filter(Boolean) as string[])
+  ).sort();
+
+  // Active filter count (for badge)
+  const activeFilters = [
+    category && category !== "all",
+    q,
+    location,
+    minPrice,
+    maxPrice,
+    sort && sort !== "newest",
+  ].filter(Boolean).length;
 
   return (
     <div className="min-h-screen">
@@ -96,7 +147,7 @@ export default async function MarketplacePage({
       </header>
 
       <div className="mx-auto max-w-6xl px-6 py-10">
-        {/* Title + Search */}
+        {/* Title */}
         <div className="mb-8">
           <h1 className="mb-2 text-3xl font-bold">Marketplace</h1>
           <p className="text-[var(--usha-muted)]">
@@ -105,39 +156,129 @@ export default async function MarketplacePage({
         </div>
 
         {/* Filters */}
-        <form className="mb-8 flex flex-col gap-3 sm:flex-row">
-          <input
-            name="q"
-            type="text"
-            defaultValue={q || ""}
-            placeholder="Sök namn, plats..."
-            className="flex-1 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
-          />
-          <select
-            name="category"
-            defaultValue={category || "all"}
-            className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40 sm:w-48"
-          >
-            <option value="all">Alla kategorier</option>
-            {CATEGORIES.map((c) => (
-              <option key={c.value} value={c.value}>
-                {c.label}
-              </option>
-            ))}
-          </select>
-          <button
-            type="submit"
-            className="rounded-xl bg-[var(--usha-card)] border border-[var(--usha-border)] px-6 py-3 text-sm font-medium transition-colors hover:border-[var(--usha-gold)]/40 hover:text-white"
-          >
-            Sök
-          </button>
+        <form className="mb-8 space-y-3">
+          {/* Row 1: Search + Category + Submit */}
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <input
+              name="q"
+              type="text"
+              defaultValue={q || ""}
+              placeholder="Sök namn, plats..."
+              className="flex-1 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+            />
+            <select
+              name="category"
+              defaultValue={category || "all"}
+              className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40 sm:w-48"
+            >
+              <option value="all">Alla kategorier</option>
+              {CATEGORIES.map((c) => (
+                <option key={c.value} value={c.value}>
+                  {c.label}
+                </option>
+              ))}
+            </select>
+            <button
+              type="submit"
+              className="rounded-xl bg-[var(--usha-card)] border border-[var(--usha-border)] px-6 py-3 text-sm font-medium transition-colors hover:border-[var(--usha-gold)]/40 hover:text-white"
+            >
+              Sök
+            </button>
+          </div>
+
+          {/* Row 2: Location + Price range + Sort */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="flex items-center gap-1.5 text-xs text-[var(--usha-muted)]">
+              <SlidersHorizontal size={13} />
+              <span>Filter:</span>
+            </div>
+
+            <select
+              name="location"
+              defaultValue={location || ""}
+              className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2 text-xs outline-none transition focus:border-[var(--usha-gold)]/40 sm:w-40"
+            >
+              <option value="">Alla platser</option>
+              {uniqueLocations.map((loc) => (
+                <option key={loc} value={loc}>
+                  {loc}
+                </option>
+              ))}
+            </select>
+
+            <div className="flex items-center gap-2">
+              <input
+                name="minPrice"
+                type="number"
+                defaultValue={minPrice || ""}
+                placeholder="Min pris"
+                min={0}
+                className="w-24 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2 text-xs outline-none transition focus:border-[var(--usha-gold)]/40"
+              />
+              <span className="text-xs text-[var(--usha-muted)]">–</span>
+              <input
+                name="maxPrice"
+                type="number"
+                defaultValue={maxPrice || ""}
+                placeholder="Max pris"
+                min={0}
+                className="w-24 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2 text-xs outline-none transition focus:border-[var(--usha-gold)]/40"
+              />
+              <span className="text-xs text-[var(--usha-muted)]">SEK/h</span>
+            </div>
+
+            <select
+              name="sort"
+              defaultValue={sort || "newest"}
+              className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2 text-xs outline-none transition focus:border-[var(--usha-gold)]/40 sm:w-40"
+            >
+              <option value="newest">Nyast först</option>
+              <option value="price_asc">Pris: Lägst först</option>
+              <option value="price_desc">Pris: Högst först</option>
+              <option value="name">Namn A–Ö</option>
+            </select>
+
+            {activeFilters > 0 && (
+              <Link
+                href="/marketplace"
+                className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-red-400 transition hover:bg-red-500/10 hover:text-red-300"
+              >
+                <X size={12} />
+                Rensa filter
+              </Link>
+            )}
+          </div>
         </form>
+
+        {/* Active filter tags */}
+        {activeFilters > 0 && (
+          <div className="mb-6 flex flex-wrap gap-2">
+            {category && category !== "all" && (
+              <span className="rounded-full bg-[var(--usha-gold)]/10 px-3 py-1 text-xs font-medium text-[var(--usha-gold)]">
+                {CATEGORY_LABELS[category] || category}
+              </span>
+            )}
+            {location && (
+              <span className="rounded-full bg-[var(--usha-gold)]/10 px-3 py-1 text-xs font-medium text-[var(--usha-gold)]">
+                {location}
+              </span>
+            )}
+            {(minPrice || maxPrice) && (
+              <span className="rounded-full bg-[var(--usha-gold)]/10 px-3 py-1 text-xs font-medium text-[var(--usha-gold)]">
+                {minPrice || "0"} – {maxPrice || "∞"} SEK/h
+              </span>
+            )}
+            <span className="text-xs text-[var(--usha-muted)] self-center">
+              {profiles?.length ?? 0} resultat
+            </span>
+          </div>
+        )}
 
         {/* Results */}
         {!profiles || profiles.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-[var(--usha-border)] py-20 text-center">
             <p className="text-[var(--usha-muted)]">
-              {q || category
+              {q || category || location || minPrice || maxPrice
                 ? "Inga creators matchade din sökning."
                 : "Inga creators finns ännu."}
             </p>

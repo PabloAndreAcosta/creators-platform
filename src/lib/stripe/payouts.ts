@@ -2,6 +2,7 @@ import { stripe } from '@/lib/stripe/client';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getCreatorCommissionRate } from '@/lib/stripe/commission';
 import { sendPayoutConfirmationEmail } from '@/lib/email/send-payout';
+import { notifyPayout } from '@/lib/notifications/create';
 
 interface BatchResult {
   processed: number;
@@ -138,6 +139,10 @@ export async function weeklyPayoutBatch(): Promise<BatchResult> {
         }).catch(err => console.error(`Payout email failed for ${creatorId}:`, err));
       }
 
+      // In-app notification
+      notifyPayout(creatorId, netAmount, 'batch')
+        .catch(err => console.error(`Payout notification failed for ${creatorId}:`, err));
+
       processed++;
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
@@ -237,6 +242,10 @@ export async function createInstantPayout(
         transactionDate: new Date(),
       }).catch(err => console.error(`Instant payout email failed for ${creatorId}:`, err));
     }
+
+    // In-app notification
+    notifyPayout(creatorId, netAmount, 'instant')
+      .catch(err => console.error(`Instant payout notification failed for ${creatorId}:`, err));
 
     return { success: true };
   } catch (err) {

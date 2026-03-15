@@ -9,6 +9,7 @@ import {
 } from "./booking-actions";
 import { NoBookings } from "@/components/ui/empty-state";
 import { ReviewForm } from "@/components/review-form";
+import { BookingsViewToggle } from "./bookings-view-toggle";
 
 const STATUS_LABELS: Record<string, { text: string; className: string }> = {
   pending: { text: "Väntande", className: "bg-yellow-500/10 text-yellow-400" },
@@ -129,22 +130,28 @@ export default async function BookingsPage() {
   const hasOutgoing = outgoing && outgoing.length > 0;
   const hasQueue = queueEntries && queueEntries.length > 0;
 
-  return (
-    <>
-      <div className="mb-8">
-        <Link
-          href="/dashboard"
-          className="mb-4 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-white"
-        >
-          <ArrowLeft size={14} />
-          Tillbaka
-        </Link>
-        <h1 className="text-3xl font-bold">Bokningar</h1>
-        <p className="mt-1 text-[var(--usha-muted)]">
-          Hantera dina inkommande och utgående bokningar.
-        </p>
-      </div>
+  // Build calendar data from all bookings
+  const calendarBookings = [
+    ...(incoming ?? []).map((b) => ({
+      id: b.id,
+      title: listingMap[b.listing_id] || "Tjänst",
+      status: b.status,
+      scheduledAt: b.scheduled_at,
+      personName: profileMap[b.customer_id] || "Anonym",
+      type: "incoming" as const,
+    })),
+    ...(outgoing ?? []).map((b) => ({
+      id: b.id,
+      title: listingMap[b.listing_id] || "Tjänst",
+      status: b.status,
+      scheduledAt: b.scheduled_at,
+      personName: profileMap[b.creator_id] || "Anonym",
+      type: "outgoing" as const,
+    })),
+  ];
 
+  const listContent = (
+    <>
       {/* Incoming bookings (as creator) */}
       <section className="mb-10">
         <h2 className="mb-4 flex items-center gap-2 text-lg font-bold">
@@ -299,6 +306,26 @@ export default async function BookingsPage() {
           </div>
         </section>
       )}
+    </>
+  );
+
+  return (
+    <>
+      <div className="mb-8">
+        <Link
+          href="/dashboard"
+          className="mb-4 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-white"
+        >
+          <ArrowLeft size={14} />
+          Tillbaka
+        </Link>
+        <h1 className="text-3xl font-bold">Bokningar</h1>
+        <p className="mt-1 text-[var(--usha-muted)]">
+          Hantera dina inkommande och utgående bokningar.
+        </p>
+      </div>
+
+      <BookingsViewToggle bookings={calendarBookings} listView={listContent} />
     </>
   );
 }

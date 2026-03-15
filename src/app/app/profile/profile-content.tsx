@@ -44,6 +44,7 @@ interface ProfileContentProps {
   email: string;
   listingsCount: number;
   bookingsCount: number;
+  completedCoursesCount?: number;
   favoritesCount?: number;
   averageRating?: number | null;
 }
@@ -53,6 +54,7 @@ export function ProfileContent({
   email,
   listingsCount,
   bookingsCount,
+  completedCoursesCount = 0,
   favoritesCount = 0,
   averageRating = null,
 }: ProfileContentProps) {
@@ -118,7 +120,7 @@ export function ProfileContent({
         {role === "publik" && (
           <>
             <StatBox icon={Calendar} label="Evenemang" value={String(bookingsCount)} />
-            <StatBox icon={BookOpen} label="Kurser" value="-" />
+            <StatBox icon={BookOpen} label="Kurser" value={String(completedCoursesCount)} />
             <StatBox icon={Heart} label="Favoriter" value={String(favoritesCount)} />
           </>
         )}

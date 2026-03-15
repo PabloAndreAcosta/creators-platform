@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Facebook, Link2, Link2Off, Download, Loader2 } from "lucide-react";
+import { Facebook, Link2, Link2Off, Download, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
 
 interface FacebookConnectProps {
@@ -12,8 +12,30 @@ interface FacebookConnectProps {
 
 export function FacebookConnect({ pageName, pageId }: FacebookConnectProps) {
   const [importing, setImporting] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [verified, setVerified] = useState<boolean | null>(null);
+  const [verifyError, setVerifyError] = useState<string | null>(null);
+  const [followers, setFollowers] = useState<number | null>(null);
   const { toast } = useToast();
   const router = useRouter();
+
+  // Verify token on mount when connected
+  useEffect(() => {
+    if (!pageId) return;
+    setVerifying(true);
+    fetch("/api/facebook/verify")
+      .then((r) => r.json())
+      .then((data) => {
+        setVerified(data.verified);
+        if (data.verified) {
+          setFollowers(data.followers);
+        } else {
+          setVerifyError(data.error);
+        }
+      })
+      .catch(() => setVerified(null))
+      .finally(() => setVerifying(false));
+  }, [pageId]);
 
   async function handleImport() {
     setImporting(true);
@@ -60,35 +82,70 @@ export function FacebookConnect({ pageName, pageId }: FacebookConnectProps) {
   }
 
   return (
-    <div className="rounded-xl border border-[#1877F2]/30 bg-[var(--usha-card)] p-4">
+    <div className={`rounded-xl border bg-[var(--usha-card)] p-4 ${verified === false ? "border-red-500/30" : "border-[#1877F2]/30"}`}>
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Facebook size={16} className="text-[#1877F2]" />
           <span className="text-sm font-medium">Facebook-synk</span>
         </div>
-        <span className="flex items-center gap-1 rounded-full bg-green-500/10 px-2 py-0.5 text-[10px] font-medium text-green-400">
-          <Link2 size={10} />
-          Ansluten
-        </span>
+        {verifying ? (
+          <span className="flex items-center gap-1 rounded-full bg-[var(--usha-border)] px-2 py-0.5 text-[10px] font-medium text-[var(--usha-muted)]">
+            <Loader2 size={10} className="animate-spin" />
+            Verifierar...
+          </span>
+        ) : verified === false ? (
+          <span className="flex items-center gap-1 rounded-full bg-red-500/10 px-2 py-0.5 text-[10px] font-medium text-red-400">
+            <AlertCircle size={10} />
+            Token utgången
+          </span>
+        ) : (
+          <span className="flex items-center gap-1 rounded-full bg-green-500/10 px-2 py-0.5 text-[10px] font-medium text-green-400">
+            <CheckCircle2 size={10} />
+            Verifierad
+          </span>
+        )}
       </div>
 
-      <p className="mb-4 text-xs text-[var(--usha-muted)]">
-        Sida: <span className="font-medium text-white">{pageName}</span>
-      </p>
+      <div className="mb-4 flex items-center gap-3">
+        <p className="text-xs text-[var(--usha-muted)]">
+          Sida: <span className="font-medium text-white">{pageName}</span>
+        </p>
+        {followers != null && (
+          <p className="text-xs text-[var(--usha-muted)]">
+            {followers.toLocaleString("sv-SE")} följare
+          </p>
+        )}
+      </div>
+
+      {verified === false && verifyError && (
+        <div className="mb-3 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-400">
+          {verifyError}
+        </div>
+      )}
 
       <div className="flex flex-col gap-2">
-        <button
-          onClick={handleImport}
-          disabled={importing}
-          className="flex items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-2.5 text-sm font-medium text-[var(--usha-muted)] transition hover:border-[#1877F2]/40 hover:text-white disabled:opacity-50"
-        >
-          {importing ? (
-            <Loader2 size={14} className="animate-spin" />
-          ) : (
-            <Download size={14} />
-          )}
-          Importera från Facebook
-        </button>
+        {verified === false ? (
+          <a
+            href="/api/facebook/connect"
+            className="flex items-center justify-center gap-2 rounded-xl bg-[#1877F2] py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+          >
+            <Facebook size={15} />
+            Anslut igen
+          </a>
+        ) : (
+          <button
+            onClick={handleImport}
+            disabled={importing || verifying}
+            className="flex items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-2.5 text-sm font-medium text-[var(--usha-muted)] transition hover:border-[#1877F2]/40 hover:text-white disabled:opacity-50"
+          >
+            {importing ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : (
+              <Download size={14} />
+            )}
+            Importera från Facebook
+          </button>
+        )}
 
         <form action="/api/facebook/disconnect" method="POST">
           <button

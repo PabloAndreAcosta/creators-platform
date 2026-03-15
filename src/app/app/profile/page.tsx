@@ -6,6 +6,7 @@ export default async function ProfilePage() {
   let email = "";
   let listingsCount = 0;
   let bookingsCount = 0;
+  let completedCoursesCount = 0;
   let favoritesCount = 0;
   let averageRating: number | null = null;
 
@@ -37,6 +38,14 @@ export default async function ProfilePage() {
       bookingsCount = bookingsRes.count ?? 0;
       favoritesCount = favoritesRes.count ?? 0;
 
+      // Count completed bookings as customer (= attended courses/events)
+      const { count: completedCount } = await supabase
+        .from("bookings")
+        .select("id", { count: "exact", head: true })
+        .eq("customer_id", user.id)
+        .eq("status", "completed");
+      completedCoursesCount = completedCount ?? 0;
+
       // Fetch average rating for this user (as creator)
       const { data: reviewsData } = await supabase
         .from("reviews")
@@ -57,6 +66,7 @@ export default async function ProfilePage() {
       email={email}
       listingsCount={listingsCount}
       bookingsCount={bookingsCount}
+      completedCoursesCount={completedCoursesCount}
       favoritesCount={favoritesCount}
       averageRating={averageRating}
     />

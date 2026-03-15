@@ -56,11 +56,17 @@ export async function GET(req: NextRequest) {
     pagesData.data ?? [];
 
   if (pages.length === 0) {
-    // No pages found — redirect with info
     return NextResponse.redirect(`${APP_URL}/app/events?fb_error=no_pages`);
   }
 
-  // Use the first page (or let user choose later — for now pick first)
+  // If multiple pages, let user choose via select-page UI
+  if (pages.length > 1) {
+    const pagesParam = encodeURIComponent(
+      JSON.stringify(pages.map((p) => ({ id: p.id, name: p.name, token: p.access_token })))
+    );
+    return NextResponse.redirect(`${APP_URL}/app/events/select-page?pages=${pagesParam}`);
+  }
+
   const page = pages[0];
 
   // Store page info on the profile

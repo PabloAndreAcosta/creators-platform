@@ -6,6 +6,7 @@ import { handleCapacityReached, autoPromoteFromQueue, addToQueue, getQueuePositi
 import { requirePaidSubscription } from "@/lib/subscription/check";
 import { sendBookingConfirmationEmail, sendBookingCancellationEmail } from "@/lib/email/send-booking";
 import { isGoldExclusive } from "@/lib/listings/early-bird";
+import { notifyNewBooking, notifyBookingConfirmed, notifyBookingCanceled } from "@/lib/notifications/create";
 
 export async function createBooking(formData: FormData) {
   const supabase = await createClient();
@@ -93,6 +94,15 @@ export async function createBooking(formData: FormData) {
     scheduledAt: scheduledDate,
   }).catch(err => console.error("Email send failed:", err));
 
+  // In-app notification for the creator (non-blocking)
+  const { data: listingData } = await supabase.from("listings").select("title").eq("id", listing_id).single();
+  const { data: customerProfile } = await supabase.from("profiles").select("full_name").eq("id", user.id).single();
+  notifyNewBooking(
+    creator_id,
+    customerProfile?.full_name || "En användare",
+    listingData?.title || "Tjänst"
+  ).catch(err => console.error("Notification failed:", err));
+
   revalidatePath("/dashboard/bookings");
   return { success: true };
 }
@@ -152,6 +162,9 @@ export async function updateBookingStatus(
   if (error) return { error: "Kunde inte uppdatera bokningen." };
 
   // Send email notifications (non-blocking)
+  const { data: bookingListing } = await supabase.from("listings").select("title").eq("id", booking.listing_id).single();
+  const serviceName = bookingListing?.title || "Tjänst";
+
   if (status === "confirmed") {
     sendConfirmNotification({
       supabase,
@@ -160,6 +173,9 @@ export async function updateBookingStatus(
       listingId: booking.listing_id,
       scheduledAt: new Date(booking.scheduled_at),
     }).catch(err => console.error("Confirmation email failed:", err));
+
+    notifyBookingConfirmed(booking.customer_id, serviceName)
+      .catch(err => console.error("Confirm notification failed:", err));
   } else if (status === "canceled") {
     sendCancelNotification({
       supabase,
@@ -168,6 +184,12 @@ export async function updateBookingStatus(
       listingId: booking.listing_id,
       scheduledAt: new Date(booking.scheduled_at),
     }).catch(err => console.error("Cancellation email failed:", err));
+
+    // Notify both parties
+    notifyBookingCanceled(booking.customer_id, serviceName)
+      .catch(err => console.error("Cancel notification failed:", err));
+    notifyBookingCanceled(booking.creator_id, serviceName)
+      .catch(err => console.error("Cancel notification failed:", err));
   }
 
   // When a booking is canceled, try to promote the next person in the queue

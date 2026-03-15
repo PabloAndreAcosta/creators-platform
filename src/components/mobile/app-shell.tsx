@@ -5,6 +5,7 @@ import { RoleProvider } from "./role-context";
 import { BottomNav } from "./bottom-nav";
 import { SidebarNav } from "./sidebar-nav";
 import { RoleToggle } from "./role-toggle";
+import { NotificationBell } from "@/components/notification-bell";
 
 interface AppShellProps {
   children: ReactNode;
@@ -29,7 +30,10 @@ export function AppShell({ children, userName }: AppShellProps) {
               <span className="text-lg font-bold tracking-tight">Usha</span>
             </div>
             <div className="hidden md:block" />
-            <RoleToggle />
+            <div className="flex items-center gap-2">
+              <NotificationBell />
+              <RoleToggle />
+            </div>
           </header>
 
           {/* Content */}

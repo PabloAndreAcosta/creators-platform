@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { notifyNewReview } from '@/lib/notifications/create';
 
 // GET — fetch reviews for a creator
 export async function GET(req: NextRequest) {
@@ -86,6 +87,14 @@ export async function POST(req: NextRequest) {
   if (error) {
     return NextResponse.json({ error: 'Kunde inte spara recension' }, { status: 500 });
   }
+
+  // In-app notification for the creator (non-blocking)
+  const { data: reviewer } = await supabase.from('profiles').select('full_name').eq('id', user.id).single();
+  notifyNewReview(
+    booking.creator_id,
+    reviewer?.full_name || 'En användare',
+    Math.round(rating)
+  ).catch(err => console.error('Review notification failed:', err));
 
   return NextResponse.json({ success: true });
 }

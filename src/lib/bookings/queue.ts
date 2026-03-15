@@ -1,4 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/admin';
+import { notifyQueuePromoted } from '@/lib/notifications/create';
 
 /**
  * Checks whether a listing has reached its booking capacity.
@@ -169,6 +170,16 @@ export async function autoPromoteFromQueue(listingId: string): Promise<void> {
         .eq('id', remaining[i].id);
     }
   }
+
+  // Notify the promoted user
+  const { data: listingInfo } = await supabase
+    .from('listings')
+    .select('title')
+    .eq('id', listingId)
+    .single();
+
+  notifyQueuePromoted(next.user_id, listingInfo?.title || 'Tjänst')
+    .catch(err => console.error('Queue promotion notification failed:', err));
 
   console.log(`Auto-booked user ${next.user_id} for listing ${listingId}`);
 }
