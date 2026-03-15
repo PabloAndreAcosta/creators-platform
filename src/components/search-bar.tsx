@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Search, X, MapPin } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { CATEGORY_LABELS } from "@/lib/categories";
 
 interface SearchListing {
@@ -22,7 +23,12 @@ interface SearchCreator {
   avatar_url: string | null;
 }
 
-export function SearchBar() {
+interface SearchBarProps {
+  onSearch?: () => void;
+}
+
+export function SearchBar({ onSearch }: SearchBarProps) {
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const [listings, setListings] = useState<SearchListing[]>([]);
   const [creators, setCreators] = useState<SearchCreator[]>([]);
@@ -71,6 +77,14 @@ export function SearchBar() {
 
   const hasResults = listings.length > 0 || creators.length > 0;
 
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "Enter" && query.trim().length >= 2) {
+      setOpen(false);
+      onSearch?.();
+      router.push(`/app/search?q=${encodeURIComponent(query.trim())}`);
+    }
+  }
+
   return (
     <div ref={ref} className="relative">
       <div className="relative">
@@ -83,6 +97,7 @@ export function SearchBar() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => query.length >= 2 && setOpen(true)}
+          onKeyDown={handleKeyDown}
           placeholder="Sök evenemang, kreatörer, platser..."
           className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] pl-10 pr-10 py-3 text-sm text-white placeholder:text-[var(--usha-muted)] focus:border-[var(--usha-gold)]/50 focus:outline-none"
         />
@@ -180,14 +195,14 @@ export function SearchBar() {
             </div>
           )}
 
-          {/* Link to marketplace */}
+          {/* Link to full search */}
           {hasResults && (
             <Link
-              href={`/marketplace?q=${encodeURIComponent(query)}`}
-              onClick={() => setOpen(false)}
+              href={`/app/search?q=${encodeURIComponent(query)}`}
+              onClick={() => { setOpen(false); onSearch?.(); }}
               className="block border-t border-[var(--usha-border)] px-4 py-3 text-center text-xs font-medium text-[var(--usha-gold)] transition-colors hover:bg-[var(--usha-card-hover)]"
             >
-              Visa alla resultat i Marketplace
+              Visa alla resultat
             </Link>
           )}
         </div>
