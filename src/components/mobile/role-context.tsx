@@ -23,28 +23,22 @@ export const ROLE_LABELS: Record<UserRole, string> = {
 
 interface RoleContextType {
   role: UserRole;
+  dbRole: UserRole;
   setRole: (role: UserRole) => void;
 }
 
 const RoleContext = createContext<RoleContextType>({
   role: "publik",
+  dbRole: "publik",
   setRole: () => {},
 });
 
 export function RoleProvider({ children }: { children: ReactNode }) {
   const [role, setRole] = useState<UserRole>("publik");
+  const [dbRole, setDbRole] = useState<UserRole>("publik");
 
   useEffect(() => {
-    const saved = localStorage.getItem("usha-role") as string | null;
-    // Migrate legacy "anvandare" role to "publik"
-    if (saved === "anvandare") {
-      localStorage.setItem("usha-role", "publik");
-      setRole("publik");
-    } else if (saved === "publik" || saved === "kreator" || saved === "upplevelse") {
-      setRole(saved);
-    }
-
-    // Then sync from database
+    // Sync from database — this is the source of truth
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) return;
@@ -56,6 +50,7 @@ export function RoleProvider({ children }: { children: ReactNode }) {
         .then(({ data }) => {
           if (data?.role) {
             const appRole = DB_TO_APP_ROLE[data.role] ?? "publik";
+            setDbRole(appRole);
             setRole(appRole);
             localStorage.setItem("usha-role", appRole);
           }
@@ -64,12 +59,14 @@ export function RoleProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const handleSetRole = (newRole: UserRole) => {
+    // Only allow switching to the role that matches the DB
+    if (newRole !== dbRole) return;
     setRole(newRole);
     localStorage.setItem("usha-role", newRole);
   };
 
   return (
-    <RoleContext.Provider value={{ role, setRole: handleSetRole }}>
+    <RoleContext.Provider value={{ role, dbRole, setRole: handleSetRole }}>
       {children}
     </RoleContext.Provider>
   );
