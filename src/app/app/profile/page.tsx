@@ -6,6 +6,7 @@ export default async function ProfilePage() {
   let email = "";
   let listingsCount = 0;
   let bookingsCount = 0;
+  let favoritesCount = 0;
 
   try {
     const supabase = await createClient();
@@ -15,7 +16,7 @@ export default async function ProfilePage() {
 
     if (user) {
       email = user.email || "";
-      const [profileRes, listingsRes, bookingsRes] = await Promise.all([
+      const [profileRes, listingsRes, bookingsRes, favoritesRes] = await Promise.all([
         supabase.from("profiles").select("*").eq("id", user.id).single(),
         supabase
           .from("listings")
@@ -25,10 +26,15 @@ export default async function ProfilePage() {
           .from("bookings")
           .select("*", { count: "exact", head: true })
           .or(`creator_id.eq.${user.id},customer_id.eq.${user.id}`),
+        supabase
+          .from("favorites")
+          .select("*", { count: "exact", head: true })
+          .eq("user_id", user.id),
       ]);
       profile = profileRes.data;
       listingsCount = listingsRes.count ?? 0;
       bookingsCount = bookingsRes.count ?? 0;
+      favoritesCount = favoritesRes.count ?? 0;
     }
   } catch {
     // Continue with defaults
@@ -40,6 +46,7 @@ export default async function ProfilePage() {
       email={email}
       listingsCount={listingsCount}
       bookingsCount={bookingsCount}
+      favoritesCount={favoritesCount}
     />
   );
 }

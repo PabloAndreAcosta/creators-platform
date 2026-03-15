@@ -1,13 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Calendar, Clock } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, Users } from "lucide-react";
 import {
   ConfirmButton,
   CancelButton,
   CompleteButton,
 } from "./booking-actions";
 import { NoBookings } from "@/components/ui/empty-state";
+import { ReviewForm } from "@/components/review-form";
 
 const STATUS_LABELS: Record<string, { text: string; className: string }> = {
   pending: { text: "Väntande", className: "bg-yellow-500/10 text-yellow-400" },
@@ -71,12 +72,25 @@ export default async function BookingsPage() {
       : { data: [] as { id: string; full_name: string | null }[] },
   ]);
 
-  const listingMap = Object.fromEntries(
+  const listingMap: Record<string, string> = Object.fromEntries(
     (listings ?? []).map((l) => [l.id, l.title])
   );
   const profileMap = Object.fromEntries(
     (profiles ?? []).map((p) => [p.id, p.full_name || "Anonym"])
   );
+
+  // Fetch existing reviews for outgoing completed bookings
+  const completedBookingIds = (outgoing ?? [])
+    .filter((b) => b.status === "completed")
+    .map((b) => b.id);
+  let reviewedBookingIds = new Set<string>();
+  if (completedBookingIds.length > 0) {
+    const { data: existingReviews } = await supabase
+      .from("reviews")
+      .select("booking_id")
+      .in("booking_id", completedBookingIds);
+    reviewedBookingIds = new Set((existingReviews ?? []).map((r) => r.booking_id));
+  }
 
   function formatDate(dateStr: string) {
     return new Date(dateStr).toLocaleDateString("sv-SE", {
@@ -89,8 +103,31 @@ export default async function BookingsPage() {
     });
   }
 
+  // Queue positions (as customer)
+  const { data: queueEntries } = await supabase
+    .from("booking_queue")
+    .select("id, listing_id, position, created_at")
+    .eq("user_id", user.id)
+    .eq("auto_booked", false)
+    .order("position", { ascending: true });
+
+  // Fetch listing titles for queue entries
+  const queueListingIds = (queueEntries ?? []).map((q) => q.listing_id).filter(
+    (id) => !listingIds.includes(id)
+  );
+  if (queueListingIds.length > 0) {
+    const { data: queueListings } = await supabase
+      .from("listings")
+      .select("id, title")
+      .in("id", queueListingIds);
+    for (const l of queueListings ?? []) {
+      listingMap[l.id] = l.title;
+    }
+  }
+
   const hasIncoming = incoming && incoming.length > 0;
   const hasOutgoing = outgoing && outgoing.length > 0;
+  const hasQueue = queueEntries && queueEntries.length > 0;
 
   return (
     <>
@@ -216,6 +253,10 @@ export default async function BookingsPage() {
                       booking.status === "confirmed") && (
                       <CancelButton bookingId={booking.id} />
                     )}
+                    {booking.status === "completed" &&
+                      !reviewedBookingIds.has(booking.id) && (
+                        <ReviewForm bookingId={booking.id} />
+                      )}
                   </div>
                 </div>
               );
@@ -223,6 +264,41 @@ export default async function BookingsPage() {
           </div>
         )}
       </section>
+
+      {/* Queue positions */}
+      {hasQueue && (
+        <section className="mt-10">
+          <h2 className="mb-4 flex items-center gap-2 text-lg font-bold">
+            <Users size={18} className="text-[var(--usha-gold)]" />
+            Mina köplatser
+          </h2>
+          <div className="space-y-3">
+            {queueEntries.map((entry) => (
+              <div
+                key={entry.id}
+                className="flex items-center gap-4 rounded-xl border border-[var(--usha-gold)]/20 bg-[var(--usha-gold)]/5 p-5"
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--usha-gold)]/10">
+                  <span className="text-sm font-bold text-[var(--usha-gold)]">
+                    #{entry.position}
+                  </span>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <span className="font-semibold">
+                    {listingMap[entry.listing_id] || "Tjänst"}
+                  </span>
+                  <p className="text-xs text-[var(--usha-muted)]">
+                    Du bokas automatiskt när en plats blir ledig
+                  </p>
+                </div>
+                <span className="shrink-0 rounded-full bg-[var(--usha-gold)]/10 px-3 py-1 text-xs font-medium text-[var(--usha-gold)]">
+                  Plats {entry.position} i kön
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
     </>
   );
 }

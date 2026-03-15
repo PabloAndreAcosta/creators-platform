@@ -3,6 +3,8 @@ import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
 import type { MemberTier } from "@/types/database";
+import { sendBookingConfirmationEmail } from "@/lib/email/send-booking";
+import { sendGoldWelcomeEmail } from "@/lib/email/send-welcome";
 
 // Use service role for webhook (no user context) — lazy init to avoid build errors
 function getSupabaseAdmin() {
@@ -131,6 +133,10 @@ export async function POST(req: NextRequest) {
             });
           }
 
+          // Send ticket confirmation email (non-blocking)
+          sendTicketConfirmationEmail(getSupabaseAdmin(), userId, creatorId!, listingId!, new Date(scheduledAt))
+            .catch(err => console.error("Ticket confirmation email failed:", err));
+
           break;
         }
 
@@ -172,6 +178,12 @@ export async function POST(req: NextRequest) {
             status: "succeeded",
             description: `Prenumeration: ${planKey}`,
           });
+        }
+
+        // Send welcome email for new paid members (non-blocking)
+        if (tier === 'guld' || tier === 'premium') {
+          sendSubscriptionWelcomeEmail(getSupabaseAdmin(), userId, subscription)
+            .catch(err => console.error("Welcome email failed:", err));
         }
         break;
       }
@@ -249,4 +261,56 @@ export async function POST(req: NextRequest) {
   }
 
   return NextResponse.json({ received: true });
+}
+
+// ── Email helpers (webhook context — use admin client) ──────────
+
+async function sendTicketConfirmationEmail(
+  admin: ReturnType<typeof getSupabaseAdmin>,
+  customerId: string,
+  creatorId: string,
+  listingId: string,
+  scheduledAt: Date,
+) {
+  const [customerRes, creatorRes, listingRes] = await Promise.all([
+    admin.from("profiles").select("email, full_name").eq("id", customerId).single(),
+    admin.from("profiles").select("full_name").eq("id", creatorId).single(),
+    admin.from("listings").select("title, event_location").eq("id", listingId).single(),
+  ]);
+
+  const email = customerRes.data?.email;
+  if (!email) return;
+
+  await sendBookingConfirmationEmail({
+    to: email,
+    customerName: customerRes.data?.full_name || "Kund",
+    serviceName: listingRes.data?.title || "Event",
+    scheduledAt,
+    creatorName: creatorRes.data?.full_name || "Kreatör",
+    location: listingRes.data?.event_location || undefined,
+  });
+}
+
+async function sendSubscriptionWelcomeEmail(
+  admin: ReturnType<typeof getSupabaseAdmin>,
+  userId: string,
+  subscription: Stripe.Subscription,
+) {
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("email, full_name")
+    .eq("id", userId)
+    .single();
+
+  if (!profile?.email) return;
+
+  await sendGoldWelcomeEmail({
+    to: profile.email,
+    memberName: profile.full_name || "Medlem",
+    expiryDate: new Date(
+      typeof subscription.current_period_end === "number"
+        ? subscription.current_period_end * 1000
+        : subscription.current_period_end
+    ),
+  });
 }

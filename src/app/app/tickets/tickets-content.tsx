@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { Calendar, MapPin, Clock, QrCode, X, Ticket } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
+import QRCode from "qrcode";
 
 interface TicketData {
   id: string;
@@ -266,6 +267,18 @@ function QRModal({
   ticket: TicketData;
   onClose: () => void;
 }) {
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    const verificationUrl = `${window.location.origin}/api/tickets/verify?code=${ticket.code}&id=${ticket.id}`;
+    QRCode.toDataURL(verificationUrl, {
+      width: 200,
+      margin: 2,
+      color: { dark: "#000000", light: "#ffffff" },
+      errorCorrectionLevel: "M",
+    }).then(setQrDataUrl).catch(() => setQrDataUrl(null));
+  }, [ticket.code, ticket.id]);
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm">
       <div className="mx-4 w-full max-w-sm rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
@@ -280,55 +293,16 @@ function QRModal({
           </button>
         </div>
 
-        {/* QR Code placeholder */}
+        {/* QR Code */}
         <div className="mb-6 flex items-center justify-center">
           <div className="rounded-2xl border-2 border-[var(--usha-gold)]/30 bg-white p-4">
-            <svg
-              width="180"
-              height="180"
-              viewBox="0 0 180 180"
-              className="text-black"
-            >
-              {/* Simplified QR code pattern */}
-              <rect width="180" height="180" fill="white" />
-              {/* Corner squares */}
-              <rect x="10" y="10" width="40" height="40" fill="black" />
-              <rect x="15" y="15" width="30" height="30" fill="white" />
-              <rect x="20" y="20" width="20" height="20" fill="black" />
-
-              <rect x="130" y="10" width="40" height="40" fill="black" />
-              <rect x="135" y="15" width="30" height="30" fill="white" />
-              <rect x="140" y="20" width="20" height="20" fill="black" />
-
-              <rect x="10" y="130" width="40" height="40" fill="black" />
-              <rect x="15" y="135" width="30" height="30" fill="white" />
-              <rect x="20" y="140" width="20" height="20" fill="black" />
-
-              {/* Data pattern */}
-              {Array.from({ length: 12 }).map((_, row) =>
-                Array.from({ length: 12 }).map((_, col) => {
-                  const hash =
-                    (ticket.code.charCodeAt(row % ticket.code.length) *
-                      (col + 1) +
-                      row * 7) %
-                    3;
-                  if (hash === 0) return null;
-                  const x = 60 + col * 8;
-                  const y = 60 + row * 8;
-                  if (x > 165 || y > 165) return null;
-                  return (
-                    <rect
-                      key={`${row}-${col}`}
-                      x={x}
-                      y={y}
-                      width="6"
-                      height="6"
-                      fill="black"
-                    />
-                  );
-                })
-              )}
-            </svg>
+            {qrDataUrl ? (
+              <img src={qrDataUrl} alt={`QR-kod för ${ticket.code}`} width={200} height={200} />
+            ) : (
+              <div className="flex h-[200px] w-[200px] items-center justify-center">
+                <QrCode size={48} className="animate-pulse text-gray-300" />
+              </div>
+            )}
           </div>
         </div>
 

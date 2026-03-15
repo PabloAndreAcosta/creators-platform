@@ -9,7 +9,9 @@ import Image from "next/image";
 import { MapPin, Clock, Globe, ArrowLeft, Calendar } from "lucide-react";
 import BookingForm from "./booking-form";
 import { BuyTicketButton } from "@/components/buy-ticket-button";
+import { CreatorReviews } from "@/components/creator-reviews";
 import { calculateDiscountedPrice } from "@/lib/stripe/commission";
+import { filterByGoldExclusivity } from "@/lib/listings/early-bird";
 
 interface Props {
   params: { id: string };
@@ -61,14 +63,14 @@ export default async function CreatorProfilePage({ params }: Props) {
 
   if (!profile) notFound();
 
-  const { data: listings } = await supabase
+  const { data: allListings } = await supabase
     .from("listings")
-    .select("id, title, description, category, price, duration_minutes, event_date, event_time, event_location")
+    .select("id, title, description, category, price, duration_minutes, event_date, event_time, event_location, release_to_gold_at")
     .eq("user_id", profile.id)
     .eq("is_active", true)
     .order("created_at", { ascending: false });
 
-  // Get visitor's tier for discount calculation
+  // Get visitor's tier for discount calculation + early bird filtering
   let visitorTier: string | null = null;
   if (user) {
     const { data: visitorProfile } = await supabase
@@ -78,6 +80,9 @@ export default async function CreatorProfilePage({ params }: Props) {
       .single();
     visitorTier = visitorProfile?.tier ?? null;
   }
+
+  // Filter out Gold-exclusive listings for gratis users
+  const listings = filterByGoldExclusivity(allListings || [], visitorTier);
 
   const categoryLabel = profile.category
     ? CATEGORY_LABELS[profile.category]
@@ -278,6 +283,11 @@ export default async function CreatorProfilePage({ params }: Props) {
               ))}
             </div>
           )}
+        </div>
+
+        {/* Reviews */}
+        <div className="mt-10">
+          <CreatorReviews creatorId={profile.id} />
         </div>
       </div>
     </div>

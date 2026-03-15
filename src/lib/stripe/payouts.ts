@@ -1,6 +1,7 @@
 import { stripe } from '@/lib/stripe/client';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getCreatorCommissionRate } from '@/lib/stripe/commission';
+import { sendPayoutConfirmationEmail } from '@/lib/email/send-payout';
 
 interface BatchResult {
   processed: number;
@@ -124,6 +125,19 @@ export async function weeklyPayoutBatch(): Promise<BatchResult> {
         continue;
       }
 
+      // Send payout confirmation email (non-blocking)
+      if (profile.email) {
+        sendPayoutConfirmationEmail({
+          to: profile.email,
+          creatorName: profile.full_name || 'Kreatör',
+          amount: netAmount,
+          commission: commissionAmount,
+          grossAmount,
+          type: 'batch',
+          transactionDate: new Date(),
+        }).catch(err => console.error(`Payout email failed for ${creatorId}:`, err));
+      }
+
       processed++;
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
@@ -209,6 +223,19 @@ export async function createInstantPayout(
 
     if (insertError) {
       console.error('Failed to record instant payout:', insertError);
+    }
+
+    // Send payout confirmation email (non-blocking)
+    if (profile.email) {
+      sendPayoutConfirmationEmail({
+        to: profile.email,
+        creatorName: profile.full_name || 'Kreatör',
+        amount: netAmount,
+        commission: commissionAmount,
+        grossAmount: payoutAmount,
+        type: 'instant',
+        transactionDate: new Date(),
+      }).catch(err => console.error(`Instant payout email failed for ${creatorId}:`, err));
     }
 
     return { success: true };

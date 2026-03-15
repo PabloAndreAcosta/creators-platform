@@ -4,7 +4,6 @@ import { useRole } from "@/components/mobile/role-context";
 import {
   Calendar,
   Star,
-  Heart,
   MapPin,
   Users,
   DollarSign,
@@ -20,6 +19,8 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
+import RecommendedEvents from "@/components/RecommendedEvents";
+import { FavoriteButton } from "@/components/favorite-button";
 
 interface Profile {
   id: string;
@@ -58,6 +59,7 @@ interface HomeContentProps {
   listings: Listing[];
   topCreators: TopCreator[];
   bookingsCount: number;
+  monthlyRevenue?: number;
 }
 
 export function HomeContent({
@@ -65,6 +67,7 @@ export function HomeContent({
   listings,
   topCreators,
   bookingsCount,
+  monthlyRevenue = 0,
 }: HomeContentProps) {
   const { role } = useRole();
 
@@ -84,12 +87,13 @@ export function HomeContent({
         profile={profile}
         bookingsCount={bookingsCount}
         listings={listings}
+        monthlyRevenue={monthlyRevenue}
       />
     );
   }
 
   return (
-    <UpplevelseHome profile={profile} bookingsCount={bookingsCount} listings={listings} />
+    <UpplevelseHome profile={profile} bookingsCount={bookingsCount} listings={listings} monthlyRevenue={monthlyRevenue} />
   );
 }
 
@@ -113,6 +117,7 @@ function PublikHome({
   ];
 
   const events = listings.map((listing) => ({
+    id: listing.id,
     title: listing.title,
     date: listing.created_at
       ? new Date(listing.created_at).toLocaleDateString("sv-SE", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })
@@ -189,12 +194,9 @@ function PublikHome({
                   className="h-full w-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                <button
-                  className="absolute right-1 top-1 flex h-11 w-11 items-center justify-center rounded-full bg-black/40 backdrop-blur-sm"
-                  aria-label="Spara som favorit"
-                >
-                  <Heart size={16} className="text-white" />
-                </button>
+                <div className="absolute right-1 top-1">
+                  <FavoriteButton listingId={event.id} isLoggedIn={!!profile} />
+                </div>
                 <span className="absolute bottom-2 left-2 rounded-full bg-[var(--usha-gold)]/90 px-2 py-0.5 text-[10px] font-semibold text-black">
                   {event.price}
                 </span>
@@ -215,6 +217,9 @@ function PublikHome({
           )}
         </div>
       </section>
+
+      {/* Personalized Recommendations */}
+      <RecommendedEvents />
 
       {/* Top Creators */}
       <section>
@@ -301,10 +306,12 @@ function KreatorHome({
   profile,
   bookingsCount,
   listings,
+  monthlyRevenue = 0,
 }: {
   profile: Profile | null;
   bookingsCount: number;
   listings: Listing[];
+  monthlyRevenue?: number;
 }) {
   const stats = [
     {
@@ -314,7 +321,7 @@ function KreatorHome({
     },
     {
       label: "Intäkter",
-      value: `${(profile?.hourly_rate || 0) * bookingsCount} kr`,
+      value: `${monthlyRevenue.toLocaleString("sv-SE")} kr`,
       icon: DollarSign,
     },
     {
@@ -436,15 +443,17 @@ function UpplevelseHome({
   profile,
   bookingsCount,
   listings,
+  monthlyRevenue = 0,
 }: {
   profile: Profile | null;
   bookingsCount: number;
   listings: Listing[];
+  monthlyRevenue?: number;
 }) {
   const stats = [
     { label: "Bokningar", value: String(bookingsCount), icon: Calendar },
     { label: "Besökare", value: String(bookingsCount), icon: Users },
-    { label: "Intäkter", value: "-", icon: DollarSign },
+    { label: "Intäkter", value: `${monthlyRevenue.toLocaleString("sv-SE")} kr`, icon: DollarSign },
   ];
 
   const upcomingEvents = listings.slice(0, 3).map((listing) => ({

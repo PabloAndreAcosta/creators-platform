@@ -5,6 +5,7 @@ import {
   calculateDiscountedPrice,
   getCreatorCommissionRate,
 } from '@/lib/stripe/commission';
+import { isGoldExclusive } from '@/lib/listings/early-bird';
 
 export async function POST(req: NextRequest) {
   try {
@@ -39,7 +40,7 @@ export async function POST(req: NextRequest) {
     // Get listing details
     const { data: listing, error: listingError } = await supabase
       .from('listings')
-      .select('id, title, price, user_id, is_active, event_date, event_time')
+      .select('id, title, price, user_id, is_active, event_date, event_time, release_to_gold_at')
       .eq('id', listingId)
       .single();
 
@@ -55,6 +56,18 @@ export async function POST(req: NextRequest) {
         { error: 'Evenemanget är inte aktivt' },
         { status: 400 }
       );
+    }
+
+    // Early bird: block gratis users during Gold-exclusive window
+    if (listing.release_to_gold_at) {
+      const releaseDate = new Date(listing.release_to_gold_at);
+      if (isGoldExclusive(releaseDate) && userTier !== 'guld' && userTier !== 'premium') {
+        const hours = Math.ceil((releaseDate.getTime() - Date.now()) / (60 * 60 * 1000));
+        return NextResponse.json(
+          { error: `Detta event är exklusivt för Guld/Premium-medlemmar i ${hours} timmar till.` },
+          { status: 403 }
+        );
+      }
     }
 
     if (!listing.price || listing.price <= 0) {

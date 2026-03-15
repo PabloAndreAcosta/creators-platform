@@ -38,6 +38,7 @@ export default async function AppHomePage() {
   let listings: Listing[] = [];
   let topCreators: TopCreator[] = [];
   let bookingsCount = 0;
+  let monthlyRevenue = 0;
 
   try {
     const supabase = await createClient();
@@ -64,12 +65,31 @@ export default async function AppHomePage() {
       listings = (listingsRes.data || []) as Listing[];
       bookingsCount = bookingsRes.count ?? 0;
 
-      const { data: creators } = await supabase
-        .from("profiles")
-        .select("id, full_name, avatar_url, category, hourly_rate")
-        .eq("is_public", true)
-        .limit(8);
-      topCreators = (creators || []) as TopCreator[];
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+      startOfMonth.setHours(0, 0, 0, 0);
+
+      const [creatorsRes, revenueRes] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select("id, full_name, avatar_url, category, hourly_rate")
+          .eq("is_public", true)
+          .limit(8),
+        supabase
+          .from("payments")
+          .select("amount")
+          .eq("user_id", user.id)
+          .eq("status", "succeeded")
+          .gte("created_at", startOfMonth.toISOString()),
+      ]);
+
+      topCreators = (creatorsRes.data || []) as TopCreator[];
+
+      // Sum payments (amount is in öre, convert to SEK)
+      monthlyRevenue = (revenueRes.data || []).reduce(
+        (sum, p) => sum + (p.amount || 0),
+        0
+      ) / 100;
     }
   } catch {
     // Continue with mock data
@@ -81,6 +101,7 @@ export default async function AppHomePage() {
       listings={listings}
       topCreators={topCreators}
       bookingsCount={bookingsCount}
+      monthlyRevenue={monthlyRevenue}
     />
   );
 }

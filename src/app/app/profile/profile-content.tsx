@@ -44,6 +44,7 @@ interface ProfileContentProps {
   email: string;
   listingsCount: number;
   bookingsCount: number;
+  favoritesCount?: number;
 }
 
 export function ProfileContent({
@@ -51,6 +52,7 @@ export function ProfileContent({
   email,
   listingsCount,
   bookingsCount,
+  favoritesCount = 0,
 }: ProfileContentProps) {
   const { role } = useRole();
 
@@ -115,7 +117,7 @@ export function ProfileContent({
           <>
             <StatBox icon={Calendar} label="Evenemang" value={String(bookingsCount)} />
             <StatBox icon={BookOpen} label="Kurser" value="-" />
-            <StatBox icon={Heart} label="Favoriter" value="-" />
+            <StatBox icon={Heart} label="Favoriter" value={String(favoritesCount)} />
           </>
         )}
         {role === "kreator" && (
@@ -153,9 +155,9 @@ export function ProfileContent({
       <div className="space-y-1 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] overflow-hidden">
         <SettingsRow icon={Edit2} label="Redigera Profil" href="/dashboard/profile" />
         <SettingsRow icon={CreditCard} label="Betalningsmetoder" href="/dashboard/billing" />
-        <SettingsRow icon={Bell} label="Notifikationer" comingSoon />
-        <SettingsRow icon={Shield} label="Integritetsinställningar" comingSoon />
-        <SettingsRow icon={HelpCircle} label="Hjälp & Support" comingSoon />
+        <SettingsRow icon={Bell} label="Notifikationer" href="/app/settings/notifications" />
+        <SettingsRow icon={Shield} label="Integritetsinställningar" href="/app/settings/privacy" />
+        <SettingsRow icon={HelpCircle} label="Hjälp & Support" href="/app/settings/help" />
         <form action="/api/auth/signout" method="POST">
           <button
             type="submit"
