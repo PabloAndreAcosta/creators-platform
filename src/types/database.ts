@@ -4,8 +4,6 @@ export type PlanKey =
   | 'publik_guld' | 'publik_premium'
   | 'kreator_guld' | 'kreator_premium'
   | 'upplevelse_guld' | 'upplevelse_premium';
-// Legacy plan keys kept for transition
-export type LegacyPlanKey = 'basic' | 'premium' | 'enterprise' | 'creator_gold' | 'creator_platinum';
 
 export interface Database {
   public: {
@@ -41,7 +39,7 @@ export interface Database {
           user_id: string;
           stripe_customer_id: string | null;
           stripe_subscription_id: string | null;
-          plan: PlanKey | LegacyPlanKey;
+          plan: PlanKey;
           status: "active" | "canceled" | "past_due" | "trialing";
           current_period_start: string | null;
           current_period_end: string | null;

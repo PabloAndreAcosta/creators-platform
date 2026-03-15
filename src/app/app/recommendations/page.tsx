@@ -13,8 +13,8 @@ interface RecommendedEvent {
   event_date: string | null;
   event_location: string | null;
   image_url: string | null;
+  creator_id: string;
   profiles: { full_name: string | null } | null;
-  score?: number;
 }
 
 export default function RecommendationsPage() {
@@ -78,7 +78,7 @@ export default function RecommendationsPage() {
               </div>
 
               {/* Info */}
-              <Link href={`/app`} className="block p-4">
+              <Link href={`/creators/${event.creator_id}`} className="block p-4">
                 <h3 className="mb-1 truncate text-sm font-semibold group-hover:text-[var(--usha-gold)]">
                   {event.title}
                 </h3>

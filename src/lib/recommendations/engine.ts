@@ -8,6 +8,9 @@ interface RecommendedListing {
   price: number | null;
   duration_minutes: number | null;
   event_tier: string;
+  event_date: string | null;
+  event_location: string | null;
+  image_url: string | null;
   created_at: string;
   creator: {
     id: string;
@@ -68,7 +71,7 @@ export async function getRecommendations(
   const { data: candidates, error: candidatesError } = await supabase
     .from('listings')
     .select(
-      'id, title, description, category, price, duration_minutes, event_tier, created_at, user_id'
+      'id, title, description, category, price, duration_minutes, event_tier, event_date, event_location, image_url, created_at, user_id'
     )
     .eq('is_active', true)
     .in('category', Array.from(categories));
@@ -122,6 +125,9 @@ export async function getRecommendations(
       price: l.price,
       duration_minutes: l.duration_minutes,
       event_tier: l.event_tier,
+      event_date: l.event_date ?? null,
+      event_location: l.event_location ?? null,
+      image_url: l.image_url ?? null,
       created_at: l.created_at,
       creator: {
         id: l.user_id,
@@ -152,7 +158,7 @@ async function getPopularEvents(limit: number): Promise<RecommendedListing[]> {
   const { data: listings, error } = await supabase
     .from('listings')
     .select(
-      'id, title, description, category, price, duration_minutes, event_tier, created_at, user_id'
+      'id, title, description, category, price, duration_minutes, event_tier, event_date, event_location, image_url, created_at, user_id'
     )
     .eq('is_active', true)
     .order('created_at', { ascending: false })
@@ -197,6 +203,9 @@ async function getPopularEvents(limit: number): Promise<RecommendedListing[]> {
       price: l.price,
       duration_minutes: l.duration_minutes,
       event_tier: l.event_tier,
+      event_date: l.event_date ?? null,
+      event_location: l.event_location ?? null,
+      image_url: l.image_url ?? null,
       created_at: l.created_at,
       creator: {
         id: l.user_id,
