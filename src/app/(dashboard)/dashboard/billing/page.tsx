@@ -221,6 +221,7 @@ export default async function BillingPage({
                   planKey={plan.key}
                   label={currentPlan ? `Byt till ${plan.name}` : `Starta ${plan.name}`}
                   popular={plan.popular}
+                  price={plan.price}
                 />
               )}
             </div>

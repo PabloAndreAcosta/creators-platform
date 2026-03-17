@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@/lib/supabase/server";
 import { PLANS, type PlanKey } from "@/lib/stripe/config";
+import { validatePromoCode } from "@/lib/promo/validate";
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,6 +17,7 @@ export async function POST(req: NextRequest) {
     }
 
     const planKey = body.planKey as string;
+    const promoCode = body.promoCode as string | undefined;
 
     if (!planKey || !(planKey in PLANS)) {
       return NextResponse.json({ error: "Ogiltig plan" }, { status: 400 });
@@ -31,7 +33,43 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const session = await stripe.checkout.sessions.create({
+    // Validate promo code if provided
+    let stripeCouponId: string | undefined;
+    let promoCodeId: string | undefined;
+    if (promoCode) {
+      const validation = await validatePromoCode(
+        promoCode,
+        user.id,
+        "subscription",
+        planKey
+      );
+
+      if (!validation.valid) {
+        return NextResponse.json(
+          { error: validation.error },
+          { status: 400 }
+        );
+      }
+
+      promoCodeId = validation.promo!.id;
+
+      if (validation.promo!.stripe_coupon_id) {
+        // Use existing Stripe coupon
+        stripeCouponId = validation.promo!.stripe_coupon_id;
+      } else {
+        // Create a one-off Stripe coupon from the promo code
+        const coupon = await stripe.coupons.create({
+          ...(validation.promo!.discount_type === "percent"
+            ? { percent_off: validation.promo!.discount_value }
+            : { amount_off: Math.round(validation.promo!.discount_value * 100), currency: "sek" }),
+          duration: "once",
+          name: `Promo: ${validation.promo!.code}`,
+        });
+        stripeCouponId = coupon.id;
+      }
+    }
+
+    const sessionParams: any = {
       customer_email: user.email,
       line_items: [{ price: priceId, quantity: 1 }],
       mode: "subscription",
@@ -42,8 +80,15 @@ export async function POST(req: NextRequest) {
         plan: planKey,
         role: plan.role,
         tier: plan.tier,
+        ...(promoCodeId && { promoCodeId }),
       },
-    });
+    };
+
+    if (stripeCouponId) {
+      sessionParams.discounts = [{ coupon: stripeCouponId }];
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionParams);
 
     return NextResponse.json({ url: session.url });
   } catch (error) {

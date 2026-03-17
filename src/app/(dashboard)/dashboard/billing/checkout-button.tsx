@@ -2,17 +2,23 @@
 
 import { useState } from "react";
 import { useToast } from "@/components/ui/toaster";
+import { PromoCodeInput, type DiscountInfo } from "@/components/promo-code-input";
 
 export function CheckoutButton({
   planKey,
   label,
   popular,
+  price,
 }: {
   planKey: string;
   label: string;
   popular?: boolean;
+  price?: number;
 }) {
   const [loading, setLoading] = useState(false);
+  const [promoCode, setPromoCode] = useState("");
+  const [discountInfo, setDiscountInfo] = useState<DiscountInfo | null>(null);
+  const [showPromo, setShowPromo] = useState(false);
   const { toast } = useToast();
 
   async function handleCheckout() {
@@ -21,7 +27,7 @@ export function CheckoutButton({
       const res = await fetch("/api/stripe/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planKey }),
+        body: JSON.stringify({ planKey, promoCode: promoCode || undefined }),
       });
       const data = await res.json();
       if (data.url) {
@@ -37,17 +43,37 @@ export function CheckoutButton({
   }
 
   return (
-    <button
-      onClick={handleCheckout}
-      disabled={loading}
-      className={`block w-full rounded-xl py-3 text-center text-sm font-semibold transition disabled:opacity-50 ${
-        popular
-          ? "bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] text-black hover:opacity-90"
-          : "border border-[var(--usha-border)] text-white hover:border-[var(--usha-gold)]/30"
-      }`}
-    >
-      {loading ? "Laddar..." : label}
-    </button>
+    <div className="space-y-3">
+      {!showPromo ? (
+        <button
+          onClick={() => setShowPromo(true)}
+          className="text-xs text-[var(--usha-muted)] hover:text-[var(--usha-gold)] transition-colors"
+        >
+          Har du en promokod?
+        </button>
+      ) : (
+        <PromoCodeInput
+          scope="subscription"
+          planKey={planKey}
+          originalPrice={price}
+          onValidCode={(code, info) => {
+            setPromoCode(code);
+            setDiscountInfo(info);
+          }}
+        />
+      )}
+      <button
+        onClick={handleCheckout}
+        disabled={loading}
+        className={`block w-full rounded-xl py-3 text-center text-sm font-semibold transition disabled:opacity-50 ${
+          popular
+            ? "bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] text-black hover:opacity-90"
+            : "border border-[var(--usha-border)] text-white hover:border-[var(--usha-gold)]/30"
+        }`}
+      >
+        {loading ? "Laddar..." : label}
+      </button>
+    </div>
   );
 }
 

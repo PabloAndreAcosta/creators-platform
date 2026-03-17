@@ -1,27 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient as createAdminClient } from "@supabase/supabase-js";
 
 const FB_APP_ID = process.env.FACEBOOK_APP_ID!;
 const FB_APP_SECRET = process.env.FACEBOOK_APP_SECRET!;
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL!;
-const REDIRECT_URI = `${APP_URL}/api/facebook/callback`;
+const REDIRECT_URI = process.env.FACEBOOK_REDIRECT_URI ?? `${APP_URL}/api/facebook/callback`;
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const code = searchParams.get("code");
-  const state = searchParams.get("state"); // user ID
+  const userId = searchParams.get("state"); // user ID passed from connect route
   const error = searchParams.get("error");
 
-  if (error || !code) {
+  if (error || !code || !userId) {
     return NextResponse.redirect(`${APP_URL}/app/events?fb_error=denied`);
   }
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Use admin client — callback runs on ngrok domain where session cookies don't exist
+  const supabase = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
 
-  if (!user || user.id !== state) {
+  // Verify the user exists
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("id", userId)
+    .single();
+
+  if (!profile) {
     return NextResponse.redirect(`${APP_URL}/login`);
   }
 
@@ -77,7 +85,7 @@ export async function GET(req: NextRequest) {
       facebook_page_name: page.name,
       facebook_page_access_token: page.access_token,
     })
-    .eq("id", user.id);
+    .eq("id", userId);
 
   return NextResponse.redirect(`${APP_URL}/app/events?fb_connected=1`);
 }

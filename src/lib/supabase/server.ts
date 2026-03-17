@@ -10,7 +10,16 @@ export async function createClient() {
     {
       cookies: {
         get(name: string) {
-          return cookieStore.get(name)?.value;
+          const value = cookieStore.get(name)?.value;
+          // Skip corrupt cookies to prevent Invalid UTF-8 sequence errors
+          if (value && name.startsWith("sb-")) {
+            try {
+              atob(value.replace(/-/g, "+").replace(/_/g, "/"));
+            } catch {
+              return undefined;
+            }
+          }
+          return value;
         },
         set(name: string, value: string, options: CookieOptions) {
           try {

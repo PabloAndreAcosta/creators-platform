@@ -9,8 +9,10 @@ import {
   Search,
   Clock,
   Wallet,
+  Tag,
 } from "lucide-react";
 import Link from "next/link";
+import { isAdmin } from "@/lib/admin/check";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -191,6 +193,18 @@ export default async function DashboardPage() {
               : "Välj en plan för att låsa upp alla funktioner"}
           </p>
         </Link>
+        {isAdmin(user.email) && (
+          <Link
+            href="/dashboard/admin/promo"
+            className="rounded-xl border border-[var(--usha-gold)]/20 bg-[var(--usha-card)] p-6 transition-colors hover:border-[var(--usha-gold)]/40"
+          >
+            <Tag size={20} className="mb-3 text-[var(--usha-gold)]" />
+            <h3 className="mb-1 font-semibold">Promokoder</h3>
+            <p className="text-sm text-[var(--usha-muted)]">
+              Skapa och hantera rabattkoder
+            </p>
+          </Link>
+        )}
       </div>
     </>
   );

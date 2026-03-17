@@ -91,8 +91,32 @@ export async function POST(req: NextRequest) {
         const session = event.data.object as Stripe.Checkout.Session;
         const userId = session.metadata?.userId;
 
+        if (!userId) break;
+
+        // Record promo code usage if applicable
+        const promoCodeId = session.metadata?.promoCodeId;
+        if (promoCodeId) {
+          const usedFor = session.mode === "subscription" ? "subscription" : "ticket";
+          const discountAmount = session.metadata?.promoDiscountAmount
+            ? parseFloat(session.metadata.promoDiscountAmount)
+            : 0;
+
+          await getSupabaseAdmin().from("promo_code_uses").insert({
+            promo_code_id: promoCodeId,
+            user_id: userId,
+            used_for: usedFor,
+            reference_id: session.id,
+            discount_amount: discountAmount,
+          });
+
+          // Increment usage counter
+          await getSupabaseAdmin().rpc("increment_promo_uses", {
+            promo_id: promoCodeId,
+          });
+        }
+
         // Handle ticket purchases (one-time payments via Connect)
-        if (session.metadata?.type === "ticket" && userId) {
+        if (session.metadata?.type === "ticket") {
           const listingId = session.metadata.listingId;
           const creatorId = session.metadata.creatorId;
           const amountPaid = session.amount_total; // already in öre
@@ -141,7 +165,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Handle subscription checkouts
-        if (!userId || !session.subscription) break;
+        if (!session.subscription) break;
 
         const planKey = session.metadata?.plan || "basic";
         const tier = extractTierFromPlan(planKey);

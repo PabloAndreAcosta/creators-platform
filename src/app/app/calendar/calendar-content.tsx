@@ -84,9 +84,7 @@ export function CalendarContent({ bookings }: CalendarContentProps) {
     day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
 
   return (
-    <div className="px-4 py-6 space-y-6">
-      <h1 className="text-2xl font-bold">Kalender</h1>
-
+    <div className="space-y-6">
       {/* Calendar header */}
       <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
         <div className="mb-4 flex items-center justify-between">

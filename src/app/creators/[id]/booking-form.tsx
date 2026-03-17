@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { createBooking, joinQueue } from "@/app/(dashboard)/dashboard/bookings/actions";
 import { useToast } from "@/components/ui/toaster";
 import { CalendarPlus, X, Users } from "lucide-react";
+import { PromoCodeInput } from "@/components/promo-code-input";
 
 interface Listing {
   id: string;
@@ -28,6 +29,7 @@ export default function BookingForm({
     position?: number;
     estimatedTime?: string;
   }>({ isFull: false });
+  const [promoCode, setPromoCode] = useState("");
   const { toast } = useToast();
 
   if (!isLoggedIn) {
@@ -197,6 +199,17 @@ export default function BookingForm({
                     className="w-full resize-none rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
                   />
                 </div>
+
+                {listing.price != null && listing.price > 0 && (
+                  <PromoCodeInput
+                    scope="ticket"
+                    originalPrice={listing.price}
+                    onValidCode={(code) => setPromoCode(code)}
+                  />
+                )}
+                {promoCode && (
+                  <input type="hidden" name="promo_code" value={promoCode} />
+                )}
 
                 <button
                   type="submit"

@@ -23,6 +23,7 @@ export interface Database {
           tier: MemberTier | null;
           role: MemberRole;
           stripe_account_id: string | null;
+          calendar_sync_token: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -114,6 +115,49 @@ export interface Database {
           booking_type?: "manual" | "ticket";
         };
         Update: Partial<Database["public"]["Tables"]["bookings"]["Insert"]>;
+      };
+      promo_codes: {
+        Row: {
+          id: string;
+          code: string;
+          description: string | null;
+          discount_type: "percent" | "fixed";
+          discount_value: number;
+          scope: "subscription" | "ticket" | "both";
+          allowed_plans: string[] | null;
+          max_uses: number | null;
+          current_uses: number;
+          max_uses_per_user: number;
+          valid_from: string;
+          valid_until: string | null;
+          is_active: boolean;
+          stripe_coupon_id: string | null;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["promo_codes"]["Row"], "id" | "created_at" | "updated_at" | "current_uses" | "is_active" | "max_uses_per_user"> & {
+          id?: string;
+          current_uses?: number;
+          is_active?: boolean;
+          max_uses_per_user?: number;
+        };
+        Update: Partial<Database["public"]["Tables"]["promo_codes"]["Insert"]>;
+      };
+      promo_code_uses: {
+        Row: {
+          id: string;
+          promo_code_id: string;
+          user_id: string;
+          used_for: "subscription" | "ticket";
+          reference_id: string | null;
+          discount_amount: number | null;
+          created_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["promo_code_uses"]["Row"], "id" | "created_at"> & {
+          id?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["promo_code_uses"]["Insert"]>;
       };
       payouts: {
         Row: {

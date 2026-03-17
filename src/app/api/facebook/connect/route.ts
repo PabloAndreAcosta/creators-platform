@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 
 const FB_APP_ID = process.env.FACEBOOK_APP_ID!;
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL!;
-const REDIRECT_URI = `${APP_URL}/api/facebook/callback`;
+const REDIRECT_URI = process.env.FACEBOOK_REDIRECT_URI ?? `${APP_URL}/api/facebook/callback`;
 
 // Scopes needed for Pages post management (pages_manage_events was deprecated)
 const SCOPES = [

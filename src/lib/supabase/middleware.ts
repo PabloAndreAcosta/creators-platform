@@ -1,6 +1,16 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+function isValidBase64URL(str: string): boolean {
+  try {
+    // Try to decode base64url — if it fails, the cookie is corrupt
+    atob(str.replace(/-/g, "+").replace(/_/g, "/"));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request: { headers: request.headers } });
 
@@ -15,7 +25,12 @@ export async function updateSession(request: NextRequest) {
     {
       cookies: {
         get(name: string) {
-          return request.cookies.get(name)?.value;
+          const value = request.cookies.get(name)?.value;
+          // Skip corrupt cookies to prevent Invalid UTF-8 sequence errors
+          if (value && name.startsWith("sb-") && !isValidBase64URL(value)) {
+            return undefined;
+          }
+          return value;
         },
         set(name: string, value: string, options: CookieOptions) {
           request.cookies.set({ name, value, ...options });
