@@ -172,9 +172,21 @@ export async function POST(req: NextRequest) {
         .single();
 
       if (error) {
-        return NextResponse.json({ error: 'Kunde inte skapa konversation' }, { status: 500 });
+        // Handle race condition: another request may have created the conversation
+        const { data: retryConvo } = await supabase
+          .from('conversations')
+          .select('id')
+          .eq('participant_a', a)
+          .eq('participant_b', b)
+          .single();
+        if (retryConvo) {
+          convoId = retryConvo.id;
+        } else {
+          return NextResponse.json({ error: 'Kunde inte skapa konversation' }, { status: 500 });
+        }
+      } else {
+        convoId = newConvo.id;
       }
-      convoId = newConvo.id;
     }
   }
 

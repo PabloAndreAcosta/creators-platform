@@ -93,7 +93,16 @@ export async function POST(req: NextRequest) {
 
         if (!userId) break;
 
-        // Record promo code usage if applicable
+        // Idempotency: skip if this session has already been processed
+        if (session.payment_intent) {
+          const { count } = await getSupabaseAdmin()
+            .from("bookings")
+            .select("id", { count: "exact", head: true })
+            .eq("stripe_payment_id", session.payment_intent as string);
+          if (count && count > 0) break;
+        }
+
+        // Record promo code usage if applicable (ignore duplicate key errors on retry)
         const promoCodeId = session.metadata?.promoCodeId;
         if (promoCodeId) {
           const usedFor = session.mode === "subscription" ? "subscription" : "ticket";
