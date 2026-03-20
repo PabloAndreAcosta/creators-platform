@@ -60,6 +60,15 @@ export async function POST(req: NextRequest) {
         }),
       }
     );
+
+    if (!fbRes.ok) {
+      const err = await fbRes.json().catch(() => ({}));
+      return NextResponse.json(
+        { error: "Kunde inte uppdatera Facebook-inlägget: " + ((err as any).error?.message ?? "okänt fel") },
+        { status: 500 }
+      );
+    }
+
     fbPostId = existingFbId;
   } else if (listing.image_url) {
     // Create new photo post with image

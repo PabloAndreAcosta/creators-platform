@@ -25,7 +25,7 @@ export async function GET() {
 
   // Monthly revenue and booking counts
   const monthlyStats: Record<string, { revenue: number; bookings: number; completed: number }> = {};
-  for (let i = 5; i >= 0; i--) {
+  for (let i = 6; i >= 0; i--) {
     const d = new Date(now);
     d.setMonth(d.getMonth() - i);
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;

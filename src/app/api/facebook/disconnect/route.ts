@@ -11,7 +11,7 @@ export async function POST() {
 
   if (!user) return NextResponse.json({ error: "Ej inloggad" }, { status: 401 });
 
-  await supabase
+  const { error } = await supabase
     .from("profiles")
     .update({
       facebook_page_id: null,
@@ -19,6 +19,10 @@ export async function POST() {
       facebook_page_access_token: null,
     })
     .eq("id", user.id);
+
+  if (error) {
+    return NextResponse.json({ error: "Kunde inte koppla bort Facebook" }, { status: 500 });
+  }
 
   return NextResponse.redirect(`${APP_URL}/app/events`);
 }
