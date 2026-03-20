@@ -3,8 +3,17 @@ import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
 import type { MemberTier } from "@/types/database";
+import { PLANS, type PlanKey } from "@/lib/stripe/config";
 import { sendBookingConfirmationEmail } from "@/lib/email/send-booking";
 import { sendGoldWelcomeEmail } from "@/lib/email/send-welcome";
+
+/** Reverse lookup: Stripe price ID → plan key */
+function planKeyFromPriceId(priceId: string): string | null {
+  for (const [key, plan] of Object.entries(PLANS)) {
+    if (plan.stripePriceId === priceId) return key;
+  }
+  return null;
+}
 
 // Use service role for webhook (no user context) — lazy init to avoid build errors
 function getSupabaseAdmin() {
@@ -273,14 +282,22 @@ export async function POST(req: NextRequest) {
       case "customer.subscription.updated": {
         const subscription = event.data.object as Stripe.Subscription;
 
-        // Update subscription status
+        // Detect plan change from Stripe subscription items
+        const currentPriceId = subscription.items?.data?.[0]?.price?.id;
+        const newPlanKey = currentPriceId ? planKeyFromPriceId(currentPriceId) : null;
+
+        // Update subscription status (and plan if changed)
+        const subscriptionUpdate: Record<string, unknown> = {
+          status: subscription.status === "active" ? "active" : "past_due",
+          current_period_start: toISO(subscription.current_period_start),
+          current_period_end: toISO(subscription.current_period_end),
+        };
+        if (newPlanKey) {
+          subscriptionUpdate.plan = newPlanKey;
+        }
         await getSupabaseAdmin()
           .from("subscriptions")
-          .update({
-            status: subscription.status === "active" ? "active" : "past_due",
-            current_period_start: toISO(subscription.current_period_start),
-            current_period_end: toISO(subscription.current_period_end),
-          })
+          .update(subscriptionUpdate)
           .eq("stripe_subscription_id", subscription.id);
 
         // Sync tier on profile

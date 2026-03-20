@@ -9,6 +9,7 @@ interface FavoriteListing {
   title: string;
   category: string;
   price: number | null;
+  user_id: string;
   profiles: { full_name: string | null; location: string | null } | null;
 }
 
@@ -79,7 +80,7 @@ export default function FavoritesPage() {
             >
               <div className="flex-1 min-w-0">
                 <Link
-                  href={`/creators/${fav.profiles ? "profile" : fav.id}`}
+                  href={`/creators/${fav.user_id || fav.id}`}
                   className="text-sm font-semibold hover:text-[var(--usha-gold)]"
                 >
                   {fav.title}

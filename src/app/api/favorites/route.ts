@@ -15,12 +15,12 @@ export async function GET(req: NextRequest) {
   if (details) {
     const { data } = await supabase
       .from('favorites')
-      .select('listing_id, listings(id, title, category, price, profiles(full_name, location))')
+      .select('listing_id, listings(id, title, category, price, user_id, profiles(full_name, location))')
       .eq('user_id', user.id);
 
     const favorites = (data ?? []).map((f) => {
       const listing = f.listings as unknown as {
-        id: string; title: string; category: string; price: number | null;
+        id: string; title: string; category: string; price: number | null; user_id: string;
         profiles: { full_name: string | null; location: string | null } | null;
       };
       return listing;
