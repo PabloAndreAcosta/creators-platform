@@ -164,6 +164,55 @@ export async function POST(req: NextRequest) {
           break;
         }
 
+        // Handle paid manual bookings (payment upfront, creator still confirms)
+        if (session.metadata?.type === "paid_booking") {
+          const listingId = session.metadata.listingId;
+          const creatorId = session.metadata.creatorId;
+          const amountPaid = session.amount_total;
+          const scheduledAt = session.metadata.scheduledAt || new Date().toISOString();
+          const guestCount = session.metadata.guestCount ? parseInt(session.metadata.guestCount, 10) : 1;
+          const specialRequests = session.metadata.specialRequests || null;
+          const notes = session.metadata.notes || null;
+          let attendees: unknown[] = [];
+          try {
+            attendees = JSON.parse(session.metadata.attendees || "[]");
+          } catch { /* ignore */ }
+
+          // Create pending booking (creator must confirm)
+          await getSupabaseAdmin().from("bookings").insert({
+            listing_id: listingId,
+            creator_id: creatorId,
+            customer_id: userId,
+            status: "pending",
+            scheduled_at: scheduledAt,
+            booking_type: "manual",
+            stripe_payment_id: session.payment_intent as string,
+            amount_paid: amountPaid,
+            guest_count: guestCount,
+            special_requests: specialRequests,
+            attendees,
+            notes,
+          });
+
+          // Record payment
+          if (amountPaid) {
+            await getSupabaseAdmin().from("payments").insert({
+              user_id: userId,
+              stripe_payment_id: session.payment_intent as string,
+              amount: amountPaid,
+              currency: session.currency || "sek",
+              status: "succeeded",
+              description: `Bokning: ${listingId}`,
+            });
+          }
+
+          // Send confirmation email (non-blocking)
+          sendTicketConfirmationEmail(getSupabaseAdmin(), userId, creatorId!, listingId!, new Date(scheduledAt))
+            .catch(err => console.error("Paid booking confirmation email failed:", err));
+
+          break;
+        }
+
         // Handle subscription checkouts
         if (!session.subscription) break;
 

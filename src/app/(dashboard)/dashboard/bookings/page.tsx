@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Calendar, Clock, Users } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, Users, CreditCard } from "lucide-react";
 import {
   ConfirmButton,
   CancelButton,
@@ -30,7 +30,7 @@ export default async function BookingsPage() {
   const { data: incoming } = await supabase
     .from("bookings")
     .select(
-      "id, status, scheduled_at, notes, created_at, listing_id, customer_id"
+      "id, status, scheduled_at, notes, created_at, listing_id, customer_id, guest_count, special_requests, amount_paid"
     )
     .eq("creator_id", user.id)
     .order("scheduled_at", { ascending: true });
@@ -39,7 +39,7 @@ export default async function BookingsPage() {
   const { data: outgoing } = await supabase
     .from("bookings")
     .select(
-      "id, status, scheduled_at, notes, created_at, listing_id, creator_id"
+      "id, status, scheduled_at, notes, created_at, listing_id, creator_id, guest_count, special_requests"
     )
     .eq("customer_id", user.id)
     .order("scheduled_at", { ascending: true });
@@ -179,6 +179,12 @@ export default async function BookingsPage() {
                       >
                         {status.text}
                       </span>
+                      {booking.amount_paid && booking.amount_paid > 0 && (
+                        <span className="flex items-center gap-1 rounded-full bg-green-500/10 px-2 py-0.5 text-xs font-medium text-green-400">
+                          <CreditCard size={10} />
+                          Betald
+                        </span>
+                      )}
                     </div>
                     <div className="flex flex-wrap items-center gap-3 text-sm text-[var(--usha-muted)]">
                       <span>Kund: {profileMap[booking.customer_id] || "Anonym"}</span>
@@ -186,10 +192,21 @@ export default async function BookingsPage() {
                         <Clock size={12} />
                         {formatDate(booking.scheduled_at)}
                       </span>
+                      {booking.guest_count > 1 && (
+                        <span className="flex items-center gap-1">
+                          <Users size={12} />
+                          {booking.guest_count} gäster
+                        </span>
+                      )}
                     </div>
                     {booking.notes && (
                       <p className="mt-2 text-sm text-[var(--usha-muted)] italic">
                         &ldquo;{booking.notes}&rdquo;
+                      </p>
+                    )}
+                    {booking.special_requests && (
+                      <p className="mt-1 text-sm text-[var(--usha-gold)]/80 italic">
+                        Önskemål: {booking.special_requests}
                       </p>
                     )}
                   </div>

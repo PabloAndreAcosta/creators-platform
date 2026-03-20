@@ -16,6 +16,11 @@ function parseEventForm(formData: FormData) {
   const eventDate = (formData.get("event_date") as string)?.trim() || null;
   const eventTime = (formData.get("event_time") as string)?.trim() || null;
   const eventLocation = (formData.get("event_location") as string)?.trim() || null;
+  const listingType = (formData.get("listing_type") as string) || "event";
+  const minGuestsRaw = formData.get("min_guests") as string;
+  const maxGuestsRaw = formData.get("max_guests") as string;
+  const amenitiesRaw = (formData.get("amenities") as string)?.trim() || "";
+  const includedRaw = (formData.get("included") as string)?.trim() || "";
 
   if (!title) return { error: "Titel krävs" } as const;
   if (!category || !EVENT_CATEGORIES.includes(category as (typeof EVENT_CATEGORIES)[number])) {
@@ -25,6 +30,15 @@ function parseEventForm(formData: FormData) {
   // Map form tier values to DB constraint values: '' → 'a', 'guld' → 'b', 'premium' → 'c'
   const tierMap: Record<string, string> = { guld: "b", premium: "c" };
   const dbTier = eventTier ? tierMap[eventTier] ?? "a" : "a";
+
+  // Parse experience details
+  const experienceDetails: Record<string, unknown> = {};
+  if (amenitiesRaw) {
+    experienceDetails.amenities = amenitiesRaw.split(",").map((s) => s.trim()).filter(Boolean);
+  }
+  if (includedRaw) {
+    experienceDetails.included = includedRaw.split(",").map((s) => s.trim()).filter(Boolean);
+  }
 
   return {
     data: {
@@ -38,6 +52,10 @@ function parseEventForm(formData: FormData) {
       event_date: eventDate,
       event_time: eventTime,
       event_location: eventLocation,
+      listing_type: listingType,
+      min_guests: minGuestsRaw ? parseInt(minGuestsRaw, 10) : 1,
+      max_guests: maxGuestsRaw ? parseInt(maxGuestsRaw, 10) : null,
+      experience_details: experienceDetails,
     },
   } as const;
 }

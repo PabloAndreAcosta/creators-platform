@@ -4,6 +4,21 @@ export type PlanKey =
   | 'publik_guld' | 'publik_premium'
   | 'kreator_guld' | 'kreator_premium'
   | 'upplevelse_guld' | 'upplevelse_premium';
+export type ListingType = 'service' | 'event' | 'table_reservation' | 'spa_treatment' | 'group_activity';
+
+export interface ExperienceDetails {
+  amenities?: string[];
+  included?: string[];
+  dress_code?: string;
+  age_restriction?: number;
+  accessibility?: string;
+}
+
+export interface Attendee {
+  name: string;
+  email?: string;
+  dietary?: string;
+}
 
 export interface Database {
   public: {
@@ -85,12 +100,19 @@ export interface Database {
           event_time: string | null;
           event_location: string | null;
           release_to_gold_at: string | null;
+          listing_type: ListingType;
+          min_guests: number;
+          max_guests: number | null;
+          experience_details: ExperienceDetails;
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["listings"]["Row"], "id" | "created_at" | "updated_at" | "is_active"> & {
+        Insert: Omit<Database["public"]["Tables"]["listings"]["Row"], "id" | "created_at" | "updated_at" | "is_active" | "listing_type" | "min_guests" | "experience_details"> & {
           id?: string;
           is_active?: boolean;
+          listing_type?: ListingType;
+          min_guests?: number;
+          experience_details?: ExperienceDetails;
         };
         Update: Partial<Database["public"]["Tables"]["listings"]["Insert"]>;
       };
@@ -106,13 +128,18 @@ export interface Database {
           stripe_payment_id: string | null;
           amount_paid: number | null;
           booking_type: "manual" | "ticket";
+          guest_count: number;
+          special_requests: string | null;
+          attendees: Attendee[];
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["bookings"]["Row"], "id" | "created_at" | "updated_at" | "status" | "booking_type"> & {
+        Insert: Omit<Database["public"]["Tables"]["bookings"]["Row"], "id" | "created_at" | "updated_at" | "status" | "booking_type" | "guest_count" | "attendees"> & {
           id?: string;
           status?: "pending" | "confirmed" | "completed" | "canceled";
           booking_type?: "manual" | "ticket";
+          guest_count?: number;
+          attendees?: Attendee[];
         };
         Update: Partial<Database["public"]["Tables"]["bookings"]["Insert"]>;
       };

@@ -6,7 +6,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin, Clock, Globe, ArrowLeft, Calendar, MessageCircle } from "lucide-react";
+import { MapPin, Clock, Globe, ArrowLeft, Calendar, MessageCircle, Users } from "lucide-react";
 import BookingForm from "./booking-form";
 import { BuyTicketButton } from "@/components/buy-ticket-button";
 import { CreatorReviews } from "@/components/creator-reviews";
@@ -65,7 +65,7 @@ export default async function CreatorProfilePage({ params }: Props) {
 
   const { data: allListings } = await supabase
     .from("listings")
-    .select("id, title, description, category, price, duration_minutes, event_date, event_time, event_location, release_to_gold_at")
+    .select("id, title, description, category, price, duration_minutes, event_date, event_time, event_location, release_to_gold_at, listing_type, min_guests, max_guests, experience_details")
     .eq("user_id", profile.id)
     .eq("is_active", true)
     .order("created_at", { ascending: false });
@@ -233,6 +233,20 @@ export default async function CreatorProfilePage({ params }: Props) {
                       {listing.description}
                     </p>
                   )}
+                  {/* Experience details badges */}
+                  {listing.experience_details && (
+                    <>
+                      {(listing.experience_details as any)?.included?.length > 0 && (
+                        <div className="mb-3 flex flex-wrap gap-1.5">
+                          {((listing.experience_details as any).included as string[]).map((item: string) => (
+                            <span key={item} className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-[10px] text-[var(--usha-gold)]">
+                              {item}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
                   <div className="flex items-center justify-between">
                     <div className="space-y-1.5">
                       <div className="flex items-center gap-3 text-xs text-[var(--usha-muted)]">
@@ -243,6 +257,12 @@ export default async function CreatorProfilePage({ params }: Props) {
                           <span className="flex items-center gap-1">
                             <Clock size={11} />
                             {listing.duration_minutes} min
+                          </span>
+                        )}
+                        {listing.max_guests && (
+                          <span className="flex items-center gap-1">
+                            <Users size={11} />
+                            {listing.min_guests ?? 1}–{listing.max_guests} gäster
                           </span>
                         )}
                       </div>
@@ -284,6 +304,7 @@ export default async function CreatorProfilePage({ params }: Props) {
                           listing={listing}
                           creatorId={profile.id}
                           isLoggedIn={isLoggedIn}
+                          hasConnect={hasConnect}
                         />
                       </div>
                     )}

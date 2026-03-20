@@ -3,24 +3,31 @@
 import { useState, useTransition } from "react";
 import { createBooking, joinQueue } from "@/app/(dashboard)/dashboard/bookings/actions";
 import { useToast } from "@/components/ui/toaster";
-import { CalendarPlus, X, Users } from "lucide-react";
+import { CalendarPlus, X, Users, UserPlus, Minus, Plus } from "lucide-react";
 import { PromoCodeInput } from "@/components/promo-code-input";
+import type { ListingType, ExperienceDetails } from "@/types/database";
 
 interface Listing {
   id: string;
   title: string;
   price: number | null;
   duration_minutes: number | null;
+  listing_type?: ListingType;
+  min_guests?: number | null;
+  max_guests?: number | null;
+  experience_details?: ExperienceDetails | null;
 }
 
 export default function BookingForm({
   listing,
   creatorId,
   isLoggedIn,
+  hasConnect,
 }: {
   listing: Listing;
   creatorId: string;
   isLoggedIn: boolean;
+  hasConnect?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -30,7 +37,13 @@ export default function BookingForm({
     estimatedTime?: string;
   }>({ isFull: false });
   const [promoCode, setPromoCode] = useState("");
+  const [guestCount, setGuestCount] = useState(listing.min_guests ?? 1);
+  const [attendees, setAttendees] = useState<{ name: string; dietary: string }[]>([]);
   const { toast } = useToast();
+
+  const showGuestFields = listing.listing_type && ["table_reservation", "spa_treatment", "group_activity"].includes(listing.listing_type);
+  const minGuests = listing.min_guests ?? 1;
+  const maxGuests = listing.max_guests ?? 99;
 
   if (!isLoggedIn) {
     return (
@@ -56,6 +69,46 @@ export default function BookingForm({
       } else {
         toast.success("Bokning skickad", "Inväntar bekräftelse från skaparen.");
         setOpen(false);
+      }
+    });
+  }
+
+  const canPayOnline = hasConnect && listing.price != null && listing.price > 0;
+
+  function handlePaidBooking(formData: FormData) {
+    startTransition(async () => {
+      const scheduledAt = formData.get("scheduled_at") as string;
+      const notes = (formData.get("notes") as string)?.trim() || "";
+      const guestCountVal = formData.get("guest_count") as string;
+      const specialReqs = (formData.get("special_requests") as string)?.trim() || "";
+      const attendeesVal = (formData.get("attendees") as string) || "[]";
+
+      try {
+        const res = await fetch("/api/stripe/booking-checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            listingId: listing.id,
+            creatorId,
+            scheduledAt: new Date(scheduledAt).toISOString(),
+            notes,
+            guestCount: guestCountVal ? parseInt(guestCountVal, 10) : 1,
+            specialRequests: specialReqs,
+            attendees: JSON.parse(attendeesVal),
+            promoCode: promoCode || undefined,
+          }),
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          toast.error("Kunde inte starta betalning", data.error || "Okänt fel");
+          return;
+        }
+        if (data.url) {
+          window.location.href = data.url;
+        }
+      } catch {
+        toast.error("Kunde inte starta betalning", "Försök igen.");
       }
     });
   }
@@ -163,7 +216,7 @@ export default function BookingForm({
                 )}
               </div>
             ) : (
-              <form action={handleSubmit} className="space-y-4">
+              <form id={`booking-form-${listing.id}`} action={handleSubmit} className="space-y-4">
                 <input type="hidden" name="listing_id" value={listing.id} />
                 <input type="hidden" name="creator_id" value={creatorId} />
 
@@ -184,17 +237,136 @@ export default function BookingForm({
                   />
                 </div>
 
+                {/* Guest count (experience types) */}
+                {showGuestFields && (
+                  <div>
+                    <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">
+                      Antal gäster
+                      {listing.max_guests && (
+                        <span className="text-xs ml-1">({minGuests}–{maxGuests})</span>
+                      )}
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const next = Math.max(minGuests, guestCount - 1);
+                          setGuestCount(next);
+                          if (next < attendees.length) setAttendees(attendees.slice(0, next));
+                        }}
+                        className="flex h-10 w-10 items-center justify-center rounded-lg border border-[var(--usha-border)] text-[var(--usha-muted)] transition hover:text-white disabled:opacity-30"
+                        disabled={guestCount <= minGuests}
+                      >
+                        <Minus size={14} />
+                      </button>
+                      <span className="min-w-[2rem] text-center text-lg font-bold">{guestCount}</span>
+                      <button
+                        type="button"
+                        onClick={() => setGuestCount(Math.min(maxGuests, guestCount + 1))}
+                        className="flex h-10 w-10 items-center justify-center rounded-lg border border-[var(--usha-border)] text-[var(--usha-muted)] transition hover:text-white disabled:opacity-30"
+                        disabled={guestCount >= maxGuests}
+                      >
+                        <Plus size={14} />
+                      </button>
+                    </div>
+                    <input type="hidden" name="guest_count" value={guestCount} />
+                  </div>
+                )}
+
+                {/* Attendee details (when > 1 guest) */}
+                {showGuestFields && guestCount > 1 && (
+                  <div>
+                    <div className="mb-1.5 flex items-center justify-between">
+                      <label className="text-sm text-[var(--usha-muted)]">
+                        Gästuppgifter <span className="text-xs">(valfritt)</span>
+                      </label>
+                      {attendees.length < guestCount && (
+                        <button
+                          type="button"
+                          onClick={() => setAttendees([...attendees, { name: "", dietary: "" }])}
+                          className="flex items-center gap-1 text-xs text-[var(--usha-gold)] hover:underline"
+                        >
+                          <UserPlus size={12} />
+                          Lägg till gäst
+                        </button>
+                      )}
+                    </div>
+                    {attendees.map((att, i) => (
+                      <div key={i} className="mb-2 flex items-start gap-2">
+                        <div className="flex-1 space-y-1.5">
+                          <input
+                            type="text"
+                            placeholder={`Gäst ${i + 1} namn`}
+                            value={att.name}
+                            onChange={(e) => {
+                              const next = [...attendees];
+                              next[i] = { ...next[i], name: e.target.value };
+                              setAttendees(next);
+                            }}
+                            className="w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2 text-xs outline-none transition focus:border-[var(--usha-gold)]/40"
+                          />
+                          <input
+                            type="text"
+                            placeholder="Allergier / specialkost"
+                            value={att.dietary}
+                            onChange={(e) => {
+                              const next = [...attendees];
+                              next[i] = { ...next[i], dietary: e.target.value };
+                              setAttendees(next);
+                            }}
+                            className="w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2 text-xs outline-none transition focus:border-[var(--usha-gold)]/40"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setAttendees(attendees.filter((_, j) => j !== i))}
+                          className="mt-1 rounded p-1 text-red-400 hover:text-red-300"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    ))}
+                    <input type="hidden" name="attendees" value={JSON.stringify(attendees.filter(a => a.name))} />
+                  </div>
+                )}
+
+                {/* Special requests (experience types) */}
+                {showGuestFields && (
+                  <div>
+                    <label
+                      htmlFor={`special-${listing.id}`}
+                      className="mb-1.5 block text-sm text-[var(--usha-muted)]"
+                    >
+                      Specialönskemål <span className="text-xs">(valfritt)</span>
+                    </label>
+                    <textarea
+                      id={`special-${listing.id}`}
+                      name="special_requests"
+                      rows={2}
+                      placeholder={
+                        listing.listing_type === "table_reservation"
+                          ? "Allergier, högtidsfirande, önskemål om bord..."
+                          : listing.listing_type === "spa_treatment"
+                          ? "Hälsovillkor, önskemål om behandling..."
+                          : "Specialönskemål för gruppen..."
+                      }
+                      className="w-full resize-none rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+                    />
+                  </div>
+                )}
+
                 <div>
                   <label
                     htmlFor={`notes-${listing.id}`}
                     className="mb-1.5 block text-sm text-[var(--usha-muted)]"
                   >
-                    Meddelande <span className="text-xs">(valfritt)</span>
+                    {showGuestFields ? "Övrigt meddelande" : "Meddelande"}{" "}
+                    <span className="text-xs">(valfritt)</span>
                   </label>
                   <textarea
                     id={`notes-${listing.id}`}
                     name="notes"
-                    rows={3}
+                    rows={showGuestFields ? 2 : 3}
                     placeholder="Berätta om önskemål eller frågor..."
                     className="w-full resize-none rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
                   />
@@ -211,13 +383,37 @@ export default function BookingForm({
                   <input type="hidden" name="promo_code" value={promoCode} />
                 )}
 
-                <button
-                  type="submit"
-                  disabled={isPending}
-                  className="w-full rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] py-3 text-sm font-bold text-black transition hover:opacity-90 disabled:opacity-50"
-                >
-                  {isPending ? "Skickar..." : "Skicka bokningsförfrågan"}
-                </button>
+                {canPayOnline ? (
+                  <div className="space-y-2">
+                    <button
+                      type="button"
+                      disabled={isPending}
+                      onClick={() => {
+                        const form = document.getElementById(`booking-form-${listing.id}`) as HTMLFormElement;
+                        if (!form.checkValidity()) { form.reportValidity(); return; }
+                        handlePaidBooking(new FormData(form));
+                      }}
+                      className="w-full rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] py-3 text-sm font-bold text-black transition hover:opacity-90 disabled:opacity-50"
+                    >
+                      {isPending ? "Laddar..." : `Boka & betala ${listing.price} SEK`}
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isPending}
+                      className="w-full rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium text-[var(--usha-muted)] transition hover:text-white disabled:opacity-50"
+                    >
+                      {isPending ? "Skickar..." : "Skicka förfrågan utan betalning"}
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="submit"
+                    disabled={isPending}
+                    className="w-full rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] py-3 text-sm font-bold text-black transition hover:opacity-90 disabled:opacity-50"
+                  >
+                    {isPending ? "Skickar..." : "Skicka bokningsförfrågan"}
+                  </button>
+                )}
               </form>
             )}
           </div>

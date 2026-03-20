@@ -7,6 +7,8 @@ import { useToast } from "@/components/ui/toaster";
 import { createClient } from "@/lib/supabase/client";
 import { EVENT_CATEGORY_LABELS } from "./constants";
 
+import type { ListingType, ExperienceDetails } from "@/types/database";
+
 interface EventData {
   id: string;
   title: string;
@@ -19,6 +21,10 @@ interface EventData {
   event_date: string | null;
   event_time: string | null;
   event_location: string | null;
+  listing_type: ListingType | null;
+  min_guests: number | null;
+  max_guests: number | null;
+  experience_details: ExperienceDetails | null;
 }
 
 const CATEGORIES = Object.entries(EVENT_CATEGORY_LABELS).map(([value, label]) => ({ value, label }));
@@ -28,6 +34,23 @@ const TIERS = [
   { value: "guld", label: "Guld & Premium" },
   { value: "premium", label: "Endast Premium" },
 ];
+
+const LISTING_TYPES: { value: ListingType; label: string }[] = [
+  { value: "event", label: "Evenemang" },
+  { value: "table_reservation", label: "Bordsbokning" },
+  { value: "spa_treatment", label: "SPA-behandling" },
+  { value: "group_activity", label: "Gruppaktivitet" },
+];
+
+// Auto-derive listing type from category
+function suggestListingType(category: string): ListingType {
+  switch (category) {
+    case "restaurant": return "table_reservation";
+    case "spa": case "retreat": return "spa_treatment";
+    case "fitness": return "group_activity";
+    default: return "event";
+  }
+}
 
 export default function EventForm({
   event,
@@ -44,6 +67,17 @@ export default function EventForm({
   const [imageUrl, setImageUrl] = useState<string>(event?.image_url ?? "");
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [listingType, setListingType] = useState<ListingType>(
+    event?.listing_type ?? suggestListingType(event?.category ?? "")
+  );
+  const [category, setCategory] = useState(event?.category ?? "");
+  const [amenities, setAmenities] = useState<string>(
+    (event?.experience_details?.amenities ?? []).join(", ")
+  );
+  const [included, setIncluded] = useState<string>(
+    (event?.experience_details?.included ?? []).join(", ")
+  );
+  const showGuestFields = ["table_reservation", "spa_treatment", "group_activity"].includes(listingType);
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -248,7 +282,11 @@ export default function EventForm({
               id="category"
               name="category"
               required
-              defaultValue={event?.category ?? ""}
+              value={category}
+              onChange={(e) => {
+                setCategory(e.target.value);
+                setListingType(suggestListingType(e.target.value));
+              }}
               className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
             >
               <option value="">Välj kategori...</option>
@@ -311,6 +349,90 @@ export default function EventForm({
               ))}
             </select>
           </div>
+        </div>
+
+        {/* Listing type */}
+        <div>
+          <label htmlFor="listing_type" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
+            Typ av upplevelse
+          </label>
+          <select
+            id="listing_type"
+            name="listing_type"
+            value={listingType}
+            onChange={(e) => setListingType(e.target.value as ListingType)}
+            className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+          >
+            {LISTING_TYPES.map((t) => (
+              <option key={t.value} value={t.value}>
+                {t.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Guest capacity (only for relevant types) */}
+        {showGuestFields && (
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label htmlFor="min_guests" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
+                Min antal gäster
+              </label>
+              <input
+                id="min_guests"
+                name="min_guests"
+                type="number"
+                min={1}
+                defaultValue={event?.min_guests ?? 1}
+                className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+              />
+            </div>
+            <div>
+              <label htmlFor="max_guests" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
+                Max antal gäster
+              </label>
+              <input
+                id="max_guests"
+                name="max_guests"
+                type="number"
+                min={1}
+                defaultValue={event?.max_guests ?? ""}
+                placeholder="Obegränsat"
+                className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Experience details */}
+        <div>
+          <label htmlFor="amenities" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
+            Bekvämligheter <span className="text-xs">(kommaseparerat)</span>
+          </label>
+          <input
+            id="amenities"
+            name="amenities"
+            type="text"
+            value={amenities}
+            onChange={(e) => setAmenities(e.target.value)}
+            placeholder="t.ex. Wi-Fi, Parkering, Garderob, Rullstolsanpassat"
+            className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="included" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
+            Vad ingår <span className="text-xs">(kommaseparerat)</span>
+          </label>
+          <input
+            id="included"
+            name="included"
+            type="text"
+            value={included}
+            onChange={(e) => setIncluded(e.target.value)}
+            placeholder="t.ex. 3-rätters meny, Välkomstdrink, Entré"
+            className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+          />
         </div>
 
         {/* Actions */}
