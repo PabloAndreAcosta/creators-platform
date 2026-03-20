@@ -58,6 +58,29 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (listing.user_id === user.id) {
+      return NextResponse.json(
+        { error: 'Du kan inte köpa biljett till ditt eget event' },
+        { status: 400 }
+      );
+    }
+
+    // Prevent duplicate ticket purchases for the same event
+    const { count: existingTickets } = await supabase
+      .from('bookings')
+      .select('id', { count: 'exact', head: true })
+      .eq('listing_id', listingId)
+      .eq('customer_id', user.id)
+      .eq('booking_type', 'ticket')
+      .in('status', ['pending', 'confirmed']);
+
+    if (existingTickets && existingTickets > 0) {
+      return NextResponse.json(
+        { error: 'Du har redan en biljett till detta event' },
+        { status: 409 }
+      );
+    }
+
     // Early bird: block gratis users during Gold-exclusive window
     if (listing.release_to_gold_at) {
       const releaseDate = new Date(listing.release_to_gold_at);
