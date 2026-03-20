@@ -29,6 +29,11 @@ export async function GET(req: NextRequest) {
       title: r.title,
       price: r.price ?? 0,
       category: r.category,
+      event_date: r.event_date ?? null,
+      event_location: r.event_location ?? null,
+      image_url: r.image_url ?? null,
+      creator_id: r.creator.id,
+      profiles: { full_name: r.creator.full_name ?? null },
       eventTier: r.event_tier ?? "",
       bookingCount: r.bookingCount ?? 0,
       creator: {

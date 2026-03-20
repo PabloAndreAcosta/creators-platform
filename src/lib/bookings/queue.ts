@@ -118,7 +118,7 @@ export async function autoPromoteFromQueue(listingId: string): Promise<void> {
   // Get listing details for the booking
   const { data: listing } = await supabase
     .from('listings')
-    .select('user_id')
+    .select('user_id, event_date, event_time')
     .eq('id', listingId)
     .single();
 
@@ -127,13 +127,23 @@ export async function autoPromoteFromQueue(listingId: string): Promise<void> {
     return;
   }
 
+  // Use the listing's event date/time, falling back to current time
+  let scheduledAt: string;
+  if (listing.event_date) {
+    scheduledAt = listing.event_time
+      ? new Date(`${listing.event_date}T${listing.event_time}`).toISOString()
+      : new Date(`${listing.event_date}T00:00:00`).toISOString();
+  } else {
+    scheduledAt = new Date().toISOString();
+  }
+
   // Create booking for the promoted user
   const { error: bookingError } = await supabase.from('bookings').insert({
     listing_id: listingId,
     creator_id: listing.user_id,
     customer_id: next.user_id,
     status: 'confirmed',
-    scheduled_at: new Date().toISOString(),
+    scheduled_at: scheduledAt,
   });
 
   if (bookingError) {
