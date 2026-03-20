@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@/lib/supabase/server";
 import { PLANS, type PlanKey } from "@/lib/stripe/config";
-import { validatePromoCode } from "@/lib/promo/validate";
+import { validatePromoCode, applyPromoDiscount } from "@/lib/promo/validate";
 
 export async function POST(req: NextRequest) {
   try {
@@ -36,6 +36,7 @@ export async function POST(req: NextRequest) {
     // Validate promo code if provided
     let stripeCouponId: string | undefined;
     let promoCodeId: string | undefined;
+    let promoDiscountAmount: number | undefined;
     if (promoCode) {
       const validation = await validatePromoCode(
         promoCode,
@@ -52,6 +53,11 @@ export async function POST(req: NextRequest) {
       }
 
       promoCodeId = validation.promo!.id;
+      promoDiscountAmount = applyPromoDiscount(
+        plan.price,
+        validation.promo!.discount_type,
+        validation.promo!.discount_value
+      ).discountAmount;
 
       if (validation.promo!.stripe_coupon_id) {
         // Use existing Stripe coupon
@@ -81,6 +87,7 @@ export async function POST(req: NextRequest) {
         role: plan.role,
         tier: plan.tier,
         ...(promoCodeId && { promoCodeId }),
+        ...(promoDiscountAmount && { promoDiscountAmount: String(promoDiscountAmount) }),
       },
     };
 
