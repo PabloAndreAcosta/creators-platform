@@ -7,6 +7,7 @@ import { handleCapacityReached, autoPromoteFromQueue, addToQueue, getQueuePositi
 import { requirePaidSubscription } from "@/lib/subscription/check";
 import { stripe } from "@/lib/stripe/client";
 import { sendBookingConfirmationEmail, sendBookingCancellationEmail } from "@/lib/email/send-booking";
+import { shouldSendEmail } from "@/lib/email/check-preferences";
 import { isGoldExclusive } from "@/lib/listings/early-bird";
 import { notifyNewBooking, notifyBookingConfirmed, notifyBookingCanceled } from "@/lib/notifications/create";
 
@@ -282,6 +283,8 @@ async function fetchEmailData(ctx: EmailContext) {
 }
 
 async function sendBookingNotification(ctx: EmailContext) {
+  // Check if creator wants new booking emails
+  if (!await shouldSendEmail(ctx.creatorId, "notif_booking_new")) return;
   const data = await fetchEmailData(ctx);
   if (!data.customerEmail) return;
   await sendBookingConfirmationEmail({
@@ -295,6 +298,8 @@ async function sendBookingNotification(ctx: EmailContext) {
 }
 
 async function sendConfirmNotification(ctx: EmailContext) {
+  // Check if customer wants booking confirmation emails
+  if (!await shouldSendEmail(ctx.customerId, "notif_booking_confirmed")) return;
   const data = await fetchEmailData(ctx);
   if (!data.customerEmail) return;
   await sendBookingConfirmationEmail({
@@ -310,7 +315,7 @@ async function sendConfirmNotification(ctx: EmailContext) {
 async function sendCancelNotification(ctx: EmailContext) {
   const data = await fetchEmailData(ctx);
   const sends: Promise<void>[] = [];
-  if (data.customerEmail) {
+  if (data.customerEmail && await shouldSendEmail(ctx.customerId, "notif_booking_canceled")) {
     sends.push(sendBookingCancellationEmail({
       to: data.customerEmail,
       recipientName: data.customerName,
@@ -318,7 +323,7 @@ async function sendCancelNotification(ctx: EmailContext) {
       scheduledAt: ctx.scheduledAt,
     }));
   }
-  if (data.creatorEmail) {
+  if (data.creatorEmail && await shouldSendEmail(ctx.creatorId, "notif_booking_canceled")) {
     sends.push(sendBookingCancellationEmail({
       to: data.creatorEmail,
       recipientName: data.creatorName,

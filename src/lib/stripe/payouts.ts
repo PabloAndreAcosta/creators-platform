@@ -2,6 +2,7 @@ import { stripe } from '@/lib/stripe/client';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getCreatorCommissionRate } from '@/lib/stripe/commission';
 import { sendPayoutConfirmationEmail } from '@/lib/email/send-payout';
+import { shouldSendEmail } from '@/lib/email/check-preferences';
 import { notifyPayout } from '@/lib/notifications/create';
 
 interface BatchResult {
@@ -128,8 +129,8 @@ export async function weeklyPayoutBatch(): Promise<BatchResult> {
         continue;
       }
 
-      // Send payout confirmation email (non-blocking)
-      if (profile.email) {
+      // Send payout confirmation email (non-blocking, respects preferences)
+      if (profile.email && await shouldSendEmail(creatorId, 'notif_payout')) {
         sendPayoutConfirmationEmail({
           to: profile.email,
           creatorName: profile.full_name || 'Kreatör',
@@ -252,8 +253,8 @@ export async function createInstantPayout(
       }
     }
 
-    // Send payout confirmation email (non-blocking)
-    if (profile.email) {
+    // Send payout confirmation email (non-blocking, respects preferences)
+    if (profile.email && await shouldSendEmail(creatorId, 'notif_payout')) {
       sendPayoutConfirmationEmail({
         to: profile.email,
         creatorName: profile.full_name || 'Kreatör',
