@@ -10,15 +10,22 @@ export async function GET(req: NextRequest) {
   }
 
   const supabase = await createClient();
-  const { data: reviews } = await supabase
-    .from('reviews')
-    .select('id, rating, comment, created_at, reviewer_id, listing_id, profiles!reviews_reviewer_id_fkey(full_name, avatar_url), listings(title)')
-    .eq('creator_id', creatorId)
-    .order('created_at', { ascending: false })
-    .limit(20);
 
-  // Calculate average
-  const ratings = (reviews ?? []).map(r => r.rating);
+  // Fetch all ratings to compute correct average across all reviews
+  const [{ data: reviews }, { data: allRatings }] = await Promise.all([
+    supabase
+      .from('reviews')
+      .select('id, rating, comment, created_at, reviewer_id, listing_id, profiles!reviews_reviewer_id_fkey(full_name, avatar_url), listings(title)')
+      .eq('creator_id', creatorId)
+      .order('created_at', { ascending: false })
+      .limit(20),
+    supabase
+      .from('reviews')
+      .select('rating')
+      .eq('creator_id', creatorId),
+  ]);
+
+  const ratings = (allRatings ?? []).map(r => r.rating);
   const average = ratings.length > 0
     ? Math.round((ratings.reduce((a, b) => a + b, 0) / ratings.length) * 10) / 10
     : null;

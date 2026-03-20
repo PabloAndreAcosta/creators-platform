@@ -12,12 +12,14 @@ export function ConnectionStatus() {
     // Set initial state from browser
     setIsOnline(navigator.onLine);
 
+    let onlineTimer: ReturnType<typeof setTimeout>;
+
     function handleOnline() {
       setIsOnline(true);
       setShowOnline(true);
-      // Hide "online" banner after 3 seconds
-      const timer = setTimeout(() => setShowOnline(false), 3000);
-      return () => clearTimeout(timer);
+      // Clear any previous timer before setting a new one
+      clearTimeout(onlineTimer);
+      onlineTimer = setTimeout(() => setShowOnline(false), 3000);
     }
 
     function handleOffline() {
@@ -29,6 +31,7 @@ export function ConnectionStatus() {
     window.addEventListener("offline", handleOffline);
 
     return () => {
+      clearTimeout(onlineTimer);
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
     };
