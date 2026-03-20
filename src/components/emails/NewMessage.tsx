@@ -30,7 +30,7 @@ export default function NewMessage({
                   <tbody>
                     <tr>
                       <td style={{ paddingBottom: 32, textAlign: "center" }}>
-                        <span style={{ fontSize: 28, fontWeight: 700, color: "#D4AF37", letterSpacing: "-0.02em" }}>
+                        <span style={{ fontSize: 28, fontWeight: 700, color: "#c8a445", letterSpacing: "-0.02em" }}>
                           Usha
                         </span>
                       </td>
@@ -56,7 +56,7 @@ export default function NewMessage({
                                 padding: "12px 16px",
                                 borderRadius: 12,
                                 backgroundColor: "#0a0a0b",
-                                borderLeft: "3px solid #D4AF37",
+                                borderLeft: "3px solid #c8a445",
                               }}>
                                 <p style={{ fontSize: 14, color: "#fafaf9", margin: 0, lineHeight: 1.6, fontStyle: "italic" }}>
                                   {messagePreview}
@@ -79,7 +79,7 @@ export default function NewMessage({
                                     fontSize: 14,
                                     fontWeight: 600,
                                     color: "#0a0a0b",
-                                    backgroundColor: "#D4AF37",
+                                    backgroundColor: "#c8a445",
                                     textDecoration: "none",
                                   }}
                                 >

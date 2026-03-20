@@ -265,7 +265,7 @@ async function fetchEmailData(ctx: EmailContext) {
   const [customerResult, creatorResult, listingResult] = await Promise.all([
     ctx.supabase.from("profiles").select("email, full_name").eq("id", ctx.customerId).single(),
     ctx.supabase.from("profiles").select("email, full_name").eq("id", ctx.creatorId).single(),
-    ctx.supabase.from("listings").select("title").eq("id", ctx.listingId).single(),
+    ctx.supabase.from("listings").select("title, event_location").eq("id", ctx.listingId).single(),
   ]);
   return {
     customerEmail: ctx.customerEmail || customerResult.data?.email,
@@ -273,6 +273,7 @@ async function fetchEmailData(ctx: EmailContext) {
     creatorEmail: creatorResult.data?.email,
     creatorName: creatorResult.data?.full_name || "Kreatör",
     serviceName: listingResult.data?.title || "Tjänst",
+    location: listingResult.data?.event_location || undefined,
   };
 }
 
@@ -285,6 +286,7 @@ async function sendBookingNotification(ctx: EmailContext) {
     serviceName: data.serviceName,
     scheduledAt: ctx.scheduledAt,
     creatorName: data.creatorName,
+    location: data.location,
   });
 }
 
@@ -297,6 +299,7 @@ async function sendConfirmNotification(ctx: EmailContext) {
     serviceName: data.serviceName,
     scheduledAt: ctx.scheduledAt,
     creatorName: data.creatorName,
+    location: data.location,
   });
 }
 
