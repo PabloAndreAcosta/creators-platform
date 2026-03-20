@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import { handleCapacityReached, autoPromoteFromQueue, addToQueue, getQueuePosition } from "@/lib/bookings/queue";
 import { requirePaidSubscription } from "@/lib/subscription/check";
@@ -187,7 +188,9 @@ export async function updateBookingStatus(
     }
   }
 
-  const { error } = await supabase
+  // Use admin client when customer cancels — RLS only allows creators to update bookings
+  const updateClient = (status === "canceled" && isCustomer) ? createAdminClient() : supabase;
+  const { error } = await updateClient
     .from("bookings")
     .update({ status })
     .eq("id", bookingId);
