@@ -227,7 +227,27 @@ export async function createInstantPayout(
     });
 
     if (insertError) {
-      console.error('Failed to record instant payout:', insertError);
+      console.error('CRITICAL: Stripe payout created but DB record failed. Manual reconciliation needed.', {
+        stripePayoutId: stripePayout.id,
+        creatorId,
+        amountNet: netAmount,
+        amountGross: payoutAmount,
+        commission: commissionAmount,
+        error: insertError,
+      });
+      // Retry once
+      const { error: retryError } = await supabase.from('payouts').insert({
+        creator_id: creatorId,
+        amount_gross: payoutAmount,
+        amount_commission: commissionAmount,
+        amount_net: netAmount,
+        payout_type: 'instant',
+        stripe_payout_id: stripePayout.id,
+        status: 'pending',
+      });
+      if (retryError) {
+        console.error('CRITICAL: Retry also failed for payout record:', retryError);
+      }
     }
 
     // Send payout confirmation email (non-blocking)
