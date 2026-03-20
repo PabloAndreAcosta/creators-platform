@@ -31,7 +31,17 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
   if (query.length >= 2) {
     const supabase = await createClient();
-    const pattern = `%${query}%`;
+    // Sanitize to prevent PostgREST filter injection
+    const sanitized = query.replace(/[,()\\]/g, ' ').trim();
+    if (!sanitized) {
+      return (
+        <div className="px-4 py-6 md:max-w-3xl md:mx-auto">
+          <h1 className="text-2xl font-bold mb-6">Sök</h1>
+          <p className="text-sm text-[var(--usha-muted)]">Inga resultat</p>
+        </div>
+      );
+    }
+    const pattern = `%${sanitized}%`;
 
     let creatorsQuery = supabase
       .from("profiles")

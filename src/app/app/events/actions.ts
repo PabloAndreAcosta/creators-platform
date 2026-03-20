@@ -40,21 +40,39 @@ function parseEventForm(formData: FormData) {
     experienceDetails.included = includedRaw.split(",").map((s) => s.trim()).filter(Boolean);
   }
 
+  const price = priceRaw ? parseInt(priceRaw, 10) : null;
+  const duration_minutes = durationRaw ? parseInt(durationRaw, 10) : null;
+  const min_guests = minGuestsRaw ? parseInt(minGuestsRaw, 10) : 1;
+  const max_guests = maxGuestsRaw ? parseInt(maxGuestsRaw, 10) : null;
+
+  if (price !== null && (isNaN(price) || price < 0)) {
+    return { error: "Priset måste vara 0 eller högre" } as const;
+  }
+  if (duration_minutes !== null && (isNaN(duration_minutes) || duration_minutes <= 0)) {
+    return { error: "Längden måste vara ett positivt tal" } as const;
+  }
+  if (isNaN(min_guests) || min_guests < 1) {
+    return { error: "Minsta antal gäster måste vara minst 1" } as const;
+  }
+  if (max_guests !== null && (isNaN(max_guests) || max_guests < min_guests)) {
+    return { error: "Max gäster måste vara lika med eller högre än min gäster" } as const;
+  }
+
   return {
     data: {
       title,
       description: description || null,
       category,
-      price: priceRaw ? parseInt(priceRaw, 10) : null,
-      duration_minutes: durationRaw ? parseInt(durationRaw, 10) : null,
+      price,
+      duration_minutes,
       event_tier: dbTier,
       image_url: imageUrl,
       event_date: eventDate,
       event_time: eventTime,
       event_location: eventLocation,
       listing_type: listingType,
-      min_guests: minGuestsRaw ? parseInt(minGuestsRaw, 10) : 1,
-      max_guests: maxGuestsRaw ? parseInt(maxGuestsRaw, 10) : null,
+      min_guests,
+      max_guests,
       experience_details: experienceDetails,
     },
   } as const;

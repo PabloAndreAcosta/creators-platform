@@ -8,7 +8,13 @@ export async function GET(req: NextRequest) {
   }
 
   const supabase = await createClient();
-  const pattern = `%${q}%`;
+  // Sanitize search input to prevent PostgREST filter injection
+  // Commas, parens, and backslashes have special meaning in .or() filter syntax
+  const sanitized = q.replace(/[,()\\]/g, ' ').trim();
+  if (!sanitized) {
+    return NextResponse.json({ listings: [], creators: [] });
+  }
+  const pattern = `%${sanitized}%`;
 
   const [listingsRes, creatorsRes] = await Promise.all([
     supabase

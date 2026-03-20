@@ -20,13 +20,23 @@ function parseListingForm(formData: FormData) {
     return { error: "Välj en giltig kategori" } as const;
   }
 
+  const price = priceRaw ? parseInt(priceRaw, 10) : null;
+  const duration_minutes = durationRaw ? parseInt(durationRaw, 10) : null;
+
+  if (price !== null && (isNaN(price) || price < 0)) {
+    return { error: "Priset måste vara 0 eller högre" } as const;
+  }
+  if (duration_minutes !== null && (isNaN(duration_minutes) || duration_minutes <= 0)) {
+    return { error: "Längden måste vara ett positivt tal" } as const;
+  }
+
   return {
     data: {
       title,
       description: description || null,
       category,
-      price: priceRaw ? parseInt(priceRaw, 10) : null,
-      duration_minutes: durationRaw ? parseInt(durationRaw, 10) : null,
+      price,
+      duration_minutes,
       image_url: imageUrl,
     },
   } as const;
