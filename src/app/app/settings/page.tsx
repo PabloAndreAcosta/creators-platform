@@ -1,6 +1,6 @@
 "use client";
 
-import { Settings, Bell, Shield, HelpCircle, ChevronRight } from "lucide-react";
+import { Settings, Bell, Shield, HelpCircle, UserX, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 const settingsItems = [
@@ -21,6 +21,12 @@ const settingsItems = [
     label: "Hjälp & Support",
     description: "Vanliga frågor och kontakt",
     icon: HelpCircle,
+  },
+  {
+    href: "/app/settings/account",
+    label: "Konto",
+    description: "Radera konto och hantera data",
+    icon: UserX,
   },
 ];
 

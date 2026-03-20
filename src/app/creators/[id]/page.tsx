@@ -11,6 +11,7 @@ import { MapPin, Clock, Globe, ArrowLeft, Calendar, MessageCircle, Users } from 
 import BookingForm from "./booking-form";
 import { BuyTicketButton } from "@/components/buy-ticket-button";
 import { CreatorReviews } from "@/components/creator-reviews";
+import { ReportUserButton } from "@/components/report-user-button";
 import { calculateDiscountedPrice } from "@/lib/stripe/commission";
 import { filterByGoldExclusivity } from "@/lib/listings/early-bird";
 
@@ -196,13 +197,16 @@ export default async function CreatorProfilePage({ params }: Props) {
               </p>
             )}
             {isLoggedIn && !isOwnProfile && (
-              <Link
-                href={`/app/messages?to=${profile.id}`}
-                className="mt-4 inline-flex items-center gap-2 rounded-xl border border-[var(--usha-border)] px-4 py-2 text-sm font-medium transition hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-gold)]"
-              >
-                <MessageCircle size={14} />
-                Skicka meddelande
-              </Link>
+              <div className="mt-4 flex items-center gap-3">
+                <Link
+                  href={`/app/messages?to=${profile.id}`}
+                  className="inline-flex items-center gap-2 rounded-xl border border-[var(--usha-border)] px-4 py-2 text-sm font-medium transition hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-gold)]"
+                >
+                  <MessageCircle size={14} />
+                  Skicka meddelande
+                </Link>
+                <ReportUserButton userId={profile.id} userName={profile.full_name || "Användare"} />
+              </div>
             )}
           </div>
         </div>

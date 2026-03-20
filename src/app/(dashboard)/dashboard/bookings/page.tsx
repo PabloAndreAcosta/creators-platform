@@ -7,6 +7,7 @@ import {
   CancelButton,
   CompleteButton,
 } from "./booking-actions";
+import { RescheduleButton } from "./reschedule-button";
 import { NoBookings } from "@/components/ui/empty-state";
 import { ReviewForm } from "@/components/review-form";
 import { BookingsViewToggle } from "./bookings-view-toggle";
@@ -219,6 +220,7 @@ export default async function BookingsPage() {
                     )}
                     {booking.status === "confirmed" && (
                       <>
+                        <RescheduleButton bookingId={booking.id} currentDate={booking.scheduled_at} />
                         <CompleteButton bookingId={booking.id} />
                         <CancelButton bookingId={booking.id} />
                       </>
@@ -275,7 +277,10 @@ export default async function BookingsPage() {
                   <div className="flex shrink-0 items-center gap-2">
                     {(booking.status === "pending" ||
                       booking.status === "confirmed") && (
-                      <CancelButton bookingId={booking.id} />
+                      <>
+                        <RescheduleButton bookingId={booking.id} currentDate={booking.scheduled_at} />
+                        <CancelButton bookingId={booking.id} />
+                      </>
                     )}
                     {booking.status === "completed" &&
                       !reviewedBookingIds.has(booking.id) && (

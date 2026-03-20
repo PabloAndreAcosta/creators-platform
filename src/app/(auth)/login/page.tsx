@@ -196,6 +196,12 @@ export default function LoginPage() {
           </button>
         </form>
 
+        <p className="mt-3 text-center">
+          <a href="/forgot-password" className="text-sm text-[var(--usha-muted)] hover:text-[var(--usha-gold)] transition-colors">
+            Glömt lösenord?
+          </a>
+        </p>
+
         <p className="mt-6 text-center text-sm text-[var(--usha-muted)]">
           Inget konto?{" "}
           <a href="/signup" className="text-[var(--usha-gold)] hover:underline">

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Star } from "lucide-react";
+import { RatingDistribution } from "./rating-distribution";
 
 interface Review {
   id: string;
@@ -51,6 +52,8 @@ export function CreatorReviews({ creatorId }: { creatorId: string }) {
           <span className="text-sm text-[var(--usha-muted)]">({count})</span>
         </div>
       </div>
+
+      <RatingDistribution reviews={reviews} />
 
       <div className="space-y-3">
         {reviews.map((review) => {

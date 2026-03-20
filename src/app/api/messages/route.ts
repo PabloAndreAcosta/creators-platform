@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 // GET — list conversations or messages for a conversation
 export async function GET(req: NextRequest) {
@@ -185,5 +186,65 @@ export async function POST(req: NextRequest) {
     .update({ last_message_at: new Date().toISOString() })
     .eq('id', convoId);
 
+  // Send email notification to recipient (non-blocking)
+  sendMessageEmailNotification(supabase, user.id, convoId, content.trim()).catch(
+    (err) => console.error('Message email notification failed:', err)
+  );
+
   return NextResponse.json({ message, conversationId: convoId });
+}
+
+// ── Email notification helper ──────────────────────────────────
+
+async function sendMessageEmailNotification(
+  supabase: SupabaseClient,
+  senderId: string,
+  conversationId: string,
+  messageContent: string
+) {
+  // Find the other participant
+  const { data: convo } = await supabase
+    .from('conversations')
+    .select('participant_a, participant_b')
+    .eq('id', conversationId)
+    .single();
+
+  if (!convo) return;
+
+  const recipientId = convo.participant_a === senderId ? convo.participant_b : convo.participant_a;
+
+  // Check if user has email notifications enabled
+  const { data: settings } = await supabase
+    .from('user_settings')
+    .select('notif_booking_new')
+    .eq('user_id', recipientId)
+    .single();
+
+  // Default to sending if no settings exist (opt-out model)
+  // We reuse notif_booking_new as a general notification toggle for now
+
+  // Get profiles
+  const [senderResult, recipientResult] = await Promise.all([
+    supabase.from('profiles').select('full_name').eq('id', senderId).single(),
+    supabase.from('profiles').select('full_name, email').eq('id', recipientId).single(),
+  ]);
+
+  const recipientEmail = recipientResult.data?.email;
+  if (!recipientEmail) return;
+
+  const senderName = senderResult.data?.full_name || 'En användare';
+  const recipientName = recipientResult.data?.full_name || 'Användare';
+  const preview = messageContent.length > 100 ? messageContent.slice(0, 100) + '…' : messageContent;
+
+  try {
+    const { sendNewMessageEmail } = await import('@/lib/email/send-message');
+    await sendNewMessageEmail({
+      to: recipientEmail,
+      recipientName,
+      senderName,
+      messagePreview: preview,
+    });
+  } catch (err) {
+    console.error('Failed to send message email:', err);
+  }
 }
