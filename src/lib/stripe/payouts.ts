@@ -49,10 +49,10 @@ export async function weeklyPayoutBatch(): Promise<BatchResult> {
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-  // Get completed bookings from the past 7 days with listing price
+  // Get completed bookings from the past 7 days with actual amount paid
   const { data: bookings, error: bookingsError } = await supabase
     .from('bookings')
-    .select('id, creator_id, listing_id, listings(price)')
+    .select('id, creator_id, listing_id, amount_paid, listings(price)')
     .eq('status', 'completed')
     .gte('updated_at', sevenDaysAgo.toISOString());
 
@@ -65,10 +65,12 @@ export async function weeklyPayoutBatch(): Promise<BatchResult> {
     return { processed: 0, total: 0, errors: [] };
   }
 
-  // Group bookings by creator
+  // Group bookings by creator — use actual amount_paid (in öre), fall back to listing price
   const creatorTotals = new Map<string, number>();
   for (const booking of bookings) {
-    const price = (booking.listings as unknown as { price: number })?.price ?? 0;
+    const listingPrice = (booking.listings as unknown as { price: number })?.price ?? 0;
+    // amount_paid is in öre; convert to SEK. Fall back to listing price for free/manual bookings.
+    const price = booking.amount_paid ? booking.amount_paid / 100 : listingPrice;
     const current = creatorTotals.get(booking.creator_id) ?? 0;
     creatorTotals.set(booking.creator_id, current + price);
   }

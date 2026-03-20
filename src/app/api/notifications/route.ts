@@ -19,7 +19,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(EMPTY);
   }
 
-  const limit = parseInt(req.nextUrl.searchParams.get('limit') || '20');
+  const parsedLimit = parseInt(req.nextUrl.searchParams.get('limit') || '20', 10);
+  const limit = Number.isFinite(parsedLimit) && parsedLimit > 0 ? Math.min(parsedLimit, 100) : 20;
   const unreadOnly = req.nextUrl.searchParams.get('unread') === '1';
 
   let query = supabase

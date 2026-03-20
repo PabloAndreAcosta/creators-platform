@@ -61,8 +61,8 @@ export async function createPromoCode(formData: FormData) {
     discount_type,
     discount_value,
     scope,
-    max_uses: max_uses ? parseInt(max_uses) : null,
-    max_uses_per_user: max_uses_per_user ? parseInt(max_uses_per_user) : 1,
+    max_uses: max_uses ? parseInt(max_uses, 10) || null : null,
+    max_uses_per_user: max_uses_per_user ? parseInt(max_uses_per_user, 10) || 1 : 1,
     valid_until: valid_until || null,
     created_by: user.id,
   });

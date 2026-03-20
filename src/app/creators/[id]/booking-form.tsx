@@ -94,7 +94,7 @@ export default function BookingForm({
             notes,
             guestCount: guestCountVal ? parseInt(guestCountVal, 10) : 1,
             specialRequests: specialReqs,
-            attendees: JSON.parse(attendeesVal),
+            attendees: (() => { try { return JSON.parse(attendeesVal); } catch { return []; } })(),
             promoCode: promoCode || undefined,
           }),
         });
