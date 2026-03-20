@@ -29,7 +29,7 @@ export async function createBooking(formData: FormData) {
   const scheduled_at = formData.get("scheduled_at") as string;
   const notes = (formData.get("notes") as string)?.trim() || null;
   const guestCountRaw = formData.get("guest_count") as string;
-  const guest_count = guestCountRaw ? parseInt(guestCountRaw, 10) : 1;
+  const guest_count = guestCountRaw ? (parseInt(guestCountRaw, 10) || 1) : 1;
   const special_requests = (formData.get("special_requests") as string)?.trim() || null;
   const attendeesRaw = (formData.get("attendees") as string)?.trim();
   let attendees: unknown[] = [];
@@ -174,6 +174,19 @@ export async function updateBookingStatus(
     return { error: "Denna bokning kan inte avbokas." };
   }
 
+  // Auto-refund paid bookings BEFORE canceling (so we don't cancel without refunding)
+  if (status === "canceled" && booking.stripe_payment_id && booking.amount_paid) {
+    try {
+      await stripe.refunds.create({
+        payment_intent: booking.stripe_payment_id,
+      });
+      console.log(`Refunded payment ${booking.stripe_payment_id} for booking ${bookingId}`);
+    } catch (err) {
+      console.error("Auto-refund failed:", err);
+      return { error: "Kunde inte återbetala. Kontakta support." };
+    }
+  }
+
   const { error } = await supabase
     .from("bookings")
     .update({ status })
@@ -210,18 +223,6 @@ export async function updateBookingStatus(
       .catch(err => console.error("Cancel notification failed:", err));
     notifyBookingCanceled(booking.creator_id, serviceName)
       .catch(err => console.error("Cancel notification failed:", err));
-  }
-
-  // Auto-refund paid bookings on cancellation
-  if (status === "canceled" && booking.stripe_payment_id && booking.amount_paid) {
-    try {
-      await stripe.refunds.create({
-        payment_intent: booking.stripe_payment_id,
-      });
-      console.log(`Refunded payment ${booking.stripe_payment_id} for booking ${bookingId}`);
-    } catch (err) {
-      console.error("Auto-refund failed:", err);
-    }
   }
 
   // When a booking is canceled, try to promote the next person in the queue

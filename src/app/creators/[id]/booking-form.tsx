@@ -37,7 +37,7 @@ export default function BookingForm({
     estimatedTime?: string;
   }>({ isFull: false });
   const [promoCode, setPromoCode] = useState("");
-  const [guestCount, setGuestCount] = useState(listing.min_guests ?? 1);
+  const [guestCount, setGuestCount] = useState(listing.min_guests != null ? listing.min_guests : 1);
   const [attendees, setAttendees] = useState<{ name: string; dietary: string }[]>([]);
   const { toast } = useToast();
 

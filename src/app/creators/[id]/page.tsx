@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { CATEGORY_LABELS } from "@/lib/categories";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import type { ExperienceDetails } from "@/types/database";
 import Link from "next/link";
 import Image from "next/image";
 import { MapPin, Clock, Globe, ArrowLeft, Calendar, MessageCircle, Users } from "lucide-react";
@@ -234,19 +235,18 @@ export default async function CreatorProfilePage({ params }: Props) {
                     </p>
                   )}
                   {/* Experience details badges */}
-                  {listing.experience_details && (
-                    <>
-                      {(listing.experience_details as any)?.included?.length > 0 && (
-                        <div className="mb-3 flex flex-wrap gap-1.5">
-                          {((listing.experience_details as any).included as string[]).map((item: string) => (
-                            <span key={item} className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-[10px] text-[var(--usha-gold)]">
-                              {item}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </>
-                  )}
+                  {listing.experience_details && (() => {
+                    const details = listing.experience_details as ExperienceDetails;
+                    return details?.included?.length ? (
+                      <div className="mb-3 flex flex-wrap gap-1.5">
+                        {details.included.map((item) => (
+                          <span key={item} className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-[10px] text-[var(--usha-gold)]">
+                            {item}
+                          </span>
+                        ))}
+                      </div>
+                    ) : null;
+                  })()}
                   <div className="flex items-center justify-between">
                     <div className="space-y-1.5">
                       <div className="flex items-center gap-3 text-xs text-[var(--usha-muted)]">
