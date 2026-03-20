@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 export default function ResetPasswordPage() {
@@ -9,6 +9,16 @@ export default function ResetPasswordPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
+  const [hasSession, setHasSession] = useState(false);
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setHasSession(!!session);
+      setChecking(false);
+    });
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -33,6 +43,30 @@ export default function ResetPasswordPage() {
       setDone(true);
     }
     setLoading(false);
+  }
+
+  if (checking) {
+    return null;
+  }
+
+  if (!hasSession) {
+    return (
+      <div className="flex min-h-screen items-center justify-center px-6">
+        <div className="w-full max-w-sm text-center">
+          <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-6">
+            <p className="font-semibold text-red-400">
+              Ogiltig eller utgången länk. Begär en ny återställningslänk.
+            </p>
+          </div>
+          <a
+            href="/forgot-password"
+            className="mt-4 inline-block rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-6 py-3 text-sm font-bold text-black transition hover:opacity-90"
+          >
+            Begär ny länk
+          </a>
+        </div>
+      </div>
+    );
   }
 
   if (done) {

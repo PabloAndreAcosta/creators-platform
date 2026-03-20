@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Trash2, AlertTriangle, Shield } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 export default function AccountSettingsPage() {
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -31,9 +32,11 @@ export default function AccountSettingsPage() {
         return;
       }
 
+      await createClient().auth.signOut();
       window.location.href = "/";
     } catch {
       setError("Ett oväntat fel uppstod. Försök igen senare.");
+    } finally {
       setLoading(false);
     }
   };
@@ -137,6 +140,7 @@ export default function AccountSettingsPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Ditt lösenord"
+                  autoComplete="current-password"
                   className="w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2 text-sm outline-none focus:border-red-400 transition-colors"
                 />
               </div>

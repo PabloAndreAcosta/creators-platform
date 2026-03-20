@@ -3,6 +3,18 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function POST(req: NextRequest) {
   try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "Du måste vara inloggad." },
+        { status: 401 }
+      );
+    }
+
     const { userId, reason, type } = await req.json();
 
     if (!userId || !type || (type !== "block" && type !== "report")) {
@@ -16,18 +28,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: "Ange en anledning med minst 10 tecken." },
         { status: 400 }
-      );
-    }
-
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json(
-        { error: "Du måste vara inloggad." },
-        { status: 401 }
       );
     }
 
@@ -50,12 +50,10 @@ export async function POST(req: NextRequest) {
         );
 
         if (error) throw error;
-      } catch (err: unknown) {
-        const message =
-          err instanceof Error ? err.message : "Okänt fel";
+      } catch {
         return NextResponse.json(
           {
-            error: `Kunde inte blockera användaren. Tabellen 'user_blocks' kanske inte finns ännu. Detaljer: ${message}`,
+            error: "Kunde inte spara. Försök igen.",
           },
           { status: 500 }
         );
@@ -73,12 +71,10 @@ export async function POST(req: NextRequest) {
         });
 
         if (error) throw error;
-      } catch (err: unknown) {
-        const message =
-          err instanceof Error ? err.message : "Okänt fel";
+      } catch {
         return NextResponse.json(
           {
-            error: `Kunde inte skicka rapporten. Tabellen 'user_reports' kanske inte finns ännu. Detaljer: ${message}`,
+            error: "Kunde inte spara. Försök igen.",
           },
           { status: 500 }
         );

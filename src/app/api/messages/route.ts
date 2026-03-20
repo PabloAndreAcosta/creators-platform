@@ -126,6 +126,19 @@ export async function POST(req: NextRequest) {
 
   let convoId = conversationId;
 
+  // If conversationId is provided, verify the user is a participant
+  if (conversationId) {
+    const { data: convo } = await supabase
+      .from('conversations')
+      .select('participant_a, participant_b')
+      .eq('id', conversationId)
+      .single();
+
+    if (!convo || (convo.participant_a !== user.id && convo.participant_b !== user.id)) {
+      return NextResponse.json({ error: 'Ingen åtkomst till denna konversation' }, { status: 403 });
+    }
+  }
+
   // If no conversationId, find or create conversation
   if (!convoId) {
     if (!recipientId) {
@@ -213,15 +226,7 @@ async function sendMessageEmailNotification(
 
   const recipientId = convo.participant_a === senderId ? convo.participant_b : convo.participant_a;
 
-  // Check if user has email notifications enabled
-  const { data: settings } = await supabase
-    .from('user_settings')
-    .select('notif_booking_new')
-    .eq('user_id', recipientId)
-    .single();
-
-  // Default to sending if no settings exist (opt-out model)
-  // We reuse notif_booking_new as a general notification toggle for now
+  // No dedicated message notification preference exists yet; always send (opt-out model).
 
   // Get profiles
   const [senderResult, recipientResult] = await Promise.all([
