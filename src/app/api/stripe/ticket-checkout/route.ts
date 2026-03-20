@@ -135,10 +135,11 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ sessionId: session.id, url: session.url });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Ticket checkout error:', error);
+    const message = error?.message || 'Kunde inte starta checkout';
     return NextResponse.json(
-      { error: 'Kunde inte starta checkout' },
+      { error: message },
       { status: 500 }
     );
   }

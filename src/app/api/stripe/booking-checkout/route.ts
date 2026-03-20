@@ -170,7 +170,10 @@ export async function POST(req: NextRequest) {
         notes: notes || "",
         guestCount: String(guests),
         specialRequests: specialRequests || "",
-        attendees: attendees ? JSON.stringify(attendees) : "[]",
+        attendees: (() => {
+          const json = attendees ? JSON.stringify(attendees) : "[]";
+          return json.length > 490 ? "[]" : json; // Stripe metadata limit: 500 chars
+        })(),
         originalPrice: String(originalPrice),
         discountedPrice: String(discountedPrice),
         ...(promoCodeId && { promoCodeId }),
@@ -181,10 +184,11 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ sessionId: session.id, url: session.url });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Booking checkout error:", error);
+    const message = error?.message || "Kunde inte starta betalning";
     return NextResponse.json(
-      { error: "Kunde inte starta betalning" },
+      { error: message },
       { status: 500 }
     );
   }
