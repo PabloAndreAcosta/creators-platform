@@ -66,7 +66,7 @@ export async function POST(request: Request) {
     const { error: reviewsError } = await adminClient
       .from("reviews")
       .delete()
-      .or(`reviewer_id.eq.${userId},reviewed_id.eq.${userId}`);
+      .or(`reviewer_id.eq.${userId},creator_id.eq.${userId}`);
     if (reviewsError) console.error("Account deletion: failed to delete reviews", reviewsError);
 
     // 2. Delete messages (both sent AND received)
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
     const { data: userConversations, error: convLookupError } = await adminClient
       .from("conversations")
       .select("id")
-      .or(`user1_id.eq.${userId},user2_id.eq.${userId}`);
+      .or(`participant_a.eq.${userId},participant_b.eq.${userId}`);
     if (convLookupError) console.error("Account deletion: failed to look up conversations", convLookupError);
 
     // Delete all messages in those conversations (covers both sent and received)
@@ -98,21 +98,21 @@ export async function POST(request: Request) {
     const { error: convsError } = await adminClient
       .from("conversations")
       .delete()
-      .or(`user1_id.eq.${userId},user2_id.eq.${userId}`);
+      .or(`participant_a.eq.${userId},participant_b.eq.${userId}`);
     if (convsError) console.error("Account deletion: failed to delete conversations", convsError);
 
     // 4. Cancel pending/confirmed bookings, then delete
     const { error: bookingsCancelError } = await adminClient
       .from("bookings")
       .update({ status: "canceled" })
-      .or(`client_id.eq.${userId},creator_id.eq.${userId}`)
+      .or(`customer_id.eq.${userId},creator_id.eq.${userId}`)
       .in("status", ["pending", "confirmed"]);
     if (bookingsCancelError) console.error("Account deletion: failed to cancel bookings", bookingsCancelError);
 
     const { error: bookingsDeleteError } = await adminClient
       .from("bookings")
       .delete()
-      .or(`client_id.eq.${userId},creator_id.eq.${userId}`);
+      .or(`customer_id.eq.${userId},creator_id.eq.${userId}`);
     if (bookingsDeleteError) console.error("Account deletion: failed to delete bookings", bookingsDeleteError);
 
     // 5. Delete notifications
