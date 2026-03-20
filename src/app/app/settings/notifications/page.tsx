@@ -44,11 +44,14 @@ export default function NotificationsPage() {
     setValues((prev) => ({ ...prev, [dbKey]: newVal }));
     setSaving(dbKey);
     try {
-      await fetch("/api/settings", {
+      const res = await fetch("/api/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ [dbKey]: newVal }),
       });
+      if (!res.ok) {
+        setValues((prev) => ({ ...prev, [dbKey]: !newVal }));
+      }
     } catch {
       // Revert on error
       setValues((prev) => ({ ...prev, [dbKey]: !newVal }));

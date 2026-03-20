@@ -54,9 +54,13 @@ export async function createBooking(formData: FormData) {
   // Check capacity and validate guest count
   const { data: listing } = await supabase
     .from("listings")
-    .select("id, duration_minutes, release_to_gold_at, listing_type, min_guests, max_guests")
+    .select("id, duration_minutes, release_to_gold_at, listing_type, min_guests, max_guests, is_active")
     .eq("id", listing_id)
     .single();
+
+  if (!listing || !listing.is_active) {
+    return { error: "Tjänsten är inte aktiv eller hittades inte." };
+  }
 
   // Validate guest count against listing constraints
   if (listing?.min_guests && guest_count < listing.min_guests) {
