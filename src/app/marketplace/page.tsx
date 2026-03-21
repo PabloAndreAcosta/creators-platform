@@ -41,21 +41,33 @@ export default async function MarketplacePage({
   }
 
   if (q) {
-    profilesQuery = profilesQuery.or(
-      `full_name.ilike.%${q}%,location.ilike.%${q}%,bio.ilike.%${q}%`
-    );
+    const sanitized = q.replace(/[,()\\]/g, " ").trim();
+    if (sanitized) {
+      profilesQuery = profilesQuery.or(
+        `full_name.ilike.%${sanitized}%,location.ilike.%${sanitized}%,bio.ilike.%${sanitized}%`
+      );
+    }
   }
 
   if (location) {
-    profilesQuery = profilesQuery.ilike("location", `%${location}%`);
+    const sanitizedLocation = location.replace(/[,()\\]/g, " ").trim();
+    if (sanitizedLocation) {
+      profilesQuery = profilesQuery.ilike("location", `%${sanitizedLocation}%`);
+    }
   }
 
   if (minPrice) {
-    profilesQuery = profilesQuery.gte("hourly_rate", parseInt(minPrice));
+    const min = parseInt(minPrice, 10);
+    if (Number.isFinite(min)) {
+      profilesQuery = profilesQuery.gte("hourly_rate", min);
+    }
   }
 
   if (maxPrice) {
-    profilesQuery = profilesQuery.lte("hourly_rate", parseInt(maxPrice));
+    const max = parseInt(maxPrice, 10);
+    if (Number.isFinite(max)) {
+      profilesQuery = profilesQuery.lte("hourly_rate", max);
+    }
   }
 
   // Sort
