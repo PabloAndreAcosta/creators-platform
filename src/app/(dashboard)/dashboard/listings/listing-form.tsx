@@ -87,8 +87,8 @@ export default function ListingForm({
           className="hidden"
         />
         {imageUrl ? (
-          <div className="relative w-full overflow-hidden rounded-xl border border-[var(--usha-border)]">
-            <img src={imageUrl} alt="Listing" className="h-40 w-full object-cover" />
+          <div className="relative w-full overflow-hidden rounded-xl border border-[var(--usha-border)]" style={{ aspectRatio: "1.91 / 1" }}>
+            <img src={imageUrl} alt="Listing" className="h-full w-full object-cover" />
             <button
               type="button"
               onClick={() => { setImageUrl(null); if (fileRef.current) fileRef.current.value = ""; }}
