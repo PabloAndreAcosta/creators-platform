@@ -130,6 +130,8 @@ export default function ConnectButton() {
 
           <p className="mt-2 text-[10px] text-[var(--usha-muted)]">
             Du omdirigeras till Stripe för att slutföra verifieringen. Det tar ca 5 minuter.
+            <br />
+            Helt gratis — inga månadsavgifter eller dolda kostnader. Alla transaktionsavgifter ingår i Ushas kommission.
           </p>
         </>
       )}
@@ -138,6 +140,7 @@ export default function ConnectButton() {
         <div className="mt-4 rounded-lg bg-green-500/5 border border-green-500/20 p-3">
           <p className="text-xs text-green-400">
             Allt klart! Utbetalningar betalas ut automatiskt varje vecka, eller gör ett direkt uttag via utbetalningssidan.
+            Alla transaktionsavgifter ingår i din kommissionsnivå — du betalar aldrig extra.
           </p>
         </div>
       )}

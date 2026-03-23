@@ -119,6 +119,9 @@ export default function CreatorTierInfo({
             </span>
           </div>
         </div>
+        <p className="mt-3 text-[10px] text-[var(--usha-muted)]">
+          Alla betalningsavgifter ingår i kommissionen — du betalar aldrig extra utöver procentsatsen ovan.
+        </p>
       </div>
 
       {/* Savings Comparison */}
