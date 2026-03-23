@@ -29,12 +29,15 @@ export default async function BillingPage({
     .eq("id", user.id)
     .single();
 
-  const { data: subscription } = await supabase
+  const { data: subscription, error: subError } = await supabase
     .from("subscriptions")
     .select("*")
     .eq("user_id", user.id)
     .in("status", ["active", "trialing", "past_due"])
     .single();
+
+  // Temporary debug logging
+  console.log("BILLING DEBUG:", { userId: user.id, subscription, subError });
 
   const currentPlan = subscription?.plan ?? null;
   // Map DB roles to app roles (DB uses creator/experience, app uses kreator/upplevelse)
@@ -90,6 +93,12 @@ export default async function BillingPage({
 
   return (
     <>
+      {/* Temporary debug - remove after fixing */}
+      {subError && (
+        <div className="mb-6 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-xs font-mono text-red-400">
+          DEBUG: {JSON.stringify({ subError, userId: user.id, currentPlan })}
+        </div>
+      )}
       {success && (
         <div className="mb-6 rounded-xl border border-green-500/20 bg-green-500/10 px-4 py-3 text-sm font-medium text-green-400">
           Betalningen lyckades! Din plan är nu aktiv.
