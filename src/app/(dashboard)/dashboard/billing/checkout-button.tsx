@@ -33,7 +33,7 @@ export function CheckoutButton({
       if (data.url) {
         window.location.href = data.url;
       } else {
-        toast.error("Kunde inte starta checkout", data.error || "Försök igen.");
+        toast.error("Kunde inte starta checkout", data.detail || data.error || "Försök igen.");
         setLoading(false);
       }
     } catch {
