@@ -23,8 +23,19 @@ export async function updateProfile(formData: FormData) {
   // Validate slug: only lowercase letters, numbers, hyphens, underscores
   const slug = rawSlug && /^[a-z0-9_-]+$/.test(rawSlug) ? rawSlug : null;
 
-  // Check slug uniqueness if provided
+  // Slug is a Premium-only feature
   if (slug) {
+    const { data: userProfile } = await supabase
+      .from("profiles")
+      .select("tier")
+      .eq("id", user.id)
+      .single();
+
+    if (userProfile?.tier !== "premium") {
+      return { error: "Egen profiladress kräver Premium-planen." };
+    }
+
+    // Check slug uniqueness
     const { data: existing } = await supabase
       .from("profiles")
       .select("id")

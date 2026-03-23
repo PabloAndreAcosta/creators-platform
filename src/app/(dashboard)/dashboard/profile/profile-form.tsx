@@ -33,7 +33,7 @@ interface Profile {
 
 const inputClass = "w-full min-h-[44px] rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-base sm:text-sm outline-none transition focus:border-[var(--usha-gold)]/40";
 
-export default function ProfileForm({ profile }: { profile: Profile }) {
+export default function ProfileForm({ profile, isPremium }: { profile: Profile; isPremium: boolean }) {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url);
@@ -235,10 +235,15 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
         />
       </div>
 
-      {/* Slug (vanity URL) */}
+      {/* Slug (vanity URL) - Premium only */}
       <div>
         <label htmlFor="slug" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
           Profiladress
+          {!isPremium && (
+            <span className="ml-2 rounded-full bg-[var(--usha-premium)]/15 px-2 py-0.5 text-[10px] font-bold uppercase text-[var(--usha-premium)]">
+              Premium
+            </span>
+          )}
         </label>
         <div className="flex items-center gap-0">
           <span className="flex h-[44px] items-center rounded-l-xl border border-r-0 border-[var(--usha-border)] bg-[var(--usha-black)]/50 px-3 text-sm text-[var(--usha-muted)]">
@@ -249,14 +254,22 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
             name="slug"
             type="text"
             defaultValue={profile.slug || ""}
-            placeholder="dittnamn"
+            placeholder={isPremium ? "dittnamn" : "Uppgradera till Premium"}
             pattern="[a-z0-9_-]+"
-            className="w-full min-h-[44px] rounded-r-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-base sm:text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+            disabled={!isPremium}
+            className={`w-full min-h-[44px] rounded-r-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-base sm:text-sm outline-none transition focus:border-[var(--usha-gold)]/40 ${!isPremium ? "opacity-50 cursor-not-allowed" : ""}`}
           />
         </div>
-        <p className="mt-1 text-[10px] text-[var(--usha-muted)]">
-          Bara små bokstäver, siffror, bindestreck och understreck. Detta blir din publika länk.
-        </p>
+        {isPremium ? (
+          <p className="mt-1 text-[10px] text-[var(--usha-muted)]">
+            Bara små bokstäver, siffror, bindestreck och understreck. Detta blir din publika länk.
+          </p>
+        ) : (
+          <p className="mt-1 text-[10px] text-[var(--usha-muted)]">
+            Egen profiladress är en Premium-funktion.{" "}
+            <a href="/dashboard/billing" className="text-[var(--usha-premium)] hover:underline">Uppgradera</a>
+          </p>
+        )}
       </div>
 
       {/* Categories (multi-select pills) */}
