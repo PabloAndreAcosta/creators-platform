@@ -30,6 +30,9 @@ export function CreatorGallery({ media }: { media: MediaItem[] }) {
       const match = item.url.match(/instagram\.com\/(?:p|reel)\/([A-Za-z0-9_-]+)/);
       return match ? `https://www.instagram.com/p/${match[1]}/embed` : null;
     }
+    if (item.media_type === "instagram-profile") {
+      return item.url;
+    }
     return null;
   }
 
@@ -67,7 +70,7 @@ export function CreatorGallery({ media }: { media: MediaItem[] }) {
                 </div>
               </>
             )}
-            {item.media_type === "instagram" && (
+            {(item.media_type === "instagram" || item.media_type === "instagram-profile") && (
               <div className="flex h-full items-center justify-center bg-gradient-to-br from-purple-600/20 to-pink-500/20 text-[var(--usha-muted)]">
                 <span className="text-2xl">IG</span>
               </div>
@@ -120,7 +123,7 @@ export function CreatorGallery({ media }: { media: MediaItem[] }) {
                 className="max-h-[85vh] max-w-[90vw]"
               />
             )}
-            {(lightbox.media_type === "youtube" || lightbox.media_type === "vimeo" || lightbox.media_type === "instagram") && (
+            {(lightbox.media_type === "youtube" || lightbox.media_type === "vimeo" || lightbox.media_type === "instagram" || lightbox.media_type === "instagram-profile") && (
               <iframe
                 src={getEmbedUrl(lightbox) || ""}
                 className="h-[70vh] w-[90vw] max-w-3xl"

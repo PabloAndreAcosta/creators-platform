@@ -22,10 +22,16 @@ interface MediaGalleryProps {
 }
 
 function getEmbedUrl(url: string): { type: string; embedUrl: string; thumbnail?: string } | null {
-  // Instagram post
-  const igMatch = url.match(/instagram\.com\/(?:p|reel)\/([A-Za-z0-9_-]+)/);
-  if (igMatch) {
-    return { type: "instagram", embedUrl: `https://www.instagram.com/p/${igMatch[1]}/embed` };
+  // Instagram post or reel
+  const igPostMatch = url.match(/instagram\.com\/(?:p|reel)\/([A-Za-z0-9_-]+)/);
+  if (igPostMatch) {
+    return { type: "instagram", embedUrl: `https://www.instagram.com/p/${igPostMatch[1]}/embed` };
+  }
+
+  // Instagram profile
+  const igProfileMatch = url.match(/instagram\.com\/([A-Za-z0-9._]+)\/?(?:\?.*)?$/);
+  if (igProfileMatch && !["p", "reel", "explore", "accounts", "stories"].includes(igProfileMatch[1])) {
+    return { type: "instagram-profile", embedUrl: url };
   }
 
   // Vimeo
@@ -234,7 +240,7 @@ export function MediaGallery({ userId, initialMedia }: MediaGalleryProps) {
                   className="object-cover"
                 />
               )}
-              {item.media_type === "instagram" && (
+              {(item.media_type === "instagram" || item.media_type === "instagram-profile") && (
                 <div className="flex h-full items-center justify-center text-[var(--usha-muted)]">
                   <Film size={24} />
                 </div>
