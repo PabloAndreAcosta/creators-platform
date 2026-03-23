@@ -57,7 +57,7 @@ export default async function CreatorProfilePage({ params }: Props) {
     supabase
       .from("profiles")
       .select(
-        "id, full_name, avatar_url, bio, category, location, hourly_rate, website, stripe_account_id, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone"
+        "id, full_name, avatar_url, bio, category, location, hourly_rate, website, stripe_account_id, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_accent_color"
       )
       .eq("id", params.id)
       .eq("is_public", true)
@@ -122,17 +122,25 @@ export default async function CreatorProfilePage({ params }: Props) {
   const isLoggedIn = !!user;
   const isOwnProfile = user?.id === profile.id;
   const hasConnect = !!profile.stripe_account_id;
+  const wl = (profile as any).whitelabel_enabled;
+  const wlBrand = (profile as any).whitelabel_brand_name;
+  const wlLogo = (profile as any).whitelabel_logo_url;
+  const wlColor = (profile as any).whitelabel_accent_color;
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen" style={wl && wlColor ? { '--usha-gold': wlColor, '--usha-accent': wlColor } as React.CSSProperties : undefined}>
       {/* Header */}
       <header className="border-b border-[var(--usha-border)]">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
-              <span className="text-sm font-bold text-black">U</span>
-            </div>
-            <span className="text-lg font-bold tracking-tight">Usha</span>
+            {wl && wlLogo ? (
+              <Image src={wlLogo} alt={wlBrand || "Logo"} width={32} height={32} className="h-8 w-8 rounded-lg object-contain" />
+            ) : (
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
+                <span className="text-sm font-bold text-black">U</span>
+              </div>
+            )}
+            <span className="text-lg font-bold tracking-tight">{wl && wlBrand ? wlBrand : "Usha"}</span>
           </Link>
           <div className="flex items-center gap-3">
             <Link

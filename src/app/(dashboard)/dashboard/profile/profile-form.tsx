@@ -24,6 +24,10 @@ interface Profile {
   contact_email: string | null;
   contact_phone: string | null;
   is_public: boolean;
+  whitelabel_enabled: boolean;
+  whitelabel_brand_name: string | null;
+  whitelabel_logo_url: string | null;
+  whitelabel_accent_color: string | null;
   // Legacy fields (backward compat during migration)
   category?: string | null;
   location?: string | null;
@@ -33,7 +37,7 @@ interface Profile {
 
 const inputClass = "w-full min-h-[44px] rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-base sm:text-sm outline-none transition focus:border-[var(--usha-gold)]/40";
 
-export default function ProfileForm({ profile, isPremium }: { profile: Profile; isPremium: boolean }) {
+export default function ProfileForm({ profile, isPaidTier, isPremium }: { profile: Profile; isPaidTier: boolean; isPremium: boolean }) {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url);
@@ -235,13 +239,13 @@ export default function ProfileForm({ profile, isPremium }: { profile: Profile; 
         />
       </div>
 
-      {/* Slug (vanity URL) - Premium only */}
+      {/* Slug (vanity URL) - Guld & Premium */}
       <div>
         <label htmlFor="slug" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
           Profiladress
-          {!isPremium && (
-            <span className="ml-2 rounded-full bg-[var(--usha-premium)]/15 px-2 py-0.5 text-[10px] font-bold uppercase text-[var(--usha-premium)]">
-              Premium
+          {!isPaidTier && (
+            <span className="ml-2 rounded-full bg-[var(--usha-gold)]/15 px-2 py-0.5 text-[10px] font-bold uppercase text-[var(--usha-gold)]">
+              Guld
             </span>
           )}
         </label>
@@ -254,20 +258,20 @@ export default function ProfileForm({ profile, isPremium }: { profile: Profile; 
             name="slug"
             type="text"
             defaultValue={profile.slug || ""}
-            placeholder={isPremium ? "dittnamn" : "Uppgradera till Premium"}
+            placeholder={isPaidTier ? "dittnamn" : "Uppgradera till Guld"}
             pattern="[a-z0-9_-]+"
-            disabled={!isPremium}
-            className={`w-full min-h-[44px] rounded-r-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-base sm:text-sm outline-none transition focus:border-[var(--usha-gold)]/40 ${!isPremium ? "opacity-50 cursor-not-allowed" : ""}`}
+            disabled={!isPaidTier}
+            className={`w-full min-h-[44px] rounded-r-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-base sm:text-sm outline-none transition focus:border-[var(--usha-gold)]/40 ${!isPaidTier ? "opacity-50 cursor-not-allowed" : ""}`}
           />
         </div>
-        {isPremium ? (
+        {isPaidTier ? (
           <p className="mt-1 text-[10px] text-[var(--usha-muted)]">
             Bara små bokstäver, siffror, bindestreck och understreck. Detta blir din publika länk.
           </p>
         ) : (
           <p className="mt-1 text-[10px] text-[var(--usha-muted)]">
-            Egen profiladress är en Premium-funktion.{" "}
-            <a href="/dashboard/billing" className="text-[var(--usha-premium)] hover:underline">Uppgradera</a>
+            Egen profiladress ingår från Guld-planen.{" "}
+            <a href="/dashboard/billing" className="text-[var(--usha-gold)] hover:underline">Uppgradera</a>
           </p>
         )}
       </div>
@@ -517,6 +521,91 @@ export default function ProfileForm({ profile, isPremium }: { profile: Profile; 
         <p className="mt-1 text-[10px] text-[var(--usha-muted)]">
           Visas på din publika profil om du vill bli kontaktad direkt.
         </p>
+      </div>
+
+      {/* White label - Premium only */}
+      <div className={`space-y-4 rounded-xl border p-5 ${isPremium ? "border-[var(--usha-premium)]/20 bg-[var(--usha-premium)]/5" : "border-[var(--usha-border)] opacity-60"}`}>
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-semibold flex items-center gap-2">
+              White label
+              <span className="rounded-full bg-[var(--usha-premium)]/15 px-2 py-0.5 text-[10px] font-bold uppercase text-[var(--usha-premium)]">
+                Premium
+              </span>
+            </h3>
+            <p className="mt-0.5 text-[10px] text-[var(--usha-muted)]">
+              {isPremium
+                ? "Visa din egen branding istället för Usha på din publika profil."
+                : "Uppgradera till Premium för att använda din egen branding."}
+            </p>
+          </div>
+          {isPremium && (
+            <label className="relative inline-flex cursor-pointer items-center">
+              <input
+                type="checkbox"
+                name="whitelabel_enabled"
+                defaultChecked={profile.whitelabel_enabled}
+                className="h-4 w-4 rounded border-[var(--usha-border)] accent-[var(--usha-premium)]"
+              />
+            </label>
+          )}
+        </div>
+
+        {isPremium && (
+          <div className="space-y-3">
+            <div>
+              <label htmlFor="whitelabel_brand_name" className="mb-1 block text-xs text-[var(--usha-muted)]">
+                Varumärkesnamn
+              </label>
+              <input
+                id="whitelabel_brand_name"
+                name="whitelabel_brand_name"
+                type="text"
+                defaultValue={profile.whitelabel_brand_name || ""}
+                placeholder="Ditt varumärke"
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label htmlFor="whitelabel_logo_url" className="mb-1 block text-xs text-[var(--usha-muted)]">
+                Logotyp-URL
+              </label>
+              <input
+                id="whitelabel_logo_url"
+                name="whitelabel_logo_url"
+                type="url"
+                defaultValue={profile.whitelabel_logo_url || ""}
+                placeholder="https://dindomän.se/logga.png"
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label htmlFor="whitelabel_accent_color" className="mb-1 block text-xs text-[var(--usha-muted)]">
+                Accentfärg
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  name="whitelabel_accent_color"
+                  defaultValue={profile.whitelabel_accent_color || "#d4a853"}
+                  className="h-[44px] w-[44px] cursor-pointer rounded-xl border border-[var(--usha-border)] bg-transparent p-1"
+                />
+                <span className="text-xs text-[var(--usha-muted)]">
+                  Används som primärfärg på din profilsida
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {!isPremium && (
+          <a
+            href="/dashboard/billing"
+            className="inline-block text-xs text-[var(--usha-premium)] hover:underline"
+          >
+            Uppgradera till Premium
+          </a>
+        )}
       </div>
 
       {/* Public toggle */}

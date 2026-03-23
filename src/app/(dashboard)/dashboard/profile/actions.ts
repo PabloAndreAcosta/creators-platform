@@ -31,8 +31,8 @@ export async function updateProfile(formData: FormData) {
       .eq("id", user.id)
       .single();
 
-    if (userProfile?.tier !== "premium") {
-      return { error: "Egen profiladress kräver Premium-planen." };
+    if (userProfile?.tier !== "premium" && userProfile?.tier !== "guld") {
+      return { error: "Egen profiladress kräver Guld- eller Premium-planen." };
     }
 
     // Check slug uniqueness
@@ -66,6 +66,12 @@ export async function updateProfile(formData: FormData) {
   const social_facebook = (formData.get("social_facebook") as string)?.trim() || null;
   const contact_email = (formData.get("contact_email") as string)?.trim() || null;
   const contact_phone = (formData.get("contact_phone") as string)?.trim() || null;
+
+  // White label fields (Premium only)
+  const whitelabel_enabled = formData.get("whitelabel_enabled") === "on";
+  const whitelabel_brand_name = (formData.get("whitelabel_brand_name") as string)?.trim() || null;
+  const whitelabel_logo_url = (formData.get("whitelabel_logo_url") as string)?.trim() || null;
+  const whitelabel_accent_color = (formData.get("whitelabel_accent_color") as string)?.trim() || null;
 
   // Validate categories
   categories = categories.filter((c) => VALID_CATEGORIES.includes(c as any));
@@ -101,6 +107,11 @@ export async function updateProfile(formData: FormData) {
       social_facebook,
       contact_email,
       contact_phone,
+      // White label (only saved if premium, otherwise reset)
+      whitelabel_enabled,
+      whitelabel_brand_name: whitelabel_enabled ? whitelabel_brand_name : null,
+      whitelabel_logo_url: whitelabel_enabled ? whitelabel_logo_url : null,
+      whitelabel_accent_color: whitelabel_enabled ? whitelabel_accent_color : null,
       // Legacy single-value fields (backward compat)
       category: primaryCategory,
       location: primaryLocation,
