@@ -94,11 +94,9 @@ export default async function BillingPage({
   return (
     <>
       {/* Temporary debug - remove after fixing */}
-      {subError && (
-        <div className="mb-6 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-xs font-mono text-red-400">
-          DEBUG: {JSON.stringify({ subError, userId: user.id, currentPlan })}
-        </div>
-      )}
+      <div className="mb-6 rounded-xl border border-yellow-500/20 bg-yellow-500/10 px-4 py-3 text-xs font-mono text-yellow-400 break-all">
+        DEBUG: {JSON.stringify({ userId: user.id, currentPlan, subError, subPlan: subscription?.plan, subStatus: subscription?.status })}
+      </div>
       {success && (
         <div className="mb-6 rounded-xl border border-green-500/20 bg-green-500/10 px-4 py-3 text-sm font-medium text-green-400">
           Betalningen lyckades! Din plan är nu aktiv.
