@@ -13,7 +13,7 @@ ALTER TABLE public.profiles
 CREATE TABLE IF NOT EXISTS public.creator_media (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  media_type TEXT NOT NULL CHECK (media_type IN ('image', 'video', 'instagram', 'vimeo', 'youtube')),
+  media_type TEXT NOT NULL CHECK (media_type IN ('image', 'video', 'instagram', 'instagram-profile', 'vimeo', 'youtube')),
   url TEXT NOT NULL,
   thumbnail_url TEXT,
   caption TEXT,
