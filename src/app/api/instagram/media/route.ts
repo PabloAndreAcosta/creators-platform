@@ -21,11 +21,13 @@ export async function GET(req: NextRequest) {
 
   const after = req.nextUrl.searchParams.get("after") || "";
   const fields = "id,caption,media_type,media_url,thumbnail_url,permalink,timestamp";
-  let url = `https://graph.facebook.com/v19.0/${profile.instagram_user_id}/media?fields=${fields}&limit=25&access_token=${profile.instagram_access_token}`;
+  let url = `https://graph.instagram.com/v19.0/me/media?fields=${fields}&limit=25&access_token=${profile.instagram_access_token}`;
   if (after) url += `&after=${after}`;
 
   const res = await fetch(url);
   if (!res.ok) {
+    const errText = await res.text();
+    console.error("Instagram media fetch failed:", errText);
     return NextResponse.json({ error: "Kunde inte hämta media från Instagram" }, { status: 502 });
   }
 
@@ -36,7 +38,7 @@ export async function GET(req: NextRequest) {
       // For carousel albums, fetch children
       if (item.media_type === "CAROUSEL_ALBUM") {
         const childRes = await fetch(
-          `https://graph.facebook.com/v19.0/${item.id}/children?fields=media_type,media_url,thumbnail_url&access_token=${profile.instagram_access_token}`
+          `https://graph.instagram.com/v19.0/${item.id}/children?fields=media_type,media_url,thumbnail_url&access_token=${profile.instagram_access_token}`
         );
         if (childRes.ok) {
           const childData = await childRes.json();
