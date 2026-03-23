@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import ProfileForm from "./profile-form";
 import { MediaGallery } from "./media-gallery";
+import { InstagramConnect } from "./instagram-connect";
 
 export default async function ProfilePage() {
   const supabase = await createClient();
@@ -18,7 +19,7 @@ export default async function ProfilePage() {
   const [{ data: profile }, { data: media }] = await Promise.all([
     supabase
       .from("profiles")
-      .select("id, full_name, slug, avatar_url, bio, website, category, location, hourly_rate, is_public, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, role, tier, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3")
+      .select("id, full_name, slug, avatar_url, bio, website, category, location, hourly_rate, is_public, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, role, tier, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3, instagram_user_id, instagram_username, instagram_access_token")
       .eq("id", user.id)
       .single(),
     supabase
@@ -55,9 +56,17 @@ export default async function ProfilePage() {
       </div>
 
       {isCreator && (
-        <div className="mt-8 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 sm:p-8">
-          <MediaGallery userId={user.id} initialMedia={media || []} />
-        </div>
+        <>
+          <div className="mt-8 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 sm:p-8">
+            <InstagramConnect
+              isConnected={!!profile.instagram_access_token}
+              instagramUsername={profile.instagram_username}
+            />
+          </div>
+          <div className="mt-8 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 sm:p-8">
+            <MediaGallery userId={user.id} initialMedia={media || []} />
+          </div>
+        </>
       )}
     </>
   );
