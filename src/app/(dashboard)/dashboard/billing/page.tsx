@@ -35,8 +35,26 @@ export default async function BillingPage({
     .single();
 
   const currentPlan = subscription?.plan ?? null;
-  const userRole = (profile?.role as MemberRole) ?? "publik";
-  const userTier = (profile?.tier as 'gratis' | 'guld' | 'premium') ?? 'gratis';
+  // Map DB roles to app roles (DB uses creator/experience, app uses kreator/upplevelse)
+  const DB_TO_APP_ROLE: Record<string, MemberRole> = {
+    creator: "kreator",
+    experience: "upplevelse",
+    customer: "publik",
+    kreator: "kreator",
+    upplevelse: "upplevelse",
+    publik: "publik",
+  };
+  const userRole = DB_TO_APP_ROLE[profile?.role || "publik"] ?? "publik";
+  // Map legacy tier values (silver/gold/platinum) to current ones (gratis/guld/premium)
+  const TIER_MAP: Record<string, 'gratis' | 'guld' | 'premium'> = {
+    gratis: 'gratis',
+    guld: 'guld',
+    premium: 'premium',
+    silver: 'gratis',
+    gold: 'guld',
+    platinum: 'premium',
+  };
+  const userTier = TIER_MAP[profile?.tier ?? ''] ?? 'gratis';
   const isCreatorRole = userRole === "kreator" || userRole === "upplevelse";
 
   // Fetch monthly earnings for creator tier info

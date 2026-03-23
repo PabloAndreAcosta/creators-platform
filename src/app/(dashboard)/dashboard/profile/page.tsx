@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import ProfileForm from "./profile-form";
+import { MediaGallery } from "./media-gallery";
 
 export default async function ProfilePage() {
   const supabase = await createClient();
@@ -14,15 +15,24 @@ export default async function ProfilePage() {
     redirect("/login");
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("id, full_name, avatar_url, bio, website, category, location, hourly_rate, is_public")
-    .eq("id", user.id)
-    .single();
+  const [{ data: profile }, { data: media }] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("id, full_name, avatar_url, bio, website, category, location, hourly_rate, is_public, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, role")
+      .eq("id", user.id)
+      .single(),
+    supabase
+      .from("creator_media")
+      .select("id, media_type, url, thumbnail_url, caption, sort_order")
+      .eq("user_id", user.id)
+      .order("sort_order", { ascending: true }),
+  ]);
 
   if (!profile) {
     redirect("/dashboard");
   }
+
+  const isCreator = profile.role === "creator" || profile.role === "experience" || profile.role === "kreator" || profile.role === "upplevelse";
 
   return (
     <>
@@ -43,6 +53,12 @@ export default async function ProfilePage() {
       <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 sm:p-8">
         <ProfileForm profile={profile} />
       </div>
+
+      {isCreator && (
+        <div className="mt-8 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 sm:p-8">
+          <MediaGallery userId={user.id} initialMedia={media || []} />
+        </div>
+      )}
     </>
   );
 }

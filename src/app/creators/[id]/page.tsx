@@ -7,11 +7,14 @@ import type { Metadata } from "next";
 import type { ExperienceDetails } from "@/types/database";
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin, Clock, Globe, ArrowLeft, Calendar, MessageCircle, Users } from "lucide-react";
+import { MapPin, Clock, Globe, ArrowLeft, Calendar, MessageCircle, Users, Instagram, Mail, Phone } from "lucide-react";
 import BookingForm from "./booking-form";
 import { BuyTicketButton } from "@/components/buy-ticket-button";
 import { CreatorReviews } from "@/components/creator-reviews";
 import { ReportUserButton } from "@/components/report-user-button";
+import { AvailabilityCalendar } from "@/components/availability-calendar";
+import { CreatorGallery } from "@/components/creator-gallery";
+import { CreatorProducts } from "@/components/creator-products";
 import { calculateDiscountedPrice } from "@/lib/stripe/commission";
 import { filterByGoldExclusivity } from "@/lib/listings/early-bird";
 
@@ -23,16 +26,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const supabase = await createClient();
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name, bio, category")
+    .select("full_name, bio, category, categories")
     .eq("id", params.id)
     .eq("is_public", true)
     .single();
 
   if (!profile) return { title: "Creator – Usha Platform" };
 
-  const categoryLabel = profile.category
-    ? CATEGORY_LABELS[profile.category]
-    : null;
+  const cats = profile.categories?.length ? profile.categories : (profile.category ? [profile.category] : []);
+  const categoryLabel = cats.map((c: string) => CATEGORY_LABELS[c] || c).join(", ") || null;
 
   return {
     title: `${profile.full_name || "Creator"} – Usha Platform`,
@@ -55,7 +57,7 @@ export default async function CreatorProfilePage({ params }: Props) {
     supabase
       .from("profiles")
       .select(
-        "id, full_name, avatar_url, bio, category, location, hourly_rate, website, stripe_account_id"
+        "id, full_name, avatar_url, bio, category, location, hourly_rate, website, stripe_account_id, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone"
       )
       .eq("id", params.id)
       .eq("is_public", true)
@@ -86,9 +88,36 @@ export default async function CreatorProfilePage({ params }: Props) {
   // Filter out Gold-exclusive listings for gratis users
   const listings = filterByGoldExclusivity(allListings || [], visitorTier);
 
-  const categoryLabel = profile.category
-    ? CATEGORY_LABELS[profile.category]
-    : null;
+  // Fetch creator availability for current month
+  const now = new Date();
+  const startOfMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
+  const lastDayNum = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const endOfMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(lastDayNum).padStart(2, "0")}`;
+  const [{ data: availabilityData }, { data: mediaData }, { data: digitalProducts }] = await Promise.all([
+    supabase
+      .from("creator_availability")
+      .select("available_date")
+      .eq("user_id", profile.id)
+      .gte("available_date", startOfMonth)
+      .lte("available_date", endOfMonth),
+    supabase
+      .from("creator_media")
+      .select("id, media_type, url, thumbnail_url, caption")
+      .eq("user_id", profile.id)
+      .order("sort_order", { ascending: true }),
+    supabase
+      .from("digital_products")
+      .select("id, title, description, price, product_type, video_url, thumbnail_url")
+      .eq("creator_id", profile.id)
+      .eq("is_active", true)
+      .order("created_at", { ascending: false }),
+  ]);
+  const availableDates = (availabilityData || []).map((r) => r.available_date);
+
+  const creatorCategories: string[] = (profile as any).categories?.length ? (profile as any).categories : (profile.category ? [profile.category] : []);
+  const creatorLocations: string[] = (profile as any).locations?.length ? (profile as any).locations : (profile.location ? [profile.location] : []);
+  const creatorRates: Record<string, number> = (profile as any).rates && typeof (profile as any).rates === "object" ? (profile as any).rates : (profile.category && profile.hourly_rate ? { [profile.category]: profile.hourly_rate } : {});
+  const creatorWebsites: string[] = (profile as any).websites?.length ? (profile as any).websites : (profile.website ? [profile.website] : []);
 
   const isLoggedIn = !!user;
   const isOwnProfile = user?.id === profile.id;
@@ -162,35 +191,91 @@ export default async function CreatorProfilePage({ params }: Props) {
             <h1 className="mb-1 text-3xl font-bold">
               {profile.full_name || "Creator"}
             </h1>
-            <div className="mb-4 flex flex-wrap items-center gap-3 text-sm text-[var(--usha-muted)]">
-              {categoryLabel && (
-                <span className="rounded-full border border-[var(--usha-border)] px-3 py-0.5">
-                  {categoryLabel}
+            <div className="mb-4 flex flex-wrap items-center gap-2 text-sm text-[var(--usha-muted)]">
+              {creatorCategories.map((cat) => (
+                <span key={cat} className="rounded-full border border-[var(--usha-border)] px-3 py-0.5">
+                  {CATEGORY_LABELS[cat] || cat}
                 </span>
-              )}
-              {profile.location && (
-                <span className="flex items-center gap-1">
+              ))}
+              {creatorLocations.map((loc) => (
+                <span key={loc} className="flex items-center gap-1">
                   <MapPin size={13} />
-                  {profile.location}
+                  {loc}
                 </span>
-              )}
-              {profile.hourly_rate != null && (
-                <span className="font-semibold text-[var(--usha-gold)]">
-                  {profile.hourly_rate} SEK/h
-                </span>
-              )}
-              {profile.website && (
+              ))}
+            </div>
+            {Object.keys(creatorRates).length > 0 && (
+              <div className="mb-4 flex flex-wrap gap-2">
+                {Object.entries(creatorRates).map(([cat, rate]) => (
+                  <span key={cat} className="rounded-full bg-[var(--usha-gold)]/10 px-3 py-0.5 text-xs font-semibold text-[var(--usha-gold)]">
+                    {CATEGORY_LABELS[cat] || cat}: {rate} SEK/h
+                  </span>
+                ))}
+              </div>
+            )}
+            <div className="mb-4 flex flex-wrap items-center gap-3 text-sm text-[var(--usha-muted)]">
+              {creatorWebsites.map((url) => (
                 <a
-                  href={profile.website}
+                  key={url}
+                  href={url.startsWith("http") ? url : `https://${url}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1 transition-colors hover:text-white"
                 >
                   <Globe size={13} />
-                  Webbplats
+                  {url.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+                </a>
+              ))}
+              {profile.social_instagram && (
+                <a
+                  href={`https://instagram.com/${profile.social_instagram.replace(/^@/, "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 transition-colors hover:text-white"
+                >
+                  <Instagram size={13} />
+                  {profile.social_instagram}
+                </a>
+              )}
+              {profile.social_x && (
+                <a
+                  href={`https://x.com/${profile.social_x.replace(/^@/, "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 transition-colors hover:text-white"
+                >
+                  <span className="text-xs font-bold">𝕏</span>
+                  {profile.social_x}
+                </a>
+              )}
+              {profile.social_facebook && (
+                <a
+                  href={profile.social_facebook.startsWith("http") ? profile.social_facebook : `https://facebook.com/${profile.social_facebook}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 transition-colors hover:text-white"
+                >
+                  <span className="text-xs font-bold">f</span>
+                  {profile.social_facebook.replace(/^https?:\/\/(www\.)?facebook\.com\//, "")}
                 </a>
               )}
             </div>
+            {((profile as any).contact_email || (profile as any).contact_phone) && (
+              <div className="mb-4 flex flex-wrap items-center gap-4 text-sm text-[var(--usha-muted)]">
+                {(profile as any).contact_email && (
+                  <a href={`mailto:${(profile as any).contact_email}`} className="flex items-center gap-1 transition-colors hover:text-white">
+                    <Mail size={13} />
+                    {(profile as any).contact_email}
+                  </a>
+                )}
+                {(profile as any).contact_phone && (
+                  <a href={`tel:${(profile as any).contact_phone}`} className="flex items-center gap-1 transition-colors hover:text-white">
+                    <Phone size={13} />
+                    {(profile as any).contact_phone}
+                  </a>
+                )}
+              </div>
+            )}
             {profile.bio && (
               <p className="max-w-2xl whitespace-pre-line text-sm leading-relaxed text-[var(--usha-muted)]">
                 {profile.bio}
@@ -317,6 +402,92 @@ export default async function CreatorProfilePage({ params }: Props) {
               ))}
             </div>
           )}
+        </div>
+
+        {/* Event Timeline */}
+        {(() => {
+          const eventsWithDates = (listings || []).filter((l) => l.event_date);
+          if (eventsWithDates.length === 0) return null;
+          const today = new Date().toISOString().split("T")[0];
+          const upcoming = eventsWithDates.filter((l) => l.event_date! >= today).sort((a, b) => a.event_date!.localeCompare(b.event_date!));
+          const past = eventsWithDates.filter((l) => l.event_date! < today).sort((a, b) => b.event_date!.localeCompare(a.event_date!));
+          return (
+            <div className="mt-10">
+              <h2 className="mb-4 text-xl font-bold">Evenemang</h2>
+              {upcoming.length > 0 && (
+                <>
+                  <h3 className="mb-3 text-sm font-semibold text-emerald-400">Kommande</h3>
+                  <div className="mb-6 space-y-2">
+                    {upcoming.map((ev) => (
+                      <div key={ev.id} className="flex items-center gap-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
+                        <div className="shrink-0 text-center">
+                          <div className="text-lg font-bold text-emerald-400">
+                            {new Date(ev.event_date + "T00:00").getDate()}
+                          </div>
+                          <div className="text-[10px] uppercase text-emerald-400/70">
+                            {new Date(ev.event_date + "T00:00").toLocaleDateString("sv-SE", { month: "short" })}
+                          </div>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium">{ev.title}</p>
+                          <div className="flex items-center gap-3 text-xs text-[var(--usha-muted)]">
+                            {ev.event_time && <span>{ev.event_time.slice(0, 5)}</span>}
+                            {ev.event_location && <span className="flex items-center gap-1"><MapPin size={10} />{ev.event_location}</span>}
+                            {ev.price != null && <span className="text-[var(--usha-gold)]">{ev.price} SEK</span>}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+              {past.length > 0 && (
+                <>
+                  <h3 className="mb-3 text-sm font-semibold text-[var(--usha-muted)]">Tidigare</h3>
+                  <div className="space-y-2">
+                    {past.slice(0, 10).map((ev) => (
+                      <div key={ev.id} className="flex items-center gap-4 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 opacity-70">
+                        <div className="shrink-0 text-center">
+                          <div className="text-lg font-bold text-[var(--usha-muted)]">
+                            {new Date(ev.event_date + "T00:00").getDate()}
+                          </div>
+                          <div className="text-[10px] uppercase text-[var(--usha-muted)]">
+                            {new Date(ev.event_date + "T00:00").toLocaleDateString("sv-SE", { month: "short", year: "numeric" })}
+                          </div>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium">{ev.title}</p>
+                          <div className="flex items-center gap-3 text-xs text-[var(--usha-muted)]">
+                            {ev.event_location && <span className="flex items-center gap-1"><MapPin size={10} />{ev.event_location}</span>}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          );
+        })()}
+
+        {/* Portfolio */}
+        {mediaData && mediaData.length > 0 && (
+          <div className="mt-10">
+            <h2 className="mb-4 text-xl font-bold">Portfolio</h2>
+            <CreatorGallery media={mediaData} />
+          </div>
+        )}
+
+        {/* Digital products */}
+        {digitalProducts && digitalProducts.length > 0 && (
+          <div className="mt-10">
+            <CreatorProducts products={digitalProducts} isLoggedIn={isLoggedIn} creatorId={profile.id} />
+          </div>
+        )}
+
+        {/* Availability */}
+        <div className="mt-10">
+          <AvailabilityCalendar creatorId={profile.id} initialAvailableDates={availableDates} />
         </div>
 
         {/* Reviews */}

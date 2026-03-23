@@ -1,0 +1,79 @@
+"use server";
+
+import { createClient } from "@/lib/supabase/server";
+import { revalidatePath } from "next/cache";
+
+interface AddMediaInput {
+  media_type: string;
+  url: string;
+  thumbnail_url: string | null;
+  caption: string | null;
+}
+
+export async function addMedia(input: AddMediaInput) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { error: "Ej inloggad" };
+
+  // Get max sort_order
+  const { data: existing } = await supabase
+    .from("creator_media")
+    .select("sort_order")
+    .eq("user_id", user.id)
+    .order("sort_order", { ascending: false })
+    .limit(1);
+
+  const nextOrder = (existing?.[0]?.sort_order ?? -1) + 1;
+
+  const { data, error } = await supabase
+    .from("creator_media")
+    .insert({
+      user_id: user.id,
+      media_type: input.media_type,
+      url: input.url,
+      thumbnail_url: input.thumbnail_url,
+      caption: input.caption,
+      sort_order: nextOrder,
+    })
+    .select()
+    .single();
+
+  if (error) return { error: "Kunde inte spara media" };
+
+  revalidatePath("/dashboard/profile");
+  return { data };
+}
+
+export async function removeMedia(mediaId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { error: "Ej inloggad" };
+
+  const { error } = await supabase
+    .from("creator_media")
+    .delete()
+    .eq("id", mediaId)
+    .eq("user_id", user.id);
+
+  if (error) return { error: "Kunde inte ta bort media" };
+
+  revalidatePath("/dashboard/profile");
+  return { success: true };
+}
+
+export async function getCreatorMedia(userId: string) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("creator_media")
+    .select("id, media_type, url, thumbnail_url, caption, sort_order")
+    .eq("user_id", userId)
+    .order("sort_order", { ascending: true });
+
+  return data || [];
+}

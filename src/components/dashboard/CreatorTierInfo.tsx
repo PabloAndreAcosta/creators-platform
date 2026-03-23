@@ -49,7 +49,7 @@ export default function CreatorTierInfo({
   creatorTier,
   creatorEarningsThisMonth,
 }: CreatorTierInfoProps) {
-  const config = TIER_CONFIG[creatorTier];
+  const config = TIER_CONFIG[creatorTier] ?? TIER_CONFIG.gratis;
   const commission = Math.round(creatorEarningsThisMonth * config.rate);
   const net = creatorEarningsThisMonth - commission;
 

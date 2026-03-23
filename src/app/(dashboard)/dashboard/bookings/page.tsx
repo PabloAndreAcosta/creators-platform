@@ -127,6 +127,30 @@ export default async function BookingsPage() {
     }
   }
 
+  // Check if user is a creator and fetch availability
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  const userIsCreator = profile?.role === "creator" || profile?.role === "experience" || profile?.role === "kreator" || profile?.role === "upplevelse";
+
+  let availableDates: string[] = [];
+  if (userIsCreator) {
+    const now = new Date();
+    const startOfMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
+    const lastDayNum = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const endOfMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(lastDayNum).padStart(2, "0")}`;
+    const { data: availabilityData } = await supabase
+      .from("creator_availability")
+      .select("available_date")
+      .eq("user_id", user.id)
+      .gte("available_date", startOfMonth)
+      .lte("available_date", endOfMonth);
+    availableDates = (availabilityData || []).map((r) => r.available_date);
+  }
+
   const hasIncoming = incoming && incoming.length > 0;
   const hasOutgoing = outgoing && outgoing.length > 0;
   const hasQueue = queueEntries && queueEntries.length > 0;
@@ -347,7 +371,7 @@ export default async function BookingsPage() {
         </p>
       </div>
 
-      <BookingsViewToggle bookings={calendarBookings} listView={listContent} />
+      <BookingsViewToggle bookings={calendarBookings} listView={listContent} isCreator={userIsCreator} initialAvailableDates={availableDates} />
     </>
   );
 }

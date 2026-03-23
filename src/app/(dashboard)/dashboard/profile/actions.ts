@@ -3,7 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
-const CATEGORIES = ["dance", "music", "photo", "video", "design", "yoga", "fitness", "other"] as const;
+const VALID_CATEGORIES = ["dance", "music", "performance", "photo", "video", "design", "yoga", "fitness", "other"] as const;
 
 export async function updateProfile(formData: FormData) {
   const supabase = await createClient();
@@ -17,29 +17,66 @@ export async function updateProfile(formData: FormData) {
 
   const full_name = formData.get("full_name") as string;
   const bio = formData.get("bio") as string;
-  const category = formData.get("category") as string;
-  const location = formData.get("location") as string;
-  const website = formData.get("website") as string;
-  const hourly_rate_raw = formData.get("hourly_rate") as string;
   const is_public = formData.get("is_public") === "on";
 
-  const hourly_rate = hourly_rate_raw ? parseInt(hourly_rate_raw, 10) : null;
+  // Multi-value fields
+  let categories: string[] = [];
+  try { categories = JSON.parse(formData.get("categories") as string || "[]"); } catch { categories = []; }
 
-  if (category && !CATEGORIES.includes(category as (typeof CATEGORIES)[number])) {
-    return { error: "Ogiltig kategori" };
+  let locations: string[] = [];
+  try { locations = JSON.parse(formData.get("locations") as string || "[]"); } catch { locations = []; }
+
+  let rates: Record<string, number> = {};
+  try { rates = JSON.parse(formData.get("rates") as string || "{}"); } catch { rates = {}; }
+
+  let websites: string[] = [];
+  try { websites = JSON.parse(formData.get("websites") as string || "[]"); } catch { websites = []; }
+
+  const social_instagram = (formData.get("social_instagram") as string)?.trim() || null;
+  const social_x = (formData.get("social_x") as string)?.trim() || null;
+  const social_facebook = (formData.get("social_facebook") as string)?.trim() || null;
+  const contact_email = (formData.get("contact_email") as string)?.trim() || null;
+  const contact_phone = (formData.get("contact_phone") as string)?.trim() || null;
+
+  // Validate categories
+  categories = categories.filter((c) => VALID_CATEGORIES.includes(c as any));
+
+  // Validate rates (only for selected categories, must be non-negative)
+  const cleanRates: Record<string, number> = {};
+  for (const cat of categories) {
+    if (rates[cat] != null && Number.isFinite(rates[cat]) && rates[cat] >= 0) {
+      cleanRates[cat] = rates[cat];
+    }
   }
+
+  // Keep backward compat: also write to legacy single-value columns
+  const primaryCategory = categories[0] || null;
+  const primaryLocation = locations[0] || null;
+  const primaryRate = primaryCategory && cleanRates[primaryCategory] != null ? cleanRates[primaryCategory] : null;
+  const primaryWebsite = websites[0] || null;
 
   const { error } = await supabase
     .from("profiles")
     .update({
       full_name: full_name || null,
       bio: bio || null,
-      category: category || null,
-      location: location || null,
-      website: website || null,
-      hourly_rate,
       is_public,
-    })
+      // New multi-value fields
+      categories,
+      locations,
+      rates: cleanRates,
+      websites,
+      social_instagram,
+      social_x,
+      social_facebook,
+      contact_email,
+      contact_phone,
+      // Legacy single-value fields (backward compat)
+      category: primaryCategory,
+      location: primaryLocation,
+      hourly_rate: primaryRate,
+      website: primaryWebsite,
+    } as any)
     .eq("id", user.id);
 
   if (error) {

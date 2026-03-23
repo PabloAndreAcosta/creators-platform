@@ -1,6 +1,7 @@
 export const CATEGORIES = [
   { value: "dance", label: "Dans" },
   { value: "music", label: "Musik" },
+  { value: "performance", label: "Performance" },
   { value: "photo", label: "Fotografi" },
   { value: "video", label: "Video" },
   { value: "design", label: "Design" },

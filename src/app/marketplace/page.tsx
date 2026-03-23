@@ -33,11 +33,11 @@ export default async function MarketplacePage({
   // Fetch public profiles
   let profilesQuery = supabase
     .from("profiles")
-    .select("id, full_name, avatar_url, bio, category, location, hourly_rate")
+    .select("id, full_name, avatar_url, bio, category, location, hourly_rate, categories, locations, rates")
     .eq("is_public", true);
 
   if (category && category !== "all") {
-    profilesQuery = profilesQuery.eq("category", category);
+    profilesQuery = profilesQuery.or(`categories.cs.{${category}},category.eq.${category}`);
   }
 
   if (q) {
@@ -324,16 +324,16 @@ export default async function MarketplacePage({
                     <h3 className="truncate font-semibold group-hover:text-[var(--usha-gold)]">
                       {creator.full_name || "Creator"}
                     </h3>
-                    <div className="flex items-center gap-2 text-xs text-[var(--usha-muted)]">
-                      {creator.category && (
-                        <span>{CATEGORY_LABELS[creator.category] || creator.category}</span>
-                      )}
-                      {creator.location && (
-                        <span className="flex items-center gap-0.5">
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--usha-muted)]">
+                      {(creator.categories?.length ? creator.categories : (creator.category ? [creator.category] : [])).map((cat: string) => (
+                        <span key={cat}>{CATEGORY_LABELS[cat] || cat}</span>
+                      ))}
+                      {(creator.locations?.length ? creator.locations : (creator.location ? [creator.location] : [])).slice(0, 2).map((loc: string) => (
+                        <span key={loc} className="flex items-center gap-0.5">
                           <MapPin size={10} />
-                          {creator.location}
+                          {loc}
                         </span>
-                      )}
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -347,13 +347,20 @@ export default async function MarketplacePage({
 
                 {/* Footer */}
                 <div className="flex items-center justify-between text-sm">
-                  {creator.hourly_rate != null ? (
-                    <span className="font-semibold text-[var(--usha-gold)]">
-                      {creator.hourly_rate} SEK/h
-                    </span>
-                  ) : (
-                    <span />
-                  )}
+                  {(() => {
+                    const ratesObj = creator.rates && typeof creator.rates === "object" ? creator.rates as Record<string, number> : {};
+                    const rateValues = Object.values(ratesObj).filter((v): v is number => typeof v === "number" && v > 0);
+                    const minRate = rateValues.length ? Math.min(...rateValues) : creator.hourly_rate;
+                    const maxRate = rateValues.length ? Math.max(...rateValues) : null;
+                    if (minRate != null) {
+                      return (
+                        <span className="font-semibold text-[var(--usha-gold)]">
+                          {minRate === maxRate || !maxRate ? `${minRate} SEK/h` : `${minRate}–${maxRate} SEK/h`}
+                        </span>
+                      );
+                    }
+                    return <span />;
+                  })()}
                   {listingCounts[creator.id] > 0 && (
                     <span className="flex items-center gap-1 text-xs text-[var(--usha-muted)]">
                       <Clock size={10} />

@@ -16,9 +16,11 @@ interface CalendarBooking {
 interface BookingsViewToggleProps {
   bookings: CalendarBooking[];
   listView: React.ReactNode;
+  isCreator?: boolean;
+  initialAvailableDates?: string[];
 }
 
-export function BookingsViewToggle({ bookings, listView }: BookingsViewToggleProps) {
+export function BookingsViewToggle({ bookings, listView, isCreator = false, initialAvailableDates = [] }: BookingsViewToggleProps) {
   const [view, setView] = useState<"list" | "calendar">("list");
 
   return (
@@ -48,7 +50,7 @@ export function BookingsViewToggle({ bookings, listView }: BookingsViewTogglePro
         </button>
       </div>
 
-      {view === "list" ? listView : <BookingCalendar bookings={bookings} />}
+      {view === "list" ? listView : <BookingCalendar bookings={bookings} isCreator={isCreator} initialAvailableDates={initialAvailableDates} />}
     </>
   );
 }

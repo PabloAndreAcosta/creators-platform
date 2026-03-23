@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useTransition, useEffect } from "react";
+import { ChevronLeft, ChevronRight, Check } from "lucide-react";
+import { toggleAvailability, getAvailability } from "@/app/app/calendar/actions";
 
 interface CalendarBooking {
   id: string;
@@ -14,6 +15,8 @@ interface CalendarBooking {
 
 interface BookingCalendarProps {
   bookings: CalendarBooking[];
+  isCreator?: boolean;
+  initialAvailableDates?: string[];
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -29,8 +32,11 @@ const MONTHS = [
   "juli", "augusti", "september", "oktober", "november", "december",
 ];
 
-export function BookingCalendar({ bookings }: BookingCalendarProps) {
+export function BookingCalendar({ bookings, isCreator = false, initialAvailableDates = [] }: BookingCalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [availableSet, setAvailableSet] = useState<Set<string>>(new Set(initialAvailableDates));
+  const [editMode, setEditMode] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -61,6 +67,47 @@ export function BookingCalendar({ bookings }: BookingCalendarProps) {
   const isToday = (day: number) =>
     day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
 
+  const isPast = (day: number) => {
+    const d = new Date(year, month, day);
+    d.setHours(23, 59, 59);
+    return d < today;
+  };
+
+  const getDateKey = (day: number) =>
+    `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+
+  // Fetch availability when month changes
+  useEffect(() => {
+    if (!isCreator) return;
+    getAvailability(year, month + 1).then(({ dates }) => {
+      setAvailableSet(new Set(dates));
+    });
+  }, [year, month, isCreator]);
+
+  function handleDayClick(day: number) {
+    if (!editMode || !isCreator || isPast(day)) return;
+    const dateKey = getDateKey(day);
+    const wasAvailable = availableSet.has(dateKey);
+    // Optimistic update
+    setAvailableSet((prev) => {
+      const next = new Set(prev);
+      if (wasAvailable) next.delete(dateKey);
+      else next.add(dateKey);
+      return next;
+    });
+    startTransition(async () => {
+      const result = await toggleAvailability(dateKey);
+      if (result.error) {
+        setAvailableSet((prev) => {
+          const reverted = new Set(prev);
+          if (wasAvailable) reverted.add(dateKey);
+          else reverted.delete(dateKey);
+          return reverted;
+        });
+      }
+    });
+  }
+
   function prevMonth() {
     setCurrentDate(new Date(year, month - 1, 1));
   }
@@ -70,6 +117,28 @@ export function BookingCalendar({ bookings }: BookingCalendarProps) {
   }
 
   return (
+    <div className="space-y-4">
+      {/* Availability toggle for creators */}
+      {isCreator && (
+        <button
+          onClick={() => setEditMode(!editMode)}
+          className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition ${
+            editMode
+              ? "bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/30"
+              : "bg-[var(--usha-card)] text-[var(--usha-muted)] ring-1 ring-[var(--usha-border)] hover:text-white"
+          }`}
+        >
+          <Check size={16} />
+          {editMode ? "Klar med tillgänglighet" : "Markera tillgänglighet"}
+        </button>
+      )}
+
+      {editMode && (
+        <p className="text-xs text-emerald-400/70">
+          Tryck på datum för att markera dig som tillgänglig. Grönt = tillgänglig.
+        </p>
+      )}
+
     <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
       {/* Month navigation */}
       <div className="mb-4 flex items-center justify-between">
@@ -108,16 +177,32 @@ export function BookingCalendar({ bookings }: BookingCalendarProps) {
 
           const dayBookings = bookingsByDay.get(day) ?? [];
           const hasBookings = dayBookings.length > 0;
+          const dateKey = getDateKey(day);
+          const isAvailable = availableSet.has(dateKey);
+          const past = isPast(day);
 
           return (
             <div
               key={day}
+              onClick={() => handleDayClick(day)}
               className={`group relative flex aspect-square flex-col items-center justify-start rounded-lg p-1 text-xs transition ${
+                editMode && isCreator
+                  ? past
+                    ? "text-[var(--usha-muted)]/30 cursor-not-allowed"
+                    : "cursor-pointer hover:bg-white/10"
+                  : ""
+              } ${
+                isAvailable
+                  ? "bg-emerald-500/15 ring-1 ring-emerald-500/25"
+                  : ""
+              } ${
                 isToday(day)
                   ? "bg-[var(--usha-gold)]/10 font-bold text-[var(--usha-gold)]"
-                  : hasBookings
+                  : hasBookings && !isAvailable
                   ? "bg-white/5 hover:bg-white/10"
-                  : "text-[var(--usha-muted)]"
+                  : !isAvailable
+                  ? "text-[var(--usha-muted)]"
+                  : ""
               }`}
             >
               <span className="text-[11px]">{day}</span>
@@ -167,6 +252,7 @@ export function BookingCalendar({ bookings }: BookingCalendarProps) {
           { label: "Bekräftad", color: "bg-green-500" },
           { label: "Slutförd", color: "bg-blue-500" },
           { label: "Avbokad", color: "bg-red-500/50" },
+          ...(isCreator ? [{ label: "Tillgänglig", color: "bg-emerald-400" }] : []),
         ].map((s) => (
           <div key={s.label} className="flex items-center gap-1.5">
             <div className={`h-2 w-2 rounded-full ${s.color}`} />
@@ -174,6 +260,7 @@ export function BookingCalendar({ bookings }: BookingCalendarProps) {
           </div>
         ))}
       </div>
+    </div>
     </div>
   );
 }
