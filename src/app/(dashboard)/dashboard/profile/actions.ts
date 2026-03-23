@@ -18,6 +18,24 @@ export async function updateProfile(formData: FormData) {
   const full_name = formData.get("full_name") as string;
   const bio = formData.get("bio") as string;
   const is_public = formData.get("is_public") === "on";
+  const rawSlug = (formData.get("slug") as string)?.trim().toLowerCase() || null;
+
+  // Validate slug: only lowercase letters, numbers, hyphens, underscores
+  const slug = rawSlug && /^[a-z0-9_-]+$/.test(rawSlug) ? rawSlug : null;
+
+  // Check slug uniqueness if provided
+  if (slug) {
+    const { data: existing } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("slug", slug)
+      .neq("id", user.id)
+      .maybeSingle();
+
+    if (existing) {
+      return { error: `Profiladressen "${slug}" är redan tagen. Välj en annan.` };
+    }
+  }
 
   // Multi-value fields
   let categories: string[] = [];
@@ -61,6 +79,7 @@ export async function updateProfile(formData: FormData) {
       full_name: full_name || null,
       bio: bio || null,
       is_public,
+      slug,
       // New multi-value fields
       categories,
       locations,

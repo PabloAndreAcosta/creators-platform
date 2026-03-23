@@ -18,7 +18,7 @@ export default async function ProfilePage() {
   const [{ data: profile }, { data: media }] = await Promise.all([
     supabase
       .from("profiles")
-      .select("id, full_name, avatar_url, bio, website, category, location, hourly_rate, is_public, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, role")
+      .select("id, full_name, slug, avatar_url, bio, website, category, location, hourly_rate, is_public, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, role")
       .eq("id", user.id)
       .single(),
     supabase

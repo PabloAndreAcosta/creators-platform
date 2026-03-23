@@ -11,6 +11,7 @@ import { CATEGORIES, CATEGORY_LABELS } from "@/lib/categories";
 interface Profile {
   id: string;
   full_name: string | null;
+  slug: string | null;
   avatar_url: string | null;
   bio: string | null;
   categories: string[];
@@ -232,6 +233,30 @@ export default function ProfileForm({ profile }: { profile: Profile }) {
           defaultValue={profile.full_name || ""}
           className={inputClass}
         />
+      </div>
+
+      {/* Slug (vanity URL) */}
+      <div>
+        <label htmlFor="slug" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
+          Profiladress
+        </label>
+        <div className="flex items-center gap-0">
+          <span className="flex h-[44px] items-center rounded-l-xl border border-r-0 border-[var(--usha-border)] bg-[var(--usha-black)]/50 px-3 text-sm text-[var(--usha-muted)]">
+            usha.se/
+          </span>
+          <input
+            id="slug"
+            name="slug"
+            type="text"
+            defaultValue={profile.slug || ""}
+            placeholder="dittnamn"
+            pattern="[a-z0-9_-]+"
+            className="w-full min-h-[44px] rounded-r-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-base sm:text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+          />
+        </div>
+        <p className="mt-1 text-[10px] text-[var(--usha-muted)]">
+          Bara små bokstäver, siffror, bindestreck och understreck. Detta blir din publika länk.
+        </p>
       </div>
 
       {/* Categories (multi-select pills) */}
