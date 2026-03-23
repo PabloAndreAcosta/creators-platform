@@ -57,7 +57,7 @@ export default async function CreatorProfilePage({ params }: Props) {
     supabase
       .from("profiles")
       .select(
-        "id, full_name, avatar_url, bio, category, location, hourly_rate, website, stripe_account_id, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_accent_color"
+        "id, full_name, avatar_url, bio, category, location, hourly_rate, website, stripe_account_id, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3"
       )
       .eq("id", params.id)
       .eq("is_public", true)
@@ -125,10 +125,20 @@ export default async function CreatorProfilePage({ params }: Props) {
   const wl = (profile as any).whitelabel_enabled;
   const wlBrand = (profile as any).whitelabel_brand_name;
   const wlLogo = (profile as any).whitelabel_logo_url;
+  const wlPrimary = (profile as any).whitelabel_primary_color;
   const wlColor = (profile as any).whitelabel_accent_color;
+  const wlColor2 = (profile as any).whitelabel_accent_color_2;
+  const wlColor3 = (profile as any).whitelabel_accent_color_3;
+
+  const wlStyle = wl ? {
+    ...(wlPrimary ? { '--usha-gold': wlPrimary, '--usha-primary': wlPrimary } : {}),
+    ...(wlColor ? { '--usha-accent': wlColor } : {}),
+    ...(wlColor2 ? { '--usha-accent-2': wlColor2 } : {}),
+    ...(wlColor3 ? { '--usha-accent-3': wlColor3 } : {}),
+  } as React.CSSProperties : undefined;
 
   return (
-    <div className="min-h-screen" style={wl && wlColor ? { '--usha-gold': wlColor, '--usha-accent': wlColor } as React.CSSProperties : undefined}>
+    <div className="min-h-screen" style={wlStyle}>
       {/* Header */}
       <header className="border-b border-[var(--usha-border)]">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">

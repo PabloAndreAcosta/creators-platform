@@ -71,7 +71,10 @@ export async function updateProfile(formData: FormData) {
   const whitelabel_enabled = formData.get("whitelabel_enabled") === "on";
   const whitelabel_brand_name = (formData.get("whitelabel_brand_name") as string)?.trim() || null;
   const whitelabel_logo_url = (formData.get("whitelabel_logo_url") as string)?.trim() || null;
+  const whitelabel_primary_color = (formData.get("whitelabel_primary_color") as string)?.trim() || null;
   const whitelabel_accent_color = (formData.get("whitelabel_accent_color") as string)?.trim() || null;
+  const whitelabel_accent_color_2 = (formData.get("whitelabel_accent_color_2") as string)?.trim() || null;
+  const whitelabel_accent_color_3 = (formData.get("whitelabel_accent_color_3") as string)?.trim() || null;
 
   // Validate categories
   categories = categories.filter((c) => VALID_CATEGORIES.includes(c as any));
@@ -111,7 +114,10 @@ export async function updateProfile(formData: FormData) {
       whitelabel_enabled,
       whitelabel_brand_name: whitelabel_enabled ? whitelabel_brand_name : null,
       whitelabel_logo_url: whitelabel_enabled ? whitelabel_logo_url : null,
+      whitelabel_primary_color: whitelabel_enabled ? whitelabel_primary_color : null,
       whitelabel_accent_color: whitelabel_enabled ? whitelabel_accent_color : null,
+      whitelabel_accent_color_2: whitelabel_enabled ? whitelabel_accent_color_2 : null,
+      whitelabel_accent_color_3: whitelabel_enabled ? whitelabel_accent_color_3 : null,
       // Legacy single-value fields (backward compat)
       category: primaryCategory,
       location: primaryLocation,

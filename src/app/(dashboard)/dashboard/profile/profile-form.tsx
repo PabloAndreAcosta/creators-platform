@@ -27,7 +27,10 @@ interface Profile {
   whitelabel_enabled: boolean;
   whitelabel_brand_name: string | null;
   whitelabel_logo_url: string | null;
+  whitelabel_primary_color: string | null;
   whitelabel_accent_color: string | null;
+  whitelabel_accent_color_2: string | null;
+  whitelabel_accent_color_3: string | null;
   // Legacy fields (backward compat during migration)
   category?: string | null;
   location?: string | null;
@@ -580,19 +583,53 @@ export default function ProfileForm({ profile, isPaidTier, isPremium }: { profil
               />
             </div>
             <div>
-              <label htmlFor="whitelabel_accent_color" className="mb-1 block text-xs text-[var(--usha-muted)]">
-                Accentfärg
+              <label className="mb-1 block text-xs text-[var(--usha-muted)]">
+                Primärfärg
               </label>
               <div className="flex items-center gap-2">
                 <input
                   type="color"
-                  name="whitelabel_accent_color"
-                  defaultValue={profile.whitelabel_accent_color || "#d4a853"}
+                  name="whitelabel_primary_color"
+                  defaultValue={profile.whitelabel_primary_color || "#d4a853"}
                   className="h-[44px] w-[44px] cursor-pointer rounded-xl border border-[var(--usha-border)] bg-transparent p-1"
                 />
                 <span className="text-xs text-[var(--usha-muted)]">
-                  Används som primärfärg på din profilsida
+                  Huvudfärg för knappar och rubriker
                 </span>
+              </div>
+            </div>
+            <div>
+              <label className="mb-2 block text-xs text-[var(--usha-muted)]">
+                Accentfärger
+              </label>
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    name="whitelabel_accent_color"
+                    defaultValue={profile.whitelabel_accent_color || "#d4a853"}
+                    className="h-[44px] w-[44px] cursor-pointer rounded-xl border border-[var(--usha-border)] bg-transparent p-1"
+                  />
+                  <span className="text-xs text-[var(--usha-muted)]">Accent 1</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    name="whitelabel_accent_color_2"
+                    defaultValue={profile.whitelabel_accent_color_2 || "#c9955d"}
+                    className="h-[44px] w-[44px] cursor-pointer rounded-xl border border-[var(--usha-border)] bg-transparent p-1"
+                  />
+                  <span className="text-xs text-[var(--usha-muted)]">Accent 2</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    name="whitelabel_accent_color_3"
+                    defaultValue={profile.whitelabel_accent_color_3 || "#b8860b"}
+                    className="h-[44px] w-[44px] cursor-pointer rounded-xl border border-[var(--usha-border)] bg-transparent p-1"
+                  />
+                  <span className="text-xs text-[var(--usha-muted)]">Accent 3</span>
+                </div>
               </div>
             </div>
           </div>

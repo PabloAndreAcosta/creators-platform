@@ -68,6 +68,7 @@ export const PLANS: Record<PlanKey, Plan> = {
     features: [
       "Upp till 15 tjänster",
       "8% kommission (istället för 15%)",
+      "Egen profiladress (usha.se/dittnamn)",
       "Sälj digitalt material",
       "Skapa events",
       "Avancerad statistik",
@@ -86,6 +87,8 @@ export const PLANS: Record<PlanKey, Plan> = {
     features: [
       "Obegränsade tjänster",
       "3% kommission (istället för 15%)",
+      "White label — egen logga & branding",
+      "Egen profiladress (usha.se/dittnamn)",
       "Toppsynlighet + utvalda",
       "Facebook-sync",
       "Kalender läs + skriv",
@@ -105,6 +108,7 @@ export const PLANS: Record<PlanKey, Plan> = {
     features: [
       "Upp till 15 events",
       "8% kommission (istället för 15%)",
+      "Egen profiladress (usha.se/dittnamn)",
       "Boka kreatörer",
       "Sälj digitalt material",
       "Skapa events",
@@ -123,6 +127,8 @@ export const PLANS: Record<PlanKey, Plan> = {
     features: [
       "Obegränsade events",
       "3% kommission (istället för 15%)",
+      "White label — egen logga & branding",
+      "Egen profiladress (usha.se/dittnamn)",
       "Toppsynlighet + utvalda",
       "Facebook-sync",
       "Boka kreatörer + analys",
