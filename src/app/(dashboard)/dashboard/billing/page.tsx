@@ -8,6 +8,8 @@ import type { MemberRole } from "@/types/database";
 import CreatorTierInfo from "@/components/dashboard/CreatorTierInfo";
 import ConnectButton from "./connect-button";
 
+export const dynamic = "force-dynamic";
+
 export default async function BillingPage({
   searchParams,
 }: {
