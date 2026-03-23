@@ -41,7 +41,7 @@ export async function getSubscriptionStatus(
     .from("subscriptions")
     .select("status")
     .eq("user_id", uid)
-    .eq("status", "active")
+    .in("status", ["active", "trialing"])
     .single();
 
   return {

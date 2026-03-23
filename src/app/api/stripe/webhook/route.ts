@@ -6,6 +6,7 @@ import type { MemberTier } from "@/types/database";
 import { PLANS, type PlanKey } from "@/lib/stripe/config";
 import { sendBookingConfirmationEmail } from "@/lib/email/send-booking";
 import { sendGoldWelcomeEmail } from "@/lib/email/send-welcome";
+import { sendTrialEndingEmail as sendTrialEndingEmailService } from "@/lib/email/send-trial-ending";
 
 /** Reverse lookup: Stripe price ID → plan key */
 function planKeyFromPriceId(priceId: string): string | null {
@@ -249,15 +250,19 @@ export async function POST(req: NextRequest) {
           .eq("id", userId);
 
         // Upsert subscription record
-        await getSupabaseAdmin().from("subscriptions").upsert({
+        const subStatus = subscription.status === "trialing" ? "trialing" : "active";
+        const { error: upsertError } = await getSupabaseAdmin().from("subscriptions").upsert({
           user_id: userId,
           stripe_customer_id: session.customer as string,
           stripe_subscription_id: subscription.id,
           plan: planKey,
-          status: "active",
+          status: subStatus,
           current_period_start: toISO(subscription.current_period_start),
           current_period_end: toISO(subscription.current_period_end),
         });
+        if (upsertError) {
+          console.error("Subscription upsert failed:", upsertError);
+        }
 
         // Record payment
         if (session.amount_total) {
@@ -286,9 +291,19 @@ export async function POST(req: NextRequest) {
         const currentPriceId = subscription.items?.data?.[0]?.price?.id;
         const newPlanKey = currentPriceId ? planKeyFromPriceId(currentPriceId) : null;
 
+        // Map Stripe status to our DB status
+        const statusMap: Record<string, string> = {
+          active: "active",
+          trialing: "trialing",
+          past_due: "past_due",
+          canceled: "canceled",
+          unpaid: "canceled",
+        };
+        const dbStatus = statusMap[subscription.status] || "past_due";
+
         // Update subscription status (and plan if changed)
         const subscriptionUpdate: Record<string, unknown> = {
-          status: subscription.status === "active" ? "active" : "past_due",
+          status: dbStatus,
           current_period_start: toISO(subscription.current_period_start),
           current_period_end: toISO(subscription.current_period_end),
         };
@@ -309,7 +324,7 @@ export async function POST(req: NextRequest) {
 
         if (sub) {
           const tier = extractTierFromPlan(sub.plan);
-          if (subscription.status === "active") {
+          if (subscription.status === "active" || subscription.status === "trialing") {
             await getSupabaseAdmin()
               .from("profiles")
               .update({ tier })
@@ -323,6 +338,27 @@ export async function POST(req: NextRequest) {
               .update({ tier: "gratis" })
               .eq("id", sub.user_id);
           }
+        }
+        break;
+      }
+
+      case "customer.subscription.trial_will_end": {
+        // Stripe sends this 3 days before trial ends
+        const trialSub = event.data.object as Stripe.Subscription;
+
+        const { data: trialSubRecord } = await getSupabaseAdmin()
+          .from("subscriptions")
+          .select("user_id, plan")
+          .eq("stripe_subscription_id", trialSub.id)
+          .single();
+
+        if (trialSubRecord) {
+          sendTrialEndingEmail(
+            getSupabaseAdmin(),
+            trialSubRecord.user_id,
+            trialSub.trial_end ? new Date(trialSub.trial_end * 1000) : new Date(),
+            3
+          ).catch(err => console.error("Trial ending email failed:", err));
         }
         break;
       }
@@ -411,5 +447,27 @@ async function sendSubscriptionWelcomeEmail(
         ? subscription.current_period_end * 1000
         : subscription.current_period_end
     ),
+  });
+}
+
+async function sendTrialEndingEmail(
+  admin: ReturnType<typeof getSupabaseAdmin>,
+  userId: string,
+  trialEndDate: Date,
+  daysLeft: number,
+) {
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("email, full_name")
+    .eq("id", userId)
+    .single();
+
+  if (!profile?.email) return;
+
+  await sendTrialEndingEmailService({
+    to: profile.email,
+    memberName: profile.full_name || "Medlem",
+    trialEndDate,
+    daysLeft,
   });
 }

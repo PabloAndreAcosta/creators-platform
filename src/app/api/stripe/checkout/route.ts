@@ -75,6 +75,10 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Check if this is a 100% discount (free trial)
+    const isFreeWithPromo =
+      promoDiscountAmount !== undefined && promoDiscountAmount >= plan.price;
+
     const sessionParams: any = {
       customer_email: user.email,
       line_items: [{ price: priceId, quantity: 1 }],
@@ -90,6 +94,12 @@ export async function POST(req: NextRequest) {
         ...(promoDiscountAmount && { promoDiscountAmount: String(promoDiscountAmount) }),
       },
     };
+
+    if (isFreeWithPromo) {
+      // 100% discount: use a 30-day trial so no payment method is needed
+      sessionParams.subscription_data = { trial_period_days: 30 };
+      sessionParams.payment_method_collection = "if_required";
+    }
 
     if (stripeCouponId) {
       sessionParams.discounts = [{ coupon: stripeCouponId }];

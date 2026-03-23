@@ -37,7 +37,7 @@ export default async function DashboardLayout({
     .from("subscriptions")
     .select("plan, status")
     .eq("user_id", user.id)
-    .eq("status", "active")
+    .in("status", ["active", "trialing"])
     .single();
 
   if (sub) {
