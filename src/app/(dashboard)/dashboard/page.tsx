@@ -79,15 +79,29 @@ export default async function DashboardPage() {
 
   const roleLabel = role === "creator" ? "Kreatör" : "Upplevelseföretag";
 
+  // Determine display plan: prefer subscription, fall back to profile.tier
+  const TIER_MAP: Record<string, string> = {
+    gratis: 'gratis', guld: 'guld', premium: 'premium',
+    silver: 'gratis', gold: 'guld', platinum: 'premium',
+  };
+  const profileTier = TIER_MAP[profile?.tier ?? ''] ?? 'gratis';
+  const hasPaidPlan = subscription || profileTier !== 'gratis';
+
+  const planDisplayName = subscription
+    ? subscription.plan.includes('_')
+      ? subscription.plan.split('_').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+      : subscription.plan.charAt(0).toUpperCase() + subscription.plan.slice(1)
+    : profileTier !== 'gratis'
+      ? profileTier.charAt(0).toUpperCase() + profileTier.slice(1)
+      : 'Gratis';
+
   return (
     <>
       <h1 className="mb-2 text-3xl font-bold">
         Hej, {profile?.full_name || roleLabel}! 👋
       </h1>
       <p className="mb-10 text-[var(--usha-muted)]">
-        {subscription
-          ? `Du har ${subscription.plan.includes('_') ? subscription.plan.split('_').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : subscription.plan.charAt(0).toUpperCase() + subscription.plan.slice(1)}-planen.`
-          : "Du har Gratis-planen."}
+        Du har {planDisplayName}-planen.
       </p>
 
       {/* Quick stats */}
@@ -178,18 +192,18 @@ export default async function DashboardPage() {
         <Link
           href="/dashboard/billing"
           className={`rounded-xl border p-6 transition-colors hover:bg-[var(--usha-card-hover)] ${
-            subscription
+            hasPaidPlan
               ? "border-[var(--usha-border)] bg-[var(--usha-card)] hover:border-[var(--usha-gold)]/30"
               : "border-[var(--usha-gold)]/30 bg-[var(--usha-card)]"
           }`}
         >
           <CreditCard size={20} className="mb-3 text-[var(--usha-gold)]" />
           <h3 className="mb-1 font-semibold">
-            {subscription ? "Prenumeration" : "Uppgradera"}
+            {hasPaidPlan ? "Prenumeration" : "Uppgradera"}
           </h3>
           <p className="text-sm text-[var(--usha-muted)]">
-            {subscription
-              ? `${subscription.plan.includes('_') ? subscription.plan.split('_').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : subscription.plan.charAt(0).toUpperCase() + subscription.plan.slice(1)}-planen`
+            {hasPaidPlan
+              ? `${planDisplayName}-planen`
               : "Välj en plan för att låsa upp alla funktioner"}
           </p>
         </Link>

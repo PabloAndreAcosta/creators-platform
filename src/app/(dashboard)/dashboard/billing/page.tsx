@@ -36,10 +36,6 @@ export default async function BillingPage({
     .in("status", ["active", "trialing", "past_due"])
     .single();
 
-  // Temporary debug logging
-  console.log("BILLING DEBUG:", { userId: user.id, subscription, subError });
-
-  const currentPlan = subscription?.plan ?? null;
   // Map DB roles to app roles (DB uses creator/experience, app uses kreator/upplevelse)
   const DB_TO_APP_ROLE: Record<string, MemberRole> = {
     creator: "kreator",
@@ -61,6 +57,9 @@ export default async function BillingPage({
   };
   const userTier = TIER_MAP[profile?.tier ?? ''] ?? 'gratis';
   const isCreatorRole = userRole === "kreator" || userRole === "upplevelse";
+
+  // Determine current plan: prefer subscription record, fall back to profile.tier
+  const currentPlan = subscription?.plan ?? (userTier !== 'gratis' ? `${userRole}_${userTier}` : null);
 
   // Fetch monthly earnings for creator tier info
   let monthlyEarnings = 0;
@@ -93,10 +92,6 @@ export default async function BillingPage({
 
   return (
     <>
-      {/* Temporary debug - remove after fixing */}
-      <div className="mb-6 rounded-xl border border-yellow-500/20 bg-yellow-500/10 px-4 py-3 text-xs font-mono text-yellow-400 break-all">
-        DEBUG: {JSON.stringify({ userId: user.id, currentPlan, subError, subPlan: subscription?.plan, subStatus: subscription?.status })}
-      </div>
       {success && (
         <div className="mb-6 rounded-xl border border-green-500/20 bg-green-500/10 px-4 py-3 text-sm font-medium text-green-400">
           Betalningen lyckades! Din plan är nu aktiv.
@@ -118,7 +113,7 @@ export default async function BillingPage({
       </div>
 
       {/* Current plan status */}
-      {subscription && (
+      {currentPlan && (
         <div className="mb-8 rounded-2xl border border-[var(--usha-gold)]/20 bg-[var(--usha-card)] p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -127,20 +122,24 @@ export default async function BillingPage({
               <div className="mt-1 flex items-center gap-3 text-sm text-[var(--usha-muted)]">
                 <span
                   className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
-                    subscription.status === "active"
-                      ? "bg-green-500/10 text-green-400"
-                      : subscription.status === "trialing"
-                        ? "bg-blue-500/10 text-blue-400"
-                        : "bg-red-500/10 text-red-400"
+                    subscription
+                      ? subscription.status === "active"
+                        ? "bg-green-500/10 text-green-400"
+                        : subscription.status === "trialing"
+                          ? "bg-blue-500/10 text-blue-400"
+                          : "bg-red-500/10 text-red-400"
+                      : "bg-green-500/10 text-green-400"
                   }`}
                 >
-                  {subscription.status === "active"
-                    ? "Aktiv"
-                    : subscription.status === "trialing"
-                      ? "Provperiod"
-                      : "Förfallen"}
+                  {subscription
+                    ? subscription.status === "active"
+                      ? "Aktiv"
+                      : subscription.status === "trialing"
+                        ? "Provperiod"
+                        : "Förfallen"
+                    : "Aktiv"}
                 </span>
-                {subscription.current_period_end && (
+                {subscription?.current_period_end && (
                   <span>
                     Förnyas{" "}
                     {new Date(
@@ -150,7 +149,7 @@ export default async function BillingPage({
                 )}
               </div>
             </div>
-            <PortalButton />
+            {subscription && <PortalButton />}
           </div>
         </div>
       )}
