@@ -70,10 +70,18 @@ export function CreatorGallery({ media }: { media: MediaItem[] }) {
                 </div>
               </>
             )}
-            {(item.media_type === "instagram" || item.media_type === "instagram-profile") && (
+            {item.media_type === "instagram" && (
               <div className="flex h-full items-center justify-center bg-gradient-to-br from-purple-600/20 to-pink-500/20 text-[var(--usha-muted)]">
                 <span className="text-2xl">IG</span>
               </div>
+            )}
+            {item.media_type === "instagram-profile" && (
+              <iframe
+                src={`${item.url.replace(/\/$/, '')}/embed`}
+                className="h-full w-full border-0 pointer-events-none"
+                loading="lazy"
+                scrolling="no"
+              />
             )}
 
             {item.media_type !== "image" && (
