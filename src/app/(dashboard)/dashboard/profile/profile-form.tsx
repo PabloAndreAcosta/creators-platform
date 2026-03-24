@@ -4,7 +4,7 @@ import { useRef, useState, useTransition } from "react";
 import { updateProfile, updateAvatar } from "./actions";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/components/ui/toaster";
-import { Camera, Loader2, X, Plus, Instagram } from "lucide-react";
+import { Camera, Loader2, X, Plus, Instagram, ExternalLink } from "lucide-react";
 import Image from "next/image";
 import { CATEGORIES, CATEGORY_LABELS } from "@/lib/categories";
 
@@ -633,6 +633,18 @@ export default function ProfileForm({ profile, isPaidTier, isPremium }: { profil
               </div>
             </div>
           </div>
+        )}
+
+        {isPremium && profile.slug && (
+          <a
+            href={`/creators/${profile.slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-xl border border-[var(--usha-premium)]/30 px-4 py-2.5 text-sm font-medium text-[var(--usha-premium)] transition hover:bg-[var(--usha-premium)]/10"
+          >
+            <ExternalLink size={14} />
+            Förhandsgranska profil
+          </a>
         )}
 
         {!isPremium && (

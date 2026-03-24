@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ExternalLink } from "lucide-react";
 import ProfileForm from "./profile-form";
 import { MediaGallery } from "./media-gallery";
 import { InstagramConnect } from "./instagram-connect";
@@ -45,10 +45,25 @@ export default async function ProfilePage() {
           <ArrowLeft size={14} />
           Tillbaka
         </Link>
-        <h1 className="text-3xl font-bold">Redigera profil</h1>
-        <p className="mt-1 text-[var(--usha-muted)]">
-          Uppdatera din information och gör din profil synlig för kunder.
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Redigera profil</h1>
+            <p className="mt-1 text-[var(--usha-muted)]">
+              Uppdatera din information och gör din profil synlig för kunder.
+            </p>
+          </div>
+          {profile.slug && profile.is_public && (
+            <a
+              href={`/creators/${profile.slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent,var(--usha-gold))] px-4 py-2.5 text-sm font-medium text-black transition hover:opacity-90"
+            >
+              <ExternalLink size={14} />
+              Visa profil
+            </a>
+          )}
+        </div>
       </div>
 
       <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 sm:p-8">
