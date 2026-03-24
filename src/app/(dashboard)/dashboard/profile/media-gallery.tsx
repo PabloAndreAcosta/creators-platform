@@ -275,9 +275,9 @@ export function MediaGallery({ userId, initialMedia }: MediaGalleryProps) {
               <button
                 type="button"
                 onClick={() => handleRemove(item.id)}
-                className="absolute right-2 top-2 rounded-full bg-black/70 p-1.5 transition hover:bg-red-500/80 sm:hidden sm:group-hover:block"
+                className="absolute right-2 top-2 z-10 rounded-full bg-black/70 p-1.5 transition hover:bg-red-500/80"
               >
-                <X size={12} />
+                <X size={14} />
               </button>
 
               {/* Caption */}
