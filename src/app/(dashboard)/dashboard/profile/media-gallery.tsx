@@ -3,7 +3,7 @@
 import { useState, useRef, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/components/ui/toaster";
-import { Plus, X, Image as ImageIcon, Film, Loader2, GripVertical } from "lucide-react";
+import { Plus, X, Image as ImageIcon, Film, Loader2, GripVertical, Instagram } from "lucide-react";
 import Image from "next/image";
 import { addMedia, removeMedia } from "./media-actions";
 
@@ -245,14 +245,24 @@ export function MediaGallery({ userId, initialMedia }: MediaGalleryProps) {
                   <Film size={24} />
                 </div>
               )}
-              {item.media_type === "instagram-profile" && (
-                <iframe
-                  src={`${item.url.replace(/\/$/, '')}/embed`}
-                  className="h-full w-full border-0"
-                  loading="lazy"
-                  scrolling="no"
-                />
-              )}
+              {item.media_type === "instagram-profile" && (() => {
+                const usernameMatch = item.url.match(/instagram\.com\/([A-Za-z0-9._]+)/);
+                const igUsername = usernameMatch ? usernameMatch[1] : null;
+                return (
+                  <a
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex h-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-purple-600/20 to-pink-500/20 transition hover:from-purple-600/30 hover:to-pink-500/30"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Instagram size={28} className="text-pink-400" />
+                    {igUsername && (
+                      <span className="text-xs font-medium text-white/80">@{igUsername}</span>
+                    )}
+                  </a>
+                );
+              })()}
 
               {/* Type badge */}
               {item.media_type !== "image" && (

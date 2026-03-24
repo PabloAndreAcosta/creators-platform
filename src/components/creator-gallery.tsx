@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { X, Play } from "lucide-react";
+import { X, Play, Instagram } from "lucide-react";
 
 interface MediaItem {
   id: string;
@@ -75,14 +75,18 @@ export function CreatorGallery({ media }: { media: MediaItem[] }) {
                 <span className="text-2xl">IG</span>
               </div>
             )}
-            {item.media_type === "instagram-profile" && (
-              <iframe
-                src={`${item.url.replace(/\/$/, '')}/embed`}
-                className="h-full w-full border-0 pointer-events-none"
-                loading="lazy"
-                scrolling="no"
-              />
-            )}
+            {item.media_type === "instagram-profile" && (() => {
+              const usernameMatch = item.url.match(/instagram\.com\/([A-Za-z0-9._]+)/);
+              const igUsername = usernameMatch ? usernameMatch[1] : null;
+              return (
+                <div className="flex h-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-purple-600/20 to-pink-500/20">
+                  <Instagram size={28} className="text-pink-400" />
+                  {igUsername && (
+                    <span className="text-xs font-medium text-white/80">@{igUsername}</span>
+                  )}
+                </div>
+              );
+            })()}
 
             {item.media_type !== "image" && (
               <div className="absolute bottom-1 left-1 rounded-full bg-black/60 px-1.5 py-0.5 text-[8px] font-medium uppercase text-white">
