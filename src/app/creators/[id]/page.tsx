@@ -22,12 +22,17 @@ interface Props {
   params: { id: string };
 }
 
+function isUUID(str: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const supabase = await createClient();
+  const column = isUUID(params.id) ? "id" : "slug";
   const { data: profile } = await supabase
     .from("profiles")
     .select("full_name, bio, category, categories")
-    .eq("id", params.id)
+    .eq(column, params.id)
     .eq("is_public", true)
     .single();
 
@@ -53,13 +58,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CreatorProfilePage({ params }: Props) {
   const supabase = await createClient();
 
+  const column = isUUID(params.id) ? "id" : "slug";
   const [{ data: profile }, { data: { user } }] = await Promise.all([
     supabase
       .from("profiles")
       .select(
         "id, full_name, avatar_url, bio, category, location, hourly_rate, website, stripe_account_id, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3"
       )
-      .eq("id", params.id)
+      .eq(column, params.id)
       .eq("is_public", true)
       .single(),
     supabase.auth.getUser(),
