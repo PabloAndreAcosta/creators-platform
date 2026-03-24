@@ -235,7 +235,11 @@ export async function POST(req: NextRequest) {
         // Handle subscription checkouts
         if (!session.subscription) break;
 
-        const planKey = session.metadata?.plan || "basic";
+        const planKey = session.metadata?.plan;
+        if (!planKey) {
+          console.error("Webhook: No plan in session metadata, skipping subscription upsert");
+          break;
+        }
         const tier = extractTierFromPlan(planKey);
         const role = extractRoleFromPlan(planKey, session.metadata?.role);
 
