@@ -28,12 +28,6 @@ function getEmbedUrl(url: string): { type: string; embedUrl: string; thumbnail?:
     return { type: "instagram", embedUrl: `https://www.instagram.com/p/${igPostMatch[1]}/embed` };
   }
 
-  // Instagram profile
-  const igProfileMatch = url.match(/instagram\.com\/([A-Za-z0-9._]+)\/?(?:\?.*)?$/);
-  if (igProfileMatch && !["p", "reel", "explore", "accounts", "stories"].includes(igProfileMatch[1])) {
-    return { type: "instagram-profile", embedUrl: url };
-  }
-
   // Vimeo
   const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
   if (vimeoMatch) {
@@ -187,7 +181,7 @@ export function MediaGallery({ userId, initialMedia }: MediaGalleryProps) {
             type="text"
             value={embedUrl}
             onChange={(e) => setEmbedUrl(e.target.value)}
-            placeholder="https://www.instagram.com/p/... eller https://vimeo.com/..."
+            placeholder="https://www.instagram.com/p/..., https://vimeo.com/... eller https://youtube.com/..."
             className="flex-1 min-h-[44px] rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-base sm:text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
           />
           <button
