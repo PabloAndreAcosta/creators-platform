@@ -40,7 +40,7 @@ interface Profile {
 
 const inputClass = "w-full min-h-[44px] rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-base sm:text-sm outline-none transition focus:border-[var(--usha-gold)]/40";
 
-export default function ProfileForm({ profile, isPaidTier, isPremium }: { profile: Profile; isPaidTier: boolean; isPremium: boolean }) {
+export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer = false }: { profile: Profile; isPaidTier: boolean; isPremium: boolean; isCustomer?: boolean }) {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url);
@@ -242,8 +242,30 @@ export default function ProfileForm({ profile, isPaidTier, isPremium }: { profil
         />
       </div>
 
+      {/* Customer: simple city field */}
+      {isCustomer && (
+        <div>
+          <label htmlFor="customer_location" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
+            Stad
+          </label>
+          <input
+            id="customer_location"
+            name="customer_location"
+            type="text"
+            defaultValue={locations[0] || ""}
+            placeholder="t.ex. Stockholm"
+            className={inputClass}
+          />
+          <p className="mt-1 text-[10px] text-[var(--usha-muted)]">
+            Hjälper oss visa upplevelser nära dig.
+          </p>
+        </div>
+      )}
+
+      {/* === Creator-only sections === */}
+
       {/* Slug (vanity URL) - Guld & Premium */}
-      <div>
+      {!isCustomer && <div>
         <label htmlFor="slug" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
           Profiladress
           {!isPaidTier && (
@@ -277,10 +299,10 @@ export default function ProfileForm({ profile, isPaidTier, isPremium }: { profil
             <a href="/dashboard/billing" className="text-[var(--usha-gold)] hover:underline">Uppgradera</a>
           </p>
         )}
-      </div>
+      </div>}
 
       {/* Categories (multi-select pills) */}
-      <div>
+      {!isCustomer && <div>
         <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">
           Kategorier
         </label>
@@ -303,10 +325,10 @@ export default function ProfileForm({ profile, isPaidTier, isPremium }: { profil
             );
           })}
         </div>
-      </div>
+      </div>}
 
       {/* Bio */}
-      <div>
+      {!isCustomer && <div>
         <label htmlFor="bio" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
           Bio
         </label>
@@ -318,10 +340,10 @@ export default function ProfileForm({ profile, isPaidTier, isPremium }: { profil
           placeholder="Berätta om dig själv och vad du erbjuder..."
           className="w-full resize-none rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
         />
-      </div>
+      </div>}
 
       {/* Locations (tag input) */}
-      <div>
+      {!isCustomer && <div>
         <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">
           Platser
         </label>
@@ -366,10 +388,10 @@ export default function ProfileForm({ profile, isPaidTier, isPremium }: { profil
             <Plus size={14} />
           </button>
         </div>
-      </div>
+      </div>}
 
       {/* Rates per category */}
-      {selectedCategories.length > 0 && (
+      {!isCustomer && selectedCategories.length > 0 && (
         <div>
           <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">
             Timpris per kategori (SEK)
@@ -402,7 +424,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium }: { profil
       )}
 
       {/* Websites (tag input) */}
-      <div>
+      {!isCustomer && <div>
         <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">
           Webbplatser
         </label>
@@ -447,10 +469,10 @@ export default function ProfileForm({ profile, isPaidTier, isPremium }: { profil
             <Plus size={14} />
           </button>
         </div>
-      </div>
+      </div>}
 
       {/* Social media */}
-      <div>
+      {!isCustomer && <div>
         <label className="mb-3 block text-sm text-[var(--usha-muted)]">
           Sociala medier
         </label>
@@ -486,10 +508,10 @@ export default function ProfileForm({ profile, isPaidTier, isPremium }: { profil
             />
           </div>
         </div>
-      </div>
+      </div>}
 
       {/* Contact info */}
-      <div>
+      {!isCustomer && <div>
         <label className="mb-3 block text-sm text-[var(--usha-muted)]">
           Kontaktuppgifter
         </label>
@@ -524,10 +546,10 @@ export default function ProfileForm({ profile, isPaidTier, isPremium }: { profil
         <p className="mt-1 text-[10px] text-[var(--usha-muted)]">
           Visas på din publika profil om du vill bli kontaktad direkt.
         </p>
-      </div>
+      </div>}
 
       {/* White label - Premium only */}
-      <div className={`space-y-4 rounded-xl border p-5 ${isPremium ? "border-[var(--usha-premium)]/20 bg-[var(--usha-premium)]/5" : "border-[var(--usha-border)] opacity-60"}`}>
+      {!isCustomer && <div className={`space-y-4 rounded-xl border p-5 ${isPremium ? "border-[var(--usha-premium)]/20 bg-[var(--usha-premium)]/5" : "border-[var(--usha-border)] opacity-60"}`}>
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-sm font-semibold flex items-center gap-2">
@@ -655,10 +677,10 @@ export default function ProfileForm({ profile, isPaidTier, isPremium }: { profil
             Uppgradera till Premium
           </a>
         )}
-      </div>
+      </div>}
 
       {/* Public toggle */}
-      <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
+      {!isCustomer && <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
         <input
           type="checkbox"
           name="is_public"
@@ -671,7 +693,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium }: { profil
             Gör din profil synlig i marketplace så att kunder kan hitta dig.
           </p>
         </div>
-      </label>
+      </label>}
 
       {/* Submit */}
       <div className="flex justify-end">

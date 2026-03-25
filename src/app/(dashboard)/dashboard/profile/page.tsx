@@ -49,7 +49,9 @@ export default async function ProfilePage() {
           <div>
             <h1 className="text-3xl font-bold">Redigera profil</h1>
             <p className="mt-1 text-[var(--usha-muted)]">
-              Uppdatera din information och gör din profil synlig för kunder.
+              {isCreator
+                ? "Uppdatera din information och gör din profil synlig för kunder."
+                : "Uppdatera din profilinformation."}
             </p>
           </div>
           {profile.slug && profile.is_public && (
@@ -67,7 +69,7 @@ export default async function ProfilePage() {
       </div>
 
       <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 sm:p-8">
-        <ProfileForm profile={profile} isPaidTier={profile.tier === 'guld' || profile.tier === 'premium'} isPremium={profile.tier === 'premium'} />
+        <ProfileForm profile={profile} isPaidTier={profile.tier === 'guld' || profile.tier === 'premium'} isPremium={profile.tier === 'premium'} isCustomer={!isCreator} />
       </div>
 
       {isCreator && (

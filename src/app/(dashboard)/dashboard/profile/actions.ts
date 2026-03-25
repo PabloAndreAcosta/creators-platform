@@ -52,8 +52,14 @@ export async function updateProfile(formData: FormData) {
   let categories: string[] = [];
   try { categories = JSON.parse(formData.get("categories") as string || "[]"); } catch { categories = []; }
 
+  // Handle customer_location (simple single-city field) vs creator locations (multi-value)
   let locations: string[] = [];
-  try { locations = JSON.parse(formData.get("locations") as string || "[]"); } catch { locations = []; }
+  const customerLocation = (formData.get("customer_location") as string)?.trim();
+  if (customerLocation) {
+    locations = [customerLocation];
+  } else {
+    try { locations = JSON.parse(formData.get("locations") as string || "[]"); } catch { locations = []; }
+  }
 
   let rates: Record<string, number> = {};
   try { rates = JSON.parse(formData.get("rates") as string || "{}"); } catch { rates = {}; }
