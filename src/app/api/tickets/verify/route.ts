@@ -146,6 +146,7 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({
     valid,
     status,
+    bookingId: booking.id,
     ticket: {
       code: `USH-${booking.id.slice(0, 8).toUpperCase()}`,
       title,
