@@ -3,7 +3,7 @@
 import { useState, useRef, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/components/ui/toaster";
-import { Plus, X, Image as ImageIcon, Film, Loader2, GripVertical, Instagram, Star } from "lucide-react";
+import { Plus, X, Image as ImageIcon, Film, Loader2, GripVertical, Instagram, Star, Music } from "lucide-react";
 import Image from "next/image";
 import { addMedia, removeMedia, reorderMedia, toggleHero, updateMediaSection } from "./media-actions";
 import {
@@ -97,6 +97,15 @@ function SortableMediaCard({
       )}
       {(item.media_type === "youtube" || item.media_type === "vimeo") && (
         <Image src={item.thumbnail_url || "/placeholder.jpg"} alt={item.caption || ""} fill className="object-cover" />
+      )}
+      {item.media_type === "tiktok" && (
+        item.thumbnail_url ? (
+          <Image src={item.thumbnail_url} alt={item.caption || ""} fill className="object-cover" />
+        ) : (
+          <div className="flex h-full items-center justify-center bg-gradient-to-br from-cyan-500/20 to-pink-500/20 text-[var(--usha-muted)]">
+            <Music size={24} />
+          </div>
+        )
       )}
       {item.media_type === "instagram" && (
         <div className="flex h-full items-center justify-center bg-gradient-to-br from-purple-600/20 to-pink-500/20 text-[var(--usha-muted)]">

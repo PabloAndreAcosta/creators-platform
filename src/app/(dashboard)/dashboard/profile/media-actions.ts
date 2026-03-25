@@ -157,6 +157,51 @@ export async function importFacebookMedia(
   return { data };
 }
 
+export async function importTikTokMedia(
+  items: Array<{
+    media_url: string;
+    embed_url: string | null;
+    thumbnail_url: string | null;
+    caption: string | null;
+  }>
+) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { error: "Ej inloggad" };
+  if (!items.length) return { error: "Inga media valda" };
+
+  const { data: existing } = await supabase
+    .from("creator_media")
+    .select("sort_order")
+    .eq("user_id", user.id)
+    .order("sort_order", { ascending: false })
+    .limit(1);
+
+  let nextOrder = (existing?.[0]?.sort_order ?? -1) + 1;
+
+  const rows = items.map((item) => ({
+    user_id: user.id,
+    media_type: "tiktok",
+    url: item.embed_url || item.media_url,
+    thumbnail_url: item.thumbnail_url,
+    caption: item.caption,
+    sort_order: nextOrder++,
+  }));
+
+  const { data, error } = await supabase
+    .from("creator_media")
+    .insert(rows)
+    .select();
+
+  if (error) return { error: "Kunde inte importera media" };
+
+  revalidatePath("/dashboard/profile");
+  return { data };
+}
+
 export async function getCreatorMedia(userId: string) {
   const supabase = await createClient();
   const { data } = await supabase

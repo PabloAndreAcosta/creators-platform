@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { X, Play, Instagram } from "lucide-react";
+import { X, Play, Instagram, Music } from "lucide-react";
 
 interface MediaItem {
   id: string;
@@ -51,6 +51,10 @@ export function CreatorGallery({ media }: { media: MediaItem[] }) {
     if (item.media_type === "instagram-profile") {
       return item.url;
     }
+    if (item.media_type === "tiktok") {
+      // url contains embed_link or share_url
+      return item.url.includes("embed") ? item.url : null;
+    }
     return null;
   }
 
@@ -79,6 +83,20 @@ export function CreatorGallery({ media }: { media: MediaItem[] }) {
             ) : (
               <div className="flex h-full items-center justify-center text-[var(--usha-muted)]">
                 <Play size={24} />
+              </div>
+            )}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Play size={24} className="text-white drop-shadow-lg" />
+            </div>
+          </>
+        )}
+        {item.media_type === "tiktok" && (
+          <>
+            {item.thumbnail_url ? (
+              <Image src={item.thumbnail_url} alt={item.caption || ""} fill className="object-cover" />
+            ) : (
+              <div className="flex h-full items-center justify-center bg-gradient-to-br from-cyan-500/20 to-pink-500/20">
+                <Music size={24} className="text-white/60" />
               </div>
             )}
             <div className="absolute inset-0 flex items-center justify-center">
@@ -205,7 +223,7 @@ export function CreatorGallery({ media }: { media: MediaItem[] }) {
                 className="max-h-[85vh] max-w-[90vw]"
               />
             )}
-            {(lightbox.media_type === "youtube" || lightbox.media_type === "vimeo" || lightbox.media_type === "instagram" || lightbox.media_type === "instagram-profile") && (
+            {(lightbox.media_type === "youtube" || lightbox.media_type === "vimeo" || lightbox.media_type === "instagram" || lightbox.media_type === "instagram-profile" || lightbox.media_type === "tiktok") && (
               <iframe
                 src={getEmbedUrl(lightbox) || ""}
                 className="h-[70vh] w-[90vw] max-w-3xl"
