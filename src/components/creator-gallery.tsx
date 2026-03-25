@@ -10,12 +10,30 @@ interface MediaItem {
   url: string;
   thumbnail_url: string | null;
   caption: string | null;
+  is_hero?: boolean;
+  section?: string | null;
 }
 
 export function CreatorGallery({ media }: { media: MediaItem[] }) {
   const [lightbox, setLightbox] = useState<MediaItem | null>(null);
 
   if (media.length === 0) return null;
+
+  const heroItem = media.find((m) => m.is_hero);
+  const nonHeroItems = media.filter((m) => !m.is_hero);
+
+  // Group by section
+  const sections = new Map<string, MediaItem[]>();
+  const unsectioned: MediaItem[] = [];
+  for (const item of nonHeroItems) {
+    if (item.section) {
+      const existing = sections.get(item.section) || [];
+      existing.push(item);
+      sections.set(item.section, existing);
+    } else {
+      unsectioned.push(item);
+    }
+  }
 
   function getEmbedUrl(item: MediaItem): string | null {
     if (item.media_type === "youtube") {
@@ -36,72 +54,124 @@ export function CreatorGallery({ media }: { media: MediaItem[] }) {
     return null;
   }
 
+  function renderMediaCard(item: MediaItem) {
+    return (
+      <button
+        key={item.id}
+        onClick={() => setLightbox(item)}
+        className="group relative aspect-square overflow-hidden rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] transition hover:border-[var(--usha-gold)]/30"
+      >
+        {item.media_type === "image" && (
+          <Image src={item.url} alt={item.caption || ""} fill className="object-cover" />
+        )}
+        {item.media_type === "video" && (
+          <>
+            <video src={item.url} className="h-full w-full object-cover" muted playsInline />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Play size={24} className="text-white drop-shadow-lg" />
+            </div>
+          </>
+        )}
+        {(item.media_type === "youtube" || item.media_type === "vimeo") && (
+          <>
+            {item.thumbnail_url ? (
+              <Image src={item.thumbnail_url} alt={item.caption || ""} fill className="object-cover" />
+            ) : (
+              <div className="flex h-full items-center justify-center text-[var(--usha-muted)]">
+                <Play size={24} />
+              </div>
+            )}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Play size={24} className="text-white drop-shadow-lg" />
+            </div>
+          </>
+        )}
+        {item.media_type === "instagram" && (
+          <div className="flex h-full items-center justify-center bg-gradient-to-br from-purple-600/20 to-pink-500/20 text-[var(--usha-muted)]">
+            <span className="text-2xl">IG</span>
+          </div>
+        )}
+        {item.media_type === "instagram-profile" && (() => {
+          const usernameMatch = item.url.match(/instagram\.com\/([A-Za-z0-9._]+)/);
+          const igUsername = usernameMatch ? usernameMatch[1] : null;
+          return (
+            <div className="flex h-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-purple-600/20 to-pink-500/20">
+              <Instagram size={28} className="text-pink-400" />
+              {igUsername && (
+                <span className="text-xs font-medium text-white/80">@{igUsername}</span>
+              )}
+            </div>
+          );
+        })()}
+
+        {item.media_type !== "image" && (
+          <div className="absolute bottom-1 left-1 rounded-full bg-black/60 px-1.5 py-0.5 text-[8px] font-medium uppercase text-white">
+            {item.media_type}
+          </div>
+        )}
+
+        {item.caption && (
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-2 pt-6 opacity-0 transition group-hover:opacity-100">
+            <p className="text-[10px] text-white/90">{item.caption}</p>
+          </div>
+        )}
+      </button>
+    );
+  }
+
+  function renderGrid(items: MediaItem[]) {
+    return (
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+        {items.map(renderMediaCard)}
+      </div>
+    );
+  }
+
   return (
     <>
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
-        {media.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => setLightbox(item)}
-            className="group relative aspect-square overflow-hidden rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] transition hover:border-[var(--usha-gold)]/30"
-          >
-            {item.media_type === "image" && (
-              <Image src={item.url} alt={item.caption || ""} fill className="object-cover" />
-            )}
-            {item.media_type === "video" && (
-              <>
-                <video src={item.url} className="h-full w-full object-cover" muted playsInline />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Play size={24} className="text-white drop-shadow-lg" />
-                </div>
-              </>
-            )}
-            {(item.media_type === "youtube" || item.media_type === "vimeo") && (
-              <>
-                {item.thumbnail_url ? (
-                  <Image src={item.thumbnail_url} alt={item.caption || ""} fill className="object-cover" />
-                ) : (
-                  <div className="flex h-full items-center justify-center text-[var(--usha-muted)]">
-                    <Play size={24} />
-                  </div>
-                )}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Play size={24} className="text-white drop-shadow-lg" />
-                </div>
-              </>
-            )}
-            {item.media_type === "instagram" && (
-              <div className="flex h-full items-center justify-center bg-gradient-to-br from-purple-600/20 to-pink-500/20 text-[var(--usha-muted)]">
-                <span className="text-2xl">IG</span>
+      {/* Hero image */}
+      {heroItem && (
+        <button
+          onClick={() => setLightbox(heroItem)}
+          className="group relative mb-4 aspect-[21/9] w-full overflow-hidden rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] transition hover:border-[var(--usha-gold)]/30"
+        >
+          {heroItem.media_type === "image" && (
+            <Image src={heroItem.url} alt={heroItem.caption || ""} fill className="object-cover" />
+          )}
+          {heroItem.media_type === "video" && (
+            <>
+              <video src={heroItem.url} className="h-full w-full object-cover" muted playsInline autoPlay loop />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Play size={40} className="text-white drop-shadow-lg" />
               </div>
-            )}
-            {item.media_type === "instagram-profile" && (() => {
-              const usernameMatch = item.url.match(/instagram\.com\/([A-Za-z0-9._]+)/);
-              const igUsername = usernameMatch ? usernameMatch[1] : null;
-              return (
-                <div className="flex h-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-purple-600/20 to-pink-500/20">
-                  <Instagram size={28} className="text-pink-400" />
-                  {igUsername && (
-                    <span className="text-xs font-medium text-white/80">@{igUsername}</span>
-                  )}
-                </div>
-              );
-            })()}
+            </>
+          )}
+          {(heroItem.media_type === "youtube" || heroItem.media_type === "vimeo") && heroItem.thumbnail_url && (
+            <>
+              <Image src={heroItem.thumbnail_url} alt={heroItem.caption || ""} fill className="object-cover" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Play size={40} className="text-white drop-shadow-lg" />
+              </div>
+            </>
+          )}
+          {heroItem.caption && (
+            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4 pt-10 opacity-0 transition group-hover:opacity-100">
+              <p className="text-sm text-white/90">{heroItem.caption}</p>
+            </div>
+          )}
+        </button>
+      )}
 
-            {item.media_type !== "image" && (
-              <div className="absolute bottom-1 left-1 rounded-full bg-black/60 px-1.5 py-0.5 text-[8px] font-medium uppercase text-white">
-                {item.media_type}
-              </div>
-            )}
+      {/* Sectioned content */}
+      {Array.from(sections.entries()).map(([sectionName, items]) => (
+        <div key={sectionName} className="mb-6">
+          <h3 className="mb-3 text-sm font-semibold text-[var(--usha-muted)]">{sectionName}</h3>
+          {renderGrid(items)}
+        </div>
+      ))}
 
-            {item.caption && (
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-2 pt-6 opacity-0 transition group-hover:opacity-100">
-                <p className="text-[10px] text-white/90">{item.caption}</p>
-              </div>
-            )}
-          </button>
-        ))}
-      </div>
+      {/* Unsectioned content */}
+      {unsectioned.length > 0 && renderGrid(unsectioned)}
 
       {/* Lightbox */}
       {lightbox && (

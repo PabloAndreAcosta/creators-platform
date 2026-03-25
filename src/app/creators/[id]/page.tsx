@@ -108,7 +108,7 @@ export default async function CreatorProfilePage({ params }: Props) {
       .lte("available_date", endOfMonth),
     supabase
       .from("creator_media")
-      .select("id, media_type, url, thumbnail_url, caption")
+      .select("id, media_type, url, thumbnail_url, caption, is_hero, section")
       .eq("user_id", profile.id)
       .order("sort_order", { ascending: true }),
     supabase

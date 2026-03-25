@@ -3,9 +3,25 @@
 import { useState, useRef, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/components/ui/toaster";
-import { Plus, X, Image as ImageIcon, Film, Loader2, GripVertical, Instagram } from "lucide-react";
+import { Plus, X, Image as ImageIcon, Film, Loader2, GripVertical, Instagram, Star } from "lucide-react";
 import Image from "next/image";
-import { addMedia, removeMedia } from "./media-actions";
+import { addMedia, removeMedia, reorderMedia, toggleHero, updateMediaSection } from "./media-actions";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  rectSortingStrategy,
+  useSortable,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface MediaItem {
   id: string;
@@ -14,6 +30,8 @@ interface MediaItem {
   thumbnail_url: string | null;
   caption: string | null;
   sort_order: number;
+  is_hero?: boolean;
+  section?: string | null;
 }
 
 interface MediaGalleryProps {
@@ -22,13 +40,10 @@ interface MediaGalleryProps {
 }
 
 function getEmbedUrl(url: string): { type: string; embedUrl: string; thumbnail?: string } | null {
-  // Instagram post or reel
   const igPostMatch = url.match(/instagram\.com\/(?:p|reel)\/([A-Za-z0-9_-]+)/);
   if (igPostMatch) {
     return { type: "instagram", embedUrl: `https://www.instagram.com/p/${igPostMatch[1]}/embed` };
   }
-
-  // Vimeo
   const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
   if (vimeoMatch) {
     return {
@@ -37,8 +52,6 @@ function getEmbedUrl(url: string): { type: string; embedUrl: string; thumbnail?:
       thumbnail: `https://vumbnail.com/${vimeoMatch[1]}.jpg`,
     };
   }
-
-  // YouTube
   const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([A-Za-z0-9_-]+)/);
   if (ytMatch) {
     return {
@@ -47,8 +60,127 @@ function getEmbedUrl(url: string): { type: string; embedUrl: string; thumbnail?:
       thumbnail: `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg`,
     };
   }
-
   return null;
+}
+
+function SortableMediaCard({
+  item,
+  onRemove,
+  onToggleHero,
+  onSectionChange,
+  sections,
+  isPending,
+}: {
+  item: MediaItem;
+  onRemove: (id: string) => void;
+  onToggleHero: (id: string) => void;
+  onSectionChange: (id: string, section: string) => void;
+  sections: string[];
+  isPending: boolean;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 10 : undefined,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className="group relative aspect-square overflow-hidden rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)]">
+      {item.media_type === "image" && (
+        <Image src={item.url} alt={item.caption || ""} fill className="object-cover" />
+      )}
+      {item.media_type === "video" && (
+        <video src={item.url} className="h-full w-full object-cover" muted playsInline />
+      )}
+      {(item.media_type === "youtube" || item.media_type === "vimeo") && (
+        <Image src={item.thumbnail_url || "/placeholder.jpg"} alt={item.caption || ""} fill className="object-cover" />
+      )}
+      {item.media_type === "instagram" && (
+        <div className="flex h-full items-center justify-center bg-gradient-to-br from-purple-600/20 to-pink-500/20 text-[var(--usha-muted)]">
+          <Film size={24} />
+        </div>
+      )}
+      {item.media_type === "instagram-profile" && (() => {
+        const usernameMatch = item.url.match(/instagram\.com\/([A-Za-z0-9._]+)/);
+        const igUsername = usernameMatch ? usernameMatch[1] : null;
+        return (
+          <a
+            href={item.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex h-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-purple-600/20 to-pink-500/20 transition hover:from-purple-600/30 hover:to-pink-500/30"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Instagram size={28} className="text-pink-400" />
+            {igUsername && <span className="text-xs font-medium text-white/80">@{igUsername}</span>}
+          </a>
+        );
+      })()}
+
+      {/* Type badge */}
+      {item.media_type !== "image" && (
+        <div className="absolute bottom-2 left-2 rounded-full bg-black/70 px-2 py-0.5 text-[9px] font-medium uppercase">
+          {item.media_type}
+        </div>
+      )}
+
+      {/* Drag handle */}
+      <button
+        type="button"
+        {...attributes}
+        {...listeners}
+        className="absolute left-2 top-2 z-10 cursor-grab rounded-full bg-black/70 p-1.5 opacity-0 transition group-hover:opacity-100 active:cursor-grabbing"
+      >
+        <GripVertical size={14} />
+      </button>
+
+      {/* Hero toggle */}
+      <button
+        type="button"
+        onClick={() => onToggleHero(item.id)}
+        disabled={isPending}
+        className={`absolute left-10 top-2 z-10 rounded-full p-1.5 transition ${
+          item.is_hero
+            ? "bg-[var(--usha-gold)] text-black"
+            : "bg-black/70 opacity-0 group-hover:opacity-100"
+        }`}
+        title={item.is_hero ? "Ta bort som omslagsbild" : "Sätt som omslagsbild"}
+      >
+        <Star size={14} fill={item.is_hero ? "currentColor" : "none"} />
+      </button>
+
+      {/* Remove button */}
+      <button
+        type="button"
+        onClick={() => onRemove(item.id)}
+        className="absolute right-2 top-2 z-10 rounded-full bg-black/70 p-1.5 transition hover:bg-red-500/80"
+      >
+        <X size={14} />
+      </button>
+
+      {/* Section selector */}
+      <div className="absolute bottom-2 right-2 z-10 opacity-0 transition group-hover:opacity-100">
+        <input
+          type="text"
+          value={item.section || ""}
+          onChange={(e) => onSectionChange(item.id, e.target.value)}
+          placeholder="Sektion"
+          list="media-sections"
+          className="w-20 rounded-full bg-black/70 px-2 py-0.5 text-[9px] text-white outline-none placeholder:text-white/50 focus:w-28"
+        />
+      </div>
+
+      {/* Caption */}
+      {item.caption && (
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2 pt-6">
+          <p className="text-[10px] text-white/80">{item.caption}</p>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function MediaGallery({ userId, initialMedia }: MediaGalleryProps) {
@@ -59,6 +191,14 @@ export function MediaGallery({ userId, initialMedia }: MediaGalleryProps) {
   const [embedCaption, setEmbedCaption] = useState("");
   const [isPending, startTransition] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } })
+  );
+
+  // Collect unique sections for datalist
+  const sections = Array.from(new Set(media.map((m) => m.section).filter(Boolean) as string[]));
 
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files || []);
@@ -144,10 +284,58 @@ export function MediaGallery({ userId, initialMedia }: MediaGalleryProps) {
     });
   }
 
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    setMedia((prev) => {
+      const oldIndex = prev.findIndex((m) => m.id === active.id);
+      const newIndex = prev.findIndex((m) => m.id === over.id);
+      const reordered = arrayMove(prev, oldIndex, newIndex);
+
+      // Save new order to server (non-blocking)
+      startTransition(async () => {
+        const result = await reorderMedia(reordered.map((m) => m.id));
+        if (result.error) {
+          toast.error("Kunde inte spara ordning", result.error);
+        }
+      });
+
+      return reordered;
+    });
+  }
+
+  function handleToggleHero(id: string) {
+    startTransition(async () => {
+      const result = await toggleHero(id);
+      if (result.success) {
+        setMedia((prev) =>
+          prev.map((m) => ({
+            ...m,
+            is_hero: m.id === id ? !m.is_hero : false,
+          }))
+        );
+      } else {
+        toast.error("Kunde inte ändra omslagsbild", result.error || "");
+      }
+    });
+  }
+
+  function handleSectionChange(id: string, section: string) {
+    // Update locally immediately
+    setMedia((prev) => prev.map((m) => (m.id === id ? { ...m, section: section || null } : m)));
+
+    // Debounce save — save on blur instead (handled by input's onChange + server action)
+    startTransition(async () => {
+      await updateMediaSection(id, section || null);
+    });
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-bold">Portfolio</h2>
+        <p className="text-[10px] text-[var(--usha-muted)]">Dra för att ändra ordning</p>
       </div>
 
       {/* Upload buttons */}
@@ -202,87 +390,32 @@ export function MediaGallery({ userId, initialMedia }: MediaGalleryProps) {
         />
       </div>
 
-      {/* Gallery grid */}
+      {/* Sections datalist */}
+      <datalist id="media-sections">
+        {sections.map((s) => (
+          <option key={s} value={s} />
+        ))}
+      </datalist>
+
+      {/* Gallery grid with drag-and-drop */}
       {media.length > 0 && (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {media.map((item) => (
-            <div
-              key={item.id}
-              className="group relative aspect-square overflow-hidden rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)]"
-            >
-              {item.media_type === "image" && (
-                <Image
-                  src={item.url}
-                  alt={item.caption || ""}
-                  fill
-                  className="object-cover"
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={media.map((m) => m.id)} strategy={rectSortingStrategy}>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {media.map((item) => (
+                <SortableMediaCard
+                  key={item.id}
+                  item={item}
+                  onRemove={handleRemove}
+                  onToggleHero={handleToggleHero}
+                  onSectionChange={handleSectionChange}
+                  sections={sections}
+                  isPending={isPending}
                 />
-              )}
-              {item.media_type === "video" && (
-                <video
-                  src={item.url}
-                  className="h-full w-full object-cover"
-                  muted
-                  playsInline
-                />
-              )}
-              {(item.media_type === "youtube" || item.media_type === "vimeo") && (
-                <Image
-                  src={item.thumbnail_url || "/placeholder.jpg"}
-                  alt={item.caption || ""}
-                  fill
-                  className="object-cover"
-                />
-              )}
-              {item.media_type === "instagram" && (
-                <div className="flex h-full items-center justify-center bg-gradient-to-br from-purple-600/20 to-pink-500/20 text-[var(--usha-muted)]">
-                  <Film size={24} />
-                </div>
-              )}
-              {item.media_type === "instagram-profile" && (() => {
-                const usernameMatch = item.url.match(/instagram\.com\/([A-Za-z0-9._]+)/);
-                const igUsername = usernameMatch ? usernameMatch[1] : null;
-                return (
-                  <a
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex h-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-purple-600/20 to-pink-500/20 transition hover:from-purple-600/30 hover:to-pink-500/30"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <Instagram size={28} className="text-pink-400" />
-                    {igUsername && (
-                      <span className="text-xs font-medium text-white/80">@{igUsername}</span>
-                    )}
-                  </a>
-                );
-              })()}
-
-              {/* Type badge */}
-              {item.media_type !== "image" && (
-                <div className="absolute bottom-2 left-2 rounded-full bg-black/70 px-2 py-0.5 text-[9px] font-medium uppercase">
-                  {item.media_type}
-                </div>
-              )}
-
-              {/* Remove button */}
-              <button
-                type="button"
-                onClick={() => handleRemove(item.id)}
-                className="absolute right-2 top-2 z-10 rounded-full bg-black/70 p-1.5 transition hover:bg-red-500/80"
-              >
-                <X size={14} />
-              </button>
-
-              {/* Caption */}
-              {item.caption && (
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2 pt-6">
-                  <p className="text-[10px] text-white/80">{item.caption}</p>
-                </div>
-              )}
+              ))}
             </div>
-          ))}
-        </div>
+          </SortableContext>
+        </DndContext>
       )}
 
       {media.length === 0 && (

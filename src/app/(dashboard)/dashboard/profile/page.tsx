@@ -25,7 +25,7 @@ export default async function ProfilePage() {
       .single(),
     supabase
       .from("creator_media")
-      .select("id, media_type, url, thumbnail_url, caption, sort_order")
+      .select("id, media_type, url, thumbnail_url, caption, sort_order, is_hero, section")
       .eq("user_id", user.id)
       .order("sort_order", { ascending: true }),
   ]);
