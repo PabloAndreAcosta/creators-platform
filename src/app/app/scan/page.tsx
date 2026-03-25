@@ -124,7 +124,11 @@ export default function ScanPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || "Kunde inte verifiera biljett");
+        if (res.status === 403) {
+          setError("Du kan bara skanna biljetter för dina egna evenemang.");
+        } else {
+          setError(data.error || "Kunde inte verifiera biljett");
+        }
       } else {
         setResult(data);
       }

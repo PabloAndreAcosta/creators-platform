@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
   const { data: booking, error: bookingError } = await supabase
     .from("bookings")
     .select(
-      "id, listing_id, status, scheduled_at, notes, amount_paid, booking_type"
+      "id, listing_id, creator_id, status, scheduled_at, notes, amount_paid, booking_type"
     )
     .ilike("id", `${idPrefix}%`)
     .limit(1)
@@ -77,6 +77,14 @@ export async function GET(request: NextRequest) {
         location: null,
       },
     });
+  }
+
+  // Only the creator/organizer of this booking can verify tickets
+  if (booking.creator_id !== user.id) {
+    return NextResponse.json(
+      { error: "Bara arrangören kan verifiera biljetter" },
+      { status: 403 }
+    );
   }
 
   // Fetch listing details
