@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { Calendar, MapPin, Clock, QrCode, X, Ticket } from "lucide-react";
+import { Calendar, MapPin, Clock, QrCode, X, Ticket, User } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
+import Image from "next/image";
 import QRCode from "qrcode";
 
 interface TicketData {
@@ -17,6 +18,9 @@ interface TicketData {
   type: string;
   amountPaid: number | null;
   bookingType: string;
+  imageUrl: string | null;
+  creatorName: string | null;
+  creatorAvatar: string | null;
 }
 
 interface BookingData {
@@ -26,7 +30,19 @@ interface BookingData {
   notes: string | null;
   amount_paid: number | null;
   booking_type: string | null;
-  listings: { title: string; category: string; image_url?: string | null; event_date?: string | null; event_time?: string | null; event_location?: string | null } | null;
+  listings: {
+    title: string;
+    category: string;
+    image_url?: string | null;
+    event_date?: string | null;
+    event_time?: string | null;
+    event_location?: string | null;
+  } | null;
+  creator: {
+    id: string;
+    full_name: string | null;
+    avatar_url: string | null;
+  } | null;
 }
 
 interface TicketsContentProps {
@@ -47,7 +63,6 @@ function bookingToTicket(booking: BookingData): TicketData {
     status = hoursUntil <= 24 ? "active" : "upcoming";
   }
 
-  // Prefer event_date/event_time from listing over scheduled_at
   const listing = booking.listings;
   let displayDate: string;
   let displayTime: string;
@@ -88,6 +103,9 @@ function bookingToTicket(booking: BookingData): TicketData {
     type: listing?.category || "Bokning",
     amountPaid: booking.amount_paid,
     bookingType: booking.booking_type || "manual",
+    imageUrl: listing?.image_url || null,
+    creatorName: booking.creator?.full_name || null,
+    creatorAvatar: booking.creator?.avatar_url || null,
   };
 }
 
@@ -99,7 +117,6 @@ export function TicketsContent({ bookings }: TicketsContentProps) {
   useEffect(() => {
     if (searchParams.get("success") === "true") {
       toast.success("Biljett köpt!", "Din biljett finns nu här nedanför.");
-      // Clean up URL
       window.history.replaceState({}, "", "/app/tickets");
     }
   }, [searchParams, toast]);
@@ -122,6 +139,12 @@ export function TicketsContent({ bookings }: TicketsContentProps) {
           <p className="mt-1 text-sm text-[var(--usha-muted)]">
             Boka ett evenemang för att få din första biljett
           </p>
+          <a
+            href="/app"
+            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-6 py-2.5 text-sm font-bold text-black transition hover:opacity-90"
+          >
+            Utforska upplevelser
+          </a>
         </div>
       </div>
     );
@@ -129,7 +152,12 @@ export function TicketsContent({ bookings }: TicketsContentProps) {
 
   return (
     <div className="px-4 py-6 space-y-8">
-      <h1 className="text-2xl font-bold">Mina Biljetter</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Mina Biljetter</h1>
+        <span className="rounded-full bg-[var(--usha-gold)]/10 px-3 py-1 text-xs font-medium text-[var(--usha-gold)]">
+          {tickets.length} {tickets.length === 1 ? "upplevelse" : "upplevelser"}
+        </span>
+      </div>
 
       {/* Active Tickets */}
       {activeTickets.length > 0 && (
@@ -155,9 +183,9 @@ export function TicketsContent({ bookings }: TicketsContentProps) {
           <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-[var(--usha-muted)]">
             Använda Biljetter
           </h2>
-          <div className="space-y-4 opacity-60 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
+          <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
             {usedTickets.map((ticket) => (
-              <TicketCard key={ticket.id} ticket={ticket} />
+              <TicketCard key={ticket.id} ticket={ticket} used />
             ))}
           </div>
         </section>
@@ -177,28 +205,31 @@ export function TicketsContent({ bookings }: TicketsContentProps) {
 function TicketCard({
   ticket,
   onShowQR,
+  used = false,
 }: {
   ticket: TicketData;
   onShowQR?: () => void;
+  used?: boolean;
 }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)]">
-      {/* Ticket top */}
-      <div className="p-4">
-        <div className="mb-3 flex items-start justify-between">
-          <div>
-            <h3 className="font-semibold">{ticket.title}</h3>
-            <span className="mt-1 inline-block rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-[10px] font-medium text-[var(--usha-gold)]">
-              {ticket.type}
-            </span>
-          </div>
+    <div className={`overflow-hidden rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] ${used ? "opacity-60" : ""}`}>
+      {/* Event image */}
+      {ticket.imageUrl && (
+        <div className="relative h-32 w-full">
+          <Image
+            src={ticket.imageUrl}
+            alt={ticket.title}
+            fill
+            className="object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[var(--usha-card)] to-transparent" />
           <span
-            className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${
+            className={`absolute right-3 top-3 rounded-full px-2.5 py-1 text-[10px] font-semibold ${
               ticket.status === "active"
-                ? "bg-green-500/20 text-green-400"
+                ? "bg-green-500/90 text-white"
                 : ticket.status === "upcoming"
-                  ? "bg-blue-500/20 text-blue-400"
-                  : "bg-[var(--usha-muted)]/20 text-[var(--usha-muted)]"
+                  ? "bg-blue-500/90 text-white"
+                  : "bg-black/60 text-white/80"
             }`}
           >
             {ticket.status === "active"
@@ -208,6 +239,55 @@ function TicketCard({
                 : "Använd"}
           </span>
         </div>
+      )}
+
+      {/* Ticket info */}
+      <div className="p-4">
+        <div className="mb-3 flex items-start justify-between">
+          <div>
+            <h3 className="font-semibold">{ticket.title}</h3>
+            <span className="mt-1 inline-block rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-[10px] font-medium text-[var(--usha-gold)]">
+              {ticket.type}
+            </span>
+          </div>
+          {!ticket.imageUrl && (
+            <span
+              className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${
+                ticket.status === "active"
+                  ? "bg-green-500/20 text-green-400"
+                  : ticket.status === "upcoming"
+                    ? "bg-blue-500/20 text-blue-400"
+                    : "bg-[var(--usha-muted)]/20 text-[var(--usha-muted)]"
+              }`}
+            >
+              {ticket.status === "active"
+                ? "Aktiv"
+                : ticket.status === "upcoming"
+                  ? "Kommande"
+                  : "Använd"}
+            </span>
+          )}
+        </div>
+
+        {/* Creator info */}
+        {ticket.creatorName && (
+          <div className="mb-3 flex items-center gap-2">
+            {ticket.creatorAvatar ? (
+              <Image
+                src={ticket.creatorAvatar}
+                alt={ticket.creatorName}
+                width={20}
+                height={20}
+                className="rounded-full object-cover"
+              />
+            ) : (
+              <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--usha-border)]">
+                <User size={10} className="text-[var(--usha-muted)]" />
+              </div>
+            )}
+            <span className="text-xs text-[var(--usha-muted)]">{ticket.creatorName}</span>
+          </div>
+        )}
 
         <div className="space-y-1.5 text-xs text-[var(--usha-muted)]">
           <div className="flex items-center gap-2">
@@ -280,8 +360,8 @@ function QRModal({
   }, [ticket.code, ticket.id]);
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm">
-      <div className="mx-4 w-full max-w-sm rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm" onClick={onClose}>
+      <div className="mx-4 w-full max-w-sm rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
           <h3 className="text-lg font-bold">Din Biljett</h3>
@@ -309,6 +389,11 @@ function QRModal({
         {/* Ticket info */}
         <div className="text-center">
           <h4 className="text-base font-bold">{ticket.title}</h4>
+          {ticket.creatorName && (
+            <p className="mt-0.5 text-sm text-[var(--usha-muted)]">
+              av {ticket.creatorName}
+            </p>
+          )}
           <p className="mt-1 text-sm text-[var(--usha-muted)]">
             {ticket.date} · {ticket.time}
           </p>

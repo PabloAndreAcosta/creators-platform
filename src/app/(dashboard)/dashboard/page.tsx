@@ -10,6 +10,7 @@ import {
   Clock,
   Wallet,
   Tag,
+  Ticket,
 } from "lucide-react";
 import Link from "next/link";
 import { isAdmin } from "@/lib/admin/check";
@@ -244,6 +245,16 @@ function CustomerDashboard({ profile }: { profile: any }) {
           <h3 className="mb-1 font-semibold">Utforska</h3>
           <p className="text-sm text-[var(--usha-muted)]">
             Hitta kreatörer och upplevelser
+          </p>
+        </Link>
+        <Link
+          href="/app/tickets"
+          className="rounded-xl border border-[var(--usha-gold)]/20 bg-[var(--usha-card)] p-6 transition-colors hover:border-[var(--usha-gold)]/40"
+        >
+          <Ticket size={20} className="mb-3 text-[var(--usha-gold)]" />
+          <h3 className="mb-1 font-semibold">Mina biljetter</h3>
+          <p className="text-sm text-[var(--usha-muted)]">
+            Samla och visa dina upplevelser
           </p>
         </Link>
         <Link
