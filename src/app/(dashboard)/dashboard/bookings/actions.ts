@@ -9,6 +9,7 @@ import { stripe } from "@/lib/stripe/client";
 import { sendBookingConfirmationEmail, sendBookingCancellationEmail } from "@/lib/email/send-booking";
 import { shouldSendEmail } from "@/lib/email/check-preferences";
 import { isGoldExclusive } from "@/lib/listings/early-bird";
+import { BETA_MODE } from "@/lib/beta";
 import { notifyNewBooking, notifyBookingConfirmed, notifyBookingCanceled } from "@/lib/notifications/create";
 
 export async function createBooking(formData: FormData) {
@@ -88,7 +89,7 @@ export async function createBooking(formData: FormData) {
         .eq("id", user.id)
         .single();
       const tier = profile?.tier ?? "gratis";
-      if (tier !== "guld" && tier !== "premium") {
+      if (!BETA_MODE && tier !== "guld" && tier !== "premium") {
         const hours = Math.ceil((releaseDate.getTime() - Date.now()) / (60 * 60 * 1000));
         return { error: `Detta event är exklusivt för Guld/Premium-medlemmar i ${hours} timmar till.` };
       }

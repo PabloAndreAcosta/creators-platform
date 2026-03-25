@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type { MemberTier, MemberRole } from "@/types/database";
+import { BETA_MODE } from "@/lib/beta";
 
 interface SubscriptionStatus {
   tier: MemberTier;
@@ -45,9 +46,9 @@ export async function getSubscriptionStatus(
     .single();
 
   return {
-    tier,
+    tier: BETA_MODE ? "premium" : tier,
     role,
-    hasActiveSubscription: !!sub,
+    hasActiveSubscription: BETA_MODE ? true : !!sub,
   };
 }
 

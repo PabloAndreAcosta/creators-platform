@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from "react";
 import { useSubscription } from "@/lib/subscription/context";
 import { UpgradePrompt } from "./UpgradePrompt";
+import { BETA_MODE } from "@/lib/beta";
 
 interface GatedActionProps {
   children: ReactNode;
@@ -17,7 +18,7 @@ export function GatedAction({ children, message }: GatedActionProps) {
   const { tier } = useSubscription();
   const [showPrompt, setShowPrompt] = useState(false);
 
-  if (tier !== "gratis") {
+  if (BETA_MODE || tier !== "gratis") {
     return <>{children}</>;
   }
 

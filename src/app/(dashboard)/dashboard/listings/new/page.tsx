@@ -4,12 +4,15 @@ import { redirect } from "next/navigation";
 import ListingForm from "../listing-form";
 import { createListing } from "../actions";
 import { getSubscriptionStatus } from "@/lib/subscription/check";
+import { BETA_MODE } from "@/lib/beta";
 
 export default async function NewListingPage() {
-  // Server-side guard: redirect gratis users
-  const { tier } = await getSubscriptionStatus();
-  if (tier === "gratis") {
-    redirect("/dashboard/billing");
+  // Server-side guard: redirect gratis users (skipped in beta)
+  if (!BETA_MODE) {
+    const { tier } = await getSubscriptionStatus();
+    if (tier === "gratis") {
+      redirect("/dashboard/billing");
+    }
   }
 
   return (

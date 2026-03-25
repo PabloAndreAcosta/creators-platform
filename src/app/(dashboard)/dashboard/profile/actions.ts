@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { BETA_MODE } from "@/lib/beta";
 
 const VALID_CATEGORIES = ["dance", "music", "performance", "photo", "video", "design", "yoga", "fitness", "other"] as const;
 
@@ -31,7 +32,7 @@ export async function updateProfile(formData: FormData) {
       .eq("id", user.id)
       .single();
 
-    if (userProfile?.tier !== "premium" && userProfile?.tier !== "guld") {
+    if (!BETA_MODE && userProfile?.tier !== "premium" && userProfile?.tier !== "guld") {
       return { error: "Egen profiladress kräver Guld- eller Premium-planen." };
     }
 

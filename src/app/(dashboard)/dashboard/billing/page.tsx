@@ -7,6 +7,7 @@ import { CheckoutButton, PortalButton } from "./checkout-button";
 import type { MemberRole } from "@/types/database";
 import CreatorTierInfo from "@/components/dashboard/CreatorTierInfo";
 import ConnectButton from "./connect-button";
+import { BETA_MODE } from "@/lib/beta";
 
 export const dynamic = "force-dynamic";
 
@@ -95,6 +96,12 @@ export default async function BillingPage({
       {success && (
         <div className="mb-6 rounded-xl border border-green-500/20 bg-green-500/10 px-4 py-3 text-sm font-medium text-green-400">
           Betalningen lyckades! Din plan är nu aktiv.
+        </div>
+      )}
+
+      {BETA_MODE && (
+        <div className="mb-6 rounded-xl border border-[var(--usha-gold)]/30 bg-[var(--usha-gold)]/10 px-4 py-3 text-sm font-medium text-[var(--usha-gold)]">
+          Beta-period — alla funktioner är upplåsta gratis för alla användare.
         </div>
       )}
 

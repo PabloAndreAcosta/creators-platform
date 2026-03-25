@@ -5,6 +5,7 @@ import { ArrowLeft, ExternalLink } from "lucide-react";
 import ProfileForm from "./profile-form";
 import { MediaGallery } from "./media-gallery";
 import { InstagramConnect } from "./instagram-connect";
+import { BETA_MODE } from "@/lib/beta";
 
 export default async function ProfilePage() {
   const supabase = await createClient();
@@ -69,7 +70,7 @@ export default async function ProfilePage() {
       </div>
 
       <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 sm:p-8">
-        <ProfileForm profile={profile} isPaidTier={profile.tier === 'guld' || profile.tier === 'premium'} isPremium={profile.tier === 'premium'} isCustomer={!isCreator} />
+        <ProfileForm profile={profile} isPaidTier={BETA_MODE || profile.tier === 'guld' || profile.tier === 'premium'} isPremium={BETA_MODE || profile.tier === 'premium'} isCustomer={!isCreator} />
       </div>
 
       {isCreator && (
