@@ -73,6 +73,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       valid: false,
       status: "not_found",
+      debug: { idPrefix, bookingError: bookingError?.message || null },
       ticket: {
         code: ticketCode,
         title: "Okänd",
