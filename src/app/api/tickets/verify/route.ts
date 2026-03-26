@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -53,8 +54,11 @@ export async function GET(request: NextRequest) {
     idPrefix = "";
   }
 
+  // Use admin client to bypass RLS — we verify permissions manually below
+  const admin = createAdminClient();
+
   // Search for booking where id starts with the prefix
-  const { data: booking, error: bookingError } = await supabase
+  const { data: booking, error: bookingError } = await admin
     .from("bookings")
     .select(
       "id, listing_id, creator_id, status, scheduled_at, notes, amount_paid, booking_type"
@@ -88,7 +92,7 @@ export async function GET(request: NextRequest) {
   }
 
   // Fetch listing details
-  const { data: listing } = await supabase
+  const { data: listing } = await admin
     .from("listings")
     .select("title, event_date, event_time, event_location")
     .eq("id", booking.listing_id)
