@@ -7,7 +7,7 @@ import { Lock } from "lucide-react";
 const ROLES: UserRole[] = ["publik", "kreator", "upplevelse"];
 
 export function RoleToggle() {
-  const { role, dbRole, setRole } = useRole();
+  const { role, dbRole, isAdmin, setRole } = useRole();
   const { toast } = useToast();
 
   const handleClick = (r: UserRole) => {
@@ -25,7 +25,7 @@ export function RoleToggle() {
     <div className="flex items-center rounded-full border border-[var(--usha-border)] bg-[var(--usha-card)] p-0.5">
       {ROLES.map((r) => {
         const isActive = role === r;
-        const isLocked = r !== dbRole;
+        const isLocked = !isAdmin && r !== dbRole;
 
         return (
           <button

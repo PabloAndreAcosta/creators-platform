@@ -10,12 +10,17 @@ import {
   User,
   Building2,
   MessageCircle,
+  ScanLine,
 } from "lucide-react";
 import { useRole } from "./role-context";
+import { useSubscription } from "@/lib/subscription/context";
 
 export function SidebarNav() {
   const pathname = usePathname();
   const { role } = useRole();
+  const { tier } = useSubscription();
+
+  const showScan = role === "upplevelse" || (role === "kreator" && (tier === "guld" || tier === "premium"));
 
   const tabs =
     role === "publik"
@@ -29,12 +34,14 @@ export function SidebarNav() {
         ? [
             { href: "/app", label: "Hem", icon: Home },
             { href: "/app/messages", label: "Meddelanden", icon: MessageCircle },
+            ...(showScan ? [{ href: "/app/scan", label: "Skanna", icon: ScanLine }] : []),
             { href: "/app/courses", label: "Kurser", icon: BookOpen },
             { href: "/app/profile", label: "Profil", icon: User },
           ]
         : [
             { href: "/app", label: "Hem", icon: Home },
             { href: "/app/messages", label: "Meddelanden", icon: MessageCircle },
+            { href: "/app/scan", label: "Skanna", icon: ScanLine },
             { href: "/app/events", label: "Evenemang", icon: Building2 },
             { href: "/app/profile", label: "Profil", icon: User },
           ];

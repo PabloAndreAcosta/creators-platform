@@ -24,24 +24,33 @@ export const ROLE_LABELS: Record<UserRole, string> = {
 interface RoleContextType {
   role: UserRole;
   dbRole: UserRole;
+  isAdmin: boolean;
   setRole: (role: UserRole) => void;
 }
 
 const RoleContext = createContext<RoleContextType>({
   role: "publik",
   dbRole: "publik",
+  isAdmin: false,
   setRole: () => {},
 });
+
+// Accounts that can switch freely between all roles (for testing/admin)
+const ADMIN_EMAILS = ["pablo.andre.acosta@gmail.com"];
 
 export function RoleProvider({ children }: { children: ReactNode }) {
   const [role, setRole] = useState<UserRole>("publik");
   const [dbRole, setDbRole] = useState<UserRole>("publik");
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     // Sync from database — this is the source of truth
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) return;
+      if (user.email && ADMIN_EMAILS.includes(user.email)) {
+        setIsAdmin(true);
+      }
       supabase
         .from("profiles")
         .select("role")
@@ -59,14 +68,14 @@ export function RoleProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const handleSetRole = (newRole: UserRole) => {
-    // Only allow switching to the role that matches the DB
-    if (newRole !== dbRole) return;
+    // Admins can switch to any role
+    if (!isAdmin && newRole !== dbRole) return;
     setRole(newRole);
     localStorage.setItem("usha-role", newRole);
   };
 
   return (
-    <RoleContext.Provider value={{ role, dbRole, setRole: handleSetRole }}>
+    <RoleContext.Provider value={{ role, dbRole, isAdmin, setRole: handleSetRole }}>
       {children}
     </RoleContext.Provider>
   );
