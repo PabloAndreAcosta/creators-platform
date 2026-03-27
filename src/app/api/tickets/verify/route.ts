@@ -58,12 +58,19 @@ export async function GET(request: NextRequest) {
   const admin = createAdminClient();
 
   // Search for booking where id starts with the prefix
+  // UUID columns don't support ilike, so construct the UUID range to match the prefix
+  const paddedStart = idPrefix + "0".repeat(32 - idPrefix.length);
+  const uuidStart = `${paddedStart.slice(0,8)}-${paddedStart.slice(8,12)}-${paddedStart.slice(12,16)}-${paddedStart.slice(16,20)}-${paddedStart.slice(20,32)}`;
+  const paddedEnd = idPrefix + "f".repeat(32 - idPrefix.length);
+  const uuidEnd = `${paddedEnd.slice(0,8)}-${paddedEnd.slice(8,12)}-${paddedEnd.slice(12,16)}-${paddedEnd.slice(16,20)}-${paddedEnd.slice(20,32)}`;
+
   const { data: booking, error: bookingError } = await admin
     .from("bookings")
     .select(
       "id, listing_id, creator_id, status, scheduled_at, notes, amount_paid, booking_type"
     )
-    .ilike("id", `${idPrefix}%`)
+    .gte("id", uuidStart)
+    .lte("id", uuidEnd)
     .limit(1)
     .single();
 
@@ -73,7 +80,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       valid: false,
       status: "not_found",
-      debug: { idPrefix, bookingError: bookingError?.message || null },
       ticket: {
         code: ticketCode,
         title: "Okänd",
