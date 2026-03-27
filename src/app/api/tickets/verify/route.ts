@@ -91,7 +91,10 @@ export async function GET(request: NextRequest) {
   }
 
   // Only the creator/organizer of this booking can verify tickets
-  if (booking.creator_id !== user.id) {
+  // Admin accounts can verify any ticket (for testing)
+  const ADMIN_EMAILS = ["pablo.andre.acosta@gmail.com"];
+  const isAdmin = user.email && ADMIN_EMAILS.includes(user.email);
+  if (!isAdmin && booking.creator_id !== user.id) {
     return NextResponse.json(
       { error: "Bara arrangören kan verifiera biljetter" },
       { status: 403 }

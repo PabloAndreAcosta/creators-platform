@@ -44,7 +44,10 @@ export async function POST(request: NextRequest) {
   }
 
   // Only the creator of the listing can check in guests
-  if (booking.creator_id !== user.id) {
+  // Admin accounts can check in any ticket (for testing)
+  const ADMIN_EMAILS = ["pablo.andre.acosta@gmail.com"];
+  const isAdmin = user.email && ADMIN_EMAILS.includes(user.email);
+  if (!isAdmin && booking.creator_id !== user.id) {
     return NextResponse.json(
       { error: "Bara arrangören kan registrera insläpp" },
       { status: 403 }
