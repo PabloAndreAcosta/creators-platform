@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Home,
-  Calendar,
   Ticket,
   BookOpen,
   User,
@@ -26,21 +25,21 @@ export function BottomNav() {
     role === "publik"
       ? [
           { href: "/app", label: "Hem", icon: Home },
-          { href: "/app/messages", label: "Chatt", icon: MessageCircle },
+          { href: "/app/messages", label: "Meddelanden", icon: MessageCircle },
           { href: "/app/tickets", label: "Biljetter", icon: Ticket },
           { href: "/app/profile", label: "Profil", icon: User },
         ]
       : role === "kreator"
         ? [
             { href: "/app", label: "Hem", icon: Home },
-            { href: "/app/messages", label: "Chatt", icon: MessageCircle },
+            { href: "/app/messages", label: "Meddelanden", icon: MessageCircle },
             ...(showScan ? [{ href: "/app/scan", label: "Skanna", icon: ScanLine }] : []),
             { href: "/app/courses", label: "Kurser", icon: BookOpen },
             { href: "/app/profile", label: "Profil", icon: User },
           ]
         : [
             { href: "/app", label: "Hem", icon: Home },
-            { href: "/app/messages", label: "Chatt", icon: MessageCircle },
+            { href: "/app/messages", label: "Meddelanden", icon: MessageCircle },
             { href: "/app/scan", label: "Skanna", icon: ScanLine },
             { href: "/app/events", label: "Evenemang", icon: Building2 },
             { href: "/app/profile", label: "Profil", icon: User },

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isAdmin } from "@/lib/config";
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
@@ -16,7 +17,15 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const body = await request.json();
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json(
+      { error: "Ogiltig begäran" },
+      { status: 400 }
+    );
+  }
   const { bookingId } = body;
 
   if (!bookingId) {
@@ -45,9 +54,7 @@ export async function POST(request: NextRequest) {
 
   // Only the creator of the listing can check in guests
   // Admin accounts can check in any ticket (for testing)
-  const ADMIN_EMAILS = ["pablo.andre.acosta@gmail.com"];
-  const isAdmin = user.email && ADMIN_EMAILS.includes(user.email);
-  if (!isAdmin && booking.creator_id !== user.id) {
+  if (!isAdmin(user.email) && booking.creator_id !== user.id) {
     return NextResponse.json(
       { error: "Bara arrangören kan registrera insläpp" },
       { status: 403 }

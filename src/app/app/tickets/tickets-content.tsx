@@ -348,6 +348,7 @@ function QRModal({
   onClose: () => void;
 }) {
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
+  const [qrError, setQrError] = useState(false);
 
   useEffect(() => {
     const verificationUrl = `${window.location.origin}/api/tickets/verify?code=${ticket.code}&id=${ticket.id}`;
@@ -356,7 +357,10 @@ function QRModal({
       margin: 2,
       color: { dark: "#000000", light: "#ffffff" },
       errorCorrectionLevel: "M",
-    }).then(setQrDataUrl).catch(() => setQrDataUrl(null));
+    }).then(setQrDataUrl).catch(() => {
+      setQrDataUrl(null);
+      setQrError(true);
+    });
   }, [ticket.code, ticket.id]);
 
   return (
@@ -378,6 +382,11 @@ function QRModal({
           <div className="rounded-2xl border-2 border-[var(--usha-gold)]/30 bg-white p-4">
             {qrDataUrl ? (
               <img src={qrDataUrl} alt={`QR-kod för ${ticket.code}`} width={200} height={200} />
+            ) : qrError ? (
+              <div className="flex h-[200px] w-[200px] flex-col items-center justify-center gap-2 text-center">
+                <QrCode size={48} className="text-gray-400" />
+                <p className="text-xs text-gray-500">Kunde inte generera QR-kod. Visa biljettkoden nedan.</p>
+              </div>
             ) : (
               <div className="flex h-[200px] w-[200px] items-center justify-center">
                 <QrCode size={48} className="animate-pulse text-gray-300" />

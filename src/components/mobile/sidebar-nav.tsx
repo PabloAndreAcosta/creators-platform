@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Home,
-  Calendar,
   Ticket,
   BookOpen,
   User,

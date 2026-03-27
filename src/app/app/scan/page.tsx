@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Camera, CheckCircle, XCircle, Search, AlertCircle, UserCheck, Loader2 } from "lucide-react";
+import { vibrate } from "@/lib/haptics";
 
 interface TicketResult {
   valid: boolean;
@@ -33,6 +34,7 @@ export default function ScanPage() {
   const [checkInDone, setCheckInDone] = useState<CheckInResult | null>(null);
   const [error, setError] = useState("");
   const [scannerActive, setScannerActive] = useState(false);
+  const [scannerLoading, setScannerLoading] = useState(false);
   const scannerRef = useRef<any>(null);
   const scannerContainerRef = useRef<HTMLDivElement>(null);
 
@@ -40,6 +42,7 @@ export default function ScanPage() {
   async function startScanner() {
     if (scannerRef.current) return;
 
+    setScannerLoading(true);
     try {
       const { Html5Qrcode } = await import("html5-qrcode");
       const scanner = new Html5Qrcode("qr-reader");
@@ -64,6 +67,8 @@ export default function ScanPage() {
     } catch (err) {
       console.error("Scanner start failed:", err);
       setError("Kunde inte starta kameran. Kontrollera att du gett tillgång till kameran.");
+    } finally {
+      setScannerLoading(false);
     }
   }
 
@@ -86,6 +91,8 @@ export default function ScanPage() {
 
   // Parse QR result — could be a URL or direct code
   function handleQrResult(text: string) {
+    vibrate();
+
     // Try URL format: .../api/tickets/verify?code=USH-XXXXXXXX&id=...
     const urlMatch = text.match(/code=(USH-[A-Fa-f0-9]{8})/i);
     if (urlMatch) {
@@ -149,6 +156,7 @@ export default function ScanPage() {
         body: JSON.stringify({ bookingId: result.bookingId }),
       });
       const data: CheckInResult = await res.json();
+      if (data.success) vibrate([50, 30, 50]);
       setCheckInDone(data);
     } catch {
       setCheckInDone({ success: false, error: "Nätverksfel" });
@@ -186,10 +194,20 @@ export default function ScanPage() {
             {!scannerActive && (
               <button
                 onClick={startScanner}
-                className="flex w-full items-center justify-center gap-2 bg-[var(--usha-card)] py-12 text-sm text-[var(--usha-muted)] transition hover:text-white"
+                disabled={scannerLoading}
+                className="flex w-full items-center justify-center gap-2 bg-[var(--usha-card)] py-12 text-sm text-[var(--usha-muted)] transition hover:text-white disabled:opacity-50"
               >
-                <Camera size={24} />
-                <span>Tryck för att starta kameran</span>
+                {scannerLoading ? (
+                  <>
+                    <Loader2 size={24} className="animate-spin" />
+                    <span>Startar kameran...</span>
+                  </>
+                ) : (
+                  <>
+                    <Camera size={24} />
+                    <span>Tryck för att starta kameran</span>
+                  </>
+                )}
               </button>
             )}
           </div>

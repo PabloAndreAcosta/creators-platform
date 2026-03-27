@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Ticket } from "lucide-react";
+import { useToast } from "@/components/ui/toaster";
 
 interface BuyTicketButtonProps {
   listingId: string;
@@ -19,6 +20,7 @@ export function BuyTicketButton({
   hasConnect,
 }: BuyTicketButtonProps) {
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   if (!isLoggedIn) {
     return (
@@ -54,7 +56,7 @@ export function BuyTicketButton({
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.error || "Något gick fel");
+        toast.error(data.error || "Något gick fel");
         return;
       }
 
@@ -62,7 +64,7 @@ export function BuyTicketButton({
         window.location.href = data.url;
       }
     } catch {
-      alert("Kunde inte starta köp");
+      toast.error("Kunde inte starta köp");
     } finally {
       setLoading(false);
     }

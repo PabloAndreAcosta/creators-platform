@@ -35,8 +35,7 @@ const RoleContext = createContext<RoleContextType>({
   setRole: () => {},
 });
 
-// Accounts that can switch freely between all roles (for testing/admin)
-const ADMIN_EMAILS = ["pablo.andre.acosta@gmail.com"];
+import { isAdmin as checkIsAdmin } from "@/lib/config";
 
 export function RoleProvider({ children }: { children: ReactNode }) {
   const [role, setRole] = useState<UserRole>("publik");
@@ -48,7 +47,7 @@ export function RoleProvider({ children }: { children: ReactNode }) {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) return;
-      if (user.email && ADMIN_EMAILS.includes(user.email)) {
+      if (checkIsAdmin(user.email)) {
         setIsAdmin(true);
       }
       supabase
