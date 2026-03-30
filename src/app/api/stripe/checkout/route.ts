@@ -3,6 +3,7 @@ import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@/lib/supabase/server";
 import { PLANS, type PlanKey } from "@/lib/stripe/config";
 import { validatePromoCode, applyPromoDiscount } from "@/lib/promo/validate";
+import { BETA_MODE } from "@/lib/beta";
 
 export async function POST(req: NextRequest) {
   try {
@@ -95,13 +96,17 @@ export async function POST(req: NextRequest) {
       },
     };
 
-    if (isFreeWithPromo) {
+    if (BETA_MODE) {
+      // Beta: free trial for 365 days, no payment method required
+      sessionParams.subscription_data = { trial_period_days: 365 };
+      sessionParams.payment_method_collection = "if_required";
+    } else if (isFreeWithPromo) {
       // 100% discount: use a 30-day trial so no payment method is needed
       sessionParams.subscription_data = { trial_period_days: 30 };
       sessionParams.payment_method_collection = "if_required";
     }
 
-    if (stripeCouponId) {
+    if (stripeCouponId && !BETA_MODE) {
       sessionParams.discounts = [{ coupon: stripeCouponId }];
     }
 
