@@ -105,6 +105,23 @@ function Hero() {
           <span className="text-gradient">upplevelser, förenade</span>
         </h1>
 
+        {/* Hero video */}
+        <div
+          className="animate-fade-up delay-150 mx-auto mb-10 max-w-3xl overflow-hidden rounded-2xl border border-[var(--usha-border)]"
+          style={{ opacity: 0 }}
+        >
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full"
+            suppressHydrationWarning
+          >
+            <source src="/hero-video.mp4" type="video/mp4" />
+          </video>
+        </div>
+
         <p
           className="animate-fade-up delay-200 mx-auto mb-12 max-w-xl text-lg leading-relaxed text-[var(--usha-muted)]"
           style={{ opacity: 0 }}
