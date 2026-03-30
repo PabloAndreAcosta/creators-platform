@@ -82,6 +82,7 @@ export function HomeContent({
         profile={profile}
         listings={listings}
         topCreators={topCreators}
+        tier={profile?.tier || "gratis"}
       />
     );
   }
@@ -109,11 +110,15 @@ function PublikHome({
   profile,
   listings,
   topCreators,
+  tier = "gratis",
 }: {
   profile: Profile | null;
   listings: Listing[];
   topCreators: TopCreator[];
+  tier?: string;
 }) {
+  const isGuld = tier === "guld" || tier === "premium";
+  const isPremium = tier === "premium";
   const eventImages = [
     "https://images.unsplash.com/photo-1504609813442-a8924e83f76e?w=600&h=400&fit=crop",
     "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&h=400&fit=crop",
@@ -296,6 +301,46 @@ function PublikHome({
         {/* Personalized Recommendations */}
         <RecommendedEvents />
 
+        {/* Guld/Premium exclusive section */}
+        {isGuld && (
+          <section>
+            <div className="mb-4 flex items-center gap-2">
+              <Star size={16} className="text-[var(--usha-gold)]" />
+              <h2 className="text-lg font-bold">Exklusivt för dig</h2>
+              {isPremium ? (
+                <span className="rounded-full bg-purple-500/10 px-2 py-0.5 text-[10px] font-semibold text-purple-400">VIP</span>
+              ) : (
+                <span className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-[10px] font-semibold text-[var(--usha-gold)]">Guld</span>
+              )}
+            </div>
+            <div className="rounded-2xl border border-[var(--usha-gold)]/20 bg-gradient-to-br from-[var(--usha-gold)]/5 to-transparent p-5">
+              <div className="flex items-center gap-4">
+                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--usha-gold)]/10">
+                  <Clock size={18} className="text-[var(--usha-gold)]" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold">
+                    {isPremium ? "72h" : "48h"} tidig tillgång aktiv
+                  </p>
+                  <p className="text-xs text-[var(--usha-muted)]">
+                    Du ser nya events innan alla andra
+                  </p>
+                </div>
+              </div>
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 text-center">
+                  <p className="text-lg font-bold text-[var(--usha-gold)]">{isPremium ? "20%" : "10%"}</p>
+                  <p className="text-[10px] text-[var(--usha-muted)]">Rabatt på bokningar</p>
+                </div>
+                <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 text-center">
+                  <p className="text-lg font-bold text-[var(--usha-gold)]">{isPremium ? "VIP" : "Prioritet"}</p>
+                  <p className="text-[10px] text-[var(--usha-muted)]">{isPremium ? "Aldrig i kö" : "Prioriterad support"}</p>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* Top Creators — larger avatars with glow */}
         <section>
           <div className="mb-4 flex items-center justify-between">
@@ -382,7 +427,7 @@ function PublikHome({
         </section>
 
         {/* Soft upgrade nudge */}
-        {profile?.tier !== "guld" && profile?.tier !== "premium" && (
+        {!isPremium && (
           <section>
             <Link
               href="/dashboard/billing"
@@ -393,10 +438,21 @@ function PublikHome({
                   <Sparkles size={18} className="text-[var(--usha-gold)]" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-semibold">Bli Guld-medlem</p>
-                  <p className="text-xs text-[var(--usha-muted)]">
-                    10% rabatt och tidig tillgång till alla events
-                  </p>
+                  {isGuld ? (
+                    <>
+                      <p className="text-sm font-semibold">Uppgradera till Premium</p>
+                      <p className="text-xs text-[var(--usha-muted)]">
+                        20% rabatt, VIP-kö och exklusivt innehåll
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-sm font-semibold">Bli Guld-medlem</p>
+                      <p className="text-xs text-[var(--usha-muted)]">
+                        10% rabatt och tidig tillgång till alla events
+                      </p>
+                    </>
+                  )}
                 </div>
                 <ChevronRight size={16} className="text-[var(--usha-gold)]/60 transition-transform duration-300 group-hover:translate-x-1" />
               </div>
