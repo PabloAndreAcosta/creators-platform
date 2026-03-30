@@ -6,35 +6,11 @@ import {
   Menu,
   X,
   ArrowRight,
-  UserPlus,
-  ListPlus,
-  Search,
+  Sparkles,
+  Users,
   CalendarCheck,
   CreditCard,
-  Star,
-  TrendingUp,
-  Repeat,
-  Palette,
-  BarChart3,
-  Sparkles,
-  Shield,
-  Music,
-  Camera,
-  Dumbbell,
-  Figma,
-  Video,
-  Heart,
-  ChevronRight,
   Zap,
-  Globe,
-  Users,
-  UtensilsCrossed,
-  Ticket,
-  PartyPopper,
-  Waves,
-  TreePine,
-  Building2,
-  Store,
 } from "lucide-react";
 
 /* ─────────────── NAV ─────────────── */
@@ -43,7 +19,6 @@ function Nav() {
 
   const links = [
     { href: "#ecosystem", label: "Ekosystemet" },
-    { href: "#creators", label: "För kreatörer" },
     { href: "#pricing", label: "Priser" },
     { href: "/marketplace", label: "Marketplace" },
   ];
@@ -96,13 +71,6 @@ function Nav() {
                 {l.label}
               </a>
             ))}
-            <a
-              href="/app"
-              onClick={() => setMobileOpen(false)}
-              className="py-2 text-sm font-semibold text-[var(--usha-gold)] transition hover:text-white sm:hidden"
-            >
-              Öppna appen
-            </a>
           </div>
         </div>
       )}
@@ -118,59 +86,34 @@ function Hero() {
       <div className="pointer-events-none absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2">
         <div className="h-[600px] w-[900px] rounded-full bg-[var(--usha-gold)] opacity-[0.05] blur-[180px]" />
       </div>
-      <div className="pointer-events-none absolute bottom-1/4 right-1/4">
-        <div className="h-[400px] w-[500px] rounded-full bg-[var(--usha-accent)] opacity-[0.04] blur-[150px]" />
-      </div>
-      <div className="pointer-events-none absolute top-1/2 left-1/4">
-        <div className="h-[300px] w-[300px] rounded-full bg-[var(--usha-gold)] opacity-[0.03] blur-[120px]" />
-      </div>
 
-      <div className="relative z-10 mx-auto max-w-5xl text-center">
+      <div className="relative z-10 mx-auto max-w-4xl text-center">
         {/* Badge */}
         <div className="animate-fade-up mb-8 inline-flex items-center gap-2 rounded-full border border-[var(--usha-gold)]/20 bg-[var(--usha-card)] px-5 py-2 text-xs">
           <Zap size={12} className="text-[var(--usha-accent)]" />
-          <span className="text-[var(--usha-muted)]">Framtidens kreativa plattform</span>
+          <span className="text-[var(--usha-muted)]">Gratis under beta</span>
           <span className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 font-mono text-[10px] text-[var(--usha-gold)]">BETA</span>
         </div>
 
         {/* Headline */}
         <h1
-          className="animate-fade-up delay-100 mb-6 text-5xl font-extrabold leading-[1.08] tracking-tight sm:text-6xl lg:text-7xl xl:text-8xl"
+          className="animate-fade-up delay-100 mb-6 text-5xl font-extrabold leading-[1.08] tracking-tight sm:text-6xl lg:text-7xl"
           style={{ opacity: 0 }}
         >
-          Hela kretsloppet för{" "}
+          Kreativitet &{" "}
           <br className="hidden sm:block" />
-          <span className="text-gradient">kreativitet & upplevelser</span>
+          <span className="text-gradient">upplevelser, förenade</span>
         </h1>
 
-        {/* Hero video */}
-        <div
-          className="animate-fade-up delay-150 mx-auto mb-10 max-w-3xl overflow-hidden rounded-2xl border border-[var(--usha-border)]"
-          style={{ opacity: 0 }}
-        >
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full"
-            suppressHydrationWarning
-          >
-            <source src="/hero-video.mp4" type="video/mp4" />
-          </video>
-        </div>
-
         <p
-          className="animate-fade-up delay-200 mx-auto mb-12 max-w-2xl text-lg leading-relaxed text-[var(--usha-muted)] sm:text-xl"
+          className="animate-fade-up delay-200 mx-auto mb-12 max-w-xl text-lg leading-relaxed text-[var(--usha-muted)]"
           style={{ opacity: 0 }}
         >
-          Usha förenar kreatörer, upplevelser och kunder i ett ekosystem.
-          Dansinstruktörer, fotografer, restauranger, konserthus och SPA
-          — alla bygger sin närvaro, alla hittas av rätt kund. Profil.
-          Marketplace. Bokning. Betalning. Allt på ett ställe.
+          Usha samlar kreatörer, upplevelser och kunder på en plattform.
+          Profil, bokning och betalning — allt på ett ställe.
         </p>
 
-        {/* CTAs */}
+        {/* CTA */}
         <div
           className="animate-fade-up delay-300 flex flex-col items-center gap-4 sm:flex-row sm:justify-center"
           style={{ opacity: 0 }}
@@ -179,17 +122,16 @@ function Hero() {
             href="/app"
             className="glow-gold inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-8 py-4 text-base font-bold text-black transition hover:scale-[1.02] hover:opacity-90"
           >
-            Utforska plattformen
+            Kom igång gratis
             <ArrowRight size={16} />
           </a>
           <a
-            href="#ecosystem"
+            href="/marketplace"
             className="inline-flex items-center gap-2 rounded-xl border border-[var(--usha-border)] px-8 py-4 text-base font-medium text-[var(--usha-muted)] transition hover:border-[var(--usha-gold)]/30 hover:text-white"
           >
-            Se hur det fungerar
+            Utforska marketplace
           </a>
         </div>
-
       </div>
 
       {/* Scroll indicator */}
@@ -202,43 +144,22 @@ function Hero() {
   );
 }
 
-/* ─────────────── THE ECOSYSTEM ─────────────── */
-const CYCLE_STEPS = [
+/* ─────────────── ECOSYSTEM ─────────────── */
+const STEPS = [
   {
-    icon: UserPlus,
-    title: "Bygg din profil",
-    desc: "Skapa ett professionellt skyltfönster med bio, portfolio, priser och tillgänglighet.",
-    color: "from-[var(--usha-gold)] to-amber-600",
-  },
-  {
-    icon: ListPlus,
-    title: "Publicera tjänster",
-    desc: "Lägg till dina tjänster med beskrivning, pris och tidsåtgång. Bli synlig direkt.",
-    color: "from-amber-500 to-orange-500",
-  },
-  {
-    icon: Search,
-    title: "Bli upptäckt",
-    desc: "Kunder söker och filtrerar på marketplace. Din profil matchar rätt kund.",
-    color: "from-orange-500 to-[var(--usha-accent)]",
+    icon: Users,
+    title: "Bygg din närvaro",
+    desc: "Skapa en professionell profil, lägg till dina tjänster eller events och bli synlig direkt på marketplace.",
   },
   {
     icon: CalendarCheck,
-    title: "Ta emot bokningar",
-    desc: "Kunder bokar direkt med datum och tid. Du bekräftar eller föreslår nytt.",
-    color: "from-[var(--usha-accent)] to-rose-500",
+    title: "Bli upptäckt & bokad",
+    desc: "Kunder hittar dig, jämför och bokar direkt med datum och tid. Inga mejlkedjor.",
   },
   {
     icon: CreditCard,
-    title: "Få betalt säkert",
-    desc: "Stripe hanterar betalningen. Automatisk fakturering och direkt utbetalning.",
-    color: "from-rose-500 to-purple-500",
-  },
-  {
-    icon: Star,
-    title: "Bygg rykte",
-    desc: "Varje lyckad bokning stärker din profil. Bättre rykte ger fler kunder.",
-    color: "from-purple-500 to-[var(--usha-gold)]",
+    title: "Få betalt & väx",
+    desc: "Stripe hanterar betalningen säkert. Du bygger rykte med varje bokning — fler kunder följer.",
   },
 ];
 
@@ -249,372 +170,30 @@ function Ecosystem() {
         <div className="h-[500px] w-[700px] rounded-full bg-[var(--usha-gold)] opacity-[0.03] blur-[180px]" />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-6xl">
-        <div className="mb-6 text-center">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[var(--usha-gold)]/20 bg-[var(--usha-card)] px-4 py-1.5 text-xs">
-            <Repeat size={12} className="text-[var(--usha-gold)]" />
-            <span className="text-[var(--usha-muted)]">Kretsloppet</span>
-          </div>
-          <h2 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
-            Ett ekosystem som{" "}
-            <span className="text-gradient">driver tillväxt</span>
-          </h2>
-          <p className="mx-auto max-w-2xl text-[var(--usha-muted)]">
-            Usha är inte bara en plattform — det är ett kretslopp där kreatörer,
-            upplevelser och kunder förstärker varandra. Från profil till bokning,
-            allt hänger ihop.
-          </p>
-        </div>
-
-        {/* Cycle visualization */}
-        <div className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {CYCLE_STEPS.map((step, i) => (
-            <div key={step.title} className="group relative">
-              <div className="h-full rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 transition-all hover:border-[var(--usha-gold)]/20 hover:bg-[var(--usha-card-hover)]">
-                <div className="mb-4 flex items-center gap-3">
-                  <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${step.color}`}>
-                    <step.icon size={18} className="text-black" />
-                  </div>
-                  <span className="font-mono text-xs text-[var(--usha-muted)]">
-                    Steg {String(i + 1).padStart(2, "0")}
-                  </span>
-                </div>
-                <h3 className="mb-2 font-semibold">{step.title}</h3>
-                <p className="text-sm leading-relaxed text-[var(--usha-muted)]">
-                  {step.desc}
-                </p>
-              </div>
-              {/* Arrow to next */}
-              {i < CYCLE_STEPS.length - 1 && i !== 2 && (
-                <div className="pointer-events-none absolute -right-2 top-1/2 z-10 hidden -translate-y-1/2 text-[var(--usha-border)] lg:block">
-                  <ChevronRight size={16} />
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Loop indicator */}
-        <div className="mt-8 flex items-center justify-center gap-3 text-sm text-[var(--usha-muted)]">
-          <Repeat size={14} className="text-[var(--usha-gold)]" />
-          <span>Cykeln upprepas — varje bokning stärker hela ekosystemet</span>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ─────────────── THREE PILLARS ─────────────── */
-function ThreePillars() {
-  const pillars = [
-    {
-      badge: "Kreatörer",
-      badgeIcon: Palette,
-      color: "gold" as const,
-      title: "Ditt kreativa företag, superladdat",
-      desc: "Sluta jaga kunder via sociala medier. Usha ger dig verktygen att bygga en professionell närvaro och ta emot bokningar automatiskt.",
-      items: [
-        { icon: Palette, text: "Professionell profil med allt en kund behöver veta" },
-        { icon: Globe, text: "Synlighet på marketplace — bli hittad av rätt kunder" },
-        { icon: CalendarCheck, text: "Bokningar direkt — inga mejlkedjor eller DM-förhandlingar" },
-        { icon: CreditCard, text: "Automatiska betalningar och fakturering via Stripe" },
-        { icon: TrendingUp, text: "Bättre rykte → fler kunder → mer intäkter" },
-      ],
-      cta: { label: "Bli kreatör", href: "/app", filled: true },
-    },
-    {
-      badge: "Upplevelser",
-      badgeIcon: Store,
-      color: "accent" as const,
-      title: "Fyll dina evenemang och bord",
-      desc: "Restauranger, konserthus, nattklubbar, SPA och retreat centers — visa upp era upplevelser och låt kunder boka direkt.",
-      items: [
-        { icon: UtensilsCrossed, text: "Restauranger och matupplevelser med bordsbokningar" },
-        { icon: Ticket, text: "Konserthus och event med biljetthantering" },
-        { icon: PartyPopper, text: "Nattklubbar och nöjen med gästlistor" },
-        { icon: Waves, text: "SPA och wellness med tidsbokning" },
-        { icon: TreePine, text: "Retreat centers och resor med paketbokningar" },
-      ],
-      cta: { label: "Registrera verksamhet", href: "/app", filled: true },
-    },
-    {
-      badge: "Kunder",
-      badgeIcon: Search,
-      color: "muted" as const,
-      title: "Hitta, boka, upplev",
-      desc: "Glöm Google-sökningar och osäkra DM:s. Bläddra bland verifierade kreatörer och upplevelser, jämför och boka direkt.",
-      items: [
-        { icon: Search, text: "Sök och filtrera på kategori, plats, pris och betyg" },
-        { icon: Users, text: "Verifierade profiler med portfolios och omdömen" },
-        { icon: CalendarCheck, text: "Boka direkt med datum och tid som passar dig" },
-        { icon: Shield, text: "Säkra betalningar och trygga transaktioner" },
-        { icon: Star, text: "Läs omdömen från andra kunder innan du bokar" },
-      ],
-      cta: { label: "Utforska marketplace", href: "/marketplace", filled: true },
-    },
-  ];
-
-  const colorMap = {
-    gold: {
-      border: "border-white/20",
-      badge: "bg-[var(--usha-gold)]/10 text-[var(--usha-gold)]",
-      icon: "bg-[var(--usha-gold)]/10",
-      iconText: "text-[var(--usha-gold)]",
-      ctaFilled: "bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] text-white hover:opacity-90",
-      ctaOutline: "border border-[var(--usha-gold)]/30 text-[var(--usha-gold)] hover:bg-[var(--usha-gold)]/10",
-    },
-    accent: {
-      border: "border-white/20",
-      badge: "bg-[var(--usha-accent)]/10 text-[var(--usha-accent)]",
-      icon: "bg-[var(--usha-accent)]/10",
-      iconText: "text-[var(--usha-accent)]",
-      ctaFilled: "bg-gradient-to-r from-[var(--usha-accent)] to-rose-500 text-white hover:opacity-90",
-      ctaOutline: "border border-[var(--usha-accent)]/30 text-[var(--usha-accent)] hover:bg-[var(--usha-accent)]/10",
-    },
-    muted: {
-      border: "border-white/20",
-      badge: "bg-sky-500/10 text-sky-400",
-      icon: "bg-sky-500/10",
-      iconText: "text-sky-400",
-      ctaFilled: "bg-gradient-to-r from-sky-500 to-blue-500 text-white hover:opacity-90",
-      ctaOutline: "border border-sky-500/30 text-sky-400 hover:bg-sky-500/10",
-    },
-  };
-
-  return (
-    <section className="relative py-28 px-6">
-      <div className="mx-auto max-w-6xl">
+      <div className="relative z-10 mx-auto max-w-4xl">
         <div className="mb-16 text-center">
           <h2 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
-            Tre ben, <span className="text-gradient">ett kretslopp</span>
+            Så fungerar <span className="text-gradient">ekosystemet</span>
           </h2>
-          <p className="mx-auto max-w-2xl text-[var(--usha-muted)]">
-            Usha förenar kreativa talanger, upplevelseföretag och kunder i ett
-            ekosystem där alla lyfter varandra.
+          <p className="mx-auto max-w-lg text-[var(--usha-muted)]">
+            Tre steg — från profil till intäkter.
           </p>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3">
-          {pillars.map((p) => {
-            const c = colorMap[p.color];
-            return (
-              <div
-                key={p.badge}
-                className={`rounded-2xl border ${c.border} bg-[var(--usha-card)] p-7`}
-              >
-                <div
-                  className={`mb-5 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold ${c.badge}`}
-                >
-                  <p.badgeIcon size={12} />
-                  {p.badge}
+        <div className="grid gap-6 md:grid-cols-3">
+          {STEPS.map((step, i) => (
+            <div key={step.title} className="group rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-7 transition-all hover:border-[var(--usha-gold)]/20">
+              <div className="mb-5 flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
+                  <step.icon size={18} className="text-black" />
                 </div>
-                <h3 className="mb-3 text-xl font-bold">{p.title}</h3>
-                <p className="mb-6 text-sm leading-relaxed text-[var(--usha-muted)]">
-                  {p.desc}
-                </p>
-                <ul className="space-y-3">
-                  {p.items.map((item) => (
-                    <li key={item.text} className="flex items-start gap-3">
-                      <div
-                        className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md ${c.icon}`}
-                      >
-                        <item.icon size={13} className={c.iconText} />
-                      </div>
-                      <span className="text-sm text-[var(--usha-muted)]">
-                        {item.text}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-                <a
-                  href={p.cta.href}
-                  className={`mt-7 inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold transition ${
-                    p.cta.filled ? c.ctaFilled : c.ctaOutline
-                  }`}
-                >
-                  {p.cta.label}
-                  <ArrowRight size={14} />
-                </a>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ─────────────── CATEGORIES ─────────────── */
-const CREATOR_CATEGORIES = [
-  { icon: Music, label: "Musiker", slug: "music", count: "120+", group: "Kreatörer" },
-  { icon: Heart, label: "Dans", slug: "dance", count: "85+", group: "Kreatörer" },
-  { icon: Camera, label: "Fotografer", slug: "photo", count: "95+", group: "Kreatörer" },
-  { icon: Figma, label: "Designers", slug: "design", count: "75+", group: "Kreatörer" },
-  { icon: Dumbbell, label: "Fitness & Yoga", slug: "fitness", count: "65+", group: "Kreatörer" },
-  { icon: Video, label: "Videografer", slug: "video", count: "60+", group: "Kreatörer" },
-];
-
-const EXPERIENCE_CATEGORIES = [
-  { icon: UtensilsCrossed, label: "Restauranger", slug: "restaurant", count: "80+" },
-  { icon: Ticket, label: "Konserthus", slug: "concert", count: "35+" },
-  { icon: PartyPopper, label: "Nattklubbar", slug: "nightclub", count: "45+" },
-  { icon: Waves, label: "SPA & Wellness", slug: "spa", count: "50+" },
-  { icon: TreePine, label: "Retreats", slug: "retreat", count: "25+" },
-  { icon: Building2, label: "Eventlokaler", slug: "venue", count: "40+" },
-];
-
-function Categories() {
-  return (
-    <section id="creators" className="relative py-28 px-6">
-      <div className="pointer-events-none absolute bottom-0 right-1/4">
-        <div className="h-[300px] w-[500px] rounded-full bg-[var(--usha-accent)] opacity-[0.03] blur-[150px]" />
-      </div>
-
-      <div className="relative z-10 mx-auto max-w-6xl">
-        <div className="mb-16 text-center">
-          <p className="mb-3 font-mono text-sm uppercase tracking-widest text-[var(--usha-gold)]">
-            Kategorier
-          </p>
-          <h2 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
-            Talanger & upplevelser under{" "}
-            <span className="text-gradient">ett tak</span>
-          </h2>
-          <p className="mx-auto max-w-2xl text-[var(--usha-muted)]">
-            Från dansare till designers, från restauranger till retreats — Usha
-            samlar hela den kreativa och upplevelsedrivna ekonomin.
-          </p>
-        </div>
-
-        {/* Creators */}
-        <div className="mb-4">
-          <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-[var(--usha-gold)]">
-            <Palette size={14} />
-            Kreativa talanger
-          </h3>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-            {CREATOR_CATEGORIES.map((cat) => (
-              <a
-                key={cat.slug}
-                href={`/marketplace?category=${cat.slug}`}
-                className="group flex flex-col items-center gap-2.5 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5 transition-all hover:border-[var(--usha-gold)]/30 hover:bg-[var(--usha-card-hover)]"
-              >
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--usha-gold)]/10 to-[var(--usha-accent)]/10 transition-colors group-hover:from-[var(--usha-gold)]/20 group-hover:to-[var(--usha-accent)]/20">
-                  <cat.icon
-                    size={22}
-                    className="text-[var(--usha-gold)] transition-colors group-hover:text-[var(--usha-gold-light)]"
-                  />
-                </div>
-                <span className="text-sm font-medium">{cat.label}</span>
                 <span className="font-mono text-xs text-[var(--usha-muted)]">
-                  {cat.count}
+                  {String(i + 1).padStart(2, "0")}
                 </span>
-              </a>
-            ))}
-          </div>
-        </div>
-
-        {/* Experiences */}
-        <div>
-          <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-[var(--usha-accent)]">
-            <Store size={14} />
-            Upplevelser & verksamheter
-          </h3>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-            {EXPERIENCE_CATEGORIES.map((cat) => (
-              <a
-                key={cat.slug}
-                href={`/marketplace?category=${cat.slug}`}
-                className="group flex flex-col items-center gap-2.5 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5 transition-all hover:border-[var(--usha-accent)]/30 hover:bg-[var(--usha-card-hover)]"
-              >
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--usha-accent)]/10 to-rose-500/10 transition-colors group-hover:from-[var(--usha-accent)]/20 group-hover:to-rose-500/20">
-                  <cat.icon
-                    size={22}
-                    className="text-[var(--usha-accent)] transition-colors group-hover:text-[var(--usha-accent-soft)]"
-                  />
-                </div>
-                <span className="text-sm font-medium">{cat.label}</span>
-                <span className="font-mono text-xs text-[var(--usha-muted)]">
-                  {cat.count}
-                </span>
-              </a>
-            ))}
-          </div>
-        </div>
-
-        <div className="mt-8 text-center">
-          <a
-            href="/marketplace"
-            className="inline-flex items-center gap-2 text-sm font-medium text-[var(--usha-gold)] transition hover:text-[var(--usha-gold-light)]"
-          >
-            Visa alla på marketplace
-            <ArrowRight size={14} />
-          </a>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ─────────────── PLATFORM PILLARS ─────────────── */
-const PILLARS = [
-  {
-    icon: Palette,
-    title: "Profil",
-    desc: "Din digitala skyltfönster. Bio, portfolio, priser och kontaktinfo — allt en kund behöver.",
-  },
-  {
-    icon: Globe,
-    title: "Marketplace",
-    desc: "Sökbar katalog med alla kreatörer. Filtrera, jämför och hitta rätt match på sekunder.",
-  },
-  {
-    icon: CalendarCheck,
-    title: "Bokningar",
-    desc: "Integrerat bokningssystem med kalender. Kunder bokar direkt, du bekräftar med ett klick.",
-  },
-  {
-    icon: CreditCard,
-    title: "Betalningar",
-    desc: "Stripe-driven betalning och fakturering. Säkert för båda parter med automatiska utbetalningar.",
-  },
-  {
-    icon: BarChart3,
-    title: "Insikter",
-    desc: "Spåra visningar, bokningar och intäkter. Data-driven tillväxt för ditt kreativa företag.",
-  },
-  {
-    icon: Shield,
-    title: "Trygghet",
-    desc: "Verifierade profiler, säkra betalningar och support. En plattform du kan lita på.",
-  },
-];
-
-function Pillars() {
-  return (
-    <section className="relative py-28 px-6">
-      <div className="mx-auto max-w-6xl">
-        <div className="mb-16 text-center">
-          <p className="mb-3 font-mono text-sm uppercase tracking-widest text-[var(--usha-gold)]">
-            Plattformen
-          </p>
-          <h2 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
-            Sex pelare som bär{" "}
-            <span className="text-gradient">hela ekosystemet</span>
-          </h2>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {PILLARS.map((p) => (
-            <div
-              key={p.title}
-              className="group rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 transition-all hover:border-[var(--usha-gold)]/20 hover:bg-[var(--usha-card-hover)]"
-            >
-              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--usha-gold)]/10 to-[var(--usha-accent)]/10 transition-colors group-hover:from-[var(--usha-gold)]/20 group-hover:to-[var(--usha-accent)]/20">
-                <p.icon size={20} className="text-[var(--usha-gold)]" />
               </div>
-              <h3 className="mb-2 text-lg font-semibold">{p.title}</h3>
+              <h3 className="mb-2 font-semibold">{step.title}</h3>
               <p className="text-sm leading-relaxed text-[var(--usha-muted)]">
-                {p.desc}
+                {step.desc}
               </p>
             </div>
           ))}
@@ -623,7 +202,6 @@ function Pillars() {
     </section>
   );
 }
-
 
 /* ─────────────── PRICING ─────────────── */
 const ROLE_TABS = [
@@ -639,7 +217,6 @@ const PRICING_DATA: Record<string, { gratis: { features: string[] }; guld: { pri
         "Skapa profil och logga in",
         "Bläddra i marknadsplatsen",
         "Köpa biljetter och boka kreatörer",
-        "Grundläggande statistik",
       ],
     },
     guld: {
@@ -659,15 +236,13 @@ const PRICING_DATA: Record<string, { gratis: { features: string[] }; guld: { pri
         "20% rabatt på bokningar",
         "VIP — aldrig i kö",
         "Exklusivt innehåll",
-        "Tidig tillgång 72h före alla andra",
-        "Prioriterad support",
+        "72h tidig tillgång",
       ],
     },
   },
   kreator: {
     gratis: {
       features: [
-        "Skapa profil och logga in",
         "Upp till 3 tjänster",
         "15% kommission",
         "Grundläggande statistik",
@@ -679,7 +254,6 @@ const PRICING_DATA: Record<string, { gratis: { features: string[] }; guld: { pri
       features: [
         "Upp till 15 tjänster",
         "8% kommission (istället för 15%)",
-        "Sälj digitalt material",
         "Skapa events",
         "Avancerad statistik",
         "Prioriterad synlighet",
@@ -693,16 +267,13 @@ const PRICING_DATA: Record<string, { gratis: { features: string[] }; guld: { pri
         "3% kommission (istället för 15%)",
         "Toppsynlighet + utvalda",
         "Facebook-sync",
-        "Kalender läs + skriv",
         "Dedikerad support",
-        "Statistikexport",
       ],
     },
   },
   upplevelse: {
     gratis: {
       features: [
-        "Skapa profil och logga in",
         "Upp till 3 events",
         "15% kommission",
         "Grundläggande statistik",
@@ -715,7 +286,6 @@ const PRICING_DATA: Record<string, { gratis: { features: string[] }; guld: { pri
         "Upp till 15 events",
         "8% kommission (istället för 15%)",
         "Boka kreatörer",
-        "Sälj digitalt material",
         "Avancerad statistik",
       ],
     },
@@ -727,7 +297,6 @@ const PRICING_DATA: Record<string, { gratis: { features: string[] }; guld: { pri
         "3% kommission (istället för 15%)",
         "Toppsynlighet + utvalda",
         "Facebook-sync",
-        "Boka kreatörer + analys",
         "Dedikerad support",
       ],
     },
@@ -741,7 +310,7 @@ function Pricing() {
   const tiers = [
     { name: "Gratis", price: 0, desc: "Perfekt för att komma igång", features: data.gratis.features, cta: "Kom igång gratis", popular: false },
     { name: "Guld", price: data.guld.price, desc: "Väx din verksamhet", features: data.guld.features, cta: "Starta Guld", popular: data.guld.popular },
-    { name: "Premium", price: data.premium.price, desc: "Full kontroll och maximal synlighet", features: data.premium.features, cta: "Starta Premium", popular: data.premium.popular },
+    { name: "Premium", price: data.premium.price, desc: "Full kontroll", features: data.premium.features, cta: "Starta Premium", popular: data.premium.popular },
   ];
 
   return (
@@ -750,15 +319,12 @@ function Pricing() {
         <div className="h-[400px] w-[600px] rounded-full bg-[var(--usha-accent)] opacity-[0.03] blur-[150px]" />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-6xl">
+      <div className="relative z-10 mx-auto max-w-5xl">
         <div className="mb-10 text-center">
-          <p className="mb-3 font-mono text-sm uppercase tracking-widest text-[var(--usha-gold)]">
-            Priser
-          </p>
           <h2 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
-            Investera i din <span className="text-gradient">tillväxt</span>
+            Priser
           </h2>
-          <p className="mx-auto max-w-xl text-[var(--usha-muted)]">
+          <p className="mx-auto max-w-lg text-[var(--usha-muted)]">
             Alla planer är <span className="font-semibold text-[var(--usha-gold)]">gratis under betaperioden</span> — på obestämd tid.
           </p>
         </div>
@@ -850,123 +416,34 @@ function Pricing() {
   );
 }
 
-/* ─────────────── FAQ ─────────────── */
-const FAQS = [
-  {
-    q: "Vad är Usha Platform?",
-    a: "Usha är ett komplett ekosystem för kreativitet och upplevelser. Kreatörer och upplevelseföretag bygger sin profil, publicerar tjänster och tar emot bokningar — allt på ett ställe. Kunder hittar, jämför och bokar talanger och upplevelser direkt.",
-  },
-  {
-    q: "Kostar det något att registrera sig?",
-    a: "Nej, Gratis-planen kostar ingenting. Du kan uppgradera till Guld eller Premium när du vill för mer funktioner och lägre kommission.",
-  },
-  {
-    q: "Hur fungerar betalningar?",
-    a: "Vi använder Stripe för säkra betalningar. Kunder betalar via plattformen, och du får dina pengar direkt till ditt konto med automatisk fakturering.",
-  },
-  {
-    q: "Kan jag byta plan senare?",
-    a: "Absolut! Du kan uppgradera eller nedgradera din plan när som helst. Ändringen träder i kraft vid nästa faktureringsperiod.",
-  },
-  {
-    q: "Vilka kan använda plattformen?",
-    a: "Både individuella kreatörer och företag! Dansinstruktörer, musiker, fotografer, designers — men också restauranger, konserthus, nattklubbar, SPA och retreat centers. Om du erbjuder kreativa tjänster eller upplevelser passar Usha för dig.",
-  },
-  {
-    q: "Hur skiljer sig Usha från andra plattformar?",
-    a: "Usha är byggt specifikt för kreativitet och upplevelser i Sverige. Vi samlar tre ben — kreatörer, upplevelseföretag och kunder — i ett kretslopp med profil, marketplace, bokning och betalning, istället för att du ska behöva lappa ihop olika verktyg.",
-  },
-];
-
-function FAQ() {
-  const [open, setOpen] = useState<number | null>(null);
-
-  return (
-    <section id="faq" className="py-28 px-6">
-      <div className="mx-auto max-w-3xl">
-        <div className="mb-16 text-center">
-          <p className="mb-3 font-mono text-sm uppercase tracking-widest text-[var(--usha-gold)]">
-            FAQ
-          </p>
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            Vanliga frågor
-          </h2>
-        </div>
-
-        <div className="space-y-3">
-          {FAQS.map((faq, i) => (
-            <div
-              key={i}
-              className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] transition-colors hover:border-[var(--usha-gold)]/20"
-            >
-              <button
-                onClick={() => setOpen(open === i ? null : i)}
-                className="flex w-full items-center justify-between p-5 text-left"
-              >
-                <span className="font-medium">{faq.q}</span>
-                <span
-                  className="ml-4 shrink-0 text-lg text-[var(--usha-muted)] transition-transform duration-200"
-                  style={{
-                    transform: open === i ? "rotate(45deg)" : "rotate(0)",
-                  }}
-                >
-                  +
-                </span>
-              </button>
-              {open === i && (
-                <div className="border-t border-[var(--usha-border)] px-5 py-4 text-sm leading-relaxed text-[var(--usha-muted)]">
-                  {faq.a}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ─────────────── VISION CTA ─────────────── */
-function VisionCTA() {
+/* ─────────────── CTA ─────────────── */
+function CTA() {
   return (
     <section className="relative py-28 px-6">
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute top-1/2 left-1/2 h-[400px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--usha-gold)] opacity-[0.06] blur-[150px]" />
-        <div className="absolute top-1/3 right-1/3 h-[200px] w-[300px] rounded-full bg-[var(--usha-accent)] opacity-[0.04] blur-[100px]" />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-3xl text-center">
+      <div className="relative z-10 mx-auto max-w-2xl text-center">
         <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[var(--usha-gold)]/20 bg-[var(--usha-card)] px-4 py-1.5 text-xs">
           <Sparkles size={12} className="text-[var(--usha-gold)]" />
-          <span className="text-[var(--usha-muted)]">Vår vision</span>
+          <span className="text-[var(--usha-muted)]">Helt gratis under beta</span>
         </div>
 
-        <h2 className="mb-6 text-3xl font-bold sm:text-4xl lg:text-5xl">
-          Vi bygger infrastrukturen för{" "}
-          <span className="text-gradient">Sveriges kreativa ekonomi</span>
+        <h2 className="mb-6 text-3xl font-bold sm:text-4xl">
+          Redo att testa?
         </h2>
-        <p className="mb-10 text-lg leading-relaxed text-[var(--usha-muted)]">
-          Usha handlar om mer än bokningar. Det handlar om att ge kreatörer
-          och upplevelseföretag verktygen att växa — och ge varje kund
-          tillgång till fantastisk kreativ kompetens och oförglömliga
-          upplevelser.
+        <p className="mb-10 text-lg text-[var(--usha-muted)]">
+          Skapa konto på sekunder och utforska hela plattformen utan kostnad.
         </p>
 
-        <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-          <a
-            href="/app"
-            className="glow-gold inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-8 py-4 text-base font-bold text-black transition hover:scale-[1.02] hover:opacity-90"
-          >
-            Testa Usha nu
-            <ArrowRight size={16} />
-          </a>
-          <a
-            href="/marketplace"
-            className="inline-flex items-center gap-2 rounded-xl border border-[var(--usha-border)] px-8 py-4 text-base font-medium text-[var(--usha-muted)] transition hover:border-[var(--usha-gold)]/30 hover:text-white"
-          >
-            Utforska marketplace
-          </a>
-        </div>
+        <a
+          href="/app"
+          className="glow-gold inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-8 py-4 text-base font-bold text-black transition hover:scale-[1.02] hover:opacity-90"
+        >
+          Kom igång gratis
+          <ArrowRight size={16} />
+        </a>
       </div>
     </section>
   );
@@ -976,9 +453,7 @@ function VisionCTA() {
 const FOOTER_LINKS = {
   Plattform: [
     { label: "Marketplace", href: "/marketplace" },
-    { label: "Funktioner", href: "#ecosystem" },
     { label: "Priser", href: "#pricing" },
-    { label: "FAQ", href: "#faq" },
   ],
   Juridiskt: [
     { label: "Användarvillkor", href: "/terms" },
@@ -991,7 +466,7 @@ function Footer() {
   return (
     <footer className="border-t border-[var(--usha-border)] pt-16 pb-8 px-6">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="mb-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
           <div className="lg:col-span-2">
             <div className="mb-4 flex items-center gap-2">
@@ -1000,9 +475,8 @@ function Footer() {
               </div>
               <span className="text-lg font-bold tracking-tight">Usha</span>
             </div>
-            <p className="mb-6 max-w-xs text-sm leading-relaxed text-[var(--usha-muted)]">
-              Hela kretsloppet för kreativitet och upplevelser. Kreatörer,
-              företag och kunder — förenade på en plattform.
+            <p className="max-w-xs text-sm leading-relaxed text-[var(--usha-muted)]">
+              Kreatörer, upplevelser och kunder — förenade på en plattform.
             </p>
           </div>
 
@@ -1026,7 +500,6 @@ function Footer() {
           ))}
         </div>
 
-        {/* Bottom bar */}
         <div className="flex flex-col items-center justify-between gap-4 border-t border-[var(--usha-border)] pt-8 sm:flex-row">
           <p className="font-mono text-xs text-[var(--usha-muted)]">
             © 2026 Usha AB. Alla rättigheter förbehållna.
@@ -1047,12 +520,8 @@ export default function Home() {
       <Nav />
       <Hero />
       <Ecosystem />
-      <ThreePillars />
-      <Categories />
-      <Pillars />
       <Pricing />
-      <FAQ />
-      <VisionCTA />
+      <CTA />
       <Footer />
       <InstallPrompt />
     </main>
