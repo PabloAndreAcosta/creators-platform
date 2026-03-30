@@ -228,9 +228,15 @@ export default async function BillingPage({
                 {plan.description}
               </p>
 
-              <div className="my-6 flex items-baseline gap-1">
-                <span className="text-4xl font-extrabold">{plan.price}</span>
-                <span className="text-[var(--usha-muted)]">SEK/mån</span>
+              <div className="my-6">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-4xl font-extrabold text-[var(--usha-gold)]">0</span>
+                  <span className="text-[var(--usha-muted)]">SEK/mån</span>
+                  <span className="text-lg text-[var(--usha-muted)] line-through decoration-[var(--usha-muted)]/50">
+                    {plan.price} SEK
+                  </span>
+                </div>
+                <p className="mt-1 text-xs text-[var(--usha-gold)]">Gratis under beta</p>
               </div>
 
               <ul className="mb-8 space-y-3">
