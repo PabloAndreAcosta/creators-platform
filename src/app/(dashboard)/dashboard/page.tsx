@@ -16,6 +16,9 @@ import Link from "next/link";
 import { isAdmin } from "@/lib/admin/check";
 
 export default async function DashboardPage() {
+  // Redirect to the new app home page
+  redirect("/app");
+
   const supabase = await createClient();
   const {
     data: { user },

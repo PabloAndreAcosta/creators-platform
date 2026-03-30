@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Camera, CheckCircle, XCircle, Search, AlertCircle, UserCheck, Loader2 } from "lucide-react";
+import { Camera, CheckCircle, XCircle, Search, AlertCircle, UserCheck, Loader2, Lock } from "lucide-react";
 import { vibrate } from "@/lib/haptics";
+import { useRole } from "@/components/mobile/role-context";
+import { useSubscription } from "@/lib/subscription/context";
 
 interface TicketResult {
   valid: boolean;
@@ -27,6 +29,9 @@ interface CheckInResult {
 }
 
 export default function ScanPage() {
+  const { role } = useRole();
+  const { tier } = useSubscription();
+
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [checkingIn, setCheckingIn] = useState(false);
@@ -35,6 +40,22 @@ export default function ScanPage() {
   const [error, setError] = useState("");
   const [scannerActive, setScannerActive] = useState(false);
   const [scannerLoading, setScannerLoading] = useState(false);
+
+  const hasAccess = role === "upplevelse" || (role === "kreator" && (tier === "guld" || tier === "premium"));
+
+  if (!hasAccess) {
+    return (
+      <div className="flex flex-col items-center justify-center px-4 py-20 text-center">
+        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--usha-card)] border border-[var(--usha-border)]">
+          <Lock size={24} className="text-[var(--usha-muted)]" />
+        </div>
+        <h1 className="text-lg font-bold">Ingen åtkomst</h1>
+        <p className="mt-2 max-w-xs text-sm text-[var(--usha-muted)]">
+          Biljettskanning är tillgänglig för Upplevelse-konton och betalande Kreatörer.
+        </p>
+      </div>
+    );
+  }
   const scannerRef = useRef<any>(null);
   const scannerContainerRef = useRef<HTMLDivElement>(null);
 
