@@ -396,7 +396,10 @@ function Pricing() {
           <h2 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
             Priser
           </h2>
-          <p className="mx-auto max-w-lg text-[var(--usha-muted)]">
+          <p className="mx-auto max-w-xl text-[var(--usha-muted)]">
+            En komplett lösning — skapa events, sprid dem på sociala medier, sälj och skanna biljetter, och ha koll på alla deltagare. Allt i en app.
+          </p>
+          <p className="mx-auto mt-3 max-w-lg text-sm text-[var(--usha-muted)]">
             Alla planer är <span className="font-semibold text-[var(--usha-gold)]">gratis under betaperioden</span> — på obestämd tid.
           </p>
         </div>
