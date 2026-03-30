@@ -19,6 +19,9 @@ import {
   BarChart3,
   Shield,
   Ticket,
+  Store,
+  Heart,
+  UserPlus,
 } from "lucide-react";
 
 /* ─────────────── NAV ─────────────── */
@@ -170,44 +173,47 @@ function Hero() {
 }
 
 /* ─────────────── ECOSYSTEM ─────────────── */
-const STEPS = [
+const ECOSYSTEM_PILLARS = [
   {
-    icon: Users,
-    title: "Bygg din närvaro",
-    desc: "Skapa en professionell profil, lägg till dina tjänster eller events och bli synlig direkt på marketplace.",
+    icon: Palette,
+    title: "Kreatörer",
+    desc: "Dansinstruktörer, fotografer, musiker, designers — kreativa talanger som bygger sin verksamhet.",
+    color: "from-[var(--usha-gold)] to-amber-600",
     details: [
-      { icon: Palette, text: "Profil med bio, portfolio, priser och kontaktinfo" },
-      { icon: Ticket, text: "Publicera tjänster, kurser eller events med bilder och beskrivning" },
+      { icon: Palette, text: "Profil med portfolio, priser och kontaktinfo" },
+      { icon: Ticket, text: "Publicera tjänster, kurser och events" },
       { icon: Globe, text: "Egen profiladress — usha.se/dittnamn" },
-      { icon: BarChart3, text: "Statistik över visningar och besökare" },
+      { icon: BarChart3, text: "Statistik och intäktsrapporter" },
     ],
   },
   {
-    icon: CalendarCheck,
-    title: "Bli upptäckt & bokad",
-    desc: "Kunder hittar dig, jämför och bokar direkt med datum och tid. Inga mejlkedjor.",
+    icon: Store,
+    title: "Upplevelser",
+    desc: "Restauranger, konserthus, SPA, nattklubbar och retreat centers — platser som skapar oförglömliga stunder.",
+    color: "from-[var(--usha-accent)] to-rose-500",
+    details: [
+      { icon: Ticket, text: "Skapa events och sälj biljetter med QR-kod" },
+      { icon: Search, text: "Skanna biljetter och ha koll på deltagare" },
+      { icon: Users, text: "Boka kreatörer direkt till dina events" },
+      { icon: Globe, text: "Sprid events på sociala medier" },
+    ],
+  },
+  {
+    icon: Heart,
+    title: "Kunder",
+    desc: "Människor som vill upptäcka kreativa talanger och upplevelser — och boka dem direkt.",
+    color: "from-sky-500 to-blue-500",
     details: [
       { icon: Search, text: "Sökbar marketplace med filter på kategori, plats och pris" },
-      { icon: CalendarCheck, text: "Direktbokning med kalender — kunder väljer tid som passar" },
-      { icon: Ticket, text: "Biljettförsäljning till events med QR-kod och incheckning" },
-      { icon: Users, text: "Meddelanden direkt mellan kreatör och kund" },
-    ],
-  },
-  {
-    icon: CreditCard,
-    title: "Få betalt & väx",
-    desc: "Stripe hanterar betalningen säkert. Du bygger rykte med varje bokning — fler kunder följer.",
-    details: [
-      { icon: CreditCard, text: "Stripe-betalningar med automatisk fakturering och utbetalning" },
-      { icon: Shield, text: "Säkra transaktioner — trygg för båda parter" },
-      { icon: Star, text: "Omdömen och betyg som stärker din profil" },
-      { icon: BarChart3, text: "Intäktsrapporter och insikter för att växa" },
+      { icon: CalendarCheck, text: "Boka direkt med datum och tid" },
+      { icon: CreditCard, text: "Säker betalning via Stripe" },
+      { icon: Star, text: "Omdömen och betyg för att hitta rätt" },
     ],
   },
 ];
 
 function Ecosystem() {
-  const [openStep, setOpenStep] = useState<number | null>(null);
+  const [openPillar, setOpenPillar] = useState<number | null>(null);
 
   return (
     <section id="ecosystem" className="relative py-28 px-6">
@@ -218,33 +224,28 @@ function Ecosystem() {
       <div className="relative z-10 mx-auto max-w-4xl">
         <div className="mb-16 text-center">
           <h2 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
-            Så fungerar <span className="text-gradient">ekosystemet</span>
+            Tre ben, ett <span className="text-gradient">ekosystem</span>
           </h2>
-          <p className="mx-auto max-w-lg text-[var(--usha-muted)]">
-            Tre steg — från profil till intäkter. Klicka för att se mer.
+          <p className="mx-auto max-w-xl text-[var(--usha-muted)]">
+            Kreatörer skapar utbudet. Upplevelser erbjuder platserna. Kunder upptäcker och bokar. Alla förstärker varandra.
           </p>
         </div>
 
         <div className="space-y-4">
-          {STEPS.map((step, i) => {
-            const isOpen = openStep === i;
+          {ECOSYSTEM_PILLARS.map((pillar, i) => {
+            const isOpen = openPillar === i;
             return (
-              <div key={step.title} className={`rounded-2xl border bg-[var(--usha-card)] transition-all ${isOpen ? "border-[var(--usha-gold)]/30" : "border-[var(--usha-border)] hover:border-[var(--usha-gold)]/20"}`}>
+              <div key={pillar.title} className={`rounded-2xl border bg-[var(--usha-card)] transition-all ${isOpen ? "border-[var(--usha-gold)]/30" : "border-[var(--usha-border)] hover:border-[var(--usha-gold)]/20"}`}>
                 <button
-                  onClick={() => setOpenStep(isOpen ? null : i)}
+                  onClick={() => setOpenPillar(isOpen ? null : i)}
                   className="flex w-full items-center gap-4 p-6 text-left"
                 >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
-                    <step.icon size={18} className="text-black" />
+                  <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${pillar.color}`}>
+                    <pillar.icon size={18} className="text-black" />
                   </div>
                   <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs text-[var(--usha-muted)]">
-                        {String(i + 1).padStart(2, "0")}
-                      </span>
-                      <h3 className="font-semibold">{step.title}</h3>
-                    </div>
-                    <p className="mt-1 text-sm text-[var(--usha-muted)]">{step.desc}</p>
+                    <h3 className="font-semibold">{pillar.title}</h3>
+                    <p className="mt-1 text-sm text-[var(--usha-muted)]">{pillar.desc}</p>
                   </div>
                   <ChevronDown
                     size={18}
@@ -255,7 +256,7 @@ function Ecosystem() {
                 {isOpen && (
                   <div className="border-t border-[var(--usha-border)] px-6 pb-6 pt-4">
                     <ul className="grid gap-3 sm:grid-cols-2">
-                      {step.details.map((detail) => (
+                      {pillar.details.map((detail) => (
                         <li key={detail.text} className="flex items-start gap-3">
                           <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[var(--usha-gold)]/10">
                             <detail.icon size={14} className="text-[var(--usha-gold)]" />
@@ -269,6 +270,59 @@ function Ecosystem() {
               </div>
             );
           })}
+        </div>
+
+        {/* Loop message */}
+        <p className="mt-8 text-center text-sm text-[var(--usha-muted)]">
+          Fler kreatörer lockar fler kunder. Fler kunder lockar fler upplevelser. Kretsloppet som driver tillväxt.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+/* ─────────────── ONBOARDING ─────────────── */
+const ONBOARDING_STEPS = [
+  {
+    icon: UserPlus,
+    title: "Skapa konto",
+    desc: "Registrera dig gratis på sekunder med Google, Facebook eller e-post.",
+  },
+  {
+    icon: Palette,
+    title: "Bygg din profil",
+    desc: "Lägg till bio, portfolio, tjänster eller events. Bli synlig direkt på marketplace.",
+  },
+  {
+    icon: CalendarCheck,
+    title: "Börja ta emot bokningar",
+    desc: "Kunder hittar dig, bokar och betalar. Du fokuserar på det du gör bäst.",
+  },
+];
+
+function Onboarding() {
+  return (
+    <section className="relative py-20 px-6">
+      <div className="mx-auto max-w-4xl">
+        <div className="mb-12 text-center">
+          <h2 className="mb-4 text-2xl font-bold tracking-tight sm:text-3xl">
+            Kom igång på <span className="text-gradient">3 steg</span>
+          </h2>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-3">
+          {ONBOARDING_STEPS.map((step, i) => (
+            <div key={step.title} className="text-center">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
+                <step.icon size={20} className="text-black" />
+              </div>
+              <span className="mb-2 block font-mono text-xs text-[var(--usha-muted)]">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <h3 className="mb-1 font-semibold">{step.title}</h3>
+              <p className="text-sm text-[var(--usha-muted)]">{step.desc}</p>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -595,6 +649,7 @@ export default function Home() {
       <Nav />
       <Hero />
       <Ecosystem />
+      <Onboarding />
       <Pricing />
       <CTA />
       <Footer />
