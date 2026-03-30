@@ -11,6 +11,14 @@ import {
   CalendarCheck,
   CreditCard,
   Zap,
+  ChevronDown,
+  Palette,
+  Globe,
+  Search,
+  Star,
+  BarChart3,
+  Shield,
+  Ticket,
 } from "lucide-react";
 
 /* ─────────────── NAV ─────────────── */
@@ -167,20 +175,40 @@ const STEPS = [
     icon: Users,
     title: "Bygg din närvaro",
     desc: "Skapa en professionell profil, lägg till dina tjänster eller events och bli synlig direkt på marketplace.",
+    details: [
+      { icon: Palette, text: "Profil med bio, portfolio, priser och kontaktinfo" },
+      { icon: Ticket, text: "Publicera tjänster, kurser eller events med bilder och beskrivning" },
+      { icon: Globe, text: "Egen profiladress — usha.se/dittnamn" },
+      { icon: BarChart3, text: "Statistik över visningar och besökare" },
+    ],
   },
   {
     icon: CalendarCheck,
     title: "Bli upptäckt & bokad",
     desc: "Kunder hittar dig, jämför och bokar direkt med datum och tid. Inga mejlkedjor.",
+    details: [
+      { icon: Search, text: "Sökbar marketplace med filter på kategori, plats och pris" },
+      { icon: CalendarCheck, text: "Direktbokning med kalender — kunder väljer tid som passar" },
+      { icon: Ticket, text: "Biljettförsäljning till events med QR-kod och incheckning" },
+      { icon: Users, text: "Meddelanden direkt mellan kreatör och kund" },
+    ],
   },
   {
     icon: CreditCard,
     title: "Få betalt & väx",
     desc: "Stripe hanterar betalningen säkert. Du bygger rykte med varje bokning — fler kunder följer.",
+    details: [
+      { icon: CreditCard, text: "Stripe-betalningar med automatisk fakturering och utbetalning" },
+      { icon: Shield, text: "Säkra transaktioner — trygg för båda parter" },
+      { icon: Star, text: "Omdömen och betyg som stärker din profil" },
+      { icon: BarChart3, text: "Intäktsrapporter och insikter för att växa" },
+    ],
   },
 ];
 
 function Ecosystem() {
+  const [openStep, setOpenStep] = useState<number | null>(null);
+
   return (
     <section id="ecosystem" className="relative py-28 px-6">
       <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -193,27 +221,54 @@ function Ecosystem() {
             Så fungerar <span className="text-gradient">ekosystemet</span>
           </h2>
           <p className="mx-auto max-w-lg text-[var(--usha-muted)]">
-            Tre steg — från profil till intäkter.
+            Tre steg — från profil till intäkter. Klicka för att se mer.
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
-          {STEPS.map((step, i) => (
-            <div key={step.title} className="group rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-7 transition-all hover:border-[var(--usha-gold)]/20">
-              <div className="mb-5 flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
-                  <step.icon size={18} className="text-black" />
-                </div>
-                <span className="font-mono text-xs text-[var(--usha-muted)]">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
+        <div className="space-y-4">
+          {STEPS.map((step, i) => {
+            const isOpen = openStep === i;
+            return (
+              <div key={step.title} className={`rounded-2xl border bg-[var(--usha-card)] transition-all ${isOpen ? "border-[var(--usha-gold)]/30" : "border-[var(--usha-border)] hover:border-[var(--usha-gold)]/20"}`}>
+                <button
+                  onClick={() => setOpenStep(isOpen ? null : i)}
+                  className="flex w-full items-center gap-4 p-6 text-left"
+                >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
+                    <step.icon size={18} className="text-black" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-xs text-[var(--usha-muted)]">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <h3 className="font-semibold">{step.title}</h3>
+                    </div>
+                    <p className="mt-1 text-sm text-[var(--usha-muted)]">{step.desc}</p>
+                  </div>
+                  <ChevronDown
+                    size={18}
+                    className={`shrink-0 text-[var(--usha-muted)] transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
+
+                {isOpen && (
+                  <div className="border-t border-[var(--usha-border)] px-6 pb-6 pt-4">
+                    <ul className="grid gap-3 sm:grid-cols-2">
+                      {step.details.map((detail) => (
+                        <li key={detail.text} className="flex items-start gap-3">
+                          <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[var(--usha-gold)]/10">
+                            <detail.icon size={14} className="text-[var(--usha-gold)]" />
+                          </div>
+                          <span className="text-sm text-[var(--usha-muted)]">{detail.text}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
-              <h3 className="mb-2 font-semibold">{step.title}</h3>
-              <p className="text-sm leading-relaxed text-[var(--usha-muted)]">
-                {step.desc}
-              </p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>
