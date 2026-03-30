@@ -97,8 +97,10 @@ export async function POST(req: NextRequest) {
     };
 
     if (BETA_MODE) {
-      // Beta: free trial for 365 days, no payment method required
-      sessionParams.subscription_data = { trial_period_days: 365 };
+      // Beta: free trial, no payment method required
+      // Configure trial length via BETA_TRIAL_DAYS env var (default: 90 days / ~3 months)
+      const trialDays = parseInt(process.env.BETA_TRIAL_DAYS || "90", 10);
+      sessionParams.subscription_data = { trial_period_days: trialDays };
       sessionParams.payment_method_collection = "if_required";
     } else if (isFreeWithPromo) {
       // 100% discount: use a 30-day trial so no payment method is needed
