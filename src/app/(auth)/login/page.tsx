@@ -87,7 +87,7 @@ export default function LoginPage() {
           .eq("id", data.session.user.id)
           .single();
         const role = profile?.role;
-        window.location.href = (role === "creator" || role === "experience") ? "/dashboard" : "/app";
+        window.location.href = "/app";
       } else {
         setError("Ingen session returnerades. Kontrollera din e-post.");
         setLoading(false);

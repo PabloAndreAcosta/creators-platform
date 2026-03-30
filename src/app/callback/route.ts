@@ -19,10 +19,7 @@ export async function GET(request: NextRequest) {
           .eq("id", user.id)
           .single();
 
-        const role = profile?.role;
-        if (role === "creator" || role === "experience") {
-          return NextResponse.redirect(`${origin}/dashboard`);
-        }
+        // All roles go to /app (tier-aware home page)
       }
       return NextResponse.redirect(`${origin}/app`);
     }
