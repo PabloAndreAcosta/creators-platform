@@ -53,6 +53,12 @@ export default async function MobileAppLayout({
       plan = sub.plan;
       hasActiveSubscription = true;
     }
+
+    // During beta, all users have active subscription status (for feature access)
+    const { BETA_MODE } = await import("@/lib/beta");
+    if (BETA_MODE) {
+      hasActiveSubscription = true;
+    }
   } catch {
     // Continue with defaults if profile/subscription queries fail
   }

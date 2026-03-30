@@ -46,7 +46,7 @@ export async function getSubscriptionStatus(
     .single();
 
   return {
-    tier: BETA_MODE ? "premium" : tier,
+    tier,
     role,
     hasActiveSubscription: BETA_MODE ? true : !!sub,
   };
