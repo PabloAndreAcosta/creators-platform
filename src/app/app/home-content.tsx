@@ -24,6 +24,7 @@ import Link from "next/link";
 import RecommendedEvents from "@/components/RecommendedEvents";
 import { FavoriteButton } from "@/components/favorite-button";
 import { SearchBar } from "@/components/search-bar";
+import { GatedAction } from "@/components/subscription/GatedAction";
 
 interface Profile {
   id: string;
@@ -669,17 +670,20 @@ function KreatorHome({
     );
   }
 
-  /* ── Gratis: visual, encouraging ── */
+  /* ── Gratis: show all features, lock premium ones ── */
   return (
-    <div className="px-4 py-6 space-y-8">
+    <div className="px-4 py-6 space-y-6">
       {/* Greeting */}
       <div>
         <h1 className="text-2xl font-bold">
           Hej, {profile?.full_name || "Kreatör"}! 👋
         </h1>
-        <p className="text-sm text-[var(--usha-muted)]">
-          Kreatör · {profile?.category || "Kreativ"}
-        </p>
+        <div className="mt-1 flex items-center gap-2">
+          <span className="text-xs text-[var(--usha-muted)]">Kreatör · {profile?.category || "Kreativ"}</span>
+          <span className="rounded-full bg-[var(--usha-muted)]/10 px-2 py-0.5 text-[10px] font-medium text-[var(--usha-muted)]">
+            {commission}% kommission
+          </span>
+        </div>
       </div>
 
       {/* Stats */}
@@ -700,65 +704,76 @@ function KreatorHome({
         ))}
       </div>
 
-      {/* Today's Listings */}
+      {/* KPI ribbon — locked for gratis */}
+      <GatedAction requiredTier="premium" message="Uppgradera till Premium för KPI-dashboard." showLock>
+        <div className="flex gap-2">
+          {[
+            { label: "Intäkter", value: `${monthlyRevenue.toLocaleString("sv-SE")} kr` },
+            { label: "Bokningar", value: String(bookingsCount) },
+            { label: "Betyg", value: averageRating != null ? `${averageRating}/5` : "—" },
+            { label: "Tjänster", value: String(listings.length) },
+          ].map((kpi) => (
+            <div key={kpi.label} className="flex-1 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-3 text-center">
+              <p className="text-base font-bold leading-none">{kpi.value}</p>
+              <p className="mt-1 text-[10px] text-[var(--usha-muted)]">{kpi.label}</p>
+            </div>
+          ))}
+        </div>
+      </GatedAction>
+
+      {/* Quick actions — scan locked for gratis */}
+      <div className="grid grid-cols-2 gap-2">
+        <Link href="/app/courses" className="flex items-center gap-2.5 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 text-sm font-medium transition hover:border-[var(--usha-gold)]/30">
+          <Clock size={16} className="text-[var(--usha-gold)]" />
+          Ny tjänst
+        </Link>
+        <Link href="/app/calendar" className="flex items-center gap-2.5 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 text-sm font-medium transition hover:border-[var(--usha-gold)]/30">
+          <Calendar size={16} className="text-[var(--usha-gold)]" />
+          Bokningar
+        </Link>
+        <GatedAction requiredTier="guld" message="Uppgradera till Guld för att skanna biljetter." showLock>
+          <div className="flex items-center gap-2.5 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 text-sm font-medium">
+            <Camera size={16} className="text-[var(--usha-gold)]" />
+            Skanna biljett
+          </div>
+        </GatedAction>
+        <Link href="/app/messages" className="flex items-center gap-2.5 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 text-sm font-medium transition hover:border-[var(--usha-gold)]/30">
+          <Users size={16} className="text-[var(--usha-gold)]" />
+          Meddelanden
+        </Link>
+      </div>
+
+      {/* Listings */}
       <section>
-        <h2 className="mb-4 text-lg font-bold">Dina Tjänster</h2>
-        <div className="space-y-3 md:grid md:grid-cols-2 md:gap-3 md:space-y-0 lg:grid-cols-3">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-base font-bold">Dina Tjänster</h2>
+          <Link href="/app/courses" className="text-xs text-[var(--usha-gold)]">Alla</Link>
+        </div>
+        <div className="space-y-2">
           {todaysListings.length > 0 ? todaysListings.map((cls, i) => (
-            <div
-              key={i}
-              className="flex items-center gap-4 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--usha-gold)]/10">
-                <Clock size={18} className="text-[var(--usha-gold)]" />
-              </div>
+            <div key={i} className="flex items-center gap-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3">
+              <Clock size={16} className="text-[var(--usha-gold)]" />
               <div className="flex-1">
-                <h3 className="text-sm font-semibold">{cls.title}</h3>
-                <p className="text-xs text-[var(--usha-muted)]">{cls.time}</p>
+                <h3 className="text-sm font-medium">{cls.title}</h3>
+                <p className="text-[10px] text-[var(--usha-muted)]">{cls.time} · {cls.category}</p>
               </div>
-              <span className="rounded-full px-2 py-0.5 text-[10px] font-medium bg-[var(--usha-gold)]/10 text-[var(--usha-gold)]">
-                {cls.category}
-              </span>
             </div>
           )) : (
-            <div className="col-span-full flex flex-col items-center justify-center rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] py-8">
-              <Clock size={28} className="mb-2 text-[var(--usha-muted)]" />
-              <p className="text-sm text-[var(--usha-muted)]">Inga tjänster ännu</p>
-            </div>
+            <p className="py-6 text-center text-sm text-[var(--usha-muted)]">Inga tjänster ännu</p>
           )}
         </div>
       </section>
 
-      {/* Bookings Summary */}
-      <section>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-bold">Bokningar</h2>
-          <Link href="/app/calendar" className="text-xs text-[var(--usha-gold)]">
-            Visa alla
-          </Link>
+      {/* Bookings */}
+      <div className="flex items-center justify-between rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3">
+        <div className="flex items-center gap-3">
+          <Calendar size={16} className="text-[var(--usha-gold)]" />
+          <span className="text-sm">{bookingsCount} aktiva bokningar</span>
         </div>
-        <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[var(--usha-gold)]/20 to-[var(--usha-accent)]/20">
-              <Calendar size={18} className="text-[var(--usha-gold)]" />
-            </div>
-            <div className="flex-1">
-              <h3 className="text-sm font-semibold">
-                Du har {bookingsCount} aktiva bokningar
-              </h3>
-              <p className="text-xs text-[var(--usha-muted)]">
-                {bookingsCount > 0 ? "Se din kalender för detaljer" : "Inga bokningar just nu"}
-              </p>
-            </div>
-            <Link
-              href="/app/calendar"
-              className="rounded-lg bg-[var(--usha-gold)]/10 px-3 py-1.5 text-xs font-medium text-[var(--usha-gold)]"
-            >
-              Kalender
-            </Link>
-          </div>
-        </div>
-      </section>
+        <Link href="/app/calendar" className="rounded-lg bg-[var(--usha-gold)]/10 px-3 py-1.5 text-xs font-medium text-[var(--usha-gold)]">
+          Kalender
+        </Link>
+      </div>
 
       {/* Upgrade nudge */}
       <Link
@@ -962,16 +977,19 @@ function UpplevelseHome({
     );
   }
 
-  /* ── Gratis: visual, encouraging ── */
+  /* ── Gratis: show all features, lock premium ones ── */
   return (
-    <div className="px-4 py-6 space-y-8">
+    <div className="px-4 py-6 space-y-6">
       <div>
         <h1 className="text-2xl font-bold">
           Hej, {profile?.full_name || "där"}! 👋
         </h1>
-        <p className="text-sm text-[var(--usha-muted)]">
-          Upplevelse · {profile?.category || "Venue"}
-        </p>
+        <div className="mt-1 flex items-center gap-2">
+          <span className="text-xs text-[var(--usha-muted)]">Upplevelse · {profile?.category || "Venue"}</span>
+          <span className="rounded-full bg-[var(--usha-muted)]/10 px-2 py-0.5 text-[10px] font-medium text-[var(--usha-muted)]">
+            {commission}% kommission
+          </span>
+        </div>
       </div>
 
       {/* Stats */}
@@ -992,21 +1010,80 @@ function UpplevelseHome({
         ))}
       </div>
 
+      {/* KPI ribbon — locked for gratis */}
+      <GatedAction requiredTier="premium" message="Uppgradera till Premium för KPI-dashboard." showLock>
+        <div className="flex gap-2">
+          {[
+            { label: "Intäkter", value: `${monthlyRevenue.toLocaleString("sv-SE")} kr` },
+            { label: "Bokningar", value: String(bookingsCount) },
+            { label: "Events", value: String(activeEvents.length) },
+            { label: "Utkast", value: String(draftEvents.length) },
+          ].map((kpi) => (
+            <div key={kpi.label} className="flex-1 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-3 text-center">
+              <p className="text-base font-bold leading-none">{kpi.value}</p>
+              <p className="mt-1 text-[10px] text-[var(--usha-muted)]">{kpi.label}</p>
+            </div>
+          ))}
+        </div>
+      </GatedAction>
+
+      {/* Quick actions — scan locked for gratis */}
+      <div className="grid grid-cols-2 gap-2">
+        <Link href="/app/events" className="flex items-center gap-2.5 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 text-sm font-medium transition hover:border-[var(--usha-gold)]/30">
+          <Ticket size={16} className="text-[var(--usha-gold)]" />
+          Nytt event
+        </Link>
+        <GatedAction requiredTier="guld" message="Uppgradera till Guld för att skanna biljetter." showLock>
+          <div className="flex items-center gap-2.5 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 text-sm font-medium">
+            <Camera size={16} className="text-[var(--usha-gold)]" />
+            Skanna biljett
+          </div>
+        </GatedAction>
+        <Link href="/app/messages" className="flex items-center gap-2.5 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 text-sm font-medium transition hover:border-[var(--usha-gold)]/30">
+          <Users size={16} className="text-[var(--usha-gold)]" />
+          Meddelanden
+        </Link>
+        <Link href="/app/events" className="flex items-center gap-2.5 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 text-sm font-medium transition hover:border-[var(--usha-gold)]/30">
+          <Calendar size={16} className="text-[var(--usha-gold)]" />
+          Evenemang
+        </Link>
+      </div>
+
+      {/* Event pipeline — locked for gratis */}
+      <GatedAction requiredTier="premium" message="Uppgradera till Premium för event-pipeline." showLock>
+        <section>
+          <h2 className="mb-3 text-sm font-semibold text-[var(--usha-muted)]">Event-pipeline</h2>
+          <div className="space-y-1.5">
+            {upcomingEvents.length > 0 ? upcomingEvents.slice(0, 3).map((event, i) => (
+              <div key={i} className="flex items-center justify-between rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2.5">
+                <div className="flex items-center gap-2">
+                  <div className={`h-1.5 w-1.5 rounded-full ${event.status === "Aktiv" ? "bg-green-400" : "bg-[var(--usha-muted)]"}`} />
+                  <span className="text-sm">{event.title}</span>
+                </div>
+                <span className={`rounded px-1.5 py-0.5 text-[9px] font-medium ${
+                  event.status === "Aktiv" ? "bg-green-500/10 text-green-400" : "bg-[var(--usha-muted)]/10 text-[var(--usha-muted)]"
+                }`}>{event.status}</span>
+              </div>
+            )) : (
+              <p className="py-4 text-center text-sm text-[var(--usha-muted)]">Inga events ännu</p>
+            )}
+          </div>
+        </section>
+      </GatedAction>
+
       {/* Upcoming Events */}
       <section>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-bold">Kommande Evenemang</h2>
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-base font-bold">Kommande Evenemang</h2>
           <Link href="/app/events" className="text-xs text-[var(--usha-gold)]">Hantera</Link>
         </div>
-        <div className="space-y-3">
+        <div className="space-y-2">
           {upcomingEvents.length > 0 ? upcomingEvents.slice(0, 3).map((event, i) => (
-            <div key={i} className="flex items-center gap-4 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--usha-gold)]/10">
-                <Ticket size={18} className="text-[var(--usha-gold)]" />
-              </div>
+            <div key={i} className="flex items-center gap-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3">
+              <Ticket size={16} className="text-[var(--usha-gold)]" />
               <div className="flex-1">
-                <h3 className="text-sm font-semibold">{event.title}</h3>
-                <p className="text-xs text-[var(--usha-muted)]">{event.date}</p>
+                <h3 className="text-sm font-medium">{event.title}</h3>
+                <p className="text-[10px] text-[var(--usha-muted)]">{event.date}</p>
               </div>
               <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
                 event.status === "Aktiv" ? "bg-green-500/20 text-green-400" : "bg-[var(--usha-muted)]/20 text-[var(--usha-muted)]"

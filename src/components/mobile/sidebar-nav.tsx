@@ -19,8 +19,6 @@ export function SidebarNav() {
   const { role } = useRole();
   const { tier } = useSubscription();
 
-  const showScan = role === "upplevelse" || (role === "kreator" && (tier === "guld" || tier === "premium"));
-
   const tabs =
     role === "publik"
       ? [
@@ -33,7 +31,7 @@ export function SidebarNav() {
         ? [
             { href: "/app", label: "Hem", icon: Home },
             { href: "/app/messages", label: "Meddelanden", icon: MessageCircle },
-            ...(showScan ? [{ href: "/app/scan", label: "Skanna", icon: ScanLine }] : []),
+            { href: "/app/scan", label: "Skanna", icon: ScanLine },
             { href: "/app/courses", label: "Kurser", icon: BookOpen },
             { href: "/app/profile", label: "Profil", icon: User },
           ]
