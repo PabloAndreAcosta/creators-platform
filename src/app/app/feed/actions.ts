@@ -51,6 +51,7 @@ export async function createPost(formData: FormData) {
   if (error) return { error: "Kunde inte skapa inlägget. Försök igen." };
 
   revalidatePath("/app");
+  revalidatePath("/app/posts");
   return { success: true };
 }
 
@@ -87,6 +88,7 @@ export async function updatePost(postId: string, formData: FormData) {
   if (error) return { error: "Kunde inte uppdatera inlägget" };
 
   revalidatePath("/app");
+  revalidatePath("/app/posts");
   return { success: true };
 }
 
@@ -107,6 +109,7 @@ export async function deletePost(postId: string) {
   if (error) return { error: "Kunde inte radera inlägget" };
 
   revalidatePath("/app");
+  revalidatePath("/app/posts");
   return { success: true };
 }
 

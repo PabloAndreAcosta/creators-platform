@@ -10,6 +10,7 @@ import {
   Building2,
   MessageCircle,
   ScanLine,
+  FileText,
 } from "lucide-react";
 import { useRole } from "./role-context";
 import { useSubscription } from "@/lib/subscription/context";
@@ -30,16 +31,16 @@ export function BottomNav() {
       : role === "kreator"
         ? [
             { href: "/app", label: "Hem", icon: Home },
+            { href: "/app/posts", label: "Inlägg", icon: FileText },
             { href: "/app/messages", label: "Meddelanden", icon: MessageCircle },
             { href: "/app/scan", label: "Skanna", icon: ScanLine },
-            { href: "/app/courses", label: "Kurser", icon: BookOpen },
             { href: "/app/profile", label: "Profil", icon: User },
           ]
         : [
             { href: "/app", label: "Hem", icon: Home },
+            { href: "/app/posts", label: "Inlägg", icon: FileText },
             { href: "/app/messages", label: "Meddelanden", icon: MessageCircle },
             { href: "/app/scan", label: "Skanna", icon: ScanLine },
-            { href: "/app/events", label: "Evenemang", icon: Building2 },
             { href: "/app/profile", label: "Profil", icon: User },
           ];
 

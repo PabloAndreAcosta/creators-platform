@@ -10,6 +10,7 @@ import {
   Building2,
   MessageCircle,
   ScanLine,
+  FileText,
 } from "lucide-react";
 import { useRole } from "./role-context";
 import { useSubscription } from "@/lib/subscription/context";
@@ -30,6 +31,7 @@ export function SidebarNav() {
       : role === "kreator"
         ? [
             { href: "/app", label: "Hem", icon: Home },
+            { href: "/app/posts", label: "Mina inlägg", icon: FileText },
             { href: "/app/messages", label: "Meddelanden", icon: MessageCircle },
             { href: "/app/scan", label: "Skanna", icon: ScanLine },
             { href: "/app/courses", label: "Kurser", icon: BookOpen },
@@ -37,6 +39,7 @@ export function SidebarNav() {
           ]
         : [
             { href: "/app", label: "Hem", icon: Home },
+            { href: "/app/posts", label: "Mina inlägg", icon: FileText },
             { href: "/app/messages", label: "Meddelanden", icon: MessageCircle },
             { href: "/app/scan", label: "Skanna", icon: ScanLine },
             { href: "/app/events", label: "Evenemang", icon: Building2 },
