@@ -3,7 +3,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requirePaidSubscription } from "@/lib/subscription/check";
+import { requirePaidSubscription, getSubscriptionStatus } from "@/lib/subscription/check";
+import { checkListingLimit } from "@/lib/listings/limits";
 
 const CATEGORIES = ["dance", "music", "photo", "video", "design", "yoga", "fitness", "other"] as const;
 
@@ -55,6 +56,13 @@ export async function createListing(formData: FormData) {
     await requirePaidSubscription();
   } catch {
     return { error: "Du behöver en Guld- eller Premium-prenumeration för att skapa tjänster." };
+  }
+
+  // Check listing limit for user's tier
+  const { tier } = await getSubscriptionStatus(user.id);
+  const limit = await checkListingLimit(user.id, tier);
+  if (!limit.allowed) {
+    return { error: `Du har nått maxgränsen (${limit.max}) för din plan. Uppgradera för att skapa fler.` };
   }
 
   const parsed = parseListingForm(formData);

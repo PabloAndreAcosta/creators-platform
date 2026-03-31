@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { EVENT_CATEGORIES } from "./constants";
+import { getSubscriptionStatus } from "@/lib/subscription/check";
+import { checkListingLimit } from "@/lib/listings/limits";
 
 function parseEventForm(formData: FormData) {
   const title = (formData.get("title") as string)?.trim();
@@ -85,6 +87,13 @@ export async function createEvent(formData: FormData) {
   } = await supabase.auth.getUser();
 
   if (!user) return { error: "Ej inloggad" };
+
+  // Check listing limit for user's tier
+  const { tier } = await getSubscriptionStatus(user.id);
+  const limit = await checkListingLimit(user.id, tier);
+  if (!limit.allowed) {
+    return { error: `Du har nått maxgränsen (${limit.max}) för din plan. Uppgradera för att skapa fler.` };
+  }
 
   const parsed = parseEventForm(formData);
   if ("error" in parsed) return { error: parsed.error };
