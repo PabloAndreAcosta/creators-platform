@@ -9,9 +9,10 @@ import type { FeedPost } from "@/types/database";
 interface FeedProps {
   initialPosts: FeedPost[];
   isLoggedIn: boolean;
+  currentUserId?: string;
 }
 
-export function Feed({ initialPosts, isLoggedIn }: FeedProps) {
+export function Feed({ initialPosts, isLoggedIn, currentUserId }: FeedProps) {
   const [posts, setPosts] = useState(initialPosts);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(initialPosts.length >= 20);
@@ -42,7 +43,7 @@ export function Feed({ initialPosts, isLoggedIn }: FeedProps) {
   return (
     <div className="space-y-2">
       {posts.map((post) => (
-        <PostCard key={post.id} post={post} isLoggedIn={isLoggedIn} />
+        <PostCard key={post.id} post={post} isLoggedIn={isLoggedIn} currentUserId={currentUserId} />
       ))}
 
       {hasMore && (

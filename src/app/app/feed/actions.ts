@@ -54,6 +54,42 @@ export async function createPost(formData: FormData) {
   return { success: true };
 }
 
+export async function updatePost(postId: string, formData: FormData) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { error: "Ej inloggad" };
+
+  const text = (formData.get("text") as string)?.trim();
+  const imageUrl = (formData.get("image_url") as string)?.trim() || null;
+  const listingId = (formData.get("listing_id") as string)?.trim() || null;
+
+  if (!text) return { error: "Skriv en text för ditt inlägg" };
+
+  if (listingId) {
+    const { data: listing } = await supabase
+      .from("listings")
+      .select("id")
+      .eq("id", listingId)
+      .eq("user_id", user.id)
+      .single();
+    if (!listing) return { error: "Vald tjänst hittades inte" };
+  }
+
+  const { error } = await supabase
+    .from("posts")
+    .update({ text, image_url: imageUrl, listing_id: listingId })
+    .eq("id", postId)
+    .eq("user_id", user.id);
+
+  if (error) return { error: "Kunde inte uppdatera inlägget" };
+
+  revalidatePath("/app");
+  return { success: true };
+}
+
 export async function deletePost(postId: string) {
   const supabase = await createClient();
   const {

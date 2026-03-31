@@ -249,7 +249,7 @@ function PublikHome({
         {feedPosts.length > 0 && (
           <section>
             <h2 className="mb-4 text-lg font-bold">Flöde</h2>
-            <Feed initialPosts={feedPosts} isLoggedIn={!!profile} />
+            <Feed initialPosts={feedPosts} isLoggedIn={!!profile} currentUserId={profile?.id} />
           </section>
         )}
 
