@@ -111,9 +111,9 @@ export function PostCard({ post, isLoggedIn, currentUserId }: PostCardProps) {
   if (deleted) return null;
 
   return (
-    <div className="border-b border-[var(--usha-border)] pb-4">
+    <div className="border-b border-[var(--usha-border)] pb-4 md:pb-5">
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-3">
+      <div className="flex items-center gap-2.5 px-4 py-3 md:gap-3">
         <Link href={`/creators/${post.author.id}`}>
           {post.author.avatar_url ? (
             <img
@@ -210,11 +210,11 @@ export function PostCard({ post, isLoggedIn, currentUserId }: PostCardProps) {
 
       {/* Image */}
       {post.image_url && (
-        <div className="relative">
+        <div className="relative mx-4 overflow-hidden rounded-xl">
           <img
             src={post.image_url}
             alt=""
-            className="w-full max-h-[500px] object-cover"
+            className="w-full max-h-[280px] object-cover md:max-h-[400px]"
             loading="lazy"
           />
         </div>
@@ -264,13 +264,13 @@ export function PostCard({ post, isLoggedIn, currentUserId }: PostCardProps) {
         <div className="mx-4 mt-3">
           <Link
             href={`/creators/${post.author.id}`}
-            className="flex items-center gap-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 transition hover:border-[var(--usha-gold)]/30"
+            className="flex items-center gap-2.5 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-2.5 transition hover:border-[var(--usha-gold)]/30 md:gap-3 md:p-3"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--usha-gold)]/10">
-              <Ticket size={16} className="text-[var(--usha-gold)]" />
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--usha-gold)]/10 md:h-10 md:w-10">
+              <Ticket size={15} className="text-[var(--usha-gold)]" />
             </div>
-            <div className="flex-1">
-              <p className="text-sm font-semibold">{post.listing.title}</p>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-xs font-semibold md:text-sm">{post.listing.title}</p>
               <div className="flex items-center gap-2 text-[10px] text-[var(--usha-muted)]">
                 {post.listing.event_date && (
                   <span className="flex items-center gap-0.5">
@@ -286,7 +286,7 @@ export function PostCard({ post, isLoggedIn, currentUserId }: PostCardProps) {
                 )}
               </div>
             </div>
-            <span className="rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-3 py-1.5 text-xs font-bold text-black">
+            <span className="shrink-0 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-2.5 py-1 text-[11px] font-bold text-black md:px-3 md:py-1.5 md:text-xs">
               {post.listing.price ? `${post.listing.price} kr` : "Gratis"}
             </span>
           </Link>
