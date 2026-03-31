@@ -14,6 +14,42 @@ export interface ExperienceDetails {
   accessibility?: string;
 }
 
+export interface Post {
+  id: string;
+  user_id: string;
+  text: string;
+  image_url: string | null;
+  listing_id: string | null;
+  created_at: string;
+}
+
+export interface PostLike {
+  id: string;
+  user_id: string;
+  post_id: string;
+  created_at: string;
+}
+
+export interface FeedPost extends Post {
+  author: {
+    id: string;
+    full_name: string | null;
+    avatar_url: string | null;
+    category: string | null;
+    role: string;
+  };
+  listing: {
+    id: string;
+    title: string;
+    price: number | null;
+    listing_type: string;
+    event_date: string | null;
+    event_location: string | null;
+  } | null;
+  like_count: number;
+  is_liked: boolean;
+}
+
 export interface Attendee {
   name: string;
   email?: string;

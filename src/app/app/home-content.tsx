@@ -25,6 +25,9 @@ import RecommendedEvents from "@/components/RecommendedEvents";
 import { FavoriteButton } from "@/components/favorite-button";
 import { SearchBar } from "@/components/search-bar";
 import { GatedAction } from "@/components/subscription/GatedAction";
+import { Feed } from "@/components/feed/feed";
+import { CreatePostForm } from "@/components/feed/create-post-form";
+import type { FeedPost } from "@/types/database";
 
 interface Profile {
   id: string;
@@ -65,6 +68,7 @@ interface HomeContentProps {
   bookingsCount: number;
   monthlyRevenue?: number;
   averageRating?: number | null;
+  feedPosts?: FeedPost[];
 }
 
 export function HomeContent({
@@ -74,6 +78,7 @@ export function HomeContent({
   bookingsCount,
   monthlyRevenue = 0,
   averageRating = null,
+  feedPosts = [],
 }: HomeContentProps) {
   const { role } = useRole();
 
@@ -84,6 +89,7 @@ export function HomeContent({
         listings={listings}
         topCreators={topCreators}
         tier={profile?.tier || "gratis"}
+        feedPosts={feedPosts}
       />
     );
   }
@@ -97,12 +103,13 @@ export function HomeContent({
         monthlyRevenue={monthlyRevenue}
         averageRating={averageRating}
         tier={profile?.tier || "gratis"}
+        feedPosts={feedPosts}
       />
     );
   }
 
   return (
-    <UpplevelseHome profile={profile} bookingsCount={bookingsCount} listings={listings} monthlyRevenue={monthlyRevenue} averageRating={averageRating} tier={profile?.tier || "gratis"} />
+    <UpplevelseHome profile={profile} bookingsCount={bookingsCount} listings={listings} monthlyRevenue={monthlyRevenue} averageRating={averageRating} tier={profile?.tier || "gratis"} feedPosts={feedPosts} />
   );
 }
 
@@ -112,11 +119,13 @@ function PublikHome({
   listings,
   topCreators,
   tier = "gratis",
+  feedPosts = [],
 }: {
   profile: Profile | null;
   listings: Listing[];
   topCreators: TopCreator[];
   tier?: string;
+  feedPosts?: FeedPost[];
 }) {
   const isGuld = tier === "guld" || tier === "premium";
   const isPremium = tier === "premium";
@@ -235,6 +244,14 @@ function PublikHome({
 
         {/* Search */}
         <SearchBar />
+
+        {/* Social Feed */}
+        {feedPosts.length > 0 && (
+          <section>
+            <h2 className="mb-4 text-lg font-bold">Flöde</h2>
+            <Feed initialPosts={feedPosts} isLoggedIn={!!profile} />
+          </section>
+        )}
 
         {/* Event Carousel — snap scroll with dots */}
         {restEvents.length > 0 && (
@@ -473,6 +490,7 @@ function KreatorHome({
   monthlyRevenue = 0,
   averageRating = null,
   tier = "gratis",
+  feedPosts = [],
 }: {
   profile: Profile | null;
   bookingsCount: number;
@@ -480,6 +498,7 @@ function KreatorHome({
   monthlyRevenue?: number;
   averageRating?: number | null;
   tier?: string;
+  feedPosts?: FeedPost[];
 }) {
   const isPremium = tier === "premium";
   const isGuld = tier === "guld";
@@ -490,6 +509,16 @@ function KreatorHome({
     time: listing.duration_minutes ? `${listing.duration_minutes} min` : "-",
     category: listing.category || "Övrigt",
   }));
+
+  const userListings = listings.filter((l) => l.user_id === profile?.id).map((l) => ({ id: l.id, title: l.title }));
+
+  const postForm = (
+    <CreatePostForm
+      authorName={profile?.full_name || "Kreatör"}
+      authorAvatar={profile?.avatar_url || null}
+      listings={userListings}
+    />
+  );
 
   /* ── Premium: command-center layout ── */
   if (isPremium) {
@@ -508,6 +537,9 @@ function KreatorHome({
             Kalender
           </Link>
         </div>
+
+        {/* Create post */}
+        {postForm}
 
         {/* KPI ribbon — single row */}
         <div className="flex gap-2">
@@ -801,6 +833,7 @@ function UpplevelseHome({
   monthlyRevenue = 0,
   averageRating = null,
   tier = "gratis",
+  feedPosts = [],
 }: {
   profile: Profile | null;
   bookingsCount: number;
@@ -808,6 +841,7 @@ function UpplevelseHome({
   monthlyRevenue?: number;
   averageRating?: number | null;
   tier?: string;
+  feedPosts?: FeedPost[];
 }) {
   const isPremium = tier === "premium";
   const isGuld = tier === "guld";
@@ -823,6 +857,16 @@ function UpplevelseHome({
       : "",
     status: listing.is_active ? "Aktiv" : "Utkast",
   }));
+
+  const userListings = listings.filter((l) => l.user_id === profile?.id).map((l) => ({ id: l.id, title: l.title }));
+
+  const postForm = (
+    <CreatePostForm
+      authorName={profile?.full_name || "Upplevelse"}
+      authorAvatar={profile?.avatar_url || null}
+      listings={userListings}
+    />
+  );
 
   /* ── Premium: ops-center ── */
   if (isPremium) {
@@ -842,6 +886,9 @@ function UpplevelseHome({
             Skanna
           </Link>
         </div>
+
+        {/* Create post */}
+        {postForm}
 
         {/* KPI ribbon */}
         <div className="flex gap-2">

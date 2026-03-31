@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { HomeContent } from "./home-content";
+import { getFeedPosts } from "./feed/queries";
 
 interface Profile {
   id: string;
@@ -40,6 +41,7 @@ export default async function AppHomePage() {
   let bookingsCount = 0;
   let monthlyRevenue = 0;
   let averageRating: number | null = null;
+  let feedPosts: any[] = [];
 
   try {
     const supabase = await createClient();
@@ -101,6 +103,13 @@ export default async function AppHomePage() {
       if (ratings.length > 0) {
         averageRating = Math.round((ratings.reduce((a, b) => a + b, 0) / ratings.length) * 10) / 10;
       }
+
+      // Fetch feed posts
+      try {
+        feedPosts = await getFeedPosts(user.id);
+      } catch {
+        feedPosts = [];
+      }
     }
   } catch {
     // Continue with mock data
@@ -114,6 +123,7 @@ export default async function AppHomePage() {
       bookingsCount={bookingsCount}
       monthlyRevenue={monthlyRevenue}
       averageRating={averageRating}
+      feedPosts={feedPosts}
     />
   );
 }
