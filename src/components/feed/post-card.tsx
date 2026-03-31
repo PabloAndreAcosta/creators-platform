@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
-import { Ticket, Calendar, MapPin, MoreHorizontal, Pencil, Trash2, X, Loader2, ImagePlus, Send } from "lucide-react";
+import { Ticket, Calendar, MapPin, MoreHorizontal, Pencil, Trash2, X, Loader2, ImagePlus, Send, Share2, Check } from "lucide-react";
 import { PostLikeButton } from "./post-like-button";
 import { updatePost, deletePost } from "@/app/app/feed/actions";
 import { createClient } from "@/lib/supabase/client";
@@ -44,8 +44,30 @@ export function PostCard({ post, isLoggedIn, currentUserId }: PostCardProps) {
   const [saving, setSaving] = useState(false);
   const [deleted, setDeleted] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [shared, setShared] = useState(false);
   const isOwner = currentUserId === post.user_id;
   const isLong = post.text.length > 150;
+
+  async function handleShare() {
+    const url = `${window.location.origin}/creators/${post.author.id}`;
+    const shareData = {
+      title: post.author.full_name || "Inlägg på Usha",
+      text: post.text.slice(0, 100) + (post.text.length > 100 ? "..." : ""),
+      url,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch {
+        // User cancelled share
+      }
+    } else {
+      await navigator.clipboard.writeText(url);
+      setShared(true);
+      setTimeout(() => setShared(false), 2000);
+    }
+  }
 
   async function handleDelete() {
     setDeleted(true);
@@ -206,6 +228,13 @@ export function PostCard({ post, isLoggedIn, currentUserId }: PostCardProps) {
           initialCount={post.like_count}
           isLoggedIn={isLoggedIn}
         />
+        <button
+          onClick={handleShare}
+          className="flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition hover:text-white"
+        >
+          {shared ? <Check size={18} className="text-green-400" /> : <Share2 size={18} />}
+          <span className="text-xs">{shared ? "Kopierad!" : "Dela"}</span>
+        </button>
       </div>
 
       {/* Text */}
