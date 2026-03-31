@@ -40,6 +40,17 @@ export default function ScanPage() {
   const [error, setError] = useState("");
   const [scannerActive, setScannerActive] = useState(false);
   const [scannerLoading, setScannerLoading] = useState(false);
+  const scannerRef = useRef<any>(null);
+  const scannerContainerRef = useRef<HTMLDivElement>(null);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (scannerRef.current) {
+        scannerRef.current.stop().catch(() => {});
+      }
+    };
+  }, []);
 
   const hasAccess = role === "upplevelse" || (role === "kreator" && (tier === "guld" || tier === "premium"));
 
@@ -56,8 +67,6 @@ export default function ScanPage() {
       </div>
     );
   }
-  const scannerRef = useRef<any>(null);
-  const scannerContainerRef = useRef<HTMLDivElement>(null);
 
   // Start QR scanner
   async function startScanner() {
@@ -100,15 +109,6 @@ export default function ScanPage() {
     }
     setScannerActive(false);
   }
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (scannerRef.current) {
-        scannerRef.current.stop().catch(() => {});
-      }
-    };
-  }, []);
 
   // Parse QR result — could be a URL or direct code
   function handleQrResult(text: string) {
