@@ -16,7 +16,7 @@ const DB_TO_APP_ROLE: Record<string, UserRole> = {
 };
 
 export const ROLE_LABELS: Record<UserRole, string> = {
-  publik: "Publik",
+  publik: "Användare",
   kreator: "Kreatör",
   upplevelse: "Upplevelse",
 };

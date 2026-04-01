@@ -18,10 +18,13 @@ import {
   Star,
   BarChart3,
   Shield,
+  ShieldCheck,
   Ticket,
   Store,
   Heart,
   UserPlus,
+  Fingerprint,
+  Lock,
 } from "lucide-react";
 
 /* ─────────────── NAV ─────────────── */
@@ -329,9 +332,68 @@ function Onboarding() {
   );
 }
 
+/* ─────────────── TRUST ─────────────── */
+const TRUST_POINTS = [
+  {
+    icon: Fingerprint,
+    title: "BankID-verifierade kreatörer",
+    desc: "Alla kreatörer och upplevelser verifierar sin identitet med Mobilt BankID innan de skapar konto. Du vet alltid vem du bokar.",
+  },
+  {
+    icon: Lock,
+    title: "Säker betalning",
+    desc: "Alla transaktioner hanteras av Stripe — din kortinfo delas aldrig med kreatörer eller upplevelser.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Skyddade bokningar",
+    desc: "Varje bokning bekräftas digitalt med QR-kod. Inga falska biljetter, inga missförstånd.",
+  },
+];
+
+function Trust() {
+  return (
+    <section className="relative py-28 px-6">
+      <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+        <div className="h-[400px] w-[600px] rounded-full bg-[var(--usha-gold)] opacity-[0.03] blur-[150px]" />
+      </div>
+
+      <div className="relative z-10 mx-auto max-w-4xl">
+        <div className="mb-16 text-center">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[var(--usha-gold)]/20 bg-[var(--usha-card)] px-4 py-1.5 text-xs">
+            <Shield size={12} className="text-[var(--usha-gold)]" />
+            <span className="text-[var(--usha-muted)]">Trygghet i varje steg</span>
+          </div>
+          <h2 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
+            Boka med <span className="text-gradient">fullt förtroende</span>
+          </h2>
+          <p className="mx-auto max-w-xl text-[var(--usha-muted)]">
+            Vi tar säkerhet på allvar. Alla som erbjuder tjänster och upplevelser på Usha är identitetsverifierade med svenskt BankID.
+          </p>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-3">
+          {TRUST_POINTS.map((point) => (
+            <div
+              key={point.title}
+              className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 transition hover:border-[var(--usha-gold)]/20"
+            >
+              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--usha-gold)]/20 to-[var(--usha-accent)]/20">
+                <point.icon size={20} className="text-[var(--usha-gold)]" />
+              </div>
+              <h3 className="mb-2 font-semibold">{point.title}</h3>
+              <p className="text-sm leading-relaxed text-[var(--usha-muted)]">{point.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ─────────────── PRICING ─────────────── */
 const ROLE_TABS = [
-  { key: "publik" as const, label: "Publik" },
+  { key: "publik" as const, label: "Användare" },
   { key: "kreator" as const, label: "Kreatör" },
   { key: "upplevelse" as const, label: "Upplevelse" },
 ];
@@ -650,6 +712,7 @@ export default function Home() {
       <Hero />
       <Ecosystem />
       <Onboarding />
+      <Trust />
       <Pricing />
       <CTA />
       <Footer />
