@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { ImagePlus, X, Link as LinkIcon, Loader2, Send } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { createPost } from "@/app/app/feed/actions";
@@ -26,6 +27,7 @@ export function CreatePostForm({ authorName, authorAvatar, listings }: CreatePos
   const [submitting, setSubmitting] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
   const { toast } = useToast();
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -83,6 +85,7 @@ export function CreatePostForm({ authorName, authorAvatar, listings }: CreatePos
       setImagePreview(null);
       setListingId("");
       setExpanded(false);
+      router.refresh();
     }
     setSubmitting(false);
   }

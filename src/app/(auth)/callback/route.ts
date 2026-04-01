@@ -54,7 +54,7 @@ export async function GET(req: NextRequest) {
           : profile?.role;
 
         // Clear the pending_role cookie
-        const destination = (!role || role === "customer") ? "/app" : "/dashboard";
+        const destination = "/app";
         // Validate `next` to prevent open redirect attacks
         const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : null;
         const redirectUrl = safeNext || destination;

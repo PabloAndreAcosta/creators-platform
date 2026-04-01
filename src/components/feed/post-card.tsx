@@ -100,6 +100,7 @@ export function PostCard({ post, isLoggedIn, currentUserId }: PostCardProps) {
     const formData = new FormData();
     formData.set("text", editText);
     if (editImageUrl) formData.set("image_url", editImageUrl);
+    if (post.listing_id) formData.set("listing_id", post.listing_id);
 
     const result = await updatePost(post.id, formData);
     if (!result?.error) {

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { PostCard } from "./post-card";
 import { getMorePosts } from "@/app/app/feed/actions";
@@ -17,6 +18,11 @@ export function Feed({ initialPosts, isLoggedIn, currentUserId }: FeedProps) {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(initialPosts.length >= 20);
   const [loading, setLoading] = useState(false);
+
+  // Sync with server data when initialPosts changes (e.g. after revalidation)
+  useEffect(() => {
+    setPosts(initialPosts);
+  }, [initialPosts]);
 
   async function loadMore() {
     setLoading(true);

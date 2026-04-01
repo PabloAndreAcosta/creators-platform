@@ -21,11 +21,11 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  // Return only what the client needs — not the hashed NIN
   return NextResponse.json({
     name: data.name,
     firstName: data.firstName,
     lastName: data.lastName,
+    hashedNin: data.hashedNin,
     role: data.role,
   });
 }

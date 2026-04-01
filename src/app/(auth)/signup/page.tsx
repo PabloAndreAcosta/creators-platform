@@ -169,15 +169,13 @@ export default function SignupPage() {
 
     // Include BankID data if verified
     if (bankidVerified && bankidData) {
-      // Fetch the full verified data (including hashedNin) from server
       try {
         const verifiedRes = await fetch("/api/auth/bankid/verified-data");
         const verified = await verifiedRes.json();
         if (!verified.error) {
           metadata.bankid_verified_at = new Date().toISOString();
           metadata.bankid_name = verified.name;
-          // The hashedNin is stored server-side via the cookie;
-          // we pass a flag so the trigger can read it
+          metadata.bankid_personal_number = verified.hashedNin;
         }
       } catch {
         // Continue with what we have
@@ -204,7 +202,7 @@ export default function SignupPage() {
     }
 
     if (data.session) {
-      window.location.href = selectedRole === "customer" ? "/app" : "/dashboard";
+      window.location.href = "/app";
       return;
     }
 
