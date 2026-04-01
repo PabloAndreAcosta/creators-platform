@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { verifyCookieValue } from "@/lib/signicat/crypto";
+import type { BankIdVerifiedData } from "@/types/bankid";
 
 export async function GET(req: NextRequest) {
   const { searchParams, origin } = new URL(req.url);
@@ -21,9 +23,22 @@ export async function GET(req: NextRequest) {
 
         if (pendingRole && validRoles.includes(pendingRole)) {
           // Update profile with the selected role
+          const profileUpdate: Record<string, unknown> = { role: pendingRole };
+
+          // Apply BankID verification data if present
+          const bankidCookie = req.cookies.get("bankid_verified")?.value;
+          if (bankidCookie) {
+            const bankidData = verifyCookieValue<BankIdVerifiedData>(bankidCookie);
+            if (bankidData) {
+              profileUpdate.bankid_verified_at = bankidData.verifiedAt;
+              profileUpdate.bankid_personal_number = bankidData.hashedNin;
+              profileUpdate.bankid_name = bankidData.name;
+            }
+          }
+
           await supabase
             .from("profiles")
-            .update({ role: pendingRole })
+            .update(profileUpdate)
             .eq("id", user.id);
         }
 
@@ -45,6 +60,7 @@ export async function GET(req: NextRequest) {
         const redirectUrl = safeNext || destination;
         const response = NextResponse.redirect(`${origin}${redirectUrl}`);
         response.cookies.set("pending_role", "", { path: "/", maxAge: 0 });
+        response.cookies.set("bankid_verified", "", { path: "/", maxAge: 0 });
         return response;
       }
 

@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Palette, Store, Search } from "lucide-react";
+import { Palette, Store, Search, ShieldCheck, Loader2 } from "lucide-react";
 
 type Role = "creator" | "experience" | "customer";
 
@@ -12,11 +13,21 @@ const ROLES: { value: Role; label: string; description: string; icon: typeof Pal
   { value: "customer", label: "Kund", description: "Jag vill boka upplevelser", icon: Search },
 ];
 
+const BANKID_ERRORS: Record<string, string> = {
+  failed: "BankID-verifieringen misslyckades. Försök igen.",
+  aborted: "BankID-verifieringen avbröts.",
+  duplicate: "Det finns redan ett konto med detta personnummer.",
+  error: "Ett fel uppstod vid verifieringen. Försök igen.",
+};
+
+const NEEDS_BANKID: Role[] = ["creator", "experience"];
+
 function FieldError({ message }: { message: string }) {
   return <p className="mt-1 text-xs text-red-400">{message}</p>;
 }
 
 export default function SignupPage() {
+  const searchParams = useSearchParams();
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,7 +43,50 @@ export default function SignupPage() {
   const [emailTouched, setEmailTouched] = useState(false);
   const [passwordTouched, setPasswordTouched] = useState(false);
 
+  // BankID state
+  const [bankidVerified, setBankidVerified] = useState(false);
+  const [bankidVerifying, setBankidVerifying] = useState(false);
+  const [bankidError, setBankidError] = useState("");
+  const [bankidData, setBankidData] = useState<{
+    name: string;
+    firstName: string;
+    lastName: string;
+    role: string;
+  } | null>(null);
+
   const supabase = createClient();
+
+  // Handle BankID callback from URL params
+  useEffect(() => {
+    const bankidStatus = searchParams.get("bankid");
+    if (!bankidStatus) return;
+
+    if (bankidStatus === "success") {
+      // Fetch verified data from server
+      fetch("/api/auth/bankid/verified-data")
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.error) {
+            setBankidError("Verifieringsdata kunde inte hämtas. Försök igen.");
+            return;
+          }
+          setBankidData(data);
+          setBankidVerified(true);
+          setFullName(data.name);
+          setSelectedRole(data.role as Role);
+        })
+        .catch(() => {
+          setBankidError("Verifieringsdata kunde inte hämtas. Försök igen.");
+        });
+    } else {
+      setBankidError(BANKID_ERRORS[bankidStatus] || BANKID_ERRORS.error);
+      // Restore role from localStorage if available
+      const savedRole = localStorage.getItem("signup_role");
+      if (savedRole && ["creator", "experience"].includes(savedRole)) {
+        setSelectedRole(savedRole as Role);
+      }
+    }
+  }, [searchParams]);
 
   function validateName(value: string) {
     if (!value.trim()) return "Namn krävs";
@@ -60,15 +114,47 @@ export default function SignupPage() {
     return `${base} border-green-500/40 focus:border-green-500/60`;
   }
 
+  async function handleBankIdVerify() {
+    if (!selectedRole) return;
+    setBankidVerifying(true);
+    setBankidError("");
+
+    // Save role so we can restore it after redirect
+    localStorage.setItem("signup_role", selectedRole);
+
+    try {
+      const res = await fetch("/api/auth/bankid/start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role: selectedRole }),
+      });
+      const data = await res.json();
+
+      if (data.error) {
+        setBankidError(data.error);
+        setBankidVerifying(false);
+        return;
+      }
+
+      // Redirect to Signicat BankID
+      window.location.href = data.authenticationUrl;
+    } catch {
+      setBankidError("Kunde inte starta BankID-verifiering. Försök igen.");
+      setBankidVerifying(false);
+    }
+  }
+
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
-    const nErr = validateName(fullName);
+
+    // For BankID roles, name comes from BankID — skip name validation
+    const nErr = bankidVerified ? "" : validateName(fullName);
     const eErr = validateEmail(email);
     const pErr = validatePassword(password);
     setNameError(nErr);
     setEmailError(eErr);
     setPasswordError(pErr);
-    setNameTouched(true);
+    if (!bankidVerified) setNameTouched(true);
     setEmailTouched(true);
     setPasswordTouched(true);
     if (nErr || eErr || pErr) return;
@@ -76,11 +162,33 @@ export default function SignupPage() {
     setLoading(true);
     setError("");
 
+    const metadata: Record<string, string> = {
+      full_name: fullName,
+      role: selectedRole!,
+    };
+
+    // Include BankID data if verified
+    if (bankidVerified && bankidData) {
+      // Fetch the full verified data (including hashedNin) from server
+      try {
+        const verifiedRes = await fetch("/api/auth/bankid/verified-data");
+        const verified = await verifiedRes.json();
+        if (!verified.error) {
+          metadata.bankid_verified_at = new Date().toISOString();
+          metadata.bankid_name = verified.name;
+          // The hashedNin is stored server-side via the cookie;
+          // we pass a flag so the trigger can read it
+        }
+      } catch {
+        // Continue with what we have
+      }
+    }
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { full_name: fullName, role: selectedRole },
+        data: metadata,
         emailRedirectTo: `${window.location.origin}/callback`,
       },
     });
@@ -151,7 +259,7 @@ export default function SignupPage() {
   }
 
   // Step 1: Role selection
-  if (!selectedRole) {
+  if (!selectedRole && !bankidVerified) {
     return (
       <div className="flex min-h-screen items-center justify-center px-6">
         <div className="w-full max-w-md">
@@ -192,6 +300,70 @@ export default function SignupPage() {
     );
   }
 
+  // Step 1.5: BankID verification (only for creator/experience, before registration)
+  if (selectedRole && NEEDS_BANKID.includes(selectedRole) && !bankidVerified) {
+    return (
+      <div className="flex min-h-screen items-center justify-center px-6">
+        <div className="w-full max-w-sm">
+          <div className="mb-8 text-center">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--usha-gold)]/20 to-[var(--usha-accent)]/20">
+              <ShieldCheck size={28} className="text-[var(--usha-gold)]" />
+            </div>
+            <h1 className="text-2xl font-bold">Verifiera din identitet</h1>
+            <p className="mt-2 text-sm text-[var(--usha-muted)]">
+              Som {ROLES.find((r) => r.value === selectedRole)?.label.toLowerCase()} behöver du verifiera dig med Mobilt BankID innan du skapar konto.
+            </p>
+          </div>
+
+          {bankidError && (
+            <div className="mb-4 rounded-lg bg-red-500/10 px-4 py-3 text-sm text-red-400">
+              {bankidError}
+            </div>
+          )}
+
+          <button
+            onClick={handleBankIdVerify}
+            disabled={bankidVerifying}
+            className="flex w-full min-h-[48px] items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] py-3 text-sm font-bold text-black transition hover:opacity-90 disabled:opacity-50"
+          >
+            {bankidVerifying ? (
+              <>
+                <Loader2 size={18} className="animate-spin" />
+                Öppnar BankID...
+              </>
+            ) : (
+              <>
+                <ShieldCheck size={18} />
+                Verifiera med Mobilt BankID
+              </>
+            )}
+          </button>
+
+          <p className="mt-3 text-center text-xs text-[var(--usha-muted)]">
+            Du kommer att skickas till BankID för identifiering.
+          </p>
+
+          <button
+            onClick={() => {
+              setSelectedRole(null);
+              setBankidError("");
+            }}
+            className="mt-6 block w-full text-center text-xs text-[var(--usha-gold)] hover:underline"
+          >
+            Byt roll
+          </button>
+
+          <p className="mt-4 text-center text-sm text-[var(--usha-muted)]">
+            Har redan konto?{" "}
+            <a href="/login" className="text-[var(--usha-gold)] hover:underline">
+              Logga in
+            </a>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   // Step 2: Registration form
   return (
     <div className="flex min-h-screen items-center justify-center px-6">
@@ -204,52 +376,76 @@ export default function SignupPage() {
           <p className="mt-1 text-sm text-[var(--usha-muted)]">
             {ROLES.find((r) => r.value === selectedRole)?.label} — 14 dagars gratis provperiod
           </p>
-          <button
-            onClick={() => setSelectedRole(null)}
-            className="mt-1 text-xs text-[var(--usha-gold)] hover:underline"
-          >
-            Byt roll
-          </button>
+          {bankidVerified && (
+            <p className="mt-1 flex items-center justify-center gap-1 text-xs text-green-400">
+              <ShieldCheck size={12} /> Identitet verifierad med BankID
+            </p>
+          )}
+          {!bankidVerified && (
+            <button
+              onClick={() => {
+                setSelectedRole(null);
+                setBankidError("");
+              }}
+              className="mt-1 text-xs text-[var(--usha-gold)] hover:underline"
+            >
+              Byt roll
+            </button>
+          )}
         </div>
 
-        <button
-          onClick={handleGoogleSignup}
-          className="mb-2 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium transition hover:bg-[var(--usha-card)]"
-        >
-          Fortsätt med Google
-        </button>
+        {/* OAuth buttons — only available after BankID for creator/experience */}
+        {(!NEEDS_BANKID.includes(selectedRole!) || bankidVerified) && (
+          <>
+            <button
+              onClick={handleGoogleSignup}
+              className="mb-2 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium transition hover:bg-[var(--usha-card)]"
+            >
+              Fortsätt med Google
+            </button>
 
-        <button
-          onClick={handleFacebookSignup}
-          className="mb-4 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium transition hover:bg-[var(--usha-card)]"
-        >
-          Fortsätt med Facebook
-        </button>
+            <button
+              onClick={handleFacebookSignup}
+              className="mb-4 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium transition hover:bg-[var(--usha-card)]"
+            >
+              Fortsätt med Facebook
+            </button>
 
-        <div className="mb-4 flex items-center gap-3">
-          <div className="h-px flex-1 bg-[var(--usha-border)]" />
-          <span className="text-xs text-[var(--usha-muted)]">eller</span>
-          <div className="h-px flex-1 bg-[var(--usha-border)]" />
-        </div>
+            <div className="mb-4 flex items-center gap-3">
+              <div className="h-px flex-1 bg-[var(--usha-border)]" />
+              <span className="text-xs text-[var(--usha-muted)]">eller</span>
+              <div className="h-px flex-1 bg-[var(--usha-border)]" />
+            </div>
+          </>
+        )}
 
         <form onSubmit={handleSignup} className="space-y-4" noValidate>
           <div>
             <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">Namn</label>
-            <input
-              type="text"
-              value={fullName}
-              onChange={(e) => {
-                setFullName(e.target.value);
-                if (nameTouched) setNameError(validateName(e.target.value));
-              }}
-              onBlur={() => {
-                setNameTouched(true);
-                setNameError(validateName(fullName));
-              }}
-              autoComplete="name"
-              className={inputClass(nameTouched, !!nameError)}
-            />
-            {nameTouched && nameError && <FieldError message={nameError} />}
+            {bankidVerified ? (
+              <div className="flex items-center gap-2 rounded-xl border border-green-500/30 bg-[var(--usha-card)] px-4 py-3 text-base sm:text-sm">
+                <ShieldCheck size={14} className="shrink-0 text-green-400" />
+                <span>{fullName}</span>
+              </div>
+            ) : (
+              <>
+                <input
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => {
+                    setFullName(e.target.value);
+                    if (nameTouched) setNameError(validateName(e.target.value));
+                  }}
+                  onBlur={() => {
+                    setNameTouched(true);
+                    setNameError(validateName(fullName));
+                  }}
+                  autoComplete="name"
+                  className={inputClass(nameTouched, !!nameError)}
+                />
+                {nameTouched && nameError && <FieldError message={nameError} />}
+              </>
+            )}
           </div>
 
           <div>
