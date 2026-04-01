@@ -150,7 +150,7 @@ function Hero() {
           style={{ opacity: 0 }}
         >
           <a
-            href="/app"
+            href="/signup"
             className="glow-gold inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-8 py-3.5 text-sm font-bold text-black transition hover:scale-[1.02] hover:opacity-90 sm:w-auto sm:py-4 sm:text-base"
           >
             Kom igång gratis
@@ -590,7 +590,7 @@ function Pricing() {
               </ul>
 
               <a
-                href="/app"
+                href="/signup"
                 className={`block w-full rounded-xl py-3 text-center text-sm font-semibold transition ${
                   plan.popular
                     ? "bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] text-black hover:opacity-90"
@@ -629,7 +629,7 @@ function CTA() {
         </p>
 
         <a
-          href="/app"
+          href="/signup"
           className="glow-gold inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-8 py-4 text-base font-bold text-black transition hover:scale-[1.02] hover:opacity-90"
         >
           Kom igång gratis
