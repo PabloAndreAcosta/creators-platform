@@ -49,12 +49,12 @@ export function SidebarNav() {
   return (
     <aside className="hidden md:flex md:w-56 lg:w-64 flex-shrink-0 sticky top-0 h-screen flex-col justify-center border-r border-[var(--usha-border)] bg-[var(--usha-black)]">
       {/* Logo */}
-      <div className="flex items-center gap-2.5 px-6 pb-6">
+      <a href="/app" className="flex items-center gap-2.5 px-6 pb-6">
         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
           <span className="text-sm font-bold text-black">U</span>
         </div>
         <span className="text-xl font-bold tracking-tight">Usha</span>
-      </div>
+      </a>
 
       {/* Navigation */}
       <nav className="space-y-0.5 px-4">

@@ -29,14 +29,14 @@ export function AppShell({ children, userName }: AppShellProps) {
           <header className="sticky top-0 z-40 border-b border-[var(--usha-border)] bg-[var(--usha-black)]/95 backdrop-blur-lg">
             <div className="flex items-center gap-3 px-4 py-3">
               {/* Logo – mobile only */}
-              <div className="flex items-center gap-2 md:hidden">
+              <a href="/app" className="flex items-center gap-2 md:hidden">
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
                   <span className="text-sm font-bold text-black">U</span>
                 </div>
                 {!mobileSearchOpen && (
                   <span className="text-lg font-bold tracking-tight">Usha</span>
                 )}
-              </div>
+              </a>
 
               {/* SearchBar – desktop: always visible */}
               <div className="hidden flex-1 md:block md:max-w-md">
