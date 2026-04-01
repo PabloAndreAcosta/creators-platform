@@ -33,10 +33,9 @@ export async function POST(req: NextRequest) {
 
     return response;
   } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    console.error("BankID start error:", message);
+    console.error("BankID start error:", err instanceof Error ? err.message : err);
     return NextResponse.json(
-      { error: "Kunde inte starta BankID-verifiering. Försök igen.", debug: message },
+      { error: "Kunde inte starta BankID-verifiering. Försök igen." },
       { status: 500 }
     );
   }

@@ -131,7 +131,7 @@ export default function SignupPage() {
       const data = await res.json();
 
       if (data.error) {
-        setBankidError(data.debug ? `${data.error} (${data.debug})` : data.error);
+        setBankidError(data.error);
         setBankidVerifying(false);
         return;
       }
