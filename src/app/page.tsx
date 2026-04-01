@@ -95,7 +95,7 @@ function Nav() {
 /* ─────────────── HERO ─────────────── */
 function Hero() {
   return (
-    <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pt-16">
+    <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 pt-16 sm:px-6">
       {/* Background glows */}
       <div className="pointer-events-none absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2">
         <div className="h-[600px] w-[900px] rounded-full bg-[var(--usha-gold)] opacity-[0.05] blur-[180px]" />
@@ -111,7 +111,7 @@ function Hero() {
 
         {/* Headline */}
         <h1
-          className="animate-fade-up delay-100 mb-6 text-5xl font-extrabold leading-[1.08] tracking-tight sm:text-6xl lg:text-7xl"
+          className="animate-fade-up delay-100 mb-6 text-3xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl"
           style={{ opacity: 0 }}
         >
           Kreativitet &{" "}
@@ -121,7 +121,7 @@ function Hero() {
 
         {/* Hero video */}
         <div
-          className="animate-fade-up delay-150 mx-auto mb-10 max-w-3xl overflow-hidden rounded-2xl border border-[var(--usha-border)]"
+          className="animate-fade-up delay-150 mx-auto mb-8 max-w-3xl overflow-hidden rounded-xl border border-[var(--usha-border)] sm:mb-10 sm:rounded-2xl"
           style={{ opacity: 0 }}
         >
           <video
@@ -129,7 +129,7 @@ function Hero() {
             loop
             muted
             playsInline
-            className="w-full"
+            className="w-full max-h-[50vh] object-cover sm:max-h-none"
             suppressHydrationWarning
           >
             <source src="/hero-video.mp4" type="video/mp4" />
@@ -137,7 +137,7 @@ function Hero() {
         </div>
 
         <p
-          className="animate-fade-up delay-200 mx-auto mb-12 max-w-xl text-lg leading-relaxed text-[var(--usha-muted)]"
+          className="animate-fade-up delay-200 mx-auto mb-10 max-w-xl text-base leading-relaxed text-[var(--usha-muted)] sm:mb-12 sm:text-lg"
           style={{ opacity: 0 }}
         >
           Usha samlar kreatörer, upplevelser och kunder på en plattform.
@@ -146,19 +146,19 @@ function Hero() {
 
         {/* CTA */}
         <div
-          className="animate-fade-up delay-300 flex flex-col items-center gap-4 sm:flex-row sm:justify-center"
+          className="animate-fade-up delay-300 flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-4"
           style={{ opacity: 0 }}
         >
           <a
             href="/app"
-            className="glow-gold inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-8 py-4 text-base font-bold text-black transition hover:scale-[1.02] hover:opacity-90"
+            className="glow-gold inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-8 py-3.5 text-sm font-bold text-black transition hover:scale-[1.02] hover:opacity-90 sm:w-auto sm:py-4 sm:text-base"
           >
             Kom igång gratis
             <ArrowRight size={16} />
           </a>
           <a
             href="/marketplace"
-            className="inline-flex items-center gap-2 rounded-xl border border-[var(--usha-border)] px-8 py-4 text-base font-medium text-[var(--usha-muted)] transition hover:border-[var(--usha-gold)]/30 hover:text-white"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] px-8 py-3.5 text-sm font-medium text-[var(--usha-muted)] transition hover:border-[var(--usha-gold)]/30 hover:text-white sm:w-auto sm:py-4 sm:text-base"
           >
             Utforska marketplace
           </a>
@@ -219,14 +219,14 @@ function Ecosystem() {
   const [openPillar, setOpenPillar] = useState<number | null>(null);
 
   return (
-    <section id="ecosystem" className="relative py-28 px-6">
+    <section id="ecosystem" className="relative py-16 px-4 sm:py-28 sm:px-6">
       <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
         <div className="h-[500px] w-[700px] rounded-full bg-[var(--usha-gold)] opacity-[0.03] blur-[180px]" />
       </div>
 
       <div className="relative z-10 mx-auto max-w-4xl">
-        <div className="mb-16 text-center">
-          <h2 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
+        <div className="mb-10 text-center sm:mb-16">
+          <h2 className="mb-3 text-2xl font-bold tracking-tight sm:mb-4 sm:text-3xl md:text-4xl">
             Tre ben, ett <span className="text-gradient">ekosystem</span>
           </h2>
           <p className="mx-auto max-w-xl text-[var(--usha-muted)]">
@@ -305,10 +305,10 @@ const ONBOARDING_STEPS = [
 
 function Onboarding() {
   return (
-    <section className="relative py-20 px-6">
+    <section className="relative py-16 px-4 sm:py-20 sm:px-6">
       <div className="mx-auto max-w-4xl">
-        <div className="mb-12 text-center">
-          <h2 className="mb-4 text-2xl font-bold tracking-tight sm:text-3xl">
+        <div className="mb-10 text-center sm:mb-12">
+          <h2 className="mb-3 text-2xl font-bold tracking-tight sm:mb-4 sm:text-3xl">
             Kom igång på <span className="text-gradient">3 steg</span>
           </h2>
         </div>
@@ -353,18 +353,18 @@ const TRUST_POINTS = [
 
 function Trust() {
   return (
-    <section className="relative py-28 px-6">
+    <section className="relative py-16 px-4 sm:py-28 sm:px-6">
       <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
         <div className="h-[400px] w-[600px] rounded-full bg-[var(--usha-gold)] opacity-[0.03] blur-[150px]" />
       </div>
 
       <div className="relative z-10 mx-auto max-w-4xl">
-        <div className="mb-16 text-center">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[var(--usha-gold)]/20 bg-[var(--usha-card)] px-4 py-1.5 text-xs">
+        <div className="mb-10 text-center sm:mb-16">
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[var(--usha-gold)]/20 bg-[var(--usha-card)] px-4 py-1.5 text-xs sm:mb-4">
             <Shield size={12} className="text-[var(--usha-gold)]" />
             <span className="text-[var(--usha-muted)]">Trygghet i varje steg</span>
           </div>
-          <h2 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
+          <h2 className="mb-3 text-2xl font-bold tracking-tight sm:mb-4 sm:text-3xl md:text-4xl">
             Boka med <span className="text-gradient">fullt förtroende</span>
           </h2>
           <p className="mx-auto max-w-xl text-[var(--usha-muted)]">
@@ -502,17 +502,17 @@ function Pricing() {
   ];
 
   return (
-    <section id="pricing" className="relative py-28 px-6">
+    <section id="pricing" className="relative py-16 px-4 sm:py-28 sm:px-6">
       <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
         <div className="h-[400px] w-[600px] rounded-full bg-[var(--usha-accent)] opacity-[0.03] blur-[150px]" />
       </div>
 
       <div className="relative z-10 mx-auto max-w-5xl">
-        <div className="mb-10 text-center">
-          <h2 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
+        <div className="mb-8 text-center sm:mb-10">
+          <h2 className="mb-3 text-2xl font-bold tracking-tight sm:mb-4 sm:text-3xl md:text-4xl">
             Priser
           </h2>
-          <p className="mx-auto max-w-xl text-[var(--usha-muted)]">
+          <p className="mx-auto max-w-xl text-sm text-[var(--usha-muted)] sm:text-base">
             En komplett lösning — skapa events, sprid dem på sociala medier, sälj och skanna biljetter, och ha koll på alla deltagare. Allt i en app.
           </p>
           <p className="mx-auto mt-3 max-w-lg text-sm text-[var(--usha-muted)]">
@@ -521,13 +521,13 @@ function Pricing() {
         </div>
 
         {/* Role tabs */}
-        <div className="mb-12 flex justify-center">
+        <div className="mb-8 flex justify-center sm:mb-12">
           <div className="inline-flex rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-1">
             {ROLE_TABS.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setActiveRole(tab.key)}
-                className={`rounded-lg px-6 py-2.5 text-sm font-medium transition ${
+                className={`rounded-lg px-3.5 py-2 text-xs font-medium transition sm:px-6 sm:py-2.5 sm:text-sm ${
                   activeRole === tab.key
                     ? "bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] text-black"
                     : "text-[var(--usha-muted)] hover:text-white"
@@ -543,7 +543,7 @@ function Pricing() {
           {tiers.map((plan) => (
             <div
               key={plan.name}
-              className={`relative rounded-2xl border p-8 transition-all ${
+              className={`relative rounded-2xl border p-5 transition-all sm:p-8 ${
                 plan.popular
                   ? "border-[var(--usha-gold)]/40 bg-[var(--usha-card)] glow-gold scale-[1.02]"
                   : "border-[var(--usha-border)] bg-[var(--usha-card)] hover:border-[var(--usha-gold)]/20"
@@ -610,7 +610,7 @@ function Pricing() {
 /* ─────────────── CTA ─────────────── */
 function CTA() {
   return (
-    <section className="relative py-28 px-6">
+    <section className="relative py-16 px-4 sm:py-28 sm:px-6">
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute top-1/2 left-1/2 h-[400px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--usha-gold)] opacity-[0.06] blur-[150px]" />
       </div>
@@ -621,10 +621,10 @@ function CTA() {
           <span className="text-[var(--usha-muted)]">Helt gratis under beta</span>
         </div>
 
-        <h2 className="mb-6 text-3xl font-bold sm:text-4xl">
+        <h2 className="mb-4 text-2xl font-bold sm:mb-6 sm:text-3xl md:text-4xl">
           Redo att testa?
         </h2>
-        <p className="mb-10 text-lg text-[var(--usha-muted)]">
+        <p className="mb-8 text-base text-[var(--usha-muted)] sm:mb-10 sm:text-lg">
           Skapa konto på sekunder och utforska hela plattformen utan kostnad.
         </p>
 
@@ -655,7 +655,7 @@ const FOOTER_LINKS = {
 
 function Footer() {
   return (
-    <footer className="border-t border-[var(--usha-border)] pt-16 pb-8 px-6">
+    <footer className="border-t border-[var(--usha-border)] pt-12 pb-8 px-4 sm:pt-16 sm:px-6">
       <div className="mx-auto max-w-6xl">
         <div className="mb-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
