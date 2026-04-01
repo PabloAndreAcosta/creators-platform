@@ -14,6 +14,7 @@ export default function ConnectButton() {
   const [status, setStatus] = useState<ConnectStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [connecting, setConnecting] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     async function fetchStatus() {
@@ -32,17 +33,18 @@ export default function ConnectButton() {
 
   async function handleConnect() {
     setConnecting(true);
+    setError("");
     try {
       const res = await fetch('/api/stripe/connect', { method: 'POST' });
       const data = await res.json();
       if (data.url) {
         window.location.href = data.url;
       } else {
-        console.error('No onboarding URL returned');
+        setError(data.error || "Kunde inte starta anslutningen. Försök igen.");
         setConnecting(false);
       }
     } catch {
-      console.error('Failed to start connect onboarding');
+      setError("Nätverksfel. Kontrollera din anslutning och försök igen.");
       setConnecting(false);
     }
   }
@@ -109,6 +111,10 @@ export default function ConnectButton() {
               </div>
             ))}
           </div>
+
+          {error && (
+            <p className="mt-3 rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400">{error}</p>
+          )}
 
           <button
             onClick={handleConnect}
