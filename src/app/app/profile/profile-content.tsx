@@ -19,6 +19,7 @@ import {
   Award,
   Building2,
   Ticket,
+  Crown,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -158,7 +159,7 @@ export function ProfileContent({
       {/* Settings list */}
       <div className="space-y-1 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] overflow-hidden">
         <SettingsRow icon={Edit2} label="Redigera Profil" href="/dashboard/profile" />
-        <SettingsRow icon={CreditCard} label="Betalningsmetoder" href="/dashboard/billing" />
+        <SettingsRow icon={Crown} label="Min plan & betalning" href="/dashboard/billing" />
         <SettingsRow icon={Bell} label="Notifikationer" href="/app/settings/notifications" />
         <SettingsRow icon={Shield} label="Integritetsinställningar" href="/app/settings/privacy" />
         <SettingsRow icon={HelpCircle} label="Hjälp & Support" href="/app/settings/help" />
