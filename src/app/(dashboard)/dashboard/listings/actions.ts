@@ -68,15 +68,27 @@ export async function createListing(formData: FormData) {
   const parsed = parseListingForm(formData);
   if ("error" in parsed) return { error: parsed.error };
 
-  const { error } = await supabase.from("listings").insert({
-    ...parsed.data,
-    user_id: user.id,
-  });
+  const { data: listing, error } = await supabase
+    .from("listings")
+    .insert({ ...parsed.data, user_id: user.id })
+    .select("id, title, price, image_url")
+    .single();
 
-  if (error) return { error: "Kunde inte skapa tjänsten. Försök igen." };
+  if (error || !listing) return { error: "Kunde inte skapa tjänsten. Försök igen." };
+
+  // Auto-post to feed
+  const priceText = parsed.data.price ? ` — ${parsed.data.price} kr` : "";
+  await supabase.from("posts").insert({
+    user_id: user.id,
+    text: `Ny tjänst: ${parsed.data.title}${priceText}. Boka direkt via min profil!`,
+    image_url: parsed.data.image_url,
+    listing_id: listing.id,
+  });
 
   revalidatePath("/dashboard/listings");
   revalidatePath("/dashboard");
+  revalidatePath("/app");
+  revalidatePath("/app/posts");
   redirect("/dashboard/listings");
 }
 

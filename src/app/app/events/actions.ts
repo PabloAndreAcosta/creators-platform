@@ -98,14 +98,29 @@ export async function createEvent(formData: FormData) {
   const parsed = parseEventForm(formData);
   if ("error" in parsed) return { error: parsed.error };
 
-  const { error } = await supabase.from("listings").insert({
-    ...parsed.data,
+  const { data: listing, error } = await supabase
+    .from("listings")
+    .insert({ ...parsed.data, user_id: user.id })
+    .select("id, title, price, event_date, event_location, image_url")
+    .single();
+
+  if (error || !listing) return { error: "Kunde inte skapa evenemanget. Försök igen." };
+
+  // Auto-post to feed
+  const text = parsed.data.event_date
+    ? `Nytt event: ${parsed.data.title} — ${new Date(parsed.data.event_date).toLocaleDateString("sv-SE", { day: "numeric", month: "long" })}${parsed.data.event_location ? ` i ${parsed.data.event_location}` : ""}. Välkommen!`
+    : `Nytt event: ${parsed.data.title}${parsed.data.event_location ? ` i ${parsed.data.event_location}` : ""}. Välkommen!`;
+
+  await supabase.from("posts").insert({
     user_id: user.id,
+    text,
+    image_url: parsed.data.image_url,
+    listing_id: listing.id,
   });
 
-  if (error) return { error: "Kunde inte skapa evenemanget. Försök igen." };
-
   revalidatePath("/app/events");
+  revalidatePath("/app");
+  revalidatePath("/app/posts");
   redirect("/app/events");
 }
 
