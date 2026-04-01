@@ -139,6 +139,12 @@ export async function POST(req: NextRequest) {
           const listingId = session.metadata.listingId;
           const creatorId = session.metadata.creatorId;
           const amountPaid = session.amount_total; // already in öre
+          const paymentIntentId = (session.payment_intent as string) || null;
+
+          if (!listingId || !creatorId) {
+            console.error("Webhook: missing listingId or creatorId metadata");
+            break;
+          }
 
           // Build scheduled_at from event date/time if available
           const eventDate = session.metadata.eventDate;
@@ -160,7 +166,7 @@ export async function POST(req: NextRequest) {
             status: "confirmed",
             scheduled_at: scheduledAt,
             booking_type: "ticket",
-            stripe_payment_id: session.payment_intent as string,
+            stripe_payment_id: paymentIntentId,
             amount_paid: amountPaid,
           });
 
@@ -168,7 +174,7 @@ export async function POST(req: NextRequest) {
           if (amountPaid) {
             await getSupabaseAdmin().from("payments").insert({
               user_id: userId,
-              stripe_payment_id: session.payment_intent as string,
+              stripe_payment_id: paymentIntentId,
               amount: amountPaid,
               currency: session.currency || "sek",
               status: "succeeded",
@@ -205,7 +211,7 @@ export async function POST(req: NextRequest) {
             status: "pending",
             scheduled_at: scheduledAt,
             booking_type: "manual",
-            stripe_payment_id: session.payment_intent as string,
+            stripe_payment_id: (session.payment_intent as string) || null,
             amount_paid: amountPaid,
             guest_count: guestCount,
             special_requests: specialRequests,
@@ -217,7 +223,7 @@ export async function POST(req: NextRequest) {
           if (amountPaid) {
             await getSupabaseAdmin().from("payments").insert({
               user_id: userId,
-              stripe_payment_id: session.payment_intent as string,
+              stripe_payment_id: (session.payment_intent as string) || null,
               amount: amountPaid,
               currency: session.currency || "sek",
               status: "succeeded",
@@ -272,7 +278,7 @@ export async function POST(req: NextRequest) {
         if (session.amount_total) {
           await getSupabaseAdmin().from("payments").insert({
             user_id: userId,
-            stripe_payment_id: session.payment_intent as string,
+            stripe_payment_id: (session.payment_intent as string) || null,
             amount: session.amount_total,
             currency: session.currency || "sek",
             status: "succeeded",
