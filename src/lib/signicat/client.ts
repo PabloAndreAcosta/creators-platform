@@ -17,7 +17,7 @@ async function getAccessToken(): Promise<string> {
     "base64"
   );
 
-  const res = await fetch(`${API_BASE}/oauth/connect/token`, {
+  const res = await fetch(`${API_BASE}/auth/open/connect/token`, {
     method: "POST",
     headers: {
       Authorization: `Basic ${credentials}`,
