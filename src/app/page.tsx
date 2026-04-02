@@ -35,6 +35,7 @@ function Nav() {
     { href: "#ecosystem", label: "Ekosystemet" },
     { href: "#pricing", label: "Priser" },
     { href: "/marketplace", label: "Marketplace" },
+    { href: "/app", label: "Ladda ner appen" },
   ];
 
   return (
@@ -57,10 +58,10 @@ function Nav() {
 
         <div className="flex items-center gap-3">
           <a
-            href="/app"
-            className="rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-sm font-semibold text-black transition hover:opacity-90"
+            href="/signup"
+            className="hidden rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-sm font-semibold text-black transition hover:opacity-90 sm:block"
           >
-            Öppna appen
+            Kom igång
           </a>
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
@@ -103,11 +104,14 @@ function Hero() {
 
       <div className="relative z-10 mx-auto max-w-4xl text-center">
         {/* Badge */}
-        <div className="animate-fade-up mb-8 inline-flex items-center gap-2 rounded-full border border-[var(--usha-gold)]/20 bg-[var(--usha-card)] px-5 py-2 text-xs">
+        <a
+          href="/app"
+          className="animate-fade-up mb-8 inline-flex items-center gap-2 rounded-full border border-[var(--usha-gold)]/20 bg-[var(--usha-card)] px-5 py-2 text-xs transition hover:border-[var(--usha-gold)]/40 hover:bg-[var(--usha-card)]/80"
+        >
           <Zap size={12} className="text-[var(--usha-accent)]" />
-          <span className="text-[var(--usha-muted)]">Gratis under beta</span>
+          <span className="text-[var(--usha-muted)]">Gratis under beta — ladda ner appen</span>
           <span className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 font-mono text-[10px] text-[var(--usha-gold)]">BETA</span>
-        </div>
+        </a>
 
         {/* Headline */}
         <h1
