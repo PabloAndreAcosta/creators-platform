@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
         } catch {}
       }
 
-      return NextResponse.json({ url: `/dashboard?purchased=${productId}` });
+      return NextResponse.json({ url: `/app/library?purchased=${productId}` });
     }
 
     // Create Stripe checkout session
@@ -118,7 +118,7 @@ export async function POST(req: NextRequest) {
         promo_code: promoCode || "",
         creator_promo_id: creatorPromoId || "",
       },
-      success_url: `${baseUrl}/dashboard?purchased=${productId}`,
+      success_url: `${baseUrl}/app/library?purchased=${productId}`,
       cancel_url: `${baseUrl}/creators/${product.creator_id}`,
     });
 
