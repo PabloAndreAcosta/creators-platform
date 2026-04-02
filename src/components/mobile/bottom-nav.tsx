@@ -11,7 +11,7 @@ import {
   MessageCircle,
   ScanLine,
   FileText,
-  Library,
+  BookMarked,
 } from "lucide-react";
 import { useRole } from "./role-context";
 import { useSubscription } from "@/lib/subscription/context";
@@ -25,7 +25,7 @@ export function BottomNav() {
     role === "publik"
       ? [
           { href: "/app", label: "Hem", icon: Home },
-          { href: "/app/library", label: "Bibliotek", icon: Library },
+          { href: "/app/library", label: "Bibliotek", icon: BookMarked },
           { href: "/app/messages", label: "Meddelanden", icon: MessageCircle },
           { href: "/app/tickets", label: "Biljetter", icon: Ticket },
           { href: "/app/profile", label: "Profil", icon: User },

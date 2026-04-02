@@ -11,7 +11,7 @@ import {
   MessageCircle,
   ScanLine,
   FileText,
-  Library,
+  BookMarked,
 } from "lucide-react";
 import { useRole } from "./role-context";
 import { useSubscription } from "@/lib/subscription/context";
@@ -25,7 +25,7 @@ export function SidebarNav() {
     role === "publik"
       ? [
           { href: "/app", label: "Hem", icon: Home },
-          { href: "/app/library", label: "Bibliotek", icon: Library },
+          { href: "/app/library", label: "Bibliotek", icon: BookMarked },
           { href: "/app/messages", label: "Meddelanden", icon: MessageCircle },
           { href: "/app/tickets", label: "Biljetter", icon: Ticket },
           { href: "/app/profile", label: "Profil", icon: User },
@@ -37,7 +37,7 @@ export function SidebarNav() {
             { href: "/app/messages", label: "Meddelanden", icon: MessageCircle },
             { href: "/app/scan", label: "Skanna", icon: ScanLine },
             { href: "/app/courses", label: "Innehåll", icon: BookOpen },
-            { href: "/app/library", label: "Bibliotek", icon: Library },
+            { href: "/app/library", label: "Bibliotek", icon: BookMarked },
             { href: "/app/profile", label: "Profil", icon: User },
           ]
         : [
@@ -46,7 +46,7 @@ export function SidebarNav() {
             { href: "/app/messages", label: "Meddelanden", icon: MessageCircle },
             { href: "/app/scan", label: "Skanna", icon: ScanLine },
             { href: "/app/events", label: "Evenemang", icon: Building2 },
-            { href: "/app/library", label: "Bibliotek", icon: Library },
+            { href: "/app/library", label: "Bibliotek", icon: BookMarked },
             { href: "/app/profile", label: "Profil", icon: User },
           ];
 

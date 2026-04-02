@@ -10,7 +10,7 @@ import {
   Play,
   Download,
   ExternalLink,
-  Library,
+  BookMarked,
 } from "lucide-react";
 
 interface Purchase {
