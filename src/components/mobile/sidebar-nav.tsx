@@ -37,6 +37,7 @@ export function SidebarNav() {
             { href: "/app/messages", label: "Meddelanden", icon: MessageCircle },
             { href: "/app/scan", label: "Skanna", icon: ScanLine },
             { href: "/app/courses", label: "Innehåll", icon: BookOpen },
+            { href: "/app/library", label: "Bibliotek", icon: Library },
             { href: "/app/profile", label: "Profil", icon: User },
           ]
         : [
@@ -45,6 +46,7 @@ export function SidebarNav() {
             { href: "/app/messages", label: "Meddelanden", icon: MessageCircle },
             { href: "/app/scan", label: "Skanna", icon: ScanLine },
             { href: "/app/events", label: "Evenemang", icon: Building2 },
+            { href: "/app/library", label: "Bibliotek", icon: Library },
             { href: "/app/profile", label: "Profil", icon: User },
           ];
 
