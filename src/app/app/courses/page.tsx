@@ -1,8 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
-import { CoursesContent } from "./courses-content";
+import { ContentPageContent } from "./courses-content";
 
-export default async function CoursesPage() {
+export default async function ContentPage() {
   let listings: any[] = [];
+  let digitalProducts: any[] = [];
 
   try {
     const supabase = await createClient();
@@ -11,17 +12,33 @@ export default async function CoursesPage() {
     } = await supabase.auth.getUser();
 
     if (user) {
-      const { data } = await supabase
-        .from("listings")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+      const [listingsRes, productsRes] = await Promise.all([
+        supabase
+          .from("listings")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("digital_products")
+          .select("*, digital_purchases(id)")
+          .eq("creator_id", user.id)
+          .order("created_at", { ascending: false }),
+      ]);
 
-      listings = data || [];
+      listings = listingsRes.data || [];
+      digitalProducts = (productsRes.data || []).map((p: any) => ({
+        ...p,
+        purchase_count: p.digital_purchases?.length || 0,
+      }));
     }
   } catch {
     // Continue with empty data
   }
 
-  return <CoursesContent listings={listings} />;
+  return (
+    <ContentPageContent
+      listings={listings}
+      digitalProducts={digitalProducts}
+    />
+  );
 }

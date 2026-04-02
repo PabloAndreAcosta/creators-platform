@@ -34,7 +34,7 @@ export function SidebarNav() {
             { href: "/app/posts", label: "Mina inlägg", icon: FileText },
             { href: "/app/messages", label: "Meddelanden", icon: MessageCircle },
             { href: "/app/scan", label: "Skanna", icon: ScanLine },
-            { href: "/app/courses", label: "Kurser", icon: BookOpen },
+            { href: "/app/courses", label: "Innehåll", icon: BookOpen },
             { href: "/app/profile", label: "Profil", icon: User },
           ]
         : [
