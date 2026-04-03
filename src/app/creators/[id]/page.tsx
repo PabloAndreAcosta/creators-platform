@@ -330,9 +330,10 @@ export default async function CreatorProfilePage({ params }: Props) {
           ) : (
             <div className="grid gap-4 sm:grid-cols-2">
               {listings.map((listing) => (
-                <div
+                <Link
                   key={listing.id}
-                  className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5"
+                  href={`/listing/${listing.id}`}
+                  className="block rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5 transition hover:border-[var(--usha-gold)]/30"
                 >
                   <div className="mb-2 flex items-start justify-between">
                     <h3 className="font-semibold">{listing.title}</h3>
@@ -422,7 +423,7 @@ export default async function CreatorProfilePage({ params }: Props) {
                       </div>
                     )}
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}
@@ -443,7 +444,7 @@ export default async function CreatorProfilePage({ params }: Props) {
                   <h3 className="mb-3 text-sm font-semibold text-emerald-400">Kommande</h3>
                   <div className="mb-6 space-y-2">
                     {upcoming.map((ev) => (
-                      <div key={ev.id} className="flex items-center gap-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
+                      <Link key={ev.id} href={`/listing/${ev.id}`} className="flex items-center gap-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 transition hover:border-emerald-500/40">
                         <div className="shrink-0 text-center">
                           <div className="text-lg font-bold text-emerald-400">
                             {new Date(ev.event_date + "T00:00").getDate()}
@@ -460,7 +461,7 @@ export default async function CreatorProfilePage({ params }: Props) {
                             {ev.price != null && <span className="text-[var(--usha-gold)]">{ev.price} SEK</span>}
                           </div>
                         </div>
-                      </div>
+                      </Link>
                     ))}
                   </div>
                 </>
@@ -470,7 +471,7 @@ export default async function CreatorProfilePage({ params }: Props) {
                   <h3 className="mb-3 text-sm font-semibold text-[var(--usha-muted)]">Tidigare</h3>
                   <div className="space-y-2">
                     {past.slice(0, 10).map((ev) => (
-                      <div key={ev.id} className="flex items-center gap-4 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 opacity-70">
+                      <Link key={ev.id} href={`/listing/${ev.id}`} className="flex items-center gap-4 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 opacity-70 transition hover:opacity-90">
                         <div className="shrink-0 text-center">
                           <div className="text-lg font-bold text-[var(--usha-muted)]">
                             {new Date(ev.event_date + "T00:00").getDate()}
@@ -485,7 +486,7 @@ export default async function CreatorProfilePage({ params }: Props) {
                             {ev.event_location && <span className="flex items-center gap-1"><MapPin size={10} />{ev.event_location}</span>}
                           </div>
                         </div>
-                      </div>
+                      </Link>
                     ))}
                   </div>
                 </>

@@ -209,16 +209,19 @@ export function PostCard({ post, isLoggedIn, currentUserId }: PostCardProps) {
         </div>
       )}
 
-      {/* Image */}
+      {/* Image — links to listing detail if available */}
       {post.image_url && (
-        <div className="relative mx-4 overflow-hidden rounded-xl">
+        <Link
+          href={post.listing ? `/listing/${post.listing.id}` : `/creators/${post.author.id}`}
+          className="relative mx-4 block overflow-hidden rounded-xl"
+        >
           <img
             src={post.image_url}
             alt=""
-            className="w-full max-h-[280px] object-cover md:max-h-[400px]"
+            className="w-full max-h-[280px] object-cover transition hover:opacity-90 md:max-h-[400px]"
             loading="lazy"
           />
-        </div>
+        </Link>
       )}
 
       {/* Actions */}
@@ -264,7 +267,7 @@ export function PostCard({ post, isLoggedIn, currentUserId }: PostCardProps) {
       {post.listing && (
         <div className="mx-4 mt-3">
           <Link
-            href={`/creators/${post.author.id}`}
+            href={`/listing/${post.listing.id}`}
             className="flex items-center gap-2.5 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-2.5 transition hover:border-[var(--usha-gold)]/30 md:gap-3 md:p-3"
           >
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--usha-gold)]/10 md:h-10 md:w-10">
