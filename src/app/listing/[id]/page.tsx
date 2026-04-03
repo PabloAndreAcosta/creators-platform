@@ -235,20 +235,28 @@ export default async function ListingDetailPage({ params }: Props) {
               </div>
             ) : null}
 
-            {/* Google Maps embed */}
+            {/* Map link */}
             {listing.event_lat && listing.event_lng && (
               <div className="mb-6">
                 <h2 className="mb-2 text-lg font-semibold">Karta</h2>
-                <div className="overflow-hidden rounded-xl border border-[var(--usha-border)]">
-                  <iframe
-                    width="100%"
-                    height="300"
-                    style={{ border: 0 }}
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&q=${listing.event_lat},${listing.event_lng}&zoom=15&language=sv`}
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${listing.event_lat},${listing.event_lng}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group block overflow-hidden rounded-xl border border-[var(--usha-border)] transition hover:border-[var(--usha-gold)]/30"
+                >
+                  <img
+                    src={`https://maps.googleapis.com/maps/api/staticmap?center=${listing.event_lat},${listing.event_lng}&zoom=15&size=800x300&scale=2&markers=color:0xD4A574%7C${listing.event_lat},${listing.event_lng}&style=element:geometry%7Ccolor:0x1a1a1a&style=element:labels.text.fill%7Ccolor:0x999999&style=element:labels.text.stroke%7Ccolor:0x1a1a1a&style=feature:road%7Celement:geometry%7Ccolor:0x2a2a2a&style=feature:water%7Celement:geometry%7Ccolor:0x0d1117&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`}
+                    alt={`Karta: ${listing.event_location || ""}`}
+                    className="w-full transition group-hover:opacity-90"
+                    width={800}
+                    height={300}
                   />
-                </div>
+                  <div className="flex items-center gap-2 bg-[var(--usha-card)] px-4 py-3 text-sm text-[var(--usha-muted)] transition group-hover:text-white">
+                    <MapPin size={14} className="text-[var(--usha-gold)]" />
+                    {listing.event_location || "Visa på Google Maps"}
+                  </div>
+                </a>
               </div>
             )}
           </div>
