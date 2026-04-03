@@ -87,7 +87,7 @@ export default async function ListingDetailPage({ params }: Props) {
     <div className="min-h-screen">
       {/* Header */}
       <header className="border-b border-[var(--usha-border)]">
-        <div className="mx-auto flex h-16 max-w-4xl items-center justify-between px-6">
+        <div className="mx-auto flex h-16 max-w-4xl items-center justify-between px-4 md:px-6">
           <Link href={isLoggedIn ? "/app" : "/"} className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
               <span className="text-sm font-bold text-black">U</span>
@@ -112,7 +112,7 @@ export default async function ListingDetailPage({ params }: Props) {
         </div>
       </header>
 
-      <div className="mx-auto max-w-4xl px-6 py-8">
+      <div className="mx-auto max-w-4xl px-4 py-6 md:px-6 md:py-8">
         <Link
           href={creatorUrl}
           className="mb-6 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-white"
@@ -130,8 +130,7 @@ export default async function ListingDetailPage({ params }: Props) {
                 <img
                   src={listing.image_url}
                   alt={listing.title}
-                  className="w-full object-cover"
-                  style={{ maxHeight: 420 }}
+                  className="w-full max-h-[260px] object-cover sm:max-h-[340px] md:max-h-[420px]"
                 />
               </div>
             )}
@@ -148,12 +147,12 @@ export default async function ListingDetailPage({ params }: Props) {
                   </span>
                 )}
               </div>
-              <h1 className="text-3xl font-bold">{listing.title}</h1>
+              <h1 className="text-2xl font-bold sm:text-3xl">{listing.title}</h1>
             </div>
 
             {/* Date, time, location, duration */}
             {(listing.event_date || listing.event_time || listing.event_location || listing.duration_minutes) && (
-              <div className="mb-6 flex flex-wrap gap-4 text-sm text-[var(--usha-muted)]">
+              <div className="mb-6 flex flex-wrap gap-3 text-xs text-[var(--usha-muted)] sm:gap-4 sm:text-sm">
                 {listing.event_date && (
                   <span className="flex items-center gap-1.5">
                     <Calendar size={14} className="text-[var(--usha-gold)]" />
@@ -243,8 +242,9 @@ export default async function ListingDetailPage({ params }: Props) {
                 <div className="overflow-hidden rounded-xl border border-[var(--usha-border)]">
                   <iframe
                     width="100%"
-                    height="300"
+                    height="200"
                     style={{ border: 0 }}
+                    className="sm:h-[300px]"
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
                     src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&q=${listing.event_lat},${listing.event_lng}&zoom=15&language=sv`}
@@ -266,7 +266,7 @@ export default async function ListingDetailPage({ params }: Props) {
           {/* Sidebar — booking + creator */}
           <div className="space-y-4">
             {/* Booking card */}
-            <div className="sticky top-6 space-y-4 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
+            <div className="space-y-4 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5 sm:p-6 lg:sticky lg:top-6">
               {isOwner && (
                 <p className="text-center text-xs text-[var(--usha-muted)]">
                   Förhandsvisning — så ser besökare sidan

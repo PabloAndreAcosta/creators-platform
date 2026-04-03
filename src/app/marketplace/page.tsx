@@ -136,7 +136,7 @@ export default async function MarketplacePage({
     <div className="min-h-screen">
       {/* Header */}
       <header className="border-b border-[var(--usha-border)]">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-6">
           <Link href={isLoggedIn ? "/app" : "/"} className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
               <span className="text-sm font-bold text-black">U</span>
@@ -171,7 +171,7 @@ export default async function MarketplacePage({
         </div>
       </header>
 
-      <div className="mx-auto max-w-6xl px-6 py-10">
+      <div className="mx-auto max-w-6xl px-4 py-6 md:px-6 md:py-10">
         {/* Title */}
         <div className="mb-8">
           <h1 className="mb-2 text-3xl font-bold">Marketplace</h1>

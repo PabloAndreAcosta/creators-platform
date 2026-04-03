@@ -147,7 +147,7 @@ export default async function CreatorProfilePage({ params }: Props) {
     <div className="min-h-screen" style={wlStyle}>
       {/* Header */}
       <header className="border-b border-[var(--usha-border)]">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-6">
           <Link href={isLoggedIn ? "/app" : "/"} className="flex items-center gap-2">
             {wl && wlLogo ? (
               <Image src={wlLogo} alt={wlBrand || "Logo"} width={32} height={32} className="h-8 w-8 rounded-lg object-contain" />
@@ -184,7 +184,7 @@ export default async function CreatorProfilePage({ params }: Props) {
         </div>
       </header>
 
-      <div className="mx-auto max-w-6xl px-6 py-10">
+      <div className="mx-auto max-w-6xl px-4 py-6 md:px-6 md:py-10">
         <Link
           href="/marketplace"
           className="mb-6 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-white"
@@ -194,8 +194,8 @@ export default async function CreatorProfilePage({ params }: Props) {
         </Link>
 
         {/* Profile header */}
-        <div className="mb-10 flex flex-col gap-6 sm:flex-row sm:items-start">
-          <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[var(--usha-border)] bg-[var(--usha-card)]">
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6 md:mb-10">
+          <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[var(--usha-border)] bg-[var(--usha-card)] sm:h-24 sm:w-24">
             {profile.avatar_url ? (
               <Image
                 src={profile.avatar_url}
@@ -212,7 +212,7 @@ export default async function CreatorProfilePage({ params }: Props) {
           </div>
 
           <div className="flex-1">
-            <h1 className="mb-1 text-3xl font-bold">
+            <h1 className="mb-1 text-2xl font-bold sm:text-3xl">
               {profile.full_name || "Creator"}
             </h1>
             <div className="mb-4 flex flex-wrap items-center gap-2 text-sm text-[var(--usha-muted)]">

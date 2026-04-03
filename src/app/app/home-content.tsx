@@ -278,7 +278,7 @@ function PublikHome({
               {restEvents.map((event, i) => (
                 <div
                   key={event.id}
-                  className="group min-w-[260px] snap-start md:min-w-0 overflow-hidden rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] transition-all duration-300 hover:border-[var(--usha-gold)]/30 hover:shadow-lg hover:shadow-[var(--usha-gold)]/5"
+                  className="group min-w-[85vw] snap-start sm:min-w-[260px] md:min-w-0 overflow-hidden rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] transition-all duration-300 hover:border-[var(--usha-gold)]/30 hover:shadow-lg hover:shadow-[var(--usha-gold)]/5"
                 >
                   <div className="relative h-36 overflow-hidden">
                     <img

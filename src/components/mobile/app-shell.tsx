@@ -24,7 +24,7 @@ export function AppShell({ children, userName }: AppShellProps) {
         <SidebarNav />
 
         {/* Main content area */}
-        <div className="mx-auto min-h-screen w-full max-w-lg md:mx-0 md:max-w-none md:flex-1">
+        <div className="mx-auto min-h-screen w-full max-w-none md:mx-0 md:flex-1">
           {/* Top bar */}
           <header className="sticky top-0 z-40 border-b border-[var(--usha-border)] bg-[var(--usha-black)]/95 backdrop-blur-lg">
             <div className="flex items-center gap-3 px-4 py-3">
