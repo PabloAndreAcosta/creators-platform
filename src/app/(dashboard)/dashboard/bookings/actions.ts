@@ -53,9 +53,17 @@ export async function createBooking(formData: FormData) {
     return { error: "Du kan inte boka din egen tjänst." };
   }
 
-  const scheduledDate = new Date(scheduled_at);
-  if (scheduledDate <= new Date()) {
+  const scheduledDate = scheduled_at ? new Date(scheduled_at) : new Date();
+  if (!autoConfirm && scheduledDate <= new Date()) {
     return { error: "Välj ett datum i framtiden." };
+  }
+  // For fixed-date events, allow booking on the event day (block only past dates)
+  if (autoConfirm) {
+    const today = new Date().toISOString().slice(0, 10);
+    const eventDay = scheduledDate.toISOString().slice(0, 10);
+    if (eventDay < today) {
+      return { error: "Detta event har redan passerat." };
+    }
   }
 
   // Check capacity and validate guest count
