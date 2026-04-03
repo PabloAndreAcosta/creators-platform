@@ -32,6 +32,7 @@ import {
 function Nav() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showInstallModal, setShowInstallModal] = useState(false);
 
   useEffect(() => {
     createClient().auth.getUser().then(({ data: { user } }) => {
@@ -39,17 +40,35 @@ function Nav() {
     });
   }, []);
 
-  const links = [
+  const navLinks = [
     { href: "#ecosystem", label: "Ekosystemet" },
     { href: "#pricing", label: "Priser" },
     { href: "/marketplace", label: "Marketplace" },
-    { href: "/app", label: isLoggedIn ? "Öppna appen" : "Ladda ner appen" },
   ];
 
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+
+  function handleInstallClick(e: React.MouseEvent) {
+    if (isLoggedIn) {
+      // Already logged in — go to app
+      window.location.href = "/app";
+      return;
+    }
+    if (isMobile) {
+      // Mobile — go to app/signup
+      window.location.href = "/app";
+      return;
+    }
+    // Desktop + not logged in — show install instructions
+    e.preventDefault();
+    setShowInstallModal(true);
+  }
+
   return (
+    <>
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-[var(--usha-border)] bg-[var(--usha-black)]/80 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-        <a href="#" className="flex items-center gap-2">
+        <a href={isLoggedIn ? "/app" : "#"} className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
             <span className="text-sm font-bold text-black">U</span>
           </div>
@@ -57,11 +76,17 @@ function Nav() {
         </a>
 
         <div className="hidden items-center gap-8 text-sm text-[var(--usha-muted)] md:flex">
-          {links.map((l) => (
+          {navLinks.map((l) => (
             <a key={l.href} href={l.href} className="transition hover:text-white">
               {l.label}
             </a>
           ))}
+          <button
+            onClick={handleInstallClick}
+            className="transition hover:text-white"
+          >
+            {isLoggedIn ? "Öppna appen" : "Ladda ner appen"}
+          </button>
         </div>
 
         <div className="flex items-center gap-3">
@@ -84,7 +109,7 @@ function Nav() {
       {mobileOpen && (
         <div className="border-t border-[var(--usha-border)] bg-[var(--usha-black)] px-6 py-4 md:hidden">
           <div className="flex flex-col gap-3">
-            {links.map((l) => (
+            {navLinks.map((l) => (
               <a
                 key={l.href}
                 href={l.href}
@@ -94,10 +119,73 @@ function Nav() {
                 {l.label}
               </a>
             ))}
+            <a
+              href="/app"
+              onClick={() => setMobileOpen(false)}
+              className="py-2 text-sm text-[var(--usha-muted)] transition hover:text-white"
+            >
+              {isLoggedIn ? "Öppna appen" : "Ladda ner appen"}
+            </a>
           </div>
         </div>
       )}
     </nav>
+
+    {/* Install modal — desktop */}
+    {showInstallModal && (
+      <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowInstallModal(false)} />
+        <div className="relative w-full max-w-md rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-black)] p-8 shadow-2xl">
+          <button
+            onClick={() => setShowInstallModal(false)}
+            className="absolute right-4 top-4 rounded p-1 text-[var(--usha-muted)] transition hover:text-white"
+          >
+            <X size={16} />
+          </button>
+
+          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
+            <span className="text-xl font-bold text-black">U</span>
+          </div>
+
+          <h3 className="mb-2 text-xl font-bold">Installera Usha på din dator</h3>
+          <p className="mb-6 text-sm leading-relaxed text-[var(--usha-muted)]">
+            Usha fungerar som en app direkt i din webbläsare. Installera den för snabb åtkomst:
+          </p>
+
+          <div className="space-y-4">
+            <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
+              <p className="mb-1 text-sm font-semibold">Chrome / Edge</p>
+              <p className="text-xs text-[var(--usha-muted)]">
+                Klicka på installationsikonen <span className="inline-flex items-center rounded bg-white/10 px-1.5 py-0.5 font-mono text-[10px]">⊕</span> i adressfältet → &ldquo;Installera&rdquo;
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
+              <p className="mb-1 text-sm font-semibold">Safari (Mac)</p>
+              <p className="text-xs text-[var(--usha-muted)]">
+                Arkiv → Lägg till i Dock
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-6 flex gap-3">
+            <button
+              onClick={() => setShowInstallModal(false)}
+              className="flex-1 rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium text-[var(--usha-muted)] transition hover:text-white"
+            >
+              Stäng
+            </button>
+            <a
+              href="/app"
+              className="flex-1 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] py-3 text-center text-sm font-bold text-black transition hover:opacity-90"
+            >
+              Öppna i webbläsaren
+            </a>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }
 
