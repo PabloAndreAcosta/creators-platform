@@ -460,7 +460,7 @@ function ServiceCard({ listing, index }: { listing: ListingData; index: number }
 
   return (
     <div className={`overflow-hidden rounded-xl border bg-[var(--usha-card)] ${listing.is_active ? "border-[var(--usha-border)]" : "border-[var(--usha-border)] opacity-70"}`}>
-      <div className="relative h-36">
+      <Link href={`/listing/${listing.id}`} className="relative block h-36">
         <img src={image} alt={listing.title} className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
         <span className={`absolute left-3 top-3 rounded-full px-2.5 py-1 text-[10px] font-semibold ${listing.is_active ? "bg-green-500/90 text-white" : "bg-[var(--usha-muted)]/80 text-white"}`}>
@@ -472,7 +472,7 @@ function ServiceCard({ listing, index }: { listing: ListingData; index: number }
         <div className="absolute bottom-0 left-0 right-0 p-3">
           <h3 className="text-base font-bold text-white">{listing.title}</h3>
         </div>
-      </div>
+      </Link>
       <div className="p-4">
         <div className="mb-3 flex items-center gap-3 text-xs text-[var(--usha-muted)]">
           {listing.duration_minutes && (
