@@ -50,7 +50,7 @@ export default async function DashboardLayout({
       <div className="min-h-screen bg-[var(--usha-black)]">
         <header className="border-b border-[var(--usha-border)]">
           <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="/app" className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
                 <span className="text-sm font-bold text-black">U</span>
               </div>
