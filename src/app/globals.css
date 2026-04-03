@@ -83,6 +83,12 @@ html { scroll-behavior: smooth; }
   display: none;
 }
 
+/* Make date/time input icons visible on dark backgrounds */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.7);
+}
+
 /* Safe area for mobile bottom nav */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   .pb-safe {
