@@ -148,7 +148,7 @@ export default async function CreatorProfilePage({ params }: Props) {
       {/* Header */}
       <header className="border-b border-[var(--usha-border)]">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-          <Link href="/" className="flex items-center gap-2">
+          <Link href={isLoggedIn ? "/app" : "/"} className="flex items-center gap-2">
             {wl && wlLogo ? (
               <Image src={wlLogo} alt={wlBrand || "Logo"} width={32} height={32} className="h-8 w-8 rounded-lg object-contain" />
             ) : (
