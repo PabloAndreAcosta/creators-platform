@@ -806,6 +806,29 @@ function Footer() {
 
 /* ─────────────── PAGE ─────────────── */
 export default function Home() {
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    createClient().auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        window.location.href = "/app";
+      } else {
+        setReady(true);
+      }
+    });
+  }, []);
+
+  // Don't show landing page while checking auth (prevents flash)
+  if (!ready) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[var(--usha-black)]">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
+          <span className="text-lg font-bold text-black">U</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <main>
       <Nav />
