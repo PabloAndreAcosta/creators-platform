@@ -144,7 +144,7 @@ export function SocialShareButton({
       <button
         onClick={() => {
           // Use native share on mobile if available
-          if (navigator.share && window.innerWidth < 768) {
+          if (typeof navigator.share === "function" && window.innerWidth < 768) {
             handleNativeShare();
           } else {
             setOpen(!open);

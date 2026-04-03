@@ -6,6 +6,7 @@ import { ArrowLeft, ImagePlus, X, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
 import { createClient } from "@/lib/supabase/client";
 import { EVENT_CATEGORY_LABELS } from "./constants";
+import PlacesAutocomplete from "@/components/places-autocomplete";
 
 import type { ListingType, ExperienceDetails } from "@/types/database";
 
@@ -21,6 +22,9 @@ interface EventData {
   event_date: string | null;
   event_time: string | null;
   event_location: string | null;
+  event_lat: number | null;
+  event_lng: number | null;
+  event_place_id: string | null;
   listing_type: ListingType | null;
   min_guests: number | null;
   max_guests: number | null;
@@ -257,20 +261,13 @@ export default function EventForm({
           </div>
         </div>
 
-        {/* Location */}
-        <div>
-          <label htmlFor="event_location" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-            Plats
-          </label>
-          <input
-            id="event_location"
-            name="event_location"
-            type="text"
-            defaultValue={event?.event_location ?? ""}
-            placeholder="t.ex. Kulturhuset, Stockholm"
-            className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
-          />
-        </div>
+        {/* Location with Google Places Autocomplete */}
+        <PlacesAutocomplete
+          defaultValue={event?.event_location ?? ""}
+          defaultLat={event?.event_lat}
+          defaultLng={event?.event_lng}
+          defaultPlaceId={event?.event_place_id}
+        />
 
         {/* Category + Price */}
         <div className="grid gap-4 sm:grid-cols-2">

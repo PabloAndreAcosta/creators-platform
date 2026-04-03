@@ -5,6 +5,7 @@ import { useToast } from "@/components/ui/toaster";
 import { CATEGORIES } from "@/lib/categories";
 import { createBrowserClient } from "@supabase/ssr";
 import { ImagePlus, Loader2, X } from "lucide-react";
+import PlacesAutocomplete from "@/components/places-autocomplete";
 
 interface Listing {
   id: string;
@@ -17,6 +18,9 @@ interface Listing {
   event_date?: string | null;
   event_time?: string | null;
   event_location?: string | null;
+  event_lat?: number | null;
+  event_lng?: number | null;
+  event_place_id?: string | null;
 }
 
 export default function ListingForm({
@@ -232,20 +236,13 @@ export default function ListingForm({
         </div>
       </div>
 
-      {/* Location */}
-      <div>
-        <label htmlFor="event_location" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-          Plats
-        </label>
-        <input
-          id="event_location"
-          name="event_location"
-          type="text"
-          defaultValue={listing?.event_location ?? ""}
-          placeholder="t.ex. Kulturhuset, Stockholm eller Online (Zoom)"
-          className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
-        />
-      </div>
+      {/* Location with Google Places Autocomplete */}
+      <PlacesAutocomplete
+        defaultValue={listing?.event_location ?? ""}
+        defaultLat={listing?.event_lat}
+        defaultLng={listing?.event_lng}
+        defaultPlaceId={listing?.event_place_id}
+      />
 
       {/* Submit */}
       <div className="flex justify-end">
