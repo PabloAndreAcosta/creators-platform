@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { InstallPrompt } from "@/components/install-prompt";
+import { createClient } from "@/lib/supabase/client";
 import {
   Menu,
   X,
@@ -30,12 +31,19 @@ import {
 /* ─────────────── NAV ─────────────── */
 function Nav() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    createClient().auth.getUser().then(({ data: { user } }) => {
+      setIsLoggedIn(!!user);
+    });
+  }, []);
 
   const links = [
     { href: "#ecosystem", label: "Ekosystemet" },
     { href: "#pricing", label: "Priser" },
     { href: "/marketplace", label: "Marketplace" },
-    { href: "/app", label: "Ladda ner appen" },
+    { href: "/app", label: isLoggedIn ? "Öppna appen" : "Ladda ner appen" },
   ];
 
   return (
@@ -58,10 +66,10 @@ function Nav() {
 
         <div className="flex items-center gap-3">
           <a
-            href="/signup"
+            href={isLoggedIn ? "/app" : "/signup"}
             className="hidden rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-sm font-semibold text-black transition hover:opacity-90 sm:block"
           >
-            Kom igång
+            {isLoggedIn ? "Öppna appen" : "Kom igång"}
           </a>
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
