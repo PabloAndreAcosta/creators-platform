@@ -15,6 +15,9 @@ function parseListingForm(formData: FormData) {
   const priceRaw = formData.get("price") as string;
   const durationRaw = formData.get("duration_minutes") as string;
   const imageUrl = (formData.get("image_url") as string)?.trim() || null;
+  const eventDate = (formData.get("event_date") as string)?.trim() || null;
+  const eventTime = (formData.get("event_time") as string)?.trim() || null;
+  const eventLocation = (formData.get("event_location") as string)?.trim() || null;
 
   if (!title) return { error: "Titel krävs" } as const;
   if (!category || !CATEGORIES.includes(category as (typeof CATEGORIES)[number])) {
@@ -39,6 +42,9 @@ function parseListingForm(formData: FormData) {
       price,
       duration_minutes,
       image_url: imageUrl,
+      event_date: eventDate,
+      event_time: eventTime,
+      event_location: eventLocation,
     },
   } as const;
 }

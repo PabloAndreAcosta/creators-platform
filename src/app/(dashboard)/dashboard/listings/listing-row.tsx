@@ -4,7 +4,7 @@ import { useTransition } from "react";
 import { deleteListing, toggleListingActive } from "./actions";
 import { useToast } from "@/components/ui/toaster";
 import Link from "next/link";
-import { Clock, Pencil, Trash2, Crown } from "lucide-react";
+import { Clock, Pencil, Trash2, Crown, Calendar, MapPin } from "lucide-react";
 import { CATEGORY_LABELS } from "@/lib/categories";
 
 interface Listing {
@@ -16,6 +16,9 @@ interface Listing {
   duration_minutes: number | null;
   is_active: boolean;
   release_to_gold_at?: string | null;
+  event_date?: string | null;
+  event_time?: string | null;
+  event_location?: string | null;
   created_at: string;
 }
 
@@ -89,12 +92,30 @@ export default function ListingRow({ listing }: { listing: Listing }) {
             </span>
           )}
         </div>
-        <div className="flex items-center gap-4 text-sm text-[var(--usha-muted)]">
+        <div className="flex flex-wrap items-center gap-4 text-sm text-[var(--usha-muted)]">
           {listing.price != null && <span>{listing.price} SEK</span>}
           {listing.duration_minutes != null && (
             <span className="flex items-center gap-1">
               <Clock size={12} />
               {listing.duration_minutes} min
+            </span>
+          )}
+          {listing.event_date && (
+            <span className="flex items-center gap-1">
+              <Calendar size={12} />
+              {new Date(listing.event_date + "T00:00").toLocaleDateString("sv-SE", { day: "numeric", month: "short" })}
+            </span>
+          )}
+          {listing.event_time && (
+            <span className="flex items-center gap-1">
+              <Clock size={12} />
+              {listing.event_time.slice(0, 5)}
+            </span>
+          )}
+          {listing.event_location && (
+            <span className="flex items-center gap-1">
+              <MapPin size={12} />
+              {listing.event_location}
             </span>
           )}
         </div>
