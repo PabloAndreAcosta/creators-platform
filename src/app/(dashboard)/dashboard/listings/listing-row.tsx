@@ -6,6 +6,7 @@ import { useToast } from "@/components/ui/toaster";
 import Link from "next/link";
 import { Clock, Pencil, Trash2, Crown, Calendar, MapPin } from "lucide-react";
 import { CATEGORY_LABELS } from "@/lib/categories";
+import { SocialShareButton } from "@/components/social-share-button";
 
 interface Listing {
   id: string;
@@ -19,6 +20,7 @@ interface Listing {
   event_date?: string | null;
   event_time?: string | null;
   event_location?: string | null;
+  user_id?: string;
   created_at: string;
 }
 
@@ -122,6 +124,14 @@ export default function ListingRow({ listing }: { listing: Listing }) {
       </div>
 
       <div className="ml-4 flex shrink-0 items-center gap-2">
+        <SocialShareButton
+          title={listing.title}
+          description={listing.description ?? undefined}
+          url={`${typeof window !== "undefined" ? window.location.origin : ""}/creators/${listing.user_id}`}
+          eventDate={listing.event_date}
+          eventLocation={listing.event_location}
+          price={listing.price}
+        />
         {listing.is_active && !hasEarlyBird && (
           <button
             onClick={handleEarlyBird}

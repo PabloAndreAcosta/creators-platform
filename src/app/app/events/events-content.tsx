@@ -21,6 +21,7 @@ import { deleteEvent, toggleEventActive } from "./actions";
 import { EVENT_CATEGORY_LABELS } from "./constants";
 import { FacebookConnect } from "@/components/facebook/FacebookConnect";
 import { FacebookSyncButton } from "@/components/facebook/FacebookSyncButton";
+import { SocialShareButton } from "@/components/social-share-button";
 
 const EVENT_IMAGES = [
   "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&h=200&fit=crop",
@@ -52,6 +53,7 @@ interface ListingData {
   event_date: string | null;
   event_time: string | null;
   event_location: string | null;
+  user_id: string;
 }
 
 interface EventsContentProps {
@@ -301,12 +303,22 @@ function EventCard({
           </div>
         </div>
 
-        {/* Facebook sync */}
-        <FacebookSyncButton
-          listingId={listing.id}
-          facebookEventId={listing.facebook_event_id}
-          hasPageConnected={hasPageConnected}
-        />
+        {/* Social sharing */}
+        <div className="flex items-center gap-2">
+          <SocialShareButton
+            title={listing.title}
+            description={listing.description ?? undefined}
+            url={`${typeof window !== "undefined" ? window.location.origin : ""}/creators/${listing.user_id}`}
+            eventDate={listing.event_date}
+            eventLocation={listing.event_location}
+            price={listing.price}
+          />
+          <FacebookSyncButton
+            listingId={listing.id}
+            facebookEventId={listing.facebook_event_id}
+            hasPageConnected={hasPageConnected}
+          />
+        </div>
       </div>
     </div>
   );
