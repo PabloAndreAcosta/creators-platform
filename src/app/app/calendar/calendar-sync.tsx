@@ -34,7 +34,9 @@ export function CalendarSync({ initialFeedUrl }: CalendarSyncProps) {
 
   function getGoogleUrl() {
     if (!feedUrl) return "";
-    return `https://calendar.google.com/calendar/r?cid=${encodeURIComponent(feedUrl)}`;
+    // Google Calendar requires webcal:// protocol in the cid parameter
+    const webcalFeed = feedUrl.replace("https://", "webcal://").replace("http://", "webcal://");
+    return `https://calendar.google.com/calendar/r?cid=${encodeURIComponent(webcalFeed)}`;
   }
 
   function getOutlookUrl() {
