@@ -235,28 +235,29 @@ export default async function ListingDetailPage({ params }: Props) {
               </div>
             ) : null}
 
-            {/* Map link */}
+            {/* Map */}
             {listing.event_lat && listing.event_lng && (
               <div className="mb-6">
                 <h2 className="mb-2 text-lg font-semibold">Karta</h2>
-                <a
-                  href={`https://www.google.com/maps/search/?api=1&query=${listing.event_lat},${listing.event_lng}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group block overflow-hidden rounded-xl border border-[var(--usha-border)] transition hover:border-[var(--usha-gold)]/30"
-                >
-                  <img
-                    src={`https://maps.googleapis.com/maps/api/staticmap?center=${listing.event_lat},${listing.event_lng}&zoom=15&size=800x300&scale=2&markers=color:0xD4A574%7C${listing.event_lat},${listing.event_lng}&style=element:geometry%7Ccolor:0x1a1a1a&style=element:labels.text.fill%7Ccolor:0x999999&style=element:labels.text.stroke%7Ccolor:0x1a1a1a&style=feature:road%7Celement:geometry%7Ccolor:0x2a2a2a&style=feature:water%7Celement:geometry%7Ccolor:0x0d1117&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`}
-                    alt={`Karta: ${listing.event_location || ""}`}
-                    className="w-full transition group-hover:opacity-90"
-                    width={800}
-                    height={300}
+                <div className="overflow-hidden rounded-xl border border-[var(--usha-border)]">
+                  <iframe
+                    width="100%"
+                    height="300"
+                    style={{ border: 0 }}
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&q=${listing.event_lat},${listing.event_lng}&zoom=15&language=sv`}
                   />
-                  <div className="flex items-center gap-2 bg-[var(--usha-card)] px-4 py-3 text-sm text-[var(--usha-muted)] transition group-hover:text-white">
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${listing.event_lat},${listing.event_lng}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 bg-[var(--usha-card)] px-4 py-3 text-sm text-[var(--usha-muted)] transition hover:text-white"
+                  >
                     <MapPin size={14} className="text-[var(--usha-gold)]" />
-                    {listing.event_location || "Visa på Google Maps"}
-                  </div>
-                </a>
+                    {listing.event_location || "Öppna i Google Maps"}
+                  </a>
+                </div>
               </div>
             )}
           </div>
@@ -264,35 +265,38 @@ export default async function ListingDetailPage({ params }: Props) {
           {/* Sidebar — booking + creator */}
           <div className="space-y-4">
             {/* Booking card */}
-            {!isOwner && (
-              <div className="sticky top-6 space-y-4 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
-                <div className="text-center">
-                  {listing.price != null && (
-                    <p className="text-2xl font-bold text-[var(--usha-gold)]">
-                      {listing.price > 0 ? `${listing.price} SEK` : "Gratis"}
-                    </p>
-                  )}
-                </div>
+            <div className="sticky top-6 space-y-4 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
+              {isOwner && (
+                <p className="text-center text-xs text-[var(--usha-muted)]">
+                  Förhandsvisning — så ser besökare sidan
+                </p>
+              )}
+              <div className="text-center">
+                {listing.price != null && (
+                  <p className="text-2xl font-bold text-[var(--usha-gold)]">
+                    {listing.price > 0 ? `${listing.price} SEK` : "Gratis"}
+                  </p>
+                )}
+              </div>
 
-                <div className="flex flex-col gap-3">
-                  {listing.price != null && listing.price > 0 && (
-                    <BuyTicketButton
-                      listingId={listing.id}
-                      originalPrice={listing.price}
-                      discountedPrice={calculateDiscountedPrice(listing.price, visitorTier)}
-                      isLoggedIn={isLoggedIn}
-                      hasConnect={hasConnect}
-                    />
-                  )}
-                  <BookingForm
-                    listing={listing}
-                    creatorId={creator.id}
+              <div className="flex flex-col gap-3">
+                {listing.price != null && listing.price > 0 && (
+                  <BuyTicketButton
+                    listingId={listing.id}
+                    originalPrice={listing.price}
+                    discountedPrice={calculateDiscountedPrice(listing.price, visitorTier)}
                     isLoggedIn={isLoggedIn}
                     hasConnect={hasConnect}
                   />
-                </div>
+                )}
+                <BookingForm
+                  listing={listing}
+                  creatorId={creator.id}
+                  isLoggedIn={isLoggedIn}
+                  hasConnect={hasConnect}
+                />
               </div>
-            )}
+            </div>
 
             {/* Creator card */}
             <Link
