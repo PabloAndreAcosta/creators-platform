@@ -11,17 +11,7 @@ export async function createPost(formData: FormData) {
 
   if (!user) return { error: "Ej inloggad" };
 
-  // Verify role — only kreator/upplevelse can post
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  const role = profile?.role;
-  if (!role || !["creator", "kreator", "experience", "upplevelse"].includes(role)) {
-    return { error: "Bara kreatörer och upplevelser kan publicera inlägg" };
-  }
+  // All users with an account can post
 
   const text = (formData.get("text") as string)?.trim();
   const imageUrl = (formData.get("image_url") as string)?.trim() || null;

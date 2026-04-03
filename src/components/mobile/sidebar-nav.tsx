@@ -25,6 +25,7 @@ export function SidebarNav() {
     role === "publik"
       ? [
           { href: "/app", label: "Hem", icon: Home },
+          { href: "/app/posts", label: "Mina inlägg", icon: FileText },
           { href: "/app/library", label: "Bibliotek", icon: BookMarked },
           { href: "/app/messages", label: "Meddelanden", icon: MessageCircle },
           { href: "/app/tickets", label: "Biljetter", icon: Ticket },

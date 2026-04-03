@@ -25,7 +25,7 @@ export function BottomNav() {
     role === "publik"
       ? [
           { href: "/app", label: "Hem", icon: Home },
-          { href: "/app/library", label: "Bibliotek", icon: BookMarked },
+          { href: "/app/posts", label: "Inlägg", icon: FileText },
           { href: "/app/messages", label: "Meddelanden", icon: MessageCircle },
           { href: "/app/tickets", label: "Biljetter", icon: Ticket },
           { href: "/app/profile", label: "Profil", icon: User },

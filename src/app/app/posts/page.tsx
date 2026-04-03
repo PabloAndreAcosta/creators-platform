@@ -27,12 +27,7 @@ export default async function MyPostsPage() {
 
   const profile = profileRes.data;
 
-  if (
-    !profile ||
-    !["creator", "kreator", "experience", "upplevelse"].includes(
-      profile.role ?? ""
-    )
-  ) {
+  if (!profile) {
     redirect("/app");
   }
 

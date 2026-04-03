@@ -245,6 +245,15 @@ function PublikHome({
         {/* Search */}
         <SearchBar />
 
+        {/* Create post — all users */}
+        {profile && (
+          <CreatePostForm
+            authorName={profile.full_name || "Användare"}
+            authorAvatar={profile.avatar_url || null}
+            listings={[]}
+          />
+        )}
+
         {/* Social Feed */}
         {feedPosts.length > 0 && (
           <section>
