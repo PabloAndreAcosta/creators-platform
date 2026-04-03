@@ -82,7 +82,7 @@ export default function ListingRow({ listing }: { listing: Listing }) {
           : "border-[var(--usha-border)] bg-[var(--usha-card)] opacity-60"
       } ${isPending ? "pointer-events-none opacity-50" : ""}`}
     >
-      <div className="min-w-0 flex-1">
+      <Link href={`/listing/${listing.id}`} className="min-w-0 flex-1 transition hover:opacity-80">
         <div className="mb-1 flex items-center gap-3">
           <h3 className="truncate font-semibold">{listing.title}</h3>
           <span className="shrink-0 rounded-full border border-[var(--usha-border)] px-2.5 py-0.5 text-xs text-[var(--usha-muted)]">
@@ -121,7 +121,7 @@ export default function ListingRow({ listing }: { listing: Listing }) {
             </span>
           )}
         </div>
-      </div>
+      </Link>
 
       <div className="ml-4 flex shrink-0 items-center gap-2">
         <SocialShareButton
