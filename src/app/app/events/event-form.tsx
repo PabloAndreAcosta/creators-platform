@@ -22,6 +22,7 @@ interface EventData {
   event_date: string | null;
   event_time: string | null;
   event_location: string | null;
+  event_end_time: string | null;
   event_lat: number | null;
   event_lng: number | null;
   event_place_id: string | null;
@@ -232,30 +233,43 @@ export default function EventForm({
           />
         </div>
 
-        {/* Date + Time */}
+        {/* Date */}
+        <div>
+          <label htmlFor="event_date" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
+            Datum
+          </label>
+          <input
+            id="event_date"
+            name="event_date"
+            type="date"
+            defaultValue={event?.event_date ?? ""}
+            className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+          />
+        </div>
+
+        {/* Start + End time */}
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="event_date" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-              Datum
-            </label>
-            <input
-              id="event_date"
-              name="event_date"
-              type="date"
-              defaultValue={event?.event_date ?? ""}
-              className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
-            />
-          </div>
-
-          <div>
             <label htmlFor="event_time" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-              Tid
+              Starttid
             </label>
             <input
               id="event_time"
               name="event_time"
               type="time"
               defaultValue={event?.event_time ?? ""}
+              className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+            />
+          </div>
+          <div>
+            <label htmlFor="event_end_time" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
+              Sluttid
+            </label>
+            <input
+              id="event_end_time"
+              name="event_end_time"
+              type="time"
+              defaultValue={event?.event_end_time ?? ""}
               className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
             />
           </div>

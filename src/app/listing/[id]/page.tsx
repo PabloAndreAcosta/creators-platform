@@ -47,7 +47,7 @@ export default async function ListingDetailPage({ params }: Props) {
     supabase
       .from("listings")
       .select(
-        "id, title, description, category, price, duration_minutes, event_date, event_time, event_location, event_lat, event_lng, image_url, listing_type, min_guests, max_guests, experience_details, user_id, is_active"
+        "id, title, description, category, price, duration_minutes, event_date, event_time, event_end_time, event_location, event_lat, event_lng, image_url, listing_type, min_guests, max_guests, experience_details, user_id, is_active"
       )
       .eq("id", params.id)
       .eq("is_active", true)
@@ -169,6 +169,7 @@ export default async function ListingDetailPage({ params }: Props) {
                   <span className="flex items-center gap-1.5">
                     <Clock size={14} className="text-[var(--usha-gold)]" />
                     {listing.event_time.slice(0, 5)}
+                    {listing.event_end_time && ` – ${listing.event_end_time.slice(0, 5)}`}
                   </span>
                 )}
                 {listing.duration_minutes && (

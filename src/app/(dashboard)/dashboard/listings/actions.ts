@@ -18,6 +18,7 @@ function parseListingForm(formData: FormData) {
   const eventDate = (formData.get("event_date") as string)?.trim() || null;
   const eventTime = (formData.get("event_time") as string)?.trim() || null;
   const eventLocation = (formData.get("event_location") as string)?.trim() || null;
+  const eventEndTime = (formData.get("event_end_time") as string)?.trim() || null;
   const eventLatRaw = formData.get("event_lat") as string;
   const eventLngRaw = formData.get("event_lng") as string;
   const eventPlaceId = (formData.get("event_place_id") as string)?.trim() || null;
@@ -49,6 +50,7 @@ function parseListingForm(formData: FormData) {
       image_url: imageUrl,
       event_date: eventDate,
       event_time: eventTime,
+      event_end_time: eventEndTime,
       event_location: eventLocation,
       event_lat: eventLat,
       event_lng: eventLng,
