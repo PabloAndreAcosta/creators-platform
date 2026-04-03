@@ -17,6 +17,9 @@ interface Listing {
   min_guests?: number | null;
   max_guests?: number | null;
   experience_details?: ExperienceDetails | null;
+  event_date?: string | null;
+  event_time?: string | null;
+  event_location?: string | null;
 }
 
 interface TimeSlot {
@@ -236,8 +239,12 @@ export default function BookingForm({
   const [promoCode, setPromoCode] = useState("");
   const [guestCount, setGuestCount] = useState(listing.min_guests != null ? listing.min_guests : 1);
   const [attendees, setAttendees] = useState<{ name: string; dietary: string }[]>([]);
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  // If listing has a fixed date/time, use it directly (no calendar needed)
+  const hasFixedDate = !!listing.event_date;
+  const [selectedDate, setSelectedDate] = useState<string | null>(listing.event_date ?? null);
+  const [selectedTime, setSelectedTime] = useState<string | null>(
+    listing.event_time ? listing.event_time.slice(0, 5) : null
+  );
   const { toast } = useToast();
 
   const showGuestFields = listing.listing_type && ["table_reservation", "spa_treatment", "group_activity"].includes(listing.listing_type);
@@ -337,7 +344,7 @@ export default function BookingForm({
     });
   }
 
-  const hasDateTime = selectedDate && selectedTime;
+  const hasDateTime = hasFixedDate ? true : (selectedDate && selectedTime);
 
   return (
     <>
@@ -419,26 +426,58 @@ export default function BookingForm({
                 <input type="hidden" name="creator_id" value={creatorId} />
                 <input type="hidden" name="scheduled_at" value={scheduledAt} />
 
-                {/* Step 1: Date picker */}
-                <div>
-                  <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-                    Välj datum
-                  </label>
-                  <MiniCalendar
-                    creatorId={creatorId}
-                    onSelectDate={(d) => { setSelectedDate(d); setSelectedTime(null); }}
-                    selectedDate={selectedDate}
-                  />
-                </div>
+                {/* Fixed date event — show date info instead of calendar */}
+                {hasFixedDate ? (
+                  <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
+                    <div className="flex items-center gap-3 text-sm">
+                      <CalendarPlus size={16} className="text-emerald-400" />
+                      <div>
+                        <p className="font-semibold">
+                          {new Date(listing.event_date! + "T00:00").toLocaleDateString("sv-SE", {
+                            weekday: "long",
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric",
+                          })}
+                        </p>
+                        <div className="flex items-center gap-3 text-xs text-[var(--usha-muted)]">
+                          {listing.event_time && (
+                            <span className="flex items-center gap-1">
+                              <Clock size={10} />
+                              {listing.event_time.slice(0, 5)}
+                            </span>
+                          )}
+                          {listing.event_location && (
+                            <span>{listing.event_location}</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {/* Step 1: Date picker */}
+                    <div>
+                      <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">
+                        Välj datum
+                      </label>
+                      <MiniCalendar
+                        creatorId={creatorId}
+                        onSelectDate={(d) => { setSelectedDate(d); setSelectedTime(null); }}
+                        selectedDate={selectedDate}
+                      />
+                    </div>
 
-                {/* Step 2: Time slot picker */}
-                {selectedDate && (
-                  <SlotPicker
-                    creatorId={creatorId}
-                    date={selectedDate}
-                    onSelectSlot={setSelectedTime}
-                    selectedTime={selectedTime}
-                  />
+                    {/* Step 2: Time slot picker */}
+                    {selectedDate && (
+                      <SlotPicker
+                        creatorId={creatorId}
+                        date={selectedDate}
+                        onSelectSlot={setSelectedTime}
+                        selectedTime={selectedTime}
+                      />
+                    )}
+                  </>
                 )}
 
                 {/* Guest count */}
