@@ -93,11 +93,30 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Free tickets — create booking directly without Stripe
     if (!listing.price || listing.price <= 0) {
-      return NextResponse.json(
-        { error: 'Evenemanget har inget pris' },
-        { status: 400 }
-      );
+      let scheduledAt: string;
+      if (listing.event_date) {
+        scheduledAt = listing.event_time
+          ? new Date(`${listing.event_date}T${listing.event_time}`).toISOString()
+          : new Date(`${listing.event_date}T00:00:00`).toISOString();
+      } else {
+        scheduledAt = new Date().toISOString();
+      }
+
+      await supabase.from('bookings').insert({
+        listing_id: listing.id,
+        creator_id: listing.user_id,
+        customer_id: user.id,
+        status: 'confirmed',
+        scheduled_at: scheduledAt,
+        booking_type: 'ticket',
+        amount_paid: 0,
+      });
+
+      return NextResponse.json({
+        url: `${process.env.NEXT_PUBLIC_APP_URL}/app/tickets?success=true`,
+      });
     }
 
     // Get creator profile (for Connect account and tier)
