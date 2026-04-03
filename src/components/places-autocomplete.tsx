@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MapPin } from "lucide-react";
 
 interface PlaceResult {
@@ -15,7 +15,6 @@ interface PlacesAutocompleteProps {
   name?: string;
   placeholder?: string;
   onPlaceSelect?: (place: PlaceResult | null) => void;
-  /** Hidden input names for lat/lng/placeId */
   latName?: string;
   lngName?: string;
   placeIdName?: string;
@@ -36,91 +35,173 @@ export default function PlacesAutocomplete({
   defaultLng = null,
   defaultPlaceId = null,
 }: PlacesAutocompleteProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
-  const [loaded, setLoaded] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const hiddenInputRef = useRef<HTMLInputElement>(null);
+  const initializedRef = useRef(false);
   const [lat, setLat] = useState<number | null>(defaultLat);
   const [lng, setLng] = useState<number | null>(defaultLng);
   const [placeId, setPlaceId] = useState<string | null>(defaultPlaceId);
+  const [address, setAddress] = useState(defaultValue);
 
-  // Load Google Maps script
   useEffect(() => {
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-    if (!apiKey) return;
+    if (!apiKey || initializedRef.current || !containerRef.current) return;
 
-    // Already loaded
-    if (window.google?.maps?.places) {
-      setLoaded(true);
-      return;
-    }
-
-    // Check if script is already being loaded
-    if (document.querySelector('script[src*="maps.googleapis.com"]')) {
-      const check = setInterval(() => {
-        if (window.google?.maps?.places) {
-          setLoaded(true);
-          clearInterval(check);
-        }
-      }, 100);
-      return () => clearInterval(check);
-    }
-
-    const script = document.createElement("script");
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&language=sv`;
-    script.async = true;
-    script.defer = true;
-    script.onload = () => setLoaded(true);
-    document.head.appendChild(script);
-  }, []);
-
-  // Initialize autocomplete
-  const initAutocomplete = useCallback(() => {
-    if (!inputRef.current || !window.google?.maps?.places || autocompleteRef.current) return;
-
-    const autocomplete = new google.maps.places.Autocomplete(inputRef.current, {
-      types: ["establishment", "geocode"],
-      componentRestrictions: { country: "se" },
-      fields: ["formatted_address", "geometry", "place_id", "name"],
-    });
-
-    autocomplete.addListener("place_changed", () => {
-      const place = autocomplete.getPlace();
-      if (!place.geometry?.location) return;
-
-      const result: PlaceResult = {
-        address: place.name
-          ? `${place.name}, ${place.formatted_address}`
-          : place.formatted_address || "",
-        lat: place.geometry.location.lat(),
-        lng: place.geometry.location.lng(),
-        placeId: place.place_id || "",
-      };
-
-      // Update the input value with the formatted address
-      if (inputRef.current) {
-        inputRef.current.value = result.address;
+    async function init() {
+      // Load Google Maps script if not already loaded
+      if (!window.google?.maps) {
+        await new Promise<void>((resolve, reject) => {
+          if (document.querySelector('script[src*="maps.googleapis.com"]')) {
+            const check = setInterval(() => {
+              if (window.google?.maps) {
+                clearInterval(check);
+                resolve();
+              }
+            }, 100);
+            return;
+          }
+          const script = document.createElement("script");
+          script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&language=sv&loading=async`;
+          script.async = true;
+          script.onload = () => {
+            const check = setInterval(() => {
+              if (window.google?.maps) {
+                clearInterval(check);
+                resolve();
+              }
+            }, 50);
+          };
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
       }
-      setLat(result.lat);
-      setLng(result.lng);
-      setPlaceId(result.placeId);
-      onPlaceSelect?.(result);
-    });
 
-    autocompleteRef.current = autocomplete;
-  }, [onPlaceSelect]);
+      // Import the places library
+      const { Place, AutocompleteSessionToken, AutocompleteSuggestion } =
+        (await google.maps.importLibrary("places")) as google.maps.PlacesLibrary;
 
-  useEffect(() => {
-    if (loaded) initAutocomplete();
-  }, [loaded, initAutocomplete]);
+      initializedRef.current = true;
+
+      // Build a custom autocomplete using the new API
+      const input = containerRef.current?.querySelector("input");
+      if (!input) return;
+
+      let debounceTimer: ReturnType<typeof setTimeout>;
+
+      input.addEventListener("input", () => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => fetchSuggestions(input.value), 300);
+      });
+
+      // Close dropdown on click outside
+      document.addEventListener("click", (e) => {
+        const dropdown = containerRef.current?.querySelector("[data-suggestions]");
+        if (dropdown && !containerRef.current?.contains(e.target as Node)) {
+          dropdown.remove();
+        }
+      });
+
+      async function fetchSuggestions(query: string) {
+        if (!query || query.length < 2) {
+          removeSuggestions();
+          return;
+        }
+
+        try {
+          const token = new AutocompleteSessionToken();
+          const request = {
+            input: query,
+            language: "sv",
+            region: "se",
+            sessionToken: token,
+          };
+
+          const { suggestions } = await AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
+
+          showSuggestions(
+            suggestions
+              .filter((s) => s.placePrediction)
+              .map((s) => ({
+                text: s.placePrediction!.text.text,
+                placeId: s.placePrediction!.placeId,
+                description: s.placePrediction!.text.text,
+              })),
+            token
+          );
+        } catch {
+          // Silently fail - user can still type manually
+        }
+      }
+
+      function showSuggestions(
+        items: { text: string; placeId: string; description: string }[],
+        token: google.maps.places.AutocompleteSessionToken
+      ) {
+        removeSuggestions();
+        if (!items.length || !containerRef.current) return;
+
+        const dropdown = document.createElement("div");
+        dropdown.setAttribute("data-suggestions", "");
+        dropdown.className =
+          "absolute left-0 right-0 top-full z-50 mt-1 max-h-60 overflow-y-auto rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] shadow-xl";
+
+        items.forEach((item) => {
+          const option = document.createElement("button");
+          option.type = "button";
+          option.className =
+            "flex w-full items-center gap-2 px-4 py-3 text-left text-sm transition hover:bg-white/5";
+          option.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 text-[var(--usha-muted)]"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><span>${item.description}</span>`;
+
+          option.addEventListener("click", async () => {
+            const place = new Place({ id: item.placeId });
+            await place.fetchFields({
+              fields: ["displayName", "formattedAddress", "location", "id"],
+            });
+
+            const loc = place.location;
+            const displayAddr = place.displayName
+              ? `${place.displayName}, ${place.formattedAddress}`
+              : place.formattedAddress || item.text;
+
+            if (input) input.value = displayAddr || "";
+            setAddress(displayAddr || "");
+            setLat(loc?.lat() ?? null);
+            setLng(loc?.lng() ?? null);
+            setPlaceId(place.id || item.placeId);
+
+            onPlaceSelect?.({
+              address: displayAddr || "",
+              lat: loc?.lat() ?? 0,
+              lng: loc?.lng() ?? 0,
+              placeId: place.id || item.placeId,
+            });
+
+            removeSuggestions();
+          });
+
+          dropdown.appendChild(option);
+        });
+
+        containerRef.current.appendChild(dropdown);
+      }
+
+      function removeSuggestions() {
+        containerRef.current
+          ?.querySelector("[data-suggestions]")
+          ?.remove();
+      }
+    }
+
+    init();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div>
+    <div ref={containerRef} className="relative">
       <label htmlFor={name} className="mb-1.5 flex items-center gap-1.5 text-sm text-[var(--usha-muted)]">
         <MapPin size={14} />
         Plats
       </label>
       <input
-        ref={inputRef}
         id={name}
         name={name}
         type="text"
