@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useTransition, useEffect } from "react";
-import { ChevronLeft, ChevronRight, MapPin, Clock, Calendar, Check } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin, Clock, Calendar, Check, Plus, Trash2, Loader2 } from "lucide-react";
 import { useRole } from "@/components/mobile/role-context";
-import { toggleAvailability, getAvailability } from "./actions";
+import { toggleAvailability, getAvailability, addTimeSlot, removeTimeSlot } from "./actions";
 
 const DAYS = ["Mån", "Tis", "Ons", "Tor", "Fre", "Lör", "Sön"];
 const MONTHS = [
@@ -38,7 +38,9 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [availableSet, setAvailableSet] = useState<Set<string>>(new Set(initialAvailableDates));
+  const [slotsMap, setSlotsMap] = useState<Record<string, { id: string; start_time: string | null; end_time: string | null }[]>>({});
   const [editMode, setEditMode] = useState(false);
+  const [editingDate, setEditingDate] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const showCreatorTools = isCreator || role === "kreator" || role === "upplevelse";
@@ -52,8 +54,9 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
   // Fetch availability when month changes
   useEffect(() => {
     if (!showCreatorTools) return;
-    getAvailability(year, month + 1).then(({ dates }) => {
+    getAvailability(year, month + 1).then(({ dates, slots }) => {
       setAvailableSet(new Set(dates));
+      setSlotsMap(slots || {});
     });
   }, [year, month, showCreatorTools]);
 
@@ -107,31 +110,52 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
     const dateKey = getDateKey(day);
 
     if (editMode && showCreatorTools && !isPast(day)) {
-      // Toggle availability
-      const wasAvailable = availableSet.has(dateKey);
-      // Optimistic update
-      setAvailableSet((prev) => {
-        const next = new Set(prev);
-        if (wasAvailable) next.delete(dateKey);
-        else next.add(dateKey);
-        return next;
-      });
-
-      startTransition(async () => {
-        const result = await toggleAvailability(dateKey);
-        if (result.error) {
-          // Revert on error
-          setAvailableSet((prev) => {
-            const reverted = new Set(prev);
-            if (wasAvailable) reverted.add(dateKey);
-            else reverted.delete(dateKey);
-            return reverted;
-          });
-        }
-      });
+      // Open slot editor for this date
+      setEditingDate(editingDate === dateKey ? null : dateKey);
     } else {
       setSelectedDate(selectedDate === dateKey ? null : dateKey);
     }
+  }
+
+  async function handleToggleAllDay(dateKey: string) {
+    const wasAvailable = availableSet.has(dateKey);
+    setAvailableSet((prev) => {
+      const next = new Set(prev);
+      if (wasAvailable) next.delete(dateKey);
+      else next.add(dateKey);
+      return next;
+    });
+
+    const result = await toggleAvailability(dateKey);
+    if (result.error) {
+      setAvailableSet((prev) => {
+        const reverted = new Set(prev);
+        if (wasAvailable) reverted.add(dateKey);
+        else reverted.delete(dateKey);
+        return reverted;
+      });
+    } else {
+      // Refresh slots
+      const res = await getAvailability(year, month + 1);
+      setSlotsMap(res.slots || {});
+      setAvailableSet(new Set(res.dates));
+    }
+  }
+
+  async function handleAddSlot(dateKey: string, startTime: string, endTime: string) {
+    const result = await addTimeSlot(dateKey, startTime, endTime);
+    if (result.error) return result.error;
+    const res = await getAvailability(year, month + 1);
+    setSlotsMap(res.slots || {});
+    setAvailableSet(new Set(res.dates));
+    return null;
+  }
+
+  async function handleRemoveSlot(slotId: string) {
+    await removeTimeSlot(slotId);
+    const res = await getAvailability(year, month + 1);
+    setSlotsMap(res.slots || {});
+    setAvailableSet(new Set(res.dates));
   }
 
   return (
@@ -153,7 +177,7 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
 
       {editMode && (
         <p className="text-xs text-emerald-400/70">
-          Tryck på datum för att markera dig som tillgänglig. Grönt = tillgänglig.
+          Tryck på ett datum för att lägga till tidsluckor. Grönt = tillgänglig.
         </p>
       )}
 
@@ -219,6 +243,18 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
             );
           })}
         </div>
+
+        {/* Time Slot Editor */}
+        {editMode && editingDate && (
+          <TimeSlotEditor
+            dateKey={editingDate}
+            slots={slotsMap[editingDate] || []}
+            onToggleAllDay={() => handleToggleAllDay(editingDate)}
+            onAddSlot={(s, e) => handleAddSlot(editingDate, s, e)}
+            onRemoveSlot={handleRemoveSlot}
+            isAvailable={availableSet.has(editingDate)}
+          />
+        )}
 
         {/* Legend */}
         <div className="mt-4 flex flex-wrap items-center gap-4 text-[10px] text-[var(--usha-muted)]">
@@ -298,6 +334,118 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
           )}
         </div>
       </section>
+    </div>
+  );
+}
+
+// ─── Time Slot Editor ───
+
+function TimeSlotEditor({
+  dateKey,
+  slots,
+  onToggleAllDay,
+  onAddSlot,
+  onRemoveSlot,
+  isAvailable,
+}: {
+  dateKey: string;
+  slots: { id: string; start_time: string | null; end_time: string | null }[];
+  onToggleAllDay: () => void;
+  onAddSlot: (startTime: string, endTime: string) => Promise<string | null>;
+  onRemoveSlot: (slotId: string) => void;
+  isAvailable: boolean;
+}) {
+  const [newStart, setNewStart] = useState("09:00");
+  const [newEnd, setNewEnd] = useState("17:00");
+  const [adding, setAdding] = useState(false);
+  const [error, setError] = useState("");
+
+  const dateLabel = new Date(dateKey).toLocaleDateString("sv-SE", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
+
+  const isAllDay = slots.length === 1 && !slots[0].start_time && !slots[0].end_time;
+  const hasSpecificSlots = slots.some((s) => s.start_time !== null);
+
+  async function handleAdd() {
+    setAdding(true);
+    setError("");
+    const err = await onAddSlot(newStart, newEnd);
+    if (err) setError(err);
+    setAdding(false);
+  }
+
+  return (
+    <div className="mt-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
+      <h4 className="mb-1 text-sm font-semibold capitalize">{dateLabel}</h4>
+
+      {/* All-day toggle */}
+      <button
+        onClick={onToggleAllDay}
+        className={`mb-3 flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition ${
+          isAllDay
+            ? "bg-emerald-500/20 text-emerald-400"
+            : !isAvailable
+              ? "bg-[var(--usha-card)] text-[var(--usha-muted)] hover:text-emerald-400"
+              : "bg-[var(--usha-card)] text-[var(--usha-muted)]"
+        }`}
+      >
+        <Check size={12} />
+        {isAllDay ? "Hela dagen (aktiv)" : !isAvailable ? "Markera hela dagen" : "Ta bort alla tider"}
+      </button>
+
+      {/* Existing slots */}
+      {hasSpecificSlots && (
+        <div className="mb-3 space-y-1.5">
+          {slots.filter((s) => s.start_time).map((slot) => (
+            <div key={slot.id} className="flex items-center justify-between rounded-lg bg-[var(--usha-card)] px-3 py-2">
+              <span className="text-xs font-medium text-emerald-400">
+                {slot.start_time?.slice(0, 5)} – {slot.end_time?.slice(0, 5)}
+              </span>
+              <button
+                onClick={() => onRemoveSlot(slot.id)}
+                className="rounded p-1 text-[var(--usha-muted)] hover:text-red-400"
+              >
+                <Trash2 size={12} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Add new slot */}
+      <div className="flex items-end gap-2">
+        <div className="flex-1">
+          <label className="mb-1 block text-[10px] text-[var(--usha-muted)]">Starttid</label>
+          <input
+            type="time"
+            value={newStart}
+            onChange={(e) => setNewStart(e.target.value)}
+            className="w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-2 py-1.5 text-xs outline-none"
+          />
+        </div>
+        <div className="flex-1">
+          <label className="mb-1 block text-[10px] text-[var(--usha-muted)]">Sluttid</label>
+          <input
+            type="time"
+            value={newEnd}
+            onChange={(e) => setNewEnd(e.target.value)}
+            className="w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-2 py-1.5 text-xs outline-none"
+          />
+        </div>
+        <button
+          onClick={handleAdd}
+          disabled={adding}
+          className="flex items-center gap-1 rounded-lg bg-emerald-500/20 px-3 py-1.5 text-xs font-medium text-emerald-400 transition hover:bg-emerald-500/30 disabled:opacity-50"
+        >
+          {adding ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />}
+          Lägg till
+        </button>
+      </div>
+
+      {error && <p className="mt-2 text-xs text-red-400">{error}</p>}
     </div>
   );
 }
