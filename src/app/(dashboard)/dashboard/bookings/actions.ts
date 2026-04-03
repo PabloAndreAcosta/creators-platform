@@ -34,14 +34,19 @@ export async function createBooking(formData: FormData) {
   const guestCountRaw = formData.get("guest_count") as string;
   const guest_count = guestCountRaw ? (parseInt(guestCountRaw, 10) || 1) : 1;
   const special_requests = (formData.get("special_requests") as string)?.trim() || null;
+  const autoConfirm = formData.get("auto_confirm") === "true";
   const attendeesRaw = (formData.get("attendees") as string)?.trim();
   let attendees: unknown[] = [];
   if (attendeesRaw) {
     try { attendees = JSON.parse(attendeesRaw); } catch { /* ignore */ }
   }
 
-  if (!listing_id || !creator_id || !scheduled_at) {
+  if (!listing_id || !creator_id) {
     return { error: "Fyll i alla obligatoriska fält." };
+  }
+
+  if (!scheduled_at && !autoConfirm) {
+    return { error: "Välj datum och tid." };
   }
 
   if (creator_id === user.id) {
@@ -105,6 +110,7 @@ export async function createBooking(formData: FormData) {
     guest_count,
     special_requests,
     attendees,
+    ...(autoConfirm ? { status: "confirmed" } : {}),
   });
 
   if (error) {

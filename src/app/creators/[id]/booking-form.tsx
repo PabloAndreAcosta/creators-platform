@@ -270,6 +270,10 @@ export default function BookingForm({
 
   function handleSubmit(formData: FormData) {
     startTransition(async () => {
+      // For fixed-date events, auto-confirm the booking
+      if (hasFixedDate) {
+        formData.set("auto_confirm", "true");
+      }
       const result = await createBooking(formData);
       if (result.error) {
         if (result.error === "Denna tjänst är fullbokad.") {
@@ -278,10 +282,13 @@ export default function BookingForm({
           toast.error("Kunde inte skicka bokning", result.error);
         }
       } else {
-        toast.success("Bokning skickad", "Inväntar bekräftelse från skaparen.");
+        toast.success(
+          hasFixedDate ? "Bokning bekräftad!" : "Bokning skickad",
+          hasFixedDate ? "Du är bokad! Se dina biljetter." : "Inväntar bekräftelse från skaparen."
+        );
         setOpen(false);
-        setSelectedDate(null);
-        setSelectedTime(null);
+        setSelectedDate(listing.event_date ?? null);
+        setSelectedTime(listing.event_time ? listing.event_time.slice(0, 5) : null);
       }
     });
   }
@@ -619,13 +626,15 @@ export default function BookingForm({
                     >
                       {isPending ? "Laddar..." : `Boka & betala ${listing.price} SEK`}
                     </button>
-                    <button
-                      type="submit"
-                      disabled={isPending || !hasDateTime}
-                      className="w-full rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium text-[var(--usha-muted)] transition hover:text-white disabled:opacity-50"
-                    >
-                      {isPending ? "Skickar..." : "Skicka förfrågan utan betalning"}
-                    </button>
+                    {!hasFixedDate && (
+                      <button
+                        type="submit"
+                        disabled={isPending || !hasDateTime}
+                        className="w-full rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium text-[var(--usha-muted)] transition hover:text-white disabled:opacity-50"
+                      >
+                        {isPending ? "Skickar..." : "Skicka förfrågan utan betalning"}
+                      </button>
+                    )}
                   </div>
                 ) : (
                   <button
@@ -633,7 +642,7 @@ export default function BookingForm({
                     disabled={isPending || !hasDateTime}
                     className="w-full rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] py-3 text-sm font-bold text-black transition hover:opacity-90 disabled:opacity-50"
                   >
-                    {isPending ? "Skickar..." : "Skicka bokningsförfrågan"}
+                    {isPending ? "Skickar..." : hasFixedDate ? "Boka plats" : "Skicka bokningsförfrågan"}
                   </button>
                 )}
               </form>
