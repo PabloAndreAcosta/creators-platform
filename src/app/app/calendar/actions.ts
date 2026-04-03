@@ -58,8 +58,8 @@ export async function revokeCalendarSyncToken() {
 }
 
 /**
- * Toggle availability for a specific date.
- * If already available, removes it. Otherwise, adds it.
+ * Toggle availability for a specific date (all-day).
+ * If already available, removes all slots for that date. Otherwise, adds all-day.
  */
 export async function toggleAvailability(date: string) {
   const supabase = await createClient();
@@ -73,11 +73,15 @@ export async function toggleAvailability(date: string) {
     .from("creator_availability")
     .select("id")
     .eq("user_id", user.id)
-    .eq("available_date", date)
-    .single();
+    .eq("available_date", date);
 
-  if (existing) {
-    await supabase.from("creator_availability").delete().eq("id", existing.id);
+  if (existing && existing.length > 0) {
+    // Remove all slots for this date
+    await supabase
+      .from("creator_availability")
+      .delete()
+      .eq("user_id", user.id)
+      .eq("available_date", date);
     revalidatePath("/app/calendar");
     return { available: false };
   } else {
@@ -88,6 +92,96 @@ export async function toggleAvailability(date: string) {
     revalidatePath("/app/calendar");
     return { available: true };
   }
+}
+
+/**
+ * Add a specific time slot on a date.
+ */
+export async function addTimeSlot(date: string, startTime: string, endTime: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { error: "Ej inloggad" };
+  if (!startTime || !endTime) return { error: "Start- och sluttid krävs" };
+  if (endTime <= startTime) return { error: "Sluttid måste vara efter starttid" };
+
+  // Check for overlapping slots
+  const { data: existing } = await supabase
+    .from("creator_availability")
+    .select("id, start_time, end_time")
+    .eq("user_id", user.id)
+    .eq("available_date", date);
+
+  if (existing) {
+    for (const slot of existing) {
+      // Remove all-day entry if adding specific slot
+      if (!slot.start_time && !slot.end_time) {
+        await supabase.from("creator_availability").delete().eq("id", slot.id);
+        continue;
+      }
+      // Check overlap
+      if (slot.start_time && slot.end_time) {
+        if (startTime < slot.end_time && endTime > slot.start_time) {
+          return { error: "Tidsluckan överlappar med en befintlig" };
+        }
+      }
+    }
+  }
+
+  const { error } = await supabase
+    .from("creator_availability")
+    .insert({
+      user_id: user.id,
+      available_date: date,
+      start_time: startTime,
+      end_time: endTime,
+    });
+
+  if (error) return { error: "Kunde inte lägga till tidslucka" };
+
+  revalidatePath("/app/calendar");
+  return { success: true };
+}
+
+/**
+ * Remove a specific time slot.
+ */
+export async function removeTimeSlot(slotId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { error: "Ej inloggad" };
+
+  const { error } = await supabase
+    .from("creator_availability")
+    .delete()
+    .eq("id", slotId)
+    .eq("user_id", user.id);
+
+  if (error) return { error: "Kunde inte ta bort tidslucka" };
+
+  revalidatePath("/app/calendar");
+  return { success: true };
+}
+
+/**
+ * Get time slots for a specific date and creator.
+ */
+export async function getTimeSlotsForDate(date: string, userId: string) {
+  const supabase = await createClient();
+
+  const { data } = await supabase
+    .from("creator_availability")
+    .select("id, start_time, end_time")
+    .eq("user_id", userId)
+    .eq("available_date", date)
+    .order("start_time", { ascending: true });
+
+  return { slots: data || [] };
 }
 
 /**
@@ -109,10 +203,19 @@ export async function getAvailability(year: number, month: number, userId?: stri
 
   const { data } = await supabase
     .from("creator_availability")
-    .select("available_date")
+    .select("id, available_date, start_time, end_time")
     .eq("user_id", uid)
     .gte("available_date", startDate)
-    .lte("available_date", endDate);
+    .lte("available_date", endDate)
+    .order("start_time", { ascending: true });
 
-  return { dates: (data || []).map((r) => r.available_date) };
+  const rows = data || [];
+  const dateSet = new Set(rows.map((r) => r.available_date));
+  const slots: Record<string, { id: string; start_time: string | null; end_time: string | null }[]> = {};
+  for (const row of rows) {
+    if (!slots[row.available_date]) slots[row.available_date] = [];
+    slots[row.available_date].push({ id: row.id, start_time: row.start_time, end_time: row.end_time });
+  }
+
+  return { dates: Array.from(dateSet), slots };
 }
