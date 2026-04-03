@@ -28,6 +28,8 @@ export default async function MarketplacePage({
   searchParams: SearchParams;
 }) {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const isLoggedIn = !!user;
   const { category, q, location, minPrice, maxPrice, sort } = searchParams;
 
   // Fetch public profiles
@@ -142,18 +144,29 @@ export default async function MarketplacePage({
             <span className="text-lg font-bold tracking-tight">Usha</span>
           </Link>
           <div className="flex items-center gap-3">
-            <Link
-              href="/login"
-              className="hidden text-sm text-[var(--usha-muted)] transition hover:text-white sm:block"
-            >
-              Logga in
-            </Link>
-            <Link
-              href="/signup"
-              className="rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-sm font-semibold text-black transition hover:opacity-90"
-            >
-              Kom igång
-            </Link>
+            {isLoggedIn ? (
+              <Link
+                href="/app"
+                className="rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-sm font-semibold text-black transition hover:opacity-90"
+              >
+                Appen
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="hidden text-sm text-[var(--usha-muted)] transition hover:text-white sm:block"
+                >
+                  Logga in
+                </Link>
+                <Link
+                  href="/signup"
+                  className="rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-sm font-semibold text-black transition hover:opacity-90"
+                >
+                  Kom igång
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>

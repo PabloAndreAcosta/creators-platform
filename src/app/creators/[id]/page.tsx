@@ -167,10 +167,10 @@ export default async function CreatorProfilePage({ params }: Props) {
             </Link>
             {isLoggedIn ? (
               <Link
-                href="/dashboard"
+                href="/app"
                 className="rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-sm font-semibold text-black transition hover:opacity-90"
               >
-                Dashboard
+                Appen
               </Link>
             ) : (
               <Link
