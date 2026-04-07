@@ -27,16 +27,25 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const supabase = await createClient();
   const { data: listing } = await supabase
     .from("listings")
-    .select("title, description, event_location")
+    .select("title, description, event_location, image_url")
     .eq("id", params.id)
     .eq("is_active", true)
     .single();
 
   if (!listing) return { title: "Event – Usha" };
 
+  const description = listing.description?.slice(0, 160) || `${listing.title} på Usha Platform`;
+
   return {
     title: `${listing.title} – Usha`,
-    description: listing.description?.slice(0, 160) || `${listing.title} på Usha Platform`,
+    description,
+    openGraph: {
+      title: `${listing.title} – Usha`,
+      description,
+      url: `https://usha.se/listing/${params.id}`,
+      type: "website",
+      ...(listing.image_url ? { images: [{ url: listing.image_url, width: 1200, height: 630, alt: listing.title }] } : {}),
+    },
   };
 }
 
@@ -83,8 +92,53 @@ export default async function ListingDetailPage({ params }: Props) {
   const details = listing.experience_details as ExperienceDetails | null;
   const creatorUrl = creator.slug ? `/${creator.slug}` : `/creators/${creator.id}`;
 
+  const jsonLd: Record<string, any> = {
+    "@context": "https://schema.org",
+    "@type": listing.listing_type === "event" ? "Event" : "Service",
+    name: listing.title,
+    url: `https://usha.se/listing/${listing.id}`,
+    ...(listing.description ? { description: listing.description.slice(0, 300) } : {}),
+    ...(listing.image_url ? { image: listing.image_url } : {}),
+    ...(listing.price != null ? {
+      offers: {
+        "@type": "Offer",
+        price: listing.price,
+        priceCurrency: "SEK",
+        availability: "https://schema.org/InStock",
+      },
+    } : {}),
+    ...(creator ? {
+      organizer: {
+        "@type": "Person",
+        name: creator.full_name || "Creator",
+        url: `https://usha.se/creators/${creator.slug || creator.id}`,
+      },
+    } : {}),
+  };
+
+  if (listing.listing_type === "event") {
+    if (listing.event_date) {
+      jsonLd.startDate = listing.event_time
+        ? `${listing.event_date}T${listing.event_time}`
+        : listing.event_date;
+    }
+    if (listing.event_location) {
+      jsonLd.location = {
+        "@type": "Place",
+        name: listing.event_location,
+        ...(listing.event_lat && listing.event_lng ? {
+          geo: { "@type": "GeoCoordinates", latitude: listing.event_lat, longitude: listing.event_lng },
+        } : {}),
+      };
+    }
+  }
+
   return (
     <div className="min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Header */}
       <header className="border-b border-[var(--usha-border)]">
         <div className="mx-auto flex h-16 max-w-4xl items-center justify-between px-4 md:px-6">

@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const column = isUUID(params.id) ? "id" : "slug";
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name, bio, category, categories")
+    .select("full_name, bio, category, categories, avatar_url, slug, id")
     .eq(column, params.id)
     .eq("is_public", true)
     .single();
@@ -40,17 +40,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const cats = profile.categories?.length ? profile.categories : (profile.category ? [profile.category] : []);
   const categoryLabel = cats.map((c: string) => CATEGORY_LABELS[c] || c).join(", ") || null;
+  const description = profile.bio?.slice(0, 160) || `${categoryLabel || "Creator"} på Usha Platform`;
+  const url = `https://usha.se/creators/${profile.slug || profile.id}`;
 
   return {
     title: `${profile.full_name || "Creator"} – Usha Platform`,
-    description:
-      profile.bio?.slice(0, 160) ||
-      `${categoryLabel || "Creator"} på Usha Platform`,
+    description,
     openGraph: {
       title: `${profile.full_name || "Creator"} – Usha`,
-      description:
-        profile.bio?.slice(0, 160) ||
-        `${categoryLabel || "Creator"} på Usha Platform`,
+      description,
+      url,
+      type: "profile",
+      ...(profile.avatar_url ? { images: [{ url: profile.avatar_url, width: 400, height: 400, alt: profile.full_name || "Creator" }] } : {}),
     },
   };
 }
@@ -143,8 +144,23 @@ export default async function CreatorProfilePage({ params }: Props) {
     ...(wlColor3 ? { '--usha-accent-3': wlColor3 } : {}),
   } as React.CSSProperties : undefined;
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: profile.full_name || "Creator",
+    url: `https://usha.se/creators/${(profile as any).slug || profile.id}`,
+    ...(profile.avatar_url ? { image: profile.avatar_url } : {}),
+    ...(profile.bio ? { description: profile.bio.slice(0, 300) } : {}),
+    ...(profile.location ? { address: { "@type": "PostalAddress", addressLocality: profile.location } } : {}),
+    ...(creatorCategories.length ? { jobTitle: creatorCategories.map((c: string) => CATEGORY_LABELS[c] || c).join(", ") } : {}),
+  };
+
   return (
     <div className="min-h-screen" style={wlStyle}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Header */}
       <header className="border-b border-[var(--usha-border)]">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 md:px-6">

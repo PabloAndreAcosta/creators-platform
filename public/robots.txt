@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+Disallow: /app/
+Disallow: /dashboard/
+Disallow: /api/
+Disallow: /callback
+
+Sitemap: https://usha.se/sitemap.xml
