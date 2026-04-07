@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Heart } from "lucide-react";
 
 interface PostLikeButtonProps {
@@ -13,9 +14,13 @@ interface PostLikeButtonProps {
 export function PostLikeButton({ postId, initialLiked, initialCount, isLoggedIn }: PostLikeButtonProps) {
   const [liked, setLiked] = useState(initialLiked);
   const [count, setCount] = useState(initialCount);
+  const router = useRouter();
 
   async function handleToggle() {
-    if (!isLoggedIn) return;
+    if (!isLoggedIn) {
+      router.push("/login?redirect=/flode");
+      return;
+    }
 
     // Optimistic update
     setLiked(!liked);

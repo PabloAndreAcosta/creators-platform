@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { FeedPost } from "@/types/database";
 
 export async function getFeedPosts(
-  userId: string,
+  userId?: string,
   page = 0,
   pageSize = 20
 ): Promise<FeedPost[]> {
@@ -29,18 +29,21 @@ export async function getFeedPosts(
     .select("post_id")
     .in("post_id", postIds);
 
-  // Get current user's likes
-  const { data: userLikes } = await supabase
-    .from("post_likes")
-    .select("post_id")
-    .eq("user_id", userId)
-    .in("post_id", postIds);
+  // Get current user's likes (only if logged in)
+  let userLikedSet = new Set<string>();
+  if (userId) {
+    const { data: userLikes } = await supabase
+      .from("post_likes")
+      .select("post_id")
+      .eq("user_id", userId)
+      .in("post_id", postIds);
+    userLikedSet = new Set((userLikes || []).map((l) => l.post_id));
+  }
 
   const likeCountMap: Record<string, number> = {};
   (likeCounts || []).forEach((l) => {
     likeCountMap[l.post_id] = (likeCountMap[l.post_id] || 0) + 1;
   });
-  const userLikedSet = new Set((userLikes || []).map((l) => l.post_id));
 
   return posts.map((post) => ({
     id: post.id,

@@ -2,8 +2,9 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
-import { Ticket, Calendar, MapPin, MoreHorizontal, Pencil, Trash2, X, Loader2, ImagePlus, Send, Share2, Check } from "lucide-react";
+import { Calendar, MapPin, MoreHorizontal, Pencil, Trash2, X, Loader2, ImagePlus, Send, Share2, Check } from "lucide-react";
 import { PostLikeButton } from "./post-like-button";
+import { QuickBuyButton } from "./quick-buy-button";
 import { updatePost, deletePost } from "@/app/app/feed/actions";
 import { createClient } from "@/lib/supabase/client";
 import type { FeedPost } from "@/types/database";
@@ -266,34 +267,41 @@ export function PostCard({ post, isLoggedIn, currentUserId }: PostCardProps) {
       {/* CTA — linked listing */}
       {post.listing && (
         <div className="mx-4 mt-3">
-          <Link
-            href={`/listing/${post.listing.id}`}
-            className="flex items-center gap-2.5 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-2.5 transition hover:border-[var(--usha-gold)]/30 md:gap-3 md:p-3"
-          >
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--usha-gold)]/10 md:h-10 md:w-10">
-              <Ticket size={15} className="text-[var(--usha-gold)]" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-xs font-semibold md:text-sm">{post.listing.title}</p>
-              <div className="flex items-center gap-2 text-[10px] text-[var(--usha-muted)]">
-                {post.listing.event_date && (
-                  <span className="flex items-center gap-0.5">
-                    <Calendar size={9} />
-                    {new Date(post.listing.event_date).toLocaleDateString("sv-SE", { day: "numeric", month: "short" })}
-                  </span>
-                )}
-                {post.listing.event_location && (
-                  <span className="flex items-center gap-0.5">
-                    <MapPin size={9} />
-                    {post.listing.event_location}
-                  </span>
-                )}
+          <div className="flex items-center gap-2.5 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-2.5 transition hover:border-[var(--usha-gold)]/30 md:gap-3 md:p-3">
+            <Link
+              href={`/listing/${post.listing.id}`}
+              className="flex min-w-0 flex-1 items-center gap-2.5 md:gap-3"
+            >
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-xs font-semibold md:text-sm">{post.listing.title}</p>
+                <div className="flex items-center gap-2 text-[10px] text-[var(--usha-muted)]">
+                  {post.listing.event_date && (
+                    <span className="flex items-center gap-0.5">
+                      <Calendar size={9} />
+                      {new Date(post.listing.event_date).toLocaleDateString("sv-SE", { day: "numeric", month: "short" })}
+                    </span>
+                  )}
+                  {post.listing.event_location && (
+                    <span className="flex items-center gap-0.5">
+                      <MapPin size={9} />
+                      {post.listing.event_location}
+                    </span>
+                  )}
+                  {post.listing.price ? (
+                    <span className="font-medium text-[var(--usha-gold)]">
+                      {post.listing.price} kr
+                    </span>
+                  ) : null}
+                </div>
               </div>
-            </div>
-            <span className="shrink-0 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-2.5 py-1 text-[11px] font-bold text-black md:px-3 md:py-1.5 md:text-xs">
-              {post.listing.price ? `${post.listing.price} kr` : "Gratis"}
-            </span>
-          </Link>
+            </Link>
+            <QuickBuyButton
+              listingId={post.listing.id}
+              listingType={post.listing.listing_type || "event"}
+              price={post.listing.price}
+              isLoggedIn={isLoggedIn}
+            />
+          </div>
         </div>
       )}
     </div>

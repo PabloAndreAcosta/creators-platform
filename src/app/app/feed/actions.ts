@@ -109,8 +109,6 @@ export async function getMorePosts(page: number) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) return { posts: [], hasMore: false };
-
   const pageSize = 20;
   const offset = page * pageSize;
 
@@ -134,18 +132,21 @@ export async function getMorePosts(page: number) {
     .select("post_id")
     .in("post_id", postIds);
 
-  // Get user's likes
-  const { data: userLikes } = await supabase
-    .from("post_likes")
-    .select("post_id")
-    .eq("user_id", user.id)
-    .in("post_id", postIds);
+  // Get user's likes (only if logged in)
+  let userLikedSet = new Set<string>();
+  if (user) {
+    const { data: userLikes } = await supabase
+      .from("post_likes")
+      .select("post_id")
+      .eq("user_id", user.id)
+      .in("post_id", postIds);
+    userLikedSet = new Set((userLikes || []).map((l) => l.post_id));
+  }
 
   const likeCountMap: Record<string, number> = {};
   (likeCounts || []).forEach((l) => {
     likeCountMap[l.post_id] = (likeCountMap[l.post_id] || 0) + 1;
   });
-  const userLikedSet = new Set((userLikes || []).map((l) => l.post_id));
 
   const enrichedPosts = posts.map((post) => ({
     id: post.id,

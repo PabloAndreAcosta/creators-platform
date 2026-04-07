@@ -41,6 +41,7 @@ function Nav() {
   }, []);
 
   const navLinks = [
+    { href: "/flode", label: "Flöde" },
     { href: "#ecosystem", label: "Ekosystemet" },
     { href: "#pricing", label: "Priser" },
     { href: "/marketplace", label: "Marketplace" },
@@ -257,10 +258,10 @@ function Hero() {
             <ArrowRight size={16} />
           </a>
           <a
-            href="/marketplace"
+            href="/flode"
             className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] px-8 py-3.5 text-sm font-medium text-[var(--usha-muted)] transition hover:border-[var(--usha-gold)]/30 hover:text-white sm:w-auto sm:py-4 sm:text-base"
           >
-            Utforska marketplace
+            Se vad som händer
           </a>
         </div>
       </div>
