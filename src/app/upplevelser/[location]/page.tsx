@@ -4,6 +4,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { MapPin, Calendar, ArrowLeft } from "lucide-react";
 import { SeoFooter } from "@/components/seo-footer";
+import { ListingCard } from "@/components/listing-card";
+import { getBookingCounts, sortWithPromoted, isActivelyPromoted } from "@/lib/listings/popularity";
 
 interface Props {
   params: { location: string };
@@ -29,13 +31,17 @@ export default async function LocationPage({ params }: Props) {
   const city = capitalize(decodeURIComponent(params.location));
   const supabase = await createClient();
 
-  const { data: listings } = await supabase
+  const { data: rawListings } = await supabase
     .from("listings")
-    .select("id, title, description, price, event_date, event_location, category, image_url, listing_type")
+    .select("id, title, description, price, event_date, event_location, category, image_url, listing_type, is_promoted, promoted_until")
     .eq("is_active", true)
     .ilike("event_location", `%${city}%`)
     .order("event_date", { ascending: true, nullsFirst: false })
     .limit(50);
+
+  const listingIds = (rawListings || []).map((l) => l.id);
+  const bookingCounts = await getBookingCounts(supabase, listingIds);
+  const listings = sortWithPromoted(rawListings || []);
 
   // Count by category for this location
   const categoryCounts: Record<string, number> = {};
@@ -105,53 +111,12 @@ export default async function LocationPage({ params }: Props) {
         {listings && listings.length > 0 ? (
           <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {listings.map((listing) => (
-              <Link
+              <ListingCard
                 key={listing.id}
-                href={`/listing/${listing.id}`}
-                className="group overflow-hidden rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] transition hover:border-[var(--usha-gold)]/30"
-              >
-                {listing.image_url ? (
-                  <div className="aspect-video overflow-hidden">
-                    <img
-                      src={listing.image_url}
-                      alt={listing.title}
-                      className="h-full w-full object-cover transition group-hover:scale-105"
-                      loading="lazy"
-                    />
-                  </div>
-                ) : (
-                  <div className="flex aspect-video items-center justify-center bg-[var(--usha-gold)]/5">
-                    <Calendar size={24} className="text-[var(--usha-gold)]/30" />
-                  </div>
-                )}
-                <div className="p-3">
-                  <p className="truncate text-sm font-semibold">{listing.title}</p>
-                  <div className="mt-1 flex items-center gap-2 text-xs text-[var(--usha-muted)]">
-                    {listing.event_date && (
-                      <span className="flex items-center gap-0.5">
-                        <Calendar size={10} />
-                        {new Date(listing.event_date).toLocaleDateString("sv-SE", { day: "numeric", month: "short" })}
-                      </span>
-                    )}
-                    {listing.event_location && (
-                      <span className="flex items-center gap-0.5">
-                        <MapPin size={10} />
-                        {listing.event_location.split(",")[0]}
-                      </span>
-                    )}
-                  </div>
-                  <div className="mt-2 flex items-center justify-between">
-                    <span className="text-xs font-medium text-[var(--usha-gold)]">
-                      {listing.price ? `${listing.price} kr` : "Gratis"}
-                    </span>
-                    {listing.category && (
-                      <span className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-[10px] text-[var(--usha-gold)]">
-                        {CATEGORY_LABELS[listing.category] || listing.category}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </Link>
+                listing={listing}
+                bookingCount={bookingCounts[listing.id] || 0}
+                isPromoted={isActivelyPromoted(listing)}
+              />
             ))}
           </div>
         ) : (
