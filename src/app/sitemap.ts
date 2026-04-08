@@ -60,11 +60,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   });
   const uniqueLocations = Array.from(locationSet);
 
-  const locationPages: MetadataRoute.Sitemap = uniqueLocations.map((loc) => ({
-    url: `${baseUrl}/upplevelser/${encodeURIComponent(loc!.toLowerCase())}`,
-    changeFrequency: "daily" as const,
-    priority: 0.7,
-  }));
+  // Extract city names for landing pages
+  const citySet = new Set<string>();
+  uniqueLocations.forEach((loc) => {
+    const city = loc.split(",")[0].trim();
+    if (city) citySet.add(city.toLowerCase());
+  });
+  const cities = Array.from(citySet);
 
-  return [...staticPages, ...creatorPages, ...listingPages, ...locationPages];
+  const locationPages: MetadataRoute.Sitemap = cities.flatMap((city) => [
+    { url: `${baseUrl}/upplevelser/${encodeURIComponent(city)}`, changeFrequency: "daily" as const, priority: 0.7 },
+    { url: `${baseUrl}/creators/stad/${encodeURIComponent(city)}`, changeFrequency: "daily" as const, priority: 0.7 },
+  ]);
+
+  // Upplevelser main page
+  const upplevelserPage: MetadataRoute.Sitemap = [
+    { url: `${baseUrl}/upplevelser`, lastModified: new Date(), changeFrequency: "daily" as const, priority: 0.8 },
+  ];
+
+  return [...staticPages, ...upplevelserPage, ...creatorPages, ...listingPages, ...locationPages];
 }

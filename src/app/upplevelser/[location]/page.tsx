@@ -3,6 +3,7 @@ import { CATEGORIES, CATEGORY_LABELS } from "@/lib/categories";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { MapPin, Calendar, ArrowLeft } from "lucide-react";
+import { SeoFooter } from "@/components/seo-footer";
 
 interface Props {
   params: { location: string };
@@ -162,6 +163,8 @@ export default async function LocationPage({ params }: Props) {
           </div>
         )}
       </main>
+
+      <SeoFooter />
     </div>
   );
 }
