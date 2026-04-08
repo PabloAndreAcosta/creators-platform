@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { createNotification } from "@/lib/notifications/create";
 
 export async function createPost(formData: FormData) {
   const supabase = await createClient();
@@ -40,9 +41,37 @@ export async function createPost(formData: FormData) {
 
   if (error) return { error: "Kunde inte skapa inlägget. Försök igen." };
 
+  // Notify followers (non-blocking)
+  notifyFollowers(supabase, user.id, text).catch(() => {});
+
   revalidatePath("/app");
   revalidatePath("/app/posts");
+  revalidatePath("/flode");
   return { success: true };
+}
+
+async function notifyFollowers(supabase: Awaited<ReturnType<typeof createClient>>, creatorId: string, postText: string) {
+  const [{ data: followers }, { data: profile }] = await Promise.all([
+    supabase.from("follows").select("follower_id").eq("followed_id", creatorId),
+    supabase.from("profiles").select("full_name").eq("id", creatorId).single(),
+  ]);
+
+  if (!followers || followers.length === 0) return;
+
+  const creatorName = profile?.full_name || "En kreatör";
+  const preview = postText.length > 60 ? postText.slice(0, 60) + "..." : postText;
+
+  await Promise.all(
+    followers.map((f) =>
+      createNotification({
+        userId: f.follower_id,
+        type: "new_post",
+        title: `${creatorName} delade ett nytt inlägg`,
+        message: preview,
+        link: "/flode",
+      })
+    )
+  );
 }
 
 export async function updatePost(postId: string, formData: FormData) {

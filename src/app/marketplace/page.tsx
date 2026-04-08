@@ -89,21 +89,38 @@ export default async function MarketplacePage({
 
   const { data: profiles } = await profilesQuery;
 
-  // Fetch listing counts per creator
+  // Fetch listing counts and follower counts per creator
   const creatorIds = profiles?.map((p) => p.id) ?? [];
   let listingCounts: Record<string, number> = {};
+  let followerCounts: Record<string, number> = {};
 
   if (creatorIds.length > 0) {
-    const { data: listings } = await supabase
-      .from("listings")
-      .select("user_id")
-      .eq("is_active", true)
-      .in("user_id", creatorIds);
+    const [{ data: listings }, { data: follows }] = await Promise.all([
+      supabase
+        .from("listings")
+        .select("user_id")
+        .eq("is_active", true)
+        .in("user_id", creatorIds),
+      supabase
+        .from("follows")
+        .select("followed_id")
+        .in("followed_id", creatorIds),
+    ]);
 
     if (listings) {
       listingCounts = listings.reduce(
         (acc, l) => {
           acc[l.user_id] = (acc[l.user_id] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>
+      );
+    }
+
+    if (follows) {
+      followerCounts = follows.reduce(
+        (acc, f) => {
+          acc[f.followed_id] = (acc[f.followed_id] || 0) + 1;
           return acc;
         },
         {} as Record<string, number>
@@ -374,12 +391,17 @@ export default async function MarketplacePage({
                     }
                     return <span />;
                   })()}
-                  {listingCounts[creator.id] > 0 && (
-                    <span className="flex items-center gap-1 text-xs text-[var(--usha-muted)]">
-                      <Clock size={10} />
-                      {listingCounts[creator.id]} tjänst{listingCounts[creator.id] > 1 ? "er" : ""}
-                    </span>
-                  )}
+                  <span className="flex items-center gap-2 text-xs text-[var(--usha-muted)]">
+                    {followerCounts[creator.id] > 0 && (
+                      <span>{followerCounts[creator.id]} följare</span>
+                    )}
+                    {listingCounts[creator.id] > 0 && (
+                      <span className="flex items-center gap-1">
+                        <Clock size={10} />
+                        {listingCounts[creator.id]} tjänst{listingCounts[creator.id] > 1 ? "er" : ""}
+                      </span>
+                    )}
+                  </span>
                 </div>
               </Link>
             ))}

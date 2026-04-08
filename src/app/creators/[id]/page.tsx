@@ -17,6 +17,7 @@ import { CreatorGallery } from "@/components/creator-gallery";
 import { CreatorProducts } from "@/components/creator-products";
 import { calculateDiscountedPrice } from "@/lib/stripe/commission";
 import { filterByGoldExclusivity } from "@/lib/listings/early-bird";
+import { FollowButton } from "@/components/follow-button";
 
 interface Props {
   params: { id: string };
@@ -126,8 +127,25 @@ export default async function CreatorProfilePage({ params }: Props) {
   const creatorRates: Record<string, number> = (profile as any).rates && typeof (profile as any).rates === "object" ? (profile as any).rates : (profile.category && profile.hourly_rate ? { [profile.category]: profile.hourly_rate } : {});
   const creatorWebsites: string[] = (profile as any).websites?.length ? (profile as any).websites : (profile.website ? [profile.website] : []);
 
+  // Fetch follow data
+  const [{ count: followerCount }, { data: isFollowingData }] = await Promise.all([
+    supabase
+      .from("follows")
+      .select("id", { count: "exact", head: true })
+      .eq("followed_id", profile.id),
+    user
+      ? supabase
+          .from("follows")
+          .select("id")
+          .eq("follower_id", user.id)
+          .eq("followed_id", profile.id)
+          .single()
+      : Promise.resolve({ data: null }),
+  ]);
+
   const isLoggedIn = !!user;
   const isOwnProfile = user?.id === profile.id;
+  const isFollowing = !!isFollowingData;
   const hasConnect = !!profile.stripe_account_id;
   const wl = (profile as any).whitelabel_enabled;
   const wlBrand = (profile as any).whitelabel_brand_name;
@@ -321,16 +339,26 @@ export default async function CreatorProfilePage({ params }: Props) {
                 {profile.bio}
               </p>
             )}
-            {isLoggedIn && !isOwnProfile && (
+            {!isOwnProfile && (
               <div className="mt-4 flex items-center gap-3">
-                <Link
-                  href={`/app/messages?to=${profile.id}`}
-                  className="inline-flex items-center gap-2 rounded-xl border border-[var(--usha-border)] px-4 py-2 text-sm font-medium transition hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-gold)]"
-                >
-                  <MessageCircle size={14} />
-                  Skicka meddelande
-                </Link>
-                <ReportUserButton userId={profile.id} userName={profile.full_name || "Användare"} />
+                <FollowButton
+                  creatorId={profile.id}
+                  initialFollowing={isFollowing}
+                  followerCount={followerCount || 0}
+                  isLoggedIn={isLoggedIn}
+                />
+                {isLoggedIn && (
+                  <>
+                    <Link
+                      href={`/app/messages?to=${profile.id}`}
+                      className="inline-flex items-center gap-2 rounded-xl border border-[var(--usha-border)] px-4 py-2 text-sm font-medium transition hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-gold)]"
+                    >
+                      <MessageCircle size={14} />
+                      Skicka meddelande
+                    </Link>
+                    <ReportUserButton userId={profile.id} userName={profile.full_name || "Användare"} />
+                  </>
+                )}
               </div>
             )}
           </div>

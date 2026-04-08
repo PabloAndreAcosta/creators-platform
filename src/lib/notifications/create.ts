@@ -2,7 +2,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 
 interface CreateNotificationParams {
   userId: string;
-  type: 'booking_new' | 'booking_confirmed' | 'booking_canceled' | 'payout' | 'review' | 'queue_promoted';
+  type: 'booking_new' | 'booking_confirmed' | 'booking_canceled' | 'payout' | 'review' | 'queue_promoted' | 'new_post';
   title: string;
   message: string;
   link?: string;
