@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { CATEGORIES, CATEGORY_LABELS } from "@/lib/categories";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { MapPin, Calendar, ArrowRight } from "lucide-react";
+import { MapPin, Calendar, ArrowRight, SlidersHorizontal } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Upplevelser – Usha",
@@ -15,10 +15,71 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function UpplevelserPage() {
-  const supabase = await createClient();
+interface SearchParams {
+  category?: string;
+  location?: string;
+  sort?: string;
+  page?: string;
+}
 
-  // Get unique locations from active listings
+const PAGE_SIZE = 20;
+
+const SORT_OPTIONS = [
+  { value: "date", label: "Datum" },
+  { value: "price_asc", label: "Pris (lägst)" },
+  { value: "price_desc", label: "Pris (högst)" },
+  { value: "newest", label: "Nyast" },
+] as const;
+
+export default async function UpplevelserPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const supabase = await createClient();
+  const { category, location, sort, page: pageParam } = searchParams;
+  const currentPage = Math.max(1, parseInt(pageParam || "1", 10) || 1);
+  const offset = (currentPage - 1) * PAGE_SIZE;
+
+  // ── Build filtered listings query ──
+  let query = supabase
+    .from("listings")
+    .select("id, title, price, event_date, event_location, category, image_url, listing_type, created_at", { count: "exact" })
+    .eq("is_active", true);
+
+  if (category && category !== "all") {
+    query = query.eq("category", category);
+  }
+
+  if (location) {
+    const sanitized = decodeURIComponent(location).replace(/[,()\\]/g, " ").trim();
+    if (sanitized) {
+      query = query.ilike("event_location", `%${sanitized}%`);
+    }
+  }
+
+  // Sort
+  switch (sort) {
+    case "date":
+      query = query.order("event_date", { ascending: true, nullsFirst: false });
+      break;
+    case "price_asc":
+      query = query.order("price", { ascending: true, nullsFirst: false });
+      break;
+    case "price_desc":
+      query = query.order("price", { ascending: false, nullsFirst: false });
+      break;
+    default:
+      query = query.order("created_at", { ascending: false });
+  }
+
+  // Paginate
+  query = query.range(offset, offset + PAGE_SIZE - 1);
+
+  const { data: listings, count: totalCount } = await query;
+  const totalPages = Math.ceil((totalCount || 0) / PAGE_SIZE);
+
+  // ── Get unique locations for filter ──
   const { data: locationData } = await supabase
     .from("listings")
     .select("event_location")
@@ -29,17 +90,15 @@ export default async function UpplevelserPage() {
   (locationData || []).forEach((l) => {
     const loc = l.event_location?.trim();
     if (loc) {
-      // Extract city name (first part before comma)
       const city = loc.split(",")[0].trim();
       locationCounts[city] = (locationCounts[city] || 0) + 1;
     }
   });
-
   const topLocations = Object.entries(locationCounts)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 20);
 
-  // Get category counts
+  // ── Get category counts ──
   const { data: categoryData } = await supabase
     .from("listings")
     .select("category")
@@ -52,34 +111,28 @@ export default async function UpplevelserPage() {
     }
   });
 
-  // Get latest listings for preview
-  const { data: latestListings } = await supabase
-    .from("listings")
-    .select("id, title, price, event_date, event_location, category, image_url")
-    .eq("is_active", true)
-    .order("created_at", { ascending: false })
-    .limit(12);
+  // ── Helper to build filter URLs ──
+  function filterUrl(overrides: Record<string, string | undefined>) {
+    const params = new URLSearchParams();
+    const merged = { category, location, sort, ...overrides };
+    Object.entries(merged).forEach(([k, v]) => {
+      if (v && v !== "all") params.set(k, v);
+    });
+    const qs = params.toString();
+    return `/upplevelser${qs ? `?${qs}` : ""}`;
+  }
+
+  const hasFilters = category || location || sort;
 
   return (
     <div className="min-h-screen bg-[var(--usha-black)]">
       <header className="sticky top-0 z-30 border-b border-[var(--usha-border)] bg-[var(--usha-black)]/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-          <Link href="/" className="text-lg font-bold text-gradient">
-            Usha
-          </Link>
+          <Link href="/" className="text-lg font-bold text-gradient">Usha</Link>
           <nav className="flex items-center gap-4">
-            <Link href="/flode" className="text-sm text-[var(--usha-muted)] hover:text-white">
-              Flöde
-            </Link>
-            <Link href="/marketplace" className="text-sm text-[var(--usha-muted)] hover:text-white">
-              Marketplace
-            </Link>
-            <Link
-              href="/signup"
-              className="rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-1.5 text-xs font-bold text-black"
-            >
-              Skapa konto
-            </Link>
+            <Link href="/flode" className="text-sm text-[var(--usha-muted)] hover:text-white">Flöde</Link>
+            <Link href="/marketplace" className="text-sm text-[var(--usha-muted)] hover:text-white">Marketplace</Link>
+            <Link href="/signup" className="rounded-lg px-3 py-1.5 text-xs font-medium text-[var(--usha-muted)] hover:text-white">Skapa profil</Link>
           </nav>
         </div>
       </header>
@@ -87,112 +140,187 @@ export default async function UpplevelserPage() {
       <main className="mx-auto max-w-5xl px-4 py-8">
         <h1 className="text-2xl font-bold md:text-3xl">Upplevelser</h1>
         <p className="mt-1 text-sm text-[var(--usha-muted)]">
-          Utforska kreativa events, tjänster och upplevelser i hela Sverige
+          {totalCount || 0} upplevelser i hela Sverige
         </p>
 
-        {/* Categories */}
-        <section className="mt-8">
-          <h2 className="text-lg font-semibold">Kategorier</h2>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {CATEGORIES.filter((c) => c.value !== "other").map((cat) => (
+        {/* ── Filter bar ── */}
+        <div className="mt-6 flex flex-wrap items-center gap-2">
+          <SlidersHorizontal size={14} className="text-[var(--usha-muted)]" />
+
+          {/* Category filter */}
+          <Link
+            href={filterUrl({ category: undefined, page: undefined })}
+            className={`rounded-lg px-3 py-1.5 text-xs transition ${!category ? "bg-[var(--usha-gold)]/15 font-semibold text-[var(--usha-gold)]" : "border border-[var(--usha-border)] text-[var(--usha-muted)] hover:border-[var(--usha-gold)]/30 hover:text-white"}`}
+          >
+            Alla
+          </Link>
+          {CATEGORIES.filter((c) => c.value !== "other").map((cat) => (
+            <Link
+              key={cat.value}
+              href={filterUrl({ category: cat.value, page: undefined })}
+              className={`rounded-lg px-3 py-1.5 text-xs transition ${category === cat.value ? "bg-[var(--usha-gold)]/15 font-semibold text-[var(--usha-gold)]" : "border border-[var(--usha-border)] text-[var(--usha-muted)] hover:border-[var(--usha-gold)]/30 hover:text-white"}`}
+            >
+              {cat.label}
+              {categoryCounts[cat.value] ? ` (${categoryCounts[cat.value]})` : ""}
+            </Link>
+          ))}
+        </div>
+
+        {/* Location + sort row */}
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          {/* Location pills */}
+          {topLocations.length > 0 && (
+            <>
               <Link
-                key={cat.value}
-                href={`/marketplace?category=${cat.value}`}
-                className="flex items-center gap-1.5 rounded-lg border border-[var(--usha-border)] px-3 py-2 text-sm transition hover:border-[var(--usha-gold)]/30 hover:text-white"
+                href={filterUrl({ location: undefined, page: undefined })}
+                className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs transition ${!location ? "bg-[var(--usha-gold)]/15 font-semibold text-[var(--usha-gold)]" : "border border-[var(--usha-border)] text-[var(--usha-muted)] hover:border-[var(--usha-gold)]/30 hover:text-white"}`}
               >
-                {cat.label}
-                {categoryCounts[cat.value] ? (
-                  <span className="text-xs text-[var(--usha-muted)]">
-                    ({categoryCounts[cat.value]})
-                  </span>
-                ) : null}
+                <MapPin size={10} /> Alla städer
+              </Link>
+              {topLocations.slice(0, 8).map(([city]) => (
+                <Link
+                  key={city}
+                  href={filterUrl({ location: city.toLowerCase(), page: undefined })}
+                  className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs transition ${location?.toLowerCase() === city.toLowerCase() ? "bg-[var(--usha-gold)]/15 font-semibold text-[var(--usha-gold)]" : "border border-[var(--usha-border)] text-[var(--usha-muted)] hover:border-[var(--usha-gold)]/30 hover:text-white"}`}
+                >
+                  {city}
+                </Link>
+              ))}
+            </>
+          )}
+
+          {/* Sort - pushed right */}
+          <div className="ml-auto flex items-center gap-1.5">
+            {SORT_OPTIONS.map((opt) => (
+              <Link
+                key={opt.value}
+                href={filterUrl({ sort: opt.value, page: undefined })}
+                className={`rounded-lg px-2.5 py-1.5 text-xs transition ${(sort || "newest") === opt.value ? "bg-white/10 font-medium text-white" : "text-[var(--usha-muted)] hover:text-white"}`}
+              >
+                {opt.label}
               </Link>
             ))}
           </div>
-        </section>
+        </div>
 
-        {/* Locations */}
-        {topLocations.length > 0 && (
-          <section className="mt-8">
-            <h2 className="text-lg font-semibold">Populära städer</h2>
-            <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
-              {topLocations.map(([city, count]) => (
-                <Link
-                  key={city}
-                  href={`/upplevelser/${encodeURIComponent(city.toLowerCase())}`}
-                  className="flex items-center justify-between rounded-lg border border-[var(--usha-border)] px-3 py-2.5 text-sm transition hover:border-[var(--usha-gold)]/30 hover:text-white"
-                >
-                  <span className="flex items-center gap-1.5">
-                    <MapPin size={14} className="text-[var(--usha-gold)]" />
-                    {city}
-                  </span>
-                  <span className="text-xs text-[var(--usha-muted)]">{count}</span>
-                </Link>
-              ))}
-            </div>
-          </section>
+        {/* Clear filters */}
+        {hasFilters && (
+          <div className="mt-3">
+            <Link href="/upplevelser" className="text-xs text-[var(--usha-muted)] hover:text-[var(--usha-gold)]">
+              Rensa filter
+            </Link>
+          </div>
         )}
 
-        {/* Latest listings */}
-        {latestListings && latestListings.length > 0 && (
-          <section className="mt-8">
-            <h2 className="text-lg font-semibold">Senaste upplevelser</h2>
-            <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {latestListings.map((listing) => (
-                <Link
-                  key={listing.id}
-                  href={`/listing/${listing.id}`}
-                  className="group overflow-hidden rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] transition hover:border-[var(--usha-gold)]/30"
-                >
-                  {listing.image_url ? (
-                    <div className="aspect-video overflow-hidden">
-                      <img
-                        src={listing.image_url}
-                        alt={listing.title}
-                        className="h-full w-full object-cover transition group-hover:scale-105"
-                        loading="lazy"
-                      />
-                    </div>
-                  ) : (
-                    <div className="flex aspect-video items-center justify-center bg-[var(--usha-gold)]/5">
-                      <Calendar size={24} className="text-[var(--usha-gold)]/30" />
-                    </div>
-                  )}
-                  <div className="p-3">
-                    <p className="truncate text-sm font-semibold">{listing.title}</p>
-                    <div className="mt-1 flex items-center gap-2 text-xs text-[var(--usha-muted)]">
-                      {listing.event_date && (
-                        <span className="flex items-center gap-0.5">
-                          <Calendar size={10} />
-                          {new Date(listing.event_date).toLocaleDateString("sv-SE", { day: "numeric", month: "short" })}
-                        </span>
-                      )}
-                      {listing.event_location && (
-                        <span className="flex items-center gap-0.5">
-                          <MapPin size={10} />
-                          {listing.event_location.split(",")[0]}
-                        </span>
-                      )}
-                    </div>
-                    <div className="mt-2 flex items-center justify-between">
-                      <span className="text-xs font-medium text-[var(--usha-gold)]">
-                        {listing.price ? `${listing.price} kr` : "Gratis"}
-                      </span>
-                      {listing.category && (
-                        <span className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-[10px] text-[var(--usha-gold)]">
-                          {CATEGORY_LABELS[listing.category] || listing.category}
-                        </span>
-                      )}
-                    </div>
+        {/* ── Listings grid ── */}
+        {listings && listings.length > 0 ? (
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {listings.map((listing) => (
+              <Link
+                key={listing.id}
+                href={`/listing/${listing.id}`}
+                className="group overflow-hidden rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] transition hover:border-[var(--usha-gold)]/30"
+              >
+                {listing.image_url ? (
+                  <div className="aspect-video overflow-hidden">
+                    <img
+                      src={listing.image_url}
+                      alt={listing.title}
+                      className="h-full w-full object-cover transition group-hover:scale-105"
+                      loading="lazy"
+                    />
                   </div>
-                </Link>
-              ))}
-            </div>
-          </section>
+                ) : (
+                  <div className="flex aspect-video items-center justify-center bg-[var(--usha-gold)]/5">
+                    <Calendar size={24} className="text-[var(--usha-gold)]/30" />
+                  </div>
+                )}
+                <div className="p-3">
+                  <p className="truncate text-sm font-semibold">{listing.title}</p>
+                  <div className="mt-1 flex items-center gap-2 text-xs text-[var(--usha-muted)]">
+                    {listing.event_date && (
+                      <span className="flex items-center gap-0.5">
+                        <Calendar size={10} />
+                        {new Date(listing.event_date).toLocaleDateString("sv-SE", { day: "numeric", month: "short" })}
+                      </span>
+                    )}
+                    {listing.event_location && (
+                      <span className="flex items-center gap-0.5">
+                        <MapPin size={10} />
+                        {listing.event_location.split(",")[0]}
+                      </span>
+                    )}
+                  </div>
+                  <div className="mt-2 flex items-center justify-between">
+                    <span className="text-xs font-medium text-[var(--usha-gold)]">
+                      {listing.price ? `${listing.price} kr` : "Gratis"}
+                    </span>
+                    {listing.category && (
+                      <span className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-[10px] text-[var(--usha-gold)]">
+                        {CATEGORY_LABELS[listing.category] || listing.category}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="mt-12 text-center">
+            <p className="text-sm text-[var(--usha-muted)]">Inga upplevelser hittade med dessa filter.</p>
+            {hasFilters && (
+              <Link href="/upplevelser" className="mt-2 inline-block text-sm text-[var(--usha-gold)] hover:underline">
+                Rensa filter
+              </Link>
+            )}
+          </div>
         )}
 
-        {/* City + Category grid for SEO */}
-        {topLocations.length > 0 && (
+        {/* ── Pagination ── */}
+        {totalPages > 1 && (
+          <div className="mt-8 flex items-center justify-center gap-2">
+            {currentPage > 1 && (
+              <Link
+                href={filterUrl({ page: String(currentPage - 1) })}
+                className="rounded-lg border border-[var(--usha-border)] px-3 py-1.5 text-xs text-[var(--usha-muted)] transition hover:border-[var(--usha-gold)]/30 hover:text-white"
+              >
+                Föregående
+              </Link>
+            )}
+            {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+              let pageNum: number;
+              if (totalPages <= 7) {
+                pageNum = i + 1;
+              } else if (currentPage <= 4) {
+                pageNum = i + 1;
+              } else if (currentPage >= totalPages - 3) {
+                pageNum = totalPages - 6 + i;
+              } else {
+                pageNum = currentPage - 3 + i;
+              }
+              return (
+                <Link
+                  key={pageNum}
+                  href={filterUrl({ page: String(pageNum) })}
+                  className={`flex h-8 w-8 items-center justify-center rounded-lg text-xs transition ${pageNum === currentPage ? "bg-[var(--usha-gold)]/15 font-semibold text-[var(--usha-gold)]" : "text-[var(--usha-muted)] hover:text-white"}`}
+                >
+                  {pageNum}
+                </Link>
+              );
+            })}
+            {currentPage < totalPages && (
+              <Link
+                href={filterUrl({ page: String(currentPage + 1) })}
+                className="rounded-lg border border-[var(--usha-border)] px-3 py-1.5 text-xs text-[var(--usha-muted)] transition hover:border-[var(--usha-gold)]/30 hover:text-white"
+              >
+                Nästa
+              </Link>
+            )}
+          </div>
+        )}
+
+        {/* ── SEO: City + Category grid ── */}
+        {topLocations.length > 0 && !hasFilters && (
           <section className="mt-12 border-t border-[var(--usha-border)] pt-8">
             <h2 className="text-lg font-semibold">Utforska per stad och kategori</h2>
             <div className="mt-4 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
