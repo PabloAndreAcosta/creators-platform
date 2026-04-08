@@ -20,7 +20,10 @@ interface SearchParams {
   minPrice?: string;
   maxPrice?: string;
   sort?: string;
+  page?: string;
 }
+
+const PAGE_SIZE = 20;
 
 export default async function MarketplacePage({
   searchParams,
@@ -30,12 +33,14 @@ export default async function MarketplacePage({
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const isLoggedIn = !!user;
-  const { category, q, location, minPrice, maxPrice, sort } = searchParams;
+  const { category, q, location, minPrice, maxPrice, sort, page: pageParam } = searchParams;
+  const currentPage = Math.max(1, parseInt(pageParam || "1", 10) || 1);
+  const offset = (currentPage - 1) * PAGE_SIZE;
 
   // Fetch public profiles
   let profilesQuery = supabase
     .from("profiles")
-    .select("id, full_name, avatar_url, bio, category, location, hourly_rate, categories, locations, rates, bankid_verified_at, created_at, slug")
+    .select("id, full_name, avatar_url, bio, category, location, hourly_rate, categories, locations, rates, bankid_verified_at, created_at, slug", { count: "exact" })
     .eq("is_public", true);
 
   if (category && category !== "all") {
@@ -87,7 +92,10 @@ export default async function MarketplacePage({
       profilesQuery = profilesQuery.order("created_at", { ascending: false });
   }
 
-  const { data: profiles } = await profilesQuery;
+  profilesQuery = profilesQuery.range(offset, offset + PAGE_SIZE - 1);
+
+  const { data: profiles, count: totalCount } = await profilesQuery;
+  const totalPages = Math.ceil((totalCount || 0) / PAGE_SIZE);
 
   // Fetch listing counts and follower counts per creator
   const creatorIds = profiles?.map((p) => p.id) ?? [];
@@ -517,6 +525,42 @@ export default async function MarketplacePage({
                       </span>
                     </div>
                   </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="mt-8 flex items-center justify-center gap-2">
+            {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+              let pageNum: number;
+              if (totalPages <= 7) {
+                pageNum = i + 1;
+              } else if (currentPage <= 4) {
+                pageNum = i + 1;
+              } else if (currentPage >= totalPages - 3) {
+                pageNum = totalPages - 6 + i;
+              } else {
+                pageNum = currentPage - 3 + i;
+              }
+              const params = new URLSearchParams();
+              if (category) params.set("category", category);
+              if (q) params.set("q", q);
+              if (location) params.set("location", location);
+              if (minPrice) params.set("minPrice", minPrice);
+              if (maxPrice) params.set("maxPrice", maxPrice);
+              if (sort) params.set("sort", sort);
+              if (pageNum > 1) params.set("page", String(pageNum));
+              const qs = params.toString();
+              return (
+                <Link
+                  key={pageNum}
+                  href={`/marketplace${qs ? `?${qs}` : ""}`}
+                  className={`flex h-8 w-8 items-center justify-center rounded-lg text-xs transition ${pageNum === currentPage ? "bg-[var(--usha-gold)]/15 font-semibold text-[var(--usha-gold)]" : "text-[var(--usha-muted)] hover:text-white"}`}
+                >
+                  {pageNum}
                 </Link>
               );
             })}
