@@ -10,6 +10,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: baseUrl, lastModified: new Date(), changeFrequency: "daily", priority: 1 },
     { url: `${baseUrl}/flode`, lastModified: new Date(), changeFrequency: "hourly", priority: 0.9 },
     { url: `${baseUrl}/marketplace`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
+    { url: `${baseUrl}/platser`, lastModified: new Date(), changeFrequency: "daily", priority: 0.7 },
     { url: `${baseUrl}/signup`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${baseUrl}/login`, changeFrequency: "monthly", priority: 0.3 },
     { url: `${baseUrl}/privacy`, changeFrequency: "yearly", priority: 0.2 },
@@ -78,5 +79,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/upplevelser`, lastModified: new Date(), changeFrequency: "daily" as const, priority: 0.8 },
   ];
 
-  return [...staticPages, ...upplevelserPage, ...creatorPages, ...listingPages, ...locationPages];
+  // Venues
+  const { data: venues } = await supabase
+    .from("venues")
+    .select("id")
+    .limit(500);
+
+  const venuePages: MetadataRoute.Sitemap = (venues || []).map((v) => ({
+    url: `${baseUrl}/platser/${v.id}`,
+    changeFrequency: "weekly" as const,
+    priority: 0.5,
+  }));
+
+  return [...staticPages, ...upplevelserPage, ...creatorPages, ...listingPages, ...locationPages, ...venuePages];
 }

@@ -93,6 +93,7 @@ export function SeoFooter() {
         <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-[var(--usha-border)] pt-6">
           <Link href="/" className="text-sm font-bold text-gradient">Usha</Link>
           <div className="flex gap-4">
+            <Link href="/platser" className="text-[10px] text-[var(--usha-muted)] hover:text-white">Platser</Link>
             <Link href="/privacy" className="text-[10px] text-[var(--usha-muted)] hover:text-white">Integritetspolicy</Link>
             <Link href="/terms" className="text-[10px] text-[var(--usha-muted)] hover:text-white">Villkor</Link>
           </div>
