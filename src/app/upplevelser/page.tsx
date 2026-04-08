@@ -6,6 +6,8 @@ import { MapPin, Calendar, ArrowRight, SlidersHorizontal } from "lucide-react";
 import { SeoFooter } from "@/components/seo-footer";
 import { ListingCard } from "@/components/listing-card";
 import { getBookingCounts, sortWithPromoted, isActivelyPromoted } from "@/lib/listings/popularity";
+import { GeoLocationDetector } from "@/components/geo-location";
+import { EventCarousel } from "@/components/event-carousel";
 
 export const metadata: Metadata = {
   title: "Upplevelser – Usha",
@@ -89,6 +91,19 @@ export default async function UpplevelserPage({
   // Sort promoted first (preserve sort order otherwise)
   const listings = sortWithPromoted(rawListings || []);
 
+  // ── Fetch promoted events for carousel ──
+  const { data: promotedEvents } = await supabase
+    .from("listings")
+    .select("id, slug, title, price, event_date, event_location, image_url, category, is_promoted, promoted_until")
+    .eq("is_active", true)
+    .eq("is_promoted", true)
+    .order("created_at", { ascending: false })
+    .limit(6);
+
+  const activePromoted = (promotedEvents || []).filter(
+    (e) => !e.promoted_until || new Date(e.promoted_until) > new Date()
+  );
+
   // ── Get unique locations for filter ──
   const { data: locationData } = await supabase
     .from("listings")
@@ -147,7 +162,13 @@ export default async function UpplevelserPage({
         </div>
       </header>
 
+      <GeoLocationDetector basePath="/upplevelser" />
       <main className="mx-auto max-w-5xl px-4 py-8">
+        {/* Featured carousel */}
+        {activePromoted.length > 0 && (
+          <EventCarousel events={activePromoted} />
+        )}
+
         <h1 className="text-2xl font-bold md:text-3xl">Upplevelser</h1>
         <p className="mt-1 text-sm text-[var(--usha-muted)]">
           {totalCount || 0} upplevelser i hela Sverige
