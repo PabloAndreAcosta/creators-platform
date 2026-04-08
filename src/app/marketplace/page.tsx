@@ -171,6 +171,23 @@ export default async function MarketplacePage({
     }
   }
 
+  // Post-query sort by rating or popularity (needs computed data)
+  if (sort === "rating" && profiles) {
+    profiles.sort((a, b) => {
+      const rA = reviewData[a.id]?.avg || 0;
+      const rB = reviewData[b.id]?.avg || 0;
+      if (rB !== rA) return rB - rA;
+      return (reviewData[b.id]?.count || 0) - (reviewData[a.id]?.count || 0);
+    });
+  } else if (sort === "popular" && profiles) {
+    profiles.sort((a, b) => {
+      const fA = followerCounts[a.id] || 0;
+      const fB = followerCounts[b.id] || 0;
+      if (fB !== fA) return fB - fA;
+      return (listingCounts[b.id] || 0) - (listingCounts[a.id] || 0);
+    });
+  }
+
   // Get unique locations for the filter dropdown
   const { data: allLocations } = await supabase
     .from("profiles")
@@ -318,6 +335,8 @@ export default async function MarketplacePage({
               className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2 text-xs outline-none transition focus:border-[var(--usha-gold)]/40 sm:w-40"
             >
               <option value="newest">Nyast först</option>
+              <option value="rating">Bäst betyg</option>
+              <option value="popular">Mest populär</option>
               <option value="price_asc">Pris: Lägst först</option>
               <option value="price_desc">Pris: Högst först</option>
               <option value="name">Namn A–Ö</option>
