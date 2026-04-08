@@ -162,9 +162,11 @@ export default function SignupPage() {
     setLoading(true);
     setError("");
 
+    const refCode = searchParams.get("ref");
     const metadata: Record<string, string> = {
       full_name: fullName,
       role: selectedRole!,
+      ...(refCode ? { referred_by_code: refCode.toUpperCase() } : {}),
     };
 
     // Include BankID data if verified

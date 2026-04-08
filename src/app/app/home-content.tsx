@@ -27,6 +27,7 @@ import { SearchBar } from "@/components/search-bar";
 import { GatedAction } from "@/components/subscription/GatedAction";
 import { Feed } from "@/components/feed/feed";
 import { CreatePostForm } from "@/components/feed/create-post-form";
+import { ReferralCard } from "@/components/referral-card";
 import type { FeedPost } from "@/types/database";
 
 interface Profile {
@@ -253,6 +254,9 @@ function PublikHome({
             listings={[]}
           />
         )}
+
+        {/* Referral */}
+        <ReferralCard />
 
         {/* Social Feed */}
         {feedPosts.length > 0 && (
