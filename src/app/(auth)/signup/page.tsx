@@ -45,6 +45,7 @@ export default function SignupPage() {
 
   // BankID state
   const [bankidVerified, setBankidVerified] = useState(false);
+  const [bankidSkipped, setBankidSkipped] = useState(false);
   const [bankidVerifying, setBankidVerifying] = useState(false);
   const [bankidError, setBankidError] = useState("");
   const [bankidData, setBankidData] = useState<{
@@ -301,7 +302,7 @@ export default function SignupPage() {
   }
 
   // Step 1.5: BankID verification (only for creator/experience, before registration)
-  if (selectedRole && NEEDS_BANKID.includes(selectedRole) && !bankidVerified) {
+  if (selectedRole && NEEDS_BANKID.includes(selectedRole) && !bankidVerified && !bankidSkipped) {
     return (
       <div className="flex min-h-screen items-center justify-center px-6">
         <div className="w-full max-w-sm">
@@ -344,11 +345,18 @@ export default function SignupPage() {
           </p>
 
           <button
+            onClick={() => setBankidSkipped(true)}
+            className="mt-6 block w-full text-center text-sm text-[var(--usha-muted)] hover:text-white hover:underline"
+          >
+            Hoppa över — verifiera senare
+          </button>
+
+          <button
             onClick={() => {
               setSelectedRole(null);
               setBankidError("");
             }}
-            className="mt-6 block w-full text-center text-xs text-[var(--usha-gold)] hover:underline"
+            className="mt-3 block w-full text-center text-xs text-[var(--usha-gold)] hover:underline"
           >
             Byt roll
           </button>
