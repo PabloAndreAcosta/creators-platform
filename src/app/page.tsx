@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { InstallPrompt } from "@/components/install-prompt";
-import { FeedPreview } from "@/components/feed/feed-preview";
 import { createClient } from "@/lib/supabase/client";
 import {
   Menu,
@@ -41,10 +40,13 @@ function Nav() {
     });
   }, []);
 
-  const navLinks = [
-    { href: "/flode", label: "Flöde" },
+  const pageLinks = [
     { href: "#ecosystem", label: "Ekosystemet" },
     { href: "#pricing", label: "Priser" },
+  ];
+  const appLinks = [
+    { href: "/flode", label: "Flöde" },
+    { href: "/upplevelser", label: "Upplevelser" },
     { href: "/marketplace", label: "Marketplace" },
   ];
 
@@ -77,15 +79,21 @@ function Nav() {
           <span className="text-lg font-bold tracking-tight">Usha</span>
         </a>
 
-        <div className="hidden items-center gap-8 text-sm text-[var(--usha-muted)] md:flex">
-          {navLinks.map((l) => (
-            <a key={l.href} href={l.href} className="transition hover:text-white">
+        <div className="hidden items-center gap-6 text-sm md:flex">
+          {pageLinks.map((l) => (
+            <a key={l.href} href={l.href} className="text-[var(--usha-muted)] transition hover:text-white">
+              {l.label}
+            </a>
+          ))}
+          <span className="h-4 w-px bg-[var(--usha-border)]" />
+          {appLinks.map((l) => (
+            <a key={l.href} href={l.href} className="text-[#5ce0d2] transition hover:text-[#7eeee2]">
               {l.label}
             </a>
           ))}
           <button
             onClick={handleInstallClick}
-            className="transition hover:text-white"
+            className="text-[#5ce0d2] transition hover:text-[#7eeee2]"
           >
             {isLoggedIn ? "Öppna appen" : "Ladda ner appen"}
           </button>
@@ -111,7 +119,7 @@ function Nav() {
       {mobileOpen && (
         <div className="border-t border-[var(--usha-border)] bg-[var(--usha-black)] px-6 py-4 md:hidden">
           <div className="flex flex-col gap-3">
-            {navLinks.map((l) => (
+            {pageLinks.map((l) => (
               <a
                 key={l.href}
                 href={l.href}
@@ -121,10 +129,21 @@ function Nav() {
                 {l.label}
               </a>
             ))}
+            <div className="my-1 h-px bg-[var(--usha-border)]" />
+            {appLinks.map((l) => (
+              <a
+                key={l.href}
+                href={l.href}
+                onClick={() => setMobileOpen(false)}
+                className="py-2 text-sm text-[#5ce0d2] transition hover:text-[#7eeee2]"
+              >
+                {l.label}
+              </a>
+            ))}
             <a
               href="/app"
               onClick={() => setMobileOpen(false)}
-              className="py-2 text-sm text-[var(--usha-muted)] transition hover:text-white"
+              className="py-2 text-sm text-[#5ce0d2] transition hover:text-[#7eeee2]"
             >
               {isLoggedIn ? "Öppna appen" : "Ladda ner appen"}
             </a>
@@ -203,12 +222,12 @@ function Hero() {
       <div className="relative z-10 mx-auto max-w-4xl text-center">
         {/* Badge */}
         <a
-          href="#flode"
-          className="animate-fade-up mb-8 inline-flex items-center gap-2 rounded-full border border-[var(--usha-gold)]/20 bg-[var(--usha-card)] px-5 py-2 text-xs transition hover:border-[var(--usha-gold)]/40 hover:bg-[var(--usha-card)]/80"
+          href="/flode"
+          className="animate-fade-up mb-8 inline-flex items-center gap-2 rounded-full border border-[#5ce0d2]/20 bg-[var(--usha-card)] px-5 py-2 text-xs transition hover:border-[#5ce0d2]/40 hover:bg-[var(--usha-card)]/80"
         >
-          <Zap size={12} className="text-[var(--usha-accent)]" />
+          <Zap size={12} className="text-[#5ce0d2]" />
           <span className="text-[var(--usha-muted)]">Köp biljetter direkt — inget konto krävs</span>
-          <ArrowRight size={12} className="text-[var(--usha-gold)]" />
+          <ArrowRight size={12} className="text-[#5ce0d2]" />
         </a>
 
         {/* Headline */}
@@ -252,21 +271,17 @@ function Hero() {
           style={{ opacity: 0 }}
         >
           <a
-            href="#flode"
-            onClick={(e) => {
-              e.preventDefault();
-              document.getElementById("flode")?.scrollIntoView({ behavior: "smooth" });
-            }}
+            href="/signup"
             className="glow-gold inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-8 py-3.5 text-sm font-bold text-black transition hover:scale-[1.02] hover:opacity-90 sm:w-auto sm:py-4 sm:text-base"
           >
-            Utforska upplevelser
+            Kom igång gratis
             <ArrowRight size={16} />
           </a>
           <a
-            href="/signup"
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] px-8 py-3.5 text-sm font-medium text-[var(--usha-muted)] transition hover:border-[var(--usha-gold)]/30 hover:text-white sm:w-auto sm:py-4 sm:text-base"
+            href="/upplevelser"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#5ce0d2]/30 px-8 py-3.5 text-sm font-medium text-[#5ce0d2] transition hover:border-[#5ce0d2]/50 hover:text-[#7eeee2] sm:w-auto sm:py-4 sm:text-base"
           >
-            Skapa profil
+            Utforska upplevelser
           </a>
         </div>
       </div>
@@ -839,18 +854,6 @@ export default function Home() {
     <main>
       <Nav />
       <Hero />
-
-      {/* Feed inline — besökare scrollar ner och ser events direkt */}
-      <section id="flode" className="mx-auto max-w-lg px-4 py-12">
-        <h2 className="mb-1 text-center text-xl font-bold sm:text-2xl">
-          Vad händer just nu
-        </h2>
-        <p className="mb-6 text-center text-sm text-[var(--usha-muted)]">
-          Köp biljetter och boka upplevelser direkt
-        </p>
-        <FeedPreview />
-      </section>
-
       <Ecosystem />
       <Onboarding />
       <Trust />
