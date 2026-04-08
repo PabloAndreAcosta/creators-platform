@@ -5,7 +5,7 @@ import { CATEGORIES, CATEGORY_LABELS } from "@/lib/categories";
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin, Clock, SlidersHorizontal, X } from "lucide-react";
+import { MapPin, Clock, SlidersHorizontal, X, Star, ShieldCheck, Sparkles } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Marketplace – Usha Platform",
@@ -35,7 +35,7 @@ export default async function MarketplacePage({
   // Fetch public profiles
   let profilesQuery = supabase
     .from("profiles")
-    .select("id, full_name, avatar_url, bio, category, location, hourly_rate, categories, locations, rates")
+    .select("id, full_name, avatar_url, bio, category, location, hourly_rate, categories, locations, rates, bankid_verified_at, created_at, slug")
     .eq("is_public", true);
 
   if (category && category !== "all") {
@@ -125,6 +125,49 @@ export default async function MarketplacePage({
         },
         {} as Record<string, number>
       );
+    }
+  }
+
+  // Fetch reviews (average rating + count per creator)
+  let reviewData: Record<string, { avg: number; count: number }> = {};
+  if (creatorIds.length > 0) {
+    const { data: reviews } = await supabase
+      .from("reviews")
+      .select("creator_id, rating")
+      .in("creator_id", creatorIds);
+
+    if (reviews) {
+      const grouped: Record<string, number[]> = {};
+      reviews.forEach((r) => {
+        if (!grouped[r.creator_id]) grouped[r.creator_id] = [];
+        grouped[r.creator_id].push(r.rating);
+      });
+      Object.entries(grouped).forEach(([id, ratings]) => {
+        reviewData[id] = {
+          avg: Math.round((ratings.reduce((a, b) => a + b, 0) / ratings.length) * 10) / 10,
+          count: ratings.length,
+        };
+      });
+    }
+  }
+
+  // Fetch hero images (first listing image per creator)
+  let heroImages: Record<string, string> = {};
+  if (creatorIds.length > 0) {
+    const { data: heroListings } = await supabase
+      .from("listings")
+      .select("user_id, image_url")
+      .eq("is_active", true)
+      .not("image_url", "is", null)
+      .in("user_id", creatorIds)
+      .order("created_at", { ascending: false });
+
+    if (heroListings) {
+      heroListings.forEach((l) => {
+        if (!heroImages[l.user_id] && l.image_url) {
+          heroImages[l.user_id] = l.image_url;
+        }
+      });
     }
   }
 
@@ -327,84 +370,137 @@ export default async function MarketplacePage({
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {profiles.map((creator) => (
-              <Link
-                key={creator.id}
-                href={`/creators/${creator.id}`}
-                className="group rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 transition-all hover:border-[var(--usha-gold)]/20 hover:bg-[var(--usha-card-hover)]"
-              >
-                {/* Avatar + Name */}
-                <div className="mb-4 flex items-center gap-4">
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[var(--usha-border)] bg-[var(--usha-black)]">
-                    {creator.avatar_url ? (
-                      <Image
-                        src={creator.avatar_url}
-                        alt={creator.full_name || "Creator"}
-                        width={56}
-                        height={56}
-                        className="h-full w-full object-cover"
+            {profiles.map((creator) => {
+              const cats = creator.categories?.length ? creator.categories : (creator.category ? [creator.category] : []);
+              const locs = creator.locations?.length ? creator.locations : (creator.location ? [creator.location] : []);
+              const review = reviewData[creator.id];
+              const heroImg = heroImages[creator.id];
+              const isVerified = !!(creator as any).bankid_verified_at;
+              const isNew = creator.created_at && (Date.now() - new Date(creator.created_at).getTime()) < 14 * 24 * 60 * 60 * 1000;
+
+              return (
+                <Link
+                  key={creator.id}
+                  href={`/creators/${(creator as any).slug || creator.id}`}
+                  className="group overflow-hidden rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] transition-all hover:border-[var(--usha-gold)]/20"
+                >
+                  {/* Hero image */}
+                  <div className="relative aspect-[16/9] overflow-hidden bg-[var(--usha-gold)]/5">
+                    {heroImg ? (
+                      <img
+                        src={heroImg}
+                        alt=""
+                        className="h-full w-full object-cover transition group-hover:scale-105"
+                        loading="lazy"
                       />
+                    ) : creator.avatar_url ? (
+                      <div className="flex h-full items-center justify-center">
+                        <img
+                          src={creator.avatar_url}
+                          alt=""
+                          className="h-20 w-20 rounded-full object-cover"
+                          loading="lazy"
+                        />
+                      </div>
                     ) : (
-                      <span className="text-lg font-bold text-[var(--usha-muted)]">
-                        {creator.full_name?.[0]?.toUpperCase() || "?"}
-                      </span>
-                    )}
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="truncate font-semibold group-hover:text-[var(--usha-gold)]">
-                      {creator.full_name || "Creator"}
-                    </h3>
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--usha-muted)]">
-                      {(creator.categories?.length ? creator.categories : (creator.category ? [creator.category] : [])).map((cat: string) => (
-                        <span key={cat}>{CATEGORY_LABELS[cat] || cat}</span>
-                      ))}
-                      {(creator.locations?.length ? creator.locations : (creator.location ? [creator.location] : [])).slice(0, 2).map((loc: string) => (
-                        <span key={loc} className="flex items-center gap-0.5">
-                          <MapPin size={10} />
-                          {loc}
+                      <div className="flex h-full items-center justify-center">
+                        <span className="text-3xl font-bold text-[var(--usha-gold)]/20">
+                          {creator.full_name?.[0]?.toUpperCase() || "U"}
                         </span>
-                      ))}
+                      </div>
+                    )}
+
+                    {/* Badges overlay */}
+                    <div className="absolute left-2 top-2 flex gap-1">
+                      {isVerified && (
+                        <span className="flex items-center gap-0.5 rounded-full bg-blue-500/90 px-1.5 py-0.5 text-[9px] font-bold text-white shadow-sm">
+                          <ShieldCheck size={8} /> Verifierad
+                        </span>
+                      )}
+                      {isNew && (
+                        <span className="flex items-center gap-0.5 rounded-full bg-green-500/90 px-1.5 py-0.5 text-[9px] font-bold text-white shadow-sm">
+                          <Sparkles size={8} /> Ny
+                        </span>
+                      )}
                     </div>
                   </div>
-                </div>
 
-                {/* Bio */}
-                {creator.bio && (
-                  <p className="mb-4 line-clamp-2 text-sm text-[var(--usha-muted)]">
-                    {creator.bio}
-                  </p>
-                )}
+                  <div className="p-4">
+                    {/* Name + avatar + categories */}
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[var(--usha-border)]">
+                        {creator.avatar_url ? (
+                          <Image
+                            src={creator.avatar_url}
+                            alt={creator.full_name || "Creator"}
+                            width={40}
+                            height={40}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-sm font-bold text-[var(--usha-muted)]">
+                            {creator.full_name?.[0]?.toUpperCase() || "?"}
+                          </span>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="truncate font-semibold group-hover:text-[var(--usha-gold)]">
+                          {creator.full_name || "Creator"}
+                        </h3>
+                        <div className="flex flex-wrap items-center gap-1.5 text-[10px] text-[var(--usha-muted)]">
+                          {cats.slice(0, 2).map((cat: string) => (
+                            <span key={cat} className="rounded-full bg-[var(--usha-gold)]/10 px-1.5 py-0.5 text-[var(--usha-gold)]">
+                              {CATEGORY_LABELS[cat] || cat}
+                            </span>
+                          ))}
+                          {locs.slice(0, 1).map((loc: string) => (
+                            <span key={loc} className="flex items-center gap-0.5">
+                              <MapPin size={8} /> {loc.split(",")[0]}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
 
-                {/* Footer */}
-                <div className="flex items-center justify-between text-sm">
-                  {(() => {
-                    const ratesObj = creator.rates && typeof creator.rates === "object" ? creator.rates as Record<string, number> : {};
-                    const rateValues = Object.values(ratesObj).filter((v): v is number => typeof v === "number" && v > 0);
-                    const minRate = rateValues.length ? Math.min(...rateValues) : creator.hourly_rate;
-                    const maxRate = rateValues.length ? Math.max(...rateValues) : null;
-                    if (minRate != null) {
-                      return (
-                        <span className="font-semibold text-[var(--usha-gold)]">
-                          {minRate === maxRate || !maxRate ? `${minRate} SEK/h` : `${minRate}–${maxRate} SEK/h`}
-                        </span>
-                      );
-                    }
-                    return <span />;
-                  })()}
-                  <span className="flex items-center gap-2 text-xs text-[var(--usha-muted)]">
-                    {followerCounts[creator.id] > 0 && (
-                      <span>{followerCounts[creator.id]} följare</span>
+                    {/* Bio */}
+                    {creator.bio && (
+                      <p className="mt-2 line-clamp-2 text-xs text-[var(--usha-muted)]">
+                        {creator.bio}
+                      </p>
                     )}
-                    {listingCounts[creator.id] > 0 && (
-                      <span className="flex items-center gap-1">
-                        <Clock size={10} />
-                        {listingCounts[creator.id]} tjänst{listingCounts[creator.id] > 1 ? "er" : ""}
+
+                    {/* Footer: price + rating + stats */}
+                    <div className="mt-3 flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2">
+                        {(() => {
+                          const ratesObj = creator.rates && typeof creator.rates === "object" ? creator.rates as Record<string, number> : {};
+                          const rateValues = Object.values(ratesObj).filter((v): v is number => typeof v === "number" && v > 0);
+                          const minRate = rateValues.length ? Math.min(...rateValues) : creator.hourly_rate;
+                          if (minRate != null) {
+                            return <span className="font-semibold text-[var(--usha-gold)]">Från {minRate} kr</span>;
+                          }
+                          return null;
+                        })()}
+                        {review && (
+                          <span className="flex items-center gap-0.5 text-[var(--usha-muted)]">
+                            <Star size={10} className="fill-[var(--usha-gold)] text-[var(--usha-gold)]" />
+                            {review.avg} ({review.count})
+                          </span>
+                        )}
+                      </div>
+                      <span className="flex items-center gap-2 text-[var(--usha-muted)]">
+                        {followerCounts[creator.id] > 0 && (
+                          <span>{followerCounts[creator.id]} följare</span>
+                        )}
+                        {listingCounts[creator.id] > 0 && (
+                          <span>{listingCounts[creator.id]} tjänst{listingCounts[creator.id] > 1 ? "er" : ""}</span>
+                        )}
                       </span>
-                    )}
-                  </span>
-                </div>
-              </Link>
-            ))}
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         )}
       </div>
