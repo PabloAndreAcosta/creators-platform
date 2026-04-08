@@ -5,6 +5,7 @@ import { CATEGORY_LABELS } from "@/lib/categories";
 interface ListingCardProps {
   listing: {
     id: string;
+    slug?: string | null;
     title: string;
     price: number | null;
     event_date: string | null;
@@ -22,7 +23,7 @@ export function ListingCard({ listing, bookingCount = 0, isPromoted }: ListingCa
 
   return (
     <Link
-      href={`/listing/${listing.id}`}
+      href={`/listing/${listing.slug || listing.id}`}
       className={`group relative overflow-hidden rounded-xl border bg-[var(--usha-card)] transition hover:border-[var(--usha-gold)]/30 ${isPromoted ? "border-[var(--usha-gold)]/20 ring-1 ring-[var(--usha-gold)]/10" : "border-[var(--usha-border)]"}`}
     >
       {/* Badges — top-left overlay */}

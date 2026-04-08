@@ -23,18 +23,24 @@ interface Props {
   params: { id: string };
 }
 
+function isUUID(str: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const supabase = await createClient();
+  const column = isUUID(params.id) ? "id" : "slug";
   const { data: listing } = await supabase
     .from("listings")
-    .select("title, description, event_location, image_url")
-    .eq("id", params.id)
+    .select("title, description, event_location, image_url, slug, id")
+    .eq(column, params.id)
     .eq("is_active", true)
     .single();
 
   if (!listing) return { title: "Event – Usha" };
 
   const description = listing.description?.slice(0, 160) || `${listing.title} på Usha Platform`;
+  const url = `https://usha.se/listing/${listing.slug || listing.id}`;
 
   return {
     title: `${listing.title} – Usha`,
@@ -42,7 +48,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title: `${listing.title} – Usha`,
       description,
-      url: `https://usha.se/listing/${params.id}`,
+      url,
       type: "website",
       ...(listing.image_url ? { images: [{ url: listing.image_url, width: 1200, height: 630, alt: listing.title }] } : {}),
     },
@@ -52,13 +58,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ListingDetailPage({ params }: Props) {
   const supabase = await createClient();
 
+  const column = isUUID(params.id) ? "id" : "slug";
   const [{ data: listing }, { data: { user } }] = await Promise.all([
     supabase
       .from("listings")
       .select(
-        "id, title, description, category, price, duration_minutes, event_date, event_time, event_end_time, event_location, event_lat, event_lng, image_url, listing_type, min_guests, max_guests, experience_details, user_id, is_active"
+        "id, title, description, category, price, duration_minutes, event_date, event_time, event_end_time, event_location, event_lat, event_lng, image_url, listing_type, min_guests, max_guests, experience_details, user_id, is_active, slug"
       )
-      .eq("id", params.id)
+      .eq(column, params.id)
       .eq("is_active", true)
       .single(),
     supabase.auth.getUser(),
@@ -96,7 +103,7 @@ export default async function ListingDetailPage({ params }: Props) {
     "@context": "https://schema.org",
     "@type": listing.listing_type === "event" ? "Event" : "Service",
     name: listing.title,
-    url: `https://usha.se/listing/${listing.id}`,
+    url: `https://usha.se/listing/${listing.slug || listing.id}`,
     ...(listing.description ? { description: listing.description.slice(0, 300) } : {}),
     ...(listing.image_url ? { image: listing.image_url } : {}),
     ...(listing.price != null ? {
