@@ -99,6 +99,80 @@ export async function POST(req: NextRequest) {
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
+
+        // Handle guest ticket purchases (no user account needed)
+        if (session.metadata?.type === "guest_ticket") {
+          const listingId = session.metadata.listingId;
+          const creatorId = session.metadata.creatorId;
+          const guestEmail = session.metadata.guestEmail;
+          const guestName = session.metadata.guestName || null;
+          const amountPaid = session.amount_total;
+          const paymentIntentId = (session.payment_intent as string) || null;
+
+          if (!listingId || !creatorId || !guestEmail) {
+            console.error("Webhook: missing guest_ticket metadata");
+            break;
+          }
+
+          // Idempotency check
+          if (paymentIntentId) {
+            const { count } = await getSupabaseAdmin()
+              .from("bookings")
+              .select("id", { count: "exact", head: true })
+              .eq("stripe_payment_id", paymentIntentId);
+            if (count && count > 0) break;
+          }
+
+          const eventDate = session.metadata.eventDate;
+          const eventTime = session.metadata.eventTime;
+          let scheduledAt: string;
+          if (eventDate) {
+            scheduledAt = eventTime
+              ? new Date(`${eventDate}T${eventTime}`).toISOString()
+              : new Date(`${eventDate}T00:00:00`).toISOString();
+          } else {
+            scheduledAt = new Date().toISOString();
+          }
+
+          await getSupabaseAdmin().from("bookings").insert({
+            listing_id: listingId,
+            creator_id: creatorId,
+            customer_id: null,
+            guest_email: guestEmail,
+            guest_name: guestName,
+            status: "confirmed",
+            scheduled_at: scheduledAt,
+            booking_type: "ticket",
+            stripe_payment_id: paymentIntentId,
+            amount_paid: amountPaid,
+          });
+
+          // Send confirmation to guest email
+          const listingRes = await getSupabaseAdmin()
+            .from("listings")
+            .select("title, event_location")
+            .eq("id", listingId)
+            .single();
+          const creatorRes = await getSupabaseAdmin()
+            .from("profiles")
+            .select("full_name")
+            .eq("id", creatorId)
+            .single();
+
+          if (guestEmail) {
+            sendBookingConfirmationEmail({
+              to: guestEmail,
+              customerName: guestName || "Gäst",
+              serviceName: listingRes.data?.title || "Event",
+              scheduledAt: new Date(scheduledAt),
+              creatorName: creatorRes.data?.full_name || "Kreatör",
+              location: listingRes.data?.event_location || undefined,
+            }).catch(err => console.error("Guest confirmation email failed:", err));
+          }
+
+          break;
+        }
+
         const userId = session.metadata?.userId;
 
         if (!userId) break;
