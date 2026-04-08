@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { InstallPrompt } from "@/components/install-prompt";
+import { FeedPreview } from "@/components/feed/feed-preview";
 import { createClient } from "@/lib/supabase/client";
 import {
   Menu,
@@ -202,12 +203,12 @@ function Hero() {
       <div className="relative z-10 mx-auto max-w-4xl text-center">
         {/* Badge */}
         <a
-          href="/app"
+          href="#flode"
           className="animate-fade-up mb-8 inline-flex items-center gap-2 rounded-full border border-[var(--usha-gold)]/20 bg-[var(--usha-card)] px-5 py-2 text-xs transition hover:border-[var(--usha-gold)]/40 hover:bg-[var(--usha-card)]/80"
         >
           <Zap size={12} className="text-[var(--usha-accent)]" />
-          <span className="text-[var(--usha-muted)]">Gratis under beta — ladda ner appen</span>
-          <span className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 font-mono text-[10px] text-[var(--usha-gold)]">BETA</span>
+          <span className="text-[var(--usha-muted)]">Köp biljetter direkt — inget konto krävs</span>
+          <ArrowRight size={12} className="text-[var(--usha-gold)]" />
         </a>
 
         {/* Headline */}
@@ -251,17 +252,21 @@ function Hero() {
           style={{ opacity: 0 }}
         >
           <a
-            href="/signup"
+            href="#flode"
+            onClick={(e) => {
+              e.preventDefault();
+              document.getElementById("flode")?.scrollIntoView({ behavior: "smooth" });
+            }}
             className="glow-gold inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-8 py-3.5 text-sm font-bold text-black transition hover:scale-[1.02] hover:opacity-90 sm:w-auto sm:py-4 sm:text-base"
           >
-            Kom igång gratis
+            Utforska upplevelser
             <ArrowRight size={16} />
           </a>
           <a
-            href="/flode"
+            href="/signup"
             className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] px-8 py-3.5 text-sm font-medium text-[var(--usha-muted)] transition hover:border-[var(--usha-gold)]/30 hover:text-white sm:w-auto sm:py-4 sm:text-base"
           >
-            Se vad som händer
+            Skapa profil
           </a>
         </div>
       </div>
@@ -834,6 +839,18 @@ export default function Home() {
     <main>
       <Nav />
       <Hero />
+
+      {/* Feed inline — besökare scrollar ner och ser events direkt */}
+      <section id="flode" className="mx-auto max-w-lg px-4 py-12">
+        <h2 className="mb-1 text-center text-xl font-bold sm:text-2xl">
+          Vad händer just nu
+        </h2>
+        <p className="mb-6 text-center text-sm text-[var(--usha-muted)]">
+          Köp biljetter och boka upplevelser direkt
+        </p>
+        <FeedPreview />
+      </section>
+
       <Ecosystem />
       <Onboarding />
       <Trust />

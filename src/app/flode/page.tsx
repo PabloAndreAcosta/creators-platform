@@ -39,20 +39,12 @@ export default async function FlodePage() {
               Min sida
             </Link>
           ) : (
-            <div className="flex items-center gap-2">
-              <Link
-                href="/login"
-                className="rounded-lg px-3 py-1.5 text-xs font-medium text-[var(--usha-muted)] transition hover:text-white"
-              >
-                Logga in
-              </Link>
-              <Link
-                href="/signup"
-                className="rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-1.5 text-xs font-bold text-black transition hover:opacity-90"
-              >
-                Skapa konto
-              </Link>
-            </div>
+            <Link
+              href="/signup"
+              className="rounded-lg px-3 py-1.5 text-xs font-medium text-[var(--usha-muted)] transition hover:text-white"
+            >
+              Skapa profil
+            </Link>
           )}
         </div>
       </header>
