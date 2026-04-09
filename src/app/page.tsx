@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { InstallPrompt } from "@/components/install-prompt";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { createClient } from "@/lib/supabase/client";
 import {
   Menu,
@@ -30,6 +32,7 @@ import {
 
 /* ─────────────── NAV ─────────────── */
 function Nav() {
+  const t = useTranslations("landing");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showInstallModal, setShowInstallModal] = useState(false);
@@ -41,13 +44,13 @@ function Nav() {
   }, []);
 
   const pageLinks = [
-    { href: "#ecosystem", label: "Ekosystemet" },
-    { href: "#pricing", label: "Priser" },
+    { href: "#ecosystem", label: t("nav.ecosystem") },
+    { href: "#pricing", label: t("nav.pricing") },
   ];
   const appLinks = [
-    { href: "/flode", label: "Flöde" },
-    { href: "/upplevelser", label: "Upplevelser" },
-    { href: "/marketplace", label: "Marketplace" },
+    { href: "/flode", label: t("nav.feed") },
+    { href: "/upplevelser", label: t("nav.experiences") },
+    { href: "/marketplace", label: t("nav.marketplace") },
   ];
 
   const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
@@ -95,8 +98,9 @@ function Nav() {
             onClick={handleInstallClick}
             className="text-[#5ce0d2] transition hover:text-[#7eeee2]"
           >
-            {isLoggedIn ? "Öppna appen" : "Ladda ner appen"}
+            {isLoggedIn ? t("nav.openApp") : t("nav.downloadApp")}
           </button>
+          <LanguageSwitcher />
         </div>
 
         <div className="flex items-center gap-3">
@@ -104,12 +108,12 @@ function Nav() {
             href={isLoggedIn ? "/app" : "/signup"}
             className="hidden rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-sm font-semibold text-black transition hover:opacity-90 sm:block"
           >
-            {isLoggedIn ? "Öppna appen" : "Kom igång"}
+            {isLoggedIn ? t("nav.openApp") : t("nav.getStarted")}
           </a>
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
             className="ml-1 flex h-11 w-11 items-center justify-center rounded-lg text-[var(--usha-muted)] transition hover:text-white md:hidden"
-            aria-label="Meny"
+            aria-label={t("nav.menuAriaLabel")}
           >
             {mobileOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
@@ -145,8 +149,10 @@ function Nav() {
               onClick={() => setMobileOpen(false)}
               className="py-2 text-sm text-[#5ce0d2] transition hover:text-[#7eeee2]"
             >
-              {isLoggedIn ? "Öppna appen" : "Ladda ner appen"}
+              {isLoggedIn ? t("nav.openApp") : t("nav.downloadApp")}
             </a>
+            <div className="my-1 h-px bg-[var(--usha-border)]" />
+            <LanguageSwitcher />
           </div>
         </div>
       )}
@@ -168,23 +174,23 @@ function Nav() {
             <span className="text-xl font-bold text-black">U</span>
           </div>
 
-          <h3 className="mb-2 text-xl font-bold">Installera Usha på din dator</h3>
+          <h3 className="mb-2 text-xl font-bold">{t("install.title")}</h3>
           <p className="mb-6 text-sm leading-relaxed text-[var(--usha-muted)]">
-            Usha fungerar som en app direkt i din webbläsare. Installera den för snabb åtkomst:
+            {t("install.description")}
           </p>
 
           <div className="space-y-4">
             <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
-              <p className="mb-1 text-sm font-semibold">Chrome / Edge</p>
+              <p className="mb-1 text-sm font-semibold">{t("install.chromeEdge")}</p>
               <p className="text-xs text-[var(--usha-muted)]">
-                Klicka på installationsikonen <span className="inline-flex items-center rounded bg-white/10 px-1.5 py-0.5 font-mono text-[10px]">⊕</span> i adressfältet → &ldquo;Installera&rdquo;
+                {t("install.chromeEdgeInstructions")}
               </p>
             </div>
 
             <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
-              <p className="mb-1 text-sm font-semibold">Safari (Mac)</p>
+              <p className="mb-1 text-sm font-semibold">{t("install.safariMac")}</p>
               <p className="text-xs text-[var(--usha-muted)]">
-                Arkiv → Lägg till i Dock
+                {t("install.safariMacInstructions")}
               </p>
             </div>
           </div>
@@ -194,13 +200,13 @@ function Nav() {
               onClick={() => setShowInstallModal(false)}
               className="flex-1 rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium text-[var(--usha-muted)] transition hover:text-white"
             >
-              Stäng
+              {t("install.close")}
             </button>
             <a
               href="/app"
               className="flex-1 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] py-3 text-center text-sm font-bold text-black transition hover:opacity-90"
             >
-              Öppna i webbläsaren
+              {t("install.openInBrowser")}
             </a>
           </div>
         </div>
@@ -212,6 +218,8 @@ function Nav() {
 
 /* ─────────────── HERO ─────────────── */
 function Hero() {
+  const t = useTranslations("landing");
+
   return (
     <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 pt-16 sm:px-6">
       {/* Background glows */}
@@ -226,7 +234,7 @@ function Hero() {
           className="animate-fade-up mb-8 inline-flex items-center gap-2 rounded-full border border-[#5ce0d2]/20 bg-[var(--usha-card)] px-5 py-2 text-xs transition hover:border-[#5ce0d2]/40 hover:bg-[var(--usha-card)]/80"
         >
           <Zap size={12} className="text-[#5ce0d2]" />
-          <span className="text-[var(--usha-muted)]">Köp biljetter direkt — inget konto krävs</span>
+          <span className="text-[var(--usha-muted)]">{t("hero.badge")}</span>
           <ArrowRight size={12} className="text-[#5ce0d2]" />
         </a>
 
@@ -235,9 +243,9 @@ function Hero() {
           className="animate-fade-up delay-100 mb-6 text-3xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl"
           style={{ opacity: 0 }}
         >
-          Kreativitet &{" "}
+          {t("hero.headlinePart1")}{" "}
           <br className="hidden sm:block" />
-          <span className="text-gradient">upplevelser, förenade</span>
+          <span className="text-gradient">{t("hero.headlinePart2")}</span>
         </h1>
 
         {/* Hero video */}
@@ -261,8 +269,7 @@ function Hero() {
           className="animate-fade-up delay-200 mx-auto mb-10 max-w-xl text-base leading-relaxed text-[var(--usha-muted)] sm:mb-12 sm:text-lg"
           style={{ opacity: 0 }}
         >
-          Usha samlar kreatörer, upplevelser och kunder på en plattform.
-          Profil, bokning och betalning — allt på ett ställe.
+          {t("hero.description")}
         </p>
 
         {/* CTA */}
@@ -274,14 +281,14 @@ function Hero() {
             href="/signup"
             className="glow-gold inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-8 py-3.5 text-sm font-bold text-black transition hover:scale-[1.02] hover:opacity-90 sm:w-auto sm:py-4 sm:text-base"
           >
-            Kom igång gratis
+            {t("hero.ctaPrimary")}
             <ArrowRight size={16} />
           </a>
           <a
             href="/upplevelser"
             className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#5ce0d2]/30 px-8 py-3.5 text-sm font-medium text-[#5ce0d2] transition hover:border-[#5ce0d2]/50 hover:text-[#7eeee2] sm:w-auto sm:py-4 sm:text-base"
           >
-            Utforska upplevelser
+            {t("hero.ctaSecondary")}
           </a>
         </div>
       </div>
@@ -297,47 +304,48 @@ function Hero() {
 }
 
 /* ─────────────── ECOSYSTEM ─────────────── */
-const ECOSYSTEM_PILLARS = [
-  {
-    icon: Palette,
-    title: "Kreatörer",
-    desc: "Dansinstruktörer, fotografer, musiker, designers — kreativa talanger som bygger sin verksamhet.",
-    color: "from-[var(--usha-gold)] to-amber-600",
-    details: [
-      { icon: Palette, text: "Profil med portfolio, priser och kontaktinfo" },
-      { icon: Ticket, text: "Publicera tjänster, kurser och events" },
-      { icon: Globe, text: "Egen profiladress — usha.se/dittnamn" },
-      { icon: BarChart3, text: "Statistik och intäktsrapporter" },
-    ],
-  },
-  {
-    icon: Store,
-    title: "Upplevelser",
-    desc: "Restauranger, konserthus, SPA, nattklubbar och retreat centers — platser som skapar oförglömliga stunder.",
-    color: "from-[var(--usha-accent)] to-rose-500",
-    details: [
-      { icon: Ticket, text: "Skapa events och sälj biljetter med QR-kod" },
-      { icon: Search, text: "Skanna biljetter och ha koll på deltagare" },
-      { icon: Users, text: "Boka kreatörer direkt till dina events" },
-      { icon: Globe, text: "Sprid events på sociala medier" },
-    ],
-  },
-  {
-    icon: Heart,
-    title: "Kunder",
-    desc: "Människor som vill upptäcka kreativa talanger och upplevelser — och boka dem direkt.",
-    color: "from-sky-500 to-blue-500",
-    details: [
-      { icon: Search, text: "Sökbar marketplace med filter på kategori, plats och pris" },
-      { icon: CalendarCheck, text: "Boka direkt med datum och tid" },
-      { icon: CreditCard, text: "Säker betalning via Stripe" },
-      { icon: Star, text: "Omdömen och betyg för att hitta rätt" },
-    ],
-  },
-];
-
 function Ecosystem() {
+  const t = useTranslations("landing");
   const [openPillar, setOpenPillar] = useState<number | null>(null);
+
+  const ECOSYSTEM_PILLARS = [
+    {
+      icon: Palette,
+      title: t("ecosystem.creators.title"),
+      desc: t("ecosystem.creators.desc"),
+      color: "from-[var(--usha-gold)] to-amber-600",
+      details: [
+        { icon: Palette, text: t("ecosystem.creators.detail1") },
+        { icon: Ticket, text: t("ecosystem.creators.detail2") },
+        { icon: Globe, text: t("ecosystem.creators.detail3") },
+        { icon: BarChart3, text: t("ecosystem.creators.detail4") },
+      ],
+    },
+    {
+      icon: Store,
+      title: t("ecosystem.experiences.title"),
+      desc: t("ecosystem.experiences.desc"),
+      color: "from-[var(--usha-accent)] to-rose-500",
+      details: [
+        { icon: Ticket, text: t("ecosystem.experiences.detail1") },
+        { icon: Search, text: t("ecosystem.experiences.detail2") },
+        { icon: Users, text: t("ecosystem.experiences.detail3") },
+        { icon: Globe, text: t("ecosystem.experiences.detail4") },
+      ],
+    },
+    {
+      icon: Heart,
+      title: t("ecosystem.customers.title"),
+      desc: t("ecosystem.customers.desc"),
+      color: "from-sky-500 to-blue-500",
+      details: [
+        { icon: Search, text: t("ecosystem.customers.detail1") },
+        { icon: CalendarCheck, text: t("ecosystem.customers.detail2") },
+        { icon: CreditCard, text: t("ecosystem.customers.detail3") },
+        { icon: Star, text: t("ecosystem.customers.detail4") },
+      ],
+    },
+  ];
 
   return (
     <section id="ecosystem" className="relative py-16 px-4 sm:py-28 sm:px-6">
@@ -348,10 +356,10 @@ function Ecosystem() {
       <div className="relative z-10 mx-auto max-w-4xl">
         <div className="mb-10 text-center sm:mb-16">
           <h2 className="mb-3 text-2xl font-bold tracking-tight sm:mb-4 sm:text-3xl md:text-4xl">
-            Tre ben, ett <span className="text-gradient">ekosystem</span>
+            {t("ecosystem.title")} <span className="text-gradient">{t("ecosystem.titleHighlight")}</span>
           </h2>
           <p className="mx-auto max-w-xl text-[var(--usha-muted)]">
-            Kreatörer skapar utbudet. Upplevelser erbjuder platserna. Kunder upptäcker och bokar. Alla förstärker varandra.
+            {t("ecosystem.subtitle")}
           </p>
         </div>
 
@@ -398,7 +406,7 @@ function Ecosystem() {
 
         {/* Loop message */}
         <p className="mt-8 text-center text-sm text-[var(--usha-muted)]">
-          Fler kreatörer lockar fler kunder. Fler kunder lockar fler upplevelser. Kretsloppet som driver tillväxt.
+          {t("ecosystem.loopMessage")}
         </p>
       </div>
     </section>
@@ -406,31 +414,33 @@ function Ecosystem() {
 }
 
 /* ─────────────── ONBOARDING ─────────────── */
-const ONBOARDING_STEPS = [
-  {
-    icon: UserPlus,
-    title: "Skapa konto",
-    desc: "Registrera dig gratis på sekunder med Google, Facebook eller e-post.",
-  },
-  {
-    icon: Palette,
-    title: "Bygg din profil",
-    desc: "Lägg till bio, portfolio, tjänster eller events. Bli synlig direkt på marketplace.",
-  },
-  {
-    icon: CalendarCheck,
-    title: "Börja ta emot bokningar",
-    desc: "Kunder hittar dig, bokar och betalar. Du fokuserar på det du gör bäst.",
-  },
-];
-
 function Onboarding() {
+  const t = useTranslations("landing");
+
+  const ONBOARDING_STEPS = [
+    {
+      icon: UserPlus,
+      title: t("onboarding.step1Title"),
+      desc: t("onboarding.step1Desc"),
+    },
+    {
+      icon: Palette,
+      title: t("onboarding.step2Title"),
+      desc: t("onboarding.step2Desc"),
+    },
+    {
+      icon: CalendarCheck,
+      title: t("onboarding.step3Title"),
+      desc: t("onboarding.step3Desc"),
+    },
+  ];
+
   return (
     <section className="relative py-16 px-4 sm:py-20 sm:px-6">
       <div className="mx-auto max-w-4xl">
         <div className="mb-10 text-center sm:mb-12">
           <h2 className="mb-3 text-2xl font-bold tracking-tight sm:mb-4 sm:text-3xl">
-            Kom igång på <span className="text-gradient">3 steg</span>
+            {t("onboarding.title")} <span className="text-gradient">{t("onboarding.titleHighlight")}</span>
           </h2>
         </div>
 
@@ -454,25 +464,27 @@ function Onboarding() {
 }
 
 /* ─────────────── TRUST ─────────────── */
-const TRUST_POINTS = [
-  {
-    icon: Fingerprint,
-    title: "BankID-verifierade kreatörer",
-    desc: "Alla kreatörer och upplevelser verifierar sin identitet med Mobilt BankID innan de skapar konto. Du vet alltid vem du bokar.",
-  },
-  {
-    icon: Lock,
-    title: "Säker betalning",
-    desc: "Alla transaktioner hanteras av Stripe — din kortinfo delas aldrig med kreatörer eller upplevelser.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Skyddade bokningar",
-    desc: "Varje bokning bekräftas digitalt med QR-kod. Inga falska biljetter, inga missförstånd.",
-  },
-];
-
 function Trust() {
+  const t = useTranslations("landing");
+
+  const TRUST_POINTS = [
+    {
+      icon: Fingerprint,
+      title: t("trust.bankid.title"),
+      desc: t("trust.bankid.desc"),
+    },
+    {
+      icon: Lock,
+      title: t("trust.payment.title"),
+      desc: t("trust.payment.desc"),
+    },
+    {
+      icon: ShieldCheck,
+      title: t("trust.booking.title"),
+      desc: t("trust.booking.desc"),
+    },
+  ];
+
   return (
     <section className="relative py-16 px-4 sm:py-28 sm:px-6">
       <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -483,13 +495,13 @@ function Trust() {
         <div className="mb-10 text-center sm:mb-16">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[var(--usha-gold)]/20 bg-[var(--usha-card)] px-4 py-1.5 text-xs sm:mb-4">
             <Shield size={12} className="text-[var(--usha-gold)]" />
-            <span className="text-[var(--usha-muted)]">Trygghet i varje steg</span>
+            <span className="text-[var(--usha-muted)]">{t("trust.badge")}</span>
           </div>
           <h2 className="mb-3 text-2xl font-bold tracking-tight sm:mb-4 sm:text-3xl md:text-4xl">
-            Boka med <span className="text-gradient">fullt förtroende</span>
+            {t("trust.title")} <span className="text-gradient">{t("trust.titleHighlight")}</span>
           </h2>
           <p className="mx-auto max-w-xl text-[var(--usha-muted)]">
-            Vi tar säkerhet på allvar. Alla som erbjuder tjänster och upplevelser på Usha är identitetsverifierade med svenskt BankID.
+            {t("trust.subtitle")}
           </p>
         </div>
 
@@ -513,113 +525,115 @@ function Trust() {
 }
 
 /* ─────────────── PRICING ─────────────── */
-const ROLE_TABS = [
-  { key: "publik" as const, label: "Användare" },
-  { key: "kreator" as const, label: "Kreatör" },
-  { key: "upplevelse" as const, label: "Upplevelse" },
-];
-
-const PRICING_DATA: Record<string, { gratis: { features: string[] }; guld: { price: number; features: string[]; popular: boolean }; premium: { price: number; features: string[]; popular: boolean } }> = {
-  publik: {
-    gratis: {
-      features: [
-        "Skapa profil och logga in",
-        "Bläddra i marknadsplatsen",
-        "Köpa biljetter och boka kreatörer",
-      ],
-    },
-    guld: {
-      price: 199,
-      popular: true,
-      features: [
-        "10% rabatt på bokningar",
-        "Tidig tillgång 48h före alla andra",
-        "Prioriterad support",
-        "Kalendersync",
-      ],
-    },
-    premium: {
-      price: 499,
-      popular: false,
-      features: [
-        "20% rabatt på bokningar",
-        "VIP — aldrig i kö",
-        "Exklusivt innehåll",
-        "72h tidig tillgång",
-      ],
-    },
-  },
-  kreator: {
-    gratis: {
-      features: [
-        "Upp till 3 tjänster",
-        "15% kommission",
-        "Grundläggande statistik",
-      ],
-    },
-    guld: {
-      price: 299,
-      popular: true,
-      features: [
-        "Upp till 15 tjänster",
-        "8% kommission (istället för 15%)",
-        "Skapa events",
-        "Avancerad statistik",
-        "Prioriterad synlighet",
-      ],
-    },
-    premium: {
-      price: 599,
-      popular: false,
-      features: [
-        "Obegränsade tjänster",
-        "3% kommission (istället för 15%)",
-        "Toppsynlighet + utvalda",
-        "Facebook-sync",
-        "Dedikerad support",
-      ],
-    },
-  },
-  upplevelse: {
-    gratis: {
-      features: [
-        "Upp till 3 events",
-        "15% kommission",
-        "Grundläggande statistik",
-      ],
-    },
-    guld: {
-      price: 299,
-      popular: true,
-      features: [
-        "Upp till 15 events",
-        "8% kommission (istället för 15%)",
-        "Boka kreatörer",
-        "Avancerad statistik",
-      ],
-    },
-    premium: {
-      price: 599,
-      popular: false,
-      features: [
-        "Obegränsade events",
-        "3% kommission (istället för 15%)",
-        "Toppsynlighet + utvalda",
-        "Facebook-sync",
-        "Dedikerad support",
-      ],
-    },
-  },
-};
-
 function Pricing() {
+  const t = useTranslations("landing");
   const [activeRole, setActiveRole] = useState<"publik" | "kreator" | "upplevelse">("kreator");
+
+  const ROLE_TABS = [
+    { key: "publik" as const, label: t("pricing.roleUser") },
+    { key: "kreator" as const, label: t("pricing.roleCreator") },
+    { key: "upplevelse" as const, label: t("pricing.roleExperience") },
+  ];
+
+  const PRICING_DATA: Record<string, { gratis: { features: string[] }; guld: { price: number; features: string[]; popular: boolean }; premium: { price: number; features: string[]; popular: boolean } }> = {
+    publik: {
+      gratis: {
+        features: [
+          t("pricing.publikFree1"),
+          t("pricing.publikFree2"),
+          t("pricing.publikFree3"),
+        ],
+      },
+      guld: {
+        price: 199,
+        popular: true,
+        features: [
+          t("pricing.publikGold1"),
+          t("pricing.publikGold2"),
+          t("pricing.publikGold3"),
+          t("pricing.publikGold4"),
+        ],
+      },
+      premium: {
+        price: 499,
+        popular: false,
+        features: [
+          t("pricing.publikPremium1"),
+          t("pricing.publikPremium2"),
+          t("pricing.publikPremium3"),
+          t("pricing.publikPremium4"),
+        ],
+      },
+    },
+    kreator: {
+      gratis: {
+        features: [
+          t("pricing.kreatorFree1"),
+          t("pricing.kreatorFree2"),
+          t("pricing.kreatorFree3"),
+        ],
+      },
+      guld: {
+        price: 299,
+        popular: true,
+        features: [
+          t("pricing.kreatorGold1"),
+          t("pricing.kreatorGold2"),
+          t("pricing.kreatorGold3"),
+          t("pricing.kreatorGold4"),
+          t("pricing.kreatorGold5"),
+        ],
+      },
+      premium: {
+        price: 599,
+        popular: false,
+        features: [
+          t("pricing.kreatorPremium1"),
+          t("pricing.kreatorPremium2"),
+          t("pricing.kreatorPremium3"),
+          t("pricing.kreatorPremium4"),
+          t("pricing.kreatorPremium5"),
+        ],
+      },
+    },
+    upplevelse: {
+      gratis: {
+        features: [
+          t("pricing.upplevelseFree1"),
+          t("pricing.upplevelseFree2"),
+          t("pricing.upplevelseFree3"),
+        ],
+      },
+      guld: {
+        price: 299,
+        popular: true,
+        features: [
+          t("pricing.upplevelseGold1"),
+          t("pricing.upplevelseGold2"),
+          t("pricing.upplevelseGold3"),
+          t("pricing.upplevelseGold4"),
+        ],
+      },
+      premium: {
+        price: 599,
+        popular: false,
+        features: [
+          t("pricing.upplevelsePremium1"),
+          t("pricing.upplevelsePremium2"),
+          t("pricing.upplevelsePremium3"),
+          t("pricing.upplevelsePremium4"),
+          t("pricing.upplevelsePremium5"),
+        ],
+      },
+    },
+  };
+
   const data = PRICING_DATA[activeRole];
 
   const tiers = [
-    { name: "Gratis", price: 0, desc: "Perfekt för att komma igång", features: data.gratis.features, cta: "Kom igång gratis", popular: false },
-    { name: "Guld", price: data.guld.price, desc: "Väx din verksamhet", features: data.guld.features, cta: "Starta Guld", popular: data.guld.popular },
-    { name: "Premium", price: data.premium.price, desc: "Full kontroll", features: data.premium.features, cta: "Starta Premium", popular: data.premium.popular },
+    { name: t("pricing.free"), price: 0, desc: t("pricing.freeDesc"), features: data.gratis.features, cta: t("pricing.ctaFree"), popular: false },
+    { name: t("pricing.gold"), price: data.guld.price, desc: t("pricing.goldDesc"), features: data.guld.features, cta: t("pricing.ctaGold"), popular: data.guld.popular },
+    { name: t("pricing.premium"), price: data.premium.price, desc: t("pricing.premiumDesc"), features: data.premium.features, cta: t("pricing.ctaPremium"), popular: data.premium.popular },
   ];
 
   return (
@@ -631,13 +645,13 @@ function Pricing() {
       <div className="relative z-10 mx-auto max-w-5xl">
         <div className="mb-8 text-center sm:mb-10">
           <h2 className="mb-3 text-2xl font-bold tracking-tight sm:mb-4 sm:text-3xl md:text-4xl">
-            Priser
+            {t("pricing.title")}
           </h2>
           <p className="mx-auto max-w-xl text-sm text-[var(--usha-muted)] sm:text-base">
-            En komplett lösning — skapa events, sprid dem på sociala medier, sälj och skanna biljetter, och ha koll på alla deltagare. Allt i en app.
+            {t("pricing.subtitle")}
           </p>
           <p className="mx-auto mt-3 max-w-lg text-sm text-[var(--usha-muted)]">
-            Alla planer är <span className="font-semibold text-[var(--usha-gold)]">gratis under betaperioden</span> — på obestämd tid.
+            {t("pricing.betaNotice")} <span className="font-semibold text-[var(--usha-gold)]">{t("pricing.betaHighlight")}</span> {t("pricing.betaSuffix")}
           </p>
         </div>
 
@@ -672,7 +686,7 @@ function Pricing() {
             >
               {plan.popular && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-1 text-xs font-bold text-black">
-                  Populärast
+                  {t("pricing.mostPopular")}
                 </div>
               )}
 
@@ -685,7 +699,7 @@ function Pricing() {
                 {plan.price > 0 ? (
                   <div className="flex items-baseline gap-2">
                     <span className="text-4xl font-extrabold text-[var(--usha-gold)]">0</span>
-                    <span className="text-[var(--usha-muted)]">SEK/mån</span>
+                    <span className="text-[var(--usha-muted)]">{t("pricing.sekMonth")}</span>
                     <span className="text-lg text-[var(--usha-muted)] line-through decoration-[var(--usha-muted)]/50">
                       {plan.price} SEK
                     </span>
@@ -693,11 +707,11 @@ function Pricing() {
                 ) : (
                   <div className="flex items-baseline gap-1">
                     <span className="text-4xl font-extrabold">0</span>
-                    <span className="text-[var(--usha-muted)]">SEK — för alltid</span>
+                    <span className="text-[var(--usha-muted)]">{t("pricing.sekForever")}</span>
                   </div>
                 )}
                 {plan.price > 0 && (
-                  <p className="mt-1 text-xs text-[var(--usha-gold)]">Gratis under beta</p>
+                  <p className="mt-1 text-xs text-[var(--usha-gold)]">{t("pricing.freeDuringBeta")}</p>
                 )}
               </div>
 
@@ -730,6 +744,8 @@ function Pricing() {
 
 /* ─────────────── CTA ─────────────── */
 function CTA() {
+  const t = useTranslations("landing");
+
   return (
     <section className="relative py-16 px-4 sm:py-28 sm:px-6">
       <div className="pointer-events-none absolute inset-0">
@@ -739,21 +755,21 @@ function CTA() {
       <div className="relative z-10 mx-auto max-w-2xl text-center">
         <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[var(--usha-gold)]/20 bg-[var(--usha-card)] px-4 py-1.5 text-xs">
           <Sparkles size={12} className="text-[var(--usha-gold)]" />
-          <span className="text-[var(--usha-muted)]">Helt gratis under beta</span>
+          <span className="text-[var(--usha-muted)]">{t("cta.badge")}</span>
         </div>
 
         <h2 className="mb-4 text-2xl font-bold sm:mb-6 sm:text-3xl md:text-4xl">
-          Redo att testa?
+          {t("cta.title")}
         </h2>
         <p className="mb-8 text-base text-[var(--usha-muted)] sm:mb-10 sm:text-lg">
-          Skapa konto på sekunder och utforska hela plattformen utan kostnad.
+          {t("cta.description")}
         </p>
 
         <a
           href="/signup"
           className="glow-gold inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-8 py-4 text-base font-bold text-black transition hover:scale-[1.02] hover:opacity-90"
         >
-          Kom igång gratis
+          {t("cta.button")}
           <ArrowRight size={16} />
         </a>
       </div>
@@ -762,19 +778,21 @@ function CTA() {
 }
 
 /* ─────────────── FOOTER ─────────────── */
-const FOOTER_LINKS = {
-  Plattform: [
-    { label: "Marketplace", href: "/marketplace" },
-    { label: "Priser", href: "#pricing" },
-  ],
-  Juridiskt: [
-    { label: "Användarvillkor", href: "/terms" },
-    { label: "Integritetspolicy", href: "/privacy" },
-    { label: "Cookiepolicy", href: "/cookies" },
-  ],
-};
-
 function Footer() {
+  const t = useTranslations("landing");
+
+  const FOOTER_LINKS = {
+    [t("footer.platform")]: [
+      { label: t("footer.marketplace"), href: "/marketplace" },
+      { label: t("footer.pricing"), href: "#pricing" },
+    ],
+    [t("footer.legal")]: [
+      { label: t("footer.terms"), href: "/terms" },
+      { label: t("footer.privacy"), href: "/privacy" },
+      { label: t("footer.cookies"), href: "/cookies" },
+    ],
+  };
+
   return (
     <footer className="border-t border-[var(--usha-border)] pt-12 pb-8 px-4 sm:pt-16 sm:px-6">
       <div className="mx-auto max-w-6xl">
@@ -788,7 +806,7 @@ function Footer() {
               <span className="text-lg font-bold tracking-tight">Usha</span>
             </div>
             <p className="max-w-xs text-sm leading-relaxed text-[var(--usha-muted)]">
-              Kreatörer, upplevelser och kunder — förenade på en plattform.
+              {t("footer.description")}
             </p>
           </div>
 
@@ -814,10 +832,10 @@ function Footer() {
 
         <div className="flex flex-col items-center justify-between gap-4 border-t border-[var(--usha-border)] pt-8 sm:flex-row">
           <p className="font-mono text-xs text-[var(--usha-muted)]">
-            © 2026 Usha AB. Alla rättigheter förbehållna.
+            {t("footer.copyright")}
           </p>
           <p className="text-xs text-[var(--usha-muted)]">
-            Byggd med kärlek i Sverige
+            {t("footer.builtWith")}
           </p>
         </div>
       </div>
