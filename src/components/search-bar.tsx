@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { Search, X, MapPin } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { CATEGORY_LABELS } from "@/lib/categories";
 
 interface SearchListing {
@@ -29,6 +30,7 @@ interface SearchBarProps {
 
 export function SearchBar({ onSearch }: SearchBarProps) {
   const router = useRouter();
+  const t = useTranslations("search");
   const [query, setQuery] = useState("");
   const [listings, setListings] = useState<SearchListing[]>([]);
   const [creators, setCreators] = useState<SearchCreator[]>([]);
@@ -98,7 +100,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => query.length >= 2 && setOpen(true)}
           onKeyDown={handleKeyDown}
-          placeholder="Sök evenemang, kreatörer, platser..."
+          placeholder={t("placeholder")}
           className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] pl-10 pr-10 py-3 text-sm text-white placeholder:text-[var(--usha-muted)] focus:border-[var(--usha-gold)]/50 focus:outline-none"
         />
         {query && (
@@ -116,13 +118,13 @@ export function SearchBar({ onSearch }: SearchBarProps) {
         <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-[70vh] overflow-y-auto rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] shadow-2xl">
           {loading && (
             <div className="px-4 py-3 text-center text-xs text-[var(--usha-muted)]">
-              Söker...
+              {t("searching")}
             </div>
           )}
 
           {!loading && !hasResults && query.length >= 2 && (
             <div className="px-4 py-6 text-center text-sm text-[var(--usha-muted)]">
-              Inga resultat för &ldquo;{query}&rdquo;
+              {t("noResults", { query })}
             </div>
           )}
 
@@ -130,7 +132,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
           {creators.length > 0 && (
             <div>
               <p className="px-4 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--usha-muted)]">
-                Kreatörer
+                {t("creators")}
               </p>
               {creators.map((c) => (
                 <Link
@@ -146,7 +148,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">
-                      {c.full_name || "Kreatör"}
+                      {c.full_name || t("creator")}
                     </p>
                     <div className="flex items-center gap-2 text-[11px] text-[var(--usha-muted)]">
                       {c.category && <span>{CATEGORY_LABELS[c.category] || c.category}</span>}
@@ -167,7 +169,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
           {listings.length > 0 && (
             <div>
               <p className="px-4 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--usha-muted)]">
-                Evenemang & Tjänster
+                {t("eventsAndServices")}
               </p>
               {listings.map((l) => {
                 const creator = l.profiles as { full_name: string | null } | null;
@@ -181,7 +183,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium">{l.title}</p>
                       <p className="text-[11px] text-[var(--usha-muted)]">
-                        {creator?.full_name || "Kreatör"} · {CATEGORY_LABELS[l.category] || l.category}
+                        {creator?.full_name || t("creator")} · {CATEGORY_LABELS[l.category] || l.category}
                       </p>
                     </div>
                     {l.price != null && (
@@ -202,7 +204,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
               onClick={() => { setOpen(false); onSearch?.(); }}
               className="block border-t border-[var(--usha-border)] px-4 py-3 text-center text-xs font-medium text-[var(--usha-gold)] transition-colors hover:bg-[var(--usha-card-hover)]"
             >
-              Visa alla resultat
+              {t("viewAll")}
             </Link>
           )}
         </div>

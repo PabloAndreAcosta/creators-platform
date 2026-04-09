@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Bell, Check, CheckCheck, ExternalLink } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 interface Notification {
   id: string;
@@ -20,6 +21,8 @@ export function NotificationBell() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const t = useTranslations("notifications");
+  const tc = useTranslations("common");
 
   // Fetch unread count on mount + poll every 30s
   useEffect(() => {
@@ -103,7 +106,7 @@ export function NotificationBell() {
           if (!open) fetchNotifications();
         }}
         className="relative flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-white/10"
-        aria-label="Notifikationer"
+        aria-label={t("ariaLabel")}
       >
         <Bell size={18} />
         {unreadCount > 0 && (
@@ -117,7 +120,7 @@ export function NotificationBell() {
         <div className="absolute right-0 top-full z-50 mt-2 w-80 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] shadow-xl">
           {/* Header */}
           <div className="flex items-center justify-between border-b border-[var(--usha-border)] px-4 py-3">
-            <h3 className="text-sm font-semibold">Notifikationer</h3>
+            <h3 className="text-sm font-semibold">{t("title")}</h3>
             {unreadCount > 0 && (
               <button
                 onClick={markAllRead}
@@ -125,7 +128,7 @@ export function NotificationBell() {
                 className="flex items-center gap-1 text-[10px] font-medium text-[var(--usha-gold)] transition hover:opacity-80 disabled:opacity-50"
               >
                 <CheckCheck size={12} />
-                Markera alla lästa
+                {t("markAllRead")}
               </button>
             )}
           </div>
@@ -134,7 +137,7 @@ export function NotificationBell() {
           <div className="max-h-80 overflow-y-auto">
             {notifications.length === 0 ? (
               <div className="px-4 py-8 text-center text-xs text-[var(--usha-muted)]">
-                Inga notifikationer ännu
+                {t("empty")}
               </div>
             ) : (
               notifications.map((n) => (
@@ -174,7 +177,7 @@ export function NotificationBell() {
                           className="flex items-center gap-1 text-[10px] font-medium text-[var(--usha-gold)] hover:opacity-80"
                         >
                           <ExternalLink size={10} />
-                          Visa
+                          {tc("view")}
                         </Link>
                       )}
                       {!n.is_read && (
@@ -183,7 +186,7 @@ export function NotificationBell() {
                           className="flex items-center gap-1 text-[10px] text-[var(--usha-muted)] hover:text-white"
                         >
                           <Check size={10} />
-                          Läst
+                          {tc("read")}
                         </button>
                       )}
                     </div>

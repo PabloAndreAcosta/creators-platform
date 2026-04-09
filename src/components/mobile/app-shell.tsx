@@ -2,6 +2,7 @@
 
 import { ReactNode, useState } from "react";
 import { Search, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { RoleProvider } from "./role-context";
 import { BottomNav } from "./bottom-nav";
 import { SidebarNav } from "./sidebar-nav";
@@ -17,6 +18,7 @@ interface AppShellProps {
 
 export function AppShell({ children, userName }: AppShellProps) {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const t = useTranslations("search");
 
   return (
     <RoleProvider>
@@ -57,7 +59,7 @@ export function AppShell({ children, userName }: AppShellProps) {
                 <button
                   onClick={() => setMobileSearchOpen((v) => !v)}
                   className="flex h-9 w-9 items-center justify-center rounded-lg text-[var(--usha-muted)] transition-colors hover:bg-[var(--usha-card)] hover:text-white md:hidden"
-                  aria-label={mobileSearchOpen ? "Stäng sök" : "Öppna sök"}
+                  aria-label={mobileSearchOpen ? t("closeSearch") : t("openSearch")}
                 >
                   {mobileSearchOpen ? <X size={18} /> : <Search size={18} />}
                 </button>

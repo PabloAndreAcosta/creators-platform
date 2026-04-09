@@ -1,6 +1,7 @@
 "use client";
 
-import { useRole, UserRole, ROLE_LABELS } from "./role-context";
+import { useTranslations } from "next-intl";
+import { useRole, UserRole } from "./role-context";
 import { useToast } from "@/components/ui/toaster";
 import { Lock } from "lucide-react";
 
@@ -9,6 +10,8 @@ const ROLES: UserRole[] = ["publik", "kreator", "upplevelse"];
 export function RoleToggle() {
   const { role, dbRole, isAdmin, setRole } = useRole();
   const { toast } = useToast();
+  const t = useTranslations("roles");
+  const rt = useTranslations("roleToggle");
 
   const handleClick = (r: UserRole) => {
     if (r === dbRole) {
@@ -16,8 +19,8 @@ export function RoleToggle() {
       return;
     }
     toast.info(
-      `${ROLE_LABELS[r]} är låst`,
-      "Gå till Profil > Uppgradera för att byta roll"
+      rt("locked", { role: t(r) }),
+      rt("lockedHint")
     );
   };
 
@@ -33,8 +36,8 @@ export function RoleToggle() {
             onClick={() => handleClick(r)}
             aria-label={
               isLocked
-                ? `${ROLE_LABELS[r]} – låst`
-                : `Byt till ${ROLE_LABELS[r]}-vy`
+                ? rt("lockedLabel", { role: t(r) })
+                : rt("switchTo", { role: t(r) })
             }
             aria-pressed={isActive}
             aria-disabled={isLocked}
@@ -47,7 +50,7 @@ export function RoleToggle() {
             }`}
           >
             {isLocked && <Lock size={10} />}
-            {ROLE_LABELS[r]}
+            {t(r)}
           </button>
         );
       })}

@@ -16,7 +16,10 @@
     "back": "Back",
     "loading": "Loading...",
     "error": "Something went wrong",
-    "close": "Close"
+    "close": "Close",
+    "view": "View",
+    "read": "Read",
+    "startPage": "Home"
   },
   "nav": {
     "home": "Home",
@@ -35,6 +38,37 @@
     "publik": "User",
     "kreator": "Creator",
     "upplevelse": "Experience"
+  },
+  "roleToggle": {
+    "locked": "{role} is locked",
+    "lockedHint": "Go to Profile > Upgrade to switch role",
+    "switchTo": "Switch to {role} view",
+    "lockedLabel": "{role} – locked"
+  },
+  "search": {
+    "placeholder": "Search events, creators, venues...",
+    "searching": "Searching...",
+    "noResults": "No results for \"{query}\"",
+    "creators": "Creators",
+    "eventsAndServices": "Events & Services",
+    "viewAll": "View all results",
+    "openSearch": "Open search",
+    "closeSearch": "Close search",
+    "creator": "Creator"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all as read",
+    "empty": "No notifications yet",
+    "ariaLabel": "Notifications"
+  },
+  "connection": {
+    "offline": "No internet connection",
+    "online": "Connection restored"
+  },
+  "notFound": {
+    "title": "404",
+    "message": "Page not found."
   },
   "language": {
     "switchTo": "Svenska",

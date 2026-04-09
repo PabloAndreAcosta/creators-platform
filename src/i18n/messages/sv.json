@@ -16,7 +16,10 @@
     "back": "Tillbaka",
     "loading": "Laddar...",
     "error": "Något gick fel",
-    "close": "Stäng"
+    "close": "Stäng",
+    "view": "Visa",
+    "read": "Läst",
+    "startPage": "Startsida"
   },
   "nav": {
     "home": "Hem",
@@ -35,6 +38,37 @@
     "publik": "Användare",
     "kreator": "Kreatör",
     "upplevelse": "Upplevelse"
+  },
+  "roleToggle": {
+    "locked": "{role} är låst",
+    "lockedHint": "Gå till Profil > Uppgradera för att byta roll",
+    "switchTo": "Byt till {role}-vy",
+    "lockedLabel": "{role} – låst"
+  },
+  "search": {
+    "placeholder": "Sök evenemang, kreatörer, platser...",
+    "searching": "Söker...",
+    "noResults": "Inga resultat för \"{query}\"",
+    "creators": "Kreatörer",
+    "eventsAndServices": "Evenemang & Tjänster",
+    "viewAll": "Visa alla resultat",
+    "openSearch": "Öppna sök",
+    "closeSearch": "Stäng sök",
+    "creator": "Kreatör"
+  },
+  "notifications": {
+    "title": "Notifikationer",
+    "markAllRead": "Markera alla lästa",
+    "empty": "Inga notifikationer ännu",
+    "ariaLabel": "Notifikationer"
+  },
+  "connection": {
+    "offline": "Ingen internetanslutning",
+    "online": "Anslutning återupprättad"
+  },
+  "notFound": {
+    "title": "404",
+    "message": "Sidan kunde inte hittas."
   },
   "language": {
     "switchTo": "English",
