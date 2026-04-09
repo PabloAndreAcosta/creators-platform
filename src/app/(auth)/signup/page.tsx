@@ -2,23 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { Palette, Store, Search, ShieldCheck, Loader2 } from "lucide-react";
 
 type Role = "creator" | "experience" | "customer";
-
-const ROLES: { value: Role; label: string; description: string; icon: typeof Palette }[] = [
-  { value: "creator", label: "Kreatör", description: "Jag erbjuder kreativa tjänster", icon: Palette },
-  { value: "experience", label: "Upplevelse", description: "Jag driver en verksamhet", icon: Store },
-  { value: "customer", label: "Kund", description: "Jag vill boka upplevelser", icon: Search },
-];
-
-const BANKID_ERRORS: Record<string, string> = {
-  failed: "BankID-verifieringen misslyckades. Försök igen.",
-  aborted: "BankID-verifieringen avbröts.",
-  duplicate: "Det finns redan ett konto med detta personnummer.",
-  error: "Ett fel uppstod vid verifieringen. Försök igen.",
-};
 
 const NEEDS_BANKID: Role[] = ["creator", "experience"];
 
@@ -27,6 +15,7 @@ function FieldError({ message }: { message: string }) {
 }
 
 export default function SignupPage() {
+  const t = useTranslations("auth");
   const searchParams = useSearchParams();
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [email, setEmail] = useState("");
@@ -57,6 +46,19 @@ export default function SignupPage() {
 
   const supabase = createClient();
 
+  const ROLES: { value: Role; label: string; description: string; icon: typeof Palette }[] = [
+    { value: "creator", label: t("roleCreator"), description: t("roleCreatorDesc"), icon: Palette },
+    { value: "experience", label: t("roleExperience"), description: t("roleExperienceDesc"), icon: Store },
+    { value: "customer", label: t("roleCustomer"), description: t("roleCustomerDesc"), icon: Search },
+  ];
+
+  const BANKID_ERRORS: Record<string, string> = {
+    failed: t("bankidFailed"),
+    aborted: t("bankidAborted"),
+    duplicate: t("bankidDuplicate"),
+    error: t("bankidError"),
+  };
+
   // Handle BankID callback from URL params
   useEffect(() => {
     const bankidStatus = searchParams.get("bankid");
@@ -68,7 +70,7 @@ export default function SignupPage() {
         .then((res) => res.json())
         .then((data) => {
           if (data.error) {
-            setBankidError("Verifieringsdata kunde inte hämtas. Försök igen.");
+            setBankidError(t("bankidDataError"));
             return;
           }
           setBankidData(data);
@@ -77,7 +79,7 @@ export default function SignupPage() {
           setSelectedRole(data.role as Role);
         })
         .catch(() => {
-          setBankidError("Verifieringsdata kunde inte hämtas. Försök igen.");
+          setBankidError(t("bankidDataError"));
         });
     } else {
       setBankidError(BANKID_ERRORS[bankidStatus] || BANKID_ERRORS.error);
@@ -90,20 +92,20 @@ export default function SignupPage() {
   }, [searchParams]);
 
   function validateName(value: string) {
-    if (!value.trim()) return "Namn krävs";
-    if (value.trim().length < 2) return "Minst 2 tecken";
+    if (!value.trim()) return t("nameRequired");
+    if (value.trim().length < 2) return t("nameMinLength");
     return "";
   }
 
   function validateEmail(value: string) {
-    if (!value) return "E-postadress krävs";
-    if (!value.includes("@") || !value.includes(".")) return "Ogiltig e-postadress";
+    if (!value) return t("emailRequired");
+    if (!value.includes("@") || !value.includes(".")) return t("emailInvalid");
     return "";
   }
 
   function validatePassword(value: string) {
-    if (!value) return "Lösenord krävs";
-    if (value.length < 8) return "Minst 8 tecken";
+    if (!value) return t("passwordRequired");
+    if (value.length < 8) return t("passwordMinLength");
     return "";
   }
 
@@ -140,7 +142,7 @@ export default function SignupPage() {
       // Redirect to Signicat BankID
       window.location.href = data.authenticationUrl;
     } catch {
-      setBankidError("Kunde inte starta BankID-verifiering. Försök igen.");
+      setBankidError(t("bankidStartError"));
       setBankidVerifying(false);
     }
   }
@@ -197,7 +199,7 @@ export default function SignupPage() {
     if (error) {
       const msg =
         error.message === "User already registered"
-          ? "Det finns redan ett konto med denna e-postadress"
+          ? t("accountExists")
           : error.message;
       setError(msg);
       setLoading(false);
@@ -243,16 +245,15 @@ export default function SignupPage() {
       <div className="flex min-h-screen items-center justify-center px-6">
         <div className="max-w-sm text-center">
           <div className="mb-4 text-4xl">📧</div>
-          <h1 className="text-2xl font-bold">Kolla din mail</h1>
+          <h1 className="text-2xl font-bold">{t("checkEmail")}</h1>
           <p className="mt-2 text-sm text-[var(--usha-muted)]">
-            Vi har skickat en bekräftelselänk till <strong>{email}</strong>.
-            Klicka på länken för att aktivera ditt konto.
+            {t("confirmationSent", { email })}
           </p>
           <a
             href="/login"
             className="mt-6 inline-block text-sm text-[var(--usha-gold)] hover:underline"
           >
-            Tillbaka till login
+            {t("backToLogin")}
           </a>
         </div>
       </div>
@@ -268,8 +269,8 @@ export default function SignupPage() {
             <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
               <span className="text-lg font-bold text-black">U</span>
             </div>
-            <h1 className="text-2xl font-bold">Välj din roll</h1>
-            <p className="mt-1 text-sm text-[var(--usha-muted)]">Hur vill du använda Usha?</p>
+            <h1 className="text-2xl font-bold">{t("chooseRole")}</h1>
+            <p className="mt-1 text-sm text-[var(--usha-muted)]">{t("howToUse")}</p>
           </div>
 
           <div className="space-y-3">
@@ -291,9 +292,9 @@ export default function SignupPage() {
           </div>
 
           <p className="mt-6 text-center text-sm text-[var(--usha-muted)]">
-            Har redan konto?{" "}
+            {t("haveAccount")}{" "}
             <a href="/login" className="text-[var(--usha-gold)] hover:underline">
-              Logga in
+              {t("logIn")}
             </a>
           </p>
         </div>
@@ -310,9 +311,9 @@ export default function SignupPage() {
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--usha-gold)]/20 to-[var(--usha-accent)]/20">
               <ShieldCheck size={28} className="text-[var(--usha-gold)]" />
             </div>
-            <h1 className="text-2xl font-bold">Verifiera din identitet</h1>
+            <h1 className="text-2xl font-bold">{t("verifyIdentity")}</h1>
             <p className="mt-2 text-sm text-[var(--usha-muted)]">
-              Som {ROLES.find((r) => r.value === selectedRole)?.label.toLowerCase()} behöver du verifiera dig med Mobilt BankID innan du skapar konto.
+              {t("bankidRequired", { role: (ROLES.find((r) => r.value === selectedRole)?.label ?? "").toLowerCase() })}
             </p>
           </div>
 
@@ -330,25 +331,25 @@ export default function SignupPage() {
             {bankidVerifying ? (
               <>
                 <Loader2 size={18} className="animate-spin" />
-                Öppnar BankID...
+                {t("openingBankid")}
               </>
             ) : (
               <>
                 <ShieldCheck size={18} />
-                Verifiera med Mobilt BankID
+                {t("verifyWithBankid")}
               </>
             )}
           </button>
 
           <p className="mt-3 text-center text-xs text-[var(--usha-muted)]">
-            Du kommer att skickas till BankID för identifiering.
+            {t("bankidRedirectInfo")}
           </p>
 
           <button
             onClick={() => setBankidSkipped(true)}
             className="mt-6 block w-full text-center text-sm text-[var(--usha-muted)] hover:text-white hover:underline"
           >
-            Hoppa över — verifiera senare
+            {t("skipVerify")}
           </button>
 
           <button
@@ -358,13 +359,13 @@ export default function SignupPage() {
             }}
             className="mt-3 block w-full text-center text-xs text-[var(--usha-gold)] hover:underline"
           >
-            Byt roll
+            {t("changeRole")}
           </button>
 
           <p className="mt-4 text-center text-sm text-[var(--usha-muted)]">
-            Har redan konto?{" "}
+            {t("haveAccount")}{" "}
             <a href="/login" className="text-[var(--usha-gold)] hover:underline">
-              Logga in
+              {t("logIn")}
             </a>
           </p>
         </div>
@@ -380,13 +381,13 @@ export default function SignupPage() {
           <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
             <span className="text-lg font-bold text-black">U</span>
           </div>
-          <h1 className="text-2xl font-bold">Skapa konto</h1>
+          <h1 className="text-2xl font-bold">{t("createAccount")}</h1>
           <p className="mt-1 text-sm text-[var(--usha-muted)]">
-            {ROLES.find((r) => r.value === selectedRole)?.label} — 14 dagars gratis provperiod
+            {t("trialPeriod", { role: ROLES.find((r) => r.value === selectedRole)?.label ?? "" })}
           </p>
           {bankidVerified && (
             <p className="mt-1 flex items-center justify-center gap-1 text-xs text-green-400">
-              <ShieldCheck size={12} /> Identitet verifierad med BankID
+              <ShieldCheck size={12} /> {t("identityVerified")}
             </p>
           )}
           {!bankidVerified && (
@@ -397,7 +398,7 @@ export default function SignupPage() {
               }}
               className="mt-1 text-xs text-[var(--usha-gold)] hover:underline"
             >
-              Byt roll
+              {t("changeRole")}
             </button>
           )}
         </div>
@@ -409,19 +410,19 @@ export default function SignupPage() {
               onClick={handleGoogleSignup}
               className="mb-2 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium transition hover:bg-[var(--usha-card)]"
             >
-              Fortsätt med Google
+              {t("continueWithGoogle")}
             </button>
 
             <button
               onClick={handleFacebookSignup}
               className="mb-4 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium transition hover:bg-[var(--usha-card)]"
             >
-              Fortsätt med Facebook
+              {t("continueWithFacebook")}
             </button>
 
             <div className="mb-4 flex items-center gap-3">
               <div className="h-px flex-1 bg-[var(--usha-border)]" />
-              <span className="text-xs text-[var(--usha-muted)]">eller</span>
+              <span className="text-xs text-[var(--usha-muted)]">{t("or")}</span>
               <div className="h-px flex-1 bg-[var(--usha-border)]" />
             </div>
           </>
@@ -429,7 +430,7 @@ export default function SignupPage() {
 
         <form onSubmit={handleSignup} className="space-y-4" noValidate>
           <div>
-            <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">Namn</label>
+            <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">{t("name")}</label>
             {bankidVerified ? (
               <div className="flex items-center gap-2 rounded-xl border border-green-500/30 bg-[var(--usha-card)] px-4 py-3 text-base sm:text-sm">
                 <ShieldCheck size={14} className="shrink-0 text-green-400" />
@@ -457,7 +458,7 @@ export default function SignupPage() {
           </div>
 
           <div>
-            <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">Email</label>
+            <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">{t("email")}</label>
             <input
               type="email"
               value={email}
@@ -477,7 +478,7 @@ export default function SignupPage() {
           </div>
 
           <div>
-            <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">Lösenord</label>
+            <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">{t("password")}</label>
             <input
               type="password"
               value={password}
@@ -494,7 +495,7 @@ export default function SignupPage() {
             />
             {passwordTouched && passwordError && <FieldError message={passwordError} />}
             {passwordTouched && !passwordError && password && (
-              <p className="mt-1 text-xs text-green-400">Lösenord ser bra ut</p>
+              <p className="mt-1 text-xs text-green-400">{t("passwordLooksGood")}</p>
             )}
           </div>
 
@@ -505,14 +506,14 @@ export default function SignupPage() {
             disabled={loading}
             className="w-full min-h-[44px] rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] py-3 text-sm font-bold text-black transition hover:opacity-90 disabled:opacity-50"
           >
-            {loading ? "Skapar konto..." : "Skapa konto"}
+            {loading ? t("creatingAccount") : t("createAccount")}
           </button>
         </form>
 
         <p className="mt-6 text-center text-sm text-[var(--usha-muted)]">
-          Har redan konto?{" "}
+          {t("haveAccount")}{" "}
           <a href="/login" className="text-[var(--usha-gold)] hover:underline">
-            Logga in
+            {t("logIn")}
           </a>
         </p>
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 
 function FieldError({ message }: { message: string }) {
@@ -8,6 +9,7 @@ function FieldError({ message }: { message: string }) {
 }
 
 export default function LoginPage() {
+  const t = useTranslations("auth");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -22,14 +24,14 @@ export default function LoginPage() {
   const supabase = createClient();
 
   function validateEmail(value: string) {
-    if (!value) return "E-postadress krävs";
-    if (!value.includes("@") || !value.includes(".")) return "Ogiltig e-postadress";
+    if (!value) return t("emailRequired");
+    if (!value.includes("@") || !value.includes(".")) return t("emailInvalid");
     return "";
   }
 
   function validatePassword(value: string) {
-    if (!value) return "Lösenord krävs";
-    if (value.length < 8) return "Minst 8 tecken";
+    if (!value) return t("passwordRequired");
+    if (value.length < 8) return t("passwordMinLength");
     return "";
   }
 
@@ -63,7 +65,7 @@ export default function LoginPage() {
 
     setLoading(true);
     setError("");
-    setStatus("Loggar in...");
+    setStatus(t("loggingIn"));
 
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -71,7 +73,7 @@ export default function LoginPage() {
       if (error) {
         const msg =
           error.message === "Invalid login credentials"
-            ? "Fel e-postadress eller lösenord"
+            ? t("wrongCredentials")
             : error.message;
         setError(msg);
         setStatus("");
@@ -80,7 +82,7 @@ export default function LoginPage() {
       }
 
       if (data.session) {
-        setStatus("Inloggad! Omdirigerar...");
+        setStatus(t("loggedInRedirecting"));
         const { data: profile } = await supabase
           .from("profiles")
           .select("role")
@@ -89,12 +91,12 @@ export default function LoginPage() {
         const role = profile?.role;
         window.location.href = "/app";
       } else {
-        setError("Ingen session returnerades. Kontrollera din e-post.");
+        setError(t("noSessionReturned"));
         setLoading(false);
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
-      setError("Oväntat fel: " + msg);
+      setError(t("unexpectedError") + msg);
       setLoading(false);
     }
   }
@@ -123,33 +125,33 @@ export default function LoginPage() {
           <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
             <span className="text-lg font-bold text-black">U</span>
           </div>
-          <h1 className="text-2xl font-bold">Välkommen tillbaka</h1>
-          <p className="mt-1 text-sm text-[var(--usha-muted)]">Logga in på ditt konto</p>
+          <h1 className="text-2xl font-bold">{t("welcomeBack")}</h1>
+          <p className="mt-1 text-sm text-[var(--usha-muted)]">{t("loginToAccount")}</p>
         </div>
 
         <button
           onClick={handleGoogleLogin}
           className="mb-2 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium transition hover:bg-[var(--usha-card)]"
         >
-          Fortsätt med Google
+          {t("continueWithGoogle")}
         </button>
 
         <button
           onClick={handleFacebookLogin}
           className="mb-4 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium transition hover:bg-[var(--usha-card)]"
         >
-          Fortsätt med Facebook
+          {t("continueWithFacebook")}
         </button>
 
         <div className="mb-4 flex items-center gap-3">
           <div className="h-px flex-1 bg-[var(--usha-border)]" />
-          <span className="text-xs text-[var(--usha-muted)]">eller</span>
+          <span className="text-xs text-[var(--usha-muted)]">{t("or")}</span>
           <div className="h-px flex-1 bg-[var(--usha-border)]" />
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4" noValidate>
           <div>
-            <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">Email</label>
+            <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">{t("email")}</label>
             <input
               type="email"
               value={email}
@@ -167,7 +169,7 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">Lösenord</label>
+            <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">{t("password")}</label>
             <input
               type="password"
               value={password}
@@ -195,20 +197,20 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full min-h-[44px] rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] py-3 text-sm font-bold text-black transition hover:opacity-90 disabled:opacity-50"
           >
-            {loading ? "Loggar in..." : "Logga in"}
+            {loading ? t("loggingIn") : t("logIn")}
           </button>
         </form>
 
         <p className="mt-3 text-center">
           <a href="/forgot-password" className="text-sm text-[var(--usha-muted)] hover:text-[var(--usha-gold)] transition-colors">
-            Glömt lösenord?
+            {t("forgotPassword")}
           </a>
         </p>
 
         <p className="mt-6 text-center text-sm text-[var(--usha-muted)]">
-          Inget konto?{" "}
+          {t("noAccount")}{" "}
           <a href="/signup" className="text-[var(--usha-gold)] hover:underline">
-            Registrera dig
+            {t("signUp")}
           </a>
         </p>
       </div>
