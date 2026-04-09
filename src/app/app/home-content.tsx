@@ -28,6 +28,7 @@ import { GatedAction } from "@/components/subscription/GatedAction";
 import { Feed } from "@/components/feed/feed";
 import { CreatePostForm } from "@/components/feed/create-post-form";
 import { ReferralCard } from "@/components/referral-card";
+import { useTranslations } from "next-intl";
 import type { FeedPost } from "@/types/database";
 
 interface Profile {
@@ -128,6 +129,8 @@ function PublikHome({
   tier?: string;
   feedPosts?: FeedPost[];
 }) {
+  const t = useTranslations("home");
+  const tc = useTranslations("common");
   const isGuld = tier === "guld" || tier === "premium";
   const isPremium = tier === "premium";
   const eventImages = [
@@ -196,7 +199,7 @@ function PublikHome({
           {/* Trending badge */}
           <div className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-red-500/90 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-sm">
             <TrendingUp size={10} />
-            Trending
+            {t("trending")}
           </div>
           {/* Glassmorphism info card */}
           <div className="absolute inset-x-3 bottom-3 rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-xl">
@@ -222,10 +225,10 @@ function PublikHome({
       ) : (
         <div className="px-4 pt-4">
           <h1 className="text-2xl font-bold">
-            Hej, {profile?.full_name || "där"}!
+            {t("greeting", { name: profile?.full_name || "där" })}
           </h1>
           <p className="text-sm text-[var(--usha-muted)]">
-            Upptäck kreativa upplevelser nära dig
+            {t("discoverSubtitle")}
           </p>
         </div>
       )}
@@ -235,10 +238,10 @@ function PublikHome({
         {heroEvent && (
           <div>
             <h1 className="text-xl font-bold">
-              Hej, {profile?.full_name || "där"}!
+              {t("greeting", { name: profile?.full_name || "där" })}
             </h1>
             <p className="text-xs text-[var(--usha-muted)]">
-              Upptäck kreativa upplevelser nära dig
+              {t("discoverSubtitle")}
             </p>
           </div>
         )}
@@ -261,7 +264,7 @@ function PublikHome({
         {/* Social Feed */}
         {feedPosts.length > 0 && (
           <section>
-            <h2 className="mb-4 text-lg font-bold">Flöde</h2>
+            <h2 className="mb-4 text-lg font-bold">{t("feed")}</h2>
             <Feed initialPosts={feedPosts} isLoggedIn={!!profile} currentUserId={profile?.id} />
           </section>
         )}
@@ -272,10 +275,10 @@ function PublikHome({
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Sparkles size={16} className="text-[var(--usha-gold)]" />
-                <h2 className="text-lg font-bold">Populära Evenemang</h2>
+                <h2 className="text-lg font-bold">{t("popularEvents")}</h2>
               </div>
               <Link href="/marketplace" className="text-xs text-[var(--usha-gold)]">
-                Visa alla
+                {tc("viewAll")}
               </Link>
             </div>
             <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-3 scrollbar-hide md:grid md:grid-cols-2 lg:grid-cols-3 md:overflow-x-visible">
@@ -323,8 +326,8 @@ function PublikHome({
               <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[var(--usha-gold)]/20 to-[var(--usha-accent)]/20">
                 <Calendar size={28} className="text-[var(--usha-gold)]" />
               </div>
-              <p className="text-sm font-medium">Inga evenemang ännu</p>
-              <p className="mt-1 text-xs text-[var(--usha-muted)]">Kolla tillbaka snart!</p>
+              <p className="text-sm font-medium">{t("noEventsYet")}</p>
+              <p className="mt-1 text-xs text-[var(--usha-muted)]">{t("checkBackSoon")}</p>
             </div>
           </section>
         )}
@@ -337,11 +340,11 @@ function PublikHome({
           <section>
             <div className="mb-4 flex items-center gap-2">
               <Star size={16} className="text-[var(--usha-gold)]" />
-              <h2 className="text-lg font-bold">Exklusivt för dig</h2>
+              <h2 className="text-lg font-bold">{t("exclusiveForYou")}</h2>
               {isPremium ? (
-                <span className="rounded-full bg-purple-500/10 px-2 py-0.5 text-[10px] font-semibold text-purple-400">VIP</span>
+                <span className="rounded-full bg-purple-500/10 px-2 py-0.5 text-[10px] font-semibold text-purple-400">{t("vip")}</span>
               ) : (
-                <span className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-[10px] font-semibold text-[var(--usha-gold)]">Guld</span>
+                <span className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-[10px] font-semibold text-[var(--usha-gold)]">{t("gold")}</span>
               )}
             </div>
             <div className="rounded-2xl border border-[var(--usha-gold)]/20 bg-gradient-to-br from-[var(--usha-gold)]/5 to-transparent p-5">
@@ -351,21 +354,21 @@ function PublikHome({
                 </div>
                 <div>
                   <p className="text-sm font-semibold">
-                    {isPremium ? "72h" : "48h"} tidig tillgång aktiv
+                    {t("earlyAccess", { hours: isPremium ? "72" : "48" })}
                   </p>
                   <p className="text-xs text-[var(--usha-muted)]">
-                    Du ser nya events innan alla andra
+                    {t("seeNewEventsFirst")}
                   </p>
                 </div>
               </div>
               <div className="mt-4 grid grid-cols-2 gap-3">
                 <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 text-center">
                   <p className="text-lg font-bold text-[var(--usha-gold)]">{isPremium ? "20%" : "10%"}</p>
-                  <p className="text-[10px] text-[var(--usha-muted)]">Rabatt på bokningar</p>
+                  <p className="text-[10px] text-[var(--usha-muted)]">{t("bookingDiscount")}</p>
                 </div>
                 <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 text-center">
-                  <p className="text-lg font-bold text-[var(--usha-gold)]">{isPremium ? "VIP" : "Prioritet"}</p>
-                  <p className="text-[10px] text-[var(--usha-muted)]">{isPremium ? "Aldrig i kö" : "Prioriterad support"}</p>
+                  <p className="text-lg font-bold text-[var(--usha-gold)]">{isPremium ? t("vip") : t("priority")}</p>
+                  <p className="text-[10px] text-[var(--usha-muted)]">{isPremium ? t("neverInQueue") : t("prioritySupport")}</p>
                 </div>
               </div>
             </div>
@@ -375,9 +378,9 @@ function PublikHome({
         {/* Top Creators — larger avatars with glow */}
         <section>
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-bold">Topp Kreatörer</h2>
+            <h2 className="text-lg font-bold">{t("topCreators")}</h2>
             <Link href="/marketplace" className="text-xs text-[var(--usha-gold)]">
-              Visa alla
+              {tc("viewAll")}
             </Link>
           </div>
           <div className="flex gap-5 overflow-x-auto pb-2 scrollbar-hide md:grid md:grid-cols-5 md:overflow-x-visible">
@@ -416,7 +419,7 @@ function PublikHome({
             )) : (
               <div className="col-span-full flex flex-col items-center justify-center rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] py-8">
                 <Users size={28} className="mb-2 text-[var(--usha-muted)]" />
-                <p className="text-sm text-[var(--usha-muted)]">Inga kreatörer ännu</p>
+                <p className="text-sm text-[var(--usha-muted)]">{t("noCreatorsYet")}</p>
               </div>
             )}
           </div>
@@ -425,9 +428,9 @@ function PublikHome({
         {/* Clubs & Studios — animated hover cards */}
         <section>
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-bold">Klubbar & Studios</h2>
+            <h2 className="text-lg font-bold">{t("clubsAndStudios")}</h2>
             <Link href="/marketplace" className="text-xs text-[var(--usha-gold)]">
-              Visa alla
+              {tc("viewAll")}
             </Link>
           </div>
           <div className="space-y-3 md:grid md:grid-cols-2 md:gap-3 md:space-y-0">
@@ -451,7 +454,7 @@ function PublikHome({
             }) : (
               <div className="col-span-full flex flex-col items-center justify-center rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] py-8">
                 <MapPin size={28} className="mb-2 text-[var(--usha-muted)]" />
-                <p className="text-sm text-[var(--usha-muted)]">Inga platser att visa ännu</p>
+                <p className="text-sm text-[var(--usha-muted)]">{t("noVenuesYet")}</p>
               </div>
             )}
           </div>
@@ -471,16 +474,16 @@ function PublikHome({
                 <div className="flex-1">
                   {isGuld ? (
                     <>
-                      <p className="text-sm font-semibold">Uppgradera till Premium</p>
+                      <p className="text-sm font-semibold">{t("upgradeToPremium")}</p>
                       <p className="text-xs text-[var(--usha-muted)]">
-                        20% rabatt, VIP-kö och exklusivt innehåll
+                        {t("premiumBenefits")}
                       </p>
                     </>
                   ) : (
                     <>
-                      <p className="text-sm font-semibold">Bli Guld-medlem</p>
+                      <p className="text-sm font-semibold">{t("becomeGold")}</p>
                       <p className="text-xs text-[var(--usha-muted)]">
-                        10% rabatt och tidig tillgång till alla events
+                        {t("goldBenefits")}
                       </p>
                     </>
                   )}
@@ -513,6 +516,9 @@ function KreatorHome({
   tier?: string;
   feedPosts?: FeedPost[];
 }) {
+  const t = useTranslations("home");
+  const tc = useTranslations("common");
+  const tr = useTranslations("roles");
   const isPremium = tier === "premium";
   const isGuld = tier === "guld";
   const commission = isPremium ? 3 : isGuld ? 8 : 15;
@@ -527,7 +533,7 @@ function KreatorHome({
 
   const postForm = (
     <CreatePostForm
-      authorName={profile?.full_name || "Kreatör"}
+      authorName={profile?.full_name || tr("kreator")}
       authorAvatar={profile?.avatar_url || null}
       listings={userListings}
     />
@@ -540,14 +546,14 @@ function KreatorHome({
         {/* Header — minimal */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-bold">{profile?.full_name || "Kreatör"}</h1>
-            <p className="text-[11px] text-[var(--usha-muted)]">Premium · {commission}% kommission</p>
+            <h1 className="text-lg font-bold">{profile?.full_name || tr("kreator")}</h1>
+            <p className="text-[11px] text-[var(--usha-muted)]">Premium · {t("commission", { commission })}</p>
           </div>
           <Link
             href="/app/calendar"
             className="rounded-lg bg-[var(--usha-card)] border border-[var(--usha-border)] px-3 py-1.5 text-xs font-medium text-[var(--usha-muted)] transition hover:text-white"
           >
-            Kalender
+            {t("calendar")}
           </Link>
         </div>
 
@@ -557,10 +563,10 @@ function KreatorHome({
         {/* KPI ribbon — single row */}
         <div className="flex gap-2">
           {[
-            { label: "Intäkter", value: `${monthlyRevenue.toLocaleString("sv-SE")} kr` },
-            { label: "Bokningar", value: String(bookingsCount) },
-            { label: "Betyg", value: averageRating != null ? `${averageRating}/5` : "—" },
-            { label: "Tjänster", value: String(listings.length) },
+            { label: t("revenue"), value: `${monthlyRevenue.toLocaleString("sv-SE")} kr` },
+            { label: t("bookings"), value: String(bookingsCount) },
+            { label: t("rating"), value: averageRating != null ? `${averageRating}/5` : "—" },
+            { label: t("services"), value: String(listings.length) },
           ].map((kpi) => (
             <div key={kpi.label} className="flex-1 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-3 text-center">
               <p className="text-base font-bold leading-none">{kpi.value}</p>
@@ -572,10 +578,10 @@ function KreatorHome({
         {/* Quick actions — 2x2 grid */}
         <div className="grid grid-cols-2 gap-2">
           {[
-            { label: "Ny tjänst", href: "/app/courses", icon: Clock },
-            { label: "Bokningar", href: "/app/calendar", icon: Calendar },
-            { label: "Meddelanden", href: "/app/messages", icon: Users },
-            { label: "Profil", href: "/app/profile", icon: Star },
+            { label: t("newService"), href: "/app/courses", icon: Clock },
+            { label: t("bookings"), href: "/app/calendar", icon: Calendar },
+            { label: tc("messages"), href: "/app/messages", icon: Users },
+            { label: tc("profile"), href: "/app/profile", icon: Star },
           ].map((action) => (
             <Link
               key={action.label}
@@ -590,7 +596,7 @@ function KreatorHome({
 
         {/* Recent activity feed */}
         <section>
-          <h2 className="mb-3 text-sm font-semibold text-[var(--usha-muted)]">Dina tjänster</h2>
+          <h2 className="mb-3 text-sm font-semibold text-[var(--usha-muted)]">{t("yourServices")}</h2>
           <div className="space-y-1.5">
             {todaysListings.length > 0 ? todaysListings.map((cls, i) => (
               <div
@@ -607,7 +613,7 @@ function KreatorHome({
                 </div>
               </div>
             )) : (
-              <p className="py-4 text-center text-sm text-[var(--usha-muted)]">Inga tjänster ännu</p>
+              <p className="py-4 text-center text-sm text-[var(--usha-muted)]">{t("noServicesYet")}</p>
             )}
           </div>
         </section>
@@ -616,10 +622,10 @@ function KreatorHome({
         <div className="flex items-center justify-between rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3">
           <div className="flex items-center gap-2">
             <Calendar size={14} className="text-[var(--usha-muted)]" />
-            <span className="text-sm">{bookingsCount} aktiva bokningar</span>
+            <span className="text-sm">{t("activeBookings", { count: bookingsCount })}</span>
           </div>
           <Link href="/app/calendar" className="text-xs text-[var(--usha-gold)]">
-            Visa
+            {tc("view")}
           </Link>
         </div>
       </div>
@@ -633,12 +639,12 @@ function KreatorHome({
         {/* Header with commission badge */}
         <div>
           <h1 className="text-xl font-bold">
-            Hej, {profile?.full_name || "Kreatör"}!
+            {t("greeting", { name: profile?.full_name || tr("kreator") })}
           </h1>
           <div className="mt-1 flex items-center gap-2">
-            <span className="text-xs text-[var(--usha-muted)]">Kreatör · {profile?.category || "Kreativ"}</span>
+            <span className="text-xs text-[var(--usha-muted)]">{tr("kreator")} · {profile?.category || "Kreativ"}</span>
             <span className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-[10px] font-semibold text-[var(--usha-gold)]">
-              {commission}% kommission
+              {t("commission", { commission })}
             </span>
           </div>
         </div>
@@ -664,10 +670,10 @@ function KreatorHome({
         {/* Quick actions */}
         <div className="grid grid-cols-2 gap-2">
           {[
-            { label: "Ny tjänst", href: "/app/courses", icon: Clock },
-            { label: "Bokningar", href: "/app/calendar", icon: Calendar },
-            { label: "Meddelanden", href: "/app/messages", icon: Users },
-            { label: "Statistik", href: "/dashboard", icon: TrendingUp },
+            { label: t("newService"), href: "/app/courses", icon: Clock },
+            { label: t("bookings"), href: "/app/calendar", icon: Calendar },
+            { label: tc("messages"), href: "/app/messages", icon: Users },
+            { label: t("statistics"), href: "/dashboard", icon: TrendingUp },
           ].map((action) => (
             <Link
               key={action.label}
@@ -683,8 +689,8 @@ function KreatorHome({
         {/* Listings */}
         <section>
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-base font-bold">Dina Tjänster</h2>
-            <Link href="/app/courses" className="text-xs text-[var(--usha-gold)]">Alla</Link>
+            <h2 className="text-base font-bold">{t("yourServices")}</h2>
+            <Link href="/app/courses" className="text-xs text-[var(--usha-gold)]">{tc("all")}</Link>
           </div>
           <div className="space-y-2">
             {todaysListings.length > 0 ? todaysListings.map((cls, i) => (
@@ -696,7 +702,7 @@ function KreatorHome({
                 </div>
               </div>
             )) : (
-              <p className="py-6 text-center text-sm text-[var(--usha-muted)]">Inga tjänster ännu</p>
+              <p className="py-6 text-center text-sm text-[var(--usha-muted)]">{t("noServicesYet")}</p>
             )}
           </div>
         </section>
@@ -705,10 +711,10 @@ function KreatorHome({
         <div className="flex items-center justify-between rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3">
           <div className="flex items-center gap-3">
             <Calendar size={16} className="text-[var(--usha-gold)]" />
-            <span className="text-sm">{bookingsCount} aktiva bokningar</span>
+            <span className="text-sm">{t("activeBookings", { count: bookingsCount })}</span>
           </div>
           <Link href="/app/calendar" className="rounded-lg bg-[var(--usha-gold)]/10 px-3 py-1.5 text-xs font-medium text-[var(--usha-gold)]">
-            Kalender
+            {t("calendar")}
           </Link>
         </div>
       </div>
@@ -721,12 +727,12 @@ function KreatorHome({
       {/* Greeting */}
       <div>
         <h1 className="text-2xl font-bold">
-          Hej, {profile?.full_name || "Kreatör"}! 👋
+          {t("greeting", { name: profile?.full_name || tr("kreator") })} 👋
         </h1>
         <div className="mt-1 flex items-center gap-2">
-          <span className="text-xs text-[var(--usha-muted)]">Kreatör · {profile?.category || "Kreativ"}</span>
+          <span className="text-xs text-[var(--usha-muted)]">{tr("kreator")} · {profile?.category || "Kreativ"}</span>
           <span className="rounded-full bg-[var(--usha-muted)]/10 px-2 py-0.5 text-[10px] font-medium text-[var(--usha-muted)]">
-            {commission}% kommission
+            {t("commission", { commission })}
           </span>
         </div>
       </div>
@@ -734,9 +740,9 @@ function KreatorHome({
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { label: "Bokningar", value: String(bookingsCount), icon: Calendar },
-          { label: "Intäkter", value: `${monthlyRevenue.toLocaleString("sv-SE")} kr`, icon: DollarSign },
-          { label: "Betyg", value: averageRating != null ? `${averageRating}/5` : "—", icon: Star },
+          { label: t("bookings"), value: String(bookingsCount), icon: Calendar },
+          { label: t("revenue"), value: `${monthlyRevenue.toLocaleString("sv-SE")} kr`, icon: DollarSign },
+          { label: t("rating"), value: averageRating != null ? `${averageRating}/5` : "—", icon: Star },
         ].map((stat) => (
           <div
             key={stat.label}
@@ -750,13 +756,13 @@ function KreatorHome({
       </div>
 
       {/* KPI ribbon — locked for gratis */}
-      <GatedAction requiredTier="premium" message="Uppgradera till Premium för KPI-dashboard." showLock>
+      <GatedAction requiredTier="premium" message={t("upgradePremiumKpi")} showLock>
         <div className="flex gap-2">
           {[
-            { label: "Intäkter", value: `${monthlyRevenue.toLocaleString("sv-SE")} kr` },
-            { label: "Bokningar", value: String(bookingsCount) },
-            { label: "Betyg", value: averageRating != null ? `${averageRating}/5` : "—" },
-            { label: "Tjänster", value: String(listings.length) },
+            { label: t("revenue"), value: `${monthlyRevenue.toLocaleString("sv-SE")} kr` },
+            { label: t("bookings"), value: String(bookingsCount) },
+            { label: t("rating"), value: averageRating != null ? `${averageRating}/5` : "—" },
+            { label: t("services"), value: String(listings.length) },
           ].map((kpi) => (
             <div key={kpi.label} className="flex-1 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-3 text-center">
               <p className="text-base font-bold leading-none">{kpi.value}</p>
@@ -770,29 +776,29 @@ function KreatorHome({
       <div className="grid grid-cols-2 gap-2">
         <Link href="/app/courses" className="flex items-center gap-2.5 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 text-sm font-medium transition hover:border-[var(--usha-gold)]/30">
           <Clock size={16} className="text-[var(--usha-gold)]" />
-          Ny tjänst
+          {t("newService")}
         </Link>
         <Link href="/app/calendar" className="flex items-center gap-2.5 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 text-sm font-medium transition hover:border-[var(--usha-gold)]/30">
           <Calendar size={16} className="text-[var(--usha-gold)]" />
-          Bokningar
+          {t("bookings")}
         </Link>
-        <GatedAction requiredTier="guld" message="Uppgradera till Guld för att skanna biljetter." showLock>
+        <GatedAction requiredTier="guld" message={t("upgradeGoldScan")} showLock>
           <div className="flex items-center gap-2.5 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 text-sm font-medium">
             <Camera size={16} className="text-[var(--usha-gold)]" />
-            Skanna biljett
+            {t("scanTicket")}
           </div>
         </GatedAction>
         <Link href="/app/messages" className="flex items-center gap-2.5 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 text-sm font-medium transition hover:border-[var(--usha-gold)]/30">
           <Users size={16} className="text-[var(--usha-gold)]" />
-          Meddelanden
+          {tc("messages")}
         </Link>
       </div>
 
       {/* Listings */}
       <section>
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-base font-bold">Dina Tjänster</h2>
-          <Link href="/app/courses" className="text-xs text-[var(--usha-gold)]">Alla</Link>
+          <h2 className="text-base font-bold">{t("yourServices")}</h2>
+          <Link href="/app/courses" className="text-xs text-[var(--usha-gold)]">{tc("all")}</Link>
         </div>
         <div className="space-y-2">
           {todaysListings.length > 0 ? todaysListings.map((cls, i) => (
@@ -804,7 +810,7 @@ function KreatorHome({
               </div>
             </div>
           )) : (
-            <p className="py-6 text-center text-sm text-[var(--usha-muted)]">Inga tjänster ännu</p>
+            <p className="py-6 text-center text-sm text-[var(--usha-muted)]">{t("noServicesYet")}</p>
           )}
         </div>
       </section>
@@ -813,10 +819,10 @@ function KreatorHome({
       <div className="flex items-center justify-between rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3">
         <div className="flex items-center gap-3">
           <Calendar size={16} className="text-[var(--usha-gold)]" />
-          <span className="text-sm">{bookingsCount} aktiva bokningar</span>
+          <span className="text-sm">{t("activeBookings", { count: bookingsCount })}</span>
         </div>
         <Link href="/app/calendar" className="rounded-lg bg-[var(--usha-gold)]/10 px-3 py-1.5 text-xs font-medium text-[var(--usha-gold)]">
-          Kalender
+          {t("calendar")}
         </Link>
       </div>
 
@@ -828,8 +834,8 @@ function KreatorHome({
         <div className="flex items-center gap-3">
           <Sparkles size={16} className="text-[var(--usha-gold)]" />
           <div className="flex-1">
-            <p className="text-sm font-medium">Sänk din kommission till 8%</p>
-            <p className="text-[11px] text-[var(--usha-muted)]">Du betalar 15% idag — uppgradera till Guld</p>
+            <p className="text-sm font-medium">{t("lowerCommission")}</p>
+            <p className="text-[11px] text-[var(--usha-muted)]">{t("payingToday")}</p>
           </div>
           <ChevronRight size={14} className="text-[var(--usha-gold)]/60 transition group-hover:translate-x-1" />
         </div>
@@ -856,6 +862,9 @@ function UpplevelseHome({
   tier?: string;
   feedPosts?: FeedPost[];
 }) {
+  const t = useTranslations("home");
+  const tc = useTranslations("common");
+  const tr = useTranslations("roles");
   const isPremium = tier === "premium";
   const isGuld = tier === "guld";
   const commission = isPremium ? 3 : isGuld ? 8 : 15;
@@ -875,7 +884,7 @@ function UpplevelseHome({
 
   const postForm = (
     <CreatePostForm
-      authorName={profile?.full_name || "Upplevelse"}
+      authorName={profile?.full_name || tr("upplevelse")}
       authorAvatar={profile?.avatar_url || null}
       listings={userListings}
     />
@@ -888,15 +897,15 @@ function UpplevelseHome({
         {/* Header — minimal */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-bold">{profile?.full_name || "Upplevelse"}</h1>
-            <p className="text-[11px] text-[var(--usha-muted)]">Premium · {commission}% kommission</p>
+            <h1 className="text-lg font-bold">{profile?.full_name || tr("upplevelse")}</h1>
+            <p className="text-[11px] text-[var(--usha-muted)]">Premium · {t("commission", { commission })}</p>
           </div>
           <Link
             href="/app/scan"
             className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-3 py-1.5 text-xs font-bold text-black"
           >
             <Camera size={12} />
-            Skanna
+            {t("scanTicket")}
           </Link>
         </div>
 
@@ -906,8 +915,8 @@ function UpplevelseHome({
         {/* KPI ribbon */}
         <div className="flex gap-2">
           {[
-            { label: "Intäkter", value: `${monthlyRevenue.toLocaleString("sv-SE")} kr` },
-            { label: "Bokningar", value: String(bookingsCount) },
+            { label: t("revenue"), value: `${monthlyRevenue.toLocaleString("sv-SE")} kr` },
+            { label: t("bookings"), value: String(bookingsCount) },
             { label: "Events", value: String(activeEvents.length) },
             { label: "Utkast", value: String(draftEvents.length) },
           ].map((kpi) => (
@@ -921,10 +930,10 @@ function UpplevelseHome({
         {/* Quick actions */}
         <div className="grid grid-cols-2 gap-2">
           {[
-            { label: "Nytt event", href: "/app/events", icon: Ticket },
-            { label: "Skanna biljett", href: "/app/scan", icon: Camera },
-            { label: "Meddelanden", href: "/app/messages", icon: Users },
-            { label: "Evenemang", href: "/app/events", icon: Calendar },
+            { label: t("newEvent"), href: "/app/events", icon: Ticket },
+            { label: t("scanTicket"), href: "/app/scan", icon: Camera },
+            { label: tc("messages"), href: "/app/messages", icon: Users },
+            { label: t("upcomingEvents"), href: "/app/events", icon: Calendar },
           ].map((action) => (
             <Link
               key={action.label}
@@ -939,7 +948,7 @@ function UpplevelseHome({
 
         {/* Event pipeline */}
         <section>
-          <h2 className="mb-3 text-sm font-semibold text-[var(--usha-muted)]">Event-pipeline</h2>
+          <h2 className="mb-3 text-sm font-semibold text-[var(--usha-muted)]">{t("eventPipeline")}</h2>
           <div className="space-y-1.5">
             {upcomingEvents.length > 0 ? upcomingEvents.map((event, i) => (
               <div
@@ -958,7 +967,7 @@ function UpplevelseHome({
                 </div>
               </div>
             )) : (
-              <p className="py-4 text-center text-sm text-[var(--usha-muted)]">Inga events ännu</p>
+              <p className="py-4 text-center text-sm text-[var(--usha-muted)]">{t("noEventsCreated")}</p>
             )}
           </div>
         </section>
@@ -971,11 +980,11 @@ function UpplevelseHome({
     return (
       <div className="px-4 py-6 space-y-6">
         <div>
-          <h1 className="text-xl font-bold">Hej, {profile?.full_name || "där"}!</h1>
+          <h1 className="text-xl font-bold">{t("greeting", { name: profile?.full_name || "där" })}</h1>
           <div className="mt-1 flex items-center gap-2">
-            <span className="text-xs text-[var(--usha-muted)]">Upplevelse · {profile?.category || "Venue"}</span>
+            <span className="text-xs text-[var(--usha-muted)]">{tr("upplevelse")} · {profile?.category || "Venue"}</span>
             <span className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-[10px] font-semibold text-[var(--usha-gold)]">
-              {commission}% kommission
+              {t("commission", { commission })}
             </span>
           </div>
         </div>
@@ -1002,19 +1011,19 @@ function UpplevelseHome({
         <div className="grid grid-cols-2 gap-2">
           <Link href="/app/scan" className="flex items-center gap-2.5 rounded-xl border border-[var(--usha-gold)]/30 bg-[var(--usha-gold)]/5 p-3 text-sm font-medium text-[var(--usha-gold)]">
             <Camera size={16} />
-            Skanna biljett
+            {t("scanTicket")}
           </Link>
           <Link href="/app/events" className="flex items-center gap-2.5 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 text-sm font-medium transition hover:border-[var(--usha-gold)]/30">
             <Ticket size={16} className="text-[var(--usha-gold)]" />
-            Evenemang
+            {t("upcomingEvents")}
           </Link>
         </div>
 
         {/* Events list */}
         <section>
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-base font-bold">Kommande Evenemang</h2>
-            <Link href="/app/events" className="text-xs text-[var(--usha-gold)]">Hantera</Link>
+            <h2 className="text-base font-bold">{t("upcomingEvents")}</h2>
+            <Link href="/app/events" className="text-xs text-[var(--usha-gold)]">{tc("manage")}</Link>
           </div>
           <div className="space-y-2">
             {upcomingEvents.length > 0 ? upcomingEvents.slice(0, 4).map((event, i) => (
@@ -1029,7 +1038,7 @@ function UpplevelseHome({
                 }`}>{event.status}</span>
               </div>
             )) : (
-              <p className="py-6 text-center text-sm text-[var(--usha-muted)]">Inga events ännu</p>
+              <p className="py-6 text-center text-sm text-[var(--usha-muted)]">{t("noEventsCreated")}</p>
             )}
           </div>
         </section>
@@ -1042,12 +1051,12 @@ function UpplevelseHome({
     <div className="px-4 py-6 space-y-6">
       <div>
         <h1 className="text-2xl font-bold">
-          Hej, {profile?.full_name || "där"}! 👋
+          {t("greeting", { name: profile?.full_name || "där" })} 👋
         </h1>
         <div className="mt-1 flex items-center gap-2">
-          <span className="text-xs text-[var(--usha-muted)]">Upplevelse · {profile?.category || "Venue"}</span>
+          <span className="text-xs text-[var(--usha-muted)]">{tr("upplevelse")} · {profile?.category || "Venue"}</span>
           <span className="rounded-full bg-[var(--usha-muted)]/10 px-2 py-0.5 text-[10px] font-medium text-[var(--usha-muted)]">
-            {commission}% kommission
+            {t("commission", { commission })}
           </span>
         </div>
       </div>
@@ -1055,9 +1064,9 @@ function UpplevelseHome({
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { label: "Bokningar", value: String(bookingsCount), icon: Calendar },
-          { label: "Betyg", value: averageRating != null ? `${averageRating}/5` : "—", icon: Star },
-          { label: "Intäkter", value: `${monthlyRevenue.toLocaleString("sv-SE")} kr`, icon: DollarSign },
+          { label: t("bookings"), value: String(bookingsCount), icon: Calendar },
+          { label: t("rating"), value: averageRating != null ? `${averageRating}/5` : "—", icon: Star },
+          { label: t("revenue"), value: `${monthlyRevenue.toLocaleString("sv-SE")} kr`, icon: DollarSign },
         ].map((stat) => (
           <div
             key={stat.label}
@@ -1071,11 +1080,11 @@ function UpplevelseHome({
       </div>
 
       {/* KPI ribbon — locked for gratis */}
-      <GatedAction requiredTier="premium" message="Uppgradera till Premium för KPI-dashboard." showLock>
+      <GatedAction requiredTier="premium" message={t("upgradePremiumKpi")} showLock>
         <div className="flex gap-2">
           {[
-            { label: "Intäkter", value: `${monthlyRevenue.toLocaleString("sv-SE")} kr` },
-            { label: "Bokningar", value: String(bookingsCount) },
+            { label: t("revenue"), value: `${monthlyRevenue.toLocaleString("sv-SE")} kr` },
+            { label: t("bookings"), value: String(bookingsCount) },
             { label: "Events", value: String(activeEvents.length) },
             { label: "Utkast", value: String(draftEvents.length) },
           ].map((kpi) => (
@@ -1091,28 +1100,28 @@ function UpplevelseHome({
       <div className="grid grid-cols-2 gap-2">
         <Link href="/app/events" className="flex items-center gap-2.5 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 text-sm font-medium transition hover:border-[var(--usha-gold)]/30">
           <Ticket size={16} className="text-[var(--usha-gold)]" />
-          Nytt event
+          {t("newEvent")}
         </Link>
-        <GatedAction requiredTier="guld" message="Uppgradera till Guld för att skanna biljetter." showLock>
+        <GatedAction requiredTier="guld" message={t("upgradeGoldScan")} showLock>
           <div className="flex items-center gap-2.5 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 text-sm font-medium">
             <Camera size={16} className="text-[var(--usha-gold)]" />
-            Skanna biljett
+            {t("scanTicket")}
           </div>
         </GatedAction>
         <Link href="/app/messages" className="flex items-center gap-2.5 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 text-sm font-medium transition hover:border-[var(--usha-gold)]/30">
           <Users size={16} className="text-[var(--usha-gold)]" />
-          Meddelanden
+          {tc("messages")}
         </Link>
         <Link href="/app/events" className="flex items-center gap-2.5 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 text-sm font-medium transition hover:border-[var(--usha-gold)]/30">
           <Calendar size={16} className="text-[var(--usha-gold)]" />
-          Evenemang
+          {t("upcomingEvents")}
         </Link>
       </div>
 
       {/* Event pipeline — locked for gratis */}
-      <GatedAction requiredTier="premium" message="Uppgradera till Premium för event-pipeline." showLock>
+      <GatedAction requiredTier="premium" message={t("upgradePremiumPipeline")} showLock>
         <section>
-          <h2 className="mb-3 text-sm font-semibold text-[var(--usha-muted)]">Event-pipeline</h2>
+          <h2 className="mb-3 text-sm font-semibold text-[var(--usha-muted)]">{t("eventPipeline")}</h2>
           <div className="space-y-1.5">
             {upcomingEvents.length > 0 ? upcomingEvents.slice(0, 3).map((event, i) => (
               <div key={i} className="flex items-center justify-between rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2.5">
@@ -1125,7 +1134,7 @@ function UpplevelseHome({
                 }`}>{event.status}</span>
               </div>
             )) : (
-              <p className="py-4 text-center text-sm text-[var(--usha-muted)]">Inga events ännu</p>
+              <p className="py-4 text-center text-sm text-[var(--usha-muted)]">{t("noEventsCreated")}</p>
             )}
           </div>
         </section>
@@ -1134,8 +1143,8 @@ function UpplevelseHome({
       {/* Upcoming Events */}
       <section>
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-base font-bold">Kommande Evenemang</h2>
-          <Link href="/app/events" className="text-xs text-[var(--usha-gold)]">Hantera</Link>
+          <h2 className="text-base font-bold">{t("upcomingEvents")}</h2>
+          <Link href="/app/events" className="text-xs text-[var(--usha-gold)]">{tc("manage")}</Link>
         </div>
         <div className="space-y-2">
           {upcomingEvents.length > 0 ? upcomingEvents.slice(0, 3).map((event, i) => (
@@ -1154,10 +1163,10 @@ function UpplevelseHome({
               <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[var(--usha-gold)]/20 to-[var(--usha-accent)]/20">
                 <Ticket size={24} className="text-[var(--usha-gold)]" />
               </div>
-              <p className="text-sm font-medium">Skapa ditt första event</p>
-              <p className="mt-1 text-xs text-[var(--usha-muted)]">Börja sälja biljetter idag</p>
+              <p className="text-sm font-medium">{t("createFirstEvent")}</p>
+              <p className="mt-1 text-xs text-[var(--usha-muted)]">{t("startSellingTickets")}</p>
               <Link href="/app/events" className="mt-4 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-5 py-2 text-xs font-bold text-black">
-                Skapa event
+                {t("createEvent")}
               </Link>
             </div>
           )}
@@ -1172,8 +1181,8 @@ function UpplevelseHome({
         <div className="flex items-center gap-3">
           <Sparkles size={16} className="text-[var(--usha-gold)]" />
           <div className="flex-1">
-            <p className="text-sm font-medium">Sänk din kommission till 8%</p>
-            <p className="text-[11px] text-[var(--usha-muted)]">Du betalar 15% idag — uppgradera till Guld</p>
+            <p className="text-sm font-medium">{t("lowerCommission")}</p>
+            <p className="text-[11px] text-[var(--usha-muted)]">{t("payingToday")}</p>
           </div>
           <ChevronRight size={14} className="text-[var(--usha-gold)]/60 transition group-hover:translate-x-1" />
         </div>
