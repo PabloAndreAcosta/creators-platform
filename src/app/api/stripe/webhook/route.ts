@@ -7,6 +7,7 @@ import { PLANS, type PlanKey } from "@/lib/stripe/config";
 import { sendBookingConfirmationEmail } from "@/lib/email/send-booking";
 import { sendGoldWelcomeEmail } from "@/lib/email/send-welcome";
 import { sendTrialEndingEmail as sendTrialEndingEmailService } from "@/lib/email/send-trial-ending";
+import { createNotification } from "@/lib/notifications/create";
 
 /** Reverse lookup: Stripe price ID → plan key */
 function planKeyFromPriceId(priceId: string): string | null {
@@ -468,6 +469,155 @@ export async function POST(req: NextRequest) {
           .from("subscriptions")
           .update({ status: "canceled" })
           .eq("stripe_subscription_id", subscription.id);
+        break;
+      }
+
+      // ── Payout status updates ──
+      case "payout.paid": {
+        const payout = event.data.object as Stripe.Payout;
+        await getSupabaseAdmin()
+          .from("payouts")
+          .update({ status: "paid", paid_at: new Date().toISOString() })
+          .eq("stripe_payout_id", payout.id);
+        break;
+      }
+
+      case "payout.failed": {
+        const payout = event.data.object as Stripe.Payout;
+        await getSupabaseAdmin()
+          .from("payouts")
+          .update({ status: "failed" })
+          .eq("stripe_payout_id", payout.id);
+
+        // Notify creator about failed payout
+        const { data: failedPayout } = await getSupabaseAdmin()
+          .from("payouts")
+          .select("creator_id, amount_net")
+          .eq("stripe_payout_id", payout.id)
+          .single();
+
+        if (failedPayout) {
+          createNotification({
+            userId: failedPayout.creator_id,
+            type: "payout",
+            title: "Payout failed",
+            message: `Your payout of ${failedPayout.amount_net} SEK failed. Please check your Stripe account settings.`,
+            link: "/dashboard/payouts",
+          }).catch(() => {});
+        }
+        break;
+      }
+
+      // ── Refund handling ──
+      case "charge.refunded": {
+        const charge = event.data.object as Stripe.Charge;
+        const paymentIntentId = charge.payment_intent as string | null;
+
+        if (paymentIntentId) {
+          // Update payment status
+          await getSupabaseAdmin()
+            .from("payments")
+            .update({ status: "failed" }) // 'failed' represents refunded in current schema
+            .eq("stripe_payment_id", paymentIntentId);
+
+          // Cancel associated booking
+          const { data: refundedBooking } = await getSupabaseAdmin()
+            .from("bookings")
+            .select("id, customer_id, creator_id, listing_id")
+            .eq("stripe_payment_id", paymentIntentId)
+            .single();
+
+          if (refundedBooking) {
+            await getSupabaseAdmin()
+              .from("bookings")
+              .update({ status: "canceled" })
+              .eq("id", refundedBooking.id);
+
+            // Notify both parties
+            const { data: listing } = await getSupabaseAdmin()
+              .from("listings")
+              .select("title")
+              .eq("id", refundedBooking.listing_id)
+              .single();
+
+            const serviceName = listing?.title || "Booking";
+
+            if (refundedBooking.customer_id) {
+              createNotification({
+                userId: refundedBooking.customer_id,
+                type: "booking_canceled",
+                title: "Refund processed",
+                message: `Your booking for "${serviceName}" has been refunded.`,
+                link: "/app/tickets",
+              }).catch(() => {});
+            }
+
+            createNotification({
+              userId: refundedBooking.creator_id,
+              type: "booking_canceled",
+              title: "Booking refunded",
+              message: `A booking for "${serviceName}" has been refunded.`,
+              link: "/dashboard/bookings",
+            }).catch(() => {});
+          }
+        }
+        break;
+      }
+
+      // ── Dispute/Chargeback handling ──
+      case "charge.dispute.created": {
+        const dispute = event.data.object as Stripe.Dispute;
+        const disputeCharge = await stripe.charges.retrieve(dispute.charge as string);
+        const disputePaymentIntent = disputeCharge.payment_intent as string | null;
+
+        if (disputePaymentIntent) {
+          const { data: disputedBooking } = await getSupabaseAdmin()
+            .from("bookings")
+            .select("id, creator_id, listing_id")
+            .eq("stripe_payment_id", disputePaymentIntent)
+            .single();
+
+          if (disputedBooking) {
+            const { data: listing } = await getSupabaseAdmin()
+              .from("listings")
+              .select("title")
+              .eq("id", disputedBooking.listing_id)
+              .single();
+
+            createNotification({
+              userId: disputedBooking.creator_id,
+              type: "payout",
+              title: "Payment dispute opened",
+              message: `A customer has disputed a payment for "${listing?.title || "a booking"}". Amount: ${(dispute.amount / 100).toLocaleString("sv-SE")} SEK.`,
+              link: "/dashboard/payouts",
+            }).catch(() => {});
+          }
+        }
+
+        console.warn("Dispute created:", dispute.id, "Amount:", dispute.amount, "Reason:", dispute.reason);
+        break;
+      }
+
+      case "charge.dispute.closed": {
+        const dispute = event.data.object as Stripe.Dispute;
+        console.log("Dispute closed:", dispute.id, "Status:", dispute.status);
+        // dispute.status: 'won' | 'lost' | 'charge_refunded' | 'warning_closed'
+        break;
+      }
+
+      // ── Connect account updates ──
+      case "account.updated": {
+        const account = event.data.object as Stripe.Account;
+        if (account.id) {
+          await getSupabaseAdmin()
+            .from("profiles")
+            .update({
+              // Profile already has stripe_account_id, just log status changes
+            })
+            .eq("stripe_account_id", account.id);
+          // Log for monitoring
+          console.log("Connect account updated:", account.id, "Charges enabled:", account.charges_enabled, "Payouts enabled:", account.payouts_enabled);
+        }
         break;
       }
     }
