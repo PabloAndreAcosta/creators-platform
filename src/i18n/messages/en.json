@@ -514,5 +514,34 @@
       "copyright": "© 2026 Usha AB. All rights reserved.",
       "builtWith": "Built with love in Sweden"
     }
+  },
+  "serverNotifications": {
+    "newBookingTitle": "New booking",
+    "newBookingMsg": "{customer} has booked \"{service}\"",
+    "bookingConfirmedTitle": "Booking confirmed",
+    "bookingConfirmedMsg": "Your booking for \"{service}\" has been confirmed",
+    "bookingCanceledTitle": "Booking cancelled",
+    "bookingCanceledMsg": "The booking for \"{service}\" has been cancelled",
+    "payoutTitle": "Payout",
+    "instantPayoutTitle": "Instant payout",
+    "payoutMsg": "{amount} SEK has been paid to your account",
+    "newReviewTitle": "New review",
+    "newReviewMsg": "{reviewer} gave you {rating}/5 stars",
+    "queuePromotedTitle": "Your turn!",
+    "queuePromotedMsg": "A spot has opened for \"{service}\" — book now!",
+    "levelUpTitle": "Congrats! You reached level {level}",
+    "levelUpMsg": "You are now {levelName} with {points} points!"
+  },
+  "apiErrors": {
+    "unauthorized": "Unauthorized",
+    "invalidPlan": "Invalid plan",
+    "stripePriceMissing": "Stripe price ID missing. Check environment variables.",
+    "checkoutFailed": "Could not start checkout",
+    "postIdRequired": "postId is required",
+    "couldNotLike": "Could not like the post",
+    "notLoggedIn": "Not logged in",
+    "creatorIdRequired": "creatorId is required",
+    "cannotFollowSelf": "You cannot follow yourself",
+    "couldNotFollow": "Could not follow"
   }
 }

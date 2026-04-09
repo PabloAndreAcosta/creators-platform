@@ -8,7 +8,7 @@ import { POINT_VALUES } from '@/lib/points/constants';
 export async function GET(req: NextRequest) {
   const creatorId = req.nextUrl.searchParams.get('creatorId');
   if (!creatorId) {
-    return NextResponse.json({ error: 'creatorId krävs' }, { status: 400 });
+    return NextResponse.json({ error: 'creatorId is required' }, { status: 400 });
   }
 
   const supabase = await createClient();
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
   const { bookingId, rating, comment } = await req.json();
 
   if (!bookingId || !rating || rating < 1 || rating > 5) {
-    return NextResponse.json({ error: 'Ogiltigt betyg (1-5) eller saknar bookingId' }, { status: 400 });
+    return NextResponse.json({ error: 'Invalid rating (1-5) or missing bookingId' }, { status: 400 });
   }
 
   // Verify this is a completed booking belonging to the user
@@ -62,11 +62,11 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (!booking) {
-    return NextResponse.json({ error: 'Bokning hittades inte' }, { status: 404 });
+    return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
   }
 
   if (booking.customer_id !== user.id) {
-    return NextResponse.json({ error: 'Du kan bara recensera dina egna bokningar' }, { status: 403 });
+    return NextResponse.json({ error: 'You can only review your own bookings' }, { status: 403 });
   }
 
   if (booking.status !== 'completed') {
@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (existing) {
-    return NextResponse.json({ error: 'Du har redan recenserat denna bokning' }, { status: 409 });
+    return NextResponse.json({ error: 'You have already reviewed this booking' }, { status: 409 });
   }
 
   const { error } = await supabase.from('reviews').insert({
@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
   });
 
   if (error) {
-    return NextResponse.json({ error: 'Kunde inte spara recension' }, { status: 500 });
+    return NextResponse.json({ error: 'Could not save review' }, { status: 500 });
   }
 
   // In-app notification for the creator (non-blocking)

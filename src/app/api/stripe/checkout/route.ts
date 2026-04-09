@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     const promoCode = body.promoCode as string | undefined;
 
     if (!planKey || !(planKey in PLANS)) {
-      return NextResponse.json({ error: "Ogiltig plan" }, { status: 400 });
+      return NextResponse.json({ error: "Invalid plan" }, { status: 400 });
     }
 
     const plan = PLANS[planKey as PlanKey];
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
 
     if (!priceId) {
       return NextResponse.json(
-        { error: "Stripe price ID saknas. Kontrollera miljövariabler." },
+        { error: "Stripe price ID missing. Check environment variables." },
         { status: 500 }
       );
     }
@@ -117,9 +117,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ url: session.url });
   } catch (error: any) {
     console.error("Checkout error:", error);
-    const message = error?.message || "Kunde inte starta checkout";
+    const message = error?.message || "Could not start checkout";
     return NextResponse.json(
-      { error: "Kunde inte starta checkout", detail: message },
+      { error: "Could not start checkout", detail: message },
       { status: 500 }
     );
   }

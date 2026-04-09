@@ -23,16 +23,16 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Ej inloggad" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { creatorId } = await req.json();
   if (!creatorId) {
-    return NextResponse.json({ error: "creatorId krävs" }, { status: 400 });
+    return NextResponse.json({ error: "creatorId is required" }, { status: 400 });
   }
 
   if (creatorId === user.id) {
-    return NextResponse.json({ error: "Du kan inte följa dig själv" }, { status: 400 });
+    return NextResponse.json({ error: "Cannot follow yourself" }, { status: 400 });
   }
 
   // Check if already following
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (error) {
-    return NextResponse.json({ error: "Kunde inte följa" }, { status: 500 });
+    return NextResponse.json({ error: "Could not follow" }, { status: 500 });
   }
 
   // Award points (non-blocking)

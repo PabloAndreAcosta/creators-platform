@@ -12,7 +12,7 @@ export async function createPost(formData: FormData) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) return { error: "Ej inloggad" };
+  if (!user) return { error: "Not logged in" };
 
   // All users with an account can post
 
@@ -20,7 +20,7 @@ export async function createPost(formData: FormData) {
   const imageUrl = (formData.get("image_url") as string)?.trim() || null;
   const listingId = (formData.get("listing_id") as string)?.trim() || null;
 
-  if (!text) return { error: "Skriv en text för ditt inlägg" };
+  if (!text) return { error: "Write some text for your post" };
 
   // If listing_id provided, verify it belongs to the user
   if (listingId) {
@@ -31,7 +31,7 @@ export async function createPost(formData: FormData) {
       .eq("user_id", user.id)
       .single();
 
-    if (!listing) return { error: "Vald tjänst hittades inte" };
+    if (!listing) return { error: "Selected service not found" };
   }
 
   const { data: post, error } = await supabase
@@ -45,7 +45,7 @@ export async function createPost(formData: FormData) {
     .select("id")
     .single();
 
-  if (error) return { error: "Kunde inte skapa inlägget. Försök igen." };
+  if (error) return { error: "Could not create post. Try again." };
 
   // Award points for creating a post (non-blocking)
   if (post) {
@@ -97,13 +97,13 @@ export async function updatePost(postId: string, formData: FormData) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) return { error: "Ej inloggad" };
+  if (!user) return { error: "Not logged in" };
 
   const text = (formData.get("text") as string)?.trim();
   const imageUrl = (formData.get("image_url") as string)?.trim() || null;
   const listingId = (formData.get("listing_id") as string)?.trim() || null;
 
-  if (!text) return { error: "Skriv en text för ditt inlägg" };
+  if (!text) return { error: "Write some text for your post" };
 
   if (listingId) {
     const { data: listing } = await supabase
@@ -112,7 +112,7 @@ export async function updatePost(postId: string, formData: FormData) {
       .eq("id", listingId)
       .eq("user_id", user.id)
       .single();
-    if (!listing) return { error: "Vald tjänst hittades inte" };
+    if (!listing) return { error: "Selected service not found" };
   }
 
   const { error } = await supabase
@@ -121,7 +121,7 @@ export async function updatePost(postId: string, formData: FormData) {
     .eq("id", postId)
     .eq("user_id", user.id);
 
-  if (error) return { error: "Kunde inte uppdatera inlägget" };
+  if (error) return { error: "Could not update post" };
 
   revalidatePath("/app");
   revalidatePath("/app/posts");
@@ -134,7 +134,7 @@ export async function deletePost(postId: string) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) return { error: "Ej inloggad" };
+  if (!user) return { error: "Not logged in" };
 
   const { error } = await supabase
     .from("posts")
@@ -142,7 +142,7 @@ export async function deletePost(postId: string) {
     .eq("id", postId)
     .eq("user_id", user.id);
 
-  if (error) return { error: "Kunde inte radera inlägget" };
+  if (error) return { error: "Could not delete post" };
 
   revalidatePath("/app");
   revalidatePath("/app/posts");

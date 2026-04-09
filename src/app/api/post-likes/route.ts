@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
 
   const { postId } = await req.json();
   if (!postId) {
-    return NextResponse.json({ error: "postId krävs" }, { status: 400 });
+    return NextResponse.json({ error: "postId is required" }, { status: 400 });
   }
 
   // Check if already liked
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
       .select("id")
       .single();
     if (error) {
-      return NextResponse.json({ error: "Kunde inte gilla inlägget" }, { status: 500 });
+      return NextResponse.json({ error: "Could not like post" }, { status: 500 });
     }
 
     // Award points (non-blocking)

@@ -514,5 +514,34 @@
       "copyright": "© 2026 Usha AB. Alla rättigheter förbehållna.",
       "builtWith": "Byggd med kärlek i Sverige"
     }
+  },
+  "serverNotifications": {
+    "newBookingTitle": "Ny bokning",
+    "newBookingMsg": "{customer} har bokat \"{service}\"",
+    "bookingConfirmedTitle": "Bokning bekräftad",
+    "bookingConfirmedMsg": "Din bokning för \"{service}\" har bekräftats",
+    "bookingCanceledTitle": "Bokning avbokad",
+    "bookingCanceledMsg": "Bokningen för \"{service}\" har avbokats",
+    "payoutTitle": "Utbetalning",
+    "instantPayoutTitle": "Direktutbetalning",
+    "payoutMsg": "{amount} kr har betalats ut till ditt konto",
+    "newReviewTitle": "Ny recension",
+    "newReviewMsg": "{reviewer} gav dig {rating}/5 stjärnor",
+    "queuePromotedTitle": "Din tur i kön!",
+    "queuePromotedMsg": "En plats har öppnats för \"{service}\" — boka nu!",
+    "levelUpTitle": "Grattis! Du nådde nivå {level}",
+    "levelUpMsg": "Du är nu {levelName} med {points} poäng!"
+  },
+  "apiErrors": {
+    "unauthorized": "Ej behörig",
+    "invalidPlan": "Ogiltig plan",
+    "stripePriceMissing": "Stripe price ID saknas. Kontrollera miljövariabler.",
+    "checkoutFailed": "Kunde inte starta checkout",
+    "postIdRequired": "postId krävs",
+    "couldNotLike": "Kunde inte gilla inlägget",
+    "notLoggedIn": "Ej inloggad",
+    "creatorIdRequired": "creatorId krävs",
+    "cannotFollowSelf": "Du kan inte följa dig själv",
+    "couldNotFollow": "Kunde inte följa"
   }
 }

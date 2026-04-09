@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createNotification } from "@/lib/notifications/create";
+import { getServerTranslation } from "@/lib/i18n/server";
 import type { PointAction } from "@/types/database";
 import { LEVEL_NAMES } from "./constants";
 
@@ -54,15 +55,26 @@ export async function awardPoints(params: AwardPointsParams): Promise<AwardResul
 
   // On level-up, notify user and unlock rewards
   if (awardResult.leveledUp) {
-    const levelName = LEVEL_NAMES[awardResult.newLevel] || `Nivå ${awardResult.newLevel}`;
+    const levelName = LEVEL_NAMES[awardResult.newLevel] || `Level ${awardResult.newLevel}`;
+    const ns = "serverNotifications";
 
-    createNotification({
-      userId: params.userId,
-      type: "queue_promoted", // reuse existing type for level-up
-      title: `Grattis! Du nådde nivå ${awardResult.newLevel}`,
-      message: `Du är nu ${levelName} med ${awardResult.totalPoints} poäng!`,
-      link: "/app/rewards",
-    }).catch((err) => console.error("Level-up notification failed:", err));
+    Promise.all([
+      getServerTranslation(ns, "levelUpTitle", "sv", { level: awardResult.newLevel }),
+      getServerTranslation(ns, "levelUpMsg", "sv", {
+        levelName,
+        points: awardResult.totalPoints,
+      }),
+    ])
+      .then(([title, message]) =>
+        createNotification({
+          userId: params.userId,
+          type: "queue_promoted",
+          title,
+          message,
+          link: "/app/rewards",
+        })
+      )
+      .catch((err) => console.error("Level-up notification failed:", err));
 
     // Auto-unlock rewards for the new level
     unlockRewardsForLevel(params.userId, awardResult.newLevel).catch((err) =>
