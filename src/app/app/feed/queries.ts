@@ -46,7 +46,7 @@ export async function getFeedPosts(
   });
 
   // Get user levels for post authors
-  const authorIds = [...new Set(posts.map((p) => p.user_id))];
+  const authorIds = Array.from(new Set(posts.map((p) => p.user_id)));
   const { data: authorPoints } = await supabase
     .from("user_points")
     .select("user_id, current_level")

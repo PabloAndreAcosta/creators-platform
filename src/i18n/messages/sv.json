@@ -1,0 +1,43 @@
+{
+  "common": {
+    "home": "Hem",
+    "profile": "Profil",
+    "messages": "Meddelanden",
+    "tickets": "Biljetter",
+    "settings": "Inställningar",
+    "login": "Logga in",
+    "signup": "Registrera dig",
+    "logout": "Logga ut",
+    "search": "Sök",
+    "cancel": "Avbryt",
+    "save": "Spara",
+    "delete": "Radera",
+    "edit": "Redigera",
+    "back": "Tillbaka",
+    "loading": "Laddar...",
+    "error": "Något gick fel",
+    "close": "Stäng"
+  },
+  "nav": {
+    "home": "Hem",
+    "posts": "Inlägg",
+    "myPosts": "Mina inlägg",
+    "messages": "Meddelanden",
+    "tickets": "Biljetter",
+    "scan": "Skanna",
+    "events": "Evenemang",
+    "content": "Innehåll",
+    "library": "Bibliotek",
+    "leaderboard": "Topplista",
+    "profile": "Profil"
+  },
+  "roles": {
+    "publik": "Användare",
+    "kreator": "Kreatör",
+    "upplevelse": "Upplevelse"
+  },
+  "language": {
+    "switchTo": "English",
+    "current": "Svenska"
+  }
+}

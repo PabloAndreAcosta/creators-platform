@@ -1,0 +1,43 @@
+{
+  "common": {
+    "home": "Home",
+    "profile": "Profile",
+    "messages": "Messages",
+    "tickets": "Tickets",
+    "settings": "Settings",
+    "login": "Log in",
+    "signup": "Sign up",
+    "logout": "Log out",
+    "search": "Search",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "close": "Close"
+  },
+  "nav": {
+    "home": "Home",
+    "posts": "Posts",
+    "myPosts": "My Posts",
+    "messages": "Messages",
+    "tickets": "Tickets",
+    "scan": "Scan",
+    "events": "Events",
+    "content": "Content",
+    "library": "Library",
+    "leaderboard": "Leaderboard",
+    "profile": "Profile"
+  },
+  "roles": {
+    "publik": "User",
+    "kreator": "Creator",
+    "upplevelse": "Experience"
+  },
+  "language": {
+    "switchTo": "Svenska",
+    "current": "English"
+  }
+}

@@ -1,4 +1,6 @@
 import type { Metadata, Viewport } from "next";
+import { getLocale, getMessages } from "next-intl/server";
+import { NextIntlClientProvider } from "next-intl";
 import { ToastProvider } from "@/components/ui/toaster";
 import { ConnectionStatus } from "@/components/ConnectionStatus";
 import Script from "next/script";
@@ -34,16 +36,21 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="sv" className="dark">
+    <html lang={locale} className="dark">
       <body className="grain min-h-screen bg-[var(--usha-black)] text-[var(--usha-white)] antialiased" suppressHydrationWarning>
-        <ConnectionStatus />
-        <ToastProvider>{children}</ToastProvider>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <ConnectionStatus />
+          <ToastProvider>{children}</ToastProvider>
+        </NextIntlClientProvider>
         <Script id="sw-register" strategy="afterInteractive">{`
           if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js')

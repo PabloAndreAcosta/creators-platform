@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   Home,
   Ticket,
@@ -20,30 +21,31 @@ export function BottomNav() {
   const pathname = usePathname();
   const { role } = useRole();
   const { tier } = useSubscription();
+  const t = useTranslations("nav");
 
   const tabs =
     role === "publik"
       ? [
-          { href: "/app", label: "Hem", icon: Home },
-          { href: "/app/posts", label: "Inlägg", icon: FileText },
-          { href: "/app/messages", label: "Meddelanden", icon: MessageCircle },
-          { href: "/app/tickets", label: "Biljetter", icon: Ticket },
-          { href: "/app/profile", label: "Profil", icon: User },
+          { href: "/app", label: t("home"), icon: Home },
+          { href: "/app/posts", label: t("posts"), icon: FileText },
+          { href: "/app/messages", label: t("messages"), icon: MessageCircle },
+          { href: "/app/tickets", label: t("tickets"), icon: Ticket },
+          { href: "/app/profile", label: t("profile"), icon: User },
         ]
       : role === "kreator"
         ? [
-            { href: "/app", label: "Hem", icon: Home },
-            { href: "/app/posts", label: "Inlägg", icon: FileText },
-            { href: "/app/messages", label: "Meddelanden", icon: MessageCircle },
-            { href: "/app/scan", label: "Skanna", icon: ScanLine },
-            { href: "/app/profile", label: "Profil", icon: User },
+            { href: "/app", label: t("home"), icon: Home },
+            { href: "/app/posts", label: t("posts"), icon: FileText },
+            { href: "/app/messages", label: t("messages"), icon: MessageCircle },
+            { href: "/app/scan", label: t("scan"), icon: ScanLine },
+            { href: "/app/profile", label: t("profile"), icon: User },
           ]
         : [
-            { href: "/app", label: "Hem", icon: Home },
-            { href: "/app/posts", label: "Inlägg", icon: FileText },
-            { href: "/app/messages", label: "Meddelanden", icon: MessageCircle },
-            { href: "/app/scan", label: "Skanna", icon: ScanLine },
-            { href: "/app/profile", label: "Profil", icon: User },
+            { href: "/app", label: t("home"), icon: Home },
+            { href: "/app/posts", label: t("posts"), icon: FileText },
+            { href: "/app/messages", label: t("messages"), icon: MessageCircle },
+            { href: "/app/scan", label: t("scan"), icon: ScanLine },
+            { href: "/app/profile", label: t("profile"), icon: User },
           ];
 
   return (
