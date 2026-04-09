@@ -3,8 +3,12 @@
 import { useState } from "react";
 import { Trash2, AlertTriangle, Shield } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { useTranslations } from "next-intl";
 
 export default function AccountSettingsPage() {
+  const t = useTranslations("account");
+  const tc = useTranslations("common");
+
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [password, setPassword] = useState("");
   const [confirmed, setConfirmed] = useState(false);
@@ -27,7 +31,7 @@ export default function AccountSettingsPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || "Något gick fel.");
+        setError(data.error || tc("error"));
         setLoading(false);
         return;
       }
@@ -35,7 +39,7 @@ export default function AccountSettingsPage() {
       await createClient().auth.signOut();
       window.location.href = "/";
     } catch {
-      setError("Ett oväntat fel uppstod. Försök igen senare.");
+      setError(t("unexpectedError"));
     } finally {
       setLoading(false);
     }
@@ -44,9 +48,9 @@ export default function AccountSettingsPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold">Kontoinställningar</h1>
+        <h1 className="text-2xl font-semibold">{t("title")}</h1>
         <p className="text-[var(--usha-muted)] mt-1">
-          Hantera ditt konto och dina data.
+          {t("subtitle")}
         </p>
       </div>
 
@@ -58,10 +62,10 @@ export default function AccountSettingsPage() {
           </div>
           <div>
             <h2 className="text-lg font-semibold text-red-400">
-              Radera konto
+              {t("deleteAccount")}
             </h2>
             <p className="text-sm text-[var(--usha-muted)]">
-              Permanent radering av konto och data
+              {t("deleteAccountDesc")}
             </p>
           </div>
         </div>
@@ -69,43 +73,42 @@ export default function AccountSettingsPage() {
         <div className="flex items-start gap-3 rounded-lg bg-[var(--usha-card)] border border-[var(--usha-border)] p-4">
           <Shield className="h-5 w-5 text-[var(--usha-muted)] mt-0.5 shrink-0" />
           <p className="text-sm text-[var(--usha-muted)]">
-            Enligt GDPR har du rätt att radera ditt konto och all tillhörande
-            data. Denna åtgärd är permanent och kan inte ångras.
+            {t("gdprInfo")}
           </p>
         </div>
 
         <div className="space-y-2">
           <p className="text-sm font-medium text-red-400">
-            Följande data kommer att raderas:
+            {t("dataToDelete")}
           </p>
           <ul className="grid grid-cols-2 gap-1.5 text-sm text-[var(--usha-muted)]">
             <li className="flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-red-400" />
-              Profil
+              {t("profile")}
             </li>
             <li className="flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-red-400" />
-              Bokningar
+              {t("bookings")}
             </li>
             <li className="flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-red-400" />
-              Meddelanden
+              {t("messages")}
             </li>
             <li className="flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-red-400" />
-              Recensioner
+              {t("reviews")}
             </li>
             <li className="flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-red-400" />
-              Notifikationer
+              {t("notificationsData")}
             </li>
             <li className="flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-red-400" />
-              Favoriter
+              {t("favorites")}
             </li>
             <li className="flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-red-400" />
-              Tjänster/Upplevelser
+              {t("servicesExperiences")}
             </li>
           </ul>
         </div>
@@ -115,14 +118,14 @@ export default function AccountSettingsPage() {
             onClick={() => setShowConfirmation(true)}
             className="mt-2 rounded-xl bg-red-500/10 px-4 py-2.5 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/20"
           >
-            Radera mitt konto
+            {t("deleteMyAccount")}
           </button>
         ) : (
           <div className="mt-2 space-y-4 rounded-xl border border-red-500/20 bg-[var(--usha-card)] p-4">
             <div className="flex items-center gap-2 text-red-400">
               <AlertTriangle className="h-4 w-4" />
               <span className="text-sm font-medium">
-                Bekräfta kontoradering
+                {t("confirmDeletion")}
               </span>
             </div>
 
@@ -132,14 +135,14 @@ export default function AccountSettingsPage() {
                   htmlFor="delete-password"
                   className="block text-sm text-[var(--usha-muted)] mb-1.5"
                 >
-                  Ange ditt lösenord för att bekräfta
+                  {t("enterPassword")}
                 </label>
                 <input
                   id="delete-password"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Ditt lösenord"
+                  placeholder={t("passwordPlaceholder")}
                   autoComplete="current-password"
                   className="w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2 text-sm outline-none focus:border-red-400 transition-colors"
                 />
@@ -153,7 +156,7 @@ export default function AccountSettingsPage() {
                   className="mt-0.5 rounded border-[var(--usha-border)] accent-red-500"
                 />
                 <span className="text-sm text-[var(--usha-muted)]">
-                  Jag förstår att detta inte kan ångras
+                  {t("iUnderstand")}
                 </span>
               </label>
             </div>
@@ -170,7 +173,7 @@ export default function AccountSettingsPage() {
                 disabled={!confirmed || !password || loading}
                 className="rounded-xl bg-red-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? "Raderar..." : "Bekräfta radering"}
+                {loading ? t("deleting") : t("confirmDelete")}
               </button>
               <button
                 onClick={() => {
@@ -181,7 +184,7 @@ export default function AccountSettingsPage() {
                 }}
                 className="rounded-xl px-4 py-2 text-sm text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-foreground)]"
               >
-                Avbryt
+                {tc("cancel")}
               </button>
             </div>
           </div>

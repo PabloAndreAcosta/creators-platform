@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { LevelBadge } from "@/components/level-badge";
 import { LEVEL_COLORS } from "@/lib/points/constants";
 import { cn } from "@/lib/utils";
@@ -21,11 +22,7 @@ interface LeaderboardEntry {
   } | null;
 }
 
-const PERIOD_LABELS: Record<Period, string> = {
-  week: "Denna vecka",
-  month: "Denna m\u00e5nad",
-  all: "All tid",
-};
+// Period labels are now handled by translations
 
 const RANK_STYLES: Record<number, string> = {
   1: "bg-yellow-500/20 border-yellow-500/40",
@@ -34,9 +31,17 @@ const RANK_STYLES: Record<number, string> = {
 };
 
 export default function LeaderboardPage() {
+  const t = useTranslations("leaderboard");
+  const tc = useTranslations("common");
   const [period, setPeriod] = useState<Period>("month");
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const PERIOD_LABELS: Record<Period, string> = {
+    week: t("thisWeek"),
+    month: t("thisMonth"),
+    all: t("allTime"),
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -57,9 +62,9 @@ export default function LeaderboardPage() {
 
   return (
     <div className="max-w-lg mx-auto px-4 py-6">
-      <h1 className="text-2xl font-bold text-white mb-1">Topplista</h1>
+      <h1 className="text-2xl font-bold text-white mb-1">{t("title")}</h1>
       <p className="text-white/60 text-sm mb-6">
-        De mest engagerade anv\u00e4ndarna p\u00e5 Usha
+        {t("subtitle")}
       </p>
 
       {/* Period tabs */}
@@ -91,8 +96,8 @@ export default function LeaderboardPage() {
         </div>
       ) : entries.length === 0 ? (
         <div className="text-center py-12 text-white/40">
-          <p className="text-lg mb-1">Ingen aktivitet \u00e4nnu</p>
-          <p className="text-sm">Var f\u00f6rst p\u00e5 topplistan!</p>
+          <p className="text-lg mb-1">{t("noActivity")}</p>
+          <p className="text-sm">{t("beFirst")}</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -139,7 +144,7 @@ export default function LeaderboardPage() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="text-white font-medium truncate">
-                    {entry.profile?.full_name || "Anonym"}
+                    {entry.profile?.full_name || tc("anonymous")}
                   </span>
                   <LevelBadge level={entry.level} size="sm" />
                 </div>

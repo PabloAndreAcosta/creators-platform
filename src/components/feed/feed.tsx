@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
 import { PostCard } from "./post-card";
 import { getMorePosts } from "@/app/app/feed/actions";
@@ -14,6 +15,8 @@ interface FeedProps {
 }
 
 export function Feed({ initialPosts, isLoggedIn, currentUserId }: FeedProps) {
+  const t = useTranslations("feed");
+  const tc = useTranslations("common");
   const [posts, setPosts] = useState(initialPosts);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(initialPosts.length >= 20);
@@ -38,9 +41,9 @@ export function Feed({ initialPosts, isLoggedIn, currentUserId }: FeedProps) {
   if (posts.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--usha-border)] bg-[var(--usha-card)] py-16 text-center">
-        <p className="text-sm font-medium">Inga inlägg att visa just nu</p>
+        <p className="text-sm font-medium">{t("empty")}</p>
         <p className="mt-1 text-xs text-[var(--usha-muted)]">
-          Följ kreatörer och upplevelser för att se deras uppdateringar
+          {t("emptyHint")}
         </p>
       </div>
     );
@@ -60,7 +63,7 @@ export function Feed({ initialPosts, isLoggedIn, currentUserId }: FeedProps) {
             className="inline-flex items-center gap-2 rounded-xl border border-[var(--usha-border)] px-6 py-2.5 text-sm font-medium text-[var(--usha-muted)] transition hover:border-[var(--usha-gold)]/30 hover:text-white disabled:opacity-50"
           >
             {loading ? <Loader2 size={14} className="animate-spin" /> : null}
-            {loading ? "Laddar..." : "Visa fler"}
+            {loading ? tc("loading") : tc("showMore")}
           </button>
         </div>
       )}

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { ArrowLeft, Bell, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 interface NotifSetting {
   id: string;
@@ -11,15 +12,19 @@ interface NotifSetting {
   description: string;
 }
 
-const NOTIF_SETTINGS: NotifSetting[] = [
-  { id: "booking_new", dbKey: "notif_booking_new", label: "Nya bokningar", description: "Få notis när någon bokar en av dina tjänster" },
-  { id: "booking_confirmed", dbKey: "notif_booking_confirmed", label: "Bekräftade bokningar", description: "Få notis när en bokning bekräftas" },
-  { id: "booking_canceled", dbKey: "notif_booking_canceled", label: "Avbokningar", description: "Få notis vid avbokningar" },
-  { id: "payout", dbKey: "notif_payout", label: "Utbetalningar", description: "Få notis när en utbetalning genomförs" },
-  { id: "marketing", dbKey: "notif_marketing", label: "Tips och nyheter", description: "Få nyhetsbrev och plattformstips" },
-];
-
 export default function NotificationsPage() {
+  const t = useTranslations("notifSettings");
+  const tc = useTranslations("common");
+  const ts = useTranslations("settings");
+
+  const NOTIF_SETTINGS: NotifSetting[] = [
+    { id: "booking_new", dbKey: "notif_booking_new", label: t("newBookings"), description: t("newBookingsDesc") },
+    { id: "booking_confirmed", dbKey: "notif_booking_confirmed", label: t("confirmedBookings"), description: t("confirmedBookingsDesc") },
+    { id: "booking_canceled", dbKey: "notif_booking_canceled", label: t("cancellations"), description: t("cancellationsDesc") },
+    { id: "payout", dbKey: "notif_payout", label: t("payouts"), description: t("payoutsDesc") },
+    { id: "marketing", dbKey: "notif_marketing", label: t("marketing"), description: t("marketingDesc") },
+  ];
+
   const [values, setValues] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
@@ -68,14 +73,14 @@ export default function NotificationsPage() {
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-white"
         >
           <ArrowLeft size={14} />
-          Tillbaka
+          {tc("back")}
         </Link>
         <div className="flex items-center gap-3">
           <Bell size={20} className="text-[var(--usha-gold)]" />
-          <h1 className="text-2xl font-bold">Notifikationer</h1>
+          <h1 className="text-2xl font-bold">{ts("notifications")}</h1>
         </div>
         <p className="mt-1 text-sm text-[var(--usha-muted)]">
-          Välj vilka e-postnotiser du vill få.
+          {ts("chooseNotifications")}
         </p>
       </div>
 
@@ -116,7 +121,7 @@ export default function NotificationsPage() {
       )}
 
       <p className="text-xs text-[var(--usha-muted)] text-center">
-        Inställningarna sparas automatiskt.
+        {ts("autoSave")}
       </p>
     </div>
   );

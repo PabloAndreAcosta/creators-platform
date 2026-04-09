@@ -2,40 +2,43 @@
 
 import { Settings, Bell, Shield, HelpCircle, UserX, ChevronRight } from "lucide-react";
 import Link from "next/link";
-
-const settingsItems = [
-  {
-    href: "/app/settings/notifications",
-    label: "Notifikationer",
-    description: "Hantera push- och e-postaviseringar",
-    icon: Bell,
-  },
-  {
-    href: "/app/settings/privacy",
-    label: "Sekretess",
-    description: "Synlighet och datainställningar",
-    icon: Shield,
-  },
-  {
-    href: "/app/settings/help",
-    label: "Hjälp & Support",
-    description: "Vanliga frågor och kontakt",
-    icon: HelpCircle,
-  },
-  {
-    href: "/app/settings/account",
-    label: "Konto",
-    description: "Radera konto och hantera data",
-    icon: UserX,
-  },
-];
+import { useTranslations } from "next-intl";
 
 export default function SettingsPage() {
+  const t = useTranslations("settings");
+
+  const settingsItems = [
+    {
+      href: "/app/settings/notifications",
+      label: t("notifications"),
+      description: t("notificationsDesc"),
+      icon: Bell,
+    },
+    {
+      href: "/app/settings/privacy",
+      label: t("privacy"),
+      description: t("privacyDesc"),
+      icon: Shield,
+    },
+    {
+      href: "/app/settings/help",
+      label: t("help"),
+      description: t("helpDesc"),
+      icon: HelpCircle,
+    },
+    {
+      href: "/app/settings/account",
+      label: t("account"),
+      description: t("accountDesc"),
+      icon: UserX,
+    },
+  ];
+
   return (
     <div className="px-4 py-6 space-y-6 md:max-w-2xl md:mx-auto">
       <div className="flex items-center gap-3">
         <Settings size={24} className="text-[var(--usha-gold)]" />
-        <h1 className="text-2xl font-bold">Inställningar</h1>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
       </div>
 
       <div className="space-y-2">

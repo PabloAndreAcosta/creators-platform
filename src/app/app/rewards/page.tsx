@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { LevelBadge } from "@/components/level-badge";
 import {
   LEVEL_NAMES,
@@ -40,6 +41,8 @@ export default function RewardsPage() {
     current_level: 1,
   });
   const [loading, setLoading] = useState(true);
+  const t = useTranslations("rewards");
+  const tc = useTranslations("common");
 
   useEffect(() => {
     fetch("/api/points/rewards")
@@ -77,7 +80,7 @@ export default function RewardsPage() {
 
   return (
     <div className="max-w-lg mx-auto px-4 py-6">
-      <h1 className="text-2xl font-bold text-white mb-6">Belöningar</h1>
+      <h1 className="text-2xl font-bold text-white mb-6">{t("title")}</h1>
 
       {/* Current level card */}
       <div
@@ -90,7 +93,7 @@ export default function RewardsPage() {
           <LevelBadge level={userPoints.current_level} size="lg" showName />
           <div className="flex-1">
             <p className="text-white/60 text-sm">
-              {userPoints.total_points.toLocaleString("sv-SE")} poäng
+              {userPoints.total_points.toLocaleString("sv-SE")} {tc("points")}
             </p>
           </div>
         </div>
@@ -115,16 +118,13 @@ export default function RewardsPage() {
               />
             </div>
             <p className="text-xs text-white/40 mt-1">
-              {(nextThreshold - userPoints.total_points).toLocaleString(
-                "sv-SE"
-              )}{" "}
-              poäng kvar till nästa nivå
+              {t("pointsToNext", { points: (nextThreshold - userPoints.total_points).toLocaleString("sv-SE") })}
             </p>
           </div>
         )}
         {!nextThreshold && (
           <p className="text-sm text-white/60">
-            Du har nått den högsta nivån!
+            {t("maxLevel")}
           </p>
         )}
       </div>
@@ -156,7 +156,7 @@ export default function RewardsPage() {
                   </span>
                   {reward.unlocked && (
                     <span className="text-emerald-400 text-xs">
-                      Upplåst
+                      {t("unlocked")}
                     </span>
                   )}
                 </div>
@@ -168,7 +168,7 @@ export default function RewardsPage() {
               <div className="flex-shrink-0">
                 {isLocked ? (
                   <span className={cn("text-xs font-medium", levelColor)}>
-                    Nivå {reward.required_level}
+                    {tc("level")} {reward.required_level}
                   </span>
                 ) : (
                   <span className="text-emerald-400 text-lg">{"\u2713"}</span>

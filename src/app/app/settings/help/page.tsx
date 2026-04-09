@@ -1,30 +1,22 @@
+"use client";
+
 import { ArrowLeft, HelpCircle, MessageCircle, Mail, FileText } from "lucide-react";
 import Link from "next/link";
-
-const faqs = [
-  {
-    q: "Hur bokar jag en tjänst?",
-    a: "Gå till Marketplace, hitta en kreatör och klicka på 'Boka'. Välj datum och tid, och skicka din förfrågan.",
-  },
-  {
-    q: "Hur uppgraderar jag till Guld eller Premium?",
-    a: "Gå till Profil > Betalningsmetoder och välj den plan som passar dig.",
-  },
-  {
-    q: "Hur får jag mina utbetalningar?",
-    a: "Koppla ditt Stripe-konto i Dashboard > Inställningar. Utbetalningar sker automatiskt varje vecka, eller direkt via snabbutbetalning.",
-  },
-  {
-    q: "Kan jag avboka en bokning?",
-    a: "Ja, du kan avboka under Mina Bokningar så länge bokningen inte redan är slutförd.",
-  },
-  {
-    q: "Vad är Early Bird / Guld-exklusivt?",
-    a: "Guld- och Premium-medlemmar får tillgång till vissa event före alla andra. När klockan räknat ned släpps eventet för alla.",
-  },
-];
+import { useTranslations } from "next-intl";
 
 export default function HelpPage() {
+  const t = useTranslations("help");
+  const tc = useTranslations("common");
+  const ts = useTranslations("settings");
+
+  const faqs = [
+    { q: t("q1"), a: t("a1") },
+    { q: t("q2"), a: t("a2") },
+    { q: t("q3"), a: t("a3") },
+    { q: t("q4"), a: t("a4") },
+    { q: t("q5"), a: t("a5") },
+  ];
+
   return (
     <div className="px-4 py-6 space-y-6 md:max-w-2xl md:mx-auto">
       <div>
@@ -33,11 +25,11 @@ export default function HelpPage() {
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-white"
         >
           <ArrowLeft size={14} />
-          Tillbaka
+          {tc("back")}
         </Link>
         <div className="flex items-center gap-3">
           <HelpCircle size={20} className="text-[var(--usha-gold)]" />
-          <h1 className="text-2xl font-bold">Hjälp & Support</h1>
+          <h1 className="text-2xl font-bold">{t("title")}</h1>
         </div>
       </div>
 
@@ -49,7 +41,7 @@ export default function HelpPage() {
         >
           <Mail size={20} className="text-[var(--usha-gold)]" />
           <div>
-            <p className="text-sm font-medium">E-post</p>
+            <p className="text-sm font-medium">{t("email")}</p>
             <p className="text-xs text-[var(--usha-muted)]">support@usha.se</p>
           </div>
         </a>
@@ -71,7 +63,7 @@ export default function HelpPage() {
       <section>
         <div className="mb-4 flex items-center gap-2">
           <FileText size={16} className="text-[var(--usha-gold)]" />
-          <h2 className="text-lg font-bold">Vanliga frågor</h2>
+          <h2 className="text-lg font-bold">{t("faq")}</h2>
         </div>
         <div className="space-y-2">
           {faqs.map((faq, i) => (
@@ -93,9 +85,9 @@ export default function HelpPage() {
 
       {/* Legal links */}
       <div className="flex flex-wrap justify-center gap-4 text-xs text-[var(--usha-muted)]">
-        <Link href="/privacy" className="underline hover:text-white">Integritetspolicy</Link>
-        <Link href="/terms" className="underline hover:text-white">Användarvillkor</Link>
-        <Link href="/cookies" className="underline hover:text-white">Cookiepolicy</Link>
+        <Link href="/privacy" className="underline hover:text-white">{ts("privacyPolicy")}</Link>
+        <Link href="/terms" className="underline hover:text-white">{ts("terms")}</Link>
+        <Link href="/cookies" className="underline hover:text-white">{ts("cookiePolicy")}</Link>
       </div>
     </div>
   );

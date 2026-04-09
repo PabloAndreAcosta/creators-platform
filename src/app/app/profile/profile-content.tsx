@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRole } from "@/components/mobile/role-context";
+import { useTranslations } from "next-intl";
 import { LevelBadge } from "@/components/level-badge";
 import {
   LEVEL_NAMES,
@@ -69,6 +70,8 @@ export function ProfileContent({
   averageRating = null,
 }: ProfileContentProps) {
   const { role } = useRole();
+  const t = useTranslations("profile");
+  const tc = useTranslations("common");
   const [userPoints, setUserPoints] = useState<{
     total_points: number;
     current_level: number;
@@ -120,15 +123,15 @@ export function ProfileContent({
         <div className="mb-3 flex items-center justify-between">
           <span className="text-sm font-bold text-[var(--usha-gold)]">
             {role === "kreator"
-              ? "Topp Kreatör"
+              ? t("topCreator")
               : role === "upplevelse"
-                ? "Premium Venue"
-                : "Gold Medlem"}
+                ? t("premiumVenue")
+                : t("goldMember")}
           </span>
           <Star size={16} className="fill-[var(--usha-gold)] text-[var(--usha-gold)]" />
         </div>
         <p className="text-xs text-[var(--usha-muted)]">
-          Medlem sedan{" "}
+          {t("memberSince")}{" "}
           {profile?.created_at
             ? new Date(profile.created_at).toLocaleDateString("sv", {
                 month: "long",
@@ -151,7 +154,7 @@ export function ProfileContent({
               />
             </div>
             <p className="mt-1 text-[10px] text-[var(--usha-muted)]">
-              {(nextThreshold - totalPoints).toLocaleString("sv-SE")} poäng till {LEVEL_NAMES[currentLevel + 1]}
+              {t("pointsToNext", { points: (nextThreshold - totalPoints).toLocaleString("sv-SE"), level: LEVEL_NAMES[currentLevel + 1] })}
             </p>
           </div>
         )}
@@ -161,23 +164,23 @@ export function ProfileContent({
       <div className="grid grid-cols-3 gap-3">
         {role === "publik" && (
           <>
-            <StatBox icon={Calendar} label="Evenemang" value={String(bookingsCount)} />
-            <StatBox icon={BookOpen} label="Kurser" value={String(completedCoursesCount)} />
-            <StatBox icon={Heart} label="Favoriter" value={String(favoritesCount)} />
+            <StatBox icon={Calendar} label={t("events")} value={String(bookingsCount)} />
+            <StatBox icon={BookOpen} label={t("courses")} value={String(completedCoursesCount)} />
+            <StatBox icon={Heart} label={t("favorites")} value={String(favoritesCount)} />
           </>
         )}
         {role === "kreator" && (
           <>
-            <StatBox icon={BookOpen} label="Kurser" value={String(listingsCount)} />
-            <StatBox icon={Users} label="Elever" value={String(bookingsCount)} />
-            <StatBox icon={Star} label="Betyg" value={averageRating != null ? `${averageRating}/5` : "-"} />
+            <StatBox icon={BookOpen} label={t("courses")} value={String(listingsCount)} />
+            <StatBox icon={Users} label={t("students")} value={String(bookingsCount)} />
+            <StatBox icon={Star} label={t("rating")} value={averageRating != null ? `${averageRating}/5` : "-"} />
           </>
         )}
         {role === "upplevelse" && (
           <>
-            <StatBox icon={Ticket} label="Evenemang" value={String(listingsCount)} />
-            <StatBox icon={Users} label="Besökare" value={String(bookingsCount)} />
-            <StatBox icon={Star} label="Betyg" value={averageRating != null ? `${averageRating}/5` : "-"} />
+            <StatBox icon={Ticket} label={t("events")} value={String(listingsCount)} />
+            <StatBox icon={Users} label={t("visitors")} value={String(bookingsCount)} />
+            <StatBox icon={Star} label={t("rating")} value={averageRating != null ? `${averageRating}/5` : "-"} />
           </>
         )}
       </div>
@@ -187,7 +190,7 @@ export function ProfileContent({
         <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs text-[var(--usha-muted)]">Intäkter denna månad</p>
+              <p className="text-xs text-[var(--usha-muted)]">{t("revenueThisMonth")}</p>
               <p className="text-2xl font-bold">
                 - kr
               </p>
@@ -199,20 +202,20 @@ export function ProfileContent({
 
       {/* Settings list */}
       <div className="space-y-1 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] overflow-hidden">
-        <SettingsRow icon={Trophy} label="Topplista" href="/app/leaderboard" />
-        <SettingsRow icon={Gift} label="Belöningar" href="/app/rewards" />
-        <SettingsRow icon={Edit2} label="Redigera Profil" href="/dashboard/profile" />
-        <SettingsRow icon={Crown} label="Min plan & betalning" href="/dashboard/billing" />
-        <SettingsRow icon={Bell} label="Notifikationer" href="/app/settings/notifications" />
-        <SettingsRow icon={Shield} label="Integritetsinställningar" href="/app/settings/privacy" />
-        <SettingsRow icon={HelpCircle} label="Hjälp & Support" href="/app/settings/help" />
+        <SettingsRow icon={Trophy} label={t("leaderboard")} href="/app/leaderboard" />
+        <SettingsRow icon={Gift} label={t("rewards")} href="/app/rewards" />
+        <SettingsRow icon={Edit2} label={t("editProfile")} href="/dashboard/profile" />
+        <SettingsRow icon={Crown} label={t("myPlan")} href="/dashboard/billing" />
+        <SettingsRow icon={Bell} label={t("notifications")} href="/app/settings/notifications" />
+        <SettingsRow icon={Shield} label={t("privacySettings")} href="/app/settings/privacy" />
+        <SettingsRow icon={HelpCircle} label={t("helpSupport")} href="/app/settings/help" />
         <form action="/api/auth/signout" method="POST">
           <button
             type="submit"
             className="flex w-full items-center gap-3 px-4 py-3.5 text-left text-red-400 transition-colors hover:bg-[var(--usha-card-hover)]"
           >
             <LogOut size={18} />
-            <span className="flex-1 text-sm font-medium">Logga ut</span>
+            <span className="flex-1 text-sm font-medium">{tc("logout")}</span>
           </button>
         </form>
       </div>

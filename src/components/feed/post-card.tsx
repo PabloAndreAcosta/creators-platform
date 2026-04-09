@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Calendar, MapPin, MoreHorizontal, Pencil, Trash2, X, Loader2, ImagePlus, Send, Share2, Check } from "lucide-react";
 import { PostLikeButton } from "./post-like-button";
 import { QuickBuyButton } from "./quick-buy-button";
@@ -22,12 +23,7 @@ function timeAgo(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString("sv-SE", { day: "numeric", month: "short" });
 }
 
-const ROLE_LABELS: Record<string, string> = {
-  creator: "Kreatör",
-  kreator: "Kreatör",
-  experience: "Upplevelse",
-  upplevelse: "Upplevelse",
-};
+// Role labels now come from translations
 
 interface PostCardProps {
   post: FeedPost;
@@ -47,6 +43,8 @@ export function PostCard({ post, isLoggedIn, currentUserId }: PostCardProps) {
   const [deleted, setDeleted] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const [shared, setShared] = useState(false);
+  const tr = useTranslations("roles");
+  const tc = useTranslations("common");
   const isOwner = currentUserId === post.user_id;
   const isLong = post.text.length > 150;
 
@@ -138,7 +136,7 @@ export function PostCard({ post, isLoggedIn, currentUserId }: PostCardProps) {
               {post.author.full_name || "Kreatör"}
             </Link>
             <span className="rounded-full bg-[var(--usha-gold)]/10 px-1.5 py-0.5 text-[9px] font-medium text-[var(--usha-gold)]">
-              {ROLE_LABELS[post.author.role] || "Kreatör"}
+              {tr(post.author.role as "publik" | "kreator" | "upplevelse")}
             </span>
             {post.author.level && post.author.level > 1 && (
               <LevelBadge level={post.author.level} size="sm" />
@@ -159,13 +157,13 @@ export function PostCard({ post, isLoggedIn, currentUserId }: PostCardProps) {
                   onClick={() => { setEditing(true); setMenuOpen(false); }}
                   className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-[var(--usha-muted)] transition hover:bg-[var(--usha-gold)]/10 hover:text-white"
                 >
-                  <Pencil size={14} /> Redigera
+                  <Pencil size={14} /> {tc("edit")}
                 </button>
                 <button
                   onClick={() => { handleDelete(); setMenuOpen(false); }}
                   className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-red-400 transition hover:bg-red-500/10"
                 >
-                  <Trash2 size={14} /> Radera
+                  <Trash2 size={14} /> {tc("delete")}
                 </button>
               </div>
             )}
@@ -195,12 +193,12 @@ export function PostCard({ post, isLoggedIn, currentUserId }: PostCardProps) {
             <div>
               <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
               <button onClick={() => fileRef.current?.click()} disabled={uploading} className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-[var(--usha-muted)] hover:text-[var(--usha-gold)]">
-                <ImagePlus size={14} /> {uploading ? "Laddar..." : "Bild"}
+                <ImagePlus size={14} /> {uploading ? tc("loading") : tc("image")}
               </button>
             </div>
             <div className="flex gap-2">
               <button onClick={() => { setEditing(false); setEditText(post.text); setEditImageUrl(post.image_url); setEditImagePreview(post.image_url); }} className="rounded-lg px-3 py-1 text-xs text-[var(--usha-muted)]">
-                Avbryt
+                {tc("cancel")}
               </button>
               <button
                 onClick={handleSaveEdit}
@@ -242,7 +240,7 @@ export function PostCard({ post, isLoggedIn, currentUserId }: PostCardProps) {
           className="flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition hover:text-white"
         >
           {shared ? <Check size={18} className="text-green-400" /> : <Share2 size={18} />}
-          <span className="text-xs">{shared ? "Kopierad!" : "Dela"}</span>
+          <span className="text-xs">{shared ? tc("copied") : tc("share")}</span>
         </button>
       </div>
 

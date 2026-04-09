@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { ArrowLeft, Shield, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 interface PrivacySetting {
   id: string;
@@ -11,14 +12,18 @@ interface PrivacySetting {
   description: string;
 }
 
-const PRIVACY_SETTINGS: PrivacySetting[] = [
-  { id: "public_profile", dbKey: "privacy_public_profile", label: "Publik profil", description: "Visa din profil i marketplace så att kunder kan hitta dig" },
-  { id: "show_location", dbKey: "privacy_show_location", label: "Visa plats", description: "Visa din plats på din profil" },
-  { id: "show_reviews", dbKey: "privacy_show_reviews", label: "Visa recensioner", description: "Tillåt att dina recensioner visas publikt" },
-  { id: "booking_history", dbKey: "privacy_booking_history", label: "Bokningshistorik", description: "Tillåt kreatörer att se din bokningshistorik" },
-];
-
 export default function PrivacyPage() {
+  const t = useTranslations("privacySettings");
+  const tc = useTranslations("common");
+  const ts = useTranslations("settings");
+
+  const PRIVACY_SETTINGS: PrivacySetting[] = [
+    { id: "public_profile", dbKey: "privacy_public_profile", label: t("publicProfile"), description: t("publicProfileDesc") },
+    { id: "show_location", dbKey: "privacy_show_location", label: t("showLocation"), description: t("showLocationDesc") },
+    { id: "show_reviews", dbKey: "privacy_show_reviews", label: t("showReviews"), description: t("showReviewsDesc") },
+    { id: "booking_history", dbKey: "privacy_booking_history", label: t("bookingHistory"), description: t("bookingHistoryDesc") },
+  ];
+
   const [values, setValues] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
@@ -66,14 +71,14 @@ export default function PrivacyPage() {
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-white"
         >
           <ArrowLeft size={14} />
-          Tillbaka
+          {tc("back")}
         </Link>
         <div className="flex items-center gap-3">
           <Shield size={20} className="text-[var(--usha-gold)]" />
-          <h1 className="text-2xl font-bold">Integritetsinställningar</h1>
+          <h1 className="text-2xl font-bold">{ts("privacyTitle")}</h1>
         </div>
         <p className="mt-1 text-sm text-[var(--usha-muted)]">
-          Styr vilken information som är synlig för andra.
+          {ts("privacySubtitle")}
         </p>
       </div>
 
@@ -114,11 +119,11 @@ export default function PrivacyPage() {
       )}
 
       <div className="space-y-2 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
-        <h3 className="text-sm font-semibold">Juridisk information</h3>
+        <h3 className="text-sm font-semibold">{ts("legalInfo")}</h3>
         <div className="flex flex-wrap gap-3 text-xs text-[var(--usha-muted)]">
-          <Link href="/privacy" className="underline hover:text-white">Integritetspolicy</Link>
-          <Link href="/terms" className="underline hover:text-white">Användarvillkor</Link>
-          <Link href="/cookies" className="underline hover:text-white">Cookiepolicy</Link>
+          <Link href="/privacy" className="underline hover:text-white">{ts("privacyPolicy")}</Link>
+          <Link href="/terms" className="underline hover:text-white">{ts("terms")}</Link>
+          <Link href="/cookies" className="underline hover:text-white">{ts("cookiePolicy")}</Link>
         </div>
       </div>
     </div>
