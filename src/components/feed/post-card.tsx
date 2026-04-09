@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Calendar, MapPin, MoreHorizontal, Pencil, Trash2, X, Loader2, ImagePlus, Send, Share2, Check } from "lucide-react";
 import { PostLikeButton } from "./post-like-button";
 import { QuickBuyButton } from "./quick-buy-button";
+import { LevelBadge } from "@/components/level-badge";
 import { updatePost, deletePost } from "@/app/app/feed/actions";
 import { createClient } from "@/lib/supabase/client";
 import type { FeedPost } from "@/types/database";
@@ -139,6 +140,9 @@ export function PostCard({ post, isLoggedIn, currentUserId }: PostCardProps) {
             <span className="rounded-full bg-[var(--usha-gold)]/10 px-1.5 py-0.5 text-[9px] font-medium text-[var(--usha-gold)]">
               {ROLE_LABELS[post.author.role] || "Kreatör"}
             </span>
+            {post.author.level && post.author.level > 1 && (
+              <LevelBadge level={post.author.level} size="sm" />
+            )}
           </div>
           <p className="text-[10px] text-[var(--usha-muted)]">
             {post.author.category ? `${post.author.category} · ` : ""}{timeAgo(post.created_at)}

@@ -45,22 +45,40 @@ export async function getFeedPosts(
     likeCountMap[l.post_id] = (likeCountMap[l.post_id] || 0) + 1;
   });
 
-  return posts.map((post) => ({
-    id: post.id,
-    user_id: post.user_id,
-    text: post.text,
-    image_url: post.image_url,
-    listing_id: post.listing_id,
-    created_at: post.created_at,
-    author: (post as any).profiles || {
+  // Get user levels for post authors
+  const authorIds = [...new Set(posts.map((p) => p.user_id))];
+  const { data: authorPoints } = await supabase
+    .from("user_points")
+    .select("user_id, current_level")
+    .in("user_id", authorIds);
+
+  const levelMap: Record<string, number> = {};
+  (authorPoints || []).forEach((up) => {
+    levelMap[up.user_id] = up.current_level;
+  });
+
+  return posts.map((post) => {
+    const author = (post as any).profiles || {
       id: post.user_id,
       full_name: null,
       avatar_url: null,
       category: null,
       role: "kreator",
-    },
-    listing: (post as any).listings || null,
-    like_count: likeCountMap[post.id] || 0,
-    is_liked: userLikedSet.has(post.id),
-  }));
+    };
+    return {
+      id: post.id,
+      user_id: post.user_id,
+      text: post.text,
+      image_url: post.image_url,
+      listing_id: post.listing_id,
+      created_at: post.created_at,
+      author: {
+        ...author,
+        level: levelMap[post.user_id] || 1,
+      },
+      listing: (post as any).listings || null,
+      like_count: likeCountMap[post.id] || 0,
+      is_liked: userLikedSet.has(post.id),
+    };
+  });
 }

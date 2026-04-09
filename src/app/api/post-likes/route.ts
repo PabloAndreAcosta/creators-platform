@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { awardPoints } from "@/lib/points/award";
+import { POINT_VALUES } from "@/lib/points/constants";
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
@@ -28,12 +30,42 @@ export async function POST(req: NextRequest) {
     await supabase.from("post_likes").delete().eq("id", existing.id);
     return NextResponse.json({ liked: false });
   } else {
-    const { error } = await supabase
+    const { data: like, error } = await supabase
       .from("post_likes")
-      .insert({ user_id: user.id, post_id: postId });
+      .insert({ user_id: user.id, post_id: postId })
+      .select("id")
+      .single();
     if (error) {
       return NextResponse.json({ error: "Kunde inte gilla inlägget" }, { status: 500 });
     }
+
+    // Award points (non-blocking)
+    const { data: post } = await supabase
+      .from("posts")
+      .select("user_id")
+      .eq("id", postId)
+      .single();
+
+    if (like) {
+      awardPoints({
+        userId: user.id,
+        action: "like_given",
+        points: POINT_VALUES.like_given,
+        sourceId: like.id,
+        sourceType: "post_like",
+      }).catch(() => {});
+
+      if (post && post.user_id !== user.id) {
+        awardPoints({
+          userId: post.user_id,
+          action: "like_received",
+          points: POINT_VALUES.like_received,
+          sourceId: like.id,
+          sourceType: "post_like",
+        }).catch(() => {});
+      }
+    }
+
     return NextResponse.json({ liked: true });
   }
 }

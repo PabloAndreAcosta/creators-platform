@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { notifyNewReview } from '@/lib/notifications/create';
+import { awardPoints } from '@/lib/points/award';
+import { POINT_VALUES } from '@/lib/points/constants';
 
 // GET — fetch reviews for a creator
 export async function GET(req: NextRequest) {
@@ -102,6 +104,23 @@ export async function POST(req: NextRequest) {
     reviewer?.full_name || 'En användare',
     Math.round(rating)
   ).catch(err => console.error('Review notification failed:', err));
+
+  // Award points (non-blocking)
+  awardPoints({
+    userId: user.id,
+    action: 'review_written',
+    points: POINT_VALUES.review_written,
+    sourceId: bookingId,
+    sourceType: 'review',
+  }).catch(() => {});
+
+  awardPoints({
+    userId: booking.creator_id,
+    action: 'review_received',
+    points: POINT_VALUES.review_received,
+    sourceId: bookingId,
+    sourceType: 'review',
+  }).catch(() => {});
 
   return NextResponse.json({ success: true });
 }

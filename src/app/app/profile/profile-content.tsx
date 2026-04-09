@@ -1,6 +1,13 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useRole } from "@/components/mobile/role-context";
+import { LevelBadge } from "@/components/level-badge";
+import {
+  LEVEL_NAMES,
+  getLevelProgress,
+  getNextLevelThreshold,
+} from "@/lib/points/constants";
 import {
   User,
   Edit2,
@@ -20,6 +27,8 @@ import {
   Building2,
   Ticket,
   Crown,
+  Trophy,
+  Gift,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -60,6 +69,22 @@ export function ProfileContent({
   averageRating = null,
 }: ProfileContentProps) {
   const { role } = useRole();
+  const [userPoints, setUserPoints] = useState<{
+    total_points: number;
+    current_level: number;
+  } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/points")
+      .then((r) => r.json())
+      .then((data) => setUserPoints(data.points))
+      .catch(() => {});
+  }, []);
+
+  const totalPoints = userPoints?.total_points ?? 0;
+  const currentLevel = userPoints?.current_level ?? 1;
+  const progress = getLevelProgress(totalPoints, currentLevel);
+  const nextThreshold = getNextLevelThreshold(currentLevel);
 
   return (
     <div className="px-4 py-6 space-y-6 md:max-w-2xl md:mx-auto">
@@ -111,9 +136,25 @@ export function ProfileContent({
               })
             : "nyligen"}
         </p>
-        <p className="mt-1 text-xs text-[var(--usha-gold)]">
-          Poäng: -
-        </p>
+        <div className="mt-2 flex items-center gap-2">
+          <LevelBadge level={currentLevel} size="md" showName />
+          <span className="text-xs text-[var(--usha-muted)]">
+            {totalPoints.toLocaleString("sv-SE")} poäng
+          </span>
+        </div>
+        {nextThreshold && (
+          <div className="mt-2">
+            <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+              <div
+                className="h-full rounded-full bg-[var(--usha-gold)] transition-all duration-500"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <p className="mt-1 text-[10px] text-[var(--usha-muted)]">
+              {(nextThreshold - totalPoints).toLocaleString("sv-SE")} poäng till {LEVEL_NAMES[currentLevel + 1]}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Stats */}
@@ -158,6 +199,8 @@ export function ProfileContent({
 
       {/* Settings list */}
       <div className="space-y-1 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] overflow-hidden">
+        <SettingsRow icon={Trophy} label="Topplista" href="/app/leaderboard" />
+        <SettingsRow icon={Gift} label="Belöningar" href="/app/rewards" />
         <SettingsRow icon={Edit2} label="Redigera Profil" href="/dashboard/profile" />
         <SettingsRow icon={Crown} label="Min plan & betalning" href="/dashboard/billing" />
         <SettingsRow icon={Bell} label="Notifikationer" href="/app/settings/notifications" />

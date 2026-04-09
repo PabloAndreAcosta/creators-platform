@@ -3,6 +3,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { createNotification } from "@/lib/notifications/create";
+import { awardPoints } from "@/lib/points/award";
+import { POINT_VALUES } from "@/lib/points/constants";
 
 export async function createPost(formData: FormData) {
   const supabase = await createClient();
@@ -32,14 +34,29 @@ export async function createPost(formData: FormData) {
     if (!listing) return { error: "Vald tjänst hittades inte" };
   }
 
-  const { error } = await supabase.from("posts").insert({
-    user_id: user.id,
-    text,
-    image_url: imageUrl,
-    listing_id: listingId,
-  });
+  const { data: post, error } = await supabase
+    .from("posts")
+    .insert({
+      user_id: user.id,
+      text,
+      image_url: imageUrl,
+      listing_id: listingId,
+    })
+    .select("id")
+    .single();
 
   if (error) return { error: "Kunde inte skapa inlägget. Försök igen." };
+
+  // Award points for creating a post (non-blocking)
+  if (post) {
+    awardPoints({
+      userId: user.id,
+      action: "post_created",
+      points: POINT_VALUES.post_created,
+      sourceId: post.id,
+      sourceType: "post",
+    }).catch(() => {});
+  }
 
   // Notify followers (non-blocking)
   notifyFollowers(supabase, user.id, text).catch(() => {});

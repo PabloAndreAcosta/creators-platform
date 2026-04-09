@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { awardPoints } from "@/lib/points/award";
+import { POINT_VALUES } from "@/lib/points/constants";
 
 export async function GET(req: NextRequest) {
   const supabase = await createClient();
@@ -53,13 +55,36 @@ export async function POST(req: NextRequest) {
   }
 
   // Follow
-  const { error } = await supabase.from("follows").insert({
-    follower_id: user.id,
-    followed_id: creatorId,
-  });
+  const { data: follow, error } = await supabase
+    .from("follows")
+    .insert({
+      follower_id: user.id,
+      followed_id: creatorId,
+    })
+    .select("id")
+    .single();
 
   if (error) {
     return NextResponse.json({ error: "Kunde inte följa" }, { status: 500 });
+  }
+
+  // Award points (non-blocking)
+  if (follow) {
+    awardPoints({
+      userId: user.id,
+      action: "follow_given",
+      points: POINT_VALUES.follow_given,
+      sourceId: follow.id,
+      sourceType: "follow",
+    }).catch(() => {});
+
+    awardPoints({
+      userId: creatorId,
+      action: "follow_received",
+      points: POINT_VALUES.follow_received,
+      sourceId: follow.id,
+      sourceType: "follow",
+    }).catch(() => {});
   }
 
   return NextResponse.json({ following: true });

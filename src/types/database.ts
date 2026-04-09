@@ -37,6 +37,7 @@ export interface FeedPost extends Post {
     avatar_url: string | null;
     category: string | null;
     role: string;
+    level?: number;
   };
   listing: {
     id: string;
@@ -54,6 +55,54 @@ export interface Attendee {
   name: string;
   email?: string;
   dietary?: string;
+}
+
+// ─── Points & Rewards ───
+
+export type PointAction =
+  | 'like_given' | 'like_received'
+  | 'follow_given' | 'follow_received'
+  | 'booking_made' | 'booking_received'
+  | 'review_written' | 'review_received'
+  | 'post_created'
+  | 'referral_signup'
+  | 'profile_completed';
+
+export interface PointEvent {
+  id: string;
+  user_id: string;
+  action: PointAction;
+  points: number;
+  source_id: string | null;
+  source_type: string | null;
+  created_at: string;
+}
+
+export interface UserPoints {
+  user_id: string;
+  total_points: number;
+  current_level: number;
+  points_this_week: number;
+  points_this_month: number;
+}
+
+export interface Reward {
+  id: string;
+  slug: string;
+  name_sv: string;
+  description_sv: string;
+  reward_type: 'badge' | 'discount' | 'early_access' | 'feature';
+  required_level: number;
+  icon: string | null;
+  discount_percent: number | null;
+  is_active: boolean;
+}
+
+export interface UserReward {
+  id: string;
+  user_id: string;
+  reward_id: string;
+  unlocked_at: string;
 }
 
 export interface Database {
