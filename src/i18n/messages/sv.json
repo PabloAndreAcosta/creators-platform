@@ -270,5 +270,27 @@
     "createFirstEvent": "Skapa ditt första event",
     "startSellingTickets": "Börja sälja biljetter idag",
     "createEvent": "Skapa event"
+  },
+  "billing": {
+    "title": "Prenumeration",
+    "subtitle": "Hantera din plan och betalningar.",
+    "paymentSuccess": "Betalningen lyckades! Din plan är nu aktiv.",
+    "betaNotice": "Beta-period — alla funktioner är upplåsta gratis för alla användare.",
+    "currentPlan": "Nuvarande plan",
+    "active": "Aktiv",
+    "trialing": "Provperiod",
+    "pastDue": "Förfallen",
+    "renewsAt": "Förnyas",
+    "mostPopular": "Populärast",
+    "perMonth": "SEK/mån",
+    "freeDuringBeta": "Gratis under beta",
+    "free": "Gratis",
+    "switchTo": "Byt till {plan}",
+    "startPlan": "Starta {plan}",
+    "payouts": "Utbetalningar",
+    "commissionLevel": "Din kommissionsnivå"
+  },
+  "dashboard": {
+    "logout": "Logga ut"
   }
 }

@@ -270,5 +270,27 @@
     "createFirstEvent": "Create your first event",
     "startSellingTickets": "Start selling tickets today",
     "createEvent": "Create event"
+  },
+  "billing": {
+    "title": "Subscription",
+    "subtitle": "Manage your plan and payments.",
+    "paymentSuccess": "Payment successful! Your plan is now active.",
+    "betaNotice": "Beta period — all features are unlocked for free for all users.",
+    "currentPlan": "Current plan",
+    "active": "Active",
+    "trialing": "Trial",
+    "pastDue": "Past due",
+    "renewsAt": "Renews",
+    "mostPopular": "Most popular",
+    "perMonth": "SEK/month",
+    "freeDuringBeta": "Free during beta",
+    "free": "Free",
+    "switchTo": "Switch to {plan}",
+    "startPlan": "Start {plan}",
+    "payouts": "Payouts",
+    "commissionLevel": "Your commission level"
+  },
+  "dashboard": {
+    "logout": "Log out"
   }
 }

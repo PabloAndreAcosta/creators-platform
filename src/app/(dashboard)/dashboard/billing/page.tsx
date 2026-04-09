@@ -8,6 +8,7 @@ import type { MemberRole } from "@/types/database";
 import CreatorTierInfo from "@/components/dashboard/CreatorTierInfo";
 import ConnectButton from "./connect-button";
 import { BETA_MODE } from "@/lib/beta";
+import { getTranslations } from "next-intl/server";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +18,8 @@ export default async function BillingPage({
   searchParams: Promise<{ success?: string }>;
 }) {
   const { success } = await searchParams;
+  const t = await getTranslations("billing");
+  const tc = await getTranslations("common");
   const supabase = await createClient();
   const {
     data: { user },
@@ -95,13 +98,13 @@ export default async function BillingPage({
     <>
       {success && (
         <div className="mb-6 rounded-xl border border-green-500/20 bg-green-500/10 px-4 py-3 text-sm font-medium text-green-400">
-          Betalningen lyckades! Din plan är nu aktiv.
+          {t("paymentSuccess")}
         </div>
       )}
 
       {BETA_MODE && (
         <div className="mb-6 rounded-xl border border-[var(--usha-gold)]/30 bg-[var(--usha-gold)]/10 px-4 py-3 text-sm font-medium text-[var(--usha-gold)]">
-          Beta-period — alla funktioner är upplåsta gratis för alla användare.
+          {t("betaNotice")}
         </div>
       )}
 
@@ -111,11 +114,11 @@ export default async function BillingPage({
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-white"
         >
           <ArrowLeft size={14} />
-          Tillbaka
+          {tc("back")}
         </Link>
-        <h1 className="text-3xl font-bold">Prenumeration</h1>
+        <h1 className="text-3xl font-bold">{t("title")}</h1>
         <p className="mt-1 text-[var(--usha-muted)]">
-          Hantera din plan och betalningar.
+          {t("subtitle")}
         </p>
       </div>
 
@@ -124,7 +127,7 @@ export default async function BillingPage({
         <div className="mb-8 rounded-2xl border border-[var(--usha-gold)]/20 bg-[var(--usha-card)] p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm text-[var(--usha-muted)]">Nuvarande plan</p>
+              <p className="text-sm text-[var(--usha-muted)]">{t("currentPlan")}</p>
               <p className="text-xl font-bold">{currentPlanDisplay}</p>
               <div className="mt-1 flex items-center gap-3 text-sm text-[var(--usha-muted)]">
                 <span
@@ -140,15 +143,15 @@ export default async function BillingPage({
                 >
                   {subscription
                     ? subscription.status === "active"
-                      ? "Aktiv"
+                      ? t("active")
                       : subscription.status === "trialing"
-                        ? "Provperiod"
-                        : "Förfallen"
-                    : "Aktiv"}
+                        ? t("trialing")
+                        : t("pastDue")
+                    : t("active")}
                 </span>
                 {subscription?.current_period_end && (
                   <span>
-                    Förnyas{" "}
+                    {t("renewsAt")}{" "}
                     {new Date(
                       subscription.current_period_end
                     ).toLocaleDateString("sv-SE")}
@@ -195,7 +198,7 @@ export default async function BillingPage({
 
           {!currentPlan || currentPlan === "gratis" ? (
             <div className="block w-full rounded-xl border border-[var(--usha-gold)]/30 py-3 text-center text-sm font-semibold text-[var(--usha-gold)]">
-              Nuvarande plan
+              {t("currentPlan")}
             </div>
           ) : (
             <div className="block w-full rounded-xl border border-[var(--usha-border)] py-3 text-center text-sm font-semibold text-[var(--usha-muted)]">
@@ -219,7 +222,7 @@ export default async function BillingPage({
             >
               {plan.popular && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-1 text-xs font-bold text-black">
-                  Populärast
+                  {t("mostPopular")}
                 </div>
               )}
 
@@ -236,7 +239,7 @@ export default async function BillingPage({
                     {plan.price} SEK
                   </span>
                 </div>
-                <p className="mt-1 text-xs text-[var(--usha-gold)]">Gratis under beta</p>
+                <p className="mt-1 text-xs text-[var(--usha-gold)]">{t("freeDuringBeta")}</p>
               </div>
 
               <ul className="mb-8 space-y-3">
@@ -253,12 +256,12 @@ export default async function BillingPage({
 
               {isCurrent ? (
                 <div className="block w-full rounded-xl border border-[var(--usha-gold)]/30 py-3 text-center text-sm font-semibold text-[var(--usha-gold)]">
-                  Nuvarande plan
+                  {t("currentPlan")}
                 </div>
               ) : (
                 <CheckoutButton
                   planKey={plan.key}
-                  label={currentPlan ? `Byt till ${plan.name}` : `Starta ${plan.name}`}
+                  label={currentPlan ? t("switchTo", { plan: plan.name }) : t("startPlan", { plan: plan.name })}
                   popular={plan.popular}
                   price={plan.price}
                 />
@@ -271,7 +274,7 @@ export default async function BillingPage({
       {/* Stripe Connect for creators */}
       {isCreatorRole && (
         <div className="mt-10">
-          <h2 className="mb-4 text-xl font-bold">Utbetalningar</h2>
+          <h2 className="mb-4 text-xl font-bold">{t("payouts")}</h2>
           <ConnectButton />
         </div>
       )}
@@ -279,7 +282,7 @@ export default async function BillingPage({
       {/* Creator tier info section */}
       {isCreatorRole && (
         <div className="mt-10">
-          <h2 className="mb-4 text-xl font-bold">Din kommissionsnivå</h2>
+          <h2 className="mb-4 text-xl font-bold">{t("commissionLevel")}</h2>
           <CreatorTierInfo
             creatorTier={userTier}
             creatorEarningsThisMonth={monthlyEarnings}

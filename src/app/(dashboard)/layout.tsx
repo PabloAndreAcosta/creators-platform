@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { LogOut } from "lucide-react";
 import { SubscriptionProvider } from "@/lib/subscription/context";
+import { getTranslations } from "next-intl/server";
 import type { MemberTier, MemberRole } from "@/types/database";
 
 export default async function DashboardLayout({
@@ -20,6 +21,8 @@ export default async function DashboardLayout({
   if (!user) {
     redirect("/login");
   }
+
+  const t = await getTranslations("dashboard");
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -65,7 +68,7 @@ export default async function DashboardLayout({
                 <button
                   type="submit"
                   className="rounded-md p-2 text-[var(--usha-muted)] transition-colors hover:bg-[var(--usha-card)] hover:text-white"
-                  title="Logga ut"
+                  title={t("logout")}
                 >
                   <LogOut size={16} />
                 </button>
