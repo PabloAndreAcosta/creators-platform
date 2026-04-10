@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { cookies } from "next/headers";
 import { getLocale, getMessages } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
 import { ToastProvider } from "@/components/ui/toaster";
@@ -43,9 +44,29 @@ export default async function RootLayout({
 }) {
   const locale = await getLocale();
   const messages = await getMessages();
+  const cookieStore = await cookies();
+  const themeCookie = cookieStore.get("usha-theme")?.value;
+  const themeClass = themeCookie === "light" ? "" : "dark";
 
   return (
-    <html lang={locale} className="dark">
+    <html lang={locale} className={themeClass} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function(){
+            try {
+              var t = localStorage.getItem('usha-theme');
+              if (!t) t = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+              if (t === 'light') {
+                document.documentElement.classList.remove('dark');
+              } else {
+                document.documentElement.classList.add('dark');
+              }
+            } catch(e) {
+              document.documentElement.classList.add('dark');
+            }
+          })();
+        `}} />
+      </head>
       <body className="grain min-h-screen bg-[var(--usha-black)] text-[var(--usha-white)] antialiased" suppressHydrationWarning>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <ConnectionStatus />

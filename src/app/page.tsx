@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { InstallPrompt } from "@/components/install-prompt";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { createClient } from "@/lib/supabase/client";
 import {
   Menu,
@@ -100,6 +101,7 @@ function Nav() {
           >
             {isLoggedIn ? t("nav.openApp") : t("nav.downloadApp")}
           </button>
+          <ThemeToggle />
           <LanguageSwitcher />
         </div>
 
@@ -152,7 +154,10 @@ function Nav() {
               {isLoggedIn ? t("nav.openApp") : t("nav.downloadApp")}
             </a>
             <div className="my-1 h-px bg-[var(--usha-border)]" />
-            <LanguageSwitcher />
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <LanguageSwitcher />
+            </div>
           </div>
         </div>
       )}

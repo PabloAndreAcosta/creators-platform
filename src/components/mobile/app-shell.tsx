@@ -10,6 +10,7 @@ import { RoleToggle } from "./role-toggle";
 import { NotificationBell } from "@/components/notification-bell";
 import { SearchBar } from "@/components/search-bar";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 interface AppShellProps {
   children: ReactNode;
@@ -63,6 +64,7 @@ export function AppShell({ children, userName }: AppShellProps) {
                 >
                   {mobileSearchOpen ? <X size={18} /> : <Search size={18} />}
                 </button>
+                <ThemeToggle />
                 <LanguageSwitcher className="hidden md:flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs text-[var(--usha-muted)] transition-colors hover:bg-[var(--usha-card)] hover:text-white" />
                 <NotificationBell />
                 <RoleToggle />

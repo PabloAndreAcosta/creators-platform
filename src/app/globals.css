@@ -4,7 +4,26 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Light mode (day) */
 :root {
+  --usha-black: #fafaf9;
+  --usha-white: #0a0a0b;
+  --usha-cream: #f5f0e8;
+  --usha-gold: #b8942e;
+  --usha-gold-light: #d4b94a;
+  --usha-accent: #e55a2b;
+  --usha-accent-soft: #ff8c5e;
+  --usha-premium: #7c5cbf;
+  --usha-premium-light: #a78bfa;
+  --usha-muted: #6b6b6b;
+  --usha-border: #e5e5e5;
+  --usha-card: #ffffff;
+  --usha-card-hover: #f5f5f5;
+  --radius: 0.75rem;
+}
+
+/* Dark mode (night — default) */
+.dark {
   --usha-black: #0a0a0b;
   --usha-white: #fafaf9;
   --usha-cream: #f5f0e8;
@@ -18,7 +37,6 @@
   --usha-border: #1f1f23;
   --usha-card: #111113;
   --usha-card-hover: #18181b;
-  --radius: 0.75rem;
 }
 
 body {
