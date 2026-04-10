@@ -10,6 +10,7 @@ import {
   CreditCard,
   Calendar,
   CheckCircle,
+  Download,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -112,9 +113,19 @@ export default function AnalyticsPage() {
           <ArrowLeft size={14} />
           Tillbaka
         </Link>
-        <div className="flex items-center gap-3">
-          <BarChart3 size={24} className="text-[var(--usha-gold)]" />
-          <h1 className="text-3xl font-bold">Analytics</h1>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <BarChart3 size={24} className="text-[var(--usha-gold)]" />
+            <h1 className="text-3xl font-bold">Analytics</h1>
+          </div>
+          <a
+            href="/api/analytics/export?type=all"
+            download
+            className="flex items-center gap-1.5 rounded-xl border border-[var(--usha-border)] px-4 py-2 text-sm font-medium text-[var(--usha-muted)] transition hover:border-[var(--usha-gold)]/30 hover:text-white"
+          >
+            <Download size={14} />
+            Exportera CSV
+          </a>
         </div>
         <p className="mt-1 text-[var(--usha-muted)]">
           Översikt av dina bokningar och intäkter de senaste 6 månaderna.

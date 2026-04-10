@@ -1,7 +1,7 @@
 {
   "crons": [
     {
-      "path": "/api/payouts/batch",
+      "path": "/api/cron/batch-payouts",
       "schedule": "0 6 * * 1"
     },
     {
