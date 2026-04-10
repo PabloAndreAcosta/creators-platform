@@ -264,4 +264,12 @@ async function sendMessageEmailNotification(
   } catch (err) {
     console.error('Failed to send message email:', err);
   }
+
+  // In-app notification
+  try {
+    const { notifyNewMessage } = await import('@/lib/notifications/create');
+    await notifyNewMessage(recipientId, senderName, messageContent);
+  } catch (err) {
+    console.error('Failed to create message notification:', err);
+  }
 }

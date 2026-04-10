@@ -544,6 +544,20 @@
     "cannotFollowSelf": "Du kan inte följa dig själv",
     "couldNotFollow": "Kunde inte följa"
   },
+  "messages": {
+    "title": "Meddelanden",
+    "newMessage": "Nytt meddelande",
+    "newConversation": "Ny konversation",
+    "searchContacts": "Sök efter en användare...",
+    "searchHint": "Skriv minst 2 tecken för att söka",
+    "noContactsFound": "Inga användare hittades",
+    "empty": "Inga meddelanden ännu",
+    "emptyHint": "Starta en konversation med en kreatör eller upplevelse",
+    "startConversation": "Skriv ett meddelande för att starta konversationen",
+    "placeholder": "Skriv ett meddelande...",
+    "you": "Du",
+    "now": "nu"
+  },
   "eventLive": {
     "premiumFeature": "Live Dashboard är en Premium-funktion",
     "upgradeToAccess": "Uppgradera för att se real-time check-in statistik under dina events.",

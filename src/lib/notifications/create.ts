@@ -4,7 +4,7 @@ import type { Locale } from '@/i18n/config';
 
 interface CreateNotificationParams {
   userId: string;
-  type: 'booking_new' | 'booking_confirmed' | 'booking_canceled' | 'payout' | 'review' | 'queue_promoted' | 'new_post';
+  type: 'booking_new' | 'booking_confirmed' | 'booking_canceled' | 'payout' | 'review' | 'queue_promoted' | 'new_post' | 'new_message';
   title: string;
   message: string;
   link?: string;
@@ -147,5 +147,18 @@ export async function notifyQueuePromoted(userId: string, serviceName: string) {
     title,
     message,
     link: '/app',
+  });
+}
+
+/**
+ * Notify a user about a new message.
+ */
+export async function notifyNewMessage(recipientId: string, senderName: string, preview: string) {
+  await createNotification({
+    userId: recipientId,
+    type: 'new_message',
+    title: `${senderName}`,
+    message: preview.length > 80 ? preview.slice(0, 80) + '...' : preview,
+    link: '/app/messages',
   });
 }

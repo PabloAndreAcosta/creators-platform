@@ -544,6 +544,20 @@
     "cannotFollowSelf": "You cannot follow yourself",
     "couldNotFollow": "Could not follow"
   },
+  "messages": {
+    "title": "Messages",
+    "newMessage": "New message",
+    "newConversation": "New conversation",
+    "searchContacts": "Search for a user...",
+    "searchHint": "Type at least 2 characters to search",
+    "noContactsFound": "No users found",
+    "empty": "No messages yet",
+    "emptyHint": "Start a conversation with a creator or experience",
+    "startConversation": "Write a message to start the conversation",
+    "placeholder": "Write a message...",
+    "you": "You",
+    "now": "now"
+  },
   "eventLive": {
     "premiumFeature": "Live Dashboard is a Premium feature",
     "upgradeToAccess": "Upgrade to see real-time check-in stats during your events.",
