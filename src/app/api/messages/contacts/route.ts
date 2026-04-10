@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function GET(req: NextRequest) {
   const query = req.nextUrl.searchParams.get("q");
@@ -7,6 +8,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ contacts: [] });
   }
 
+  // Verify user is authenticated
   const supabase = await createClient();
   const {
     data: { user },
@@ -16,7 +18,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { data: profiles } = await supabase
+  // Use admin client to bypass RLS on profiles (users may not be public)
+  const admin = createAdminClient();
+  const { data: profiles } = await admin
     .from("profiles")
     .select("id, full_name, avatar_url, role, category")
     .neq("id", user.id)
