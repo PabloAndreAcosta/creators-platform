@@ -543,5 +543,27 @@
     "creatorIdRequired": "creatorId krävs",
     "cannotFollowSelf": "Du kan inte följa dig själv",
     "couldNotFollow": "Kunde inte följa"
+  },
+  "eventLive": {
+    "premiumFeature": "Live Dashboard är en Premium-funktion",
+    "upgradeToAccess": "Uppgradera för att se real-time check-in statistik under dina events.",
+    "upgrade": "Uppgradera",
+    "backToEvents": "Tillbaka till evenemang",
+    "scanTicket": "Skanna",
+    "liveUpdating": "Live-uppdateras",
+    "lastUpdated": "Senast uppdaterad",
+    "checkedIn": "incheckade",
+    "checkInRate": "Check-in rate",
+    "ticketsSold": "Sålda biljetter",
+    "checkedInCount": "Incheckade",
+    "revenue": "Intäkter",
+    "recentCheckIns": "Senaste check-ins",
+    "guestList": "Gästlista",
+    "guests": "gäster",
+    "searchGuests": "Sök gäst...",
+    "noGuests": "Inga gäster ännu",
+    "checkedInAt": "Incheckad",
+    "notCheckedIn": "Ej incheckad",
+    "liveButton": "Live"
   }
 }

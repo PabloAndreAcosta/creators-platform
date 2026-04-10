@@ -13,6 +13,7 @@ import {
   MapPin,
   ToggleLeft,
   ToggleRight,
+  Radio,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -275,6 +276,14 @@ function EventCard({
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setShowMenu(false)} />
                 <div className="absolute bottom-full right-0 z-20 mb-1 min-w-[160px] rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] py-1 shadow-xl">
+                  <Link
+                    href={`/app/events/${listing.id}/live`}
+                    className="flex w-full items-center gap-2 px-4 py-2 text-xs text-green-400 hover:bg-[var(--usha-card-hover)]"
+                    onClick={() => setShowMenu(false)}
+                  >
+                    <Radio size={12} />
+                    Live Dashboard
+                  </Link>
                   <Link
                     href={`/app/events/${listing.id}/edit`}
                     className="flex w-full items-center gap-2 px-4 py-2 text-xs hover:bg-[var(--usha-card-hover)]"

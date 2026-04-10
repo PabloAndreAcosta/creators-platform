@@ -38,3 +38,6 @@ next-env.d.ts
 
 # claude
 .claude/
+.env-check
+.env-prod*
+.env-vercel

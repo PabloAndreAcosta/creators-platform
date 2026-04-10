@@ -543,5 +543,27 @@
     "creatorIdRequired": "creatorId is required",
     "cannotFollowSelf": "You cannot follow yourself",
     "couldNotFollow": "Could not follow"
+  },
+  "eventLive": {
+    "premiumFeature": "Live Dashboard is a Premium feature",
+    "upgradeToAccess": "Upgrade to see real-time check-in stats during your events.",
+    "upgrade": "Upgrade",
+    "backToEvents": "Back to events",
+    "scanTicket": "Scan",
+    "liveUpdating": "Live updating",
+    "lastUpdated": "Last updated",
+    "checkedIn": "checked in",
+    "checkInRate": "Check-in rate",
+    "ticketsSold": "Tickets sold",
+    "checkedInCount": "Checked in",
+    "revenue": "Revenue",
+    "recentCheckIns": "Recent check-ins",
+    "guestList": "Guest list",
+    "guests": "guests",
+    "searchGuests": "Search guest...",
+    "noGuests": "No guests yet",
+    "checkedInAt": "Checked in",
+    "notCheckedIn": "Not checked in",
+    "liveButton": "Live"
   }
 }
