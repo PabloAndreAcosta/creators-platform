@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
 
     if (!listingId || !email) {
       return NextResponse.json(
-        { error: "listingId och email krävs" },
+        { error: "listingId and email are required" },
         { status: 400 }
       );
     }
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
 
     if (!listing) {
       return NextResponse.json(
-        { error: "Evenemang hittades inte" },
+        { error: "Event not found" },
         { status: 404 }
       );
     }
@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
 
     if (!creator?.stripe_account_id) {
       return NextResponse.json(
-        { error: "Kreatören har inte kopplat sitt Stripe-konto" },
+        { error: "Creator has not connected their Stripe account" },
         { status: 400 }
       );
     }
@@ -107,6 +107,7 @@ export async function POST(req: NextRequest) {
           destination: creator.stripe_account_id,
         },
       },
+      automatic_tax: { enabled: true },
       success_url: `${baseUrl}/flode?ticket=success`,
       cancel_url: `${baseUrl}/flode`,
       metadata: {
@@ -124,7 +125,7 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     console.error("Guest checkout error:", error);
     return NextResponse.json(
-      { error: error?.message || "Serverfel" },
+      { error: error?.message || "Server error" },
       { status: 500 }
     );
   }

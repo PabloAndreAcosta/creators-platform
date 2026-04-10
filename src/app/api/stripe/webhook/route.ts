@@ -313,6 +313,41 @@ export async function POST(req: NextRequest) {
           break;
         }
 
+        // Handle digital product purchases
+        if (session.metadata?.type === "digital_product") {
+          const productId = session.metadata.product_id;
+          const buyerId = session.metadata.buyer_id;
+          const creatorId = session.metadata.creator_id;
+          const paymentIntentId = (session.payment_intent as string) || null;
+
+          if (productId && buyerId) {
+            // Record payment
+            if (session.amount_total) {
+              await getSupabaseAdmin().from("payments").insert({
+                user_id: buyerId,
+                stripe_payment_id: paymentIntentId,
+                amount: session.amount_total,
+                currency: session.currency || "sek",
+                status: "succeeded",
+                description: `Digital product: ${productId}`,
+              });
+            }
+
+            // Record purchase (if purchases table exists — ignore errors silently)
+            try {
+              await getSupabaseAdmin().from("purchases").insert({
+                user_id: buyerId,
+                product_id: productId,
+                stripe_payment_id: paymentIntentId,
+              });
+            } catch {
+              // purchases table may not exist yet
+            }
+          }
+
+          break;
+        }
+
         // Handle subscription checkouts
         if (!session.subscription) break;
 
@@ -517,7 +552,7 @@ export async function POST(req: NextRequest) {
           // Update payment status
           await getSupabaseAdmin()
             .from("payments")
-            .update({ status: "failed" }) // 'failed' represents refunded in current schema
+            .update({ status: "refunded" })
             .eq("stripe_payment_id", paymentIntentId);
 
           // Cancel associated booking
@@ -609,13 +644,6 @@ export async function POST(req: NextRequest) {
       case "account.updated": {
         const account = event.data.object as Stripe.Account;
         if (account.id) {
-          await getSupabaseAdmin()
-            .from("profiles")
-            .update({
-              // Profile already has stripe_account_id, just log status changes
-            })
-            .eq("stripe_account_id", account.id);
-          // Log for monitoring
           console.log("Connect account updated:", account.id, "Charges enabled:", account.charges_enabled, "Payouts enabled:", account.payouts_enabled);
         }
         break;

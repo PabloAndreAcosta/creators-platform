@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
 
     if (!listingId) {
       return NextResponse.json(
-        { error: 'listingId krävs' },
+        { error: 'listingId is required' },
         { status: 400 }
       );
     }
@@ -46,21 +46,21 @@ export async function POST(req: NextRequest) {
 
     if (listingError || !listing) {
       return NextResponse.json(
-        { error: 'Evenemang hittades inte' },
+        { error: 'Event not found' },
         { status: 404 }
       );
     }
 
     if (!listing.is_active) {
       return NextResponse.json(
-        { error: 'Evenemanget är inte aktivt' },
+        { error: 'Event is not active' },
         { status: 400 }
       );
     }
 
     if (listing.user_id === user.id) {
       return NextResponse.json(
-        { error: 'Du kan inte köpa biljett till ditt eget event' },
+        { error: 'You cannot buy a ticket to your own event' },
         { status: 400 }
       );
     }
@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
 
     if (existingTickets && existingTickets > 0) {
       return NextResponse.json(
-        { error: 'Du har redan en biljett till detta event' },
+        { error: 'You already have a ticket for this event' },
         { status: 409 }
       );
     }
@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
       if (isGoldExclusive(releaseDate) && userTier !== 'guld' && userTier !== 'premium') {
         const hours = Math.ceil((releaseDate.getTime() - Date.now()) / (60 * 60 * 1000));
         return NextResponse.json(
-          { error: `Detta event är exklusivt för Guld/Premium-medlemmar i ${hours} timmar till.` },
+          { error: `This event is exclusive to Gold/Premium members for another ${hours} hours.` },
           { status: 403 }
         );
       }
@@ -128,7 +128,7 @@ export async function POST(req: NextRequest) {
 
     if (!creator?.stripe_account_id) {
       return NextResponse.json(
-        { error: 'Kreatören har inte kopplat sitt Stripe-konto' },
+        { error: 'Creator has not connected their Stripe account' },
         { status: 400 }
       );
     }
@@ -162,6 +162,7 @@ export async function POST(req: NextRequest) {
           destination: creator.stripe_account_id,
         },
       },
+      automatic_tax: { enabled: true },
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/app/tickets?success=true`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/creators/${listing.user_id}`,
       metadata: {
@@ -179,7 +180,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ sessionId: session.id, url: session.url });
   } catch (error: any) {
     console.error('Ticket checkout error:', error);
-    const message = error?.message || 'Kunde inte starta checkout';
+    const message = error?.message || 'Could not start checkout';
     return NextResponse.json(
       { error: message },
       { status: 500 }

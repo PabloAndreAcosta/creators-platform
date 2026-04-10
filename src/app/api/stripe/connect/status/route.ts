@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     console.error('Connect status error:', error);
     return NextResponse.json(
-      { error: 'Kunde inte hämta kontostatus' },
+      { error: 'Could not fetch account status' },
       { status: 500 }
     );
   }

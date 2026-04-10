@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
 
     if (!listingId || !creatorId || !scheduledAt) {
       return NextResponse.json(
-        { error: "Listing, creator och datum krävs" },
+        { error: "Listing, creator and date are required" },
         { status: 400 }
       );
     }
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
 
     if (creatorId === user.id) {
       return NextResponse.json(
-        { error: "Du kan inte boka din egen tjänst" },
+        { error: "You cannot book your own service" },
         { status: 400 }
       );
     }
@@ -64,14 +64,14 @@ export async function POST(req: NextRequest) {
 
     if (!listing || !listing.is_active) {
       return NextResponse.json(
-        { error: "Tjänsten hittades inte eller är inaktiv" },
+        { error: "Service not found or inactive" },
         { status: 404 }
       );
     }
 
     if (!listing.price || listing.price <= 0) {
       return NextResponse.json(
-        { error: "Tjänsten har inget pris" },
+        { error: "Service has no price" },
         { status: 400 }
       );
     }
@@ -80,13 +80,13 @@ export async function POST(req: NextRequest) {
     const guests = guestCount ?? 1;
     if (listing.min_guests && guests < listing.min_guests) {
       return NextResponse.json(
-        { error: `Minst ${listing.min_guests} gäster krävs` },
+        { error: `Minimum ${listing.min_guests} guests required` },
         { status: 400 }
       );
     }
     if (listing.max_guests && guests > listing.max_guests) {
       return NextResponse.json(
-        { error: `Max ${listing.max_guests} gäster tillåtna` },
+        { error: `Maximum ${listing.max_guests} guests allowed` },
         { status: 400 }
       );
     }
@@ -100,7 +100,7 @@ export async function POST(req: NextRequest) {
 
     if (!creator?.stripe_account_id) {
       return NextResponse.json(
-        { error: "Kreatören har inte kopplat sitt Stripe-konto" },
+        { error: "Creator has not connected their Stripe account" },
         { status: 400 }
       );
     }
@@ -159,6 +159,7 @@ export async function POST(req: NextRequest) {
           destination: creator.stripe_account_id,
         },
       },
+      automatic_tax: { enabled: true },
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/bookings?success=true`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/creators/${listing.user_id}`,
       metadata: {
@@ -186,7 +187,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ sessionId: session.id, url: session.url });
   } catch (error: any) {
     console.error("Booking checkout error:", error);
-    const message = error?.message || "Kunde inte starta betalning";
+    const message = error?.message || "Could not start payment";
     return NextResponse.json(
       { error: message },
       { status: 500 }

@@ -23,7 +23,7 @@ export async function POST() {
 
     if (!subscription?.stripe_customer_id) {
       return NextResponse.json(
-        { error: "Ingen prenumeration hittades" },
+        { error: "No subscription found" },
         { status: 404 }
       );
     }
@@ -37,7 +37,7 @@ export async function POST() {
   } catch (error) {
     console.error("Portal error:", error);
     return NextResponse.json(
-      { error: "Kunde inte öppna kundportalen" },
+      { error: "Could not open customer portal" },
       { status: 500 }
     );
   }

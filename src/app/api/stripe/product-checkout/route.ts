@@ -8,13 +8,13 @@ export async function POST(req: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-      return NextResponse.json({ error: "Ej inloggad" }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { productId, promoCode } = await req.json();
 
     if (!productId) {
-      return NextResponse.json({ error: "Produkt-ID krävs" }, { status: 400 });
+      return NextResponse.json({ error: "Product ID is required" }, { status: 400 });
     }
 
     // Fetch the product
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (!product || !product.is_active) {
-      return NextResponse.json({ error: "Produkt hittades inte" }, { status: 404 });
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
     // Check if already purchased
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (existingPurchase) {
-      return NextResponse.json({ error: "Du har redan köpt denna produkt" }, { status: 400 });
+      return NextResponse.json({ error: "You have already purchased this product" }, { status: 400 });
     }
 
     // Check promo code
@@ -116,6 +116,7 @@ export async function POST(req: NextRequest) {
         promo_code: promoCode || "",
         creator_promo_id: creatorPromoId || "",
       },
+      automatic_tax: { enabled: true },
       success_url: `${baseUrl}/app/library?purchased=${productId}`,
       cancel_url: `${baseUrl}/creators/${product.creator_id}`,
     });
@@ -123,6 +124,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ url: session.url });
   } catch (error) {
     console.error("Product checkout error:", error);
-    return NextResponse.json({ error: "Serverfel" }, { status: 500 });
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

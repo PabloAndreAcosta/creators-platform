@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
     if (updateError) {
       console.error('Failed to save Stripe account ID:', updateError);
       return NextResponse.json(
-        { error: 'Kunde inte spara kontoinformation' },
+        { error: 'Could not save account information' },
         { status: 500 }
       );
     }
@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
     const message = error instanceof Error ? error.message : String(error);
     console.error('Stripe Connect error:', message);
     return NextResponse.json(
-      { error: `Kunde inte starta Stripe-koppling: ${message}` },
+      { error: `Could not start Stripe connection: ${message}` },
       { status: 500 }
     );
   }
