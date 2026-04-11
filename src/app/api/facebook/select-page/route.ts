@@ -1,6 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { getFbPagesFromCookie, clearFbPagesCookie } from '@/lib/oauth/state';
 
+// GET: return pages data from signed cookie (for client component to fetch)
+export async function GET(req: NextRequest) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const pages = getFbPagesFromCookie(req);
+  if (!pages || pages.length === 0) {
+    return NextResponse.json({ pages: [] });
+  }
+
+  return NextResponse.json({ pages });
+}
+
+// POST: save selected page to profile and clear cookie
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -13,6 +32,16 @@ export async function POST(req: NextRequest) {
 
   if (!pageId || !pageName || !pageToken) {
     return NextResponse.json({ error: 'Saknar siddata' }, { status: 400 });
+  }
+
+  // Verify the page token came from our signed cookie
+  const cookiePages = getFbPagesFromCookie(req);
+  const matchedPage = cookiePages?.find(
+    (p) => p.id === pageId && p.name === pageName && p.token === pageToken
+  );
+
+  if (!matchedPage) {
+    return NextResponse.json({ error: 'Ogiltig siddata' }, { status: 403 });
   }
 
   const { error } = await supabase
@@ -28,5 +57,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Kunde inte spara sidan' }, { status: 500 });
   }
 
-  return NextResponse.json({ success: true });
+  const response = NextResponse.json({ success: true });
+  clearFbPagesCookie(response);
+  return response;
 }

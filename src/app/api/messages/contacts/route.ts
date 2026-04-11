@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
     .from("profiles")
     .select("id, full_name, avatar_url, role, category")
     .neq("id", user.id)
-    .or(`full_name.ilike.%${query}%,email.ilike.%${query}%`)
+    .ilike("full_name", `%${query}%`)
     .limit(10);
 
   return NextResponse.json({

@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
+import crypto from "crypto";
 import { createClient } from "@/lib/supabase/server";
+import { setOAuthStateCookie } from "@/lib/oauth/state";
 
 const IG_APP_ID = process.env.INSTAGRAM_APP_ID!;
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL!;
@@ -21,15 +23,21 @@ export async function GET() {
     return NextResponse.json({ error: "Instagram App ID not configured" }, { status: 500 });
   }
 
+  const csrfToken = crypto.randomBytes(16).toString("hex");
+
   const params = new URLSearchParams({
     client_id: IG_APP_ID,
     redirect_uri: REDIRECT_URI,
     scope: SCOPES,
     response_type: "code",
-    state: user.id,
+    state: csrfToken,
   });
 
-  return NextResponse.redirect(
+  const response = NextResponse.redirect(
     `https://www.instagram.com/oauth/authorize?${params.toString()}`
   );
+
+  setOAuthStateCookie(response, user.id);
+
+  return response;
 }

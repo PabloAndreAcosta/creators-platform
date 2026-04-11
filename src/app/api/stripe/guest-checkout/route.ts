@@ -6,6 +6,13 @@ import {
 } from "@/lib/stripe/commission";
 
 export async function POST(req: NextRequest) {
+  // Rate limit: 5 guest checkouts per minute per IP
+  const { rateLimit, getRateLimitKey } = await import('@/lib/rate-limit');
+  const rl = rateLimit(getRateLimitKey(req, 'guest-checkout'), 5, 60_000);
+  if (!rl.allowed) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+  }
+
   try {
     const { listingId, email, name } = await req.json();
 

@@ -2,6 +2,10 @@ import crypto from "crypto";
 
 const SECRET = process.env.BANKID_COOKIE_SECRET || "";
 
+if (typeof window === "undefined" && !SECRET) {
+  console.warn("WARNING: BANKID_COOKIE_SECRET is not set. Cookie signing is insecure.");
+}
+
 export function signCookieValue(data: object): string {
   const json = JSON.stringify(data);
   const encoded = Buffer.from(json).toString("base64url");
@@ -38,6 +42,12 @@ export function verifyCookieValue<T = unknown>(
   }
 }
 
+/**
+ * Hash a personal number using HMAC with a secret key.
+ * This prevents rainbow table attacks against the predictable
+ * Swedish personal number format (YYYYMMDD-XXXX).
+ */
 export function hashPersonalNumber(nin: string): string {
-  return crypto.createHash("sha256").update(nin).digest("hex");
+  const hmacKey = process.env.BANKID_COOKIE_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+  return crypto.createHmac("sha256", hmacKey).update(nin).digest("hex");
 }

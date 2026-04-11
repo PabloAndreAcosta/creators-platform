@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
+import crypto from "crypto";
 import { createClient } from "@/lib/supabase/server";
+import { setOAuthStateCookie } from "@/lib/oauth/state";
 
 const CLIENT_KEY = process.env.TIKTOK_CLIENT_KEY!;
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL!;
@@ -19,17 +21,21 @@ export async function GET() {
     return NextResponse.json({ error: "TikTok Client Key not configured" }, { status: 500 });
   }
 
-  const csrfState = `${user.id}_${Date.now()}`;
+  const csrfToken = crypto.randomBytes(16).toString("hex");
 
   const params = new URLSearchParams({
     client_key: CLIENT_KEY,
     scope: "user.info.basic,video.list",
     response_type: "code",
     redirect_uri: REDIRECT_URI,
-    state: csrfState,
+    state: csrfToken,
   });
 
-  return NextResponse.redirect(
+  const response = NextResponse.redirect(
     `https://www.tiktok.com/v2/auth/authorize/?${params.toString()}`
   );
+
+  setOAuthStateCookie(response, user.id);
+
+  return response;
 }

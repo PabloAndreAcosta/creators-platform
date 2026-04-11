@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
+import { getOAuthStateFromCookie, clearOAuthStateCookie } from "@/lib/oauth/state";
 
 const IG_APP_ID = process.env.INSTAGRAM_APP_ID!;
 const IG_APP_SECRET = process.env.INSTAGRAM_APP_SECRET!;
@@ -9,11 +10,16 @@ const REDIRECT_URI = process.env.INSTAGRAM_REDIRECT_URI ?? `${APP_URL}/api/insta
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const code = searchParams.get("code");
-  const userId = searchParams.get("state");
   const error = searchParams.get("error");
 
+  // Get verified user ID from signed cookie instead of state param
+  const oauthState = getOAuthStateFromCookie(req);
+  const userId = oauthState?.userId;
+
   if (error || !code || !userId) {
-    return NextResponse.redirect(`${APP_URL}/dashboard/profile?ig_error=denied`);
+    const response = NextResponse.redirect(`${APP_URL}/dashboard/profile?ig_error=denied`);
+    clearOAuthStateCookie(response);
+    return response;
   }
 
   const supabase = createAdminClient(
@@ -29,7 +35,9 @@ export async function GET(req: NextRequest) {
     .single();
 
   if (!profile) {
-    return NextResponse.redirect(`${APP_URL}/login`);
+    const response = NextResponse.redirect(`${APP_URL}/login`);
+    clearOAuthStateCookie(response);
+    return response;
   }
 
   // Step 1: Exchange code for short-lived token
@@ -47,7 +55,9 @@ export async function GET(req: NextRequest) {
 
   if (!tokenRes.ok) {
     console.error("Instagram token exchange failed:", await tokenRes.text());
-    return NextResponse.redirect(`${APP_URL}/dashboard/profile?ig_error=token`);
+    const response = NextResponse.redirect(`${APP_URL}/dashboard/profile?ig_error=token`);
+    clearOAuthStateCookie(response);
+    return response;
   }
 
   const tokenData = await tokenRes.json();
@@ -90,5 +100,7 @@ export async function GET(req: NextRequest) {
     })
     .eq("id", userId);
 
-  return NextResponse.redirect(`${APP_URL}/dashboard/profile?ig_connected=1`);
+  const response = NextResponse.redirect(`${APP_URL}/dashboard/profile?ig_connected=1`);
+  clearOAuthStateCookie(response);
+  return response;
 }

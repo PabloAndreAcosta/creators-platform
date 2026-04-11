@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
+import { getOAuthStateFromCookie, clearOAuthStateCookie } from "@/lib/oauth/state";
 
 const CLIENT_KEY = process.env.TIKTOK_CLIENT_KEY!;
 const CLIENT_SECRET = process.env.TIKTOK_CLIENT_SECRET!;
@@ -9,14 +10,16 @@ const REDIRECT_URI = `${APP_URL}/api/tiktok/callback`;
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const code = searchParams.get("code");
-  const state = searchParams.get("state");
   const error = searchParams.get("error");
 
-  // Extract userId from state (format: userId_timestamp)
-  const userId = state?.split("_")[0];
+  // Get verified user ID from signed cookie instead of state param
+  const oauthState = getOAuthStateFromCookie(req);
+  const userId = oauthState?.userId;
 
   if (error || !code || !userId) {
-    return NextResponse.redirect(`${APP_URL}/dashboard/profile?tiktok_error=denied`);
+    const response = NextResponse.redirect(`${APP_URL}/dashboard/profile?tiktok_error=denied`);
+    clearOAuthStateCookie(response);
+    return response;
   }
 
   const supabase = createAdminClient(
@@ -32,7 +35,9 @@ export async function GET(req: NextRequest) {
     .single();
 
   if (!profile) {
-    return NextResponse.redirect(`${APP_URL}/login`);
+    const response = NextResponse.redirect(`${APP_URL}/login`);
+    clearOAuthStateCookie(response);
+    return response;
   }
 
   // Exchange code for access token
@@ -50,7 +55,9 @@ export async function GET(req: NextRequest) {
 
   if (!tokenRes.ok) {
     console.error("TikTok token exchange failed:", await tokenRes.text());
-    return NextResponse.redirect(`${APP_URL}/dashboard/profile?tiktok_error=token`);
+    const response = NextResponse.redirect(`${APP_URL}/dashboard/profile?tiktok_error=token`);
+    clearOAuthStateCookie(response);
+    return response;
   }
 
   const tokenData = await tokenRes.json();
@@ -60,7 +67,9 @@ export async function GET(req: NextRequest) {
 
   if (!accessToken) {
     console.error("TikTok token response missing access_token:", tokenData);
-    return NextResponse.redirect(`${APP_URL}/dashboard/profile?tiktok_error=token`);
+    const response = NextResponse.redirect(`${APP_URL}/dashboard/profile?tiktok_error=token`);
+    clearOAuthStateCookie(response);
+    return response;
   }
 
   // Fetch user info for username
@@ -87,5 +96,7 @@ export async function GET(req: NextRequest) {
     })
     .eq("id", userId);
 
-  return NextResponse.redirect(`${APP_URL}/dashboard/profile?tiktok_connected=1`);
+  const response = NextResponse.redirect(`${APP_URL}/dashboard/profile?tiktok_connected=1`);
+  clearOAuthStateCookie(response);
+  return response;
 }

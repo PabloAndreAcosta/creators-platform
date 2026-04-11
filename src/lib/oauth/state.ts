@@ -1,0 +1,102 @@
+import crypto from "crypto";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+
+const COOKIE_NAME = "oauth_state";
+const SECRET = process.env.BANKID_COOKIE_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY!;
+
+export function setOAuthStateCookie(response: NextResponse, userId: string): NextResponse {
+  const csrf = crypto.randomBytes(16).toString("hex");
+  const payload = JSON.stringify({ userId, csrf });
+  const signature = crypto.createHmac("sha256", SECRET).update(payload).digest("hex");
+  const value = Buffer.from(payload).toString("base64") + "." + signature;
+
+  response.cookies.set(COOKIE_NAME, value, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 600, // 10 minutes
+  });
+
+  return response;
+}
+
+export function getOAuthStateFromCookie(request: NextRequest): { userId: string; csrf: string } | null {
+  const cookie = request.cookies.get(COOKIE_NAME)?.value;
+  if (!cookie) return null;
+
+  const [encodedPayload, signature] = cookie.split(".");
+  if (!encodedPayload || !signature) return null;
+
+  const payload = Buffer.from(encodedPayload, "base64").toString("utf-8");
+  const expectedSig = crypto.createHmac("sha256", SECRET).update(payload).digest("hex");
+
+  if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSig))) {
+    return null;
+  }
+
+  try {
+    const data = JSON.parse(payload);
+    if (!data.userId || !data.csrf) return null;
+    return { userId: data.userId, csrf: data.csrf };
+  } catch {
+    return null;
+  }
+}
+
+export function clearOAuthStateCookie(response: NextResponse): NextResponse {
+  response.cookies.set(COOKIE_NAME, "", { path: "/", maxAge: 0 });
+  return response;
+}
+
+// --- Facebook pages cookie (signed, httpOnly) ---
+
+const FB_PAGES_COOKIE = "fb_pages";
+
+export function setFbPagesCookie(
+  response: NextResponse,
+  pages: Array<{ id: string; name: string; token: string }>
+): NextResponse {
+  const payload = JSON.stringify(pages);
+  const signature = crypto.createHmac("sha256", SECRET).update(payload).digest("hex");
+  const value = Buffer.from(payload).toString("base64") + "." + signature;
+
+  response.cookies.set(FB_PAGES_COOKIE, value, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 600,
+  });
+
+  return response;
+}
+
+export function getFbPagesFromCookie(
+  request: NextRequest
+): Array<{ id: string; name: string; token: string }> | null {
+  const cookie = request.cookies.get(FB_PAGES_COOKIE)?.value;
+  if (!cookie) return null;
+
+  const [encodedPayload, signature] = cookie.split(".");
+  if (!encodedPayload || !signature) return null;
+
+  const payload = Buffer.from(encodedPayload, "base64").toString("utf-8");
+  const expectedSig = crypto.createHmac("sha256", SECRET).update(payload).digest("hex");
+
+  if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSig))) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(payload);
+  } catch {
+    return null;
+  }
+}
+
+export function clearFbPagesCookie(response: NextResponse): NextResponse {
+  response.cookies.set(FB_PAGES_COOKIE, "", { path: "/", maxAge: 0 });
+  return response;
+}

@@ -1,7 +1,7 @@
 "use client";
 
-import { useSearchParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 import { Facebook, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
 
@@ -12,17 +12,24 @@ interface FBPage {
 }
 
 export default function SelectFacebookPage() {
-  const searchParams = useSearchParams();
   const router = useRouter();
   const { toast } = useToast();
   const [selecting, setSelecting] = useState<string | null>(null);
+  const [pages, setPages] = useState<FBPage[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  let pages: FBPage[] = [];
-  try {
-    pages = JSON.parse(decodeURIComponent(searchParams.get("pages") || "[]"));
-  } catch {
-    pages = [];
-  }
+  useEffect(() => {
+    fetch("/api/facebook/select-page")
+      .then((res) => res.json())
+      .then((data) => {
+        setPages(data.pages || []);
+        setLoading(false);
+      })
+      .catch(() => {
+        setPages([]);
+        setLoading(false);
+      });
+  }, []);
 
   async function handleSelect(page: FBPage) {
     setSelecting(page.id);
@@ -43,6 +50,14 @@ export default function SelectFacebookPage() {
       toast.error("Något gick fel");
       setSelecting(null);
     }
+  }
+
+  if (loading) {
+    return (
+      <div className="px-4 py-12 text-center">
+        <Loader2 size={24} className="mx-auto animate-spin text-[var(--usha-muted)]" />
+      </div>
+    );
   }
 
   if (pages.length === 0) {

@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
+import crypto from "crypto";
 import { createClient } from "@/lib/supabase/server";
+import { setOAuthStateCookie } from "@/lib/oauth/state";
 
 const FB_APP_ID = process.env.FACEBOOK_APP_ID!;
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL!;
@@ -27,15 +29,21 @@ export async function GET() {
     return NextResponse.json({ error: "Facebook App ID not configured" }, { status: 500 });
   }
 
+  const csrfToken = crypto.randomBytes(16).toString("hex");
+
   const params = new URLSearchParams({
     client_id: FB_APP_ID,
     redirect_uri: REDIRECT_URI,
     scope: SCOPES,
     response_type: "code",
-    state: user.id, // Pass user ID to verify in callback
+    state: csrfToken,
   });
 
-  return NextResponse.redirect(
+  const response = NextResponse.redirect(
     `https://www.facebook.com/v19.0/dialog/oauth?${params.toString()}`
   );
+
+  setOAuthStateCookie(response, user.id);
+
+  return response;
 }

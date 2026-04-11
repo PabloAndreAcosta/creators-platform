@@ -107,6 +107,13 @@ export async function GET(req: NextRequest) {
 
 // POST — send a message (creates conversation if needed)
 export async function POST(req: NextRequest) {
+  // Rate limit: 20 messages per minute per IP
+  const { rateLimit, getRateLimitKey } = await import('@/lib/rate-limit');
+  const rl = rateLimit(getRateLimitKey(req, 'msg'), 20, 60_000);
+  if (!rl.allowed) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+  }
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 

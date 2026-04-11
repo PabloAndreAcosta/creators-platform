@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
+import {
+  getOAuthStateFromCookie,
+  clearOAuthStateCookie,
+  setFbPagesCookie,
+} from "@/lib/oauth/state";
 
 const FB_APP_ID = process.env.FACEBOOK_APP_ID!;
 const FB_APP_SECRET = process.env.FACEBOOK_APP_SECRET!;
@@ -9,11 +14,16 @@ const REDIRECT_URI = process.env.FACEBOOK_REDIRECT_URI ?? `${APP_URL}/api/facebo
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const code = searchParams.get("code");
-  const userId = searchParams.get("state"); // user ID passed from connect route
   const error = searchParams.get("error");
 
+  // Get verified user ID from signed cookie instead of state param
+  const oauthState = getOAuthStateFromCookie(req);
+  const userId = oauthState?.userId;
+
   if (error || !code || !userId) {
-    return NextResponse.redirect(`${APP_URL}/app/events?fb_error=denied`);
+    const response = NextResponse.redirect(`${APP_URL}/app/events?fb_error=denied`);
+    clearOAuthStateCookie(response);
+    return response;
   }
 
   // Use admin client — callback runs on ngrok domain where session cookies don't exist
@@ -30,7 +40,9 @@ export async function GET(req: NextRequest) {
     .single();
 
   if (!profile) {
-    return NextResponse.redirect(`${APP_URL}/login`);
+    const response = NextResponse.redirect(`${APP_URL}/login`);
+    clearOAuthStateCookie(response);
+    return response;
   }
 
   // Exchange code for user access token
@@ -45,7 +57,9 @@ export async function GET(req: NextRequest) {
   );
 
   if (!tokenRes.ok) {
-    return NextResponse.redirect(`${APP_URL}/app/events?fb_error=token`);
+    const response = NextResponse.redirect(`${APP_URL}/app/events?fb_error=token`);
+    clearOAuthStateCookie(response);
+    return response;
   }
 
   const { access_token: userToken } = await tokenRes.json();
@@ -56,7 +70,9 @@ export async function GET(req: NextRequest) {
   );
 
   if (!pagesRes.ok) {
-    return NextResponse.redirect(`${APP_URL}/app/events?fb_error=pages`);
+    const response = NextResponse.redirect(`${APP_URL}/app/events?fb_error=pages`);
+    clearOAuthStateCookie(response);
+    return response;
   }
 
   const pagesData = await pagesRes.json();
@@ -64,15 +80,20 @@ export async function GET(req: NextRequest) {
     pagesData.data ?? [];
 
   if (pages.length === 0) {
-    return NextResponse.redirect(`${APP_URL}/app/events?fb_error=no_pages`);
+    const response = NextResponse.redirect(`${APP_URL}/app/events?fb_error=no_pages`);
+    clearOAuthStateCookie(response);
+    return response;
   }
 
-  // If multiple pages, let user choose via select-page UI
+  // If multiple pages, store page data in a signed cookie and redirect to select-page UI
   if (pages.length > 1) {
-    const pagesParam = encodeURIComponent(
-      JSON.stringify(pages.map((p) => ({ id: p.id, name: p.name, token: p.access_token })))
+    const response = NextResponse.redirect(`${APP_URL}/app/events/select-page`);
+    setFbPagesCookie(
+      response,
+      pages.map((p) => ({ id: p.id, name: p.name, token: p.access_token }))
     );
-    return NextResponse.redirect(`${APP_URL}/app/events/select-page?pages=${pagesParam}`);
+    clearOAuthStateCookie(response);
+    return response;
   }
 
   const page = pages[0];
@@ -87,5 +108,7 @@ export async function GET(req: NextRequest) {
     })
     .eq("id", userId);
 
-  return NextResponse.redirect(`${APP_URL}/app/events?fb_connected=1`);
+  const response = NextResponse.redirect(`${APP_URL}/app/events?fb_connected=1`);
+  clearOAuthStateCookie(response);
+  return response;
 }
