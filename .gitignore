@@ -41,3 +41,12 @@ next-env.d.ts
 .env-check
 .env-prod*
 .env-vercel
+
+# capacitor native builds
+ios/App/Pods/
+ios/App/build/
+ios/App/DerivedData/
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
