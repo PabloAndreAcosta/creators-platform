@@ -19,10 +19,9 @@ export async function GET(req: NextRequest) {
     }
 
     const { searchParams } = req.nextUrl;
-    const userId = searchParams.get('userId') || user.id;
     const limit = Math.min(Number(searchParams.get('limit') || 5), 20);
 
-    const results = await getRecommendations(userId, limit);
+    const results = await getRecommendations(user.id, limit);
 
     const recommendations = results.map((r) => ({
       id: r.id,

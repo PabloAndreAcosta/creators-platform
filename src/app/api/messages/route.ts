@@ -15,6 +15,17 @@ export async function GET(req: NextRequest) {
 
   // If conversationId provided, return messages for that conversation
   if (conversationId) {
+    // Verify the authenticated user is a participant of this conversation
+    const { data: convo } = await supabase
+      .from("conversations")
+      .select("participant_a, participant_b")
+      .eq("id", conversationId)
+      .single();
+
+    if (!convo || (convo.participant_a !== user.id && convo.participant_b !== user.id)) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
     const { data: messages } = await supabase
       .from('messages')
       .select('id, sender_id, content, is_read, created_at')

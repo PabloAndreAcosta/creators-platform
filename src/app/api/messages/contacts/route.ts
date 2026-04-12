@@ -22,9 +22,10 @@ export async function GET(req: NextRequest) {
   const admin = createAdminClient();
   const { data: profiles } = await admin
     .from("profiles")
-    .select("id, full_name, avatar_url, role, category")
+    .select("id, full_name, avatar_url, role")
     .neq("id", user.id)
     .ilike("full_name", `%${query}%`)
+    .or("is_public.eq.true,role.neq.publik")
     .limit(10);
 
   return NextResponse.json({
@@ -33,7 +34,6 @@ export async function GET(req: NextRequest) {
       name: p.full_name || "User",
       avatar: p.avatar_url,
       role: p.role,
-      category: p.category,
     })),
   });
 }

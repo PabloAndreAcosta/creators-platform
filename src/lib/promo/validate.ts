@@ -84,6 +84,9 @@ export async function validatePromoCode(
     }
   }
 
+  // Atomically increment to prevent race conditions
+  await supabase.rpc("increment_promo_uses", { promo_id: promo.id } as any);
+
   return {
     valid: true,
     promo: {

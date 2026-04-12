@@ -202,11 +202,6 @@ export async function POST(req: NextRequest) {
             reference_id: session.id,
             discount_amount: discountAmount,
           });
-
-          // Increment usage counter
-          await getSupabaseAdmin().rpc("increment_promo_uses", {
-            promo_id: promoCodeId,
-          });
         }
 
         // Handle ticket purchases (one-time payments via Connect)

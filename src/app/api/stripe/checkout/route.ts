@@ -125,9 +125,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ url: session.url });
   } catch (error: any) {
     console.error("Checkout error:", error);
-    const message = error?.message || "Could not start checkout";
     return NextResponse.json(
-      { error: "Could not start checkout", detail: message },
+      { error: "An error occurred. Please try again." },
       { status: 500 }
     );
   }

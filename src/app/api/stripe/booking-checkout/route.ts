@@ -193,9 +193,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ sessionId: session.id, url: session.url });
   } catch (error: any) {
     console.error("Booking checkout error:", error);
-    const message = error?.message || "Could not start payment";
     return NextResponse.json(
-      { error: message },
+      { error: "An error occurred. Please try again." },
       { status: 500 }
     );
   }

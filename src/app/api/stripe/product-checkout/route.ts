@@ -3,6 +3,12 @@ import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@/lib/supabase/server";
 
 export async function POST(req: NextRequest) {
+  const { rateLimit, getRateLimitKey } = await import('@/lib/rate-limit');
+  const rl = rateLimit(getRateLimitKey(req, 'product-checkout'), 10, 60_000);
+  if (!rl.allowed) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+  }
+
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();

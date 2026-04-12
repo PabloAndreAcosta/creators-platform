@@ -132,7 +132,7 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     console.error("Guest checkout error:", error);
     return NextResponse.json(
-      { error: error?.message || "Server error" },
+      { error: "An error occurred. Please try again." },
       { status: 500 }
     );
   }
