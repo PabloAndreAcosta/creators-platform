@@ -45,13 +45,13 @@ export async function POST(req: NextRequest) {
   }
 
   const { error } = await supabase
-    .from('profiles')
-    .update({
+    .from('social_connections')
+    .upsert({
+      user_id: user.id,
       facebook_page_id: pageId,
       facebook_page_name: pageName,
       facebook_page_access_token: pageToken,
-    })
-    .eq('id', user.id);
+    }, { onConflict: 'user_id' });
 
   if (error) {
     return NextResponse.json({ error: 'Kunde inte spara sidan' }, { status: 500 });

@@ -90,15 +90,15 @@ export async function GET(req: NextRequest) {
     igUsername = userData.username || null;
   }
 
-  // Store Instagram connection
+  // Store Instagram connection in social_connections (secure, RLS-protected)
   await supabase
-    .from("profiles")
-    .update({
+    .from("social_connections")
+    .upsert({
+      user_id: userId,
       instagram_user_id: igUserId,
       instagram_username: igUsername,
       instagram_access_token: accessToken,
-    })
-    .eq("id", userId);
+    }, { onConflict: "user_id" });
 
   const response = NextResponse.redirect(`${APP_URL}/dashboard/profile?ig_connected=1`);
   clearOAuthStateCookie(response);

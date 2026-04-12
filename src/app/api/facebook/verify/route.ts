@@ -13,23 +13,23 @@ export async function GET() {
     return NextResponse.json({ verified: false, error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { data: profile } = await supabase
-    .from('profiles')
+  const { data: social } = await supabase
+    .from('social_connections')
     .select('facebook_page_id, facebook_page_name, facebook_page_access_token')
-    .eq('id', user.id)
+    .eq('user_id', user.id)
     .single();
 
-  if (!profile?.facebook_page_id || !profile?.facebook_page_access_token) {
+  if (!social?.facebook_page_id || !social?.facebook_page_access_token) {
     return NextResponse.json({ verified: false, error: 'Ingen Facebook-sida ansluten' });
   }
 
   try {
     // Test the token by fetching page info
     const res = await fetch(
-      `https://graph.facebook.com/v19.0/${profile.facebook_page_id}?` +
+      `https://graph.facebook.com/v19.0/${social.facebook_page_id}?` +
         new URLSearchParams({
           fields: 'id,name,followers_count,fan_count',
-          access_token: profile.facebook_page_access_token,
+          access_token: social.facebook_page_access_token,
         })
     );
 
@@ -48,7 +48,7 @@ export async function GET() {
     const data = await res.json();
     return NextResponse.json({
       verified: true,
-      pageName: data.name || profile.facebook_page_name,
+      pageName: data.name || social.facebook_page_name,
       pageId: data.id,
       followers: data.followers_count ?? data.fan_count ?? null,
     });

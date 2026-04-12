@@ -9,19 +9,19 @@ export async function GET(req: NextRequest) {
 
   if (!user) return NextResponse.json({ error: "Ej inloggad" }, { status: 401 });
 
-  const { data: profile } = await supabase
-    .from("profiles")
+  const { data: social } = await supabase
+    .from("social_connections")
     .select("instagram_user_id, instagram_access_token")
-    .eq("id", user.id)
+    .eq("user_id", user.id)
     .single();
 
-  if (!profile?.instagram_user_id || !profile?.instagram_access_token) {
+  if (!social?.instagram_user_id || !social?.instagram_access_token) {
     return NextResponse.json({ error: "Instagram ej kopplat" }, { status: 400 });
   }
 
   const after = req.nextUrl.searchParams.get("after") || "";
   const fields = "id,caption,media_type,media_url,thumbnail_url,permalink,timestamp";
-  let url = `https://graph.instagram.com/v19.0/me/media?fields=${fields}&limit=25&access_token=${profile.instagram_access_token}`;
+  let url = `https://graph.instagram.com/v19.0/me/media?fields=${fields}&limit=25&access_token=${social.instagram_access_token}`;
   if (after) url += `&after=${after}`;
 
   const res = await fetch(url);
@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
       // For carousel albums, fetch children
       if (item.media_type === "CAROUSEL_ALBUM") {
         const childRes = await fetch(
-          `https://graph.instagram.com/v19.0/${item.id}/children?fields=media_type,media_url,thumbnail_url&access_token=${profile.instagram_access_token}`
+          `https://graph.instagram.com/v19.0/${item.id}/children?fields=media_type,media_url,thumbnail_url&access_token=${social.instagram_access_token}`
         );
         if (childRes.ok) {
           const childData = await childRes.json();

@@ -9,13 +9,13 @@ export async function GET(req: NextRequest) {
 
   if (!user) return NextResponse.json({ error: "Ej inloggad" }, { status: 401 });
 
-  const { data: profile } = await supabase
-    .from("profiles")
+  const { data: social } = await supabase
+    .from("social_connections")
     .select("tiktok_access_token")
-    .eq("id", user.id)
+    .eq("user_id", user.id)
     .single();
 
-  if (!profile?.tiktok_access_token) {
+  if (!social?.tiktok_access_token) {
     return NextResponse.json({ error: "TikTok ej kopplat" }, { status: 400 });
   }
 
@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
     {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${profile.tiktok_access_token}`,
+        Authorization: `Bearer ${social.tiktok_access_token}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(body),

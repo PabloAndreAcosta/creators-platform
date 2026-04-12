@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isAdmin } from "@/lib/admin/check";
+import { isAdminById } from "@/lib/admin/check";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -12,7 +12,7 @@ async function requireAdmin() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user || !isAdmin(user.email)) {
+  if (!user || !(await isAdminById(user.id))) {
     throw new Error("Unauthorized");
   }
 

@@ -12,21 +12,21 @@ export async function GET() {
 
   if (!user) return NextResponse.json({ error: "Ej inloggad" }, { status: 401 });
 
-  const { data: profile } = await supabase
-    .from("profiles")
+  const { data: social } = await supabase
+    .from("social_connections")
     .select("facebook_page_id, facebook_page_access_token")
-    .eq("id", user.id)
+    .eq("user_id", user.id)
     .single();
 
-  if (!profile?.facebook_page_id || !profile?.facebook_page_access_token) {
+  if (!social?.facebook_page_id || !social?.facebook_page_access_token) {
     return NextResponse.json({ error: "Ingen Facebook-sida ansluten" }, { status: 400 });
   }
 
   // Fetch upcoming events from the Facebook Page
   const fbRes = await fetch(
-    `https://graph.facebook.com/v19.0/${profile.facebook_page_id}/events?` +
+    `https://graph.facebook.com/v19.0/${social.facebook_page_id}/events?` +
       new URLSearchParams({
-        access_token: profile.facebook_page_access_token,
+        access_token: social.facebook_page_access_token,
         fields: "id,name,description,start_time,ticket_uri",
         time_filter: "upcoming",
         limit: "25",

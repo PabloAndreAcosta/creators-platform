@@ -85,16 +85,16 @@ export async function GET(req: NextRequest) {
     tiktokUsername = userData.data?.user?.username || userData.data?.user?.display_name || null;
   }
 
-  // Store TikTok connection
+  // Store TikTok connection in social_connections (secure, RLS-protected)
   await supabase
-    .from("profiles")
-    .update({
+    .from("social_connections")
+    .upsert({
+      user_id: userId,
       tiktok_user_id: openId,
       tiktok_username: tiktokUsername,
       tiktok_access_token: accessToken,
       tiktok_refresh_token: refreshToken,
-    })
-    .eq("id", userId);
+    }, { onConflict: "user_id" });
 
   const response = NextResponse.redirect(`${APP_URL}/dashboard/profile?tiktok_connected=1`);
   clearOAuthStateCookie(response);

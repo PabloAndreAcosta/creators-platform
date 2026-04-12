@@ -12,13 +12,13 @@ export async function POST() {
   if (!user) return NextResponse.json({ error: "Ej inloggad" }, { status: 401 });
 
   const { error } = await supabase
-    .from("profiles")
+    .from("social_connections")
     .update({
       facebook_page_id: null,
       facebook_page_name: null,
       facebook_page_access_token: null,
     })
-    .eq("id", user.id);
+    .eq("user_id", user.id);
 
   if (error) {
     return NextResponse.json({ error: "Kunde inte koppla bort Facebook" }, { status: 500 });

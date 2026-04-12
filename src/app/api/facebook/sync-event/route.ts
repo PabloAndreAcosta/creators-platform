@@ -25,14 +25,14 @@ export async function POST(req: NextRequest) {
 
   if (!listing) return NextResponse.json({ error: "Evenemang hittades inte" }, { status: 404 });
 
-  // Get page access token
-  const { data: profile } = await supabase
-    .from("profiles")
+  // Get page access token from social_connections
+  const { data: social } = await supabase
+    .from("social_connections")
     .select("facebook_page_id, facebook_page_access_token, facebook_page_name")
-    .eq("id", user.id)
+    .eq("user_id", user.id)
     .single();
 
-  if (!profile?.facebook_page_id || !profile?.facebook_page_access_token) {
+  if (!social?.facebook_page_id || !social?.facebook_page_access_token) {
     return NextResponse.json({ error: "Ingen Facebook-sida ansluten" }, { status: 400 });
   }
 
@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message,
-          access_token: profile.facebook_page_access_token,
+          access_token: social.facebook_page_access_token,
         }),
       }
     );
@@ -73,14 +73,14 @@ export async function POST(req: NextRequest) {
   } else if (listing.image_url) {
     // Create new photo post with image
     fbRes = await fetch(
-      `https://graph.facebook.com/v19.0/${profile.facebook_page_id}/photos`,
+      `https://graph.facebook.com/v19.0/${social.facebook_page_id}/photos`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           url: listing.image_url,
           message,
-          access_token: profile.facebook_page_access_token,
+          access_token: social.facebook_page_access_token,
         }),
       }
     );
@@ -104,13 +104,13 @@ export async function POST(req: NextRequest) {
   } else {
     // Create new page post (text only)
     fbRes = await fetch(
-      `https://graph.facebook.com/v19.0/${profile.facebook_page_id}/feed`,
+      `https://graph.facebook.com/v19.0/${social.facebook_page_id}/feed`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message,
-          access_token: profile.facebook_page_access_token,
+          access_token: social.facebook_page_access_token,
         }),
       }
     );
@@ -137,6 +137,6 @@ export async function POST(req: NextRequest) {
     success: true,
     facebook_event_id: fbPostId,
     facebook_event_url: `https://www.facebook.com/${fbPostId}`,
-    page_name: profile.facebook_page_name,
+    page_name: social.facebook_page_name,
   });
 }

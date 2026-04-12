@@ -9,19 +9,19 @@ export async function GET(req: NextRequest) {
 
   if (!user) return NextResponse.json({ error: "Ej inloggad" }, { status: 401 });
 
-  const { data: profile } = await supabase
-    .from("profiles")
+  const { data: social } = await supabase
+    .from("social_connections")
     .select("facebook_page_id, facebook_page_access_token")
-    .eq("id", user.id)
+    .eq("user_id", user.id)
     .single();
 
-  if (!profile?.facebook_page_id || !profile?.facebook_page_access_token) {
+  if (!social?.facebook_page_id || !social?.facebook_page_access_token) {
     return NextResponse.json({ error: "Facebook ej kopplat" }, { status: 400 });
   }
 
   const after = req.nextUrl.searchParams.get("after") || "";
-  const token = profile.facebook_page_access_token;
-  const pageId = profile.facebook_page_id;
+  const token = social.facebook_page_access_token;
+  const pageId = social.facebook_page_id;
 
   // Fetch photos from the page
   let url = `https://graph.facebook.com/v19.0/${pageId}/photos?fields=id,images,name,created_time&type=uploaded&limit=25&access_token=${token}`;

@@ -98,15 +98,15 @@ export async function GET(req: NextRequest) {
 
   const page = pages[0];
 
-  // Store page info on the profile
+  // Store page info in social_connections (secure, RLS-protected)
   await supabase
-    .from("profiles")
-    .update({
+    .from("social_connections")
+    .upsert({
+      user_id: userId,
       facebook_page_id: page.id,
       facebook_page_name: page.name,
       facebook_page_access_token: page.access_token,
-    })
-    .eq("id", userId);
+    }, { onConflict: "user_id" });
 
   const response = NextResponse.redirect(`${APP_URL}/app/events?fb_connected=1`);
   clearOAuthStateCookie(response);

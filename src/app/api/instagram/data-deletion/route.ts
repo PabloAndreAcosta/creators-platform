@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
 
   // Clear Instagram data for this user
   await supabase
-    .from("profiles")
+    .from("social_connections")
     .update({
       instagram_user_id: null,
       instagram_username: null,

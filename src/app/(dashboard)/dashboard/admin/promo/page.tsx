@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { isAdmin } from "@/lib/admin/check";
+import { isAdminById } from "@/lib/admin/check";
 import Link from "next/link";
 import { ArrowLeft, Plus, Tag, Users, TrendingUp } from "lucide-react";
 import { PromoTable } from "./promo-table";
@@ -17,7 +17,7 @@ export default async function AdminPromoPage({
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user || !isAdmin(user.email)) {
+  if (!user || !(await isAdminById(user.id))) {
     redirect("/dashboard");
   }
 

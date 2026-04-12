@@ -19,11 +19,16 @@ export default async function ProfilePage() {
     redirect("/login");
   }
 
-  const [{ data: profile }, { data: media }] = await Promise.all([
+  const [{ data: profile }, { data: socialConn }, { data: media }] = await Promise.all([
     supabase
       .from("profiles")
-      .select("id, full_name, slug, avatar_url, bio, website, category, location, hourly_rate, is_public, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, role, tier, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3, instagram_user_id, instagram_username, instagram_access_token, facebook_page_id, facebook_page_name, facebook_page_access_token, tiktok_user_id, tiktok_username, tiktok_access_token")
+      .select("id, full_name, slug, avatar_url, bio, website, category, location, hourly_rate, is_public, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, role, tier, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3")
       .eq("id", user.id)
+      .single(),
+    supabase
+      .from("social_connections")
+      .select("instagram_user_id, instagram_username, instagram_access_token, facebook_page_id, facebook_page_name, facebook_page_access_token, tiktok_user_id, tiktok_username, tiktok_access_token")
+      .eq("user_id", user.id)
       .single(),
     supabase
       .from("creator_media")
@@ -79,20 +84,20 @@ export default async function ProfilePage() {
         <>
           <div className="mt-8 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 sm:p-8">
             <InstagramConnect
-              isConnected={!!profile.instagram_access_token}
-              instagramUsername={profile.instagram_username}
+              isConnected={!!socialConn?.instagram_access_token}
+              instagramUsername={socialConn?.instagram_username}
             />
           </div>
           <div className="mt-8 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 sm:p-8">
             <FacebookMediaConnect
-              isConnected={!!profile.facebook_page_access_token}
-              pageName={profile.facebook_page_name}
+              isConnected={!!socialConn?.facebook_page_access_token}
+              pageName={socialConn?.facebook_page_name}
             />
           </div>
           <div className="mt-8 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 sm:p-8">
             <TikTokConnect
-              isConnected={!!profile.tiktok_access_token}
-              tiktokUsername={profile.tiktok_username}
+              isConnected={!!socialConn?.tiktok_access_token}
+              tiktokUsername={socialConn?.tiktok_username}
             />
           </div>
           <div className="mt-8 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 sm:p-8">

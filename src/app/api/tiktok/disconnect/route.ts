@@ -14,14 +14,14 @@ export async function POST() {
   }
 
   await supabase
-    .from("profiles")
+    .from("social_connections")
     .update({
       tiktok_user_id: null,
       tiktok_username: null,
       tiktok_access_token: null,
       tiktok_refresh_token: null,
     })
-    .eq("id", user.id);
+    .eq("user_id", user.id);
 
   return NextResponse.redirect(`${APP_URL}/dashboard/profile`);
 }
