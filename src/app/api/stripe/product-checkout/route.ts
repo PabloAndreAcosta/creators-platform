@@ -58,6 +58,10 @@ export async function POST(req: NextRequest) {
         .single();
 
       if (promo) {
+        // Verify promo code belongs to the same creator as the product
+        if (promo.creator_id !== product.creator_id) {
+          return NextResponse.json({ error: "Promo code is not valid for this product" }, { status: 400 });
+        }
         const now = new Date();
         const validUntil = promo.valid_until ? new Date(promo.valid_until) : null;
         if ((!validUntil || validUntil > now) && (!promo.max_uses || promo.times_used < promo.max_uses)) {

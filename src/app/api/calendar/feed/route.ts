@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
   const token = request.nextUrl.searchParams.get("token");
 
   if (!token) {
-    return NextResponse.json({ error: "Token saknas" }, { status: 401 });
+    return NextResponse.json({ error: "Token required" }, { status: 401 });
   }
 
   // Use service-level client since this is a public endpoint (no user session)
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     .single();
 
   if (!profile) {
-    return NextResponse.json({ error: "Ogiltig token" }, { status: 401 });
+    return NextResponse.json({ error: "Invalid token" }, { status: 401 });
   }
 
   const userId = profile.id;

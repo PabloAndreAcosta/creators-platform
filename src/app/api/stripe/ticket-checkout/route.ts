@@ -110,7 +110,8 @@ export async function POST(req: NextRequest) {
         scheduledAt = new Date().toISOString();
       }
 
-      await supabase.from('bookings').insert({
+      // Use a unique check to prevent race condition on free tickets
+      const { error: insertError } = await supabase.from('bookings').insert({
         listing_id: listing.id,
         creator_id: listing.user_id,
         customer_id: user.id,
@@ -119,6 +120,24 @@ export async function POST(req: NextRequest) {
         booking_type: 'ticket',
         amount_paid: 0,
       });
+
+      if (insertError) {
+        // Likely a duplicate — re-check
+        const { count } = await supabase
+          .from('bookings')
+          .select('id', { count: 'exact', head: true })
+          .eq('listing_id', listingId)
+          .eq('customer_id', user.id)
+          .eq('booking_type', 'ticket')
+          .in('status', ['confirmed', 'completed']);
+        if (count && count > 0) {
+          return NextResponse.json(
+            { error: 'You already have a ticket for this event' },
+            { status: 409 }
+          );
+        }
+        return NextResponse.json({ error: 'Could not create booking' }, { status: 500 });
+      }
 
       return NextResponse.json({
         url: `${process.env.NEXT_PUBLIC_APP_URL}/app/tickets?success=true`,
