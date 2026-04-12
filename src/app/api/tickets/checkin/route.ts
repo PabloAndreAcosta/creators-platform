@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isAdmin } from "@/lib/config";
+import { isAdminById } from "@/lib/admin/check";
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
 
   // Only the creator of the listing can check in guests
   // Admin accounts can check in any ticket (for testing)
-  if (!isAdmin(user.email) && booking.creator_id !== user.id) {
+  if (!(await isAdminById(user.id)) && booking.creator_id !== user.id) {
     return NextResponse.json(
       { error: "Bara arrangören kan registrera insläpp" },
       { status: 403 }

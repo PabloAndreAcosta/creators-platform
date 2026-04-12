@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isAdmin } from "@/lib/config";
+import { isAdminById } from "@/lib/admin/check";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -93,7 +93,7 @@ export async function GET(request: NextRequest) {
 
   // Only the creator/organizer of this booking can verify tickets
   // Admin accounts can verify any ticket (for testing)
-  if (!isAdmin(user.email) && booking.creator_id !== user.id) {
+  if (!(await isAdminById(user.id)) && booking.creator_id !== user.id) {
     return NextResponse.json(
       { error: "Bara arrangören kan verifiera biljetter" },
       { status: 403 }

@@ -333,15 +333,15 @@ export async function POST(req: NextRequest) {
               });
             }
 
-            // Record purchase (if purchases table exists — ignore errors silently)
+            // Record digital purchase
             try {
-              await getSupabaseAdmin().from("purchases").insert({
+              await getSupabaseAdmin().from("digital_purchases").insert({
                 user_id: buyerId,
                 product_id: productId,
                 stripe_payment_id: paymentIntentId,
               });
             } catch {
-              // purchases table may not exist yet
+              // table may not exist yet
             }
           }
 
