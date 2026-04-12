@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic';
+export const revalidate = 60; // ISR: revalidate every 60 seconds
 
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORY_LABELS } from "@/lib/categories";

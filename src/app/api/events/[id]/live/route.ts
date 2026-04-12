@@ -5,8 +5,9 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id: eventId } = await params;
-  const supabase = await createClient();
+  try {
+    const { id: eventId } = await params;
+    const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -71,27 +72,31 @@ export async function GET(
     bookedAt: b.created_at,
   }));
 
-  return NextResponse.json({
-    event: {
-      id: listing.id,
-      title: listing.title,
-      date: listing.event_date,
-      time: listing.event_time,
-      endTime: listing.event_end_time,
-      location: listing.event_location,
-      capacity: listing.max_guests,
-      price: listing.price,
-    },
-    stats: {
-      totalTickets,
-      totalGuests,
-      checkedIn,
-      checkedInGuests,
-      totalRevenue,
-      checkInRate,
-      capacity: listing.max_guests,
-    },
-    recentCheckIns,
-    guestList,
-  });
+    return NextResponse.json({
+      event: {
+        id: listing.id,
+        title: listing.title,
+        date: listing.event_date,
+        time: listing.event_time,
+        endTime: listing.event_end_time,
+        location: listing.event_location,
+        capacity: listing.max_guests,
+        price: listing.price,
+      },
+      stats: {
+        totalTickets,
+        totalGuests,
+        checkedIn,
+        checkedInGuests,
+        totalRevenue,
+        checkInRate,
+        capacity: listing.max_guests,
+      },
+      recentCheckIns,
+      guestList,
+    });
+  } catch (error) {
+    console.error("Route error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
 }

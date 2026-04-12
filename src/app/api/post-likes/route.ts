@@ -4,7 +4,8 @@ import { awardPoints } from "@/lib/points/award";
 import { POINT_VALUES } from "@/lib/points/constants";
 
 export async function POST(req: NextRequest) {
-  const supabase = await createClient();
+  try {
+    const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -67,5 +68,9 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ liked: true });
+  }
+  } catch (error) {
+    console.error("Route error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

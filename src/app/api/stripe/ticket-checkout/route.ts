@@ -8,6 +8,12 @@ import {
 import { isGoldExclusive } from '@/lib/listings/early-bird';
 
 export async function POST(req: NextRequest) {
+  const { rateLimit, getRateLimitKey } = await import('@/lib/rate-limit');
+  const rl = rateLimit(getRateLimitKey(req, 'stripe-ticket-checkout'), 10, 60_000);
+  if (!rl.allowed) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+  }
+
   try {
     const { listingId } = await req.json();
 

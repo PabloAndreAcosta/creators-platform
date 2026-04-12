@@ -4,23 +4,29 @@ import { awardPoints } from "@/lib/points/award";
 import { POINT_VALUES } from "@/lib/points/constants";
 
 export async function GET(req: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ following: [] });
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ following: [] });
 
-  const { data } = await supabase
-    .from("follows")
-    .select("followed_id")
-    .eq("follower_id", user.id);
+    const { data } = await supabase
+      .from("follows")
+      .select("followed_id")
+      .eq("follower_id", user.id);
 
-  return NextResponse.json({
-    following: (data || []).map((f) => f.followed_id),
-  });
+    return NextResponse.json({
+      following: (data || []).map((f) => f.followed_id),
+    });
+  } catch (error) {
+    console.error("Route error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
 }
 
 export async function POST(req: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -87,5 +93,9 @@ export async function POST(req: NextRequest) {
     }).catch(() => {});
   }
 
-  return NextResponse.json({ following: true });
+    return NextResponse.json({ following: true });
+  } catch (error) {
+    console.error("Route error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
 }

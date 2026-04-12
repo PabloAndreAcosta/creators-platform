@@ -2,10 +2,11 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
   const [{ data: rewards }, { data: userRewards }, { data: userPoints }] =
     await Promise.all([
@@ -38,8 +39,12 @@ export async function GET() {
     unlocked: unlockedIds.has(r.id),
   }));
 
-  return NextResponse.json({
-    rewards: enrichedRewards,
-    userPoints: userPoints ?? { total_points: 0, current_level: 1 },
-  });
+    return NextResponse.json({
+      rewards: enrichedRewards,
+      userPoints: userPoints ?? { total_points: 0, current_level: 1 },
+    });
+  } catch (error) {
+    console.error("Route error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
 }

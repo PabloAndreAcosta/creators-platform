@@ -12,6 +12,12 @@ import {
  * that the creator must confirm. If canceled, payment is refunded.
  */
 export async function POST(req: NextRequest) {
+  const { rateLimit, getRateLimitKey } = await import('@/lib/rate-limit');
+  const rl = rateLimit(getRateLimitKey(req, 'stripe-booking-checkout'), 10, 60_000);
+  if (!rl.allowed) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+  }
+
   try {
     const {
       listingId,

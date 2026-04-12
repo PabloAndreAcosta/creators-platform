@@ -6,7 +6,8 @@ import { POINT_VALUES } from '@/lib/points/constants';
 
 // GET — fetch reviews for a creator
 export async function GET(req: NextRequest) {
-  const creatorId = req.nextUrl.searchParams.get('creatorId');
+  try {
+    const creatorId = req.nextUrl.searchParams.get('creatorId');
   if (!creatorId) {
     return NextResponse.json({ error: 'creatorId is required' }, { status: 400 });
   }
@@ -32,17 +33,22 @@ export async function GET(req: NextRequest) {
     ? Math.round((ratings.reduce((a, b) => a + b, 0) / ratings.length) * 10) / 10
     : null;
 
-  return NextResponse.json({
-    reviews: reviews ?? [],
-    average,
-    count: ratings.length,
-  });
+    return NextResponse.json({
+      reviews: reviews ?? [],
+      average,
+      count: ratings.length,
+    });
+  } catch (error) {
+    console.error("Route error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
 }
 
 // POST — submit a review
 export async function POST(req: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -122,5 +128,9 @@ export async function POST(req: NextRequest) {
     sourceType: 'review',
   }).catch(() => {});
 
-  return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Route error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
 }

@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
 export async function GET() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -93,21 +94,25 @@ export async function GET() {
   const prevMonthKey = `${prevDate.getFullYear()}-${String(prevDate.getMonth() + 1).padStart(2, '0')}`;
   const prevMonth = monthlyStats[prevMonthKey] ?? { revenue: 0, bookings: 0, completed: 0 };
 
-  return NextResponse.json({
-    summary: {
-      totalRevenue,
-      totalBookings,
-      completionRate,
-      currentMonthRevenue: currentMonth.revenue,
-      currentMonthBookings: currentMonth.bookings,
-      prevMonthRevenue: prevMonth.revenue,
-      prevMonthBookings: prevMonth.bookings,
-    },
-    monthlyStats: Object.entries(monthlyStats).map(([month, stats]) => ({
-      month,
-      ...stats,
-    })),
-    topServices,
-    statusCounts,
-  });
+    return NextResponse.json({
+      summary: {
+        totalRevenue,
+        totalBookings,
+        completionRate,
+        currentMonthRevenue: currentMonth.revenue,
+        currentMonthBookings: currentMonth.bookings,
+        prevMonthRevenue: prevMonth.revenue,
+        prevMonthBookings: prevMonth.bookings,
+      },
+      monthlyStats: Object.entries(monthlyStats).map(([month, stats]) => ({
+        month,
+        ...stats,
+      })),
+      topServices,
+      statusCounts,
+    });
+  } catch (error) {
+    console.error("Route error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
 }

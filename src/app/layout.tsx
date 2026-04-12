@@ -34,6 +34,20 @@ export const metadata: Metadata = {
     title: "Usha Platform",
     description: "Marketplace för Creators",
     type: "website",
+    images: [
+      {
+        url: "https://usha.se/icon-512.png",
+        width: 512,
+        height: 512,
+        alt: "Usha Platform",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary",
+    title: "Usha Platform",
+    description: "Marketplace för Creators",
+    images: ["https://usha.se/icon-512.png"],
   },
 };
 

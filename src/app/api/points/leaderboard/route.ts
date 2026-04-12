@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET(req: NextRequest) {
-  const period = req.nextUrl.searchParams.get("period") || "month";
+  try {
+    const period = req.nextUrl.searchParams.get("period") || "month";
   const limit = Math.min(Number(req.nextUrl.searchParams.get("limit") || 20), 50);
 
   const supabase = await createClient();
@@ -38,5 +39,9 @@ export async function GET(req: NextRequest) {
     profile: (entry as any).profiles ?? null,
   }));
 
-  return NextResponse.json({ leaderboard, period });
+    return NextResponse.json({ leaderboard, period });
+  } catch (error) {
+    console.error("Route error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
 }
