@@ -37,12 +37,6 @@ export default function SignupPage() {
   const [bankidSkipped, setBankidSkipped] = useState(false);
   const [bankidVerifying, setBankidVerifying] = useState(false);
   const [bankidError, setBankidError] = useState("");
-  const [bankidData, setBankidData] = useState<{
-    name: string;
-    firstName: string;
-    lastName: string;
-    role: string;
-  } | null>(null);
 
   const supabase = createClient();
 
@@ -73,7 +67,6 @@ export default function SignupPage() {
             setBankidError(t("bankidDataError"));
             return;
           }
-          setBankidData(data);
           setBankidVerified(true);
           setFullName(data.name);
           setSelectedRole(data.role as Role);
@@ -172,21 +165,6 @@ export default function SignupPage() {
       ...(refCode ? { referred_by_code: refCode.toUpperCase() } : {}),
     };
 
-    // Include BankID data if verified
-    if (bankidVerified && bankidData) {
-      try {
-        const verifiedRes = await fetch("/api/auth/bankid/verified-data");
-        const verified = await verifiedRes.json();
-        if (!verified.error) {
-          metadata.bankid_verified_at = new Date().toISOString();
-          metadata.bankid_name = verified.name;
-          metadata.bankid_personal_number = verified.hashedNin;
-        }
-      } catch {
-        // Continue with what we have
-      }
-    }
-
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -204,6 +182,14 @@ export default function SignupPage() {
       setError(msg);
       setLoading(false);
       return;
+    }
+
+    // BankID verification is applied server-side from the HMAC-signed
+    // bankid_verified cookie issued by /api/auth/bankid/callback. For the
+    // immediate-session path, call the apply route now. For the email-
+    // confirmation path, /callback applies it after the user confirms.
+    if (bankidVerified && data.session) {
+      await fetch("/api/auth/signup/apply-verification", { method: "POST" });
     }
 
     if (data.session) {
