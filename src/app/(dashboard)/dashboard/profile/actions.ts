@@ -100,6 +100,52 @@ export async function updateProfile(formData: FormData) {
   const primaryRate = primaryCategory && cleanRates[primaryCategory] != null ? cleanRates[primaryCategory] : null;
   const primaryWebsite = websites[0] || null;
 
+  // Taxi dancer fields — only included if profile is currently taxi_dancer.
+  // creator_subcategory itself is NOT editable here (set at signup only).
+  const { data: currentProfile } = await supabase
+    .from("profiles")
+    .select("creator_subcategory")
+    .eq("id", user.id)
+    .single();
+
+  const isTaxiDancer = currentProfile?.creator_subcategory === "taxi_dancer";
+
+  let danceUpdate: Record<string, unknown> = {};
+  if (isTaxiDancer) {
+    let dance_styles: string[] = [];
+    let dance_languages: string[] = [];
+    let coaching_specialties: string[] = [];
+    try { dance_styles = JSON.parse(formData.get("dance_styles") as string || "[]"); } catch { dance_styles = []; }
+    try { dance_languages = JSON.parse(formData.get("dance_languages") as string || "[]"); } catch { dance_languages = []; }
+    try { coaching_specialties = JSON.parse(formData.get("coaching_specialties") as string || "[]"); } catch { coaching_specialties = []; }
+
+    const danceExperienceRaw = formData.get("dance_experience_years") as string | null;
+    const danceExperienceYears =
+      danceExperienceRaw && Number.isFinite(Number(danceExperienceRaw)) && Number(danceExperienceRaw) >= 0
+        ? Number(danceExperienceRaw)
+        : null;
+
+    const offersCoaching = formData.get("offers_coaching") === "on";
+
+    const coachingRateRaw = formData.get("coaching_hourly_rate_sek") as string | null;
+    const coachingHourlyRate =
+      offersCoaching && coachingRateRaw && Number.isFinite(Number(coachingRateRaw)) && Number(coachingRateRaw) >= 0
+        ? Number(coachingRateRaw)
+        : null;
+
+    const coachingBio = (formData.get("coaching_bio") as string)?.trim() || null;
+
+    danceUpdate = {
+      dance_styles: dance_styles.length ? dance_styles : null,
+      dance_languages: dance_languages.length ? dance_languages : null,
+      dance_experience_years: danceExperienceYears,
+      offers_coaching: offersCoaching,
+      coaching_hourly_rate_sek: offersCoaching ? coachingHourlyRate : null,
+      coaching_specialties: offersCoaching && coaching_specialties.length ? coaching_specialties : null,
+      coaching_bio: offersCoaching ? coachingBio : null,
+    };
+  }
+
   const { error } = await supabase
     .from("profiles")
     .update({
@@ -130,6 +176,8 @@ export async function updateProfile(formData: FormData) {
       location: primaryLocation,
       hourly_rate: primaryRate,
       website: primaryWebsite,
+      // Taxi dancer fields (only when current subcategory is taxi_dancer)
+      ...danceUpdate,
     } as any)
     .eq("id", user.id);
 

@@ -4,7 +4,7 @@ export type PlanKey =
   | 'publik_guld' | 'publik_premium'
   | 'kreator_guld' | 'kreator_premium'
   | 'upplevelse_guld' | 'upplevelse_premium';
-export type ListingType = 'service' | 'event' | 'table_reservation' | 'spa_treatment' | 'group_activity';
+export type ListingType = 'service' | 'event' | 'table_reservation' | 'spa_treatment' | 'group_activity' | 'dance_package' | 'coaching_session';
 
 export interface ExperienceDetails {
   amenities?: string[];
@@ -126,11 +126,27 @@ export interface Database {
           calendar_sync_token: string | null;
           created_at: string;
           updated_at: string;
+          creator_subcategory: 'general' | 'taxi_dancer' | null;
+          dance_styles: string[] | null;
+          dance_languages: string[] | null;
+          dance_experience_years: number | null;
+          offers_coaching: boolean | null;
+          coaching_hourly_rate_sek: number | null;
+          coaching_specialties: string[] | null;
+          coaching_bio: string | null;
         };
-        Insert: Omit<Database["public"]["Tables"]["profiles"]["Row"], "created_at" | "updated_at" | "is_public" | "tier" | "role"> & {
+        Insert: Omit<Database["public"]["Tables"]["profiles"]["Row"], "created_at" | "updated_at" | "is_public" | "tier" | "role" | "creator_subcategory" | "dance_styles" | "dance_languages" | "dance_experience_years" | "offers_coaching" | "coaching_hourly_rate_sek" | "coaching_specialties" | "coaching_bio"> & {
           is_public?: boolean;
           tier?: MemberTier | null;
           role?: MemberRole;
+          creator_subcategory?: 'general' | 'taxi_dancer' | null;
+          dance_styles?: string[] | null;
+          dance_languages?: string[] | null;
+          dance_experience_years?: number | null;
+          offers_coaching?: boolean | null;
+          coaching_hourly_rate_sek?: number | null;
+          coaching_specialties?: string[] | null;
+          coaching_bio?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["profiles"]["Insert"]>;
       };

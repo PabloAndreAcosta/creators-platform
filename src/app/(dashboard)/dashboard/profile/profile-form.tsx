@@ -31,6 +31,15 @@ interface Profile {
   whitelabel_accent_color: string | null;
   whitelabel_accent_color_2: string | null;
   whitelabel_accent_color_3: string | null;
+  // Taxi dancer subcategory (set at signup, read-only here)
+  creator_subcategory?: string | null;
+  dance_styles?: string[] | null;
+  dance_languages?: string[] | null;
+  dance_experience_years?: number | null;
+  offers_coaching?: boolean | null;
+  coaching_hourly_rate_sek?: number | null;
+  coaching_specialties?: string[] | null;
+  coaching_bio?: string | null;
   // Legacy fields (backward compat during migration)
   category?: string | null;
   location?: string | null;
@@ -59,6 +68,37 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
   const [websites, setWebsites] = useState<string[]>(initWebsites);
   const [newLocation, setNewLocation] = useState("");
   const [newWebsite, setNewWebsite] = useState("");
+
+  // Taxi dancer fields
+  const isTaxiDancer = profile.creator_subcategory === "taxi_dancer";
+  const [danceStyles, setDanceStyles] = useState<string[]>(profile.dance_styles ?? []);
+  const [danceLanguages, setDanceLanguages] = useState<string[]>(profile.dance_languages ?? []);
+  const [danceExperienceYears, setDanceExperienceYears] = useState<string>(
+    profile.dance_experience_years != null ? String(profile.dance_experience_years) : ""
+  );
+  const [offersCoaching, setOffersCoaching] = useState<boolean>(profile.offers_coaching ?? false);
+  const [coachingRate, setCoachingRate] = useState<string>(
+    profile.coaching_hourly_rate_sek != null ? String(profile.coaching_hourly_rate_sek) : ""
+  );
+  const [coachingSpecialties, setCoachingSpecialties] = useState<string[]>(
+    profile.coaching_specialties ?? []
+  );
+  const [coachingBio, setCoachingBio] = useState<string>(profile.coaching_bio ?? "");
+  const [newDanceStyle, setNewDanceStyle] = useState("");
+  const [newDanceLanguage, setNewDanceLanguage] = useState("");
+  const [newCoachingSpecialty, setNewCoachingSpecialty] = useState("");
+
+  function addToList(value: string, list: string[], setter: (v: string[]) => void, clear: () => void) {
+    const trimmed = value.trim();
+    if (trimmed && !list.includes(trimmed)) {
+      setter([...list, trimmed]);
+      clear();
+    }
+  }
+
+  function removeFromList(value: string, list: string[], setter: (v: string[]) => void) {
+    setter(list.filter((v) => v !== value));
+  }
 
   function toggleCategory(value: string) {
     setSelectedCategories((prev) => {
@@ -174,6 +214,11 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
     formData.set("locations", JSON.stringify(locations));
     formData.set("rates", JSON.stringify(rates));
     formData.set("websites", JSON.stringify(websites));
+    if (isTaxiDancer) {
+      formData.set("dance_styles", JSON.stringify(danceStyles));
+      formData.set("dance_languages", JSON.stringify(danceLanguages));
+      formData.set("coaching_specialties", JSON.stringify(coachingSpecialties));
+    }
 
     startTransition(async () => {
       const result = await updateProfile(formData);
@@ -678,6 +723,202 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
           </a>
         )}
       </div>}
+
+      {/* Taxi dancer-specific fields */}
+      {isTaxiDancer && (
+        <div className="space-y-6 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
+          <div>
+            <h2 className="text-lg font-semibold">Taxidansare</h2>
+            <p className="mt-1 text-sm text-[var(--usha-muted)]">
+              Beskriv din danstjänst. Synligt på din publika profil.
+            </p>
+          </div>
+
+          {/* Dance styles */}
+          <div>
+            <label className="mb-2 block text-sm font-medium">Dansstilar</label>
+            <div className="flex flex-wrap gap-2">
+              {danceStyles.map((s) => (
+                <span key={s} className="inline-flex items-center gap-1 rounded-lg bg-[var(--usha-gold)]/10 px-3 py-1 text-sm">
+                  {s}
+                  <button
+                    type="button"
+                    onClick={() => removeFromList(s, danceStyles, setDanceStyles)}
+                    className="text-[var(--usha-muted)] hover:text-white"
+                    aria-label="Ta bort"
+                  >
+                    <X size={14} />
+                  </button>
+                </span>
+              ))}
+            </div>
+            <div className="mt-2 flex gap-2">
+              <input
+                type="text"
+                value={newDanceStyle}
+                onChange={(e) => setNewDanceStyle(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addToList(newDanceStyle, danceStyles, setDanceStyles, () => setNewDanceStyle(""));
+                  }
+                }}
+                placeholder="t.ex. bugg, foxtrot, salsa, tango"
+                className={inputClass}
+              />
+              <button
+                type="button"
+                onClick={() => addToList(newDanceStyle, danceStyles, setDanceStyles, () => setNewDanceStyle(""))}
+                className="min-h-[44px] shrink-0 rounded-xl border border-[var(--usha-border)] px-4 text-sm hover:bg-[var(--usha-card)]"
+              >
+                <Plus size={16} />
+              </button>
+            </div>
+          </div>
+
+          {/* Dance languages */}
+          <div>
+            <label className="mb-2 block text-sm font-medium">Språk</label>
+            <div className="flex flex-wrap gap-2">
+              {danceLanguages.map((l) => (
+                <span key={l} className="inline-flex items-center gap-1 rounded-lg bg-[var(--usha-gold)]/10 px-3 py-1 text-sm">
+                  {l}
+                  <button
+                    type="button"
+                    onClick={() => removeFromList(l, danceLanguages, setDanceLanguages)}
+                    className="text-[var(--usha-muted)] hover:text-white"
+                    aria-label="Ta bort"
+                  >
+                    <X size={14} />
+                  </button>
+                </span>
+              ))}
+            </div>
+            <div className="mt-2 flex gap-2">
+              <input
+                type="text"
+                value={newDanceLanguage}
+                onChange={(e) => setNewDanceLanguage(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addToList(newDanceLanguage, danceLanguages, setDanceLanguages, () => setNewDanceLanguage(""));
+                  }
+                }}
+                placeholder="t.ex. svenska, engelska, spanska"
+                className={inputClass}
+              />
+              <button
+                type="button"
+                onClick={() => addToList(newDanceLanguage, danceLanguages, setDanceLanguages, () => setNewDanceLanguage(""))}
+                className="min-h-[44px] shrink-0 rounded-xl border border-[var(--usha-border)] px-4 text-sm hover:bg-[var(--usha-card)]"
+              >
+                <Plus size={16} />
+              </button>
+            </div>
+          </div>
+
+          {/* Experience years */}
+          <div>
+            <label className="mb-2 block text-sm font-medium">Erfarenhet (år)</label>
+            <input
+              type="number"
+              name="dance_experience_years"
+              value={danceExperienceYears}
+              onChange={(e) => setDanceExperienceYears(e.target.value)}
+              min={0}
+              className={inputClass}
+            />
+          </div>
+
+          {/* Coaching toggle */}
+          <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
+            <input
+              type="checkbox"
+              name="offers_coaching"
+              checked={offersCoaching}
+              onChange={(e) => setOffersCoaching(e.target.checked)}
+              className="h-4 w-4 rounded border-[var(--usha-border)] accent-[var(--usha-gold)]"
+            />
+            <div>
+              <p className="text-sm font-medium">Jag erbjuder coachning</p>
+              <p className="text-xs text-[var(--usha-muted)]">
+                Privatlektioner i pardans. Visa pris och specialiteter på din profil.
+              </p>
+            </div>
+          </label>
+
+          {/* Coaching fields (only when toggle is on) */}
+          {offersCoaching && (
+            <div className="space-y-4 rounded-xl border border-[var(--usha-border)] p-4">
+              <div>
+                <label className="mb-2 block text-sm font-medium">Timpris coachning (SEK)</label>
+                <input
+                  type="number"
+                  name="coaching_hourly_rate_sek"
+                  value={coachingRate}
+                  onChange={(e) => setCoachingRate(e.target.value)}
+                  min={0}
+                  className={inputClass}
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium">Specialiteter</label>
+                <div className="flex flex-wrap gap-2">
+                  {coachingSpecialties.map((s) => (
+                    <span key={s} className="inline-flex items-center gap-1 rounded-lg bg-[var(--usha-gold)]/10 px-3 py-1 text-sm">
+                      {s}
+                      <button
+                        type="button"
+                        onClick={() => removeFromList(s, coachingSpecialties, setCoachingSpecialties)}
+                        className="text-[var(--usha-muted)] hover:text-white"
+                        aria-label="Ta bort"
+                      >
+                        <X size={14} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+                <div className="mt-2 flex gap-2">
+                  <input
+                    type="text"
+                    value={newCoachingSpecialty}
+                    onChange={(e) => setNewCoachingSpecialty(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        addToList(newCoachingSpecialty, coachingSpecialties, setCoachingSpecialties, () => setNewCoachingSpecialty(""));
+                      }
+                    }}
+                    placeholder="t.ex. nybörjar-bugg, avancerad salsa, bröllopskoreografi"
+                    className={inputClass}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => addToList(newCoachingSpecialty, coachingSpecialties, setCoachingSpecialties, () => setNewCoachingSpecialty(""))}
+                    className="min-h-[44px] shrink-0 rounded-xl border border-[var(--usha-border)] px-4 text-sm hover:bg-[var(--usha-card)]"
+                  >
+                    <Plus size={16} />
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium">Bio för coachning</label>
+                <textarea
+                  name="coaching_bio"
+                  value={coachingBio}
+                  onChange={(e) => setCoachingBio(e.target.value)}
+                  rows={3}
+                  placeholder="Beskriv din pedagogiska stil, vem du coachar, eller vad lektionerna brukar innehålla."
+                  className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Public toggle */}
       {!isCustomer && <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">

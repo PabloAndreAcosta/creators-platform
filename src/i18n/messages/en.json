@@ -347,7 +347,14 @@
     "bankidDuplicate": "An account with this personal number already exists.",
     "bankidError": "An error occurred during verification. Try again.",
     "bankidDataError": "Verification data could not be retrieved. Try again.",
-    "bankidStartError": "Could not start BankID verification. Try again."
+    "bankidStartError": "Could not start BankID verification. Try again.",
+    "bankidAgeRestricted": "You must be at least 18 years old to register as a taxi dancer.",
+    "chooseSubcategory": "What type of creator?",
+    "subcategoryGeneral": "General creator",
+    "subcategoryGeneralDesc": "I offer creative services and experiences",
+    "subcategoryTaxiDancer": "Taxi dancer",
+    "subcategoryTaxiDancerDesc": "I am a paid dance partner for couples dancing, may also offer coaching",
+    "subcategoryNote": "A taxi dancer is a paid dance partner for couples dancing (swing, foxtrot, salsa, etc.). The service does not include sexual or intimate contact. Minimum age 18."
   },
   "landing": {
     "nav": {

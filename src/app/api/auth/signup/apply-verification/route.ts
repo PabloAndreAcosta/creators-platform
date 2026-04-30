@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { verifyCookieValue } from "@/lib/signicat/crypto";
+import { computeAge } from "@/lib/age";
 import type { BankIdVerifiedData } from "@/types/bankid";
 
 export async function POST(req: NextRequest) {
@@ -25,6 +26,29 @@ export async function POST(req: NextRequest) {
   }
 
   const admin = createAdminClient();
+
+  // Defense-in-depth age gate: reject if profile is taxi_dancer and verified DOB indicates < 18.
+  // The primary gate is in /api/auth/bankid/callback before issuing this cookie, but we re-check
+  // here in case subcategory was set after callback or via direct profile update.
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("creator_subcategory")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profile?.creator_subcategory === "taxi_dancer" && computeAge(data.dateOfBirth) < 18) {
+    await admin
+      .from("profiles")
+      .update({ creator_subcategory: "general" })
+      .eq("id", user.id);
+
+    const response = NextResponse.json(
+      { error: "Du måste vara minst 18 år för att registrera dig som taxidansare" },
+      { status: 403 }
+    );
+    response.cookies.set("bankid_verified", "", { path: "/", maxAge: 0 });
+    return response;
+  }
 
   const { data: dup } = await admin
     .from("profiles")

@@ -4,9 +4,10 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
-import { Palette, Store, Search, ShieldCheck, Loader2 } from "lucide-react";
+import { Palette, Store, Search, ShieldCheck, Loader2, Music } from "lucide-react";
 
 type Role = "creator" | "experience" | "customer";
+type CreatorSubcategory = "general" | "taxi_dancer";
 
 const NEEDS_BANKID: Role[] = ["creator", "experience"];
 
@@ -18,6 +19,7 @@ export default function SignupPage() {
   const t = useTranslations("auth");
   const searchParams = useSearchParams();
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+  const [selectedSubcategory, setSelectedSubcategory] = useState<CreatorSubcategory | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -50,6 +52,7 @@ export default function SignupPage() {
     failed: t("bankidFailed"),
     aborted: t("bankidAborted"),
     duplicate: t("bankidDuplicate"),
+    age_restricted: t("bankidAgeRestricted"),
     error: t("bankidError"),
   };
 
@@ -70,16 +73,25 @@ export default function SignupPage() {
           setBankidVerified(true);
           setFullName(data.name);
           setSelectedRole(data.role as Role);
+          // Restore subcategory from localStorage (only relevant for creator role)
+          const savedSubcategory = localStorage.getItem("signup_subcategory");
+          if (savedSubcategory && ["general", "taxi_dancer"].includes(savedSubcategory)) {
+            setSelectedSubcategory(savedSubcategory as CreatorSubcategory);
+          }
         })
         .catch(() => {
           setBankidError(t("bankidDataError"));
         });
     } else {
       setBankidError(BANKID_ERRORS[bankidStatus] || BANKID_ERRORS.error);
-      // Restore role from localStorage if available
+      // Restore role + subcategory from localStorage if available
       const savedRole = localStorage.getItem("signup_role");
       if (savedRole && ["creator", "experience"].includes(savedRole)) {
         setSelectedRole(savedRole as Role);
+      }
+      const savedSubcategory = localStorage.getItem("signup_subcategory");
+      if (savedSubcategory && ["general", "taxi_dancer"].includes(savedSubcategory)) {
+        setSelectedSubcategory(savedSubcategory as CreatorSubcategory);
       }
     }
   }, [searchParams]);
@@ -115,14 +127,17 @@ export default function SignupPage() {
     setBankidVerifying(true);
     setBankidError("");
 
-    // Save role so we can restore it after redirect
+    // Save role + subcategory so we can restore them after redirect
     localStorage.setItem("signup_role", selectedRole);
+    if (selectedSubcategory) {
+      localStorage.setItem("signup_subcategory", selectedSubcategory);
+    }
 
     try {
       const res = await fetch("/api/auth/bankid/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role: selectedRole }),
+        body: JSON.stringify({ role: selectedRole, subcategory: selectedSubcategory ?? "general" }),
       });
       const data = await res.json();
 
@@ -162,6 +177,9 @@ export default function SignupPage() {
     const metadata: Record<string, string> = {
       full_name: fullName,
       role: selectedRole!,
+      ...(selectedRole === "creator" && selectedSubcategory
+        ? { creator_subcategory: selectedSubcategory }
+        : {}),
       ...(refCode ? { referred_by_code: refCode.toUpperCase() } : {}),
     };
 
@@ -288,6 +306,62 @@ export default function SignupPage() {
     );
   }
 
+  // Step 1.25: Creator subcategory selection (only for creator role)
+  if (selectedRole === "creator" && !selectedSubcategory && !bankidVerified) {
+    return (
+      <div className="flex min-h-screen items-center justify-center px-6">
+        <div className="w-full max-w-md">
+          <div className="mb-8 text-center">
+            <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
+              <span className="text-lg font-bold text-black">U</span>
+            </div>
+            <h1 className="text-2xl font-bold">{t("chooseSubcategory")}</h1>
+          </div>
+
+          <div className="space-y-3">
+            <button
+              onClick={() => setSelectedSubcategory("general")}
+              className="flex w-full items-center gap-4 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5 text-left transition hover:border-[var(--usha-gold)]/40"
+            >
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-[var(--usha-gold)]/10">
+                <Palette size={24} className="text-[var(--usha-gold)]" />
+              </div>
+              <div>
+                <h3 className="font-semibold">{t("subcategoryGeneral")}</h3>
+                <p className="text-sm text-[var(--usha-muted)]">{t("subcategoryGeneralDesc")}</p>
+              </div>
+            </button>
+
+            <button
+              onClick={() => setSelectedSubcategory("taxi_dancer")}
+              className="flex w-full items-center gap-4 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5 text-left transition hover:border-[var(--usha-gold)]/40"
+            >
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-[var(--usha-gold)]/10">
+                <Music size={24} className="text-[var(--usha-gold)]" />
+              </div>
+              <div>
+                <h3 className="font-semibold">{t("subcategoryTaxiDancer")}</h3>
+                <p className="text-sm text-[var(--usha-muted)]">{t("subcategoryTaxiDancerDesc")}</p>
+              </div>
+            </button>
+          </div>
+
+          <p className="mt-6 text-xs text-[var(--usha-muted)]">{t("subcategoryNote")}</p>
+
+          <button
+            onClick={() => {
+              setSelectedRole(null);
+              setSelectedSubcategory(null);
+            }}
+            className="mt-4 block w-full text-center text-sm text-[var(--usha-gold)] hover:underline"
+          >
+            {t("changeRole")}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // Step 1.5: BankID verification (only for creator/experience, before registration)
   if (selectedRole && NEEDS_BANKID.includes(selectedRole) && !bankidVerified && !bankidSkipped) {
     return (
@@ -341,6 +415,7 @@ export default function SignupPage() {
           <button
             onClick={() => {
               setSelectedRole(null);
+              setSelectedSubcategory(null);
               setBankidError("");
             }}
             className="mt-3 block w-full text-center text-xs text-[var(--usha-gold)] hover:underline"
@@ -380,6 +455,7 @@ export default function SignupPage() {
             <button
               onClick={() => {
                 setSelectedRole(null);
+                setSelectedSubcategory(null);
                 setBankidError("");
               }}
               className="mt-1 text-xs text-[var(--usha-gold)] hover:underline"

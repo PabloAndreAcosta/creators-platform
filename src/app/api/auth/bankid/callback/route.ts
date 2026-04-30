@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getBankIdSessionResult } from "@/lib/signicat/client";
 import { signCookieValue, hashPersonalNumber } from "@/lib/signicat/crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { computeAge } from "@/lib/age";
 import type { BankIdVerifiedData } from "@/types/bankid";
 
 export async function GET(req: NextRequest) {
@@ -15,7 +16,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(`${baseUrl}/signup?bankid=error`);
   }
 
-  let sessionData: { sessionId: string; role: string };
+  let sessionData: { sessionId: string; role: string; subcategory?: string };
   try {
     sessionData = JSON.parse(sessionCookie);
   } catch {
@@ -42,6 +43,19 @@ export async function GET(req: NextRequest) {
     }
 
     const { firstName, lastName, name, dateOfBirth, nin } = result.subject;
+
+    // Age gate: taxi_dancer subcategory requires 18+
+    if (sessionData.subcategory === "taxi_dancer") {
+      const age = computeAge(dateOfBirth);
+      if (age < 18) {
+        const response = NextResponse.redirect(
+          `${baseUrl}/signup?bankid=age_restricted`
+        );
+        response.cookies.set("bankid_session", "", { path: "/", maxAge: 0 });
+        return response;
+      }
+    }
+
     const hashedNin = hashPersonalNumber(nin.value);
 
     // Check for duplicate personnummer

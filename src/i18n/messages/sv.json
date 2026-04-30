@@ -347,7 +347,14 @@
     "bankidDuplicate": "Det finns redan ett konto med detta personnummer.",
     "bankidError": "Ett fel uppstod vid verifieringen. Försök igen.",
     "bankidDataError": "Verifieringsdata kunde inte hämtas. Försök igen.",
-    "bankidStartError": "Kunde inte starta BankID-verifiering. Försök igen."
+    "bankidStartError": "Kunde inte starta BankID-verifiering. Försök igen.",
+    "bankidAgeRestricted": "Du måste vara minst 18 år för att registrera dig som taxidansare.",
+    "chooseSubcategory": "Vilken typ av kreatör?",
+    "subcategoryGeneral": "Allmän kreatör",
+    "subcategoryGeneralDesc": "Jag erbjuder kreativa tjänster och upplevelser",
+    "subcategoryTaxiDancer": "Taxidansare",
+    "subcategoryTaxiDancerDesc": "Jag är betald danspartner för pardans, kan även erbjuda coachning",
+    "subcategoryNote": "Taxidansare är en betald danspartner för pardans (bugg, foxtrot, salsa m.m.). Tjänsten omfattar inte sexuell eller intim kontakt. Åldersgräns 18 år."
   },
   "landing": {
     "nav": {
