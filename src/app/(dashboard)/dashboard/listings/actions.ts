@@ -7,6 +7,16 @@ import { requirePaidSubscription, getSubscriptionStatus } from "@/lib/subscripti
 import { checkListingLimit } from "@/lib/listings/limits";
 
 const CATEGORIES = ["dance", "music", "photo", "video", "design", "yoga", "fitness", "other"] as const;
+const VALID_LISTING_TYPES = [
+  "service",
+  "event",
+  "table_reservation",
+  "spa_treatment",
+  "group_activity",
+  "dance_package",
+  "coaching_session",
+] as const;
+type ListingType = (typeof VALID_LISTING_TYPES)[number];
 
 function parseListingForm(formData: FormData) {
   const title = (formData.get("title") as string)?.trim();
@@ -24,6 +34,10 @@ function parseListingForm(formData: FormData) {
   const eventPlaceId = (formData.get("event_place_id") as string)?.trim() || null;
   const eventLat = eventLatRaw ? parseFloat(eventLatRaw) : null;
   const eventLng = eventLngRaw ? parseFloat(eventLngRaw) : null;
+  const listingTypeRaw = (formData.get("listing_type") as string)?.trim();
+  const listing_type: ListingType = VALID_LISTING_TYPES.includes(listingTypeRaw as ListingType)
+    ? (listingTypeRaw as ListingType)
+    : "service";
 
   if (!title) return { error: "Titel krävs" } as const;
   if (!category || !CATEGORIES.includes(category as (typeof CATEGORIES)[number])) {
@@ -55,6 +69,7 @@ function parseListingForm(formData: FormData) {
       event_lat: eventLat,
       event_lng: eventLng,
       event_place_id: eventPlaceId,
+      listing_type,
     },
   } as const;
 }
@@ -84,9 +99,23 @@ export async function createListing(formData: FormData) {
   const parsed = parseListingForm(formData);
   if ("error" in parsed) return { error: parsed.error };
 
+  // Only taxi_dancer creators can publish dance_package / coaching_session listings.
+  // Forge-attempt fallback: silently downgrade to 'service'.
+  let resolvedListingType: ListingType = parsed.data.listing_type;
+  if (resolvedListingType === "dance_package" || resolvedListingType === "coaching_session") {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("creator_subcategory")
+      .eq("id", user.id)
+      .single();
+    if ((profile as { creator_subcategory?: string | null } | null)?.creator_subcategory !== "taxi_dancer") {
+      resolvedListingType = "service";
+    }
+  }
+
   const { data: listing, error } = await supabase
     .from("listings")
-    .insert({ ...parsed.data, user_id: user.id })
+    .insert({ ...parsed.data, listing_type: resolvedListingType, user_id: user.id })
     .select("id, title, price, image_url")
     .single();
 
@@ -125,9 +154,21 @@ export async function updateListing(id: string, formData: FormData) {
   const parsed = parseListingForm(formData);
   if ("error" in parsed) return { error: parsed.error };
 
+  let resolvedListingType: ListingType = parsed.data.listing_type;
+  if (resolvedListingType === "dance_package" || resolvedListingType === "coaching_session") {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("creator_subcategory")
+      .eq("id", user.id)
+      .single();
+    if ((profile as { creator_subcategory?: string | null } | null)?.creator_subcategory !== "taxi_dancer") {
+      resolvedListingType = "service";
+    }
+  }
+
   const { error } = await supabase
     .from("listings")
-    .update(parsed.data)
+    .update({ ...parsed.data, listing_type: resolvedListingType })
     .eq("id", id)
     .eq("user_id", user.id);
 

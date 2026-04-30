@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     const {
       listingId,
       creatorId,
-      scheduledAt,
+      scheduledAt: requestedScheduledAt,
       notes,
       guestCount,
       specialRequests,
@@ -30,9 +30,9 @@ export async function POST(req: NextRequest) {
       promoCode,
     } = await req.json();
 
-    if (!listingId || !creatorId || !scheduledAt) {
+    if (!listingId || !creatorId) {
       return NextResponse.json(
-        { error: "Listing, creator and date are required" },
+        { error: "Listing and creator are required" },
         { status: 400 }
       );
     }
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
     // Get listing
     const { data: listing } = await supabase
       .from("listings")
-      .select("id, title, price, user_id, is_active, min_guests, max_guests")
+      .select("id, title, price, user_id, is_active, min_guests, max_guests, listing_type")
       .eq("id", listingId)
       .single();
 
@@ -78,6 +78,19 @@ export async function POST(req: NextRequest) {
     if (!listing.price || listing.price <= 0) {
       return NextResponse.json(
         { error: "Service has no price" },
+        { status: 400 }
+      );
+    }
+
+    // For dance_package listings, scheduled_at represents the moment of purchase
+    // (no specific event datetime). Override any client-supplied value.
+    const scheduledAt = listing.listing_type === "dance_package"
+      ? new Date().toISOString()
+      : requestedScheduledAt;
+
+    if (!scheduledAt) {
+      return NextResponse.json(
+        { error: "Date is required" },
         { status: 400 }
       );
     }

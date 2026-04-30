@@ -22,15 +22,22 @@ interface Listing {
   event_lat?: number | null;
   event_lng?: number | null;
   event_place_id?: string | null;
+  listing_type?: string | null;
 }
 
 export default function ListingForm({
   listing,
   action,
+  creatorSubcategory,
 }: {
   listing?: Listing;
   action: (formData: FormData) => Promise<{ error?: string } | void>;
+  creatorSubcategory?: string | null;
 }) {
+  const isTaxiDancer = creatorSubcategory === "taxi_dancer";
+  const [listingType, setListingType] = useState<string>(
+    listing?.listing_type ?? (isTaxiDancer ? "dance_package" : "service")
+  );
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [imageUrl, setImageUrl] = useState<string | null>(listing?.image_url ?? null);
@@ -72,6 +79,7 @@ export default function ListingForm({
     if (imageUrl) {
       formData.set("image_url", imageUrl);
     }
+    formData.set("listing_type", listingType);
     startTransition(async () => {
       const result = await action(formData);
       if (result && "error" in result) {
@@ -154,6 +162,35 @@ export default function ListingForm({
           className="w-full resize-none rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
         />
       </div>
+
+      {/* Listing type — only for taxi_dancer creators */}
+      {isTaxiDancer && (
+        <div>
+          <label htmlFor="listing_type" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
+            Typ av tjänst
+          </label>
+          <select
+            id="listing_type"
+            value={listingType}
+            onChange={(e) => setListingType(e.target.value)}
+            className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+          >
+            <option value="dance_package">Danspaket (förbetalt — inlöses på event)</option>
+            <option value="coaching_session">Coachning (privatlektion med tid)</option>
+            <option value="service">Annan tjänst</option>
+          </select>
+          {listingType === "dance_package" && (
+            <p className="mt-1.5 text-xs text-[var(--usha-muted)]">
+              Kunden betalar i förväg och inlöser danserna på ett event. Inget specifikt datum krävs vid bokning.
+            </p>
+          )}
+          {listingType === "coaching_session" && (
+            <p className="mt-1.5 text-xs text-[var(--usha-muted)]">
+              Kunden bokar en specifik tid utifrån din tillgänglighet i kalendern.
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Category + Price */}
       <div className="grid gap-6 sm:grid-cols-2">

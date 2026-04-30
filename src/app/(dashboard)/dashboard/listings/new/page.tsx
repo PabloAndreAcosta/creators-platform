@@ -5,6 +5,7 @@ import ListingForm from "../listing-form";
 import { createListing } from "../actions";
 import { getSubscriptionStatus } from "@/lib/subscription/check";
 import { BETA_MODE } from "@/lib/beta";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function NewListingPage() {
   // Server-side guard: redirect gratis users (skipped in beta)
@@ -14,6 +15,19 @@ export default async function NewListingPage() {
       redirect("/dashboard/billing");
     }
   }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data: profile } = user
+    ? await supabase
+        .from("profiles")
+        .select("creator_subcategory")
+        .eq("id", user.id)
+        .single()
+    : { data: null };
+  const creatorSubcategory = (profile as { creator_subcategory?: string | null } | null)?.creator_subcategory ?? null;
 
   return (
     <>
@@ -32,7 +46,7 @@ export default async function NewListingPage() {
       </div>
 
       <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 sm:p-8">
-        <ListingForm action={createListing} />
+        <ListingForm action={createListing} creatorSubcategory={creatorSubcategory} />
       </div>
     </>
   );

@@ -19,12 +19,19 @@ export default async function EditListingPage({
 
   const { data: listing } = await supabase
     .from("listings")
-    .select("id, title, description, category, price, duration_minutes, image_url, event_date, event_time, event_end_time, event_location, event_lat, event_lng, event_place_id")
+    .select("id, title, description, category, price, duration_minutes, image_url, event_date, event_time, event_end_time, event_location, event_lat, event_lng, event_place_id, listing_type")
     .eq("id", params.id)
     .eq("user_id", user.id)
     .single();
 
   if (!listing) notFound();
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("creator_subcategory")
+    .eq("id", user.id)
+    .single();
+  const creatorSubcategory = (profile as { creator_subcategory?: string | null } | null)?.creator_subcategory ?? null;
 
   const updateWithId = updateListing.bind(null, listing.id);
 
@@ -42,7 +49,7 @@ export default async function EditListingPage({
       </div>
 
       <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 sm:p-8">
-        <ListingForm listing={listing} action={updateWithId} />
+        <ListingForm listing={listing} action={updateWithId} creatorSubcategory={creatorSubcategory} />
       </div>
     </>
   );

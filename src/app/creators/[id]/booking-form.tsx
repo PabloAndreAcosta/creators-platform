@@ -241,6 +241,7 @@ export default function BookingForm({
   const [attendees, setAttendees] = useState<{ name: string; dietary: string }[]>([]);
   // If listing has a fixed date/time, use it directly (no calendar needed)
   const hasFixedDate = !!listing.event_date;
+  const isDancePackage = listing.listing_type === "dance_package";
   const [selectedDate, setSelectedDate] = useState<string | null>(listing.event_date ?? null);
   const [selectedTime, setSelectedTime] = useState<string | null>(
     listing.event_time ? listing.event_time.slice(0, 5) : null
@@ -251,10 +252,14 @@ export default function BookingForm({
   const minGuests = listing.min_guests ?? 1;
   const maxGuests = listing.max_guests ?? 99;
 
-  // Build scheduled_at from selected date + time
-  const scheduledAt = selectedDate && selectedTime
-    ? new Date(`${selectedDate}T${selectedTime}`).toISOString()
-    : "";
+  // Build scheduled_at:
+  // - dance_package: no specific datetime — use purchase moment
+  // - everything else: from selected date + time (if both chosen)
+  const scheduledAt = isDancePackage
+    ? new Date().toISOString()
+    : selectedDate && selectedTime
+      ? new Date(`${selectedDate}T${selectedTime}`).toISOString()
+      : "";
 
   if (!isLoggedIn) {
     return (
@@ -351,7 +356,7 @@ export default function BookingForm({
     });
   }
 
-  const hasDateTime = hasFixedDate ? true : (selectedDate && selectedTime);
+  const hasDateTime = hasFixedDate || isDancePackage ? true : (selectedDate && selectedTime);
 
   return (
     <>
@@ -460,6 +465,13 @@ export default function BookingForm({
                         </div>
                       </div>
                     </div>
+                  </div>
+                ) : isDancePackage ? (
+                  <div className="rounded-xl border border-[var(--usha-gold)]/20 bg-[var(--usha-gold)]/5 p-4 text-sm">
+                    <p className="font-semibold">Förbetalt danspaket</p>
+                    <p className="mt-1 text-xs text-[var(--usha-muted)]">
+                      Du betalar i förväg. Inget datum eller tid krävs vid bokning — du och dansaren bestämmer själva när danserna ska inlösas, t.ex. vid ett event.
+                    </p>
                   </div>
                 ) : (
                   <>
