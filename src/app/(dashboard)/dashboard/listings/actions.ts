@@ -15,6 +15,7 @@ const VALID_LISTING_TYPES = [
   "group_activity",
   "dance_package",
   "coaching_session",
+  "b2b_offering",
 ] as const;
 type ListingType = (typeof VALID_LISTING_TYPES)[number];
 
@@ -102,7 +103,11 @@ export async function createListing(formData: FormData) {
   // Only taxi_dancer creators can publish dance_package / coaching_session listings.
   // Forge-attempt fallback: silently downgrade to 'service'.
   let resolvedListingType: ListingType = parsed.data.listing_type;
-  if (resolvedListingType === "dance_package" || resolvedListingType === "coaching_session") {
+  if (
+    resolvedListingType === "dance_package" ||
+    resolvedListingType === "coaching_session" ||
+    resolvedListingType === "b2b_offering"
+  ) {
     const { data: profile } = await supabase
       .from("profiles")
       .select("creator_subcategory")
@@ -155,7 +160,11 @@ export async function updateListing(id: string, formData: FormData) {
   if ("error" in parsed) return { error: parsed.error };
 
   let resolvedListingType: ListingType = parsed.data.listing_type;
-  if (resolvedListingType === "dance_package" || resolvedListingType === "coaching_session") {
+  if (
+    resolvedListingType === "dance_package" ||
+    resolvedListingType === "coaching_session" ||
+    resolvedListingType === "b2b_offering"
+  ) {
     const { data: profile } = await supabase
       .from("profiles")
       .select("creator_subcategory")

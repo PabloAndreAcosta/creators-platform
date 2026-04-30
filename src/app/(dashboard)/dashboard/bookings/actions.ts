@@ -82,6 +82,18 @@ export async function createBooking(formData: FormData) {
     return { error: "Ogiltig kreatör för denna tjänst." };
   }
 
+  // B2B offerings can only be booked by experience-role users (arrangörer).
+  if (listing.listing_type === "b2b_offering") {
+    const { data: viewerProfile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+    if ((viewerProfile as { role?: string | null } | null)?.role !== "experience") {
+      return { error: "Endast arrangörer kan boka B2B-tjänster." };
+    }
+  }
+
   // Validate guest count against listing constraints
   if (listing?.min_guests && guest_count < listing.min_guests) {
     return { error: `Minst ${listing.min_guests} gäster krävs.` };

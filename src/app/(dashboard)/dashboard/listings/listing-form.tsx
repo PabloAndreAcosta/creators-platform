@@ -177,6 +177,7 @@ export default function ListingForm({
           >
             <option value="dance_package">Danspaket (förbetalt — inlöses på event)</option>
             <option value="coaching_session">Coachning (privatlektion med tid)</option>
+            <option value="b2b_offering">B2B-event (arrangör bokar för kväll/event)</option>
             <option value="service">Annan tjänst</option>
           </select>
           {listingType === "dance_package" && (
@@ -187,6 +188,11 @@ export default function ListingForm({
           {listingType === "coaching_session" && (
             <p className="mt-1.5 text-xs text-[var(--usha-muted)]">
               Kunden bokar en specifik tid utifrån din tillgänglighet i kalendern.
+            </p>
+          )}
+          {listingType === "b2b_offering" && (
+            <p className="mt-1.5 text-xs text-[var(--usha-muted)]">
+              Arrangörer (lokaler, danspalats, eventbolag) kan boka dig för en specifik kväll eller ett event. Pris du anger är ditt baspris — arrangören anger datum, tid och lokal vid bokning.
             </p>
           )}
         </div>

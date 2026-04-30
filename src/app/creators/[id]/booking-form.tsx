@@ -223,11 +223,13 @@ export default function BookingForm({
   creatorId,
   isLoggedIn,
   hasConnect,
+  viewerRole,
 }: {
   listing: Listing;
   creatorId: string;
   isLoggedIn: boolean;
   hasConnect?: boolean;
+  viewerRole?: string | null;
 }) {
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -242,10 +244,14 @@ export default function BookingForm({
   // If listing has a fixed date/time, use it directly (no calendar needed)
   const hasFixedDate = !!listing.event_date;
   const isDancePackage = listing.listing_type === "dance_package";
+  const isB2BOffering = listing.listing_type === "b2b_offering";
   const [selectedDate, setSelectedDate] = useState<string | null>(listing.event_date ?? null);
   const [selectedTime, setSelectedTime] = useState<string | null>(
     listing.event_time ? listing.event_time.slice(0, 5) : null
   );
+  const [eventVenue, setEventVenue] = useState("");
+  const [eventVenueAddress, setEventVenueAddress] = useState("");
+  const [eventDescription, setEventDescription] = useState("");
   const { toast } = useToast();
 
   const showGuestFields = listing.listing_type && ["table_reservation", "spa_treatment", "group_activity"].includes(listing.listing_type);
@@ -273,11 +279,34 @@ export default function BookingForm({
     );
   }
 
+  // B2B-offerings can only be booked by experience-role users (arrangörer)
+  if (isB2BOffering && viewerRole !== "experience") {
+    return (
+      <span className="flex items-center gap-1.5 rounded-lg border border-[var(--usha-border)] px-3 py-1.5 text-[10px] text-[var(--usha-muted)]">
+        Endast arrangörer
+      </span>
+    );
+  }
+
   function handleSubmit(formData: FormData) {
     startTransition(async () => {
       // For fixed-date events, auto-confirm the booking
       if (hasFixedDate) {
         formData.set("auto_confirm", "true");
+      }
+      // For B2B-offerings, fold event venue and address into special_requests
+      // and event description into notes so existing createBooking writes them.
+      if (isB2BOffering) {
+        const venueLines = [
+          eventVenue ? `Lokal: ${eventVenue}` : null,
+          eventVenueAddress ? `Adress: ${eventVenueAddress}` : null,
+        ].filter(Boolean) as string[];
+        if (venueLines.length) {
+          formData.set("special_requests", venueLines.join("\n"));
+        }
+        if (eventDescription) {
+          formData.set("notes", eventDescription);
+        }
       }
       const result = await createBooking(formData);
       if (result.error) {
@@ -288,12 +317,19 @@ export default function BookingForm({
         }
       } else {
         toast.success(
-          hasFixedDate ? "Bokning bekräftad!" : "Bokning skickad",
-          hasFixedDate ? "Du är bokad! Se dina biljetter." : "Inväntar bekräftelse från skaparen."
+          hasFixedDate ? "Bokning bekräftad!" : isB2BOffering ? "Förfrågan skickad" : "Bokning skickad",
+          hasFixedDate
+            ? "Du är bokad! Se dina biljetter."
+            : isB2BOffering
+              ? "Taxidansaren får ett meddelande och svarar med ja eller nej."
+              : "Inväntar bekräftelse från skaparen."
         );
         setOpen(false);
         setSelectedDate(listing.event_date ?? null);
         setSelectedTime(listing.event_time ? listing.event_time.slice(0, 5) : null);
+        setEventVenue("");
+        setEventVenueAddress("");
+        setEventDescription("");
       }
     });
   }
@@ -473,6 +509,69 @@ export default function BookingForm({
                       Du betalar i förväg. Inget datum eller tid krävs vid bokning — du och dansaren bestämmer själva när danserna ska inlösas, t.ex. vid ett event.
                     </p>
                   </div>
+                ) : isB2BOffering ? (
+                  <>
+                    <div className="rounded-xl border border-[var(--usha-gold)]/20 bg-[var(--usha-gold)]/5 p-4 text-xs text-[var(--usha-muted)]">
+                      Skicka en förfrågan med datum, tid och lokal. Taxidansaren får meddelande och kan acceptera eller avböja. Betalning hanteras separat efter acceptans.
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">Datum</label>
+                        <input
+                          type="date"
+                          required
+                          value={selectedDate ?? ""}
+                          onChange={(e) => setSelectedDate(e.target.value || null)}
+                          className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2.5 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+                        />
+                      </div>
+                      <div>
+                        <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">Starttid</label>
+                        <input
+                          type="time"
+                          required
+                          value={selectedTime ?? ""}
+                          onChange={(e) => setSelectedTime(e.target.value || null)}
+                          className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2.5 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">Lokal / namn</label>
+                      <input
+                        type="text"
+                        required
+                        value={eventVenue}
+                        onChange={(e) => setEventVenue(e.target.value)}
+                        placeholder="t.ex. Berns Stockholm, Nalen, danspalats..."
+                        className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">Lokal-adress</label>
+                      <input
+                        type="text"
+                        value={eventVenueAddress}
+                        onChange={(e) => setEventVenueAddress(e.target.value)}
+                        placeholder="Gata, ort"
+                        className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">Eventbeskrivning</label>
+                      <textarea
+                        rows={3}
+                        value={eventDescription}
+                        onChange={(e) => setEventDescription(e.target.value)}
+                        placeholder="Tema, tidsramar, dresscode, antal gäster, ev. överenskommen ersättning..."
+                        className="w-full resize-none rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+                      />
+                    </div>
+                  </>
                 ) : (
                   <>
                     {/* Step 1: Date picker */}
@@ -602,20 +701,22 @@ export default function BookingForm({
                   </div>
                 )}
 
-                <div>
-                  <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-                    {showGuestFields ? "Övrigt meddelande" : "Meddelande"}{" "}
-                    <span className="text-xs">(valfritt)</span>
-                  </label>
-                  <textarea
-                    name="notes"
-                    rows={showGuestFields ? 2 : 3}
-                    placeholder="Berätta om önskemål eller frågor..."
-                    className="w-full resize-none rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none"
-                  />
-                </div>
+                {!isB2BOffering && (
+                  <div>
+                    <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">
+                      {showGuestFields ? "Övrigt meddelande" : "Meddelande"}{" "}
+                      <span className="text-xs">(valfritt)</span>
+                    </label>
+                    <textarea
+                      name="notes"
+                      rows={showGuestFields ? 2 : 3}
+                      placeholder="Berätta om önskemål eller frågor..."
+                      className="w-full resize-none rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none"
+                    />
+                  </div>
+                )}
 
-                {listing.price != null && listing.price > 0 && (
+                {!isB2BOffering && listing.price != null && listing.price > 0 && (
                   <PromoCodeInput
                     scope="ticket"
                     originalPrice={listing.price}
@@ -624,7 +725,15 @@ export default function BookingForm({
                 )}
                 {promoCode && <input type="hidden" name="promo_code" value={promoCode} />}
 
-                {canPayOnline ? (
+                {isB2BOffering ? (
+                  <button
+                    type="submit"
+                    disabled={isPending || !hasDateTime || !eventVenue}
+                    className="w-full rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] py-3 text-sm font-bold text-black transition hover:opacity-90 disabled:opacity-50"
+                  >
+                    {isPending ? "Skickar..." : "Skicka eventförfrågan"}
+                  </button>
+                ) : canPayOnline ? (
                   <div className="space-y-2">
                     <button
                       type="button"

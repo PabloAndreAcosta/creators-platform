@@ -82,15 +82,17 @@ export default async function CreatorProfilePage({ params }: Props) {
     .eq("is_active", true)
     .order("created_at", { ascending: false });
 
-  // Get visitor's tier for discount calculation + early bird filtering
+  // Get visitor's tier for discount calculation + early bird filtering, and role for B2B booking gating
   let visitorTier: string | null = null;
+  let visitorRole: string | null = null;
   if (user) {
     const { data: visitorProfile } = await supabase
       .from("profiles")
-      .select("tier")
+      .select("tier, role")
       .eq("id", user.id)
       .single();
     visitorTier = visitorProfile?.tier ?? null;
+    visitorRole = (visitorProfile as { role?: string | null } | null)?.role ?? null;
   }
 
   // Filter out Gold-exclusive listings for gratis users
@@ -463,6 +465,7 @@ export default async function CreatorProfilePage({ params }: Props) {
                           creatorId={profile.id}
                           isLoggedIn={isLoggedIn}
                           hasConnect={hasConnect}
+                          viewerRole={visitorRole}
                         />
                       </div>
                     )}
