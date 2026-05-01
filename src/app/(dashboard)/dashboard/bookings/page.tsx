@@ -42,7 +42,7 @@ export default async function BookingsPage() {
   const { data: outgoing } = await supabase
     .from("bookings")
     .select(
-      "id, status, scheduled_at, notes, created_at, listing_id, creator_id, guest_count, special_requests, stripe_payment_id, dances_total, dances_redeemed, agreed_price"
+      "id, status, scheduled_at, notes, created_at, listing_id, creator_id, guest_count, special_requests, stripe_payment_id, amount_paid, dances_total, dances_redeemed, agreed_price"
     )
     .eq("customer_id", user.id)
     .order("scheduled_at", { ascending: true });
@@ -259,7 +259,11 @@ export default async function BookingsPage() {
                     {booking.status === "pending" && (
                       <>
                         <ConfirmButton bookingId={booking.id} />
-                        <CancelButton bookingId={booking.id} />
+                        <CancelButton
+                          bookingId={booking.id}
+                          isPaid={!!booking.amount_paid && booking.amount_paid > 0}
+                          paidAmount={booking.amount_paid ?? null}
+                        />
                       </>
                     )}
                     {booking.status === "confirmed" && (
@@ -274,7 +278,11 @@ export default async function BookingsPage() {
                           )}
                         <RescheduleButton bookingId={booking.id} currentDate={booking.scheduled_at} />
                         <CompleteButton bookingId={booking.id} />
-                        <CancelButton bookingId={booking.id} />
+                        <CancelButton
+                          bookingId={booking.id}
+                          isPaid={!!booking.amount_paid && booking.amount_paid > 0}
+                          paidAmount={booking.amount_paid ?? null}
+                        />
                       </>
                     )}
                   </div>
@@ -355,7 +363,11 @@ export default async function BookingsPage() {
                       booking.status === "confirmed") && (
                       <>
                         <RescheduleButton bookingId={booking.id} currentDate={booking.scheduled_at} />
-                        <CancelButton bookingId={booking.id} />
+                        <CancelButton
+                          bookingId={booking.id}
+                          isPaid={!!(booking as { stripe_payment_id?: string | null }).stripe_payment_id}
+                          paidAmount={(booking as { amount_paid?: number | null }).amount_paid ?? null}
+                        />
                       </>
                     )}
                     {booking.status === "completed" &&

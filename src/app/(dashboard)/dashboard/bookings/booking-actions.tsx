@@ -35,18 +35,32 @@ export function ConfirmButton({ bookingId }: { bookingId: string }) {
   );
 }
 
-export function CancelButton({ bookingId }: { bookingId: string }) {
+export function CancelButton({
+  bookingId,
+  isPaid = false,
+  paidAmount,
+}: {
+  bookingId: string;
+  isPaid?: boolean;
+  paidAmount?: number | null;
+}) {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
 
   function handle() {
-    if (!confirm("Är du säker på att du vill avboka?")) return;
+    const amountSek = paidAmount != null ? Math.round(paidAmount / 100) : null;
+    const message = isPaid
+      ? amountSek != null
+        ? `Är du säker? Bokningen avbokas och ${amountSek} SEK återbetalas till ditt kort. Återbetalning kan ta 5–10 bankdagar.`
+        : "Är du säker? Bokningen avbokas och betalningen återbetalas. Återbetalning kan ta 5–10 bankdagar."
+      : "Är du säker på att du vill avboka?";
+    if (!confirm(message)) return;
     startTransition(async () => {
       const result = await updateBookingStatus(bookingId, "canceled");
       if (result.error) {
         toast.error("Kunde inte avboka", result.error);
       } else {
-        toast.success("Bokning avbokad");
+        toast.success(isPaid ? "Bokning avbokad och återbetalning igång" : "Bokning avbokad");
       }
     });
   }
@@ -58,7 +72,7 @@ export function CancelButton({ bookingId }: { bookingId: string }) {
       className={`${btnBase} border border-[var(--usha-border)] text-[var(--usha-muted)] hover:bg-red-500/10 hover:text-red-400 disabled:opacity-50`}
     >
       <X size={12} />
-      Avboka
+      {isPaid ? "Avboka & återbetala" : "Avboka"}
     </button>
   );
 }
