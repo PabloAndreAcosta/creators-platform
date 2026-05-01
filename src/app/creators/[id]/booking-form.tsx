@@ -252,6 +252,7 @@ export default function BookingForm({
   const [eventVenue, setEventVenue] = useState("");
   const [eventVenueAddress, setEventVenueAddress] = useState("");
   const [eventDescription, setEventDescription] = useState("");
+  const [eventPerks, setEventPerks] = useState("");
   const { toast } = useToast();
 
   const showGuestFields = listing.listing_type && ["table_reservation", "spa_treatment", "group_activity"].includes(listing.listing_type);
@@ -294,12 +295,13 @@ export default function BookingForm({
       if (hasFixedDate) {
         formData.set("auto_confirm", "true");
       }
-      // For B2B-offerings, fold event venue and address into special_requests
+      // For B2B-offerings, fold event venue, address, and perks into special_requests
       // and event description into notes so existing createBooking writes them.
       if (isB2BOffering) {
         const venueLines = [
           eventVenue ? `Lokal: ${eventVenue}` : null,
           eventVenueAddress ? `Adress: ${eventVenueAddress}` : null,
+          eventPerks ? `Förmåner: ${eventPerks}` : null,
         ].filter(Boolean) as string[];
         if (venueLines.length) {
           formData.set("special_requests", venueLines.join("\n"));
@@ -330,6 +332,7 @@ export default function BookingForm({
         setEventVenue("");
         setEventVenueAddress("");
         setEventDescription("");
+        setEventPerks("");
       }
     });
   }
@@ -570,6 +573,22 @@ export default function BookingForm({
                         placeholder="Tema, tidsramar, dresscode, antal gäster, ev. överenskommen ersättning..."
                         className="w-full resize-none rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
                       />
+                    </div>
+
+                    <div>
+                      <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">
+                        Förmåner till taxidansaren <span className="text-xs">(valfritt)</span>
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={eventPerks}
+                        onChange={(e) => setEventPerks(e.target.value)}
+                        placeholder="t.ex. gratis entré, dryckespaket, måltid, parkering, hotell"
+                        className="w-full resize-none rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+                      />
+                      <p className="mt-1.5 text-xs text-[var(--usha-muted)]">
+                        Lista vad du bjuder på utöver ersättningen. Hjälper taxidansaren att jämföra erbjudanden.
+                      </p>
                     </div>
                   </>
                 ) : (

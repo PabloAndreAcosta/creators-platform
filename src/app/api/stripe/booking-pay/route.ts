@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
 
     const { data: creator } = await supabase
       .from("profiles")
-      .select("stripe_account_id, tier")
+      .select("stripe_account_id, tier, creator_subcategory")
       .eq("id", listing.user_id)
       .single();
 
@@ -101,7 +101,8 @@ export async function POST(req: NextRequest) {
     }
 
     const amountInOre = Math.round(listing.price * 100);
-    const commissionRate = getCreatorCommissionRate(creator.tier ?? "gratis");
+    const creatorSubcategory = (creator as { creator_subcategory?: string | null }).creator_subcategory ?? null;
+    const commissionRate = getCreatorCommissionRate(creator.tier ?? "gratis", creatorSubcategory);
     const applicationFee = Math.round(amountInOre * commissionRate);
 
     const session = await stripe.checkout.sessions.create({

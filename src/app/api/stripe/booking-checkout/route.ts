@@ -113,7 +113,7 @@ export async function POST(req: NextRequest) {
     // Get creator's Stripe Connect account
     const { data: creator } = await supabase
       .from("profiles")
-      .select("stripe_account_id, tier")
+      .select("stripe_account_id, tier, creator_subcategory")
       .eq("id", listing.user_id)
       .single();
 
@@ -128,7 +128,8 @@ export async function POST(req: NextRequest) {
     const originalPrice = listing.price;
     const discountedPrice = calculateDiscountedPrice(originalPrice, userTier);
     const amountInOre = Math.round(discountedPrice * 100);
-    const commissionRate = getCreatorCommissionRate(creator.tier ?? "gratis");
+    const creatorSubcategory = (creator as { creator_subcategory?: string | null }).creator_subcategory ?? null;
+    const commissionRate = getCreatorCommissionRate(creator.tier ?? "gratis", creatorSubcategory);
     const applicationFee = Math.round(amountInOre * commissionRate);
 
     // Validate promo code if provided

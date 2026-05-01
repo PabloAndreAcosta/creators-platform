@@ -22,6 +22,27 @@ describe('getCreatorCommissionRate', () => {
   it('defaults to 15% for unknown tier', () => {
     expect(getCreatorCommissionRate('unknown')).toBe(0.15);
   });
+
+  it('returns reduced 8% for taxi_dancer on gratis tier', () => {
+    expect(getCreatorCommissionRate('gratis', 'taxi_dancer')).toBe(0.08);
+  });
+
+  it('returns reduced 5% for taxi_dancer on guld tier', () => {
+    expect(getCreatorCommissionRate('guld', 'taxi_dancer')).toBe(0.05);
+  });
+
+  it('returns 3% for taxi_dancer on premium tier (already minimum)', () => {
+    expect(getCreatorCommissionRate('premium', 'taxi_dancer')).toBe(0.03);
+  });
+
+  it('uses standard rates when subcategory is general', () => {
+    expect(getCreatorCommissionRate('gratis', 'general')).toBe(0.15);
+  });
+
+  it('uses standard rates when subcategory is null/undefined', () => {
+    expect(getCreatorCommissionRate('gratis', null)).toBe(0.15);
+    expect(getCreatorCommissionRate('gratis', undefined)).toBe(0.15);
+  });
 });
 
 describe('calculateCreatorPayout', () => {
@@ -66,6 +87,22 @@ describe('calculateCreatorPayout', () => {
     const result = calculateCreatorPayout(1000, 'nonexistent');
     expect(result.commissionRate).toBe(0.15);
     expect(result.net).toBe(850);
+  });
+
+  it('applies taxi_dancer reduction on gratis tier (1000 SEK)', () => {
+    const result = calculateCreatorPayout(1000, 'gratis', 'taxi_dancer');
+    expect(result.gross).toBe(1000);
+    expect(result.commission).toBe(80);
+    expect(result.net).toBe(920);
+    expect(result.commissionRate).toBe(0.08);
+  });
+
+  it('applies taxi_dancer reduction on guld tier (1000 SEK)', () => {
+    const result = calculateCreatorPayout(1000, 'guld', 'taxi_dancer');
+    expect(result.gross).toBe(1000);
+    expect(result.commission).toBe(50);
+    expect(result.net).toBe(950);
+    expect(result.commissionRate).toBe(0.05);
   });
 });
 
