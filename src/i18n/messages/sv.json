@@ -331,7 +331,7 @@
     "openingBankid": "Öppnar BankID...",
     "verifyWithBankid": "Verifiera med Mobilt BankID",
     "bankidRedirectInfo": "Du kommer att skickas till BankID för identifiering.",
-    "skipVerify": "Hoppa över — verifiera senare",
+    "bankidRequiredError": "Du måste verifiera dig med Mobilt BankID innan du kan skapa konto.",
     "changeRole": "Byt roll",
     "createAccount": "Skapa konto",
     "trialPeriod": "{role} — 14 dagars gratis provperiod",

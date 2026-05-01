@@ -331,7 +331,7 @@
     "openingBankid": "Opening BankID...",
     "verifyWithBankid": "Verify with Mobile BankID",
     "bankidRedirectInfo": "You will be redirected to BankID for identification.",
-    "skipVerify": "Skip — verify later",
+    "bankidRequiredError": "You must verify with Mobile BankID before creating an account.",
     "changeRole": "Change role",
     "createAccount": "Create account",
     "trialPeriod": "{role} — 14 days free trial",

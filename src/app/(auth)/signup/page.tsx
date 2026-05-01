@@ -36,7 +36,6 @@ export default function SignupPage() {
 
   // BankID state
   const [bankidVerified, setBankidVerified] = useState(false);
-  const [bankidSkipped, setBankidSkipped] = useState(false);
   const [bankidVerifying, setBankidVerifying] = useState(false);
   const [bankidError, setBankidError] = useState("");
 
@@ -169,6 +168,11 @@ export default function SignupPage() {
     setEmailTouched(true);
     setPasswordTouched(true);
     if (nErr || eErr || pErr) return;
+
+    if (selectedRole && NEEDS_BANKID.includes(selectedRole) && !bankidVerified) {
+      setError(t("bankidRequiredError"));
+      return;
+    }
 
     setLoading(true);
     setError("");
@@ -363,7 +367,7 @@ export default function SignupPage() {
   }
 
   // Step 1.5: BankID verification (only for creator/experience, before registration)
-  if (selectedRole && NEEDS_BANKID.includes(selectedRole) && !bankidVerified && !bankidSkipped) {
+  if (selectedRole && NEEDS_BANKID.includes(selectedRole) && !bankidVerified) {
     return (
       <div className="flex min-h-screen items-center justify-center px-6">
         <div className="w-full max-w-sm">
@@ -406,19 +410,12 @@ export default function SignupPage() {
           </p>
 
           <button
-            onClick={() => setBankidSkipped(true)}
-            className="mt-6 block w-full text-center text-sm text-[var(--usha-muted)] hover:text-white hover:underline"
-          >
-            {t("skipVerify")}
-          </button>
-
-          <button
             onClick={() => {
               setSelectedRole(null);
               setSelectedSubcategory(null);
               setBankidError("");
             }}
-            className="mt-3 block w-full text-center text-xs text-[var(--usha-gold)] hover:underline"
+            className="mt-6 block w-full text-center text-xs text-[var(--usha-gold)] hover:underline"
           >
             {t("changeRole")}
           </button>
