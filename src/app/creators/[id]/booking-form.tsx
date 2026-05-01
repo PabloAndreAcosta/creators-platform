@@ -253,6 +253,9 @@ export default function BookingForm({
   const [eventVenueAddress, setEventVenueAddress] = useState("");
   const [eventDescription, setEventDescription] = useState("");
   const [eventPerks, setEventPerks] = useState("");
+  const [agreedPrice, setAgreedPrice] = useState<string>(
+    listing.price != null ? String(listing.price) : ""
+  );
   const { toast } = useToast();
 
   const showGuestFields = listing.listing_type && ["table_reservation", "spa_treatment", "group_activity"].includes(listing.listing_type);
@@ -309,6 +312,10 @@ export default function BookingForm({
         if (eventDescription) {
           formData.set("notes", eventDescription);
         }
+        const parsedPrice = agreedPrice ? parseInt(agreedPrice, 10) : NaN;
+        if (Number.isFinite(parsedPrice) && parsedPrice >= 0) {
+          formData.set("agreed_price", String(parsedPrice));
+        }
       }
       const result = await createBooking(formData);
       if (result.error) {
@@ -333,6 +340,7 @@ export default function BookingForm({
         setEventVenueAddress("");
         setEventDescription("");
         setEventPerks("");
+        setAgreedPrice(listing.price != null ? String(listing.price) : "");
       }
     });
   }
@@ -565,12 +573,29 @@ export default function BookingForm({
                     </div>
 
                     <div>
+                      <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">
+                        Föreslagen ersättning (SEK)
+                      </label>
+                      <input
+                        type="number"
+                        min={0}
+                        value={agreedPrice}
+                        onChange={(e) => setAgreedPrice(e.target.value)}
+                        placeholder={listing.price != null ? `Baspris ${listing.price}` : "t.ex. 5000"}
+                        className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+                      />
+                      <p className="mt-1.5 text-xs text-[var(--usha-muted)]">
+                        Du kan föreslå annat pris än taxidansarens baspris. Om hen accepterar förfrågan godtas också detta belopp.
+                      </p>
+                    </div>
+
+                    <div>
                       <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">Eventbeskrivning</label>
                       <textarea
                         rows={3}
                         value={eventDescription}
                         onChange={(e) => setEventDescription(e.target.value)}
-                        placeholder="Tema, tidsramar, dresscode, antal gäster, ev. överenskommen ersättning..."
+                        placeholder="Tema, tidsramar, dresscode, antal gäster..."
                         className="w-full resize-none rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
                       />
                     </div>

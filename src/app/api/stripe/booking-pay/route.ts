@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
 
     const { data: booking } = await supabase
       .from("bookings")
-      .select("id, listing_id, creator_id, customer_id, status, stripe_payment_id")
+      .select("id, listing_id, creator_id, customer_id, status, stripe_payment_id, agreed_price")
       .eq("id", bookingId)
       .single();
 
@@ -80,7 +80,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!listing.price || listing.price <= 0) {
+    // Resolve effective price: prefer the negotiated agreed_price on the
+    // booking (set when arrangör submitted the request), fall back to the
+    // listing's base price.
+    const agreedPrice = (booking as { agreed_price?: number | null }).agreed_price ?? null;
+    const effectivePrice = agreedPrice != null && agreedPrice > 0 ? agreedPrice : listing.price;
+
+    if (!effectivePrice || effectivePrice <= 0) {
       return NextResponse.json(
         { error: "Listing has no price" },
         { status: 400 }
@@ -100,7 +106,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const amountInOre = Math.round(listing.price * 100);
+    const amountInOre = Math.round(effectivePrice * 100);
     const creatorSubcategory = (creator as { creator_subcategory?: string | null }).creator_subcategory ?? null;
     const commissionRate = getCreatorCommissionRate(creator.tier ?? "gratis", creatorSubcategory);
     const applicationFee = Math.round(amountInOre * commissionRate);

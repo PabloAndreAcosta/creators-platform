@@ -40,6 +40,11 @@ export async function createBooking(formData: FormData) {
   if (attendeesRaw) {
     try { attendees = JSON.parse(attendeesRaw); } catch { /* ignore */ }
   }
+  const agreedPriceRaw = formData.get("agreed_price") as string | null;
+  const agreedPriceParsed = agreedPriceRaw ? parseInt(agreedPriceRaw, 10) : NaN;
+  const agreed_price = Number.isFinite(agreedPriceParsed) && agreedPriceParsed >= 0
+    ? agreedPriceParsed
+    : null;
 
   if (!listing_id || !creator_id) {
     return { error: "Fyll i alla obligatoriska fält." };
@@ -126,6 +131,9 @@ export async function createBooking(formData: FormData) {
     }
   }
 
+  // Only persist agreed_price for B2B-offerings.
+  const persistAgreedPrice = listing.listing_type === "b2b_offering" && agreed_price !== null;
+
   const { error } = await supabase.from("bookings").insert({
     listing_id,
     creator_id,
@@ -135,6 +143,7 @@ export async function createBooking(formData: FormData) {
     guest_count,
     special_requests,
     attendees,
+    ...(persistAgreedPrice ? { agreed_price } : {}),
     ...(autoConfirm ? { status: "confirmed" } : {}),
   });
 

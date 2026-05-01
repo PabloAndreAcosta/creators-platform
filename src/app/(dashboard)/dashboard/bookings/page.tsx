@@ -33,7 +33,7 @@ export default async function BookingsPage() {
   const { data: incoming } = await supabase
     .from("bookings")
     .select(
-      "id, status, scheduled_at, notes, created_at, listing_id, customer_id, guest_count, special_requests, amount_paid, dances_total, dances_redeemed"
+      "id, status, scheduled_at, notes, created_at, listing_id, customer_id, guest_count, special_requests, amount_paid, dances_total, dances_redeemed, agreed_price"
     )
     .eq("creator_id", user.id)
     .order("scheduled_at", { ascending: true });
@@ -42,7 +42,7 @@ export default async function BookingsPage() {
   const { data: outgoing } = await supabase
     .from("bookings")
     .select(
-      "id, status, scheduled_at, notes, created_at, listing_id, creator_id, guest_count, special_requests, stripe_payment_id, dances_total, dances_redeemed"
+      "id, status, scheduled_at, notes, created_at, listing_id, creator_id, guest_count, special_requests, stripe_payment_id, dances_total, dances_redeemed, agreed_price"
     )
     .eq("customer_id", user.id)
     .order("scheduled_at", { ascending: true });
@@ -225,6 +225,11 @@ export default async function BookingsPage() {
                             total={(booking as { dances_total?: number | null }).dances_total!}
                           />
                         )}
+                      {(booking as { agreed_price?: number | null }).agreed_price != null && (
+                        <span className="rounded-full bg-[var(--usha-accent)]/10 px-2 py-0.5 text-xs font-medium text-[var(--usha-accent)]">
+                          Ersättning: {(booking as { agreed_price?: number | null }).agreed_price} SEK
+                        </span>
+                      )}
                     </div>
                     <div className="flex flex-wrap items-center gap-3 text-sm text-[var(--usha-muted)]">
                       <span>Kund: {profileMap[booking.customer_id] || "Anonym"}</span>
@@ -314,6 +319,11 @@ export default async function BookingsPage() {
                             total={(booking as { dances_total?: number | null }).dances_total!}
                           />
                         )}
+                      {(booking as { agreed_price?: number | null }).agreed_price != null && (
+                        <span className="rounded-full bg-[var(--usha-accent)]/10 px-2 py-0.5 text-xs font-medium text-[var(--usha-accent)]">
+                          Ersättning: {(booking as { agreed_price?: number | null }).agreed_price} SEK
+                        </span>
+                      )}
                     </div>
                     <div className="flex flex-wrap items-center gap-3 text-sm text-[var(--usha-muted)]">
                       <span>Creator: {profileMap[booking.creator_id] || "Anonym"}</span>
@@ -334,7 +344,11 @@ export default async function BookingsPage() {
                       !(booking as { stripe_payment_id?: string | null }).stripe_payment_id && (
                         <PayB2BButton
                           bookingId={booking.id}
-                          price={listingMetaMap[booking.listing_id]?.price ?? null}
+                          price={
+                            (booking as { agreed_price?: number | null }).agreed_price ??
+                            listingMetaMap[booking.listing_id]?.price ??
+                            null
+                          }
                         />
                       )}
                     {(booking.status === "pending" ||
