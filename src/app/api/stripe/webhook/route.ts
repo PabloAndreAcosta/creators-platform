@@ -302,6 +302,7 @@ export async function POST(req: NextRequest) {
           const guestCount = session.metadata.guestCount ? parseInt(session.metadata.guestCount, 10) : 1;
           const specialRequests = session.metadata.specialRequests || null;
           const notes = session.metadata.notes || null;
+          const danceCount = session.metadata.danceCount ? parseInt(session.metadata.danceCount, 10) : null;
           let attendees: unknown[] = [];
           try {
             attendees = JSON.parse(session.metadata.attendees || "[]");
@@ -321,6 +322,7 @@ export async function POST(req: NextRequest) {
             special_requests: specialRequests,
             attendees,
             notes,
+            ...(danceCount && danceCount > 0 ? { dances_total: danceCount, dances_redeemed: 0 } : {}),
           });
 
           // Record payment

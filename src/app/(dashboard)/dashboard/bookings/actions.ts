@@ -406,3 +406,63 @@ export async function getMyQueuePosition(listingId: string) {
   const position = await getQueuePosition(listingId, user.id);
   return { position };
 }
+
+/**
+ * Increments dances_redeemed by 1 on a dance_package booking.
+ * Only the creator (taxi_dancer) of the booking may redeem.
+ * If the increment reaches dances_total, status is auto-marked completed.
+ */
+export async function redeemDance(bookingId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { error: "Ej inloggad" };
+
+  const { data: booking } = await supabase
+    .from("bookings")
+    .select("id, creator_id, status, dances_total, dances_redeemed")
+    .eq("id", bookingId)
+    .single();
+
+  if (!booking) return { error: "Bokning hittades inte." };
+
+  if (booking.creator_id !== user.id) {
+    return { error: "Bara taxidansaren kan markera danser inlösta." };
+  }
+
+  const total = (booking as { dances_total?: number | null }).dances_total ?? null;
+  const redeemed = (booking as { dances_redeemed?: number | null }).dances_redeemed ?? 0;
+
+  if (total === null || total <= 0) {
+    return { error: "Den här bokningen har inte ett danspaket." };
+  }
+
+  if (redeemed >= total) {
+    return { error: "Alla danser är redan inlösta." };
+  }
+
+  if (booking.status !== "confirmed") {
+    return { error: "Kan bara inlösa danser på bekräftade bokningar." };
+  }
+
+  const nextRedeemed = redeemed + 1;
+  const reachedTotal = nextRedeemed >= total;
+
+  const { error: updateError } = await supabase
+    .from("bookings")
+    .update({
+      dances_redeemed: nextRedeemed,
+      ...(reachedTotal ? { status: "completed" } : {}),
+    })
+    .eq("id", bookingId);
+
+  if (updateError) {
+    return { error: "Kunde inte uppdatera bokningen." };
+  }
+
+  revalidatePath("/dashboard/bookings");
+  return { success: true, redeemed: nextRedeemed, total, reachedTotal };
+}
+

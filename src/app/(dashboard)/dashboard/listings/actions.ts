@@ -39,6 +39,15 @@ function parseListingForm(formData: FormData) {
   const listing_type: ListingType = VALID_LISTING_TYPES.includes(listingTypeRaw as ListingType)
     ? (listingTypeRaw as ListingType)
     : "service";
+  const danceCountRaw = formData.get("dance_count") as string;
+  const danceCountParsed = danceCountRaw ? parseInt(danceCountRaw, 10) : null;
+  const dance_count =
+    listing_type === "dance_package" &&
+    danceCountParsed !== null &&
+    Number.isFinite(danceCountParsed) &&
+    danceCountParsed > 0
+      ? danceCountParsed
+      : null;
 
   if (!title) return { error: "Titel krävs" } as const;
   if (!category || !CATEGORIES.includes(category as (typeof CATEGORIES)[number])) {
@@ -53,6 +62,9 @@ function parseListingForm(formData: FormData) {
   }
   if (duration_minutes !== null && (isNaN(duration_minutes) || duration_minutes <= 0)) {
     return { error: "Längden måste vara ett positivt tal" } as const;
+  }
+  if (listing_type === "dance_package" && dance_count === null) {
+    return { error: "Antal danser måste anges för danspaket" } as const;
   }
 
   return {
@@ -71,6 +83,7 @@ function parseListingForm(formData: FormData) {
       event_lng: eventLng,
       event_place_id: eventPlaceId,
       listing_type,
+      dance_count,
     },
   } as const;
 }

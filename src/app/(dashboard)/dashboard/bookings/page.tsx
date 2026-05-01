@@ -12,6 +12,7 @@ import { NoBookings } from "@/components/ui/empty-state";
 import { ReviewForm } from "@/components/review-form";
 import { BookingsViewToggle } from "./bookings-view-toggle";
 import { PayB2BButton } from "./pay-b2b-button";
+import { RedeemDanceButton, DanceCounter } from "./redeem-dance-button";
 
 const STATUS_LABELS: Record<string, { text: string; className: string }> = {
   pending: { text: "Väntande", className: "bg-yellow-500/10 text-yellow-400" },
@@ -32,7 +33,7 @@ export default async function BookingsPage() {
   const { data: incoming } = await supabase
     .from("bookings")
     .select(
-      "id, status, scheduled_at, notes, created_at, listing_id, customer_id, guest_count, special_requests, amount_paid"
+      "id, status, scheduled_at, notes, created_at, listing_id, customer_id, guest_count, special_requests, amount_paid, dances_total, dances_redeemed"
     )
     .eq("creator_id", user.id)
     .order("scheduled_at", { ascending: true });
@@ -41,7 +42,7 @@ export default async function BookingsPage() {
   const { data: outgoing } = await supabase
     .from("bookings")
     .select(
-      "id, status, scheduled_at, notes, created_at, listing_id, creator_id, guest_count, special_requests, stripe_payment_id"
+      "id, status, scheduled_at, notes, created_at, listing_id, creator_id, guest_count, special_requests, stripe_payment_id, dances_total, dances_redeemed"
     )
     .eq("customer_id", user.id)
     .order("scheduled_at", { ascending: true });
@@ -217,6 +218,13 @@ export default async function BookingsPage() {
                           Betald
                         </span>
                       )}
+                      {(booking as { dances_total?: number | null }).dances_total != null &&
+                        (booking as { dances_total?: number | null }).dances_total! > 0 && (
+                          <DanceCounter
+                            redeemed={(booking as { dances_redeemed?: number | null }).dances_redeemed ?? 0}
+                            total={(booking as { dances_total?: number | null }).dances_total!}
+                          />
+                        )}
                     </div>
                     <div className="flex flex-wrap items-center gap-3 text-sm text-[var(--usha-muted)]">
                       <span>Kund: {profileMap[booking.customer_id] || "Anonym"}</span>
@@ -251,6 +259,14 @@ export default async function BookingsPage() {
                     )}
                     {booking.status === "confirmed" && (
                       <>
+                        {(booking as { dances_total?: number | null }).dances_total != null &&
+                          (booking as { dances_total?: number | null }).dances_total! > 0 && (
+                            <RedeemDanceButton
+                              bookingId={booking.id}
+                              redeemed={(booking as { dances_redeemed?: number | null }).dances_redeemed ?? 0}
+                              total={(booking as { dances_total?: number | null }).dances_total!}
+                            />
+                          )}
                         <RescheduleButton bookingId={booking.id} currentDate={booking.scheduled_at} />
                         <CompleteButton bookingId={booking.id} />
                         <CancelButton bookingId={booking.id} />
@@ -291,6 +307,13 @@ export default async function BookingsPage() {
                       >
                         {status.text}
                       </span>
+                      {(booking as { dances_total?: number | null }).dances_total != null &&
+                        (booking as { dances_total?: number | null }).dances_total! > 0 && (
+                          <DanceCounter
+                            redeemed={(booking as { dances_redeemed?: number | null }).dances_redeemed ?? 0}
+                            total={(booking as { dances_total?: number | null }).dances_total!}
+                          />
+                        )}
                     </div>
                     <div className="flex flex-wrap items-center gap-3 text-sm text-[var(--usha-muted)]">
                       <span>Creator: {profileMap[booking.creator_id] || "Anonym"}</span>

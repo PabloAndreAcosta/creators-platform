@@ -23,6 +23,7 @@ interface Listing {
   event_lng?: number | null;
   event_place_id?: string | null;
   listing_type?: string | null;
+  dance_count?: number | null;
 }
 
 export default function ListingForm({
@@ -181,9 +182,27 @@ export default function ListingForm({
             <option value="service">Annan tjänst</option>
           </select>
           {listingType === "dance_package" && (
-            <p className="mt-1.5 text-xs text-[var(--usha-muted)]">
-              Kunden betalar i förväg och inlöser danserna på ett event. Inget specifikt datum krävs vid bokning.
-            </p>
+            <>
+              <p className="mt-1.5 text-xs text-[var(--usha-muted)]">
+                Kunden betalar i förväg och inlöser danserna på ett event. Inget specifikt datum krävs vid bokning.
+              </p>
+              <div className="mt-3">
+                <label htmlFor="dance_count" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
+                  Antal danser i paketet
+                </label>
+                <input
+                  id="dance_count"
+                  name="dance_count"
+                  type="number"
+                  min={1}
+                  step={1}
+                  required
+                  defaultValue={listing?.dance_count ?? 5}
+                  placeholder="t.ex. 5"
+                  className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+                />
+              </div>
+            </>
           )}
           {listingType === "coaching_session" && (
             <p className="mt-1.5 text-xs text-[var(--usha-muted)]">

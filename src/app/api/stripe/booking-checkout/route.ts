@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
     // Get listing
     const { data: listing } = await supabase
       .from("listings")
-      .select("id, title, price, user_id, is_active, min_guests, max_guests, listing_type")
+      .select("id, title, price, user_id, is_active, min_guests, max_guests, listing_type, dance_count")
       .eq("id", listingId)
       .single();
 
@@ -197,6 +197,9 @@ export async function POST(req: NextRequest) {
         })(),
         originalPrice: String(originalPrice),
         discountedPrice: String(discountedPrice),
+        ...(listing.listing_type === "dance_package" && (listing as { dance_count?: number | null }).dance_count
+          ? { danceCount: String((listing as { dance_count?: number | null }).dance_count) }
+          : {}),
         ...(promoCodeId && { promoCodeId }),
         ...(promoDiscountAmount && {
           promoDiscountAmount: String(promoDiscountAmount),
