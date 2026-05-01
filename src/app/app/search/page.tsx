@@ -1,16 +1,17 @@
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORIES, CATEGORY_LABELS } from "@/lib/categories";
 import Link from "next/link";
-import { MapPin, Search } from "lucide-react";
+import { MapPin, Search, Music } from "lucide-react";
 
 interface SearchPageProps {
-  searchParams: Promise<{ q?: string; category?: string }>;
+  searchParams: Promise<{ q?: string; category?: string; subcategory?: string }>;
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = await searchParams;
   const query = params.q?.trim() ?? "";
   const categoryFilter = params.category ?? "";
+  const subcategoryFilter = params.subcategory === "taxi_dancer" ? "taxi_dancer" : "";
 
   let creators: Array<{
     id: string;
@@ -29,11 +30,15 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     profiles: { full_name: string | null } | null;
   }> = [];
 
-  if (query.length >= 2) {
+  // Allow subcategory filter to drive results even without a search query
+  const shouldSearch = query.length >= 2 || !!subcategoryFilter;
+
+  if (shouldSearch) {
     const supabase = await createClient();
+    const hasQuery = query.length >= 2;
     // Sanitize to prevent PostgREST filter injection
-    const sanitized = query.replace(/[,()\\]/g, ' ').trim();
-    if (!sanitized) {
+    const sanitized = hasQuery ? query.replace(/[,()\\]/g, ' ').trim() : "";
+    if (hasQuery && !sanitized) {
       return (
         <div className="px-4 py-6 md:max-w-3xl md:mx-auto">
           <h1 className="text-2xl font-bold mb-6">Sök</h1>
@@ -41,27 +46,51 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         </div>
       );
     }
-    const pattern = `%${sanitized}%`;
+    const pattern = sanitized ? `%${sanitized}%` : null;
 
     let creatorsQuery = supabase
       .from("profiles")
       .select("id, full_name, category, location, avatar_url")
-      .eq("is_public", true)
-      .or(
-        `full_name.ilike.${pattern},category.ilike.${pattern},location.ilike.${pattern},bio.ilike.${pattern}`
-      );
+      .eq("is_public", true);
 
     let listingsQuery = supabase
       .from("listings")
       .select("id, title, category, price, user_id, profiles(full_name)")
-      .eq("is_active", true)
-      .or(
+      .eq("is_active", true);
+
+    if (pattern) {
+      creatorsQuery = creatorsQuery.or(
+        `full_name.ilike.${pattern},category.ilike.${pattern},location.ilike.${pattern},bio.ilike.${pattern}`
+      );
+      listingsQuery = listingsQuery.or(
         `title.ilike.${pattern},description.ilike.${pattern},category.ilike.${pattern},event_location.ilike.${pattern}`
       );
+    }
 
     if (categoryFilter) {
       creatorsQuery = creatorsQuery.eq("category", categoryFilter);
       listingsQuery = listingsQuery.eq("category", categoryFilter);
+    }
+
+    if (subcategoryFilter === "taxi_dancer") {
+      creatorsQuery = creatorsQuery.eq("creator_subcategory", "taxi_dancer");
+      // For listings, restrict to those whose user has the taxi_dancer subcategory
+      // by joining the profile with `profiles!inner` and filtering on the
+      // related column.
+      let scopedListingsQuery = supabase
+        .from("listings")
+        .select("id, title, category, price, user_id, profiles!inner(full_name, creator_subcategory)")
+        .eq("is_active", true)
+        .eq("profiles.creator_subcategory", "taxi_dancer");
+      if (pattern) {
+        scopedListingsQuery = scopedListingsQuery.or(
+          `title.ilike.${pattern},description.ilike.${pattern},category.ilike.${pattern},event_location.ilike.${pattern}`
+        );
+      }
+      if (categoryFilter) {
+        scopedListingsQuery = scopedListingsQuery.eq("category", categoryFilter);
+      }
+      listingsQuery = scopedListingsQuery as unknown as typeof listingsQuery;
     }
 
     const [creatorsRes, listingsRes] = await Promise.all([
@@ -79,18 +108,67 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     <div className="px-4 py-6 md:px-8">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-xl font-bold">Sökresultat</h1>
+        <h1 className="text-xl font-bold">
+          {subcategoryFilter === "taxi_dancer" && !query ? "Taxidansare" : "Sökresultat"}
+        </h1>
         {query && (
           <p className="mt-1 text-sm text-[var(--usha-muted)]">
             {totalResults} resultat för &ldquo;{query}&rdquo;
+            {subcategoryFilter === "taxi_dancer" && " bland taxidansare"}
           </p>
         )}
+        {!query && subcategoryFilter === "taxi_dancer" && (
+          <p className="mt-1 text-sm text-[var(--usha-muted)]">
+            {totalResults} taxidansare på Usha
+          </p>
+        )}
+      </div>
+
+      {/* Subcategory chips (taxi dancer toggle) */}
+      <div className="mb-3 flex flex-wrap gap-2">
+        <Link
+          href={
+            categoryFilter
+              ? `/app/search?q=${encodeURIComponent(query)}&category=${categoryFilter}`
+              : query
+                ? `/app/search?q=${encodeURIComponent(query)}`
+                : `/app/search`
+          }
+          className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+            !subcategoryFilter
+              ? "bg-[var(--usha-card)] text-[var(--usha-muted)] hover:text-white"
+              : "bg-[var(--usha-card)] text-[var(--usha-muted)] hover:text-white"
+          }`}
+        >
+          Alla kreatörer
+        </Link>
+        <Link
+          href={
+            categoryFilter
+              ? `/app/search?q=${encodeURIComponent(query)}&category=${categoryFilter}&subcategory=taxi_dancer`
+              : query
+                ? `/app/search?q=${encodeURIComponent(query)}&subcategory=taxi_dancer`
+                : `/app/search?subcategory=taxi_dancer`
+          }
+          className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+            subcategoryFilter === "taxi_dancer"
+              ? "bg-[var(--usha-gold)] text-black"
+              : "bg-[var(--usha-card)] text-[var(--usha-muted)] hover:text-white"
+          }`}
+        >
+          <Music size={12} />
+          Taxidansare
+        </Link>
       </div>
 
       {/* Category filter chips */}
       <div className="mb-6 flex flex-wrap gap-2">
         <Link
-          href={`/app/search?q=${encodeURIComponent(query)}`}
+          href={
+            subcategoryFilter
+              ? `/app/search?q=${encodeURIComponent(query)}&subcategory=${subcategoryFilter}`
+              : `/app/search?q=${encodeURIComponent(query)}`
+          }
           className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
             !categoryFilter
               ? "bg-[var(--usha-gold)] text-black"
@@ -102,7 +180,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         {CATEGORIES.map((cat) => (
           <Link
             key={cat.value}
-            href={`/app/search?q=${encodeURIComponent(query)}&category=${cat.value}`}
+            href={
+              subcategoryFilter
+                ? `/app/search?q=${encodeURIComponent(query)}&category=${cat.value}&subcategory=${subcategoryFilter}`
+                : `/app/search?q=${encodeURIComponent(query)}&category=${cat.value}`
+            }
             className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
               categoryFilter === cat.value
                 ? "bg-[var(--usha-gold)] text-black"
@@ -114,8 +196,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         ))}
       </div>
 
-      {/* Empty state – no query */}
-      {!query && (
+      {/* Empty state – no query and no subcategory filter */}
+      {!query && !subcategoryFilter && (
         <div className="py-12 text-center">
           <Search
             size={48}
@@ -144,10 +226,12 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       )}
 
       {/* Empty state – no results */}
-      {query && totalResults === 0 && (
+      {shouldSearch && totalResults === 0 && (
         <div className="py-12 text-center">
           <p className="text-sm text-[var(--usha-muted)]">
-            Inga resultat hittades för &ldquo;{query}&rdquo;
+            {subcategoryFilter === "taxi_dancer" && !query
+              ? "Inga taxidansare matchar än"
+              : `Inga resultat hittades för "${query}"`}
           </p>
           <div className="mt-6">
             <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--usha-muted)]">

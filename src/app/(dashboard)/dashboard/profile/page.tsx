@@ -7,6 +7,7 @@ import { MediaGallery } from "./media-gallery";
 import { InstagramConnect } from "./instagram-connect";
 import { FacebookMediaConnect } from "./facebook-media-connect";
 import { TikTokConnect } from "./tiktok-connect";
+import { ProfileQR } from "./profile-qr";
 import { BETA_MODE } from "@/lib/beta";
 
 export default async function ProfilePage() {
@@ -82,6 +83,13 @@ export default async function ProfilePage() {
 
       {isCreator && (
         <>
+          <div className="mt-8">
+            <ProfileQR
+              profileSlug={(profile as { slug?: string | null }).slug ?? null}
+              profileId={profile.id}
+              fullName={profile.full_name}
+            />
+          </div>
           <div className="mt-8 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 sm:p-8">
             <InstagramConnect
               isConnected={!!socialConn?.instagram_access_token}
