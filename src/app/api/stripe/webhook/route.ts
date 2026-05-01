@@ -260,6 +260,40 @@ export async function POST(req: NextRequest) {
         }
 
         // Handle paid manual bookings (payment upfront, creator still confirms)
+        if (session.metadata?.type === "b2b_payment") {
+          const bookingId = session.metadata.bookingId;
+          const amountPaid = session.amount_total;
+          const paymentIntentId = (session.payment_intent as string) || null;
+
+          if (!bookingId) {
+            console.error("Webhook: missing bookingId metadata for b2b_payment");
+            break;
+          }
+
+          // Update existing confirmed booking with payment info
+          await getSupabaseAdmin()
+            .from("bookings")
+            .update({
+              stripe_payment_id: paymentIntentId,
+              amount_paid: amountPaid,
+            })
+            .eq("id", bookingId);
+
+          // Record payment
+          if (amountPaid && userId) {
+            await getSupabaseAdmin().from("payments").insert({
+              user_id: userId,
+              stripe_payment_id: paymentIntentId,
+              amount: amountPaid,
+              currency: session.currency || "sek",
+              status: "succeeded",
+              description: `B2B-bokning: ${bookingId}`,
+            });
+          }
+
+          break;
+        }
+
         if (session.metadata?.type === "paid_booking") {
           const listingId = session.metadata.listingId;
           const creatorId = session.metadata.creatorId;

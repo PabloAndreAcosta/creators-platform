@@ -11,6 +11,7 @@ import { RescheduleButton } from "./reschedule-button";
 import { NoBookings } from "@/components/ui/empty-state";
 import { ReviewForm } from "@/components/review-form";
 import { BookingsViewToggle } from "./bookings-view-toggle";
+import { PayB2BButton } from "./pay-b2b-button";
 
 const STATUS_LABELS: Record<string, { text: string; className: string }> = {
   pending: { text: "Väntande", className: "bg-yellow-500/10 text-yellow-400" },
@@ -40,7 +41,7 @@ export default async function BookingsPage() {
   const { data: outgoing } = await supabase
     .from("bookings")
     .select(
-      "id, status, scheduled_at, notes, created_at, listing_id, creator_id, guest_count, special_requests"
+      "id, status, scheduled_at, notes, created_at, listing_id, creator_id, guest_count, special_requests, stripe_payment_id"
     )
     .eq("customer_id", user.id)
     .order("scheduled_at", { ascending: true });
@@ -63,9 +64,9 @@ export default async function BookingsPage() {
     listingIds.length > 0
       ? supabase
           .from("listings")
-          .select("id, title")
+          .select("id, title, listing_type, price")
           .in("id", listingIds)
-      : { data: [] as { id: string; title: string }[] },
+      : { data: [] as { id: string; title: string; listing_type: string | null; price: number | null }[] },
     profileIds.length > 0
       ? supabase
           .from("profiles")
@@ -76,6 +77,12 @@ export default async function BookingsPage() {
 
   const listingMap: Record<string, string> = Object.fromEntries(
     (listings ?? []).map((l) => [l.id, l.title])
+  );
+  const listingMetaMap: Record<string, { listing_type: string | null; price: number | null }> = Object.fromEntries(
+    (listings ?? []).map((l) => [l.id, {
+      listing_type: (l as { listing_type?: string | null }).listing_type ?? null,
+      price: (l as { price?: number | null }).price ?? null,
+    }])
   );
   const profileMap = Object.fromEntries(
     (profiles ?? []).map((p) => [p.id, p.full_name || "Anonym"])
@@ -299,6 +306,14 @@ export default async function BookingsPage() {
                     )}
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
+                    {booking.status === "confirmed" &&
+                      listingMetaMap[booking.listing_id]?.listing_type === "b2b_offering" &&
+                      !(booking as { stripe_payment_id?: string | null }).stripe_payment_id && (
+                        <PayB2BButton
+                          bookingId={booking.id}
+                          price={listingMetaMap[booking.listing_id]?.price ?? null}
+                        />
+                      )}
                     {(booking.status === "pending" ||
                       booking.status === "confirmed") && (
                       <>
