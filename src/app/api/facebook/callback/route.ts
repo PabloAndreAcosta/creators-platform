@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
 
   // Exchange code for user access token
   const tokenRes = await fetch(
-    `https://graph.facebook.com/v19.0/oauth/access_token?` +
+    `https://graph.facebook.com/v22.0/oauth/access_token?` +
       new URLSearchParams({
         client_id: FB_APP_ID,
         client_secret: FB_APP_SECRET,
@@ -66,7 +66,7 @@ export async function GET(req: NextRequest) {
 
   // Get the list of pages this user manages
   const pagesRes = await fetch(
-    `https://graph.facebook.com/v19.0/me/accounts?access_token=${userToken}&fields=id,name,access_token`
+    `https://graph.facebook.com/v22.0/me/accounts?access_token=${userToken}&fields=id,name,access_token`
   );
 
   if (!pagesRes.ok) {

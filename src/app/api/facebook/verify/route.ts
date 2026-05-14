@@ -26,7 +26,7 @@ export async function GET() {
   try {
     // Test the token by fetching page info
     const res = await fetch(
-      `https://graph.facebook.com/v19.0/${social.facebook_page_id}?` +
+      `https://graph.facebook.com/v22.0/${social.facebook_page_id}?` +
         new URLSearchParams({
           fields: 'id,name,followers_count,fan_count',
           access_token: social.facebook_page_access_token,

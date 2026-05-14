@@ -3,7 +3,9 @@ import { createClient } from "@/lib/supabase/server";
 
 // POST /api/facebook/sync-event
 // Body: { listing_id }
-// Pushes the listing to Facebook as a Page event (create or update)
+// Publishes the listing as a Page post (Events API deprecated by Facebook).
+// The post ID is stored in listings.facebook_event_id — note the column
+// is shared with import-events (which stores real Facebook event IDs).
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
   const {
@@ -50,7 +52,7 @@ export async function POST(req: NextRequest) {
   if (existingFbId) {
     // Update existing post
     fbRes = await fetch(
-      `https://graph.facebook.com/v19.0/${existingFbId}`,
+      `https://graph.facebook.com/v22.0/${existingFbId}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -73,7 +75,7 @@ export async function POST(req: NextRequest) {
   } else if (listing.image_url) {
     // Create new photo post with image
     fbRes = await fetch(
-      `https://graph.facebook.com/v19.0/${social.facebook_page_id}/photos`,
+      `https://graph.facebook.com/v22.0/${social.facebook_page_id}/photos`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -104,7 +106,7 @@ export async function POST(req: NextRequest) {
   } else {
     // Create new page post (text only)
     fbRes = await fetch(
-      `https://graph.facebook.com/v19.0/${social.facebook_page_id}/feed`,
+      `https://graph.facebook.com/v22.0/${social.facebook_page_id}/feed`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

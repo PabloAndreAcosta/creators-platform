@@ -17,7 +17,7 @@ export function FacebookSyncButton({
 }: FacebookSyncButtonProps) {
   const [loading, setLoading] = useState(false);
   const [fbEventUrl, setFbEventUrl] = useState<string | null>(
-    facebookEventId ? `https://www.facebook.com/events/${facebookEventId}` : null
+    facebookEventId ? `https://www.facebook.com/${facebookEventId}` : null
   );
   const { toast } = useToast();
 
@@ -47,7 +47,7 @@ export function FacebookSyncButton({
       } else {
         setFbEventUrl(data.facebook_event_url);
         toast.success(
-          facebookEventId ? "Facebook-event uppdaterat" : "Publicerat på Facebook",
+          facebookEventId ? "Facebook-inlägget uppdaterat" : "Publicerat på Facebook",
           `Sida: ${data.page_name}`
         );
       }

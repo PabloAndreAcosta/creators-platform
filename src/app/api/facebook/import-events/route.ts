@@ -24,7 +24,7 @@ export async function GET() {
 
   // Fetch upcoming events from the Facebook Page
   const fbRes = await fetch(
-    `https://graph.facebook.com/v19.0/${social.facebook_page_id}/events?` +
+    `https://graph.facebook.com/v22.0/${social.facebook_page_id}/events?` +
       new URLSearchParams({
         access_token: social.facebook_page_access_token,
         fields: "id,name,description,start_time,ticket_uri",

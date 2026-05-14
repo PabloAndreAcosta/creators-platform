@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
   const pageId = social.facebook_page_id;
 
   // Fetch photos from the page
-  let url = `https://graph.facebook.com/v19.0/${pageId}/photos?fields=id,images,name,created_time&type=uploaded&limit=25&access_token=${token}`;
+  let url = `https://graph.facebook.com/v22.0/${pageId}/photos?fields=id,images,name,created_time&type=uploaded&limit=25&access_token=${token}`;
   if (after) url += `&after=${after}`;
 
   const res = await fetch(url);
