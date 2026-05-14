@@ -41,8 +41,8 @@ Skapa `.env.local`:
 
 ```env
 # Supabase
-NEXT_PUBLIC_SUPABASE_URL=https://hiurrvorwqfihtdfhbhv.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpdXJydm9yd3FmaWh0ZGZoYmh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4MjcwNzcsImV4cCI6MjA4NjQwMzA3N30.s8aH3ob9HcADnrq4MAOHX_9JiYexlMSoDYJfBXVlczY
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
 # Stripe

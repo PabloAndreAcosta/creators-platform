@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { readFileSync } from 'fs';
 
 const supabase = createClient(
-  'https://hiurrvorwqfihtdfhbhv.supabase.co',
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SK,
   { auth: { autoRefreshToken: false, persistSession: false } }
 );
