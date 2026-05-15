@@ -11,9 +11,13 @@ if (typeof window === "undefined" && !SECRET && process.env.NODE_ENV === "produc
   );
 }
 
-export function setOAuthStateCookie(response: NextResponse, userId: string): NextResponse {
-  const csrf = crypto.randomBytes(16).toString("hex");
-  const payload = JSON.stringify({ userId, csrf });
+export function setOAuthStateCookie(
+  response: NextResponse,
+  userId: string,
+  csrf?: string
+): NextResponse {
+  const csrfToken = csrf ?? crypto.randomBytes(16).toString("hex");
+  const payload = JSON.stringify({ userId, csrf: csrfToken });
   const signature = crypto.createHmac("sha256", SECRET).update(payload).digest("hex");
   const value = Buffer.from(payload).toString("base64") + "." + signature;
 

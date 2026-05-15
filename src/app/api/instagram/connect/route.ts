@@ -37,7 +37,7 @@ export async function GET() {
     `https://www.instagram.com/oauth/authorize?${params.toString()}`
   );
 
-  setOAuthStateCookie(response, user.id);
+  setOAuthStateCookie(response, user.id, csrfToken);
 
   return response;
 }

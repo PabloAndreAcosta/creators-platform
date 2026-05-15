@@ -35,7 +35,7 @@ export async function GET() {
     `https://www.tiktok.com/v2/auth/authorize/?${params.toString()}`
   );
 
-  setOAuthStateCookie(response, user.id);
+  setOAuthStateCookie(response, user.id, csrfToken);
 
   return response;
 }

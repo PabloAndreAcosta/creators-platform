@@ -40,10 +40,10 @@ export async function GET() {
   });
 
   const response = NextResponse.redirect(
-    `https://www.facebook.com/v19.0/dialog/oauth?${params.toString()}`
+    `https://www.facebook.com/v22.0/dialog/oauth?${params.toString()}`
   );
 
-  setOAuthStateCookie(response, user.id);
+  setOAuthStateCookie(response, user.id, csrfToken);
 
   return response;
 }

@@ -11,12 +11,14 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const code = searchParams.get("code");
   const error = searchParams.get("error");
+  const stateParam = searchParams.get("state");
 
-  // Get verified user ID from signed cookie instead of state param
+  // Verify userId via signed cookie + cross-check provider state matches cookie csrf
   const oauthState = getOAuthStateFromCookie(req);
   const userId = oauthState?.userId;
+  const stateMatches = !!stateParam && stateParam === oauthState?.csrf;
 
-  if (error || !code || !userId) {
+  if (error || !code || !userId || !stateMatches) {
     const response = NextResponse.redirect(`${APP_URL}/dashboard/profile?ig_error=denied`);
     clearOAuthStateCookie(response);
     return response;
@@ -83,7 +85,7 @@ export async function GET(req: NextRequest) {
   // Step 3: Get username
   let igUsername: string | null = null;
   const userRes = await fetch(
-    `https://graph.instagram.com/v19.0/me?fields=username&access_token=${accessToken}`
+    `https://graph.instagram.com/v22.0/me?fields=username&access_token=${accessToken}`
   );
   if (userRes.ok) {
     const userData = await userRes.json();
