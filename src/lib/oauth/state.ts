@@ -3,7 +3,13 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 const COOKIE_NAME = "oauth_state";
-const SECRET = process.env.BANKID_COOKIE_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const SECRET = process.env.BANKID_COOKIE_SECRET || "";
+
+if (typeof window === "undefined" && !SECRET && process.env.NODE_ENV === "production") {
+  throw new Error(
+    "BANKID_COOKIE_SECRET must be set in production. Refusing to sign OAuth state cookies with an empty key (no fallback to service-role)."
+  );
+}
 
 export function setOAuthStateCookie(response: NextResponse, userId: string): NextResponse {
   const csrf = crypto.randomBytes(16).toString("hex");

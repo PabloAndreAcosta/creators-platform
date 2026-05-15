@@ -3,7 +3,12 @@ import crypto from "crypto";
 const SECRET = process.env.BANKID_COOKIE_SECRET || "";
 
 if (typeof window === "undefined" && !SECRET) {
-  console.warn("WARNING: BANKID_COOKIE_SECRET is not set. Cookie signing is insecure.");
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "BANKID_COOKIE_SECRET must be set in production. Refusing to sign cookies or hash personal numbers with an empty key."
+    );
+  }
+  console.warn("WARNING: BANKID_COOKIE_SECRET is not set. Cookie signing is insecure (dev only).");
 }
 
 export function signCookieValue(data: object): string {
@@ -48,6 +53,10 @@ export function verifyCookieValue<T = unknown>(
  * Swedish personal number format (YYYYMMDD-XXXX).
  */
 export function hashPersonalNumber(nin: string): string {
-  const hmacKey = process.env.BANKID_COOKIE_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || "";
-  return crypto.createHmac("sha256", hmacKey).update(nin).digest("hex");
+  if (!SECRET) {
+    throw new Error(
+      "Cannot hash personal number: BANKID_COOKIE_SECRET is not set. Fail-closed to prevent key-reuse with service-role key."
+    );
+  }
+  return crypto.createHmac("sha256", SECRET).update(nin).digest("hex");
 }
