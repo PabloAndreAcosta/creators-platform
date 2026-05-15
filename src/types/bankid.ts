@@ -6,6 +6,7 @@ export interface BankIdVerifiedData {
   hashedNin: string;
   verifiedAt: string;
   role: "creator" | "experience";
+  subcategory?: "general" | "taxi_dancer";
 }
 
 export interface SignicatSession {

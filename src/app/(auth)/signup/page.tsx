@@ -197,6 +197,12 @@ export default function SignupPage() {
     });
 
     if (error) {
+      if (error.message === "User already registered" && bankidVerified) {
+        // Existing account — offer to log in and upgrade with BankID
+        setError("EMAIL_EXISTS_BANKID_PENDING");
+        setLoading(false);
+        return;
+      }
       const msg =
         error.message === "User already registered"
           ? t("accountExists")
@@ -558,7 +564,25 @@ export default function SignupPage() {
             )}
           </div>
 
-          {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400">{error}</p>}
+          {error === "EMAIL_EXISTS_BANKID_PENDING" ? (
+            <div className="rounded-lg border border-[var(--usha-gold)]/30 bg-[var(--usha-gold)]/5 px-4 py-3 text-sm">
+              <p className="font-semibold text-[var(--usha-gold)]">
+                Det finns redan ett konto med {email}
+              </p>
+              <p className="mt-1 text-[var(--usha-muted)]">
+                Logga in på ditt befintliga konto så aktiverar vi
+                BankID-verifieringen automatiskt.
+              </p>
+              <a
+                href={`/login?bankid_pending=1&email=${encodeURIComponent(email)}`}
+                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] py-2.5 text-sm font-bold text-black transition hover:opacity-90"
+              >
+                <ShieldCheck size={14} /> Logga in och slutför verifiering
+              </a>
+            </div>
+          ) : error ? (
+            <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400">{error}</p>
+          ) : null}
 
           <button
             type="submit"

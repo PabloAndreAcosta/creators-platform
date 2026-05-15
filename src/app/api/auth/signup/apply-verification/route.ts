@@ -66,14 +66,19 @@ export async function POST(req: NextRequest) {
     return response;
   }
 
+  const updatePayload: Record<string, string> = {
+    bankid_verified_at: data.verifiedAt,
+    bankid_personal_number: data.hashedNin,
+    bankid_name: data.name,
+    role: data.role,
+  };
+  if (data.subcategory) {
+    updatePayload.creator_subcategory = data.subcategory;
+  }
+
   const { error: updateError } = await admin
     .from("profiles")
-    .update({
-      bankid_verified_at: data.verifiedAt,
-      bankid_personal_number: data.hashedNin,
-      bankid_name: data.name,
-      role: data.role,
-    })
+    .update(updatePayload)
     .eq("id", user.id);
 
   if (updateError) {

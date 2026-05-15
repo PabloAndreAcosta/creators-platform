@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
+import { ShieldCheck } from "lucide-react";
 
 function FieldError({ message }: { message: string }) {
   return <p className="mt-1 text-xs text-red-400">{message}</p>;
@@ -10,11 +12,18 @@ function FieldError({ message }: { message: string }) {
 
 export default function LoginPage() {
   const t = useTranslations("auth");
-  const [email, setEmail] = useState("");
+  const searchParams = useSearchParams();
+  const bankidPending = searchParams.get("bankid_pending") === "1";
+  const prefilledEmail = searchParams.get("email") || "";
+  const [email, setEmail] = useState(prefilledEmail);
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [status, setStatus] = useState("");
+
+  useEffect(() => {
+    if (prefilledEmail) setEmail(prefilledEmail);
+  }, [prefilledEmail]);
 
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
@@ -83,12 +92,14 @@ export default function LoginPage() {
 
       if (data.session) {
         setStatus(t("loggedInRedirecting"));
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", data.session.user.id)
-          .single();
-        const role = profile?.role;
+        // If user came here from signup with a BankID-verified cookie still set,
+        // apply that verification to their existing account before redirecting.
+        // 400/404 means no cookie — that's expected for normal logins.
+        try {
+          await fetch("/api/auth/signup/apply-verification", { method: "POST" });
+        } catch {
+          /* non-fatal */
+        }
         window.location.href = "/app";
       } else {
         setError(t("noSessionReturned"));
@@ -128,6 +139,18 @@ export default function LoginPage() {
           <h1 className="text-2xl font-bold">{t("welcomeBack")}</h1>
           <p className="mt-1 text-sm text-[var(--usha-muted)]">{t("loginToAccount")}</p>
         </div>
+
+        {bankidPending && (
+          <div className="mb-6 rounded-lg border border-[var(--usha-gold)]/30 bg-[var(--usha-gold)]/5 px-4 py-3 text-sm">
+            <p className="flex items-center gap-2 font-semibold text-[var(--usha-gold)]">
+              <ShieldCheck size={14} /> BankID-verifiering väntar
+            </p>
+            <p className="mt-1 text-[var(--usha-muted)]">
+              Logga in på ditt befintliga konto så aktiveras kreatörsverifieringen
+              automatiskt.
+            </p>
+          </div>
+        )}
 
         <button
           onClick={handleGoogleLogin}

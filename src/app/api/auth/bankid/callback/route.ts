@@ -83,6 +83,8 @@ export async function GET(req: NextRequest) {
       hashedNin,
       verifiedAt: new Date().toISOString(),
       role: sessionData.role as "creator" | "experience",
+      subcategory:
+        sessionData.subcategory === "taxi_dancer" ? "taxi_dancer" : "general",
     };
 
     const signedValue = signCookieValue(verifiedData);
