@@ -8,6 +8,7 @@ import { InstagramConnect } from "./instagram-connect";
 import { FacebookMediaConnect } from "./facebook-media-connect";
 import { TikTokConnect } from "./tiktok-connect";
 import { ProfileQR } from "./profile-qr";
+import { BankIdStatus } from "./bankid-status";
 import { BETA_MODE } from "@/lib/beta";
 
 export default async function ProfilePage() {
@@ -23,7 +24,7 @@ export default async function ProfilePage() {
   const [{ data: profile }, { data: socialConn }, { data: media }] = await Promise.all([
     supabase
       .from("profiles")
-      .select("id, full_name, slug, avatar_url, bio, website, category, location, hourly_rate, is_public, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, role, tier, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3, creator_subcategory, dance_styles, dance_languages, dance_experience_years, offers_coaching, coaching_hourly_rate_sek, coaching_specialties, coaching_bio")
+      .select("id, full_name, slug, avatar_url, bio, website, category, location, hourly_rate, is_public, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, role, tier, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3, creator_subcategory, dance_styles, dance_languages, dance_experience_years, offers_coaching, coaching_hourly_rate_sek, coaching_specialties, coaching_bio, bankid_verified_at, bankid_name")
       .eq("id", user.id)
       .single(),
     supabase
@@ -79,6 +80,14 @@ export default async function ProfilePage() {
 
       <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 sm:p-8">
         <ProfileForm profile={profile} isPaidTier={BETA_MODE || profile.tier === 'guld' || profile.tier === 'premium'} isPremium={BETA_MODE || profile.tier === 'premium'} isCustomer={!isCreator} />
+      </div>
+
+      <div className="mt-8">
+        <BankIdStatus
+          verifiedAt={(profile as { bankid_verified_at?: string | null }).bankid_verified_at ?? null}
+          bankidName={(profile as { bankid_name?: string | null }).bankid_name ?? null}
+          isCreatorRole={isCreator}
+        />
       </div>
 
       {isCreator && (
