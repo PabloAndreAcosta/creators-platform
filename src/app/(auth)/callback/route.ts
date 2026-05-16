@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { verifyCookieValue } from "@/lib/signicat/crypto";
 import type { BankIdVerifiedData } from "@/types/bankid";
 
@@ -17,45 +18,50 @@ export async function GET(req: NextRequest) {
       } = await supabase.auth.getUser();
 
       if (user) {
-        // Check if a pending role was set during OAuth signup
+        const admin = createAdminClient();
+
+        // 1. Apply pending role from OAuth signup (if present).
+        //    Uses admin client because the privileged-columns trigger blocks
+        //    role/tier/is_admin/bankid_* changes from user-context updates.
         const pendingRole = req.cookies.get("pending_role")?.value;
         const validRoles = ["creator", "experience", "customer"];
-
         if (pendingRole && validRoles.includes(pendingRole)) {
-          // Update profile with the selected role
-          const profileUpdate: Record<string, unknown> = { role: pendingRole };
-
-          // Apply BankID verification data if present
-          const bankidCookie = req.cookies.get("bankid_verified")?.value;
-          if (bankidCookie) {
-            const bankidData = verifyCookieValue<BankIdVerifiedData>(bankidCookie);
-            if (bankidData) {
-              profileUpdate.bankid_verified_at = bankidData.verifiedAt;
-              profileUpdate.bankid_personal_number = bankidData.hashedNin;
-              profileUpdate.bankid_name = bankidData.name;
-            }
-          }
-
-          await supabase
+          await admin
             .from("profiles")
-            .update(profileUpdate)
+            .update({ role: pendingRole })
             .eq("id", user.id);
         }
 
-        // Fetch the (possibly updated) role
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", user.id)
-          .single();
+        // 2. Apply BankID verification cookie if present — independent of
+        //    pending_role so it works for existing-user merge logins too.
+        const bankidCookie = req.cookies.get("bankid_verified")?.value;
+        if (bankidCookie) {
+          const bankidData = verifyCookieValue<BankIdVerifiedData>(bankidCookie);
+          if (bankidData) {
+            // Defense-in-depth dup check: another profile already claims this pno.
+            const { data: dup } = await admin
+              .from("profiles")
+              .select("id")
+              .eq("bankid_personal_number", bankidData.hashedNin)
+              .neq("id", user.id)
+              .maybeSingle();
 
-        const role = pendingRole && validRoles.includes(pendingRole)
-          ? pendingRole
-          : profile?.role;
+            if (!dup) {
+              const update: Record<string, unknown> = {
+                bankid_verified_at: bankidData.verifiedAt,
+                bankid_personal_number: bankidData.hashedNin,
+                bankid_name: bankidData.name,
+                role: bankidData.role,
+              };
+              if (bankidData.subcategory) {
+                update.creator_subcategory = bankidData.subcategory;
+              }
+              await admin.from("profiles").update(update).eq("id", user.id);
+            }
+          }
+        }
 
-        // Clear the pending_role cookie
         const destination = "/app";
-        // Validate `next` to prevent open redirect attacks
         const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : null;
         const redirectUrl = safeNext || destination;
         const response = NextResponse.redirect(`${origin}${redirectUrl}`);
