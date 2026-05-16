@@ -252,10 +252,10 @@ export default async function CreatorProfilePage({ params }: Props) {
               {profile.full_name || "Creator"}
               {(profile as { bankid_verified_at?: string | null }).bankid_verified_at && (
                 <span
-                  className="inline-flex items-center gap-1 rounded-full border border-green-500/30 bg-green-500/10 px-2 py-0.5 text-xs font-semibold text-green-500"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-green-500 px-3 py-1 text-xs font-bold uppercase tracking-wide text-white shadow-md shadow-green-500/40 ring-1 ring-green-700/20"
                   title={`Verifierad med BankID${(profile as { bankid_name?: string | null }).bankid_name ? ` som ${(profile as { bankid_name?: string | null }).bankid_name}` : ""}`}
                 >
-                  <ShieldCheck size={12} />
+                  <ShieldCheck size={14} strokeWidth={2.5} />
                   BankID
                 </span>
               )}
