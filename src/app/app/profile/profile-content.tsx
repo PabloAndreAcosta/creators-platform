@@ -15,6 +15,8 @@ import {
   CreditCard,
   Bell,
   Shield,
+  ShieldCheck,
+  ShieldAlert,
   HelpCircle,
   LogOut,
   ChevronRight,
@@ -48,6 +50,8 @@ interface Profile {
   stripe_account_id: string | null;
   created_at: string;
   updated_at: string;
+  bankid_verified_at?: string | null;
+  bankid_name?: string | null;
 }
 
 interface ProfileContentProps {
@@ -160,6 +164,12 @@ export function ProfileContent({
         )}
       </div>
 
+      {/* BankID verification status */}
+      <BankIdStatusRow
+        verifiedAt={profile?.bankid_verified_at ?? null}
+        bankidName={profile?.bankid_name ?? null}
+      />
+
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3">
         {role === "publik" && (
@@ -220,6 +230,50 @@ export function ProfileContent({
         </form>
       </div>
     </div>
+  );
+}
+
+function BankIdStatusRow({
+  verifiedAt,
+  bankidName,
+}: {
+  verifiedAt: string | null;
+  bankidName: string | null;
+}) {
+  if (verifiedAt) {
+    const formatted = new Date(verifiedAt).toLocaleDateString("sv-SE", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+    return (
+      <div className="flex items-center gap-3 rounded-xl border border-green-500/30 bg-green-500/5 px-4 py-3">
+        <ShieldCheck size={20} className="shrink-0 text-green-400" />
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold text-green-400">
+            Identitet verifierad med BankID
+          </p>
+          <p className="truncate text-xs text-[var(--usha-muted)]">
+            {bankidName ? `${bankidName} · ${formatted}` : formatted}
+          </p>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <a
+      href="/signup"
+      className="flex items-center gap-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 transition hover:border-[var(--usha-gold)]/40"
+    >
+      <ShieldAlert size={20} className="shrink-0 text-[var(--usha-muted)]" />
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-semibold">Verifiera med BankID</p>
+        <p className="truncate text-xs text-[var(--usha-muted)]">
+          Visa kunder att du är den du utger dig för att vara
+        </p>
+      </div>
+      <ChevronRight size={16} className="shrink-0 text-[var(--usha-muted)]" />
+    </a>
   );
 }
 
