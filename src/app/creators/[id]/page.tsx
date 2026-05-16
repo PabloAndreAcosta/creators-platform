@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 import type { ExperienceDetails } from "@/types/database";
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin, Clock, Globe, ArrowLeft, Calendar, MessageCircle, Users, Instagram, Mail, Phone } from "lucide-react";
+import { MapPin, Clock, Globe, ArrowLeft, Calendar, MessageCircle, Users, Instagram, Mail, Phone, ShieldCheck } from "lucide-react";
 import BookingForm from "./booking-form";
 import { BuyTicketButton } from "@/components/buy-ticket-button";
 import { CreatorReviews } from "@/components/creator-reviews";
@@ -65,7 +65,7 @@ export default async function CreatorProfilePage({ params }: Props) {
     supabase
       .from("profiles")
       .select(
-        "id, full_name, avatar_url, bio, category, location, hourly_rate, website, stripe_account_id, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3"
+        "id, full_name, avatar_url, bio, category, location, hourly_rate, website, stripe_account_id, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3, bankid_verified_at, bankid_name"
       )
       .eq(column, params.id)
       .eq("is_public", true)
@@ -248,8 +248,17 @@ export default async function CreatorProfilePage({ params }: Props) {
           </div>
 
           <div className="flex-1">
-            <h1 className="mb-1 text-2xl font-bold sm:text-3xl">
+            <h1 className="mb-1 flex flex-wrap items-center gap-2 text-2xl font-bold sm:text-3xl">
               {profile.full_name || "Creator"}
+              {(profile as { bankid_verified_at?: string | null }).bankid_verified_at && (
+                <span
+                  className="inline-flex items-center gap-1 rounded-full border border-green-500/30 bg-green-500/10 px-2 py-0.5 text-xs font-semibold text-green-500"
+                  title={`Verifierad med BankID${(profile as { bankid_name?: string | null }).bankid_name ? ` som ${(profile as { bankid_name?: string | null }).bankid_name}` : ""}`}
+                >
+                  <ShieldCheck size={12} />
+                  BankID
+                </span>
+              )}
             </h1>
             <div className="mb-4 flex flex-wrap items-center gap-2 text-sm text-[var(--usha-muted)]">
               {creatorCategories.map((cat) => (
