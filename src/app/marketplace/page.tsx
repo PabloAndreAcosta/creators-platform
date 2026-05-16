@@ -440,8 +440,8 @@ export default async function MarketplacePage({
                     {/* Badges overlay */}
                     <div className="absolute left-2 top-2 flex gap-1">
                       {isVerified && (
-                        <span className="flex items-center gap-0.5 rounded-full bg-blue-500/90 px-1.5 py-0.5 text-[9px] font-bold text-white shadow-sm">
-                          <ShieldCheck size={8} /> Verifierad
+                        <span className="flex items-center gap-1 rounded-full bg-green-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-md shadow-green-500/40 ring-1 ring-green-700/20">
+                          <ShieldCheck size={10} strokeWidth={2.5} /> BankID
                         </span>
                       )}
                       {isNew && (
