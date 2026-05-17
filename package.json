@@ -16,7 +16,8 @@
     "stripe:listen": "stripe listen --forward-to localhost:3000/api/stripe/webhook",
     "cap:sync": "npx cap sync",
     "cap:ios": "npx cap open ios",
-    "cap:android": "npx cap open android"
+    "cap:android": "npx cap open android",
+    "docs:pricing": "tsx scripts/generate-pricing-docs.ts"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.0",
@@ -62,11 +63,14 @@
     "@types/react": "^18.3.14",
     "@types/react-dom": "^18.3.5",
     "autoprefixer": "^10.4.20",
+    "docx": "^9.6.1",
     "eslint": "^8.57.1",
     "eslint-config-next": "14.2.21",
+    "exceljs": "^4.4.0",
     "postcss": "^8.4.49",
     "supabase": "^2.84.5",
     "tailwindcss": "^3.4.17",
+    "tsx": "^4.22.1",
     "typescript": "5.9.3",
     "vitest": "^4.1.0"
   }
