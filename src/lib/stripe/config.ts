@@ -140,7 +140,10 @@ export const PLANS: Record<PlanKey, Plan> = {
 
 export { type PlanKey as StripePlanKey };
 
-/** Free tier definition (not a Stripe plan) */
+/** Free tier definition (not a Stripe plan).
+ * The default features are creator/experience-oriented (mention commission etc.).
+ * For role-specific feature lists, use getGratisPlan(role) instead.
+ */
 export const GRATIS_PLAN = {
   name: "Gratis",
   tier: "gratis" as const,
@@ -148,13 +151,31 @@ export const GRATIS_PLAN = {
   currency: "SEK",
   description: "Perfekt för att komma igång",
   features: [
-    "Skapa profil och logga in",
-    "Bläddra i marknadsplatsen",
-    "Upp till 3 tjänster/events",
-    "15% kommission",
+    "Skapa profil + tjänster/events (upp till 3)",
+    "Synlig på marknadsplatsen",
+    "15% kommission på bokningar",
     "Grundläggande statistik",
   ],
 };
+
+/** Role-aware Gratis plan. Publik doesn't pay commission and doesn't
+ * create listings, so the feature list is reframed for that role.
+ */
+export function getGratisPlan(role: MemberRole) {
+  if (role === "publik") {
+    return {
+      ...GRATIS_PLAN,
+      description: "Upptäck och boka utan kostnad",
+      features: [
+        "Skapa profil och logga in",
+        "Bläddra i marknadsplatsen",
+        "Boka utan extra avgifter",
+      ],
+    };
+  }
+  // creator/experience use the default features
+  return GRATIS_PLAN;
+}
 
 /** Client-safe plan list, optionally filtered by role */
 export function getPlanList(role?: MemberRole) {

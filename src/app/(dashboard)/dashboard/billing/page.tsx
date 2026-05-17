@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { getPlanList, GRATIS_PLAN } from "@/lib/stripe/config";
+import { getPlanList, getGratisPlan } from "@/lib/stripe/config";
+import { BreakEvenCalculator } from "./break-even-calculator";
 import Link from "next/link";
 import { ArrowLeft, Check } from "lucide-react";
 import { CheckoutButton, PortalButton } from "./checkout-button";
@@ -86,6 +87,7 @@ export default async function BillingPage({
 
   // Get plans for user's role
   const rolePlans = getPlanList(userRole);
+  const gratisPlan = getGratisPlan(userRole);
 
   // Plan name for display
   const currentPlanDisplay = currentPlan
@@ -164,6 +166,13 @@ export default async function BillingPage({
         </div>
       )}
 
+      {/* Break-even calculator (creator/experience only) */}
+      {isCreatorRole && (
+        <div className="mb-6">
+          <BreakEvenCalculator userRole={userRole as "kreator" | "upplevelse"} />
+        </div>
+      )}
+
       {/* Plan cards */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Gratis plan card */}
@@ -174,9 +183,9 @@ export default async function BillingPage({
               : "border-[var(--usha-border)] bg-[var(--usha-card)]"
           }`}
         >
-          <h3 className="text-xl font-bold">{GRATIS_PLAN.name}</h3>
+          <h3 className="text-xl font-bold">{gratisPlan.name}</h3>
           <p className="mt-1 text-sm text-[var(--usha-muted)]">
-            {GRATIS_PLAN.description}
+            {gratisPlan.description}
           </p>
 
           <div className="my-6 flex items-baseline gap-1">
@@ -185,7 +194,7 @@ export default async function BillingPage({
           </div>
 
           <ul className="mb-8 space-y-3">
-            {GRATIS_PLAN.features.map((f) => (
+            {gratisPlan.features.map((f) => (
               <li key={f} className="flex items-start gap-2 text-sm">
                 <Check
                   size={14}
