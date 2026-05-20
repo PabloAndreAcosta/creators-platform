@@ -12,13 +12,15 @@ export async function createClient() {
         get(name: string) {
           const value = cookieStore.get(name)?.value;
           // Skip corrupt cookies to prevent Invalid UTF-8 sequence errors.
-          // The @supabase/ssr value carries a literal "base64-" prefix that is
-          // NOT itself base64 — validate only the payload after it, otherwise
-          // atob() throws for ~1/4 of cookie lengths and drops valid sessions.
-          if (value && name.startsWith("sb-")) {
-            const payload = value.startsWith("base64-") ? value.slice(7) : value;
+          // Only validate the UNCHUNKED, base64-prefixed session cookie:
+          //  - the "base64-" prefix is not itself base64, so validate value.slice(7)
+          //  - chunk cookies (name ".0", ".1", …) hold base64 *fragments* that are
+          //    not independently decodable — validating them drops valid large
+          //    sessions (combineChunks stops at the first missing chunk)
+          //  - other sb- cookies (e.g. PKCE code-verifier) aren't base64-prefixed
+          if (value && value.startsWith("base64-") && !/\.\d+$/.test(name)) {
             try {
-              atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
+              atob(value.slice(7).replace(/-/g, "+").replace(/_/g, "/"));
             } catch {
               return undefined;
             }
