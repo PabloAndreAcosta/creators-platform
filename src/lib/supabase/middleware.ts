@@ -26,9 +26,15 @@ export async function updateSession(request: NextRequest) {
       cookies: {
         get(name: string) {
           const value = request.cookies.get(name)?.value;
-          // Skip corrupt cookies to prevent Invalid UTF-8 sequence errors
-          if (value && name.startsWith("sb-") && !isValidBase64URL(value)) {
-            return undefined;
+          // Skip corrupt cookies to prevent Invalid UTF-8 sequence errors.
+          // The @supabase/ssr value carries a literal "base64-" prefix that is
+          // NOT itself base64 — validate only the payload after it, otherwise
+          // atob() throws for ~1/4 of cookie lengths and drops valid sessions.
+          if (value && name.startsWith("sb-")) {
+            const payload = value.startsWith("base64-") ? value.slice(7) : value;
+            if (!isValidBase64URL(payload)) {
+              return undefined;
+            }
           }
           return value;
         },

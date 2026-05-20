@@ -11,10 +11,14 @@ export async function createClient() {
       cookies: {
         get(name: string) {
           const value = cookieStore.get(name)?.value;
-          // Skip corrupt cookies to prevent Invalid UTF-8 sequence errors
+          // Skip corrupt cookies to prevent Invalid UTF-8 sequence errors.
+          // The @supabase/ssr value carries a literal "base64-" prefix that is
+          // NOT itself base64 — validate only the payload after it, otherwise
+          // atob() throws for ~1/4 of cookie lengths and drops valid sessions.
           if (value && name.startsWith("sb-")) {
+            const payload = value.startsWith("base64-") ? value.slice(7) : value;
             try {
-              atob(value.replace(/-/g, "+").replace(/_/g, "/"));
+              atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
             } catch {
               return undefined;
             }
