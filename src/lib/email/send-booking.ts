@@ -1,6 +1,7 @@
 import { createElement } from "react";
 import { getResend, getFromEmail } from "./resend";
 import { renderEmailToHtml } from "./render";
+import { buildBookingIcs } from "./ics";
 import BookingConfirmation, { getBookingConfirmationSubject } from "@/components/emails/BookingConfirmation";
 import BookingCancellation, { getBookingCancellationSubject } from "@/components/emails/BookingCancellation";
 
@@ -11,6 +12,8 @@ interface SendBookingConfirmationParams {
   scheduledAt: Date;
   creatorName: string;
   location?: string;
+  bookingId?: string;
+  durationMinutes?: number;
 }
 
 export async function sendBookingConfirmationEmail({
@@ -20,6 +23,8 @@ export async function sendBookingConfirmationEmail({
   scheduledAt,
   creatorName,
   location,
+  bookingId,
+  durationMinutes,
 }: SendBookingConfirmationParams): Promise<void> {
   try {
     const resend = getResend();
@@ -27,11 +32,21 @@ export async function sendBookingConfirmationEmail({
       createElement(BookingConfirmation, { customerName, serviceName, scheduledAt, creatorName, location })
     );
 
+    const ics = buildBookingIcs({
+      uid: `${bookingId ?? scheduledAt.getTime()}@usha.se`,
+      title: serviceName,
+      startsAt: scheduledAt,
+      durationMinutes,
+      location,
+      description: `Bokning hos ${creatorName} via Usha`,
+    });
+
     const { error } = await resend.emails.send({
       from: getFromEmail(),
       to,
       subject: getBookingConfirmationSubject(serviceName),
       html,
+      attachments: [{ filename: "usha-bokning.ics", content: Buffer.from(ics) }],
     });
 
     if (error) {
