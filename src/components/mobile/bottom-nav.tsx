@@ -5,15 +5,11 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
   Home,
-  Ticket,
-  BookOpen,
   User,
-  Building2,
   MessageCircle,
   ScanLine,
-  FileText,
-  BookMarked,
   CalendarDays,
+  LayoutGrid,
 } from "lucide-react";
 import { useRole } from "./role-context";
 import { useSubscription } from "@/lib/subscription/context";
@@ -28,27 +24,18 @@ export function BottomNav() {
     role === "publik"
       ? [
           { href: "/app", label: t("home"), icon: Home },
-          { href: "/app/posts", label: t("posts"), icon: FileText },
-          { href: "/app/messages", label: t("messages"), icon: MessageCircle },
           { href: "/app/calendar", label: t("calendar"), icon: CalendarDays },
-          { href: "/app/tickets", label: t("tickets"), icon: Ticket },
+          { href: "/app/messages", label: t("messages"), icon: MessageCircle },
+          { href: "/app/tools", label: t("more"), icon: LayoutGrid },
           { href: "/app/profile", label: t("profile"), icon: User },
         ]
-      : role === "kreator"
-        ? [
-            { href: "/app", label: t("home"), icon: Home },
-            { href: "/app/posts", label: t("posts"), icon: FileText },
-            { href: "/app/messages", label: t("messages"), icon: MessageCircle },
-            { href: "/app/scan", label: t("scan"), icon: ScanLine },
-            { href: "/app/profile", label: t("profile"), icon: User },
-          ]
-        : [
-            { href: "/app", label: t("home"), icon: Home },
-            { href: "/app/posts", label: t("posts"), icon: FileText },
-            { href: "/app/messages", label: t("messages"), icon: MessageCircle },
-            { href: "/app/scan", label: t("scan"), icon: ScanLine },
-            { href: "/app/profile", label: t("profile"), icon: User },
-          ];
+      : [
+          { href: "/app", label: t("home"), icon: Home },
+          { href: "/app/scan", label: t("scan"), icon: ScanLine },
+          { href: "/app/messages", label: t("messages"), icon: MessageCircle },
+          { href: "/app/tools", label: t("more"), icon: LayoutGrid },
+          { href: "/app/profile", label: t("profile"), icon: User },
+        ];
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-[var(--usha-border)] bg-[var(--usha-black)]/95 backdrop-blur-lg md:hidden">
