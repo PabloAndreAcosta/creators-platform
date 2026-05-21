@@ -37,6 +37,7 @@ type TopCreator = Pick<Profile, "id" | "full_name" | "category" | "avatar_url">;
 export default async function AppHomePage() {
   let profile: Profile | null = null;
   let listings: Listing[] = [];
+  let ownServices: Listing[] = [];
   let topCreators: TopCreator[] = [];
   let bookingsCount = 0;
   let monthlyRevenue = 0;
@@ -50,7 +51,7 @@ export default async function AppHomePage() {
     } = await supabase.auth.getUser();
 
     if (user) {
-      const [profileRes, listingsRes, bookingsRes] = await Promise.all([
+      const [profileRes, listingsRes, bookingsRes, ownServicesRes] = await Promise.all([
         supabase.from("profiles").select("*").eq("id", user.id).single(),
         supabase
           .from("listings")
@@ -63,9 +64,16 @@ export default async function AppHomePage() {
           .select("*", { count: "exact", head: true })
           .eq("creator_id", user.id)
           .in("status", ["pending", "confirmed"]),
+        supabase
+          .from("listings")
+          .select("id, user_id, title, category, price, duration_minutes, is_active, created_at")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(10),
       ]);
       profile = profileRes.data as Profile | null;
       listings = (listingsRes.data || []) as Listing[];
+      ownServices = (ownServicesRes.data || []) as Listing[];
       bookingsCount = bookingsRes.count ?? 0;
 
       const startOfMonth = new Date();
@@ -119,6 +127,7 @@ export default async function AppHomePage() {
     <HomeContent
       profile={profile}
       listings={listings}
+      ownServices={ownServices}
       topCreators={topCreators}
       bookingsCount={bookingsCount}
       monthlyRevenue={monthlyRevenue}

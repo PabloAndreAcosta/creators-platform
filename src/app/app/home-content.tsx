@@ -18,9 +18,11 @@ import {
   Waves,
   TrendingUp,
   Sparkles,
+  Plus,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
+import { CreatorOnboarding } from "./creator-onboarding";
 import RecommendedEvents from "@/components/RecommendedEvents";
 import { FavoriteButton } from "@/components/favorite-button";
 import { SearchBar } from "@/components/search-bar";
@@ -66,6 +68,7 @@ type TopCreator = Pick<Profile, "id" | "full_name" | "category" | "avatar_url">;
 interface HomeContentProps {
   profile: Profile | null;
   listings: Listing[];
+  ownServices?: Listing[];
   topCreators: TopCreator[];
   bookingsCount: number;
   monthlyRevenue?: number;
@@ -76,6 +79,7 @@ interface HomeContentProps {
 export function HomeContent({
   profile,
   listings,
+  ownServices = [],
   topCreators,
   bookingsCount,
   monthlyRevenue = 0,
@@ -102,6 +106,7 @@ export function HomeContent({
         profile={profile}
         bookingsCount={bookingsCount}
         listings={listings}
+        ownServices={ownServices}
         monthlyRevenue={monthlyRevenue}
         averageRating={averageRating}
         tier={profile?.tier || "gratis"}
@@ -503,6 +508,7 @@ function KreatorHome({
   profile,
   bookingsCount,
   listings,
+  ownServices = [],
   monthlyRevenue = 0,
   averageRating = null,
   tier = "gratis",
@@ -511,6 +517,7 @@ function KreatorHome({
   profile: Profile | null;
   bookingsCount: number;
   listings: Listing[];
+  ownServices?: Listing[];
   monthlyRevenue?: number;
   averageRating?: number | null;
   tier?: string;
@@ -523,13 +530,35 @@ function KreatorHome({
   const isGuld = tier === "guld";
   const commission = isPremium ? 3 : isGuld ? 8 : 15;
 
-  const todaysListings = listings.slice(0, 3).map((listing) => ({
+  // The creator's OWN services (dedicated query), not the global feed.
+  const todaysListings = ownServices.slice(0, 3).map((listing) => ({
     title: listing.title,
     time: listing.duration_minutes ? `${listing.duration_minutes} min` : "-",
     category: listing.category || "Övrigt",
   }));
 
-  const userListings = listings.filter((l) => l.user_id === profile?.id).map((l) => ({ id: l.id, title: l.title }));
+  const userListings = ownServices.map((l) => ({ id: l.id, title: l.title }));
+
+  const onboarding = (
+    <CreatorOnboarding
+      bio={profile?.bio}
+      avatarUrl={profile?.avatar_url}
+      bankidVerifiedAt={(profile as { bankid_verified_at?: string | null } | null)?.bankid_verified_at ?? null}
+      servicesCount={ownServices.length}
+      stripeAccountId={profile?.stripe_account_id}
+      isPublic={profile?.is_public}
+    />
+  );
+
+  const servicesEmpty = (
+    <Link
+      href="/dashboard/listings/new"
+      className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-[var(--usha-gold)]/40 bg-[var(--usha-gold)]/5 px-4 py-5 text-sm font-medium text-[var(--usha-gold)] transition hover:bg-[var(--usha-gold)]/10"
+    >
+      <Plus size={16} />
+      Skapa din första tjänst
+    </Link>
+  );
 
   const postForm = (
     <CreatePostForm
@@ -559,6 +588,8 @@ function KreatorHome({
 
         {/* Create post */}
         {postForm}
+
+        {onboarding}
 
         {/* KPI ribbon — single row */}
         <div className="flex gap-2">
@@ -613,7 +644,7 @@ function KreatorHome({
                 </div>
               </div>
             )) : (
-              <p className="py-4 text-center text-sm text-[var(--usha-muted)]">{t("noServicesYet")}</p>
+              servicesEmpty
             )}
           </div>
         </section>
@@ -648,6 +679,8 @@ function KreatorHome({
             </span>
           </div>
         </div>
+
+        {onboarding}
 
         {/* Compact stat bar */}
         <div className="flex items-center gap-4 rounded-xl border border-[var(--usha-gold)]/20 bg-[var(--usha-gold)]/5 px-4 py-3">
@@ -702,7 +735,7 @@ function KreatorHome({
                 </div>
               </div>
             )) : (
-              <p className="py-6 text-center text-sm text-[var(--usha-muted)]">{t("noServicesYet")}</p>
+              servicesEmpty
             )}
           </div>
         </section>
@@ -736,6 +769,8 @@ function KreatorHome({
           </span>
         </div>
       </div>
+
+      {onboarding}
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3">
