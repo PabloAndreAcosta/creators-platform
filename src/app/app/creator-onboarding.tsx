@@ -8,6 +8,8 @@ interface Props {
   servicesCount: number;
   stripeAccountId?: string | null;
   isPublic?: boolean;
+  serviceLabel?: string;
+  serviceHref?: string;
 }
 
 export function CreatorOnboarding({
@@ -17,11 +19,13 @@ export function CreatorOnboarding({
   servicesCount,
   stripeAccountId,
   isPublic,
+  serviceLabel = "Skapa din första tjänst",
+  serviceHref = "/dashboard/listings/new",
 }: Props) {
   const steps = [
     { done: !!(bio && avatarUrl), label: "Komplettera din profil", href: "/dashboard/profile" },
     { done: !!bankidVerifiedAt, label: "Verifiera med BankID", href: "/dashboard/profile" },
-    { done: servicesCount > 0, label: "Skapa din första tjänst", href: "/dashboard/listings/new" },
+    { done: servicesCount > 0, label: serviceLabel, href: serviceHref },
     { done: !!stripeAccountId, label: "Anslut Stripe för utbetalningar", href: "/dashboard/payouts" },
     { done: !!isPublic, label: "Gör din profil publik", href: "/dashboard/profile" },
   ];
