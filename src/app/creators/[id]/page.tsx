@@ -494,7 +494,12 @@ export default async function CreatorProfilePage({ params }: Props) {
           const past = eventsWithDates.filter((l) => l.event_date! < today).sort((a, b) => b.event_date!.localeCompare(a.event_date!));
           return (
             <div className="mt-10">
-              <h2 className="mb-4 text-xl font-bold">Evenemang</h2>
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <h2 className="text-xl font-bold">Evenemang</h2>
+                <Link href={`/creators/${params.id}/kalender`} className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--usha-gold)] hover:underline">
+                  <Calendar size={14} /> Se kalender
+                </Link>
+              </div>
               {upcoming.length > 0 && (
                 <>
                   <h3 className="mb-3 text-sm font-semibold text-emerald-400">Kommande</h3>

@@ -50,3 +50,42 @@ export function buildBookingIcs({
   ].filter(Boolean);
   return lines.join("\r\n");
 }
+
+interface CalendarEvent {
+  uid: string;
+  title: string;
+  dateStr: string; // YYYY-MM-DD (event-local)
+  timeStr?: string | null; // HH:MM (event-local); omit for all-day
+  location?: string | null;
+  description?: string | null;
+}
+
+// Multi-event subscribable calendar feed. Event date/time are stored without a
+// timezone, so emit floating local times (no Z) — calendar apps render the
+// intended wall-clock time.
+export function buildEventsCalendarIcs(calendarName: string, events: CalendarEvent[]): string {
+  const lines = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Usha//Calendar//SV",
+    "CALSCALE:GREGORIAN",
+    "METHOD:PUBLISH",
+    `X-WR-CALNAME:${esc(calendarName)}`,
+  ];
+  const stamp = fmtUtc(new Date());
+  for (const e of events) {
+    const d = e.dateStr.replace(/-/g, "");
+    lines.push("BEGIN:VEVENT", `UID:${e.uid}`, `DTSTAMP:${stamp}`);
+    if (e.timeStr) {
+      lines.push(`DTSTART:${d}T${e.timeStr.replace(":", "")}00`);
+    } else {
+      lines.push(`DTSTART;VALUE=DATE:${d}`);
+    }
+    lines.push(`SUMMARY:${esc(e.title)}`);
+    if (e.description) lines.push(`DESCRIPTION:${esc(e.description)}`);
+    if (e.location) lines.push(`LOCATION:${esc(e.location)}`);
+    lines.push("END:VEVENT");
+  }
+  lines.push("END:VCALENDAR");
+  return lines.join("\r\n");
+}
