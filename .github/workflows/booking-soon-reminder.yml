@@ -1,0 +1,23 @@
+name: Booking soon-reminders
+
+# Hourly trigger for the T-2h "starts soon" booking reminder.
+# Vercel Hobby caps crons at once/day, so this external scheduler hits the
+# endpoint instead. The endpoint is idempotent (reminder_soon_sent_at), so an
+# occasional double-fire is harmless. GitHub cron is best-effort (may drift a
+# few minutes) — fine for a ~2h-ahead reminder.
+on:
+  schedule:
+    - cron: "0 * * * *" # every hour, UTC
+  workflow_dispatch: {} # allow manual runs
+
+jobs:
+  ping:
+    # Only run in the production org repo, not the private mirror.
+    if: github.repository == 'usha-ab/creators-platform'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger soon-reminder cron
+        run: |
+          curl -fsS -X GET \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            https://usha.se/api/cron/booking-reminders-soon
