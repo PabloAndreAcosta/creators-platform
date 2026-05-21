@@ -13,6 +13,7 @@ interface SendBookingReminderParams {
   location?: string;
   bookingId?: string;
   durationMinutes?: number;
+  variant?: "day" | "soon";
 }
 
 export async function sendBookingReminderEmail({
@@ -24,11 +25,12 @@ export async function sendBookingReminderEmail({
   location,
   bookingId,
   durationMinutes,
+  variant = "day",
 }: SendBookingReminderParams): Promise<void> {
   try {
     const resend = getResend();
     const html = await renderEmailToHtml(
-      createElement(BookingReminder, { customerName, serviceName, scheduledAt, creatorName, location })
+      createElement(BookingReminder, { customerName, serviceName, scheduledAt, creatorName, location, variant })
     );
 
     const ics = buildBookingIcs({
@@ -43,7 +45,7 @@ export async function sendBookingReminderEmail({
     const { error } = await resend.emails.send({
       from: getFromEmail(),
       to,
-      subject: getBookingReminderSubject(serviceName),
+      subject: getBookingReminderSubject(serviceName, variant),
       html,
       attachments: [{ filename: "usha-bokning.ics", content: Buffer.from(ics) }],
     });

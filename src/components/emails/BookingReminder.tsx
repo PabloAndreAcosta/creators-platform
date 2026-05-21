@@ -1,9 +1,12 @@
+type ReminderVariant = "day" | "soon";
+
 interface BookingReminderProps {
   customerName: string;
   serviceName: string;
   scheduledAt: Date;
   creatorName: string;
   location?: string;
+  variant?: ReminderVariant;
 }
 
 function formatDate(date: Date): string {
@@ -21,8 +24,10 @@ function formatTime(date: Date): string {
   }).format(date);
 }
 
-export function getBookingReminderSubject(serviceName: string): string {
-  return `Påminnelse: ${serviceName} imorgon`;
+export function getBookingReminderSubject(serviceName: string, variant: ReminderVariant = "day"): string {
+  return variant === "soon"
+    ? `Snart dags: ${serviceName}`
+    : `Påminnelse: ${serviceName} imorgon`;
 }
 
 export default function BookingReminder({
@@ -31,8 +36,13 @@ export default function BookingReminder({
   scheduledAt,
   creatorName,
   location,
+  variant = "day",
 }: BookingReminderProps) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";
+  const intro =
+    variant === "soon"
+      ? "Din bokning börjar snart:"
+      : "En vänlig påminnelse om din bokning imorgon:";
 
   return (
     <html>
@@ -65,7 +75,7 @@ export default function BookingReminder({
                           Hej {customerName}!
                         </p>
                         <p style={{ fontSize: 14, color: "#6b6b6b", margin: "0 0 24px", lineHeight: 1.6 }}>
-                          En vänlig påminnelse om din bokning imorgon:
+                          {intro}
                         </p>
 
                         <table width="100%" cellPadding={0} cellSpacing={0} style={{ marginBottom: 24 }}>
