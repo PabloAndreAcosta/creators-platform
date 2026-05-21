@@ -14,6 +14,7 @@ import {
   FileText,
   BookMarked,
   Trophy,
+  CalendarDays,
 } from "lucide-react";
 import { useRole } from "./role-context";
 import { useSubscription } from "@/lib/subscription/context";
@@ -34,7 +35,8 @@ export function SidebarNav() {
           { href: "/app/messages", label: t("messages"), icon: MessageCircle },
           { href: "/app/tickets", label: t("tickets"), icon: Ticket },
           { href: "/app/leaderboard", label: t("leaderboard"), icon: Trophy },
-          { href: "/app/profile", label: t("profile"), icon: User },
+          { href: "/app/calendar", label: t("calendar"), icon: CalendarDays },
+            { href: "/app/profile", label: t("profile"), icon: User },
         ]
       : role === "kreator"
         ? [
@@ -46,6 +48,7 @@ export function SidebarNav() {
             { href: "/app/courses", label: t("content"), icon: BookOpen },
             { href: "/app/library", label: t("library"), icon: BookMarked },
             { href: "/app/leaderboard", label: t("leaderboard"), icon: Trophy },
+            { href: "/app/calendar", label: t("calendar"), icon: CalendarDays },
             { href: "/app/profile", label: t("profile"), icon: User },
           ]
         : [
@@ -57,6 +60,7 @@ export function SidebarNav() {
             { href: "/app/events", label: t("events"), icon: Building2 },
             { href: "/app/library", label: t("library"), icon: BookMarked },
             { href: "/app/leaderboard", label: t("leaderboard"), icon: Trophy },
+            { href: "/app/calendar", label: t("calendar"), icon: CalendarDays },
             { href: "/app/profile", label: t("profile"), icon: User },
           ];
 

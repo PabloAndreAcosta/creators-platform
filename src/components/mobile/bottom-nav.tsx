@@ -13,6 +13,7 @@ import {
   ScanLine,
   FileText,
   BookMarked,
+  CalendarDays,
 } from "lucide-react";
 import { useRole } from "./role-context";
 import { useSubscription } from "@/lib/subscription/context";
@@ -29,6 +30,7 @@ export function BottomNav() {
           { href: "/app", label: t("home"), icon: Home },
           { href: "/app/posts", label: t("posts"), icon: FileText },
           { href: "/app/messages", label: t("messages"), icon: MessageCircle },
+          { href: "/app/calendar", label: t("calendar"), icon: CalendarDays },
           { href: "/app/tickets", label: t("tickets"), icon: Ticket },
           { href: "/app/profile", label: t("profile"), icon: User },
         ]
