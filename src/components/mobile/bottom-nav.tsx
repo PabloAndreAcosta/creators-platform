@@ -52,7 +52,7 @@ export function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-[var(--usha-border)] bg-[var(--usha-black)]/95 backdrop-blur-lg md:hidden">
-      <div className="flex items-center justify-around px-2 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+      <div className="flex items-center px-1 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
         {tabs.map((tab) => {
           const isActive =
             tab.href === "/app"
@@ -62,14 +62,14 @@ export function BottomNav() {
             <Link
               key={tab.href}
               href={tab.href}
-              className={`flex flex-col items-center gap-0.5 px-3 py-1.5 text-xs transition-colors ${
+              className={`flex flex-1 min-w-0 flex-col items-center gap-0.5 px-0.5 py-1.5 transition-colors ${
                 isActive
                   ? "text-[var(--usha-gold)]"
                   : "text-[var(--usha-muted)] hover:text-white"
               }`}
             >
-              <tab.icon size={22} strokeWidth={isActive ? 2.5 : 1.5} />
-              <span className={isActive ? "font-semibold" : "font-normal"}>
+              <tab.icon size={20} strokeWidth={isActive ? 2.5 : 1.5} />
+              <span className={`max-w-full truncate text-[10px] leading-tight ${isActive ? "font-semibold" : "font-normal"}`}>
                 {tab.label}
               </span>
             </Link>
