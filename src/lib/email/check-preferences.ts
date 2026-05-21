@@ -5,6 +5,7 @@ type NotifKey =
   | "notif_booking_confirmed"
   | "notif_booking_canceled"
   | "notif_payout"
+  | "notif_creator_events"
   | "notif_marketing";
 
 /**

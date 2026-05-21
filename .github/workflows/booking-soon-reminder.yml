@@ -1,10 +1,9 @@
-name: Booking soon-reminders
+name: Hourly cron jobs
 
-# Hourly trigger for the T-2h "starts soon" booking reminder.
-# Vercel Hobby caps crons at once/day, so this external scheduler hits the
-# endpoint instead. The endpoint is idempotent (reminder_soon_sent_at), so an
-# occasional double-fire is harmless. GitHub cron is best-effort (may drift a
-# few minutes) — fine for a ~2h-ahead reminder.
+# Hourly external triggers for jobs that need sub-daily frequency.
+# Vercel Hobby caps crons at once/day, so this scheduler hits the endpoints
+# instead. Endpoints are idempotent (dedup columns), so an occasional
+# double-fire is harmless. GitHub cron is best-effort (may drift a few minutes).
 on:
   schedule:
     - cron: "0 * * * *" # every hour, UTC
@@ -16,8 +15,13 @@ jobs:
     if: github.repository == 'usha-ab/creators-platform'
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger soon-reminder cron
+      - name: Booking "starts soon" reminders (T-2h)
         run: |
           curl -fsS -X GET \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             https://usha.se/api/cron/booking-reminders-soon
+      - name: Notify followers of new creator events
+        run: |
+          curl -fsS -X GET \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            https://usha.se/api/cron/creator-event-notify
