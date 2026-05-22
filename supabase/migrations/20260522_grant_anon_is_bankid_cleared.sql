@@ -1,0 +1,15 @@
+-- Fix: logged-out (anon) reads of public listings failed with
+-- "permission denied for function is_bankid_cleared".
+--
+-- The `listings` table has two permissive policies:
+--   1. "Active listings are viewable"        SELECT  USING (is_active = true)
+--   2. "Cleared users manage own listings"   ALL     USING (auth.uid() = user_id
+--                                                          AND is_bankid_cleared(auth.uid()))
+-- Permissive policies are OR-combined, so for a SELECT both USING clauses are
+-- evaluated. Policy 2 calls is_bankid_cleared(uuid), which `anon` could not
+-- EXECUTE, so the whole query errored for logged-out visitors — breaking
+-- /upplevelser and marketplace hero images.
+--
+-- The function is SECURITY DEFINER and returns a boolean; granting EXECUTE to
+-- anon simply lets the policy evaluate (it returns false for a null uid).
+GRANT EXECUTE ON FUNCTION public.is_bankid_cleared(uuid) TO anon;
