@@ -391,31 +391,31 @@
     "ecosystem": {
       "title": "Three pillars, one",
       "titleHighlight": "ecosystem",
-      "subtitle": "Creators build the supply. Experiences offer the venues. Customers discover and book. Everyone amplifies each other.",
+      "subtitle": "BankID-verified creators build the supply. Experiences offer the venues. Customers discover and book with confidence. Everyone amplifies each other.",
       "loopMessage": "More creators attract more customers. More customers attract more experiences. The cycle that drives growth.",
       "creators": {
         "title": "Creators",
         "desc": "Dance instructors, photographers, musicians, designers — creative talents building their business.",
-        "detail1": "Profile with portfolio, pricing and contact info",
-        "detail2": "Publish services, courses and events",
-        "detail3": "Custom profile URL — usha.se/yourname",
-        "detail4": "Statistics and revenue reports"
+        "detail1": "BankID-verified profile — trust that converts",
+        "detail2": "Publish services, courses & events; manage bookings",
+        "detail3": "Availability calendar + automatic booking reminders",
+        "detail4": "Secure Stripe payouts with revenue stats"
       },
       "experiences": {
         "title": "Experiences",
         "desc": "Restaurants, concert halls, spas, nightclubs and retreat centers — venues that create unforgettable moments.",
-        "detail1": "Create events and sell tickets with QR codes",
-        "detail2": "Scan tickets and track attendees",
-        "detail3": "Book creators directly for your events",
-        "detail4": "Spread events on social media"
+        "detail1": "Create events & sell tickets with QR codes",
+        "detail2": "Scan tickets & track attendees at the door",
+        "detail3": "Book BankID-verified creators for your events",
+        "detail4": "Promote events — your followers get notified automatically"
       },
       "customers": {
         "title": "Customers",
-        "desc": "People who want to discover creative talents and experiences — and book them directly.",
-        "detail1": "Searchable marketplace with filters for category, location and price",
-        "detail2": "Book directly with date and time",
-        "detail3": "Secure payment via Stripe",
-        "detail4": "Reviews and ratings to find the right fit"
+        "desc": "People who want to discover BankID-verified creative talents and experiences — and book them directly.",
+        "detail1": "Discover BankID-verified creators & experiences",
+        "detail2": "Book directly with date & time — secure Stripe payment",
+        "detail3": "Follow creators & subscribe to their calendar",
+        "detail4": "Reviews & ratings to find the right fit"
       }
     },
     "onboarding": {

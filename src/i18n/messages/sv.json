@@ -391,31 +391,31 @@
     "ecosystem": {
       "title": "Tre ben, ett",
       "titleHighlight": "ekosystem",
-      "subtitle": "Kreatörer skapar utbudet. Upplevelser erbjuder platserna. Kunder upptäcker och bokar. Alla förstärker varandra.",
+      "subtitle": "BankID-verifierade kreatörer skapar utbudet. Upplevelser erbjuder platserna. Kunder upptäcker och bokar tryggt. Alla förstärker varandra.",
       "loopMessage": "Fler kreatörer lockar fler kunder. Fler kunder lockar fler upplevelser. Kretsloppet som driver tillväxt.",
       "creators": {
         "title": "Kreatörer",
         "desc": "Dansinstruktörer, fotografer, musiker, designers — kreativa talanger som bygger sin verksamhet.",
-        "detail1": "Profil med portfolio, priser och kontaktinfo",
-        "detail2": "Publicera tjänster, kurser och events",
-        "detail3": "Egen profiladress — usha.se/dittnamn",
-        "detail4": "Statistik och intäktsrapporter"
+        "detail1": "BankID-verifierad profil — trygghet som konverterar",
+        "detail2": "Publicera tjänster, kurser & events; hantera bokningar",
+        "detail3": "Tillgänglighetskalender + automatiska bokningspåminnelser",
+        "detail4": "Säkra Stripe-utbetalningar med intäktsstatistik"
       },
       "experiences": {
         "title": "Upplevelser",
         "desc": "Restauranger, konserthus, SPA, nattklubbar och retreat centers — platser som skapar oförglömliga stunder.",
-        "detail1": "Skapa events och sälj biljetter med QR-kod",
-        "detail2": "Skanna biljetter och ha koll på deltagare",
-        "detail3": "Boka kreatörer direkt till dina events",
-        "detail4": "Sprid events på sociala medier"
+        "detail1": "Skapa events & sälj biljetter med QR-kod",
+        "detail2": "Skanna biljetter & ha koll på deltagare i dörren",
+        "detail3": "Boka BankID-verifierade kreatörer till dina events",
+        "detail4": "Sprid events — dina följare notifieras automatiskt"
       },
       "customers": {
         "title": "Kunder",
-        "desc": "Människor som vill upptäcka kreativa talanger och upplevelser — och boka dem direkt.",
-        "detail1": "Sökbar marketplace med filter på kategori, plats och pris",
-        "detail2": "Boka direkt med datum och tid",
-        "detail3": "Säker betalning via Stripe",
-        "detail4": "Omdömen och betyg för att hitta rätt"
+        "desc": "Människor som vill upptäcka BankID-verifierade kreativa talanger och upplevelser — och boka dem direkt.",
+        "detail1": "Upptäck BankID-verifierade kreatörer & upplevelser",
+        "detail2": "Boka direkt med datum & tid — säker Stripe-betalning",
+        "detail3": "Följ kreatörer & prenumerera på deras kalender",
+        "detail4": "Omdömen & betyg för att hitta rätt"
       }
     },
     "onboarding": {
