@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { CheckCircle2, Circle, ArrowRight, Rocket } from "lucide-react";
 
 interface Props {
@@ -19,15 +20,16 @@ export function CreatorOnboarding({
   servicesCount,
   stripeAccountId,
   isPublic,
-  serviceLabel = "Skapa din första tjänst",
+  serviceLabel,
   serviceHref = "/dashboard/listings/new",
 }: Props) {
+  const t = useTranslations("onboarding");
   const steps = [
-    { done: !!(bio && avatarUrl), label: "Komplettera din profil", href: "/dashboard/profile" },
-    { done: !!bankidVerifiedAt, label: "Verifiera med BankID", href: "/dashboard/profile" },
-    { done: servicesCount > 0, label: serviceLabel, href: serviceHref },
-    { done: !!stripeAccountId, label: "Anslut Stripe för utbetalningar", href: "/dashboard/payouts" },
-    { done: !!isPublic, label: "Gör din profil publik", href: "/dashboard/profile" },
+    { done: !!(bio && avatarUrl), label: t("completeProfile"), href: "/dashboard/profile" },
+    { done: !!bankidVerifiedAt, label: t("verifyBankid"), href: "/dashboard/profile" },
+    { done: servicesCount > 0, label: serviceLabel ?? t("createFirstService"), href: serviceHref },
+    { done: !!stripeAccountId, label: t("connectStripe"), href: "/dashboard/payouts" },
+    { done: !!isPublic, label: t("makeProfilePublic"), href: "/dashboard/profile" },
   ];
   const doneCount = steps.filter((s) => s.done).length;
 
@@ -39,9 +41,9 @@ export function CreatorOnboarding({
       <div className="mb-3 flex items-center justify-between">
         <h2 className="flex items-center gap-2 text-sm font-bold">
           <Rocket size={16} className="text-[var(--usha-gold)]" />
-          Kom igång
+          {t("title")}
         </h2>
-        <span className="text-xs text-[var(--usha-muted)]">{doneCount}/{steps.length} klart</span>
+        <span className="text-xs text-[var(--usha-muted)]">{t("progress", { done: doneCount, total: steps.length })}</span>
       </div>
 
       <div className="mb-3 h-1.5 w-full overflow-hidden rounded-full bg-[var(--usha-border)]">

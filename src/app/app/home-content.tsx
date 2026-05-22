@@ -557,7 +557,7 @@ function KreatorHome({
       className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-[var(--usha-gold)]/40 bg-[var(--usha-gold)]/5 px-4 py-5 text-sm font-medium text-[var(--usha-gold)] transition hover:bg-[var(--usha-gold)]/10"
     >
       <Plus size={16} />
-      Skapa din första tjänst
+      {t("createFirstService")}
     </Link>
   );
 
@@ -943,7 +943,7 @@ function UpplevelseHome({
       servicesCount={ownServices.length}
       stripeAccountId={profile?.stripe_account_id}
       isPublic={profile?.is_public}
-      serviceLabel="Skapa ditt första event"
+      serviceLabel={t("createFirstEvent")}
       serviceHref="/app/events/new"
     />
   );
@@ -954,7 +954,7 @@ function UpplevelseHome({
       className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-[var(--usha-gold)]/40 bg-[var(--usha-gold)]/5 px-4 py-5 text-sm font-medium text-[var(--usha-gold)] transition hover:bg-[var(--usha-gold)]/10"
     >
       <Plus size={16} />
-      Skapa ditt första event
+      {t("createFirstEvent")}
     </Link>
   );
 

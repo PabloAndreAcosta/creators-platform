@@ -184,7 +184,39 @@
     "linkService": "Link to a service/event (optional)",
     "imageTooLarge": "Image must be under 5 MB",
     "imageUploadFailed": "Could not upload the image",
-    "now": "now"
+    "now": "now",
+    "creatorFallback": "Creator",
+    "postOnUsha": "Post on Usha",
+    "showMore": "show more"
+  },
+  "onboarding": {
+    "title": "Get started",
+    "progress": "{done}/{total} done",
+    "completeProfile": "Complete your profile",
+    "verifyBankid": "Verify with BankID",
+    "createFirstService": "Create your first service",
+    "connectStripe": "Connect Stripe for payouts",
+    "makeProfilePublic": "Make your profile public"
+  },
+  "referral": {
+    "title": "Invite friends",
+    "subtitle": "Share your link — they get 50 kr off their first purchase",
+    "shareTitle": "Join Usha",
+    "shareText": "Use my invite link and get 50 kr off your first purchase!",
+    "copy": "Copy",
+    "copied": "Copied",
+    "share": "Share",
+    "joinedCount": "{count, plural, one {# person has joined via your link} other {# people have joined via your link}}"
+  },
+  "recommendations": {
+    "title": "Recommended for you",
+    "loadError": "Could not load recommendations right now",
+    "empty": "Make your first booking to get personalized recommendations",
+    "tier": "Tier {tier}",
+    "bookings": "{count} bookings",
+    "creatorAlt": "Creator",
+    "unknownCreator": "Unknown creator",
+    "bookNow": "Book Now"
   },
   "profile": {
     "editProfile": "Edit Profile",
@@ -271,7 +303,8 @@
     "upgradePremiumPipeline": "Upgrade to Premium for event pipeline.",
     "createFirstEvent": "Create your first event",
     "startSellingTickets": "Start selling tickets today",
-    "createEvent": "Create event"
+    "createEvent": "Create event",
+    "createFirstService": "Create your first service"
   },
   "billing": {
     "title": "Subscription",

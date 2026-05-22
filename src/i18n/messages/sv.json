@@ -184,7 +184,39 @@
     "linkService": "Koppla till en tjänst/event (valfritt)",
     "imageTooLarge": "Bilden får vara max 5 MB",
     "imageUploadFailed": "Kunde inte ladda upp bilden",
-    "now": "nu"
+    "now": "nu",
+    "creatorFallback": "Kreatör",
+    "postOnUsha": "Inlägg på Usha",
+    "showMore": "visa mer"
+  },
+  "onboarding": {
+    "title": "Kom igång",
+    "progress": "{done}/{total} klart",
+    "completeProfile": "Komplettera din profil",
+    "verifyBankid": "Verifiera med BankID",
+    "createFirstService": "Skapa din första tjänst",
+    "connectStripe": "Anslut Stripe för utbetalningar",
+    "makeProfilePublic": "Gör din profil publik"
+  },
+  "referral": {
+    "title": "Bjud in vänner",
+    "subtitle": "Dela din länk — de får 50 kr rabatt på första köpet",
+    "shareTitle": "Gå med i Usha",
+    "shareText": "Använd min inbjudningslänk och få 50 kr rabatt på ditt första köp!",
+    "copy": "Kopiera",
+    "copied": "Kopierad",
+    "share": "Dela",
+    "joinedCount": "{count, plural, one {# person har gått med via din länk} other {# personer har gått med via din länk}}"
+  },
+  "recommendations": {
+    "title": "Rekommenderat för dig",
+    "loadError": "Kunde inte ladda rekommendationer just nu",
+    "empty": "Gör din första bokning för att få personliga rekommendationer",
+    "tier": "Tier {tier}",
+    "bookings": "{count} bokningar",
+    "creatorAlt": "Kreatör",
+    "unknownCreator": "Okänd kreatör",
+    "bookNow": "Boka Nu"
   },
   "profile": {
     "editProfile": "Redigera Profil",
@@ -271,7 +303,8 @@
     "upgradePremiumPipeline": "Uppgradera till Premium för event-pipeline.",
     "createFirstEvent": "Skapa ditt första event",
     "startSellingTickets": "Börja sälja biljetter idag",
-    "createEvent": "Skapa event"
+    "createEvent": "Skapa event",
+    "createFirstService": "Skapa din första tjänst"
   },
   "billing": {
     "title": "Prenumeration",

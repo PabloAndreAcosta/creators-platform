@@ -45,13 +45,14 @@ export function PostCard({ post, isLoggedIn, currentUserId }: PostCardProps) {
   const [shared, setShared] = useState(false);
   const tr = useTranslations("roles");
   const tc = useTranslations("common");
+  const tf = useTranslations("feed");
   const isOwner = currentUserId === post.user_id;
   const isLong = post.text.length > 150;
 
   async function handleShare() {
     const url = `${window.location.origin}/creators/${post.author.id}`;
     const shareData = {
-      title: post.author.full_name || "Inlägg på Usha",
+      title: post.author.full_name || tf("postOnUsha"),
       text: post.text.slice(0, 100) + (post.text.length > 100 ? "..." : ""),
       url,
     };
@@ -133,7 +134,7 @@ export function PostCard({ post, isLoggedIn, currentUserId }: PostCardProps) {
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <Link href={`/creators/${post.author.id}`} className="text-sm font-semibold hover:underline">
-              {post.author.full_name || "Kreatör"}
+              {post.author.full_name || tf("creatorFallback")}
             </Link>
             <span className="rounded-full bg-[var(--usha-gold)]/10 px-1.5 py-0.5 text-[9px] font-medium text-[var(--usha-gold)]">
               {tr(post.author.role as "publik" | "kreator" | "upplevelse")}
@@ -205,7 +206,7 @@ export function PostCard({ post, isLoggedIn, currentUserId }: PostCardProps) {
                 disabled={!editText.trim() || saving || uploading}
                 className="flex items-center gap-1 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-3 py-1 text-xs font-bold text-black disabled:opacity-50"
               >
-                {saving ? <Loader2 size={12} className="animate-spin" /> : <Send size={12} />} Spara
+                {saving ? <Loader2 size={12} className="animate-spin" /> : <Send size={12} />} {tc("save")}
               </button>
             </div>
           </div>
@@ -248,7 +249,7 @@ export function PostCard({ post, isLoggedIn, currentUserId }: PostCardProps) {
       <div className="px-4 pt-2">
         <p className="text-sm leading-relaxed">
           <Link href={`/creators/${post.author.id}`} className="font-semibold hover:underline">
-            {(post.author.full_name || "Kreatör").split(" ")[0]}
+            {(post.author.full_name || tf("creatorFallback")).split(" ")[0]}
           </Link>{" "}
           {isLong && !expanded ? (
             <>
@@ -257,7 +258,7 @@ export function PostCard({ post, isLoggedIn, currentUserId }: PostCardProps) {
                 onClick={() => setExpanded(true)}
                 className="text-[var(--usha-muted)] hover:text-white"
               >
-                visa mer
+                {tf("showMore")}
               </button>
             </>
           ) : (

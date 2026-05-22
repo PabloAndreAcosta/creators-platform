@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -31,6 +32,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 export default function RecommendedEvents() {
+  const t = useTranslations('recommendations');
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -58,11 +60,11 @@ export default function RecommendedEvents() {
     return (
       <section className="space-y-4">
         <h2 className="text-lg font-semibold text-[var(--usha-white)]">
-          Rekommenderat för dig
+          {t('title')}
         </h2>
         <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 text-center">
           <p className="text-sm text-[var(--usha-muted)]">
-            Kunde inte ladda rekommendationer just nu
+            {t('loadError')}
           </p>
         </div>
       </section>
@@ -74,13 +76,13 @@ export default function RecommendedEvents() {
   return (
     <section className="space-y-4">
       <h2 className="text-lg font-semibold text-[var(--usha-white)]">
-        Rekommenderat för dig
+        {t('title')}
       </h2>
 
       {isEmpty && (
         <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 text-center mb-4">
           <p className="text-sm text-[var(--usha-muted)]">
-            Gör din första bokning för att få personliga rekommendationer
+            {t('empty')}
           </p>
         </div>
       )}
@@ -95,6 +97,7 @@ export default function RecommendedEvents() {
 }
 
 function EventCard({ event }: { event: Recommendation }) {
+  const t = useTranslations('recommendations');
   const categoryStyle =
     CATEGORY_COLORS[event.category] ?? 'bg-[var(--usha-gold)]/10 text-[var(--usha-gold)]';
 
@@ -121,7 +124,7 @@ function EventCard({ event }: { event: Recommendation }) {
         {/* Event tier badge */}
         {event.eventTier && (
           <span className="absolute top-2 right-2 text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-black/50 text-[var(--usha-gold)]">
-            Tier {event.eventTier.toUpperCase()}
+            {t('tier', { tier: event.eventTier.toUpperCase() })}
           </span>
         )}
       </div>
@@ -134,7 +137,7 @@ function EventCard({ event }: { event: Recommendation }) {
           </span>
           {event.bookingCount > 0 && (
             <span className="text-[10px] text-[var(--usha-muted)]">
-              {event.bookingCount} bokningar
+              {t('bookings', { count: event.bookingCount })}
             </span>
           )}
         </div>
@@ -149,7 +152,7 @@ function EventCard({ event }: { event: Recommendation }) {
           {event.creator?.avatar ? (
             <img
               src={event.creator.avatar}
-              alt={event.creator.name ?? 'Kreatör'}
+              alt={event.creator.name ?? t('creatorAlt')}
               className="w-5 h-5 rounded-full object-cover"
             />
           ) : (
@@ -160,7 +163,7 @@ function EventCard({ event }: { event: Recommendation }) {
             </div>
           )}
           <span className="text-xs text-[var(--usha-muted)] truncate">
-            {event.creator?.name ?? 'Okänd kreatör'}
+            {event.creator?.name ?? t('unknownCreator')}
           </span>
         </div>
 
@@ -176,7 +179,7 @@ function EventCard({ event }: { event: Recommendation }) {
               window.location.href = `/creators/${event.creator?.id ?? event.id}?listing=${event.id}`;
             }}
           >
-            Boka Nu
+            {t('bookNow')}
           </Button>
         </div>
       </div>

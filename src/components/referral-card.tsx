@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Copy, Check, Share2, Users } from "lucide-react";
 
 export function ReferralCard() {
+  const t = useTranslations("referral");
   const [data, setData] = useState<{
     referralCode: string | null;
     referralCount: number;
@@ -34,8 +36,8 @@ export function ReferralCard() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "Gå med i Usha",
-          text: "Använd min inbjudningslänk och få 50 kr rabatt på ditt första köp!",
+          title: t("shareTitle"),
+          text: t("shareText"),
           url: data.referralLink,
         });
       } catch {}
@@ -48,10 +50,10 @@ export function ReferralCard() {
     <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
       <div className="flex items-center gap-2 text-sm font-semibold">
         <Users size={16} className="text-[var(--usha-gold)]" />
-        Bjud in vänner
+        {t("title")}
       </div>
       <p className="mt-1 text-xs text-[var(--usha-muted)]">
-        Dela din länk — de får 50 kr rabatt på första köpet
+        {t("subtitle")}
       </p>
 
       <div className="mt-3 flex items-center gap-2">
@@ -63,19 +65,19 @@ export function ReferralCard() {
           className="flex items-center gap-1 rounded-lg border border-[var(--usha-border)] px-3 py-2 text-xs transition hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-gold)]"
         >
           {copied ? <Check size={12} className="text-green-400" /> : <Copy size={12} />}
-          {copied ? "Kopierad" : "Kopiera"}
+          {copied ? t("copied") : t("copy")}
         </button>
         <button
           onClick={handleShare}
           className="flex items-center gap-1 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-3 py-2 text-xs font-bold text-black"
         >
-          <Share2 size={12} /> Dela
+          <Share2 size={12} /> {t("share")}
         </button>
       </div>
 
       {data.referralCount > 0 && (
         <p className="mt-2 text-xs text-[var(--usha-muted)]">
-          {data.referralCount} person{data.referralCount > 1 ? "er" : ""} har gått med via din länk
+          {t("joinedCount", { count: data.referralCount })}
         </p>
       )}
     </div>

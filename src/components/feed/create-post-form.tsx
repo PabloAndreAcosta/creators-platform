@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { ImagePlus, X, Link as LinkIcon, Loader2, Send } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { createPost } from "@/app/app/feed/actions";
@@ -29,12 +30,14 @@ export function CreatePostForm({ authorName, authorAvatar, listings }: CreatePos
   const fileRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const { toast } = useToast();
+  const t = useTranslations("feed");
+  const tc = useTranslations("common");
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("Bilden får vara max 5 MB");
+      toast.error(t("imageTooLarge"));
       return;
     }
 
@@ -52,7 +55,7 @@ export function CreatePostForm({ authorName, authorAvatar, listings }: CreatePos
       .upload(path, file);
 
     if (error) {
-      toast.error("Kunde inte ladda upp bilden");
+      toast.error(t("imageUploadFailed"));
       setImagePreview(null);
       setUploading(false);
       return;
@@ -103,7 +106,7 @@ export function CreatePostForm({ authorName, authorAvatar, listings }: CreatePos
             <span className="text-sm font-bold text-[var(--usha-gold)]">{(authorName || "?")[0]}</span>
           </div>
         )}
-        <span className="text-sm text-[var(--usha-muted)]">Dela en uppdatering...</span>
+        <span className="text-sm text-[var(--usha-muted)]">{t("createPlaceholder")}</span>
       </button>
     );
   }
@@ -114,7 +117,7 @@ export function CreatePostForm({ authorName, authorAvatar, listings }: CreatePos
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder="Vad vill du dela?"
+        placeholder={t("createTitle")}
         rows={3}
         className="w-full resize-none bg-transparent text-sm outline-none placeholder:text-[var(--usha-muted)]"
         autoFocus
@@ -145,7 +148,7 @@ export function CreatePostForm({ authorName, authorAvatar, listings }: CreatePos
           onChange={(e) => setListingId(e.target.value)}
           className="mt-3 w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2 text-xs text-[var(--usha-muted)] outline-none"
         >
-          <option value="">Koppla till en tjänst/event (valfritt)</option>
+          <option value="">{t("linkService")}</option>
           {listings.map((l) => (
             <option key={l.id} value={l.id}>{l.title}</option>
           ))}
@@ -162,7 +165,7 @@ export function CreatePostForm({ authorName, authorAvatar, listings }: CreatePos
             className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-[var(--usha-muted)] transition hover:bg-[var(--usha-gold)]/10 hover:text-[var(--usha-gold)]"
           >
             <ImagePlus size={16} />
-            Bild
+            {tc("image")}
           </button>
         </div>
         <div className="flex gap-2">
@@ -170,7 +173,7 @@ export function CreatePostForm({ authorName, authorAvatar, listings }: CreatePos
             onClick={() => { setExpanded(false); setText(""); setImagePreview(null); setImageUrl(null); }}
             className="rounded-lg px-3 py-1.5 text-xs text-[var(--usha-muted)] transition hover:text-white"
           >
-            Avbryt
+            {tc("cancel")}
           </button>
           <button
             onClick={handleSubmit}
@@ -178,7 +181,7 @@ export function CreatePostForm({ authorName, authorAvatar, listings }: CreatePos
             className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-1.5 text-xs font-bold text-black transition hover:opacity-90 disabled:opacity-50"
           >
             {submitting ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
-            Publicera
+            {tc("publish")}
           </button>
         </div>
       </div>
