@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition, useEffect } from "react";
+import Link from "next/link";
 import { ChevronLeft, ChevronRight, MapPin, Clock, Calendar, Check, Plus, Trash2, Loader2 } from "lucide-react";
 import { useRole } from "@/components/mobile/role-context";
 import { toggleAvailability, getAvailability, addTimeSlot, removeTimeSlot } from "./actions";
@@ -277,9 +278,10 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
           </h3>
           <div className="space-y-3 md:grid md:grid-cols-2 md:gap-3 md:space-y-0">
             {selectedEvents.map((event, i) => (
-              <div
+              <Link
                 key={i}
-                className={`rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 border-l-4 ${event.color}`}
+                href="/dashboard/bookings"
+                className={`block rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 border-l-4 transition hover:border-[var(--usha-gold)]/30 ${event.color}`}
               >
                 <h3 className="text-sm font-semibold">{event.title}</h3>
                 <div className="mt-2 flex items-center gap-3 text-xs text-[var(--usha-muted)]">
@@ -292,7 +294,7 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
                     {event.location}
                   </span>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </section>
@@ -303,9 +305,10 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
         <h2 className="mb-4 text-lg font-bold">Kommande Evenemang</h2>
         <div className="space-y-3 md:grid md:grid-cols-2 md:gap-3 md:space-y-0">
           {allUpcoming.length > 0 ? allUpcoming.map((event, i) => (
-            <div
+            <Link
               key={i}
-              className={`rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 border-l-4 ${event.color}`}
+              href="/dashboard/bookings"
+              className={`block rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 border-l-4 transition hover:border-[var(--usha-gold)]/30 ${event.color}`}
             >
               <div className="flex items-start justify-between">
                 <div>
@@ -325,7 +328,7 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
                   {event.date.split("-").slice(1).reverse().join("/")}
                 </span>
               </div>
-            </div>
+            </Link>
           )) : (
             <div className="col-span-full flex flex-col items-center justify-center rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] py-12">
               <Calendar size={32} className="mb-3 text-[var(--usha-muted)]" />

@@ -532,6 +532,7 @@ function KreatorHome({
 
   // The creator's OWN services (dedicated query), not the global feed.
   const todaysListings = ownServices.slice(0, 3).map((listing) => ({
+    id: listing.id,
     title: listing.title,
     time: listing.duration_minutes ? `${listing.duration_minutes} min` : "-",
     category: listing.category || "Övrigt",
@@ -597,7 +598,7 @@ function KreatorHome({
             { label: t("revenue"), value: `${monthlyRevenue.toLocaleString("sv-SE")} kr` },
             { label: t("bookings"), value: String(bookingsCount) },
             { label: t("rating"), value: averageRating != null ? `${averageRating}/5` : "—" },
-            { label: t("services"), value: String(listings.length) },
+            { label: t("services"), value: String(ownServices.length) },
           ].map((kpi) => (
             <div key={kpi.label} className="flex-1 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-3 text-center">
               <p className="text-base font-bold leading-none">{kpi.value}</p>
@@ -629,10 +630,11 @@ function KreatorHome({
         <section>
           <h2 className="mb-3 text-sm font-semibold text-[var(--usha-muted)]">{t("yourServices")}</h2>
           <div className="space-y-1.5">
-            {todaysListings.length > 0 ? todaysListings.map((cls, i) => (
-              <div
-                key={i}
-                className="flex items-center justify-between rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2.5"
+            {todaysListings.length > 0 ? todaysListings.map((cls) => (
+              <Link
+                key={cls.id}
+                href={`/dashboard/listings/${cls.id}/edit`}
+                className="flex items-center justify-between rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2.5 transition hover:border-[var(--usha-gold)]/30"
               >
                 <div className="flex items-center gap-2">
                   <div className="h-1.5 w-1.5 rounded-full bg-green-400" />
@@ -641,8 +643,9 @@ function KreatorHome({
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] text-[var(--usha-muted)]">{cls.time}</span>
                   <span className="rounded bg-[var(--usha-card)] px-1.5 py-0.5 text-[9px] text-[var(--usha-muted)] border border-[var(--usha-border)]">{cls.category}</span>
+                  <ChevronRight size={14} className="text-[var(--usha-muted)]" />
                 </div>
-              </div>
+              </Link>
             )) : (
               servicesEmpty
             )}
@@ -650,15 +653,18 @@ function KreatorHome({
         </section>
 
         {/* Bookings — compact */}
-        <div className="flex items-center justify-between rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3">
+        <Link
+          href="/app/calendar"
+          className="flex items-center justify-between rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 transition hover:border-[var(--usha-gold)]/30"
+        >
           <div className="flex items-center gap-2">
             <Calendar size={14} className="text-[var(--usha-muted)]" />
             <span className="text-sm">{t("activeBookings", { count: bookingsCount })}</span>
           </div>
-          <Link href="/app/calendar" className="text-xs text-[var(--usha-gold)]">
+          <span className="text-xs text-[var(--usha-gold)]">
             {tc("view")}
-          </Link>
-        </div>
+          </span>
+        </Link>
       </div>
     );
   }
@@ -726,14 +732,15 @@ function KreatorHome({
             <Link href="/app/courses" className="text-xs text-[var(--usha-gold)]">{tc("all")}</Link>
           </div>
           <div className="space-y-2">
-            {todaysListings.length > 0 ? todaysListings.map((cls, i) => (
-              <div key={i} className="flex items-center gap-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3">
+            {todaysListings.length > 0 ? todaysListings.map((cls) => (
+              <Link key={cls.id} href={`/dashboard/listings/${cls.id}/edit`} className="flex items-center gap-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 transition hover:border-[var(--usha-gold)]/30">
                 <Clock size={16} className="text-[var(--usha-gold)]" />
                 <div className="flex-1">
                   <h3 className="text-sm font-medium">{cls.title}</h3>
                   <p className="text-[10px] text-[var(--usha-muted)]">{cls.time} · {cls.category}</p>
                 </div>
-              </div>
+                <ChevronRight size={16} className="text-[var(--usha-muted)]" />
+              </Link>
             )) : (
               servicesEmpty
             )}
@@ -741,15 +748,18 @@ function KreatorHome({
         </section>
 
         {/* Bookings */}
-        <div className="flex items-center justify-between rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3">
+        <Link
+          href="/app/calendar"
+          className="flex items-center justify-between rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 transition hover:border-[var(--usha-gold)]/30"
+        >
           <div className="flex items-center gap-3">
             <Calendar size={16} className="text-[var(--usha-gold)]" />
             <span className="text-sm">{t("activeBookings", { count: bookingsCount })}</span>
           </div>
-          <Link href="/app/calendar" className="rounded-lg bg-[var(--usha-gold)]/10 px-3 py-1.5 text-xs font-medium text-[var(--usha-gold)]">
+          <span className="rounded-lg bg-[var(--usha-gold)]/10 px-3 py-1.5 text-xs font-medium text-[var(--usha-gold)]">
             {t("calendar")}
-          </Link>
-        </div>
+          </span>
+        </Link>
       </div>
     );
   }
@@ -797,7 +807,7 @@ function KreatorHome({
             { label: t("revenue"), value: `${monthlyRevenue.toLocaleString("sv-SE")} kr` },
             { label: t("bookings"), value: String(bookingsCount) },
             { label: t("rating"), value: averageRating != null ? `${averageRating}/5` : "—" },
-            { label: t("services"), value: String(listings.length) },
+            { label: t("services"), value: String(ownServices.length) },
           ].map((kpi) => (
             <div key={kpi.label} className="flex-1 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-3 text-center">
               <p className="text-base font-bold leading-none">{kpi.value}</p>
@@ -836,14 +846,15 @@ function KreatorHome({
           <Link href="/app/courses" className="text-xs text-[var(--usha-gold)]">{tc("all")}</Link>
         </div>
         <div className="space-y-2">
-          {todaysListings.length > 0 ? todaysListings.map((cls, i) => (
-            <div key={i} className="flex items-center gap-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3">
+          {todaysListings.length > 0 ? todaysListings.map((cls) => (
+            <Link key={cls.id} href={`/dashboard/listings/${cls.id}/edit`} className="flex items-center gap-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 transition hover:border-[var(--usha-gold)]/30">
               <Clock size={16} className="text-[var(--usha-gold)]" />
               <div className="flex-1">
                 <h3 className="text-sm font-medium">{cls.title}</h3>
                 <p className="text-[10px] text-[var(--usha-muted)]">{cls.time} · {cls.category}</p>
               </div>
-            </div>
+              <ChevronRight size={16} className="text-[var(--usha-muted)]" />
+            </Link>
           )) : (
             <p className="py-6 text-center text-sm text-[var(--usha-muted)]">{t("noServicesYet")}</p>
           )}
@@ -851,15 +862,18 @@ function KreatorHome({
       </section>
 
       {/* Bookings */}
-      <div className="flex items-center justify-between rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3">
+      <Link
+        href="/app/calendar"
+        className="flex items-center justify-between rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 transition hover:border-[var(--usha-gold)]/30"
+      >
         <div className="flex items-center gap-3">
           <Calendar size={16} className="text-[var(--usha-gold)]" />
           <span className="text-sm">{t("activeBookings", { count: bookingsCount })}</span>
         </div>
-        <Link href="/app/calendar" className="rounded-lg bg-[var(--usha-gold)]/10 px-3 py-1.5 text-xs font-medium text-[var(--usha-gold)]">
+        <span className="rounded-lg bg-[var(--usha-gold)]/10 px-3 py-1.5 text-xs font-medium text-[var(--usha-gold)]">
           {t("calendar")}
-        </Link>
-      </div>
+        </span>
+      </Link>
 
       {/* Upgrade nudge */}
       <Link
@@ -911,6 +925,7 @@ function UpplevelseHome({
   const draftEvents = ownServices.filter((l) => !l.is_active);
 
   const upcomingEvents = ownServices.slice(0, 5).map((listing) => ({
+    id: listing.id,
     title: listing.title,
     date: listing.created_at
       ? new Date(listing.created_at).toLocaleDateString("sv-SE", { day: "numeric", month: "short" })
@@ -1013,10 +1028,11 @@ function UpplevelseHome({
         <section>
           <h2 className="mb-3 text-sm font-semibold text-[var(--usha-muted)]">{t("eventPipeline")}</h2>
           <div className="space-y-1.5">
-            {upcomingEvents.length > 0 ? upcomingEvents.map((event, i) => (
-              <div
-                key={i}
-                className="flex items-center justify-between rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2.5"
+            {upcomingEvents.length > 0 ? upcomingEvents.map((event) => (
+              <Link
+                key={event.id}
+                href={`/app/events/${event.id}/edit`}
+                className="flex items-center justify-between rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2.5 transition hover:border-[var(--usha-gold)]/30"
               >
                 <div className="flex items-center gap-2">
                   <div className={`h-1.5 w-1.5 rounded-full ${event.status === "Aktiv" ? "bg-green-400" : "bg-[var(--usha-muted)]"}`} />
@@ -1027,8 +1043,9 @@ function UpplevelseHome({
                   <span className={`rounded px-1.5 py-0.5 text-[9px] font-medium ${
                     event.status === "Aktiv" ? "bg-green-500/10 text-green-400" : "bg-[var(--usha-muted)]/10 text-[var(--usha-muted)]"
                   }`}>{event.status}</span>
+                  <ChevronRight size={14} className="text-[var(--usha-muted)]" />
                 </div>
-              </div>
+              </Link>
             )) : (
               eventsEmpty
             )}
@@ -1091,8 +1108,8 @@ function UpplevelseHome({
             <Link href="/app/events" className="text-xs text-[var(--usha-gold)]">{tc("manage")}</Link>
           </div>
           <div className="space-y-2">
-            {upcomingEvents.length > 0 ? upcomingEvents.slice(0, 4).map((event, i) => (
-              <div key={i} className="flex items-center gap-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3">
+            {upcomingEvents.length > 0 ? upcomingEvents.slice(0, 4).map((event) => (
+              <Link key={event.id} href={`/app/events/${event.id}/edit`} className="flex items-center gap-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 transition hover:border-[var(--usha-gold)]/30">
                 <Ticket size={16} className="text-[var(--usha-gold)]" />
                 <div className="flex-1">
                   <h3 className="text-sm font-medium">{event.title}</h3>
@@ -1101,7 +1118,8 @@ function UpplevelseHome({
                 <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
                   event.status === "Aktiv" ? "bg-green-500/20 text-green-400" : "bg-[var(--usha-muted)]/20 text-[var(--usha-muted)]"
                 }`}>{event.status}</span>
-              </div>
+                <ChevronRight size={16} className="text-[var(--usha-muted)]" />
+              </Link>
             )) : (
               eventsEmpty
             )}
@@ -1190,8 +1208,8 @@ function UpplevelseHome({
         <section>
           <h2 className="mb-3 text-sm font-semibold text-[var(--usha-muted)]">{t("eventPipeline")}</h2>
           <div className="space-y-1.5">
-            {upcomingEvents.length > 0 ? upcomingEvents.slice(0, 3).map((event, i) => (
-              <div key={i} className="flex items-center justify-between rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2.5">
+            {upcomingEvents.length > 0 ? upcomingEvents.slice(0, 3).map((event) => (
+              <Link key={event.id} href={`/app/events/${event.id}/edit`} className="flex items-center justify-between rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2.5 transition hover:border-[var(--usha-gold)]/30">
                 <div className="flex items-center gap-2">
                   <div className={`h-1.5 w-1.5 rounded-full ${event.status === "Aktiv" ? "bg-green-400" : "bg-[var(--usha-muted)]"}`} />
                   <span className="text-sm">{event.title}</span>
@@ -1199,7 +1217,7 @@ function UpplevelseHome({
                 <span className={`rounded px-1.5 py-0.5 text-[9px] font-medium ${
                   event.status === "Aktiv" ? "bg-green-500/10 text-green-400" : "bg-[var(--usha-muted)]/10 text-[var(--usha-muted)]"
                 }`}>{event.status}</span>
-              </div>
+              </Link>
             )) : (
               eventsEmpty
             )}
@@ -1214,8 +1232,8 @@ function UpplevelseHome({
           <Link href="/app/events" className="text-xs text-[var(--usha-gold)]">{tc("manage")}</Link>
         </div>
         <div className="space-y-2">
-          {upcomingEvents.length > 0 ? upcomingEvents.slice(0, 3).map((event, i) => (
-            <div key={i} className="flex items-center gap-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3">
+          {upcomingEvents.length > 0 ? upcomingEvents.slice(0, 3).map((event) => (
+            <Link key={event.id} href={`/app/events/${event.id}/edit`} className="flex items-center gap-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 transition hover:border-[var(--usha-gold)]/30">
               <Ticket size={16} className="text-[var(--usha-gold)]" />
               <div className="flex-1">
                 <h3 className="text-sm font-medium">{event.title}</h3>
@@ -1224,7 +1242,7 @@ function UpplevelseHome({
               <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
                 event.status === "Aktiv" ? "bg-green-500/20 text-green-400" : "bg-[var(--usha-muted)]/20 text-[var(--usha-muted)]"
               }`}>{event.status}</span>
-            </div>
+            </Link>
           )) : (
             <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--usha-border)] bg-[var(--usha-card)] py-12">
               <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[var(--usha-gold)]/20 to-[var(--usha-accent)]/20">
