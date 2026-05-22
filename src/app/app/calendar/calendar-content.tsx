@@ -302,7 +302,7 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
 
       {/* Upcoming events */}
       <section>
-        <h2 className="mb-4 text-lg font-bold">Kommande Evenemang</h2>
+        <h2 className="mb-4 text-lg font-bold">Kommande bokningar</h2>
         <div className="space-y-3 md:grid md:grid-cols-2 md:gap-3 md:space-y-0">
           {allUpcoming.length > 0 ? allUpcoming.map((event, i) => (
             <Link
@@ -332,7 +332,7 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
           )) : (
             <div className="col-span-full flex flex-col items-center justify-center rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] py-12">
               <Calendar size={32} className="mb-3 text-[var(--usha-muted)]" />
-              <p className="text-sm text-[var(--usha-muted)]">Inga kommande evenemang</p>
+              <p className="text-sm text-[var(--usha-muted)]">Inga kommande bokningar</p>
             </div>
           )}
         </div>
