@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Flag, ShieldOff, AlertTriangle, X, Loader2 } from "lucide-react";
 
 type Step = "menu" | "confirm-block" | "report-form" | "success";
@@ -12,6 +13,7 @@ export function ReportUserButton({
   userId: string;
   userName: string;
 }) {
+  const t = useTranslations("creatorProfile");
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>("menu");
   const [reason, setReason] = useState("");
@@ -53,14 +55,14 @@ export function ReportUserButton({
       });
       const data = await res.json();
       if (!res.ok) {
-        alert(data.error || "Något gick fel.");
+        alert(data.error || t("report.errorSomethingWrong"));
         setLoading(false);
         return;
       }
-      setSuccessMessage("Användaren har blockerats");
+      setSuccessMessage(t("report.userBlocked"));
       setStep("success");
     } catch {
-      alert("Något gick fel. Försök igen senare.");
+      alert(t("report.errorTryAgainLater"));
     } finally {
       setLoading(false);
     }
@@ -77,14 +79,14 @@ export function ReportUserButton({
       });
       const data = await res.json();
       if (!res.ok) {
-        alert(data.error || "Något gick fel.");
+        alert(data.error || t("report.errorSomethingWrong"));
         setLoading(false);
         return;
       }
-      setSuccessMessage("Rapport skickad");
+      setSuccessMessage(t("report.reportSent"));
       setStep("success");
     } catch {
-      alert("Något gick fel. Försök igen senare.");
+      alert(t("report.errorTryAgainLater"));
     } finally {
       setLoading(false);
     }
@@ -101,7 +103,7 @@ export function ReportUserButton({
           }
         }}
         className="flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-[var(--usha-muted)]"
-        aria-label={`Rapportera eller blockera ${userName}`}
+        aria-label={t("report.ariaTrigger", { name: userName })}
       >
         <Flag size={16} className="text-[var(--usha-muted-foreground,#888)]" />
       </button>
@@ -118,14 +120,14 @@ export function ReportUserButton({
                 className="flex items-center gap-3 px-4 py-3 text-left text-sm transition-colors hover:bg-[var(--usha-muted)]"
               >
                 <ShieldOff size={16} />
-                <span>Blockera {userName}</span>
+                <span>{t("report.blockUser", { name: userName })}</span>
               </button>
               <button
                 onClick={() => setStep("report-form")}
                 className="flex items-center gap-3 px-4 py-3 text-left text-sm transition-colors hover:bg-[var(--usha-muted)]"
               >
                 <AlertTriangle size={16} />
-                <span>Rapportera {userName}</span>
+                <span>{t("report.reportUser", { name: userName })}</span>
               </button>
             </div>
           )}
@@ -134,9 +136,7 @@ export function ReportUserButton({
           {step === "confirm-block" && (
             <div className="flex flex-col gap-3 p-4">
               <p className="text-sm">
-                Är du säker på att du vill blockera{" "}
-                <strong>{userName}</strong>? Denne kommer inte kunna kontakta
-                dig.
+                {t("report.confirmBlock", { name: userName })}
               </p>
               <div className="flex gap-2">
                 <button
@@ -144,7 +144,7 @@ export function ReportUserButton({
                   disabled={loading}
                   className="flex-1 rounded-lg border border-[var(--usha-border)] px-3 py-2 text-sm transition-colors hover:bg-[var(--usha-muted)]"
                 >
-                  Avbryt
+                  {t("report.cancel")}
                 </button>
                 <button
                   onClick={handleBlock}
@@ -152,7 +152,7 @@ export function ReportUserButton({
                   className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-sm text-white transition-colors hover:bg-red-700 disabled:opacity-50"
                 >
                   {loading && <Loader2 size={14} className="animate-spin" />}
-                  Blockera
+                  {t("report.block")}
                 </button>
               </div>
             </div>
@@ -163,7 +163,7 @@ export function ReportUserButton({
             <div className="flex flex-col gap-3 p-4">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium">
-                  Rapportera {userName}
+                  {t("report.reportHeading", { name: userName })}
                 </p>
                 <button
                   onClick={() => setStep("menu")}
@@ -175,7 +175,7 @@ export function ReportUserButton({
               <textarea
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
-                placeholder="Beskriv varför du rapporterar denna användare (minst 10 tecken)..."
+                placeholder={t("report.reportPlaceholder")}
                 rows={3}
                 className="w-full resize-none rounded-lg border border-[var(--usha-border)] bg-transparent px-3 py-2 text-sm placeholder:text-[var(--usha-muted-foreground,#888)] focus:outline-none focus:ring-1 focus:ring-[var(--usha-border)]"
               />
@@ -185,7 +185,7 @@ export function ReportUserButton({
                   disabled={loading}
                   className="flex-1 rounded-lg border border-[var(--usha-border)] px-3 py-2 text-sm transition-colors hover:bg-[var(--usha-muted)]"
                 >
-                  Avbryt
+                  {t("report.cancel")}
                 </button>
                 <button
                   onClick={handleReport}
@@ -193,12 +193,12 @@ export function ReportUserButton({
                   className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-sm text-white transition-colors hover:bg-red-700 disabled:opacity-50"
                 >
                   {loading && <Loader2 size={14} className="animate-spin" />}
-                  Skicka rapport
+                  {t("report.sendReport")}
                 </button>
               </div>
               {reason.length > 0 && reason.trim().length < 10 && (
                 <p className="text-xs text-red-500">
-                  Minst 10 tecken krävs ({reason.trim().length}/10)
+                  {t("report.minCharsRequired", { count: reason.trim().length })}
                 </p>
               )}
             </div>
@@ -215,7 +215,7 @@ export function ReportUserButton({
                 onClick={handleClose}
                 className="mt-1 rounded-lg border border-[var(--usha-border)] px-4 py-1.5 text-sm transition-colors hover:bg-[var(--usha-muted)]"
               >
-                Stäng
+                {t("report.close")}
               </button>
             </div>
           )}

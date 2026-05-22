@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CATEGORIES } from "@/lib/categories";
 import { createClient } from "@/lib/supabase/server";
+import { getTranslations } from "next-intl/server";
 
 const FALLBACK_CITIES = [
   "Stockholm", "Göteborg", "Malmö", "Uppsala", "Linköping", "Örebro",
@@ -8,6 +9,7 @@ const FALLBACK_CITIES = [
 ];
 
 export async function SeoFooter() {
+  const t = await getTranslations();
   let cities: string[] = FALLBACK_CITIES;
 
   try {
@@ -51,7 +53,7 @@ export async function SeoFooter() {
           {/* Upplevelser per stad */}
           <div>
             <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--usha-muted)]">
-              Upplevelser
+              {t("seoFooter.experiencesHeading")}
             </h3>
             <div className="flex flex-col gap-1.5">
               {cities.slice(0, 10).map((city) => (
@@ -60,7 +62,7 @@ export async function SeoFooter() {
                   href={`/upplevelser/${encodeURIComponent(city.toLowerCase())}`}
                   className="text-xs text-[var(--usha-muted)] transition hover:text-[var(--usha-gold)]"
                 >
-                  Upplevelser i {city}
+                  {t("seoFooter.experiencesInCity", { city })}
                 </Link>
               ))}
             </div>
@@ -69,7 +71,7 @@ export async function SeoFooter() {
           {/* Kreatörer per stad */}
           <div>
             <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--usha-muted)]">
-              Kreatörer
+              {t("seoFooter.creatorsHeading")}
             </h3>
             <div className="flex flex-col gap-1.5">
               {cities.slice(0, 10).map((city) => (
@@ -78,7 +80,7 @@ export async function SeoFooter() {
                   href={`/creators/stad/${encodeURIComponent(city.toLowerCase())}`}
                   className="text-xs text-[var(--usha-muted)] transition hover:text-[var(--usha-gold)]"
                 >
-                  Kreatörer i {city}
+                  {t("seoFooter.creatorsInCity", { city })}
                 </Link>
               ))}
             </div>
@@ -87,7 +89,7 @@ export async function SeoFooter() {
           {/* Populära kategorier */}
           <div>
             <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--usha-muted)]">
-              Kategorier
+              {t("seoFooter.categoriesHeading")}
             </h3>
             <div className="flex flex-col gap-1.5">
               {CATEGORIES.filter((c) => c.value !== "other").map((cat) => (
@@ -96,7 +98,7 @@ export async function SeoFooter() {
                   href={`/upplevelser?category=${cat.value}`}
                   className="text-xs text-[var(--usha-muted)] transition hover:text-[var(--usha-gold)]"
                 >
-                  {cat.label}
+                  {t(`categories.${cat.value}`)}
                 </Link>
               ))}
             </div>
@@ -115,7 +117,7 @@ export async function SeoFooter() {
                     href={`/upplevelser/${encodeURIComponent(city.toLowerCase())}/${cat.value}`}
                     className="text-[10px] text-[var(--usha-muted)]/60 transition hover:text-[var(--usha-gold)]"
                   >
-                    {cat.label} i {city}
+                    {t("experiences.seoCategoryInCity", { category: t(`categories.${cat.value}`), city })}
                   </Link>
                 ))
             )}
@@ -126,9 +128,9 @@ export async function SeoFooter() {
         <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-[var(--usha-border)] pt-6">
           <Link href="/" className="text-sm font-bold text-gradient">Usha</Link>
           <div className="flex gap-4">
-            <Link href="/platser" className="text-[10px] text-[var(--usha-muted)] hover:text-white">Platser</Link>
-            <Link href="/privacy" className="text-[10px] text-[var(--usha-muted)] hover:text-white">Integritetspolicy</Link>
-            <Link href="/terms" className="text-[10px] text-[var(--usha-muted)] hover:text-white">Villkor</Link>
+            <Link href="/platser" className="text-[10px] text-[var(--usha-muted)] hover:text-white">{t("seoFooter.places")}</Link>
+            <Link href="/privacy" className="text-[10px] text-[var(--usha-muted)] hover:text-white">{t("seoFooter.privacyPolicy")}</Link>
+            <Link href="/terms" className="text-[10px] text-[var(--usha-muted)] hover:text-white">{t("seoFooter.terms")}</Link>
           </div>
         </div>
       </div>

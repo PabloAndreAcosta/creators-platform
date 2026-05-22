@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
-import { CATEGORIES, CATEGORY_LABELS } from "@/lib/categories";
+import { CATEGORIES } from "@/lib/categories";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { MapPin, Calendar, ArrowRight, SlidersHorizontal } from "lucide-react";
 import { SeoFooter } from "@/components/seo-footer";
@@ -9,16 +10,17 @@ import { getBookingCounts, sortWithPromoted, isActivelyPromoted } from "@/lib/li
 import { GeoLocationDetector } from "@/components/geo-location";
 import { EventCarousel } from "@/components/event-carousel";
 
-export const metadata: Metadata = {
-  title: "Upplevelser – Usha",
-  description:
-    "Utforska kreativa upplevelser, events och tjänster nära dig. Dans, musik, fotografi och mer.",
-  openGraph: {
-    title: "Upplevelser – Usha",
-    description:
-      "Utforska kreativa upplevelser, events och tjänster nära dig.",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations();
+  return {
+    title: t("experiences.metaTitle"),
+    description: t("experiences.metaDescription"),
+    openGraph: {
+      title: t("experiences.metaTitle"),
+      description: t("experiences.ogDescription"),
+    },
+  };
+}
 
 interface SearchParams {
   category?: string;
@@ -30,10 +32,10 @@ interface SearchParams {
 const PAGE_SIZE = 20;
 
 const SORT_OPTIONS = [
-  { value: "date", label: "Datum" },
-  { value: "price_asc", label: "Pris (lägst)" },
-  { value: "price_desc", label: "Pris (högst)" },
-  { value: "newest", label: "Nyast" },
+  { value: "date", labelKey: "experiences.sortDate" },
+  { value: "price_asc", labelKey: "experiences.sortPriceAsc" },
+  { value: "price_desc", labelKey: "experiences.sortPriceDesc" },
+  { value: "newest", labelKey: "experiences.sortNewest" },
 ] as const;
 
 export default async function UpplevelserPage({
@@ -42,6 +44,7 @@ export default async function UpplevelserPage({
   searchParams: SearchParams;
 }) {
   const supabase = await createClient();
+  const t = await getTranslations();
   const { category, location, sort, page: pageParam } = searchParams;
   const currentPage = Math.max(1, parseInt(pageParam || "1", 10) || 1);
   const offset = (currentPage - 1) * PAGE_SIZE;
@@ -155,9 +158,9 @@ export default async function UpplevelserPage({
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
           <Link href="/" className="text-lg font-bold text-gradient">Usha</Link>
           <nav className="flex items-center gap-4">
-            <Link href="/flode" className="text-sm text-[var(--usha-muted)] hover:text-white">Flöde</Link>
-            <Link href="/marketplace" className="text-sm text-[var(--usha-muted)] hover:text-white">Marketplace</Link>
-            <Link href="/signup" className="rounded-lg px-3 py-1.5 text-xs font-medium text-[var(--usha-muted)] hover:text-white">Skapa profil</Link>
+            <Link href="/flode" className="text-sm text-[var(--usha-muted)] hover:text-white">{t("experiences.navFeed")}</Link>
+            <Link href="/marketplace" className="text-sm text-[var(--usha-muted)] hover:text-white">{t("experiences.navMarketplace")}</Link>
+            <Link href="/signup" className="rounded-lg px-3 py-1.5 text-xs font-medium text-[var(--usha-muted)] hover:text-white">{t("experiences.navCreateProfile")}</Link>
           </nav>
         </div>
       </header>
@@ -169,10 +172,8 @@ export default async function UpplevelserPage({
           <EventCarousel events={activePromoted} />
         )}
 
-        <h1 className="text-2xl font-bold md:text-3xl">Upplevelser</h1>
-        <p className="mt-1 text-sm text-[var(--usha-muted)]">
-          {totalCount || 0} upplevelser i hela Sverige
-        </p>
+        <h1 className="text-2xl font-bold md:text-3xl">{t("experiences.title")}</h1>
+        <p className="mt-1 text-sm text-[var(--usha-muted)]">{t("experiences.countInSweden", { count: totalCount || 0 })}</p>
 
         {/* ── Filter bar ── */}
         <div className="mt-6 flex flex-wrap items-center gap-2">
@@ -183,7 +184,7 @@ export default async function UpplevelserPage({
             href={filterUrl({ category: undefined, page: undefined })}
             className={`rounded-lg px-3 py-1.5 text-xs transition ${!category ? "bg-[var(--usha-gold)]/15 font-semibold text-[var(--usha-gold)]" : "border border-[var(--usha-border)] text-[var(--usha-muted)] hover:border-[var(--usha-gold)]/30 hover:text-white"}`}
           >
-            Alla
+            {t("experiences.filterAll")}
           </Link>
           {CATEGORIES.filter((c) => c.value !== "other").map((cat) => (
             <Link
@@ -191,7 +192,7 @@ export default async function UpplevelserPage({
               href={filterUrl({ category: cat.value, page: undefined })}
               className={`rounded-lg px-3 py-1.5 text-xs transition ${category === cat.value ? "bg-[var(--usha-gold)]/15 font-semibold text-[var(--usha-gold)]" : "border border-[var(--usha-border)] text-[var(--usha-muted)] hover:border-[var(--usha-gold)]/30 hover:text-white"}`}
             >
-              {cat.label}
+              {t(`categories.${cat.value}`)}
               {categoryCounts[cat.value] ? ` (${categoryCounts[cat.value]})` : ""}
             </Link>
           ))}
@@ -206,7 +207,7 @@ export default async function UpplevelserPage({
                 href={filterUrl({ location: undefined, page: undefined })}
                 className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs transition ${!location ? "bg-[var(--usha-gold)]/15 font-semibold text-[var(--usha-gold)]" : "border border-[var(--usha-border)] text-[var(--usha-muted)] hover:border-[var(--usha-gold)]/30 hover:text-white"}`}
               >
-                <MapPin size={10} /> Alla städer
+                <MapPin size={10} /> {t("experiences.allCities")}
               </Link>
               {topLocations.slice(0, 8).map(([city]) => (
                 <Link
@@ -228,7 +229,7 @@ export default async function UpplevelserPage({
                 href={filterUrl({ sort: opt.value, page: undefined })}
                 className={`rounded-lg px-2.5 py-1.5 text-xs transition ${(sort || "newest") === opt.value ? "bg-white/10 font-medium text-white" : "text-[var(--usha-muted)] hover:text-white"}`}
               >
-                {opt.label}
+                {t(opt.labelKey)}
               </Link>
             ))}
           </div>
@@ -238,7 +239,7 @@ export default async function UpplevelserPage({
         {hasFilters && (
           <div className="mt-3">
             <Link href="/upplevelser" className="text-xs text-[var(--usha-muted)] hover:text-[var(--usha-gold)]">
-              Rensa filter
+              {t("experiences.clearFilters")}
             </Link>
           </div>
         )}
@@ -257,10 +258,10 @@ export default async function UpplevelserPage({
           </div>
         ) : (
           <div className="mt-12 text-center">
-            <p className="text-sm text-[var(--usha-muted)]">Inga upplevelser hittade med dessa filter.</p>
+            <p className="text-sm text-[var(--usha-muted)]">{t("experiences.emptyNoMatch")}</p>
             {hasFilters && (
               <Link href="/upplevelser" className="mt-2 inline-block text-sm text-[var(--usha-gold)] hover:underline">
-                Rensa filter
+                {t("experiences.clearFilters")}
               </Link>
             )}
           </div>
@@ -274,7 +275,7 @@ export default async function UpplevelserPage({
                 href={filterUrl({ page: String(currentPage - 1) })}
                 className="rounded-lg border border-[var(--usha-border)] px-3 py-1.5 text-xs text-[var(--usha-muted)] transition hover:border-[var(--usha-gold)]/30 hover:text-white"
               >
-                Föregående
+                {t("experiences.paginationPrevious")}
               </Link>
             )}
             {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
@@ -303,7 +304,7 @@ export default async function UpplevelserPage({
                 href={filterUrl({ page: String(currentPage + 1) })}
                 className="rounded-lg border border-[var(--usha-border)] px-3 py-1.5 text-xs text-[var(--usha-muted)] transition hover:border-[var(--usha-gold)]/30 hover:text-white"
               >
-                Nästa
+                {t("experiences.paginationNext")}
               </Link>
             )}
           </div>
@@ -312,7 +313,7 @@ export default async function UpplevelserPage({
         {/* ── SEO: City + Category grid ── */}
         {topLocations.length > 0 && !hasFilters && (
           <section className="mt-12 border-t border-[var(--usha-border)] pt-8">
-            <h2 className="text-lg font-semibold">Utforska per stad och kategori</h2>
+            <h2 className="text-lg font-semibold">{t("experiences.seoHeading")}</h2>
             <div className="mt-4 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
               {topLocations.slice(0, 6).map(([city]) => (
                 <div key={city}>
@@ -325,7 +326,7 @@ export default async function UpplevelserPage({
                         className="flex items-center gap-1 text-xs text-[var(--usha-muted)] transition hover:text-[var(--usha-gold)]"
                       >
                         <ArrowRight size={10} />
-                        {cat.label} i {city}
+                        {t("experiences.seoCategoryInCity", { category: t(`categories.${cat.value}`), city })}
                       </Link>
                     ))}
                   </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Film, BookOpen, Download, Package, ShoppingCart } from "lucide-react";
 
 interface Product {
@@ -28,6 +29,7 @@ export function CreatorProducts({
   isLoggedIn: boolean;
   creatorId: string;
 }) {
+  const t = useTranslations("creatorProfile");
   if (products.length === 0) return null;
 
   async function handleBuy(productId: string) {
@@ -46,16 +48,16 @@ export function CreatorProducts({
       if (data.url) {
         window.location.href = data.url;
       } else {
-        alert(data.error || "Något gick fel");
+        alert(data.error || t("products.errorSomethingWrong"));
       }
     } catch {
-      alert("Kunde inte starta köp");
+      alert(t("products.errorCouldNotStartPurchase"));
     }
   }
 
   return (
     <div>
-      <h2 className="mb-4 text-xl font-bold">Digitalt innehåll</h2>
+      <h2 className="mb-4 text-xl font-bold">{t("products.heading")}</h2>
       <div className="grid gap-4 sm:grid-cols-2">
         {products.map((product) => (
           <div
@@ -77,14 +79,14 @@ export function CreatorProducts({
             </div>
             <div className="flex items-center justify-between">
               <span className="text-lg font-bold text-[var(--usha-gold)]">
-                {product.price} SEK
+                {t("products.priceSek", { price: product.price })}
               </span>
               <button
                 onClick={() => handleBuy(product.id)}
                 className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-sm font-bold text-black transition hover:opacity-90"
               >
                 <ShoppingCart size={14} />
-                Köp
+                {t("products.buy")}
               </button>
             </div>
           </div>

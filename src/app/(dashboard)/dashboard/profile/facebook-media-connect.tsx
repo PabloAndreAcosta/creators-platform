@@ -5,6 +5,7 @@ import { Facebook, Loader2, Check } from "lucide-react";
 import Image from "next/image";
 import { importFacebookMedia } from "./media-actions";
 import { useToast } from "@/components/ui/toaster";
+import { useTranslations } from "next-intl";
 
 interface FbMediaItem {
   fb_id: string;
@@ -21,6 +22,7 @@ export function FacebookMediaConnect({
   isConnected: boolean;
   pageName: string | null;
 }) {
+  const t = useTranslations("dashProfile.facebook");
   const { toast } = useToast();
   const [fbMedia, setFbMedia] = useState<FbMediaItem[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -37,7 +39,7 @@ export function FacebookMediaConnect({
       const res = await fetch(url);
       if (!res.ok) {
         const data = await res.json();
-        toast.error("Kunde inte hämta", data.error || "Försök igen");
+        toast.error(t("fetchErrorTitle"), data.error || t("fetchErrorFallback"));
         return;
       }
       const data = await res.json();
@@ -48,7 +50,7 @@ export function FacebookMediaConnect({
       }
       setNextCursor(data.nextCursor);
     } catch {
-      toast.error("Nätverksfel", "Kunde inte nå Facebook");
+      toast.error(t("networkErrorTitle"), t("networkErrorDesc"));
     } finally {
       setLoading(false);
     }
@@ -74,7 +76,7 @@ export function FacebookMediaConnect({
   function handleImport() {
     const selected = fbMedia.filter((m) => selectedIds.has(m.fb_id));
     if (!selected.length) {
-      toast.error("Välj media", "Markera minst en bild att importera.");
+      toast.error(t("selectMediaTitle"), t("selectMediaDesc"));
       return;
     }
 
@@ -88,9 +90,9 @@ export function FacebookMediaConnect({
       );
 
       if (result.error) {
-        toast.error("Import misslyckades", result.error);
+        toast.error(t("importFailedTitle"), result.error);
       } else {
-        toast.success(`${selected.length} bilder importerade`);
+        toast.success(t("importSuccess", { count: selected.length }));
         setFbMedia((prev) => prev.filter((m) => !selectedIds.has(m.fb_id)));
         setSelectedIds(new Set());
       }
@@ -102,17 +104,17 @@ export function FacebookMediaConnect({
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <Facebook size={18} className="text-[var(--usha-muted)]" />
-          <h3 className="text-sm font-semibold">Facebook-import</h3>
+          <h3 className="text-sm font-semibold">{t("title")}</h3>
         </div>
         <p className="text-xs text-[var(--usha-muted)]">
-          Koppla din Facebook-sida för att importera bilder till din portfolio.
+          {t("connectIntro")}
         </p>
         <a
           href="/api/facebook/connect"
           className="inline-flex items-center gap-2 rounded-xl bg-[#1877F2] px-4 py-2.5 text-sm font-medium text-white transition hover:opacity-90"
         >
           <Facebook size={16} />
-          Koppla Facebook
+          {t("connect")}
         </a>
       </div>
     );
@@ -123,7 +125,7 @@ export function FacebookMediaConnect({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Facebook size={18} className="text-[#1877F2]" />
-          <h3 className="text-sm font-semibold">Facebook-import</h3>
+          <h3 className="text-sm font-semibold">{t("title")}</h3>
           {pageName && (
             <span className="rounded-full bg-[#1877F2]/15 px-2 py-0.5 text-[10px] font-bold text-[#1877F2]">
               {pageName}
@@ -139,7 +141,7 @@ export function FacebookMediaConnect({
           className="inline-flex items-center gap-2 rounded-xl border border-[var(--usha-border)] px-4 py-2 text-sm transition hover:bg-[var(--usha-border)]"
         >
           {loading ? <Loader2 size={14} className="animate-spin" /> : <Facebook size={14} />}
-          Hämta media
+          {t("fetchMedia")}
         </button>
 
         {fbMedia.length > 0 && (
@@ -148,7 +150,7 @@ export function FacebookMediaConnect({
               onClick={selectAll}
               className="rounded-xl border border-[var(--usha-border)] px-3 py-2 text-xs transition hover:bg-[var(--usha-border)]"
             >
-              {selectedIds.size === fbMedia.length ? "Avmarkera alla" : "Markera alla"}
+              {selectedIds.size === fbMedia.length ? t("deselectAll") : t("selectAll")}
             </button>
             <button
               onClick={handleImport}
@@ -156,7 +158,7 @@ export function FacebookMediaConnect({
               className="inline-flex items-center gap-2 rounded-xl bg-[var(--usha-gold)] px-4 py-2 text-sm font-medium text-black transition hover:opacity-90 disabled:opacity-50"
             >
               {isPending ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
-              Importera valda ({selectedIds.size})
+              {t("importSelected", { count: selectedIds.size })}
             </button>
           </>
         )}
@@ -178,7 +180,7 @@ export function FacebookMediaConnect({
                 {item.media_url && (
                   <Image
                     src={item.thumbnail_url || item.media_url}
-                    alt={item.caption || "Facebook media"}
+                    alt={item.caption || t("mediaAlt")}
                     fill
                     className="object-cover"
                     sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, 20vw"
@@ -199,7 +201,7 @@ export function FacebookMediaConnect({
               disabled={loading}
               className="w-full rounded-xl border border-[var(--usha-border)] py-2 text-sm text-[var(--usha-muted)] transition hover:bg-[var(--usha-border)]"
             >
-              {loading ? "Laddar..." : "Visa fler"}
+              {loading ? t("loadingMore") : t("showMore")}
             </button>
           )}
         </>

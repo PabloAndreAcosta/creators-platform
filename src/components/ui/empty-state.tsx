@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { getTranslations } from "next-intl/server";
 import { Calendar, List, Users, Search, Ticket } from "lucide-react";
 
 interface EmptyStateProps {
@@ -39,57 +40,62 @@ export function EmptyState({ icon, title, description, action, className }: Empt
   );
 }
 
-export function NoBookings({ onExplore }: { onExplore?: () => void }) {
+export async function NoBookings({ onExplore }: { onExplore?: () => void }) {
+  const t = await getTranslations("emptyState");
   return (
     <EmptyState
       icon={<Calendar size={28} />}
-      title="Inga bokningar ännu"
-      description="Du har inte bokat några tjänster. Utforska marketplace och boka något idag!"
-      action={onExplore ? { label: "Utforska marketplace", onClick: onExplore } : undefined}
+      title={t("noBookingsTitle")}
+      description={t("noBookingsDescription")}
+      action={onExplore ? { label: t("noBookingsAction"), onClick: onExplore } : undefined}
     />
   );
 }
 
-export function NoListings({ onCreate }: { onCreate?: () => void }) {
+export async function NoListings({ onCreate }: { onCreate?: () => void }) {
+  const t = await getTranslations("emptyState");
   return (
     <EmptyState
       icon={<List size={28} />}
-      title="Inga tjänster ännu"
-      description="Du har inte skapat några tjänster. Skapa din första tjänst för att synas i marketplace."
-      action={onCreate ? { label: "Skapa tjänst", onClick: onCreate } : undefined}
+      title={t("noListingsTitle")}
+      description={t("noListingsDescription")}
+      action={onCreate ? { label: t("noListingsAction"), onClick: onCreate } : undefined}
     />
   );
 }
 
-export function NoCreators() {
+export async function NoCreators() {
+  const t = await getTranslations("emptyState");
   return (
     <EmptyState
       icon={<Users size={28} />}
-      title="Inga kreatörer hittades"
-      description="Vi kunde inte hitta några kreatörer med dina valda filter. Prova att ändra din sökning."
+      title={t("noCreatorsTitle")}
+      description={t("noCreatorsDescription")}
     />
   );
 }
 
-export function NoEvents() {
+export async function NoEvents() {
+  const t = await getTranslations("emptyState");
   return (
     <EmptyState
       icon={<Ticket size={28} />}
-      title="Inga events att visa"
-      description="Det finns inga events just nu. Kolla tillbaka senare!"
+      title={t("noEventsTitle")}
+      description={t("noEventsDescription")}
     />
   );
 }
 
-export function NoResults({ query }: { query?: string }) {
+export async function NoResults({ query }: { query?: string }) {
+  const t = await getTranslations("emptyState");
   return (
     <EmptyState
       icon={<Search size={28} />}
-      title="Ingen träff"
+      title={t("noResultsTitle")}
       description={
         query
-          ? `Inga resultat för "${query}". Prova ett annat sökord.`
-          : "Inga resultat matchade din sökning. Prova att ändra filtren."
+          ? t("noResultsWithQuery", { query })
+          : t("noResultsDescription")
       }
     />
   );

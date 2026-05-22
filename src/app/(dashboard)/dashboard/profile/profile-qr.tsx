@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import QRCode from "qrcode";
 import { Download, Copy, Check } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
+import { useTranslations } from "next-intl";
 
 export function ProfileQR({
   profileSlug,
@@ -14,6 +15,7 @@ export function ProfileQR({
   profileId: string;
   fullName: string | null;
 }) {
+  const t = useTranslations("dashProfile.qr");
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [dataUrl, setDataUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -34,12 +36,12 @@ export function ProfileQR({
         if (!cancelled) setDataUrl(url);
       })
       .catch(() => {
-        if (!cancelled) toast.error("Kunde inte generera QR-kod");
+        if (!cancelled) toast.error(t("generateError"));
       });
     return () => {
       cancelled = true;
     };
-  }, [profileUrl, toast]);
+  }, [profileUrl, toast, t]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -68,22 +70,22 @@ export function ProfileQR({
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
-      toast.error("Kunde inte kopiera länk");
+      toast.error(t("copyError"));
     }
   }
 
   return (
     <div className="space-y-4 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
       <div>
-        <h2 className="text-lg font-semibold">Din QR-kod</h2>
+        <h2 className="text-lg font-semibold">{t("title")}</h2>
         <p className="mt-1 text-sm text-[var(--usha-muted)]">
-          Skanna eller dela för att gå direkt till din publika profil. Använd på affischer, visitkort, eller på ett event.
+          {t("subtitle")}
         </p>
       </div>
 
       <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
         <div className="rounded-xl bg-white p-3">
-          <canvas ref={canvasRef} aria-label={`QR-kod för ${fullName || "profil"}`} />
+          <canvas ref={canvasRef} aria-label={t("canvasAriaNamed", { name: fullName || t("canvasAriaFallback") })} />
         </div>
 
         <div className="flex w-full flex-col gap-2 sm:flex-1">
@@ -96,7 +98,7 @@ export function ProfileQR({
             className="flex items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-2.5 text-sm font-medium text-[var(--usha-muted)] transition hover:text-white"
           >
             {copied ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
-            {copied ? "Kopierat" : "Kopiera länk"}
+            {copied ? t("copied") : t("copyLink")}
           </button>
           <button
             type="button"
@@ -105,7 +107,7 @@ export function ProfileQR({
             className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] py-2.5 text-sm font-bold text-black transition hover:opacity-90 disabled:opacity-50"
           >
             <Download size={14} />
-            Ladda ner som PNG
+            {t("download")}
           </button>
         </div>
       </div>

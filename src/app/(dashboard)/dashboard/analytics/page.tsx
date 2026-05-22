@@ -13,6 +13,7 @@ import {
   Download,
 } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 interface AnalyticsData {
   summary: {
@@ -44,21 +45,24 @@ interface AnalyticsData {
   };
 }
 
-const MONTH_NAMES = [
-  "Jan", "Feb", "Mar", "Apr", "Maj", "Jun",
-  "Jul", "Aug", "Sep", "Okt", "Nov", "Dec",
-];
+const MONTH_KEYS = [
+  "monthJan", "monthFeb", "monthMar", "monthApr", "monthMay", "monthJun",
+  "monthJul", "monthAug", "monthSep", "monthOct", "monthNov", "monthDec",
+] as const;
 
-function formatMonth(ym: string) {
-  const [, m] = ym.split("-");
-  return MONTH_NAMES[parseInt(m, 10) - 1] || m;
-}
-
-function TrendBadge({ current, previous }: { current: number; previous: number }) {
+function TrendBadge({
+  current,
+  previous,
+  t,
+}: {
+  current: number;
+  previous: number;
+  t: ReturnType<typeof useTranslations>;
+}) {
   if (previous === 0 && current === 0) return null;
   if (previous === 0) return (
     <span className="flex items-center gap-0.5 text-[10px] font-medium text-green-400">
-      <TrendingUp size={10} /> Ny
+      <TrendingUp size={10} /> {t("trendNew")}
     </span>
   );
   const pct = Math.round(((current - previous) / previous) * 100);
@@ -66,14 +70,21 @@ function TrendBadge({ current, previous }: { current: number; previous: number }
   return (
     <span className={`flex items-center gap-0.5 text-[10px] font-medium ${pct > 0 ? "text-green-400" : "text-red-400"}`}>
       {pct > 0 ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
-      {pct > 0 ? "+" : ""}{pct}%
+      {t("trendPercent", { sign: pct > 0 ? "+" : "", pct })}
     </span>
   );
 }
 
 export default function AnalyticsPage() {
+  const t = useTranslations("analytics");
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
+
+  function formatMonth(ym: string) {
+    const [, m] = ym.split("-");
+    const idx = parseInt(m, 10) - 1;
+    return MONTH_KEYS[idx] ? t(MONTH_KEYS[idx]) : m;
+  }
 
   useEffect(() => {
     fetch("/api/analytics")
@@ -94,7 +105,7 @@ export default function AnalyticsPage() {
   if (!data) {
     return (
       <div className="py-20 text-center text-sm text-[var(--usha-muted)]">
-        Kunde inte ladda analytics.
+        {t("loadError")}
       </div>
     );
   }
@@ -111,12 +122,12 @@ export default function AnalyticsPage() {
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-white"
         >
           <ArrowLeft size={14} />
-          Tillbaka
+          {t("back")}
         </Link>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <BarChart3 size={24} className="text-[var(--usha-gold)]" />
-            <h1 className="text-3xl font-bold">Analytics</h1>
+            <h1 className="text-3xl font-bold">{t("title")}</h1>
           </div>
           <a
             href="/api/analytics/export?type=all"
@@ -124,11 +135,11 @@ export default function AnalyticsPage() {
             className="flex items-center gap-1.5 rounded-xl border border-[var(--usha-border)] px-4 py-2 text-sm font-medium text-[var(--usha-muted)] transition hover:border-[var(--usha-gold)]/30 hover:text-white"
           >
             <Download size={14} />
-            Exportera CSV
+            {t("exportCsv")}
           </a>
         </div>
         <p className="mt-1 text-[var(--usha-muted)]">
-          Översikt av dina bokningar och intäkter de senaste 6 månaderna.
+          {t("subtitle")}
         </p>
       </div>
 
@@ -136,30 +147,30 @@ export default function AnalyticsPage() {
       <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5">
           <div className="mb-3 flex items-center justify-between">
-            <span className="text-xs text-[var(--usha-muted)]">Intäkter denna månad</span>
+            <span className="text-xs text-[var(--usha-muted)]">{t("revenueThisMonth")}</span>
             <CreditCard size={14} className="text-[var(--usha-muted)]" />
           </div>
-          <p className="text-2xl font-bold">{summary.currentMonthRevenue} SEK</p>
-          <TrendBadge current={summary.currentMonthRevenue} previous={summary.prevMonthRevenue} />
+          <p className="text-2xl font-bold">{t("amountSek", { amount: summary.currentMonthRevenue })}</p>
+          <TrendBadge current={summary.currentMonthRevenue} previous={summary.prevMonthRevenue} t={t} />
         </div>
         <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5">
           <div className="mb-3 flex items-center justify-between">
-            <span className="text-xs text-[var(--usha-muted)]">Bokningar denna månad</span>
+            <span className="text-xs text-[var(--usha-muted)]">{t("bookingsThisMonth")}</span>
             <Calendar size={14} className="text-[var(--usha-muted)]" />
           </div>
           <p className="text-2xl font-bold">{summary.currentMonthBookings}</p>
-          <TrendBadge current={summary.currentMonthBookings} previous={summary.prevMonthBookings} />
+          <TrendBadge current={summary.currentMonthBookings} previous={summary.prevMonthBookings} t={t} />
         </div>
         <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5">
           <div className="mb-3 flex items-center justify-between">
-            <span className="text-xs text-[var(--usha-muted)]">Totala intäkter</span>
+            <span className="text-xs text-[var(--usha-muted)]">{t("totalRevenue")}</span>
             <CreditCard size={14} className="text-[var(--usha-muted)]" />
           </div>
-          <p className="text-2xl font-bold">{summary.totalRevenue} SEK</p>
+          <p className="text-2xl font-bold">{t("amountSek", { amount: summary.totalRevenue })}</p>
         </div>
         <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5">
           <div className="mb-3 flex items-center justify-between">
-            <span className="text-xs text-[var(--usha-muted)]">Slutförandegrad</span>
+            <span className="text-xs text-[var(--usha-muted)]">{t("completionRate")}</span>
             <CheckCircle size={14} className="text-[var(--usha-muted)]" />
           </div>
           <p className="text-2xl font-bold">{summary.completionRate}%</p>
@@ -168,7 +179,7 @@ export default function AnalyticsPage() {
 
       {/* Revenue chart */}
       <div className="mb-8 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
-        <h2 className="mb-4 text-sm font-semibold">Intäkter per månad</h2>
+        <h2 className="mb-4 text-sm font-semibold">{t("revenuePerMonth")}</h2>
         <div className="flex items-end gap-2 h-40">
           {monthlyStats.map((m) => (
             <div key={m.month} className="flex-1 flex flex-col items-center gap-1">
@@ -192,7 +203,7 @@ export default function AnalyticsPage() {
 
       {/* Bookings chart */}
       <div className="mb-8 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
-        <h2 className="mb-4 text-sm font-semibold">Bokningar per månad</h2>
+        <h2 className="mb-4 text-sm font-semibold">{t("bookingsPerMonth")}</h2>
         <div className="flex items-end gap-2 h-32">
           {monthlyStats.map((m) => (
             <div key={m.month} className="flex-1 flex flex-col items-center gap-1">
@@ -217,9 +228,9 @@ export default function AnalyticsPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Top services */}
         <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
-          <h2 className="mb-4 text-sm font-semibold">Populäraste tjänster</h2>
+          <h2 className="mb-4 text-sm font-semibold">{t("topServices")}</h2>
           {topServices.length === 0 ? (
-            <p className="text-xs text-[var(--usha-muted)]">Inga bokningar ännu</p>
+            <p className="text-xs text-[var(--usha-muted)]">{t("noBookings")}</p>
           ) : (
             <div className="space-y-3">
               {topServices.map((s, i) => (
@@ -227,7 +238,7 @@ export default function AnalyticsPage() {
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium">{s.title}</p>
                     <p className="text-[10px] text-[var(--usha-muted)]">
-                      {s.count} bokningar &middot; {s.revenue} SEK
+                      {t("serviceMeta", { count: s.count, revenue: s.revenue })}
                     </p>
                   </div>
                   <div className="ml-4 flex-shrink-0">
@@ -248,19 +259,19 @@ export default function AnalyticsPage() {
 
         {/* Status breakdown */}
         <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
-          <h2 className="mb-4 text-sm font-semibold">Bokningsstatus</h2>
+          <h2 className="mb-4 text-sm font-semibold">{t("bookingStatus")}</h2>
           <div className="space-y-3">
             {[
-              { label: "Väntande", count: statusCounts.pending, color: "bg-yellow-500" },
-              { label: "Bekräftade", count: statusCounts.confirmed, color: "bg-blue-500" },
-              { label: "Slutförda", count: statusCounts.completed, color: "bg-green-500" },
-              { label: "Avbokade", count: statusCounts.canceled, color: "bg-red-500" },
+              { labelKey: "statusPending", count: statusCounts.pending, color: "bg-yellow-500" },
+              { labelKey: "statusConfirmed", count: statusCounts.confirmed, color: "bg-blue-500" },
+              { labelKey: "statusCompleted", count: statusCounts.completed, color: "bg-green-500" },
+              { labelKey: "statusCanceled", count: statusCounts.canceled, color: "bg-red-500" },
             ].map((s) => {
               const total = summary.totalBookings || 1;
               return (
-                <div key={s.label}>
+                <div key={s.labelKey}>
                   <div className="mb-1 flex items-center justify-between text-xs">
-                    <span className="text-[var(--usha-muted)]">{s.label}</span>
+                    <span className="text-[var(--usha-muted)]">{t(s.labelKey)}</span>
                     <span className="font-medium">{s.count}</span>
                   </div>
                   <div className="h-1.5 w-full rounded-full bg-[var(--usha-border)]">

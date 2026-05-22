@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { createBooking, joinQueue } from "@/app/(dashboard)/dashboard/bookings/actions";
 import { getAvailability, getTimeSlotsForDate } from "@/app/app/calendar/actions";
 import { useToast } from "@/components/ui/toaster";
@@ -39,6 +40,7 @@ function MiniCalendar({
   onSelectDate: (date: string) => void;
   selectedDate: string | null;
 }) {
+  const t = useTranslations("creatorProfile");
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
@@ -67,7 +69,7 @@ function MiniCalendar({
   const offset = firstDay === 0 ? 6 : firstDay - 1; // Monday start
   const daysInMonth = new Date(year, month, 0).getDate();
   const today = new Date().toISOString().slice(0, 10);
-  const monthNames = ["Januari", "Februari", "Mars", "April", "Maj", "Juni", "Juli", "Augusti", "September", "Oktober", "November", "December"];
+  const monthNames = t("miniCalendar.months").split(",");
 
   return (
     <div>
@@ -82,7 +84,7 @@ function MiniCalendar({
       </div>
 
       <div className="grid grid-cols-7 gap-0.5 text-center text-[10px] text-[var(--usha-muted)] mb-1">
-        {["Mån", "Tis", "Ons", "Tor", "Fre", "Lör", "Sön"].map((d) => (
+        {t("miniCalendar.weekdaysShort").split(",").map((d) => (
           <span key={d}>{d}</span>
         ))}
       </div>
@@ -122,10 +124,10 @@ function MiniCalendar({
       </div>
 
       {loading && (
-        <p className="mt-2 text-center text-[10px] text-[var(--usha-muted)]">Laddar tillgänglighet...</p>
+        <p className="mt-2 text-center text-[10px] text-[var(--usha-muted)]">{t("miniCalendar.loadingAvailability")}</p>
       )}
       {!loading && availableDates.size === 0 && (
-        <p className="mt-2 text-center text-[10px] text-[var(--usha-muted)]">Inga tillgängliga dagar denna månad</p>
+        <p className="mt-2 text-center text-[10px] text-[var(--usha-muted)]">{t("miniCalendar.noAvailableDays")}</p>
       )}
     </div>
   );
@@ -144,6 +146,7 @@ function SlotPicker({
   onSelectSlot: (time: string) => void;
   selectedTime: string | null;
 }) {
+  const t = useTranslations("creatorProfile");
   const [slots, setSlots] = useState<TimeSlot[]>([]);
   const [loading, setLoading] = useState(true);
   const [freeTime, setFreeTime] = useState("");
@@ -157,7 +160,7 @@ function SlotPicker({
   }, [date, creatorId]);
 
   if (loading) {
-    return <p className="text-xs text-[var(--usha-muted)]">Laddar tider...</p>;
+    return <p className="text-xs text-[var(--usha-muted)]">{t("slotPicker.loadingTimes")}</p>;
   }
 
   const isAllDay = slots.length === 1 && !slots[0].start_time && !slots[0].end_time;
@@ -167,12 +170,12 @@ function SlotPicker({
     <div>
       <p className="mb-2 text-sm text-[var(--usha-muted)]">
         <Clock size={12} className="mr-1 inline" />
-        Välj tid för {new Date(date).toLocaleDateString("sv-SE", { day: "numeric", month: "long" })}
+        {t("slotPicker.chooseTimeFor", { date: new Date(date).toLocaleDateString("sv-SE", { day: "numeric", month: "long" }) })}
       </p>
 
       {isAllDay && (
         <div>
-          <p className="mb-2 text-xs text-green-400">Hela dagen tillgänglig — välj en tid</p>
+          <p className="mb-2 text-xs text-green-400">{t("slotPicker.allDayAvailable")}</p>
           <input
             type="time"
             value={freeTime}
@@ -210,7 +213,7 @@ function SlotPicker({
       )}
 
       {slots.length === 0 && (
-        <p className="text-xs text-[var(--usha-muted)]">Inga tider tillgängliga denna dag</p>
+        <p className="text-xs text-[var(--usha-muted)]">{t("slotPicker.noTimesAvailable")}</p>
       )}
     </div>
   );
@@ -231,6 +234,7 @@ export default function BookingForm({
   hasConnect?: boolean;
   viewerRole?: string | null;
 }) {
+  const t = useTranslations("creatorProfile");
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [queueState, setQueueState] = useState<{
@@ -278,7 +282,7 @@ export default function BookingForm({
         className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-xs font-bold text-black transition hover:opacity-90"
       >
         <CalendarPlus size={13} />
-        Logga in för att boka
+        {t("booking.loginToBook")}
       </a>
     );
   }
@@ -287,7 +291,7 @@ export default function BookingForm({
   if (isB2BOffering && viewerRole !== "experience") {
     return (
       <span className="flex items-center gap-1.5 rounded-lg border border-[var(--usha-border)] px-3 py-1.5 text-[10px] text-[var(--usha-muted)]">
-        Endast arrangörer
+        {t("booking.onlyOrganizers")}
       </span>
     );
   }
@@ -302,9 +306,9 @@ export default function BookingForm({
       // and event description into notes so existing createBooking writes them.
       if (isB2BOffering) {
         const venueLines = [
-          eventVenue ? `Lokal: ${eventVenue}` : null,
-          eventVenueAddress ? `Adress: ${eventVenueAddress}` : null,
-          eventPerks ? `Förmåner: ${eventPerks}` : null,
+          eventVenue ? t("booking.venueLabel", { venue: eventVenue }) : null,
+          eventVenueAddress ? t("booking.addressLabel", { address: eventVenueAddress }) : null,
+          eventPerks ? t("booking.perksLabel", { perks: eventPerks }) : null,
         ].filter(Boolean) as string[];
         if (venueLines.length) {
           formData.set("special_requests", venueLines.join("\n"));
@@ -319,19 +323,19 @@ export default function BookingForm({
       }
       const result = await createBooking(formData);
       if (result.error) {
-        if (result.error === "Denna tjänst är fullbokad.") {
+        if (result.error === t("booking.errorFullyBooked")) {
           setQueueState({ isFull: true });
         } else {
-          toast.error("Kunde inte skicka bokning", result.error);
+          toast.error(t("booking.errorCouldNotSendBooking"), result.error);
         }
       } else {
         toast.success(
-          hasFixedDate ? "Bokning bekräftad!" : isB2BOffering ? "Förfrågan skickad" : "Bokning skickad",
+          hasFixedDate ? t("booking.toastBookingConfirmedTitle") : isB2BOffering ? t("booking.toastRequestSentTitle") : t("booking.toastBookingSentTitle"),
           hasFixedDate
-            ? "Du är bokad! Se dina biljetter."
+            ? t("booking.toastBookingConfirmedBody")
             : isB2BOffering
-              ? "Taxidansaren får ett meddelande och svarar med ja eller nej."
-              : "Inväntar bekräftelse från skaparen."
+              ? t("booking.toastB2BBody")
+              : t("booking.toastBookingSentBody")
         );
         setOpen(false);
         setSelectedDate(listing.event_date ?? null);
@@ -372,14 +376,14 @@ export default function BookingForm({
 
         const data = await res.json();
         if (!res.ok) {
-          toast.error("Kunde inte starta betalning", data.error || "Okänt fel");
+          toast.error(t("booking.errorCouldNotStartPayment"), data.error || t("booking.errorUnknown"));
           return;
         }
         if (data.url) {
           window.location.href = data.url;
         }
       } catch {
-        toast.error("Kunde inte starta betalning", "Försök igen.");
+        toast.error(t("booking.errorCouldNotStartPayment"), t("booking.errorTryAgain"));
       }
     });
   }
@@ -388,7 +392,7 @@ export default function BookingForm({
     startTransition(async () => {
       const result = await joinQueue(listing.id);
       if (result.error) {
-        toast.error("Kunde inte gå med i kön", result.error);
+        toast.error(t("booking.errorCouldNotJoinQueue"), result.error);
       } else {
         setQueueState({
           isFull: true,
@@ -396,8 +400,8 @@ export default function BookingForm({
           estimatedTime: result.estimatedTime,
         });
         toast.success(
-          "Du är i kön!",
-          `Plats ${result.queuePosition}. Du bokas automatiskt när en plats blir ledig.`
+          t("booking.toastInQueueTitle"),
+          t("booking.toastInQueueBody", { position: result.queuePosition! })
         );
       }
     });
@@ -412,7 +416,7 @@ export default function BookingForm({
         className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-xs font-bold text-black transition hover:opacity-90"
       >
         <CalendarPlus size={13} />
-        Boka
+        {t("booking.openButton")}
       </button>
 
       {open && (
@@ -430,15 +434,15 @@ export default function BookingForm({
               <X size={16} />
             </button>
 
-            <h3 className="mb-1 text-lg font-bold">Boka: {listing.title}</h3>
+            <h3 className="mb-1 text-lg font-bold">{t("booking.modalTitle", { title: listing.title })}</h3>
             <div className="mb-4 flex items-center gap-3 text-sm text-[var(--usha-muted)]">
               {listing.price != null && (
                 <span className="font-semibold text-[var(--usha-gold)]">
-                  {listing.price} SEK
+                  {t("booking.priceSek", { price: listing.price })}
                 </span>
               )}
               {listing.duration_minutes != null && (
-                <span>{listing.duration_minutes} min</span>
+                <span>{t("booking.durationMin", { minutes: listing.duration_minutes })}</span>
               )}
             </div>
 
@@ -448,22 +452,22 @@ export default function BookingForm({
                   <Users size={28} className="mx-auto mb-2 text-[var(--usha-gold)]" />
                   {queueState.position ? (
                     <>
-                      <p className="text-sm font-semibold">Du är i kön!</p>
+                      <p className="text-sm font-semibold">{t("booking.queueInQueueTitle")}</p>
                       <p className="mt-1 text-2xl font-bold text-[var(--usha-gold)]">
-                        Plats {queueState.position}
+                        {t("booking.queuePosition", { position: queueState.position })}
                       </p>
                       {queueState.estimatedTime && (
                         <p className="mt-1 text-xs text-[var(--usha-muted)]">{queueState.estimatedTime}</p>
                       )}
                       <p className="mt-3 text-xs text-[var(--usha-muted)]">
-                        Du bokas automatiskt när en plats blir ledig.
+                        {t("booking.queueAutoBook")}
                       </p>
                     </>
                   ) : (
                     <>
-                      <p className="text-sm font-semibold">Fullbokat</p>
+                      <p className="text-sm font-semibold">{t("booking.queueFullyBookedTitle")}</p>
                       <p className="mt-1 text-xs text-[var(--usha-muted)]">
-                        Alla platser är tagna. Ställ dig i kö så bokas du automatiskt.
+                        {t("booking.queueFullyBookedBody")}
                       </p>
                     </>
                   )}
@@ -475,7 +479,7 @@ export default function BookingForm({
                     disabled={isPending}
                     className="w-full rounded-xl border border-[var(--usha-gold)] py-3 text-sm font-bold text-[var(--usha-gold)] transition hover:bg-[var(--usha-gold)]/10 disabled:opacity-50"
                   >
-                    {isPending ? "Ansluter..." : "Ställ dig i kön"}
+                    {isPending ? t("booking.joining") : t("booking.joinQueue")}
                   </button>
                 )}
               </div>
@@ -515,20 +519,20 @@ export default function BookingForm({
                   </div>
                 ) : isDancePackage ? (
                   <div className="rounded-xl border border-[var(--usha-gold)]/20 bg-[var(--usha-gold)]/5 p-4 text-sm">
-                    <p className="font-semibold">Förbetalt danspaket</p>
+                    <p className="font-semibold">{t("booking.dancePackageTitle")}</p>
                     <p className="mt-1 text-xs text-[var(--usha-muted)]">
-                      Du betalar i förväg. Inget datum eller tid krävs vid bokning — du och dansaren bestämmer själva när danserna ska inlösas, t.ex. vid ett event.
+                      {t("booking.dancePackageBody")}
                     </p>
                   </div>
                 ) : isB2BOffering ? (
                   <>
                     <div className="rounded-xl border border-[var(--usha-gold)]/20 bg-[var(--usha-gold)]/5 p-4 text-xs text-[var(--usha-muted)]">
-                      Skicka en förfrågan med datum, tid och lokal. Taxidansaren får meddelande och kan acceptera eller avböja. Betalning hanteras separat efter acceptans.
+                      {t("booking.b2bInfo")}
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">Datum</label>
+                        <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">{t("booking.dateLabel")}</label>
                         <input
                           type="date"
                           required
@@ -538,7 +542,7 @@ export default function BookingForm({
                         />
                       </div>
                       <div>
-                        <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">Starttid</label>
+                        <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">{t("booking.startTimeLabel")}</label>
                         <input
                           type="time"
                           required
@@ -550,69 +554,69 @@ export default function BookingForm({
                     </div>
 
                     <div>
-                      <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">Lokal / namn</label>
+                      <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">{t("booking.venueNameLabel")}</label>
                       <input
                         type="text"
                         required
                         value={eventVenue}
                         onChange={(e) => setEventVenue(e.target.value)}
-                        placeholder="t.ex. Berns Stockholm, Nalen, danspalats..."
+                        placeholder={t("booking.venueNamePlaceholder")}
                         className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
                       />
                     </div>
 
                     <div>
-                      <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">Lokal-adress</label>
+                      <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">{t("booking.venueAddressLabel")}</label>
                       <input
                         type="text"
                         value={eventVenueAddress}
                         onChange={(e) => setEventVenueAddress(e.target.value)}
-                        placeholder="Gata, ort"
+                        placeholder={t("booking.venueAddressPlaceholder")}
                         className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
                       />
                     </div>
 
                     <div>
                       <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-                        Föreslagen ersättning (SEK)
+                        {t("booking.proposedCompensationLabel")}
                       </label>
                       <input
                         type="number"
                         min={0}
                         value={agreedPrice}
                         onChange={(e) => setAgreedPrice(e.target.value)}
-                        placeholder={listing.price != null ? `Baspris ${listing.price}` : "t.ex. 5000"}
+                        placeholder={listing.price != null ? t("booking.proposedCompensationPlaceholder", { price: listing.price }) : t("booking.proposedCompensationPlaceholderEmpty")}
                         className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
                       />
                       <p className="mt-1.5 text-xs text-[var(--usha-muted)]">
-                        Du kan föreslå annat pris än taxidansarens baspris. Om hen accepterar förfrågan godtas också detta belopp.
+                        {t("booking.proposedCompensationHelp")}
                       </p>
                     </div>
 
                     <div>
-                      <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">Eventbeskrivning</label>
+                      <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">{t("booking.eventDescriptionLabel")}</label>
                       <textarea
                         rows={3}
                         value={eventDescription}
                         onChange={(e) => setEventDescription(e.target.value)}
-                        placeholder="Tema, tidsramar, dresscode, antal gäster..."
+                        placeholder={t("booking.eventDescriptionPlaceholder")}
                         className="w-full resize-none rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
                       />
                     </div>
 
                     <div>
                       <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-                        Förmåner till taxidansaren <span className="text-xs">(valfritt)</span>
+                        {t("booking.perksFieldLabel")} <span className="text-xs">{t("booking.optional")}</span>
                       </label>
                       <textarea
                         rows={2}
                         value={eventPerks}
                         onChange={(e) => setEventPerks(e.target.value)}
-                        placeholder="t.ex. gratis entré, dryckespaket, måltid, parkering, hotell"
+                        placeholder={t("booking.perksFieldPlaceholder")}
                         className="w-full resize-none rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
                       />
                       <p className="mt-1.5 text-xs text-[var(--usha-muted)]">
-                        Lista vad du bjuder på utöver ersättningen. Hjälper taxidansaren att jämföra erbjudanden.
+                        {t("booking.perksFieldHelp")}
                       </p>
                     </div>
                   </>
@@ -621,7 +625,7 @@ export default function BookingForm({
                     {/* Step 1: Date picker */}
                     <div>
                       <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-                        Välj datum
+                        {t("booking.chooseDateLabel")}
                       </label>
                       <MiniCalendar
                         creatorId={creatorId}
@@ -646,9 +650,9 @@ export default function BookingForm({
                 {showGuestFields && (
                   <div>
                     <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-                      Antal gäster
+                      {t("booking.guestCountLabel")}
                       {listing.max_guests && (
-                        <span className="text-xs ml-1">({minGuests}–{maxGuests})</span>
+                        <span className="text-xs ml-1">{t("booking.guestCountRange", { min: minGuests, max: maxGuests })}</span>
                       )}
                     </label>
                     <div className="flex items-center gap-3">
@@ -683,7 +687,7 @@ export default function BookingForm({
                   <div>
                     <div className="mb-1.5 flex items-center justify-between">
                       <label className="text-sm text-[var(--usha-muted)]">
-                        Gästuppgifter <span className="text-xs">(valfritt)</span>
+                        {t("booking.guestDetailsLabel")} <span className="text-xs">{t("booking.optional")}</span>
                       </label>
                       {attendees.length < guestCount && (
                         <button
@@ -691,7 +695,7 @@ export default function BookingForm({
                           onClick={() => setAttendees([...attendees, { name: "", dietary: "" }])}
                           className="flex items-center gap-1 text-xs text-[var(--usha-gold)] hover:underline"
                         >
-                          <UserPlus size={12} /> Lägg till gäst
+                          <UserPlus size={12} /> {t("booking.addGuest")}
                         </button>
                       )}
                     </div>
@@ -700,7 +704,7 @@ export default function BookingForm({
                         <div className="flex-1 space-y-1.5">
                           <input
                             type="text"
-                            placeholder={`Gäst ${i + 1} namn`}
+                            placeholder={t("booking.guestNamePlaceholder", { number: i + 1 })}
                             value={att.name}
                             onChange={(e) => {
                               const next = [...attendees];
@@ -711,7 +715,7 @@ export default function BookingForm({
                           />
                           <input
                             type="text"
-                            placeholder="Allergier / specialkost"
+                            placeholder={t("booking.guestDietaryPlaceholder")}
                             value={att.dietary}
                             onChange={(e) => {
                               const next = [...attendees];
@@ -734,12 +738,12 @@ export default function BookingForm({
                 {showGuestFields && (
                   <div>
                     <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-                      Specialönskemål <span className="text-xs">(valfritt)</span>
+                      {t("booking.specialRequestsLabel")} <span className="text-xs">{t("booking.optional")}</span>
                     </label>
                     <textarea
                       name="special_requests"
                       rows={2}
-                      placeholder="Allergier, önskemål..."
+                      placeholder={t("booking.specialRequestsPlaceholder")}
                       className="w-full resize-none rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none"
                     />
                   </div>
@@ -748,13 +752,13 @@ export default function BookingForm({
                 {!isB2BOffering && (
                   <div>
                     <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-                      {showGuestFields ? "Övrigt meddelande" : "Meddelande"}{" "}
-                      <span className="text-xs">(valfritt)</span>
+                      {showGuestFields ? t("booking.otherMessageLabel") : t("booking.messageLabel")}{" "}
+                      <span className="text-xs">{t("booking.optional")}</span>
                     </label>
                     <textarea
                       name="notes"
                       rows={showGuestFields ? 2 : 3}
-                      placeholder="Berätta om önskemål eller frågor..."
+                      placeholder={t("booking.messagePlaceholder")}
                       className="w-full resize-none rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none"
                     />
                   </div>
@@ -775,7 +779,7 @@ export default function BookingForm({
                     disabled={isPending || !hasDateTime || !eventVenue}
                     className="w-full rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] py-3 text-sm font-bold text-black transition hover:opacity-90 disabled:opacity-50"
                   >
-                    {isPending ? "Skickar..." : "Skicka eventförfrågan"}
+                    {isPending ? t("booking.submitting") : t("booking.submitEventRequest")}
                   </button>
                 ) : canPayOnline ? (
                   <div className="space-y-2">
@@ -784,12 +788,12 @@ export default function BookingForm({
                       disabled={isPending || !hasDateTime}
                       onClick={() => {
                         const form = document.getElementById(`booking-form-${listing.id}`) as HTMLFormElement;
-                        if (!hasDateTime) { toast.error("Välj datum och tid"); return; }
+                        if (!hasDateTime) { toast.error(t("booking.errorChooseDateTime")); return; }
                         handlePaidBooking(new FormData(form));
                       }}
                       className="w-full rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] py-3 text-sm font-bold text-black transition hover:opacity-90 disabled:opacity-50"
                     >
-                      {isPending ? "Laddar..." : `Boka & betala ${listing.price} SEK`}
+                      {isPending ? t("booking.loadingButton") : t("booking.bookAndPay", { price: listing.price! })}
                     </button>
                     {!hasFixedDate && (
                       <button
@@ -797,7 +801,7 @@ export default function BookingForm({
                         disabled={isPending || !hasDateTime}
                         className="w-full rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium text-[var(--usha-muted)] transition hover:text-white disabled:opacity-50"
                       >
-                        {isPending ? "Skickar..." : "Skicka förfrågan utan betalning"}
+                        {isPending ? t("booking.submitting") : t("booking.submitRequestNoPayment")}
                       </button>
                     )}
                   </div>
@@ -807,7 +811,7 @@ export default function BookingForm({
                     disabled={isPending || !hasDateTime}
                     className="w-full rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] py-3 text-sm font-bold text-black transition hover:opacity-90 disabled:opacity-50"
                   >
-                    {isPending ? "Skickar..." : hasFixedDate ? "Boka plats" : "Skicka bokningsförfrågan"}
+                    {isPending ? t("booking.submitting") : hasFixedDate ? t("booking.bookSpot") : t("booking.submitBookingRequest")}
                   </button>
                 )}
               </form>

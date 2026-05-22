@@ -1,16 +1,18 @@
 "use client";
 
 import { useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Trash2 } from "lucide-react";
 import { deletePromoCode } from "./actions";
 
 export function DeletePromoButton({ promoId }: { promoId: string }) {
+  const t = useTranslations("promoCodes");
   const [isPending, startTransition] = useTransition();
 
   return (
     <button
       onClick={() => {
-        if (!confirm("Är du säker?")) return;
+        if (!confirm(t("confirmDelete"))) return;
         startTransition(async () => { await deletePromoCode(promoId); });
       }}
       disabled={isPending}

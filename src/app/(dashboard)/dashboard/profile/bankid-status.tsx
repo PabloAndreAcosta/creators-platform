@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ShieldCheck, ShieldAlert } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
 interface BankIdStatusProps {
   verifiedAt: string | null;
@@ -7,11 +8,12 @@ interface BankIdStatusProps {
   isCreatorRole: boolean;
 }
 
-export function BankIdStatus({
+export async function BankIdStatus({
   verifiedAt,
   bankidName,
   isCreatorRole,
 }: BankIdStatusProps) {
+  const t = await getTranslations("dashProfile.bankid");
   if (verifiedAt) {
     const date = new Date(verifiedAt);
     const formatted = date.toLocaleDateString("sv-SE", {
@@ -28,20 +30,21 @@ export function BankIdStatus({
           </div>
           <div className="flex-1">
             <h2 className="text-lg font-semibold text-green-400">
-              Identitet verifierad med BankID
+              {t("verifiedTitle")}
             </h2>
             <p className="mt-1 text-sm text-[var(--usha-muted)]">
               {bankidName ? (
-                <>
-                  Verifierad som <span className="text-white">{bankidName}</span>{" "}
-                  den {formatted}.
-                </>
+                t.rich("verifiedAsNamed", {
+                  name: bankidName,
+                  date: formatted,
+                  span: (chunks) => <span className="text-white">{chunks}</span>,
+                })
               ) : (
-                <>Verifierad den {formatted}.</>
+                t("verifiedOn", { date: formatted })
               )}
             </p>
             <p className="mt-2 text-xs text-[var(--usha-muted)]">
-              Visas som grön sköld bredvid ditt namn på marketplace.
+              {t("verifiedBadgeNote")}
             </p>
           </div>
         </div>
@@ -60,18 +63,16 @@ export function BankIdStatus({
           </div>
           <div className="flex-1">
             <h2 className="text-lg font-semibold text-amber-400">
-              BankID-verifiering krävs
+              {t("requiredTitle")}
             </h2>
             <p className="mt-1 text-sm text-[var(--usha-muted)]">
-              Kreatörer och upplevelseförmedlare måste verifiera sig med
-              BankID för att synas publikt på marketplace eller ta emot
-              bokningar.
+              {t("requiredDesc")}
             </p>
             <Link
               href="/signup"
               className="mt-4 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-2.5 text-sm font-bold text-black transition hover:opacity-90"
             >
-              <ShieldCheck size={14} /> Verifiera med BankID nu
+              <ShieldCheck size={14} /> {t("verifyNow")}
             </Link>
           </div>
         </div>
@@ -86,15 +87,15 @@ export function BankIdStatus({
           <ShieldAlert size={24} className="text-[var(--usha-muted)]" />
         </div>
         <div className="flex-1">
-          <h2 className="text-lg font-semibold">Identitet ej verifierad</h2>
+          <h2 className="text-lg font-semibold">{t("notVerifiedTitle")}</h2>
           <p className="mt-1 text-sm text-[var(--usha-muted)]">
-            Verifiera ditt konto med BankID om du senare vill bli kreatör eller upplevelseförmedlare.
+            {t("notVerifiedDesc")}
           </p>
           <Link
             href="/signup"
             className="mt-4 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2.5 text-sm font-bold text-black transition hover:opacity-90"
           >
-            <ShieldCheck size={14} /> Verifiera med BankID
+            <ShieldCheck size={14} /> {t("verify")}
           </Link>
         </div>
       </div>

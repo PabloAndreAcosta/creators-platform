@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { UserPlus, UserCheck, Loader2 } from "lucide-react";
 
 interface FollowButtonProps {
@@ -17,6 +18,7 @@ export function FollowButton({
   followerCount,
   isLoggedIn,
 }: FollowButtonProps) {
+  const t = useTranslations("creatorProfile");
   const [following, setFollowing] = useState(initialFollowing);
   const [count, setCount] = useState(followerCount);
   const [loading, setLoading] = useState(false);
@@ -69,7 +71,7 @@ export function FollowButton({
       ) : (
         <UserPlus size={14} />
       )}
-      {following ? "Följer" : "Följ"}
+      {following ? t("followButton.following") : t("followButton.follow")}
       {count > 0 && (
         <span className={`text-xs ${following ? "text-[var(--usha-muted)]" : "text-black/60"}`}>
           · {count}

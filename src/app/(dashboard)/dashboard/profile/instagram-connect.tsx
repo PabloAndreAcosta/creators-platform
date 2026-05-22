@@ -5,6 +5,7 @@ import { Instagram, Loader2, Check, X } from "lucide-react";
 import Image from "next/image";
 import { importInstagramMedia } from "./media-actions";
 import { useToast } from "@/components/ui/toaster";
+import { useTranslations } from "next-intl";
 
 interface IgMediaItem {
   ig_id: string;
@@ -22,6 +23,7 @@ export function InstagramConnect({
   isConnected: boolean;
   instagramUsername: string | null;
 }) {
+  const t = useTranslations("dashProfile.instagram");
   const { toast } = useToast();
   const [connected, setConnected] = useState(isConnected);
   const [username, setUsername] = useState(instagramUsername);
@@ -40,7 +42,7 @@ export function InstagramConnect({
       const res = await fetch(url);
       if (!res.ok) {
         const data = await res.json();
-        toast.error("Kunde inte hämta", data.error || "Försök igen");
+        toast.error(t("fetchErrorTitle"), data.error || t("fetchErrorFallback"));
         return;
       }
       const data = await res.json();
@@ -51,7 +53,7 @@ export function InstagramConnect({
       }
       setNextCursor(data.nextCursor);
     } catch {
-      toast.error("Nätverksfel", "Kunde inte nå Instagram");
+      toast.error(t("networkErrorTitle"), t("networkErrorDesc"));
     } finally {
       setLoading(false);
     }
@@ -77,7 +79,7 @@ export function InstagramConnect({
   function handleImport() {
     const selected = igMedia.filter((m) => selectedIds.has(m.ig_id));
     if (!selected.length) {
-      toast.error("Välj media", "Markera minst en bild eller video att importera.");
+      toast.error(t("selectMediaTitle"), t("selectMediaDesc"));
       return;
     }
 
@@ -92,9 +94,9 @@ export function InstagramConnect({
       );
 
       if (result.error) {
-        toast.error("Import misslyckades", result.error);
+        toast.error(t("importFailedTitle"), result.error);
       } else {
-        toast.success(`${selected.length} media importerade`);
+        toast.success(t("importSuccess", { count: selected.length }));
         // Remove imported items from preview
         setIgMedia((prev) => prev.filter((m) => !selectedIds.has(m.ig_id)));
         setSelectedIds(new Set());
@@ -108,7 +110,7 @@ export function InstagramConnect({
       setConnected(false);
       setUsername(null);
       setIgMedia([]);
-      toast.success("Instagram bortkopplat");
+      toast.success(t("disconnectedToast"));
     }
   }
 
@@ -117,17 +119,17 @@ export function InstagramConnect({
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <Instagram size={18} className="text-[var(--usha-muted)]" />
-          <h3 className="text-sm font-semibold">Instagram-import</h3>
+          <h3 className="text-sm font-semibold">{t("title")}</h3>
         </div>
         <p className="text-xs text-[var(--usha-muted)]">
-          Koppla ditt Instagram Business/Creator-konto för att importera bilder och videos till din portfolio.
+          {t("connectIntro")}
         </p>
         <a
           href="/api/instagram/connect"
           className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-500 px-4 py-2.5 text-sm font-medium text-white transition hover:opacity-90"
         >
           <Instagram size={16} />
-          Koppla Instagram
+          {t("connect")}
         </a>
       </div>
     );
@@ -138,7 +140,7 @@ export function InstagramConnect({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Instagram size={18} className="text-pink-400" />
-          <h3 className="text-sm font-semibold">Instagram-import</h3>
+          <h3 className="text-sm font-semibold">{t("title")}</h3>
           <span className="rounded-full bg-green-500/15 px-2 py-0.5 text-[10px] font-bold text-green-400">
             @{username}
           </span>
@@ -147,7 +149,7 @@ export function InstagramConnect({
           onClick={handleDisconnect}
           className="text-xs text-[var(--usha-muted)] hover:text-red-400 transition"
         >
-          Koppla bort
+          {t("disconnect")}
         </button>
       </div>
 
@@ -158,7 +160,7 @@ export function InstagramConnect({
           className="inline-flex items-center gap-2 rounded-xl border border-[var(--usha-border)] px-4 py-2 text-sm transition hover:bg-[var(--usha-border)]"
         >
           {loading ? <Loader2 size={14} className="animate-spin" /> : <Instagram size={14} />}
-          Hämta media
+          {t("fetchMedia")}
         </button>
 
         {igMedia.length > 0 && (
@@ -167,7 +169,7 @@ export function InstagramConnect({
               onClick={selectAll}
               className="rounded-xl border border-[var(--usha-border)] px-3 py-2 text-xs transition hover:bg-[var(--usha-border)]"
             >
-              {selectedIds.size === igMedia.length ? "Avmarkera alla" : "Markera alla"}
+              {selectedIds.size === igMedia.length ? t("deselectAll") : t("selectAll")}
             </button>
             <button
               onClick={handleImport}
@@ -175,7 +177,7 @@ export function InstagramConnect({
               className="inline-flex items-center gap-2 rounded-xl bg-[var(--usha-gold)] px-4 py-2 text-sm font-medium text-black transition hover:opacity-90 disabled:opacity-50"
             >
               {isPending ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
-              Importera valda ({selectedIds.size})
+              {t("importSelected", { count: selectedIds.size })}
             </button>
           </>
         )}
@@ -196,7 +198,7 @@ export function InstagramConnect({
               >
                 <Image
                   src={item.media_type === "video" && item.thumbnail_url ? item.thumbnail_url : item.media_url}
-                  alt={item.caption || "Instagram media"}
+                  alt={item.caption || t("mediaAlt")}
                   fill
                   className="object-cover"
                   sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, 20vw"
@@ -208,7 +210,7 @@ export function InstagramConnect({
                 )}
                 {item.media_type === "video" && (
                   <div className="absolute bottom-1 left-1 rounded-full bg-black/70 px-1.5 py-0.5 text-[9px] font-medium uppercase">
-                    Video
+                    {t("videoBadge")}
                   </div>
                 )}
               </button>
@@ -221,7 +223,7 @@ export function InstagramConnect({
               disabled={loading}
               className="w-full rounded-xl border border-[var(--usha-border)] py-2 text-sm text-[var(--usha-muted)] transition hover:bg-[var(--usha-border)]"
             >
-              {loading ? "Laddar..." : "Visa fler"}
+              {loading ? t("loadingMore") : t("showMore")}
             </button>
           )}
         </>

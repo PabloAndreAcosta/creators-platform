@@ -2,6 +2,7 @@ export const revalidate = 60; // ISR: revalidate every 60 seconds
 
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORY_LABELS } from "@/lib/categories";
+import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import type { ExperienceDetails } from "@/types/database";
@@ -29,6 +30,7 @@ function isUUID(str: string) {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const supabase = await createClient();
+  const t = await getTranslations("creatorProfile");
   const column = isUUID(params.id) ? "id" : "slug";
   const { data: profile } = await supabase
     .from("profiles")
@@ -37,18 +39,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .eq("is_public", true)
     .single();
 
-  if (!profile) return { title: "Creator – Usha Platform" };
+  if (!profile) return { title: t("metaTitleFallback") };
 
   const cats = profile.categories?.length ? profile.categories : (profile.category ? [profile.category] : []);
   const categoryLabel = cats.map((c: string) => CATEGORY_LABELS[c] || c).join(", ") || null;
-  const description = profile.bio?.slice(0, 160) || `${categoryLabel || "Creator"} på Usha Platform`;
+  const description = profile.bio?.slice(0, 160) || t("metaDescriptionFallback", { category: categoryLabel || t("creatorFallbackName") });
   const url = `https://usha.se/creators/${profile.slug || profile.id}`;
 
   return {
-    title: `${profile.full_name || "Creator"} – Usha Platform`,
+    title: t("metaTitle", { name: profile.full_name || t("creatorFallbackName") }),
     description,
     openGraph: {
-      title: `${profile.full_name || "Creator"} – Usha`,
+      title: t("metaTitleOg", { name: profile.full_name || t("creatorFallbackName") }),
       description,
       url,
       type: "profile",
@@ -59,6 +61,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CreatorProfilePage({ params }: Props) {
   const supabase = await createClient();
+  const t = await getTranslations("creatorProfile");
 
   const column = isUUID(params.id) ? "id" : "slug";
   const [{ data: profile }, { data: { user } }] = await Promise.all([
@@ -199,21 +202,21 @@ export default async function CreatorProfilePage({ params }: Props) {
               href="/marketplace"
               className="text-sm text-[var(--usha-muted)] transition hover:text-white"
             >
-              Marketplace
+              {t("nav.marketplace")}
             </Link>
             {isLoggedIn ? (
               <Link
                 href="/app"
                 className="rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-sm font-semibold text-black transition hover:opacity-90"
               >
-                Appen
+                {t("nav.app")}
               </Link>
             ) : (
               <Link
                 href="/signup"
                 className="rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-sm font-semibold text-black transition hover:opacity-90"
               >
-                Kom igång
+                {t("nav.getStarted")}
               </Link>
             )}
           </div>
@@ -226,7 +229,7 @@ export default async function CreatorProfilePage({ params }: Props) {
           className="mb-6 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-white"
         >
           <ArrowLeft size={14} />
-          Tillbaka till marketplace
+          {t("nav.backToMarketplace")}
         </Link>
 
         {/* Profile header */}
@@ -253,10 +256,10 @@ export default async function CreatorProfilePage({ params }: Props) {
               {(profile as { bankid_verified_at?: string | null }).bankid_verified_at && (
                 <span
                   className="inline-flex items-center gap-1.5 rounded-full bg-green-500 px-3 py-1 text-xs font-bold uppercase tracking-wide text-white shadow-md shadow-green-500/40 ring-1 ring-green-700/20"
-                  title={`Verifierad med BankID${(profile as { bankid_name?: string | null }).bankid_name ? ` som ${(profile as { bankid_name?: string | null }).bankid_name}` : ""}`}
+                  title={(profile as { bankid_name?: string | null }).bankid_name ? t("bankidVerifiedTitleNamed", { name: (profile as { bankid_name?: string | null }).bankid_name! }) : t("bankidVerifiedTitle")}
                 >
                   <ShieldCheck size={14} strokeWidth={2.5} />
-                  BankID
+                  {t("bankidBadge")}
                 </span>
               )}
             </h1>
@@ -277,7 +280,7 @@ export default async function CreatorProfilePage({ params }: Props) {
               <div className="mb-4 flex flex-wrap gap-2">
                 {Object.entries(creatorRates).map(([cat, rate]) => (
                   <span key={cat} className="rounded-full bg-[var(--usha-gold)]/10 px-3 py-0.5 text-xs font-semibold text-[var(--usha-gold)]">
-                    {CATEGORY_LABELS[cat] || cat}: {rate} SEK/h
+                    {t("rate", { category: CATEGORY_LABELS[cat] || cat, rate })}
                   </span>
                 ))}
               </div>
@@ -365,9 +368,9 @@ export default async function CreatorProfilePage({ params }: Props) {
                       className="inline-flex items-center gap-2 rounded-xl border border-[var(--usha-border)] px-4 py-2 text-sm font-medium transition hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-gold)]"
                     >
                       <MessageCircle size={14} />
-                      Skicka meddelande
+                      {t("sendMessage")}
                     </Link>
-                    <ReportUserButton userId={profile.id} userName={profile.full_name || "Användare"} />
+                    <ReportUserButton userId={profile.id} userName={profile.full_name || t("userFallbackName")} />
                   </>
                 )}
               </div>
@@ -377,10 +380,10 @@ export default async function CreatorProfilePage({ params }: Props) {
 
         {/* Listings */}
         <div>
-          <h2 className="mb-4 text-xl font-bold">Tjänster</h2>
+          <h2 className="mb-4 text-xl font-bold">{t("services.heading")}</h2>
           {!listings || listings.length === 0 ? (
             <p className="text-sm text-[var(--usha-muted)]">
-              Inga tjänster publicerade ännu.
+              {t("services.empty")}
             </p>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2">
@@ -394,7 +397,7 @@ export default async function CreatorProfilePage({ params }: Props) {
                     <h3 className="font-semibold">{listing.title}</h3>
                     {listing.price != null && (
                       <span className="shrink-0 font-semibold text-[var(--usha-gold)]">
-                        {listing.price} SEK
+                        {t("services.priceSek", { price: listing.price })}
                       </span>
                     )}
                   </div>
@@ -425,13 +428,13 @@ export default async function CreatorProfilePage({ params }: Props) {
                         {listing.duration_minutes != null && (
                           <span className="flex items-center gap-1">
                             <Clock size={11} />
-                            {listing.duration_minutes} min
+                            {t("services.durationMin", { minutes: listing.duration_minutes })}
                           </span>
                         )}
                         {listing.max_guests && (
                           <span className="flex items-center gap-1">
                             <Users size={11} />
-                            {listing.min_guests ?? 1}–{listing.max_guests} gäster
+                            {t("services.guests", { min: listing.min_guests ?? 1, max: listing.max_guests })}
                           </span>
                         )}
                       </div>
@@ -495,14 +498,14 @@ export default async function CreatorProfilePage({ params }: Props) {
           return (
             <div className="mt-10">
               <div className="mb-4 flex items-center justify-between gap-3">
-                <h2 className="text-xl font-bold">Evenemang</h2>
+                <h2 className="text-xl font-bold">{t("events.heading")}</h2>
                 <Link href={`/creators/${params.id}/kalender`} className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--usha-gold)] hover:underline">
-                  <Calendar size={14} /> Se kalender
+                  <Calendar size={14} /> {t("events.seeCalendar")}
                 </Link>
               </div>
               {upcoming.length > 0 && (
                 <>
-                  <h3 className="mb-3 text-sm font-semibold text-emerald-400">Kommande</h3>
+                  <h3 className="mb-3 text-sm font-semibold text-emerald-400">{t("events.upcoming")}</h3>
                   <div className="mb-6 space-y-2">
                     {upcoming.map((ev) => (
                       <Link key={ev.id} href={`/listing/${ev.id}`} className="flex items-center gap-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 transition hover:border-emerald-500/40">
@@ -519,7 +522,7 @@ export default async function CreatorProfilePage({ params }: Props) {
                           <div className="flex items-center gap-3 text-xs text-[var(--usha-muted)]">
                             {ev.event_time && <span>{ev.event_time.slice(0, 5)}</span>}
                             {ev.event_location && <span className="flex items-center gap-1"><MapPin size={10} />{ev.event_location}</span>}
-                            {ev.price != null && <span className="text-[var(--usha-gold)]">{ev.price} SEK</span>}
+                            {ev.price != null && <span className="text-[var(--usha-gold)]">{t("services.priceSek", { price: ev.price })}</span>}
                           </div>
                         </div>
                       </Link>
@@ -529,7 +532,7 @@ export default async function CreatorProfilePage({ params }: Props) {
               )}
               {past.length > 0 && (
                 <>
-                  <h3 className="mb-3 text-sm font-semibold text-[var(--usha-muted)]">Tidigare</h3>
+                  <h3 className="mb-3 text-sm font-semibold text-[var(--usha-muted)]">{t("events.past")}</h3>
                   <div className="space-y-2">
                     {past.slice(0, 10).map((ev) => (
                       <Link key={ev.id} href={`/listing/${ev.id}`} className="flex items-center gap-4 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 opacity-70 transition hover:opacity-90">
@@ -559,7 +562,7 @@ export default async function CreatorProfilePage({ params }: Props) {
         {/* Portfolio */}
         {mediaData && mediaData.length > 0 && (
           <div className="mt-10">
-            <h2 className="mb-4 text-xl font-bold">Portfolio</h2>
+            <h2 className="mb-4 text-xl font-bold">{t("portfolio")}</h2>
             <CreatorGallery media={mediaData} />
           </div>
         )}

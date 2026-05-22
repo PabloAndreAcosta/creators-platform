@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Star } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
 
@@ -17,10 +18,11 @@ export function ReviewForm({
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const { toast } = useToast();
+  const t = useTranslations("reviewForm");
 
   async function handleSubmit() {
     if (rating === 0) {
-      toast.error("Välj betyg", "Klicka på stjärnorna för att ge ett betyg.");
+      toast.error(t("errorSelectRatingTitle"), t("errorSelectRatingBody"));
       return;
     }
 
@@ -33,14 +35,14 @@ export function ReviewForm({
       });
       const data = await res.json();
       if (res.ok) {
-        toast.success("Recension sparad!");
+        toast.success(t("savedTitle"));
         setSubmitted(true);
         onSubmitted?.();
       } else {
-        toast.error("Kunde inte spara", data.error);
+        toast.error(t("saveFailedTitle"), data.error);
       }
     } catch {
-      toast.error("Något gick fel");
+      toast.error(t("genericError"));
     } finally {
       setLoading(false);
     }
@@ -49,14 +51,14 @@ export function ReviewForm({
   if (submitted) {
     return (
       <div className="rounded-xl border border-green-500/20 bg-green-500/5 p-4 text-center">
-        <p className="text-sm text-green-400">Tack för din recension!</p>
+        <p className="text-sm text-green-400">{t("thankYou")}</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
-      <p className="text-sm font-medium">Lämna en recension</p>
+      <p className="text-sm font-medium">{t("heading")}</p>
 
       {/* Stars */}
       <div className="flex gap-1">
@@ -85,7 +87,7 @@ export function ReviewForm({
       <textarea
         value={comment}
         onChange={(e) => setComment(e.target.value)}
-        placeholder="Beskriv din upplevelse (valfritt)..."
+        placeholder={t("commentPlaceholder")}
         rows={3}
         className="w-full resize-none rounded-xl border border-[var(--usha-border)] bg-[var(--usha-black)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
       />
@@ -95,7 +97,7 @@ export function ReviewForm({
         disabled={loading || rating === 0}
         className="w-full rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] py-2.5 text-sm font-bold text-black transition hover:opacity-90 disabled:opacity-50"
       >
-        {loading ? "Sparar..." : "Skicka recension"}
+        {loading ? t("submitting") : t("submit")}
       </button>
     </div>
   );

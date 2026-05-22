@@ -6,7 +6,8 @@ import { createClient } from "@/lib/supabase/client";
 import { useToast } from "@/components/ui/toaster";
 import { Camera, Loader2, X, Plus, Instagram, ExternalLink } from "lucide-react";
 import Image from "next/image";
-import { CATEGORIES, CATEGORY_LABELS } from "@/lib/categories";
+import { CATEGORIES } from "@/lib/categories";
+import { useTranslations } from "next-intl";
 
 interface Profile {
   id: string;
@@ -50,6 +51,8 @@ interface Profile {
 const inputClass = "w-full min-h-[44px] rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-base sm:text-sm outline-none transition focus:border-[var(--usha-gold)]/40";
 
 export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer = false }: { profile: Profile; isPaidTier: boolean; isPremium: boolean; isCustomer?: boolean }) {
+  const t = useTranslations("dashProfile.form");
+  const tc = useTranslations("categories");
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url);
@@ -151,12 +154,12 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
         const ctx = canvas.getContext("2d")!;
         ctx.drawImage(img, 0, 0, width, height);
         canvas.toBlob(
-          (blob) => (blob ? resolve(blob) : reject(new Error("Komprimering misslyckades"))),
+          (blob) => (blob ? resolve(blob) : reject(new Error(t("compressionFailed")))),
           "image/jpeg",
           0.85
         );
       };
-      img.onerror = () => reject(new Error("Kunde inte läsa bilden"));
+      img.onerror = () => reject(new Error(t("imageReadFailed")));
       img.src = URL.createObjectURL(file);
     });
   }
@@ -166,12 +169,12 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      toast.error("Ogiltig fil", "Välj en bildfil (JPG, PNG eller WebP).");
+      toast.error(t("invalidFileTitle"), t("invalidFileDesc"));
       return;
     }
 
     if (file.size > 10 * 1024 * 1024) {
-      toast.error("För stor fil", "Max 10 MB.");
+      toast.error(t("fileTooLargeTitle"), t("fileTooLargeDesc"));
       return;
     }
 
@@ -187,7 +190,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
         .upload(path, compressed, { upsert: true, contentType: "image/jpeg" });
 
       if (uploadError) {
-        toast.error("Uppladdning misslyckades", uploadError.message);
+        toast.error(t("uploadFailedTitle"), uploadError.message);
         setUploading(false);
         return;
       }
@@ -197,13 +200,13 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
 
       const result = await updateAvatar(newUrl);
       if (result.error) {
-        toast.error("Kunde inte spara avatar", result.error);
+        toast.error(t("avatarSaveFailedTitle"), result.error);
       } else {
         setAvatarUrl(newUrl);
-        toast.success("Avatar uppdaterad");
+        toast.success(t("avatarUpdatedTitle"));
       }
     } catch (err) {
-      toast.error("Något gick fel", (err as Error).message);
+      toast.error(t("genericErrorTitle"), (err as Error).message);
     }
     setUploading(false);
   }
@@ -223,9 +226,9 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
     startTransition(async () => {
       const result = await updateProfile(formData);
       if (result.error) {
-        toast.error("Kunde inte spara profil", result.error);
+        toast.error(t("profileSaveFailedTitle"), result.error);
       } else {
-        toast.success("Profil sparad");
+        toast.success(t("profileSavedTitle"));
       }
     });
   }
@@ -242,7 +245,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
           {avatarUrl ? (
             <Image
               src={avatarUrl}
-              alt="Avatar"
+              alt={t("avatarAlt")}
               width={80}
               height={80}
               className="h-full w-full object-cover"
@@ -268,15 +271,15 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
           className="hidden"
         />
         <div>
-          <p className="text-sm font-medium">Profilbild</p>
-          <p className="text-xs text-[var(--usha-muted)]">JPG, PNG eller WebP. Max 10 MB.</p>
+          <p className="text-sm font-medium">{t("avatarLabel")}</p>
+          <p className="text-xs text-[var(--usha-muted)]">{t("avatarHint")}</p>
         </div>
       </div>
 
       {/* Name */}
       <div>
         <label htmlFor="full_name" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-          Namn
+          {t("nameLabel")}
         </label>
         <input
           id="full_name"
@@ -291,18 +294,18 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
       {isCustomer && (
         <div>
           <label htmlFor="customer_location" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-            Stad
+            {t("cityLabel")}
           </label>
           <input
             id="customer_location"
             name="customer_location"
             type="text"
             defaultValue={locations[0] || ""}
-            placeholder="t.ex. Stockholm"
+            placeholder={t("cityPlaceholder")}
             className={inputClass}
           />
           <p className="mt-1 text-[10px] text-[var(--usha-muted)]">
-            Hjälper oss visa upplevelser nära dig.
+            {t("cityHint")}
           </p>
         </div>
       )}
@@ -312,23 +315,23 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
       {/* Slug (vanity URL) - Guld & Premium */}
       {!isCustomer && <div>
         <label htmlFor="slug" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-          Profiladress
+          {t("slugLabel")}
           {!isPaidTier && (
             <span className="ml-2 rounded-full bg-[var(--usha-gold)]/15 px-2 py-0.5 text-[10px] font-bold uppercase text-[var(--usha-gold)]">
-              Guld
+              {t("slugTierBadge")}
             </span>
           )}
         </label>
         <div className="flex items-center gap-0">
           <span className="flex h-[44px] items-center rounded-l-xl border border-r-0 border-[var(--usha-border)] bg-[var(--usha-black)]/50 px-3 text-sm text-[var(--usha-muted)]">
-            usha.se/
+            {t("slugPrefix")}
           </span>
           <input
             id="slug"
             name="slug"
             type="text"
             defaultValue={profile.slug || ""}
-            placeholder={isPaidTier ? "dittnamn" : "Uppgradera till Guld"}
+            placeholder={isPaidTier ? t("slugPlaceholderPaid") : t("slugPlaceholderLocked")}
             pattern="[a-z0-9_-]+"
             disabled={!isPaidTier}
             className={`w-full min-h-[44px] rounded-r-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-base sm:text-sm outline-none transition focus:border-[var(--usha-gold)]/40 ${!isPaidTier ? "opacity-50 cursor-not-allowed" : ""}`}
@@ -336,12 +339,12 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
         </div>
         {isPaidTier ? (
           <p className="mt-1 text-[10px] text-[var(--usha-muted)]">
-            Bara små bokstäver, siffror, bindestreck och understreck. Detta blir din publika länk.
+            {t("slugHintPaid")}
           </p>
         ) : (
           <p className="mt-1 text-[10px] text-[var(--usha-muted)]">
-            Egen profiladress ingår från Guld-planen.{" "}
-            <a href="/dashboard/billing" className="text-[var(--usha-gold)] hover:underline">Uppgradera</a>
+            {t("slugHintLocked")}{" "}
+            <a href="/dashboard/billing" className="text-[var(--usha-gold)] hover:underline">{t("slugUpgrade")}</a>
           </p>
         )}
       </div>}
@@ -349,7 +352,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
       {/* Categories (multi-select pills) */}
       {!isCustomer && <div>
         <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-          Kategorier
+          {t("categoriesLabel")}
         </label>
         <div className="flex flex-wrap gap-2">
           {CATEGORIES.map((c) => {
@@ -365,7 +368,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
                     : "bg-[var(--usha-card)] text-[var(--usha-muted)] ring-1 ring-[var(--usha-border)] hover:ring-[var(--usha-gold)]/40 hover:text-white"
                 }`}
               >
-                {c.label}
+                {tc(c.value)}
               </button>
             );
           })}
@@ -375,14 +378,14 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
       {/* Bio */}
       {!isCustomer && <div>
         <label htmlFor="bio" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-          Bio
+          {t("bioLabel")}
         </label>
         <textarea
           id="bio"
           name="bio"
           rows={4}
           defaultValue={profile.bio || ""}
-          placeholder="Berätta om dig själv och vad du erbjuder..."
+          placeholder={t("bioPlaceholder")}
           className="w-full resize-none rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
         />
       </div>}
@@ -390,7 +393,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
       {/* Locations (tag input) */}
       {!isCustomer && <div>
         <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-          Platser
+          {t("locationsLabel")}
         </label>
         {locations.length > 0 && (
           <div className="mb-2 flex flex-wrap gap-2">
@@ -422,7 +425,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
                 addLocation();
               }
             }}
-            placeholder="t.ex. Stockholm"
+            placeholder={t("locationPlaceholder")}
             className={inputClass}
           />
           <button
@@ -439,13 +442,13 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
       {!isCustomer && selectedCategories.length > 0 && (
         <div>
           <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-            Timpris per kategori (SEK)
+            {t("ratesLabel")}
           </label>
           <div className="grid gap-3 sm:grid-cols-2">
             {selectedCategories.map((cat) => (
               <div key={cat} className="flex items-center gap-2">
                 <span className="w-20 shrink-0 text-xs font-medium text-[var(--usha-muted)]">
-                  {CATEGORY_LABELS[cat] || cat}
+                  {tc(cat)}
                 </span>
                 <input
                   type="number"
@@ -459,7 +462,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
                       [cat]: val ? parseInt(val, 10) : 0,
                     }));
                   }}
-                  placeholder="t.ex. 500"
+                  placeholder={t("ratePlaceholder")}
                   className={inputClass}
                 />
               </div>
@@ -471,7 +474,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
       {/* Websites (tag input) */}
       {!isCustomer && <div>
         <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-          Webbplatser
+          {t("websitesLabel")}
         </label>
         {websites.length > 0 && (
           <div className="mb-2 flex flex-wrap gap-2">
@@ -503,7 +506,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
                 addWebsite();
               }
             }}
-            placeholder="https://..."
+            placeholder={t("websitePlaceholder")}
             className={inputClass}
           />
           <button
@@ -519,7 +522,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
       {/* Social media */}
       {!isCustomer && <div>
         <label className="mb-3 block text-sm text-[var(--usha-muted)]">
-          Sociala medier
+          {t("socialLabel")}
         </label>
         <div className="space-y-3">
           <div className="flex items-center gap-3">
@@ -528,7 +531,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
               name="social_instagram"
               type="text"
               defaultValue={profile.social_instagram || ""}
-              placeholder="Instagram-användarnamn"
+              placeholder={t("instagramPlaceholder")}
               className={inputClass}
             />
           </div>
@@ -538,7 +541,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
               name="social_x"
               type="text"
               defaultValue={profile.social_x || ""}
-              placeholder="X-användarnamn"
+              placeholder={t("xPlaceholder")}
               className={inputClass}
             />
           </div>
@@ -548,7 +551,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
               name="social_facebook"
               type="text"
               defaultValue={profile.social_facebook || ""}
-              placeholder="Facebook-sida eller användarnamn"
+              placeholder={t("facebookPlaceholder")}
               className={inputClass}
             />
           </div>
@@ -558,38 +561,38 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
       {/* Contact info */}
       {!isCustomer && <div>
         <label className="mb-3 block text-sm text-[var(--usha-muted)]">
-          Kontaktuppgifter
+          {t("contactLabel")}
         </label>
         <div className="grid gap-3 sm:grid-cols-2">
           <div>
             <label htmlFor="contact_email" className="mb-1 block text-xs text-[var(--usha-muted)]">
-              E-post (publik)
+              {t("contactEmailLabel")}
             </label>
             <input
               id="contact_email"
               name="contact_email"
               type="email"
               defaultValue={profile.contact_email || ""}
-              placeholder="kontakt@exempel.se"
+              placeholder={t("contactEmailPlaceholder")}
               className={inputClass}
             />
           </div>
           <div>
             <label htmlFor="contact_phone" className="mb-1 block text-xs text-[var(--usha-muted)]">
-              Telefon (publik)
+              {t("contactPhoneLabel")}
             </label>
             <input
               id="contact_phone"
               name="contact_phone"
               type="tel"
               defaultValue={profile.contact_phone || ""}
-              placeholder="+46 70 123 45 67"
+              placeholder={t("contactPhonePlaceholder")}
               className={inputClass}
             />
           </div>
         </div>
         <p className="mt-1 text-[10px] text-[var(--usha-muted)]">
-          Visas på din publika profil om du vill bli kontaktad direkt.
+          {t("contactHint")}
         </p>
       </div>}
 
@@ -598,15 +601,15 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-sm font-semibold flex items-center gap-2">
-              White label
+              {t("whitelabelTitle")}
               <span className="rounded-full bg-[var(--usha-premium)]/15 px-2 py-0.5 text-[10px] font-bold uppercase text-[var(--usha-premium)]">
-                Premium
+                {t("whitelabelBadge")}
               </span>
             </h3>
             <p className="mt-0.5 text-[10px] text-[var(--usha-muted)]">
               {isPremium
-                ? "Visa din egen branding istället för Usha på din publika profil."
-                : "Uppgradera till Premium för att använda din egen branding."}
+                ? t("whitelabelHintPremium")
+                : t("whitelabelHintLocked")}
             </p>
           </div>
           {isPremium && (
@@ -625,33 +628,33 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
           <div className="space-y-3">
             <div>
               <label htmlFor="whitelabel_brand_name" className="mb-1 block text-xs text-[var(--usha-muted)]">
-                Varumärkesnamn
+                {t("whitelabelBrandNameLabel")}
               </label>
               <input
                 id="whitelabel_brand_name"
                 name="whitelabel_brand_name"
                 type="text"
                 defaultValue={profile.whitelabel_brand_name || ""}
-                placeholder="Ditt varumärke"
+                placeholder={t("whitelabelBrandNamePlaceholder")}
                 className={inputClass}
               />
             </div>
             <div>
               <label htmlFor="whitelabel_logo_url" className="mb-1 block text-xs text-[var(--usha-muted)]">
-                Logotyp-URL
+                {t("whitelabelLogoLabel")}
               </label>
               <input
                 id="whitelabel_logo_url"
                 name="whitelabel_logo_url"
                 type="url"
                 defaultValue={profile.whitelabel_logo_url || ""}
-                placeholder="https://dindomän.se/logga.png"
+                placeholder={t("whitelabelLogoPlaceholder")}
                 className={inputClass}
               />
             </div>
             <div>
               <label className="mb-1 block text-xs text-[var(--usha-muted)]">
-                Primärfärg
+                {t("whitelabelPrimaryColorLabel")}
               </label>
               <div className="flex items-center gap-2">
                 <input
@@ -661,13 +664,13 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
                   className="h-[44px] w-[44px] cursor-pointer rounded-xl border border-[var(--usha-border)] bg-transparent p-1"
                 />
                 <span className="text-xs text-[var(--usha-muted)]">
-                  Huvudfärg för knappar och rubriker
+                  {t("whitelabelPrimaryColorHint")}
                 </span>
               </div>
             </div>
             <div>
               <label className="mb-2 block text-xs text-[var(--usha-muted)]">
-                Accentfärger
+                {t("whitelabelAccentColorsLabel")}
               </label>
               <div className="flex flex-wrap items-center gap-4">
                 <div className="flex items-center gap-2">
@@ -677,7 +680,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
                     defaultValue={profile.whitelabel_accent_color || "#d4a853"}
                     className="h-[44px] w-[44px] cursor-pointer rounded-xl border border-[var(--usha-border)] bg-transparent p-1"
                   />
-                  <span className="text-xs text-[var(--usha-muted)]">Accent 1</span>
+                  <span className="text-xs text-[var(--usha-muted)]">{t("whitelabelAccent1")}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <input
@@ -686,7 +689,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
                     defaultValue={profile.whitelabel_accent_color_2 || "#c9955d"}
                     className="h-[44px] w-[44px] cursor-pointer rounded-xl border border-[var(--usha-border)] bg-transparent p-1"
                   />
-                  <span className="text-xs text-[var(--usha-muted)]">Accent 2</span>
+                  <span className="text-xs text-[var(--usha-muted)]">{t("whitelabelAccent2")}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <input
@@ -695,7 +698,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
                     defaultValue={profile.whitelabel_accent_color_3 || "#b8860b"}
                     className="h-[44px] w-[44px] cursor-pointer rounded-xl border border-[var(--usha-border)] bg-transparent p-1"
                   />
-                  <span className="text-xs text-[var(--usha-muted)]">Accent 3</span>
+                  <span className="text-xs text-[var(--usha-muted)]">{t("whitelabelAccent3")}</span>
                 </div>
               </div>
             </div>
@@ -710,7 +713,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
             className="inline-flex items-center gap-2 rounded-xl border border-[var(--usha-premium)]/30 px-4 py-2.5 text-sm font-medium text-[var(--usha-premium)] transition hover:bg-[var(--usha-premium)]/10"
           >
             <ExternalLink size={14} />
-            Förhandsgranska profil
+            {t("whitelabelPreview")}
           </a>
         )}
 
@@ -719,7 +722,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
             href="/dashboard/billing"
             className="inline-block text-xs text-[var(--usha-premium)] hover:underline"
           >
-            Uppgradera till Premium
+            {t("whitelabelUpgrade")}
           </a>
         )}
       </div>}
@@ -728,15 +731,15 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
       {isTaxiDancer && (
         <div className="space-y-6 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
           <div>
-            <h2 className="text-lg font-semibold">Taxidansare</h2>
+            <h2 className="text-lg font-semibold">{t("taxiTitle")}</h2>
             <p className="mt-1 text-sm text-[var(--usha-muted)]">
-              Beskriv din danstjänst. Synligt på din publika profil.
+              {t("taxiSubtitle")}
             </p>
           </div>
 
           {/* Dance styles */}
           <div>
-            <label className="mb-2 block text-sm font-medium">Dansstilar</label>
+            <label className="mb-2 block text-sm font-medium">{t("danceStylesLabel")}</label>
             <div className="flex flex-wrap gap-2">
               {danceStyles.map((s) => (
                 <span key={s} className="inline-flex items-center gap-1 rounded-lg bg-[var(--usha-gold)]/10 px-3 py-1 text-sm">
@@ -745,7 +748,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
                     type="button"
                     onClick={() => removeFromList(s, danceStyles, setDanceStyles)}
                     className="text-[var(--usha-muted)] hover:text-white"
-                    aria-label="Ta bort"
+                    aria-label={t("removeAria")}
                   >
                     <X size={14} />
                   </button>
@@ -763,7 +766,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
                     addToList(newDanceStyle, danceStyles, setDanceStyles, () => setNewDanceStyle(""));
                   }
                 }}
-                placeholder="t.ex. bugg, foxtrot, salsa, tango"
+                placeholder={t("danceStylesPlaceholder")}
                 className={inputClass}
               />
               <button
@@ -778,7 +781,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
 
           {/* Dance languages */}
           <div>
-            <label className="mb-2 block text-sm font-medium">Språk</label>
+            <label className="mb-2 block text-sm font-medium">{t("danceLanguagesLabel")}</label>
             <div className="flex flex-wrap gap-2">
               {danceLanguages.map((l) => (
                 <span key={l} className="inline-flex items-center gap-1 rounded-lg bg-[var(--usha-gold)]/10 px-3 py-1 text-sm">
@@ -787,7 +790,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
                     type="button"
                     onClick={() => removeFromList(l, danceLanguages, setDanceLanguages)}
                     className="text-[var(--usha-muted)] hover:text-white"
-                    aria-label="Ta bort"
+                    aria-label={t("removeAria")}
                   >
                     <X size={14} />
                   </button>
@@ -805,7 +808,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
                     addToList(newDanceLanguage, danceLanguages, setDanceLanguages, () => setNewDanceLanguage(""));
                   }
                 }}
-                placeholder="t.ex. svenska, engelska, spanska"
+                placeholder={t("danceLanguagesPlaceholder")}
                 className={inputClass}
               />
               <button
@@ -820,7 +823,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
 
           {/* Experience years */}
           <div>
-            <label className="mb-2 block text-sm font-medium">Erfarenhet (år)</label>
+            <label className="mb-2 block text-sm font-medium">{t("experienceYearsLabel")}</label>
             <input
               type="number"
               name="dance_experience_years"
@@ -841,9 +844,9 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
               className="h-4 w-4 rounded border-[var(--usha-border)] accent-[var(--usha-gold)]"
             />
             <div>
-              <p className="text-sm font-medium">Jag erbjuder coachning</p>
+              <p className="text-sm font-medium">{t("coachingToggleTitle")}</p>
               <p className="text-xs text-[var(--usha-muted)]">
-                Privatlektioner i pardans. Visa pris och specialiteter på din profil.
+                {t("coachingToggleHint")}
               </p>
             </div>
           </label>
@@ -852,7 +855,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
           {offersCoaching && (
             <div className="space-y-4 rounded-xl border border-[var(--usha-border)] p-4">
               <div>
-                <label className="mb-2 block text-sm font-medium">Timpris coachning (SEK)</label>
+                <label className="mb-2 block text-sm font-medium">{t("coachingRateLabel")}</label>
                 <input
                   type="number"
                   name="coaching_hourly_rate_sek"
@@ -864,7 +867,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium">Specialiteter</label>
+                <label className="mb-2 block text-sm font-medium">{t("coachingSpecialtiesLabel")}</label>
                 <div className="flex flex-wrap gap-2">
                   {coachingSpecialties.map((s) => (
                     <span key={s} className="inline-flex items-center gap-1 rounded-lg bg-[var(--usha-gold)]/10 px-3 py-1 text-sm">
@@ -873,7 +876,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
                         type="button"
                         onClick={() => removeFromList(s, coachingSpecialties, setCoachingSpecialties)}
                         className="text-[var(--usha-muted)] hover:text-white"
-                        aria-label="Ta bort"
+                        aria-label={t("removeAria")}
                       >
                         <X size={14} />
                       </button>
@@ -891,7 +894,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
                         addToList(newCoachingSpecialty, coachingSpecialties, setCoachingSpecialties, () => setNewCoachingSpecialty(""));
                       }
                     }}
-                    placeholder="t.ex. nybörjar-bugg, avancerad salsa, bröllopskoreografi"
+                    placeholder={t("coachingSpecialtiesPlaceholder")}
                     className={inputClass}
                   />
                   <button
@@ -905,13 +908,13 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium">Bio för coachning</label>
+                <label className="mb-2 block text-sm font-medium">{t("coachingBioLabel")}</label>
                 <textarea
                   name="coaching_bio"
                   value={coachingBio}
                   onChange={(e) => setCoachingBio(e.target.value)}
                   rows={3}
-                  placeholder="Beskriv din pedagogiska stil, vem du coachar, eller vad lektionerna brukar innehålla."
+                  placeholder={t("coachingBioPlaceholder")}
                   className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
                 />
               </div>
@@ -929,9 +932,9 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
           className="h-4 w-4 rounded border-[var(--usha-border)] accent-[var(--usha-gold)]"
         />
         <div>
-          <p className="text-sm font-medium">Publik profil</p>
+          <p className="text-sm font-medium">{t("publicToggleTitle")}</p>
           <p className="text-xs text-[var(--usha-muted)]">
-            Gör din profil synlig i marketplace så att kunder kan hitta dig.
+            {t("publicToggleHint")}
           </p>
         </div>
       </label>}
@@ -943,7 +946,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
           disabled={isPending}
           className="min-h-[44px] rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-8 py-3 text-sm font-bold text-black transition hover:opacity-90 disabled:opacity-50"
         >
-          {isPending ? "Sparar..." : "Spara profil"}
+          {isPending ? t("submitting") : t("submit")}
         </button>
       </div>
     </form>

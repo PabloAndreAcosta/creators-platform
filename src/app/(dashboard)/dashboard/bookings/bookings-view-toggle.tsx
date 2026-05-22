@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { CalendarDays, List } from "lucide-react";
 import { BookingCalendar } from "@/components/booking-calendar";
 
@@ -22,6 +23,7 @@ interface BookingsViewToggleProps {
 
 export function BookingsViewToggle({ bookings, listView, isCreator = false, initialAvailableDates = [] }: BookingsViewToggleProps) {
   const [view, setView] = useState<"list" | "calendar">("list");
+  const t = useTranslations("bookingsPage");
 
   return (
     <>
@@ -35,7 +37,7 @@ export function BookingsViewToggle({ bookings, listView, isCreator = false, init
           }`}
         >
           <List size={13} />
-          Lista
+          {t("viewListLabel")}
         </button>
         <button
           onClick={() => setView("calendar")}
@@ -46,7 +48,7 @@ export function BookingsViewToggle({ bookings, listView, isCreator = false, init
           }`}
         >
           <CalendarDays size={13} />
-          Kalender
+          {t("viewCalendarLabel")}
         </button>
       </div>
 

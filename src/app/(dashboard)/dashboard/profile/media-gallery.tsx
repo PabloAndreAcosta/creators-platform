@@ -6,6 +6,7 @@ import { useToast } from "@/components/ui/toaster";
 import { Plus, X, Image as ImageIcon, Film, Loader2, GripVertical, Instagram, Star, Music } from "lucide-react";
 import Image from "next/image";
 import { addMedia, removeMedia, reorderMedia, toggleHero, updateMediaSection } from "./media-actions";
+import { useTranslations } from "next-intl";
 import {
   DndContext,
   closestCenter,
@@ -78,6 +79,7 @@ function SortableMediaCard({
   sections: string[];
   isPending: boolean;
 }) {
+  const t = useTranslations("dashProfile.gallery");
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
 
   const style = {
@@ -156,7 +158,7 @@ function SortableMediaCard({
             ? "bg-[var(--usha-gold)] text-black"
             : "bg-black/70 opacity-0 group-hover:opacity-100"
         }`}
-        title={item.is_hero ? "Ta bort som omslagsbild" : "Sätt som omslagsbild"}
+        title={item.is_hero ? t("removeHero") : t("setHero")}
       >
         <Star size={14} fill={item.is_hero ? "currentColor" : "none"} />
       </button>
@@ -176,7 +178,7 @@ function SortableMediaCard({
           type="text"
           value={item.section || ""}
           onChange={(e) => onSectionChange(item.id, e.target.value)}
-          placeholder="Sektion"
+          placeholder={t("sectionPlaceholder")}
           list="media-sections"
           className="w-20 rounded-full bg-black/70 px-2 py-0.5 text-[9px] text-white outline-none placeholder:text-white/50 focus:w-28"
         />
@@ -193,6 +195,7 @@ function SortableMediaCard({
 }
 
 export function MediaGallery({ userId, initialMedia }: MediaGalleryProps) {
+  const t = useTranslations("dashProfile.gallery");
   const { toast } = useToast();
   const [media, setMedia] = useState<MediaItem[]>(initialMedia);
   const [uploading, setUploading] = useState(false);
@@ -218,7 +221,7 @@ export function MediaGallery({ userId, initialMedia }: MediaGalleryProps) {
 
     for (const file of files) {
       if (file.size > 50 * 1024 * 1024) {
-        toast.error("För stor fil", `${file.name} är över 50 MB.`);
+        toast.error(t("fileTooLargeTitle"), t("fileTooLargeDesc", { fileName: file.name }));
         continue;
       }
 
@@ -231,7 +234,7 @@ export function MediaGallery({ userId, initialMedia }: MediaGalleryProps) {
         .upload(path, file, { upsert: false });
 
       if (uploadError) {
-        toast.error("Uppladdning misslyckades", uploadError.message);
+        toast.error(t("uploadFailedTitle"), uploadError.message);
         continue;
       }
 
@@ -260,7 +263,7 @@ export function MediaGallery({ userId, initialMedia }: MediaGalleryProps) {
 
     const parsed = getEmbedUrl(trimmed);
     if (!parsed) {
-      toast.error("Ogiltig URL", "Ange en giltig Instagram, Vimeo eller YouTube-länk.");
+      toast.error(t("invalidUrlTitle"), t("invalidUrlDesc"));
       return;
     }
 
@@ -275,9 +278,9 @@ export function MediaGallery({ userId, initialMedia }: MediaGalleryProps) {
         setMedia((prev) => [...prev, result.data!]);
         setEmbedUrl("");
         setEmbedCaption("");
-        toast.success("Media tillagd");
+        toast.success(t("mediaAddedTitle"));
       } else if (result.error) {
-        toast.error("Kunde inte spara", result.error);
+        toast.error(t("saveFailedTitle"), result.error);
       }
     });
   }
@@ -288,7 +291,7 @@ export function MediaGallery({ userId, initialMedia }: MediaGalleryProps) {
       if (result.success) {
         setMedia((prev) => prev.filter((m) => m.id !== id));
       } else {
-        toast.error("Kunde inte ta bort", result.error || "");
+        toast.error(t("removeFailedTitle"), result.error || "");
       }
     });
   }
@@ -306,7 +309,7 @@ export function MediaGallery({ userId, initialMedia }: MediaGalleryProps) {
       startTransition(async () => {
         const result = await reorderMedia(reordered.map((m) => m.id));
         if (result.error) {
-          toast.error("Kunde inte spara ordning", result.error);
+          toast.error(t("reorderFailedTitle"), result.error);
         }
       });
 
@@ -325,7 +328,7 @@ export function MediaGallery({ userId, initialMedia }: MediaGalleryProps) {
           }))
         );
       } else {
-        toast.error("Kunde inte ändra omslagsbild", result.error || "");
+        toast.error(t("heroFailedTitle"), result.error || "");
       }
     });
   }
@@ -343,8 +346,8 @@ export function MediaGallery({ userId, initialMedia }: MediaGalleryProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold">Portfolio</h2>
-        <p className="text-[10px] text-[var(--usha-muted)]">Dra för att ändra ordning</p>
+        <h2 className="text-lg font-bold">{t("title")}</h2>
+        <p className="text-[10px] text-[var(--usha-muted)]">{t("dragHint")}</p>
       </div>
 
       {/* Upload buttons */}
@@ -356,7 +359,7 @@ export function MediaGallery({ userId, initialMedia }: MediaGalleryProps) {
           className="flex items-center gap-2 rounded-xl border border-[var(--usha-border)] px-4 py-2.5 text-sm font-medium transition hover:border-[var(--usha-gold)]/40 hover:text-white disabled:opacity-50"
         >
           {uploading ? <Loader2 size={16} className="animate-spin" /> : <ImageIcon size={16} />}
-          Ladda upp bilder/videos
+          {t("uploadButton")}
         </button>
         <input
           ref={fileInputRef}
@@ -371,14 +374,14 @@ export function MediaGallery({ userId, initialMedia }: MediaGalleryProps) {
       {/* Embed URL input */}
       <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
         <p className="mb-2 text-xs text-[var(--usha-muted)]">
-          Lägg till från Instagram, Vimeo eller YouTube
+          {t("embedIntro")}
         </p>
         <div className="flex gap-2">
           <input
             type="text"
             value={embedUrl}
             onChange={(e) => setEmbedUrl(e.target.value)}
-            placeholder="https://www.instagram.com/p/..., https://vimeo.com/... eller https://youtube.com/..."
+            placeholder={t("embedPlaceholder")}
             className="flex-1 min-h-[44px] rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-base sm:text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
           />
           <button
@@ -394,7 +397,7 @@ export function MediaGallery({ userId, initialMedia }: MediaGalleryProps) {
           type="text"
           value={embedCaption}
           onChange={(e) => setEmbedCaption(e.target.value)}
-          placeholder="Bildtext (valfritt)"
+          placeholder={t("embedCaptionPlaceholder")}
           className="mt-2 w-full min-h-[40px] rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-2 text-xs outline-none transition focus:border-[var(--usha-gold)]/40"
         />
       </div>
@@ -431,7 +434,7 @@ export function MediaGallery({ userId, initialMedia }: MediaGalleryProps) {
         <div className="rounded-xl border border-dashed border-[var(--usha-border)] py-12 text-center">
           <ImageIcon size={32} className="mx-auto mb-2 text-[var(--usha-muted)]" />
           <p className="text-sm text-[var(--usha-muted)]">
-            Lägg till bilder, videos eller Instagram/Vimeo-inlägg
+            {t("emptyState")}
           </p>
         </div>
       )}

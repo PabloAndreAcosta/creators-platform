@@ -10,8 +10,10 @@ import { TikTokConnect } from "./tiktok-connect";
 import { ProfileQR } from "./profile-qr";
 import { BankIdStatus } from "./bankid-status";
 import { BETA_MODE } from "@/lib/beta";
+import { getTranslations } from "next-intl/server";
 
 export default async function ProfilePage() {
+  const t = await getTranslations("dashProfile.page");
   const supabase = await createClient();
   const {
     data: { user },
@@ -53,15 +55,15 @@ export default async function ProfilePage() {
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-white"
         >
           <ArrowLeft size={14} />
-          Tillbaka
+          {t("back")}
         </Link>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Redigera profil</h1>
+            <h1 className="text-3xl font-bold">{t("title")}</h1>
             <p className="mt-1 text-[var(--usha-muted)]">
               {isCreator
-                ? "Uppdatera din information och gör din profil synlig för kunder."
-                : "Uppdatera din profilinformation."}
+                ? t("subtitleCreator")
+                : t("subtitleCustomer")}
             </p>
           </div>
           {profile.slug && profile.is_public && (
@@ -72,7 +74,7 @@ export default async function ProfilePage() {
               className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent,var(--usha-gold))] px-4 py-2.5 text-sm font-medium text-black transition hover:opacity-90"
             >
               <ExternalLink size={14} />
-              Visa profil
+              {t("viewProfile")}
             </a>
           )}
         </div>

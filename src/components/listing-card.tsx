@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { MapPin, Calendar, Flame, Star } from "lucide-react";
-import { CATEGORY_LABELS } from "@/lib/categories";
+import { getTranslations } from "next-intl/server";
 
 interface ListingCardProps {
   listing: {
@@ -17,7 +17,8 @@ interface ListingCardProps {
   isPromoted?: boolean;
 }
 
-export function ListingCard({ listing, bookingCount = 0, isPromoted }: ListingCardProps) {
+export async function ListingCard({ listing, bookingCount = 0, isPromoted }: ListingCardProps) {
+  const t = await getTranslations();
   const isPopular = bookingCount >= 3;
   const isHot = bookingCount >= 8;
 
@@ -31,17 +32,17 @@ export function ListingCard({ listing, bookingCount = 0, isPromoted }: ListingCa
         <div className="absolute left-2 top-2 z-10 flex flex-col gap-1">
           {isPromoted && (
             <span className="flex items-center gap-1 rounded-full bg-[var(--usha-gold)] px-2 py-0.5 text-[9px] font-bold uppercase text-black shadow-sm">
-              <Star size={8} /> Framhävd
+              <Star size={8} /> {t("listingCard.badgePromoted")}
             </span>
           )}
           {isHot && (
             <span className="flex items-center gap-1 rounded-full bg-red-500/90 px-2 py-0.5 text-[9px] font-bold uppercase text-white shadow-sm">
-              <Flame size={8} /> Populär
+              <Flame size={8} /> {t("listingCard.badgePopular")}
             </span>
           )}
           {isPopular && !isHot && (
             <span className="rounded-full bg-white/10 px-2 py-0.5 text-[9px] font-medium text-white shadow-sm backdrop-blur-sm">
-              {bookingCount} bokningar
+              {t("listingCard.badgeBookings", { count: bookingCount })}
             </span>
           )}
         </div>
@@ -82,11 +83,11 @@ export function ListingCard({ listing, bookingCount = 0, isPromoted }: ListingCa
         </div>
         <div className="mt-2 flex items-center justify-between">
           <span className="text-xs font-medium text-[var(--usha-gold)]">
-            {listing.price ? `${listing.price} kr` : "Gratis"}
+            {listing.price ? t("listingCard.price", { price: listing.price }) : t("listingCard.free")}
           </span>
           {listing.category && (
             <span className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-[10px] text-[var(--usha-gold)]">
-              {CATEGORY_LABELS[listing.category] || listing.category}
+              {t(`categories.${listing.category}`)}
             </span>
           )}
         </div>

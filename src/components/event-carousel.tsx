@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, MapPin, Calendar, Star } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface CarouselEvent {
   id: string;
@@ -16,6 +17,7 @@ interface CarouselEvent {
 }
 
 export function EventCarousel({ events }: { events: CarouselEvent[] }) {
+  const t = useTranslations();
   const [current, setCurrent] = useState(0);
 
   if (events.length === 0) return null;
@@ -53,7 +55,7 @@ export function EventCarousel({ events }: { events: CarouselEvent[] }) {
           {/* Content overlay */}
           <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-8">
             <span className="mb-2 inline-block rounded-full bg-[var(--usha-gold)] px-2.5 py-0.5 text-[10px] font-bold uppercase text-black">
-              Framhävd
+              {t("listingCard.carouselPromoted")}
             </span>
             <h2 className="text-xl font-bold text-white sm:text-2xl md:text-3xl">
               {event.title}
@@ -78,9 +80,9 @@ export function EventCarousel({ events }: { events: CarouselEvent[] }) {
             </div>
             <div className="mt-3 flex items-center gap-3">
               <span className="rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-sm font-bold text-black">
-                {event.price ? `${event.price} kr` : "Gratis"}
+                {event.price ? t("listingCard.price", { price: event.price }) : t("listingCard.free")}
               </span>
-              <span className="text-sm text-white/60">Mer info →</span>
+              <span className="text-sm text-white/60">{t("listingCard.carouselMoreInfo")}</span>
             </div>
           </div>
         </div>

@@ -76,6 +76,8 @@ export function ProfileContent({
   const { role } = useRole();
   const t = useTranslations("profile");
   const tc = useTranslations("common");
+  const tp = useTranslations("appProfile");
+  const tr = useTranslations("roles");
   const [userPoints, setUserPoints] = useState<{
     total_points: number;
     current_level: number;
@@ -112,12 +114,12 @@ export function ProfileContent({
           )}
         </div>
         <h1 className="text-xl font-bold">
-          {profile?.full_name || "Användare"}
+          {profile?.full_name || tp("defaultName")}
         </h1>
         <p className="text-sm text-[var(--usha-muted)]">{email}</p>
         {profile?.category && (
           <p className="mt-0.5 text-xs text-[var(--usha-gold)]">
-            {role === "kreator" ? "Kreatör" : role === "upplevelse" ? "Upplevelse" : "Användare"} · {profile.category}
+            {role === "kreator" ? tr("kreator") : role === "upplevelse" ? tr("upplevelse") : tr("publik")} · {profile.category}
           </p>
         )}
       </div>
@@ -141,12 +143,12 @@ export function ProfileContent({
                 month: "long",
                 year: "numeric",
               })
-            : "nyligen"}
+            : tp("memberSinceFallback")}
         </p>
         <div className="mt-2 flex items-center gap-2">
           <LevelBadge level={currentLevel} size="md" showName />
           <span className="text-xs text-[var(--usha-muted)]">
-            {totalPoints.toLocaleString("sv-SE")} poäng
+            {tp("points", { points: totalPoints.toLocaleString("sv-SE") })}
           </span>
         </div>
         {nextThreshold && (
@@ -168,6 +170,9 @@ export function ProfileContent({
       <BankIdStatusRow
         verifiedAt={profile?.bankid_verified_at ?? null}
         bankidName={profile?.bankid_name ?? null}
+        verifiedLabel={tp("bankidVerifiedTitle")}
+        verifyTitle={tp("bankidVerifyTitle")}
+        verifyDesc={tp("bankidVerifyDesc")}
       />
 
       {/* Stats */}
@@ -236,9 +241,15 @@ export function ProfileContent({
 function BankIdStatusRow({
   verifiedAt,
   bankidName,
+  verifiedLabel,
+  verifyTitle,
+  verifyDesc,
 }: {
   verifiedAt: string | null;
   bankidName: string | null;
+  verifiedLabel: string;
+  verifyTitle: string;
+  verifyDesc: string;
 }) {
   if (verifiedAt) {
     const formatted = new Date(verifiedAt).toLocaleDateString("sv-SE", {
@@ -251,7 +262,7 @@ function BankIdStatusRow({
         <ShieldCheck size={20} className="shrink-0 text-green-400" />
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-green-400">
-            Identitet verifierad med BankID
+            {verifiedLabel}
           </p>
           <p className="truncate text-xs text-[var(--usha-muted)]">
             {bankidName ? `${bankidName} · ${formatted}` : formatted}
@@ -267,9 +278,9 @@ function BankIdStatusRow({
     >
       <ShieldAlert size={20} className="shrink-0 text-[var(--usha-muted)]" />
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold">Verifiera med BankID</p>
+        <p className="text-sm font-semibold">{verifyTitle}</p>
         <p className="truncate text-xs text-[var(--usha-muted)]">
-          Visa kunder att du är den du utger dig för att vara
+          {verifyDesc}
         </p>
       </div>
       <ChevronRight size={16} className="shrink-0 text-[var(--usha-muted)]" />
@@ -300,11 +311,13 @@ function SettingsRow({
   label,
   href,
   comingSoon,
+  comingSoonLabel,
 }: {
   icon: LucideIcon;
   label: string;
   href?: string;
   comingSoon?: boolean;
+  comingSoonLabel?: string;
 }) {
   const inner = (
     <>
@@ -313,7 +326,7 @@ function SettingsRow({
         {label}
         {comingSoon && (
           <span className="ml-2 text-[10px] font-normal text-[var(--usha-muted)]">
-            (Kommer snart)
+            {comingSoonLabel}
           </span>
         )}
       </span>

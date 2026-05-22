@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { deleteListing, toggleListingActive } from "./actions";
 import { useToast } from "@/components/ui/toaster";
 import Link from "next/link";
@@ -26,33 +27,34 @@ interface Listing {
 
 export default function ListingRow({ listing }: { listing: Listing }) {
   const { toast } = useToast();
+  const t = useTranslations("listingsPage");
   const [isPending, startTransition] = useTransition();
 
   function handleToggle() {
     startTransition(async () => {
       const result = await toggleListingActive(listing.id, !listing.is_active);
       if (result.error) {
-        toast.error("Kunde inte uppdatera tjänst", result.error);
+        toast.error(t("toastToggleError"), result.error);
       } else {
-        toast.success(listing.is_active ? "Tjänst inaktiverad" : "Tjänst aktiverad");
+        toast.success(listing.is_active ? t("toastDeactivated") : t("toastActivated"));
       }
     });
   }
 
   function handleDelete() {
-    if (!confirm("Är du säker på att du vill ta bort denna tjänst?")) return;
+    if (!confirm(t("confirmDelete"))) return;
     startTransition(async () => {
       const result = await deleteListing(listing.id);
       if (result.error) {
-        toast.error("Kunde inte ta bort tjänst", result.error);
+        toast.error(t("toastDeleteError"), result.error);
       } else {
-        toast.success("Tjänst borttagen");
+        toast.success(t("toastDeleteSuccess"));
       }
     });
   }
 
   function handleEarlyBird() {
-    if (!confirm("Aktivera 48h Gold-exklusiv tillgång för denna tjänst?")) return;
+    if (!confirm(t("confirmEarlyBird"))) return;
     startTransition(async () => {
       try {
         const res = await fetch("/api/listings/early-bird", {
@@ -62,12 +64,12 @@ export default function ListingRow({ listing }: { listing: Listing }) {
         });
         const data = await res.json();
         if (data.success) {
-          toast.success("Gold-exklusiv tillgång aktiverad (48h)");
+          toast.success(t("toastEarlyBirdSuccess"));
         } else {
-          toast.error("Misslyckades", data.error);
+          toast.error(t("toastEarlyBirdError"), data.error);
         }
       } catch {
-        toast.error("Något gick fel");
+        toast.error(t("toastGenericError"));
       }
     });
   }
@@ -90,16 +92,16 @@ export default function ListingRow({ listing }: { listing: Listing }) {
           </span>
           {!listing.is_active && (
             <span className="shrink-0 rounded-full bg-[var(--usha-border)] px-2.5 py-0.5 text-xs text-[var(--usha-muted)]">
-              Inaktiv
+              {t("inactiveBadge")}
             </span>
           )}
         </div>
         <div className="flex flex-wrap items-center gap-4 text-sm text-[var(--usha-muted)]">
-          {listing.price != null && <span>{listing.price} SEK</span>}
+          {listing.price != null && <span>{t("priceSek", { price: listing.price })}</span>}
           {listing.duration_minutes != null && (
             <span className="flex items-center gap-1">
               <Clock size={12} />
-              {listing.duration_minutes} min
+              {t("durationMinutes", { minutes: listing.duration_minutes })}
             </span>
           )}
           {listing.event_date && (
@@ -136,35 +138,35 @@ export default function ListingRow({ listing }: { listing: Listing }) {
           <button
             onClick={handleEarlyBird}
             className="flex items-center gap-1.5 rounded-lg border border-[var(--usha-gold)]/30 px-3 py-1.5 text-xs font-medium text-[var(--usha-gold)] transition-colors hover:bg-[var(--usha-gold)]/10"
-            title="Ge Guld-medlemmar 48h exklusiv tillgång"
+            title={t("earlyBirdButtonTitle")}
           >
             <Crown size={12} />
-            Early Bird
+            {t("earlyBirdButton")}
           </button>
         )}
         {hasEarlyBird && (
           <span className="flex items-center gap-1 rounded-full bg-[var(--usha-gold)]/10 px-2.5 py-1 text-[10px] font-medium text-[var(--usha-gold)]">
             <Crown size={10} />
-            Gold-exklusiv
+            {t("goldExclusiveBadge")}
           </span>
         )}
         <button
           onClick={handleToggle}
           className="rounded-lg border border-[var(--usha-border)] px-3 py-1.5 text-xs font-medium transition-colors hover:bg-[var(--usha-card-hover)]"
         >
-          {listing.is_active ? "Inaktivera" : "Aktivera"}
+          {listing.is_active ? t("deactivate") : t("activate")}
         </button>
         <Link
           href={`/dashboard/listings/${listing.id}/edit`}
           className="flex h-11 w-11 items-center justify-center rounded-lg text-[var(--usha-muted)] transition-colors hover:bg-[var(--usha-card-hover)] hover:text-white"
-          aria-label="Redigera tjänst"
+          aria-label={t("editLabel")}
         >
           <Pencil size={14} />
         </Link>
         <button
           onClick={handleDelete}
           className="flex h-11 w-11 items-center justify-center rounded-lg text-[var(--usha-muted)] transition-colors hover:bg-red-500/10 hover:text-red-400"
-          aria-label="Ta bort tjänst"
+          aria-label={t("deleteLabel")}
         >
           <Trash2 size={14} />
         </button>

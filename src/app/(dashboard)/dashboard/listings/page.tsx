@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Plus } from "lucide-react";
@@ -6,6 +7,7 @@ import ListingRow from "./listing-row";
 import { NoListings } from "@/components/ui/empty-state";
 
 export default async function ListingsPage() {
+  const t = await getTranslations("listingsPage");
   const supabase = await createClient();
   const {
     data: { user },
@@ -28,11 +30,11 @@ export default async function ListingsPage() {
             className="mb-4 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-white"
           >
             <ArrowLeft size={14} />
-            Tillbaka
+            {t("back")}
           </Link>
-          <h1 className="text-3xl font-bold">Mina tjänster</h1>
+          <h1 className="text-3xl font-bold">{t("title")}</h1>
           <p className="mt-1 text-[var(--usha-muted)]">
-            Hantera dina tjänster som visas i marketplace.
+            {t("subtitle")}
           </p>
         </div>
         <Link
@@ -40,7 +42,7 @@ export default async function ListingsPage() {
           className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-5 py-2.5 text-sm font-bold text-black transition hover:opacity-90"
         >
           <Plus size={16} />
-          Ny tjänst
+          {t("newListing")}
         </Link>
       </div>
 

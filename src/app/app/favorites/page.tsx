@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Heart, Loader2, MapPin } from "lucide-react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 interface FavoriteListing {
   id: string;
@@ -14,6 +15,7 @@ interface FavoriteListing {
 }
 
 export default function FavoritesPage() {
+  const t = useTranslations("favorites");
   const [favorites, setFavorites] = useState<FavoriteListing[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -51,7 +53,7 @@ export default function FavoritesPage() {
     <div className="px-4 py-6 space-y-6 md:max-w-2xl md:mx-auto">
       <div className="flex items-center gap-3">
         <Heart size={24} className="text-red-400" />
-        <h1 className="text-2xl font-bold">Mina Favoriter</h1>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
       </div>
 
       {loading ? (
@@ -62,13 +64,13 @@ export default function FavoritesPage() {
         <div className="rounded-xl border border-dashed border-[var(--usha-border)] py-16 text-center">
           <Heart size={32} className="mx-auto mb-3 text-[var(--usha-muted)]" />
           <p className="text-sm text-[var(--usha-muted)]">
-            Du har inga sparade favoriter ännu
+            {t("emptyState")}
           </p>
           <Link
             href="/app"
             className="mt-4 inline-block text-xs font-medium text-[var(--usha-gold)] hover:opacity-80"
           >
-            Utforska evenemang
+            {t("exploreEvents")}
           </Link>
         </div>
       ) : (
@@ -96,14 +98,14 @@ export default function FavoritesPage() {
                 </div>
                 {fav.price != null && (
                   <span className="mt-1 inline-block text-xs font-medium text-[var(--usha-gold)]">
-                    {fav.price} SEK
+                    {t("price", { price: fav.price })}
                   </span>
                 )}
               </div>
               <button
                 onClick={() => removeFavorite(fav.id)}
                 className="flex h-9 w-9 items-center justify-center rounded-full text-red-400 transition hover:bg-red-500/10"
-                title="Ta bort favorit"
+                title={t("removeFavorite")}
               >
                 <Heart size={16} fill="currentColor" />
               </button>

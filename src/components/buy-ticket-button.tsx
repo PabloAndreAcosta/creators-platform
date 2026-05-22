@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Ticket } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
 
@@ -19,6 +20,7 @@ export function BuyTicketButton({
   isLoggedIn,
   hasConnect,
 }: BuyTicketButtonProps) {
+  const t = useTranslations("creatorProfile");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -29,7 +31,7 @@ export function BuyTicketButton({
         className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-xs font-bold text-black transition hover:opacity-90"
       >
         <Ticket size={13} />
-        Logga in för att köpa
+        {t("buyTicket.loginToBuy")}
       </a>
     );
   }
@@ -37,7 +39,7 @@ export function BuyTicketButton({
   if (!hasConnect) {
     return (
       <span className="rounded-lg border border-[var(--usha-border)] px-4 py-2 text-xs text-[var(--usha-muted)]">
-        Biljettköp ej tillgängligt
+        {t("buyTicket.unavailable")}
       </span>
     );
   }
@@ -56,7 +58,7 @@ export function BuyTicketButton({
       const data = await res.json();
 
       if (!res.ok) {
-        toast.error(data.error || "Något gick fel");
+        toast.error(data.error || t("buyTicket.errorSomethingWrong"));
         return;
       }
 
@@ -64,7 +66,7 @@ export function BuyTicketButton({
         window.location.href = data.url;
       }
     } catch {
-      toast.error("Kunde inte starta köp");
+      toast.error(t("buyTicket.errorCouldNotStartPurchase"));
     } finally {
       setLoading(false);
     }
@@ -77,17 +79,17 @@ export function BuyTicketButton({
       className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-xs font-bold text-black transition hover:opacity-90 disabled:opacity-50"
     >
       <Ticket size={13} />
-      {loading ? "Laddar..." : (
+      {loading ? t("buyTicket.loading") : (
         <>
-          Köp biljett
+          {t("buyTicket.buy")}
           {hasDiscount ? (
             <span className="ml-1">
               <span className="line-through opacity-60">{originalPrice}</span>
               {" "}
-              {discountedPrice} SEK
+              {t("buyTicket.discountedPriceSek", { discounted: discountedPrice })}
             </span>
           ) : (
-            <span className="ml-1">{originalPrice} SEK</span>
+            <span className="ml-1">{t("buyTicket.priceSek", { price: originalPrice })}</span>
           )}
         </>
       )}

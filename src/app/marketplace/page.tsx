@@ -1,17 +1,20 @@
 export const dynamic = 'force-dynamic';
 
 import { createClient } from "@/lib/supabase/server";
-import { CATEGORIES, CATEGORY_LABELS } from "@/lib/categories";
+import { CATEGORIES } from "@/lib/categories";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import Image from "next/image";
 import { MapPin, Clock, SlidersHorizontal, X, Star, ShieldCheck, Sparkles } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "Marketplace – Usha Platform",
-  description:
-    "Hitta och boka kreativa talanger. Dansinstruktörer, musiker, fotografer och mer.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations();
+  return {
+    title: t("marketplace.metaTitle"),
+    description: t("marketplace.metaDescription"),
+  };
+}
 
 interface SearchParams {
   category?: string;
@@ -31,6 +34,7 @@ export default async function MarketplacePage({
   searchParams: SearchParams;
 }) {
   const supabase = await createClient();
+  const t = await getTranslations();
   const { data: { user } } = await supabase.auth.getUser();
   const isLoggedIn = !!user;
   const { category, q, location, minPrice, maxPrice, sort, page: pageParam } = searchParams;
@@ -234,7 +238,7 @@ export default async function MarketplacePage({
                 href="/app"
                 className="rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-sm font-semibold text-black transition hover:opacity-90"
               >
-                Appen
+                {t("marketplace.navApp")}
               </Link>
             ) : (
               <>
@@ -242,13 +246,13 @@ export default async function MarketplacePage({
                   href="/login"
                   className="hidden text-sm text-[var(--usha-muted)] transition hover:text-white sm:block"
                 >
-                  Logga in
+                  {t("marketplace.navLogin")}
                 </Link>
                 <Link
                   href="/signup"
                   className="rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-sm font-semibold text-black transition hover:opacity-90"
                 >
-                  Kom igång
+                  {t("marketplace.navSignup")}
                 </Link>
               </>
             )}
@@ -259,10 +263,8 @@ export default async function MarketplacePage({
       <div className="mx-auto max-w-6xl px-4 py-6 md:px-6 md:py-10">
         {/* Title */}
         <div className="mb-8">
-          <h1 className="mb-2 text-3xl font-bold">Marketplace</h1>
-          <p className="text-[var(--usha-muted)]">
-            Hitta kreativa talanger och boka deras tjänster.
-          </p>
+          <h1 className="mb-2 text-3xl font-bold">{t("marketplace.title")}</h1>
+          <p className="text-[var(--usha-muted)]">{t("marketplace.subtitle")}</p>
         </div>
 
         {/* Filters */}
@@ -273,7 +275,7 @@ export default async function MarketplacePage({
               name="q"
               type="text"
               defaultValue={q || ""}
-              placeholder="Sök namn, plats..."
+              placeholder={t("marketplace.searchPlaceholder")}
               className="flex-1 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
             />
             <select
@@ -281,10 +283,10 @@ export default async function MarketplacePage({
               defaultValue={category || "all"}
               className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40 sm:w-48"
             >
-              <option value="all">Alla kategorier</option>
+              <option value="all">{t("marketplace.allCategories")}</option>
               {CATEGORIES.map((c) => (
                 <option key={c.value} value={c.value}>
-                  {c.label}
+                  {t(`categories.${c.value}`)}
                 </option>
               ))}
             </select>
@@ -292,7 +294,7 @@ export default async function MarketplacePage({
               type="submit"
               className="rounded-xl bg-[var(--usha-card)] border border-[var(--usha-border)] px-6 py-3 text-sm font-medium transition-colors hover:border-[var(--usha-gold)]/40 hover:text-white"
             >
-              Sök
+              {t("marketplace.searchButton")}
             </button>
           </div>
 
@@ -300,7 +302,7 @@ export default async function MarketplacePage({
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <div className="flex items-center gap-1.5 text-xs text-[var(--usha-muted)]">
               <SlidersHorizontal size={13} />
-              <span>Filter:</span>
+              <span>{t("marketplace.filterLabel")}</span>
             </div>
 
             <select
@@ -308,7 +310,7 @@ export default async function MarketplacePage({
               defaultValue={location || ""}
               className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2 text-xs outline-none transition focus:border-[var(--usha-gold)]/40 sm:w-40"
             >
-              <option value="">Alla platser</option>
+              <option value="">{t("marketplace.allLocations")}</option>
               {uniqueLocations.map((loc) => (
                 <option key={loc} value={loc}>
                   {loc}
@@ -321,7 +323,7 @@ export default async function MarketplacePage({
                 name="minPrice"
                 type="number"
                 defaultValue={minPrice || ""}
-                placeholder="Min pris"
+                placeholder={t("marketplace.minPricePlaceholder")}
                 min={0}
                 className="w-24 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2 text-xs outline-none transition focus:border-[var(--usha-gold)]/40"
               />
@@ -330,11 +332,11 @@ export default async function MarketplacePage({
                 name="maxPrice"
                 type="number"
                 defaultValue={maxPrice || ""}
-                placeholder="Max pris"
+                placeholder={t("marketplace.maxPricePlaceholder")}
                 min={0}
                 className="w-24 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2 text-xs outline-none transition focus:border-[var(--usha-gold)]/40"
               />
-              <span className="text-xs text-[var(--usha-muted)]">SEK/h</span>
+              <span className="text-xs text-[var(--usha-muted)]">{t("marketplace.priceUnit")}</span>
             </div>
 
             <select
@@ -342,12 +344,12 @@ export default async function MarketplacePage({
               defaultValue={sort || "newest"}
               className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2 text-xs outline-none transition focus:border-[var(--usha-gold)]/40 sm:w-40"
             >
-              <option value="newest">Nyast först</option>
-              <option value="rating">Bäst betyg</option>
-              <option value="popular">Mest populär</option>
-              <option value="price_asc">Pris: Lägst först</option>
-              <option value="price_desc">Pris: Högst först</option>
-              <option value="name">Namn A–Ö</option>
+              <option value="newest">{t("marketplace.sortNewest")}</option>
+              <option value="rating">{t("marketplace.sortRating")}</option>
+              <option value="popular">{t("marketplace.sortPopular")}</option>
+              <option value="price_asc">{t("marketplace.sortPriceAsc")}</option>
+              <option value="price_desc">{t("marketplace.sortPriceDesc")}</option>
+              <option value="name">{t("marketplace.sortName")}</option>
             </select>
 
             {activeFilters > 0 && (
@@ -356,7 +358,7 @@ export default async function MarketplacePage({
                 className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-red-400 transition hover:bg-red-500/10 hover:text-red-300"
               >
                 <X size={12} />
-                Rensa filter
+                {t("marketplace.clearFilters")}
               </Link>
             )}
           </div>
@@ -367,7 +369,7 @@ export default async function MarketplacePage({
           <div className="mb-6 flex flex-wrap gap-2">
             {category && category !== "all" && (
               <span className="rounded-full bg-[var(--usha-gold)]/10 px-3 py-1 text-xs font-medium text-[var(--usha-gold)]">
-                {CATEGORY_LABELS[category] || category}
+                {t(`categories.${category}`)}
               </span>
             )}
             {location && (
@@ -377,11 +379,11 @@ export default async function MarketplacePage({
             )}
             {(minPrice || maxPrice) && (
               <span className="rounded-full bg-[var(--usha-gold)]/10 px-3 py-1 text-xs font-medium text-[var(--usha-gold)]">
-                {minPrice || "0"} – {maxPrice || "∞"} SEK/h
+                {minPrice || "0"} – {maxPrice || "∞"} {t("marketplace.priceUnit")}
               </span>
             )}
             <span className="text-xs text-[var(--usha-muted)] self-center">
-              {profiles?.length ?? 0} resultat
+              {t("marketplace.resultCount", { count: profiles?.length ?? 0 })}
             </span>
           </div>
         )}
@@ -391,8 +393,8 @@ export default async function MarketplacePage({
           <div className="rounded-2xl border border-dashed border-[var(--usha-border)] py-20 text-center">
             <p className="text-[var(--usha-muted)]">
               {q || category || location || minPrice || maxPrice
-                ? "Inga creators matchade din sökning."
-                : "Inga creators finns ännu."}
+                ? t("marketplace.emptyNoMatch")
+                : t("marketplace.emptyNone")}
             </p>
           </div>
         ) : (
@@ -446,7 +448,7 @@ export default async function MarketplacePage({
                       )}
                       {isNew && (
                         <span className="flex items-center gap-0.5 rounded-full bg-green-500/90 px-1.5 py-0.5 text-[9px] font-bold text-white shadow-sm">
-                          <Sparkles size={8} /> Ny
+                          <Sparkles size={8} /> {t("marketplace.badgeNew")}
                         </span>
                       )}
                     </div>
@@ -459,7 +461,7 @@ export default async function MarketplacePage({
                         {creator.avatar_url ? (
                           <Image
                             src={creator.avatar_url}
-                            alt={creator.full_name || "Creator"}
+                            alt={creator.full_name || t("marketplace.fallbackCreatorName")}
                             width={40}
                             height={40}
                             className="h-full w-full object-cover"
@@ -472,12 +474,12 @@ export default async function MarketplacePage({
                       </div>
                       <div className="min-w-0">
                         <h3 className="truncate font-semibold group-hover:text-[var(--usha-gold)]">
-                          {creator.full_name || "Creator"}
+                          {creator.full_name || t("marketplace.fallbackCreatorName")}
                         </h3>
                         <div className="flex flex-wrap items-center gap-1.5 text-[10px] text-[var(--usha-muted)]">
                           {cats.slice(0, 2).map((cat: string) => (
                             <span key={cat} className="rounded-full bg-[var(--usha-gold)]/10 px-1.5 py-0.5 text-[var(--usha-gold)]">
-                              {CATEGORY_LABELS[cat] || cat}
+                              {t(`categories.${cat}`)}
                             </span>
                           ))}
                           {locs.slice(0, 1).map((loc: string) => (
@@ -504,7 +506,7 @@ export default async function MarketplacePage({
                           const rateValues = Object.values(ratesObj).filter((v): v is number => typeof v === "number" && v > 0);
                           const minRate = rateValues.length ? Math.min(...rateValues) : creator.hourly_rate;
                           if (minRate != null) {
-                            return <span className="font-semibold text-[var(--usha-gold)]">Från {minRate} kr</span>;
+                            return <span className="font-semibold text-[var(--usha-gold)]">{t("marketplace.priceFrom", { price: minRate })}</span>;
                           }
                           return null;
                         })()}
@@ -517,10 +519,10 @@ export default async function MarketplacePage({
                       </div>
                       <span className="flex items-center gap-2 text-[var(--usha-muted)]">
                         {followerCounts[creator.id] > 0 && (
-                          <span>{followerCounts[creator.id]} följare</span>
+                          <span>{t("marketplace.followerCount", { count: followerCounts[creator.id] })}</span>
                         )}
                         {listingCounts[creator.id] > 0 && (
-                          <span>{listingCounts[creator.id]} tjänst{listingCounts[creator.id] > 1 ? "er" : ""}</span>
+                          <span>{t("marketplace.listingCount", { count: listingCounts[creator.id] })}</span>
                         )}
                       </span>
                     </div>

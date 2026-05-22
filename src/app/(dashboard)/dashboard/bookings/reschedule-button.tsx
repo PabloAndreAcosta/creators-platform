@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Calendar } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
 
@@ -24,6 +25,7 @@ export function RescheduleButton({
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  const t = useTranslations("bookingsPage");
 
   // Tomorrow as minimum selectable date
   const tomorrow = new Date();
@@ -52,18 +54,18 @@ export function RescheduleButton({
 
   function handleSubmit() {
     if (!date || !time) {
-      setError("Välj datum och tid.");
+      setError(t("errorSelectDateTime"));
       return;
     }
 
     const newDate = new Date(`${date}T${time}:00`);
     if (isNaN(newDate.getTime())) {
-      setError("Ogiltigt datum eller tid.");
+      setError(t("errorInvalidDateTime"));
       return;
     }
 
     if (newDate <= new Date()) {
-      setError("Datumet måste vara i framtiden.");
+      setError(t("errorPastDate"));
       return;
     }
 
@@ -83,15 +85,15 @@ export function RescheduleButton({
         const data = await res.json();
 
         if (!res.ok) {
-          setError(data.error || "Något gick fel.");
+          setError(data.error || t("errorGeneric"));
           return;
         }
 
-        toast.success("Bokning ombokad");
+        toast.success(t("toastRescheduleSuccess"));
         setIsOpen(false);
         onRescheduled?.();
       } catch {
-        setError("Kunde inte ansluta till servern.");
+        setError(t("errorConnection"));
       }
     });
   }
@@ -103,7 +105,7 @@ export function RescheduleButton({
         className={`${btnBase} border border-[var(--usha-border)] text-[var(--usha-muted)] hover:bg-orange-500/10 hover:text-orange-400`}
       >
         <Calendar size={12} />
-        Omboka
+        {t("rescheduleButton")}
       </button>
     );
   }
@@ -134,14 +136,14 @@ export function RescheduleButton({
           disabled={isPending}
           className={`${btnBase} bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 disabled:opacity-50`}
         >
-          {isPending ? "Ombokar…" : "Bekräfta nytt datum"}
+          {isPending ? t("rescheduleSubmitting") : t("rescheduleConfirmLabel")}
         </button>
         <button
           onClick={handleCancel}
           disabled={isPending}
           className="text-xs text-[var(--usha-muted)] hover:underline"
         >
-          Avbryt
+          {t("rescheduleCancel")}
         </button>
       </div>
     </div>

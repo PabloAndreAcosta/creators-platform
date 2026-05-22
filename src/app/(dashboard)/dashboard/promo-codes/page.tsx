@@ -2,10 +2,12 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Tag, Copy } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PromoCodeForm } from "./promo-form";
 import { DeletePromoButton } from "./delete-promo-button";
 
 export default async function PromoCodesPage() {
+  const t = await getTranslations("promoCodes");
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
@@ -24,16 +26,16 @@ export default async function PromoCodesPage() {
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-white"
         >
           <ArrowLeft size={14} />
-          Tillbaka
+          {t("back")}
         </Link>
-        <h1 className="text-3xl font-bold">Promo-koder</h1>
+        <h1 className="text-3xl font-bold">{t("title")}</h1>
         <p className="mt-1 text-[var(--usha-muted)]">
-          Skapa rabattkoder som kunder kan använda vid köp. Du kan spåra hur många som använt varje kod.
+          {t("subtitle")}
         </p>
       </div>
 
       <div className="mb-8 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
-        <h2 className="mb-4 text-lg font-bold">Ny promo-kod</h2>
+        <h2 className="mb-4 text-lg font-bold">{t("newCodeHeading")}</h2>
         <PromoCodeForm />
       </div>
 
@@ -41,7 +43,7 @@ export default async function PromoCodesPage() {
         {(!codes || codes.length === 0) ? (
           <div className="rounded-2xl border border-dashed border-[var(--usha-border)] py-16 text-center">
             <Tag size={32} className="mx-auto mb-3 text-[var(--usha-muted)]" />
-            <p className="text-sm text-[var(--usha-muted)]">Inga promo-koder ännu.</p>
+            <p className="text-sm text-[var(--usha-muted)]">{t("emptyState")}</p>
           </div>
         ) : (
           codes.map((code) => (
@@ -58,16 +60,16 @@ export default async function PromoCodesPage() {
                   <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
                     code.is_active ? "bg-green-500/10 text-green-400" : "bg-red-500/10 text-red-400"
                   }`}>
-                    {code.is_active ? "Aktiv" : "Inaktiv"}
+                    {code.is_active ? t("statusActive") : t("statusInactive")}
                   </span>
                 </div>
                 <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-[var(--usha-muted)]">
-                  {code.discount_percent > 0 && <span>{code.discount_percent}% rabatt</span>}
-                  {code.discount_amount > 0 && <span>{code.discount_amount} SEK rabatt</span>}
-                  <span>{code.times_used}{code.max_uses ? `/${code.max_uses}` : ""} använd</span>
+                  {code.discount_percent > 0 && <span>{t("discountPercent", { percent: code.discount_percent })}</span>}
+                  {code.discount_amount > 0 && <span>{t("discountAmount", { amount: code.discount_amount })}</span>}
+                  <span>{t("usedCount", { used: code.times_used, max: code.max_uses ? `/${code.max_uses}` : "" })}</span>
                   {code.valid_until && (
                     <span>
-                      Gäller t.o.m. {new Date(code.valid_until).toLocaleDateString("sv-SE")}
+                      {t("validUntil", { date: new Date(code.valid_until).toLocaleDateString("sv-SE") })}
                     </span>
                   )}
                 </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Tag, Check, X, Loader2 } from "lucide-react";
 
 interface PromoCodeInputProps {
@@ -25,6 +26,7 @@ export function PromoCodeInput({
   originalPrice,
   onValidCode,
 }: PromoCodeInputProps) {
+  const t = useTranslations("creatorProfile");
   const [code, setCode] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "valid" | "invalid">("idle");
   const [error, setError] = useState("");
@@ -61,12 +63,12 @@ export function PromoCodeInput({
         onValidCode(code.trim().toUpperCase(), info);
       } else {
         setStatus("invalid");
-        setError(data.error || "Ogiltig promokod.");
+        setError(data.error || t("promo.errorInvalidCode"));
         onValidCode("", null);
       }
     } catch {
       setStatus("invalid");
-      setError("Kunde inte validera koden. Försök igen.");
+      setError(t("promo.errorCouldNotValidate"));
       onValidCode("", null);
     }
   }
@@ -81,15 +83,15 @@ export function PromoCodeInput({
 
   const discountLabel = discountInfo
     ? discountInfo.discount_type === "percent"
-      ? `${discountInfo.discount_value}% rabatt`
-      : `${discountInfo.discount_value} SEK rabatt`
+      ? t("promo.discountPercent", { value: discountInfo.discount_value })
+      : t("promo.discountFixed", { value: discountInfo.discount_value })
     : "";
 
   return (
     <div className="space-y-2">
       <label className="flex items-center gap-1.5 text-xs font-medium text-[var(--usha-muted)]">
         <Tag size={12} />
-        Promokod
+        {t("promo.label")}
       </label>
       <div className="flex gap-2">
         <div className="relative flex-1">
@@ -105,7 +107,7 @@ export function PromoCodeInput({
                 onValidCode("", null);
               }
             }}
-            placeholder="Ange kod"
+            placeholder={t("promo.placeholder")}
             disabled={status === "valid"}
             className={`w-full rounded-lg border px-3 py-2 text-sm font-mono uppercase tracking-wider placeholder:normal-case placeholder:tracking-normal transition-colors ${
               status === "valid"
@@ -133,7 +135,7 @@ export function PromoCodeInput({
             {status === "loading" ? (
               <Loader2 size={14} className="animate-spin" />
             ) : (
-              "Använd"
+              t("promo.apply")
             )}
           </button>
         )}
@@ -142,11 +144,11 @@ export function PromoCodeInput({
       {status === "valid" && (
         <p className="flex items-center gap-1 text-xs text-emerald-400">
           <Check size={12} />
-          {discountLabel} tillagd!
+          {t("promo.discountAdded", { label: discountLabel })}
           {discountInfo?.preview && (
             <span className="text-[var(--usha-muted)]">
               {" "}
-              — Nytt pris: {discountInfo.preview.discountedPrice} SEK
+              {t("promo.newPrice", { price: discountInfo.preview.discountedPrice })}
             </span>
           )}
         </p>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Star } from "lucide-react";
 import { RatingDistribution } from "./rating-distribution";
 
@@ -14,6 +15,7 @@ interface Review {
 }
 
 export function CreatorReviews({ creatorId }: { creatorId: string }) {
+  const t = useTranslations("creatorProfile");
   const [reviews, setReviews] = useState<Review[]>([]);
   const [average, setAverage] = useState<number | null>(null);
   const [count, setCount] = useState(0);
@@ -45,11 +47,11 @@ export function CreatorReviews({ creatorId }: { creatorId: string }) {
   return (
     <section>
       <div className="mb-4 flex items-center gap-3">
-        <h2 className="text-xl font-bold">Recensioner</h2>
+        <h2 className="text-xl font-bold">{t("reviews.heading")}</h2>
         <div className="flex items-center gap-1">
           <Star size={16} className="fill-[var(--usha-gold)] text-[var(--usha-gold)]" />
           <span className="text-sm font-semibold">{average}</span>
-          <span className="text-sm text-[var(--usha-muted)]">({count})</span>
+          <span className="text-sm text-[var(--usha-muted)]">{t("reviews.count", { count })}</span>
         </div>
       </div>
 
@@ -72,7 +74,7 @@ export function CreatorReviews({ creatorId }: { creatorId: string }) {
                     </span>
                   </div>
                   <span className="text-sm font-medium">
-                    {reviewer?.full_name || "Anonym"}
+                    {reviewer?.full_name || t("reviews.anonymous")}
                   </span>
                 </div>
                 <div className="flex gap-0.5">

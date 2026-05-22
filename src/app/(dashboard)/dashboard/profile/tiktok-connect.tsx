@@ -5,6 +5,7 @@ import { Music, Loader2, Check } from "lucide-react";
 import Image from "next/image";
 import { importTikTokMedia } from "./media-actions";
 import { useToast } from "@/components/ui/toaster";
+import { useTranslations } from "next-intl";
 
 interface TikTokMediaItem {
   tiktok_id: string;
@@ -22,6 +23,7 @@ export function TikTokConnect({
   isConnected: boolean;
   tiktokUsername: string | null;
 }) {
+  const t = useTranslations("dashProfile.tiktok");
   const { toast } = useToast();
   const [connected, setConnected] = useState(isConnected);
   const [username, setUsername] = useState(tiktokUsername);
@@ -40,7 +42,7 @@ export function TikTokConnect({
       const res = await fetch(url);
       if (!res.ok) {
         const data = await res.json();
-        toast.error("Kunde inte hämta", data.error || "Försök igen");
+        toast.error(t("fetchErrorTitle"), data.error || t("fetchErrorFallback"));
         return;
       }
       const data = await res.json();
@@ -51,7 +53,7 @@ export function TikTokConnect({
       }
       setNextCursor(data.nextCursor);
     } catch {
-      toast.error("Nätverksfel", "Kunde inte nå TikTok");
+      toast.error(t("networkErrorTitle"), t("networkErrorDesc"));
     } finally {
       setLoading(false);
     }
@@ -77,7 +79,7 @@ export function TikTokConnect({
   function handleImport() {
     const selected = ttMedia.filter((m) => selectedIds.has(m.tiktok_id));
     if (!selected.length) {
-      toast.error("Välj media", "Markera minst en video att importera.");
+      toast.error(t("selectMediaTitle"), t("selectMediaDesc"));
       return;
     }
 
@@ -92,9 +94,9 @@ export function TikTokConnect({
       );
 
       if (result.error) {
-        toast.error("Import misslyckades", result.error);
+        toast.error(t("importFailedTitle"), result.error);
       } else {
-        toast.success(`${selected.length} videos importerade`);
+        toast.success(t("importSuccess", { count: selected.length }));
         setTtMedia((prev) => prev.filter((m) => !selectedIds.has(m.tiktok_id)));
         setSelectedIds(new Set());
       }
@@ -107,7 +109,7 @@ export function TikTokConnect({
       setConnected(false);
       setUsername(null);
       setTtMedia([]);
-      toast.success("TikTok bortkopplat");
+      toast.success(t("disconnectedToast"));
     }
   }
 
@@ -116,17 +118,17 @@ export function TikTokConnect({
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <Music size={18} className="text-[var(--usha-muted)]" />
-          <h3 className="text-sm font-semibold">TikTok-import</h3>
+          <h3 className="text-sm font-semibold">{t("title")}</h3>
         </div>
         <p className="text-xs text-[var(--usha-muted)]">
-          Koppla ditt TikTok-konto för att importera videos till din portfolio.
+          {t("connectIntro")}
         </p>
         <a
           href="/api/tiktok/connect"
           className="inline-flex items-center gap-2 rounded-xl bg-black px-4 py-2.5 text-sm font-medium text-white ring-1 ring-white/20 transition hover:ring-white/40"
         >
           <Music size={16} />
-          Koppla TikTok
+          {t("connect")}
         </a>
       </div>
     );
@@ -137,7 +139,7 @@ export function TikTokConnect({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Music size={18} />
-          <h3 className="text-sm font-semibold">TikTok-import</h3>
+          <h3 className="text-sm font-semibold">{t("title")}</h3>
           {username && (
             <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-bold">
               @{username}
@@ -148,7 +150,7 @@ export function TikTokConnect({
           onClick={handleDisconnect}
           className="text-xs text-[var(--usha-muted)] hover:text-red-400 transition"
         >
-          Koppla bort
+          {t("disconnect")}
         </button>
       </div>
 
@@ -159,7 +161,7 @@ export function TikTokConnect({
           className="inline-flex items-center gap-2 rounded-xl border border-[var(--usha-border)] px-4 py-2 text-sm transition hover:bg-[var(--usha-border)]"
         >
           {loading ? <Loader2 size={14} className="animate-spin" /> : <Music size={14} />}
-          Hämta videos
+          {t("fetchVideos")}
         </button>
 
         {ttMedia.length > 0 && (
@@ -168,7 +170,7 @@ export function TikTokConnect({
               onClick={selectAll}
               className="rounded-xl border border-[var(--usha-border)] px-3 py-2 text-xs transition hover:bg-[var(--usha-border)]"
             >
-              {selectedIds.size === ttMedia.length ? "Avmarkera alla" : "Markera alla"}
+              {selectedIds.size === ttMedia.length ? t("deselectAll") : t("selectAll")}
             </button>
             <button
               onClick={handleImport}
@@ -176,7 +178,7 @@ export function TikTokConnect({
               className="inline-flex items-center gap-2 rounded-xl bg-[var(--usha-gold)] px-4 py-2 text-sm font-medium text-black transition hover:opacity-90 disabled:opacity-50"
             >
               {isPending ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
-              Importera valda ({selectedIds.size})
+              {t("importSelected", { count: selectedIds.size })}
             </button>
           </>
         )}
@@ -198,7 +200,7 @@ export function TikTokConnect({
                 {item.thumbnail_url && (
                   <Image
                     src={item.thumbnail_url}
-                    alt={item.caption || "TikTok video"}
+                    alt={item.caption || t("mediaAlt")}
                     fill
                     className="object-cover"
                     sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, 20vw"
@@ -210,7 +212,7 @@ export function TikTokConnect({
                   </div>
                 )}
                 <div className="absolute bottom-1 left-1 rounded-full bg-black/70 px-1.5 py-0.5 text-[9px] font-medium uppercase">
-                  Video
+                  {t("videoBadge")}
                 </div>
               </button>
             ))}
@@ -222,7 +224,7 @@ export function TikTokConnect({
               disabled={loading}
               className="w-full rounded-xl border border-[var(--usha-border)] py-2 text-sm text-[var(--usha-muted)] transition hover:bg-[var(--usha-border)]"
             >
-              {loading ? "Laddar..." : "Visa fler"}
+              {loading ? t("loadingMore") : t("showMore")}
             </button>
           )}
         </>

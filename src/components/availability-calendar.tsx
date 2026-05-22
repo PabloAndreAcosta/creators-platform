@@ -1,14 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { getAvailability } from "@/app/app/calendar/actions";
-
-const WEEKDAYS = ["Mån", "Tis", "Ons", "Tor", "Fre", "Lör", "Sön"];
-const MONTHS = [
-  "Januari", "Februari", "Mars", "April", "Maj", "Juni",
-  "Juli", "Augusti", "September", "Oktober", "November", "December",
-];
 
 interface AvailabilityCalendarProps {
   creatorId: string;
@@ -16,6 +11,9 @@ interface AvailabilityCalendarProps {
 }
 
 export function AvailabilityCalendar({ creatorId, initialAvailableDates = [] }: AvailabilityCalendarProps) {
+  const t = useTranslations("creatorProfile");
+  const WEEKDAYS = t("availability.weekdaysShort").split(",");
+  const MONTHS = t("availability.months").split(",");
   const [currentDate, setCurrentDate] = useState(new Date());
   const [availableSet, setAvailableSet] = useState<Set<string>>(new Set(initialAvailableDates));
 
@@ -55,7 +53,7 @@ export function AvailabilityCalendar({ creatorId, initialAvailableDates = [] }: 
 
   return (
     <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
-      <h3 className="mb-3 text-sm font-semibold">Tillgänglighet</h3>
+      <h3 className="mb-3 text-sm font-semibold">{t("availability.heading")}</h3>
 
       {/* Month nav */}
       <div className="mb-3 flex items-center justify-between">
@@ -114,7 +112,7 @@ export function AvailabilityCalendar({ creatorId, initialAvailableDates = [] }: 
       {/* Legend */}
       <div className="mt-2 flex items-center gap-1.5 text-[9px] text-[var(--usha-muted)]">
         <div className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-        Tillgänglig för bokning
+        {t("availability.legendAvailable")}
       </div>
     </div>
   );

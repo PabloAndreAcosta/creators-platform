@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Calendar, Clock, Users, CreditCard } from "lucide-react";
@@ -14,14 +15,15 @@ import { BookingsViewToggle } from "./bookings-view-toggle";
 import { PayB2BButton } from "./pay-b2b-button";
 import { RedeemDanceButton, DanceCounter } from "./redeem-dance-button";
 
-const STATUS_LABELS: Record<string, { text: string; className: string }> = {
-  pending: { text: "Väntande", className: "bg-yellow-500/10 text-yellow-400" },
-  confirmed: { text: "Bekräftad", className: "bg-green-500/10 text-green-400" },
-  completed: { text: "Slutförd", className: "bg-blue-500/10 text-blue-400" },
-  canceled: { text: "Avbokad", className: "bg-red-500/10 text-red-400" },
+const STATUS_LABELS: Record<string, { labelKey: string; className: string }> = {
+  pending: { labelKey: "statusPending", className: "bg-yellow-500/10 text-yellow-400" },
+  confirmed: { labelKey: "statusConfirmed", className: "bg-green-500/10 text-green-400" },
+  completed: { labelKey: "statusCompleted", className: "bg-blue-500/10 text-blue-400" },
+  canceled: { labelKey: "statusCanceled", className: "bg-red-500/10 text-red-400" },
 };
 
 export default async function BookingsPage() {
+  const t = await getTranslations("bookingsPage");
   const supabase = await createClient();
   const {
     data: { user },
@@ -86,7 +88,7 @@ export default async function BookingsPage() {
     }])
   );
   const profileMap = Object.fromEntries(
-    (profiles ?? []).map((p) => [p.id, p.full_name || "Anonym"])
+    (profiles ?? []).map((p) => [p.id, p.full_name || t("fallbackPersonName")])
   );
 
   // Fetch existing reviews for outgoing completed bookings
@@ -167,18 +169,18 @@ export default async function BookingsPage() {
   const calendarBookings = [
     ...(incoming ?? []).map((b) => ({
       id: b.id,
-      title: listingMap[b.listing_id] || "Tjänst",
+      title: listingMap[b.listing_id] || t("fallbackServiceTitle"),
       status: b.status,
       scheduledAt: b.scheduled_at,
-      personName: profileMap[b.customer_id] || "Anonym",
+      personName: profileMap[b.customer_id] || t("fallbackPersonName"),
       type: "incoming" as const,
     })),
     ...(outgoing ?? []).map((b) => ({
       id: b.id,
-      title: listingMap[b.listing_id] || "Tjänst",
+      title: listingMap[b.listing_id] || t("fallbackServiceTitle"),
       status: b.status,
       scheduledAt: b.scheduled_at,
-      personName: profileMap[b.creator_id] || "Anonym",
+      personName: profileMap[b.creator_id] || t("fallbackPersonName"),
       type: "outgoing" as const,
     })),
   ];
@@ -189,7 +191,7 @@ export default async function BookingsPage() {
       <section className="mb-10">
         <h2 className="mb-4 flex items-center gap-2 text-lg font-bold">
           <Calendar size={18} className="text-[var(--usha-gold)]" />
-          Inkommande bokningar
+          {t("incomingHeading")}
         </h2>
         {!hasIncoming ? (
           <NoBookings />
@@ -205,17 +207,17 @@ export default async function BookingsPage() {
                   <div className="min-w-0 flex-1">
                     <div className="mb-1 flex flex-wrap items-center gap-2">
                       <span className="font-semibold">
-                        {listingMap[booking.listing_id] || "Tjänst"}
+                        {listingMap[booking.listing_id] || t("fallbackServiceTitle")}
                       </span>
                       <span
                         className={`rounded-full px-2 py-0.5 text-xs font-medium ${status.className}`}
                       >
-                        {status.text}
+                        {t(status.labelKey)}
                       </span>
                       {booking.amount_paid && booking.amount_paid > 0 && (
                         <span className="flex items-center gap-1 rounded-full bg-green-500/10 px-2 py-0.5 text-xs font-medium text-green-400">
                           <CreditCard size={10} />
-                          Betald
+                          {t("paidBadge")}
                         </span>
                       )}
                       {(booking as { dances_total?: number | null }).dances_total != null &&
@@ -227,12 +229,12 @@ export default async function BookingsPage() {
                         )}
                       {(booking as { agreed_price?: number | null }).agreed_price != null && (
                         <span className="rounded-full bg-[var(--usha-accent)]/10 px-2 py-0.5 text-xs font-medium text-[var(--usha-accent)]">
-                          Ersättning: {(booking as { agreed_price?: number | null }).agreed_price} SEK
+                          {t("compensation", { amount: (booking as { agreed_price?: number | null }).agreed_price ?? 0 })}
                         </span>
                       )}
                     </div>
                     <div className="flex flex-wrap items-center gap-3 text-sm text-[var(--usha-muted)]">
-                      <span>Kund: {profileMap[booking.customer_id] || "Anonym"}</span>
+                      <span>{t("customerLabel", { name: profileMap[booking.customer_id] || t("fallbackPersonName") })}</span>
                       <span className="flex items-center gap-1">
                         <Clock size={12} />
                         {formatDate(booking.scheduled_at)}
@@ -240,7 +242,7 @@ export default async function BookingsPage() {
                       {booking.guest_count > 1 && (
                         <span className="flex items-center gap-1">
                           <Users size={12} />
-                          {booking.guest_count} gäster
+                          {t("guestCount", { count: booking.guest_count })}
                         </span>
                       )}
                     </div>
@@ -251,7 +253,7 @@ export default async function BookingsPage() {
                     )}
                     {booking.special_requests && (
                       <p className="mt-1 text-sm text-[var(--usha-gold)]/80 italic">
-                        Önskemål: {booking.special_requests}
+                        {t("specialRequests", { requests: booking.special_requests })}
                       </p>
                     )}
                   </div>
@@ -297,7 +299,7 @@ export default async function BookingsPage() {
       <section>
         <h2 className="mb-4 flex items-center gap-2 text-lg font-bold">
           <Calendar size={18} className="text-[var(--usha-accent)]" />
-          Mina bokningar
+          {t("myBookingsHeading")}
         </h2>
         {!hasOutgoing ? (
           <NoBookings />
@@ -313,12 +315,12 @@ export default async function BookingsPage() {
                   <div className="min-w-0 flex-1">
                     <div className="mb-1 flex flex-wrap items-center gap-2">
                       <span className="font-semibold">
-                        {listingMap[booking.listing_id] || "Tjänst"}
+                        {listingMap[booking.listing_id] || t("fallbackServiceTitle")}
                       </span>
                       <span
                         className={`rounded-full px-2 py-0.5 text-xs font-medium ${status.className}`}
                       >
-                        {status.text}
+                        {t(status.labelKey)}
                       </span>
                       {(booking as { dances_total?: number | null }).dances_total != null &&
                         (booking as { dances_total?: number | null }).dances_total! > 0 && (
@@ -329,12 +331,12 @@ export default async function BookingsPage() {
                         )}
                       {(booking as { agreed_price?: number | null }).agreed_price != null && (
                         <span className="rounded-full bg-[var(--usha-accent)]/10 px-2 py-0.5 text-xs font-medium text-[var(--usha-accent)]">
-                          Ersättning: {(booking as { agreed_price?: number | null }).agreed_price} SEK
+                          {t("compensation", { amount: (booking as { agreed_price?: number | null }).agreed_price ?? 0 })}
                         </span>
                       )}
                     </div>
                     <div className="flex flex-wrap items-center gap-3 text-sm text-[var(--usha-muted)]">
-                      <span>Creator: {profileMap[booking.creator_id] || "Anonym"}</span>
+                      <span>{t("creatorLabel", { name: profileMap[booking.creator_id] || t("fallbackPersonName") })}</span>
                       <span className="flex items-center gap-1">
                         <Clock size={12} />
                         {formatDate(booking.scheduled_at)}
@@ -387,7 +389,7 @@ export default async function BookingsPage() {
         <section className="mt-10">
           <h2 className="mb-4 flex items-center gap-2 text-lg font-bold">
             <Users size={18} className="text-[var(--usha-gold)]" />
-            Mina köplatser
+            {t("myQueueHeading")}
           </h2>
           <div className="space-y-3">
             {queueEntries.map((entry) => (
@@ -402,14 +404,14 @@ export default async function BookingsPage() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <span className="font-semibold">
-                    {listingMap[entry.listing_id] || "Tjänst"}
+                    {listingMap[entry.listing_id] || t("fallbackServiceTitle")}
                   </span>
                   <p className="text-xs text-[var(--usha-muted)]">
-                    Du bokas automatiskt när en plats blir ledig
+                    {t("queueAutoBookNote")}
                   </p>
                 </div>
                 <span className="shrink-0 rounded-full bg-[var(--usha-gold)]/10 px-3 py-1 text-xs font-medium text-[var(--usha-gold)]">
-                  Plats {entry.position} i kön
+                  {t("queuePosition", { position: entry.position })}
                 </span>
               </div>
             ))}
@@ -427,11 +429,11 @@ export default async function BookingsPage() {
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-white"
         >
           <ArrowLeft size={14} />
-          Tillbaka
+          {t("back")}
         </Link>
-        <h1 className="text-3xl font-bold">Bokningar</h1>
+        <h1 className="text-3xl font-bold">{t("title")}</h1>
         <p className="mt-1 text-[var(--usha-muted)]">
-          Hantera dina inkommande och utgående bokningar.
+          {t("subtitle")}
         </p>
       </div>
 

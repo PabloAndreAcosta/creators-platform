@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useToast } from "@/components/ui/toaster";
 import { CreditCard, Loader2 } from "lucide-react";
 
 export function PayB2BButton({ bookingId, price }: { bookingId: string; price: number | null }) {
   const { toast } = useToast();
+  const t = useTranslations("bookingsPage");
   const [loading, setLoading] = useState(false);
 
   async function handleClick() {
@@ -18,7 +20,7 @@ export function PayB2BButton({ bookingId, price }: { bookingId: string; price: n
       });
       const data = await res.json();
       if (!res.ok) {
-        toast.error("Kunde inte starta betalning", data.error || "Okänt fel");
+        toast.error(t("payB2BError"), data.error || t("payB2BErrorUnknown"));
         setLoading(false);
         return;
       }
@@ -26,7 +28,7 @@ export function PayB2BButton({ bookingId, price }: { bookingId: string; price: n
         window.location.href = data.url;
       }
     } catch {
-      toast.error("Kunde inte starta betalning", "Försök igen.");
+      toast.error(t("payB2BError"), t("payB2BErrorRetry"));
       setLoading(false);
     }
   }
@@ -39,7 +41,7 @@ export function PayB2BButton({ bookingId, price }: { bookingId: string; price: n
       className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-3 py-2 text-xs font-bold text-black transition hover:opacity-90 disabled:opacity-50"
     >
       {loading ? <Loader2 size={12} className="animate-spin" /> : <CreditCard size={12} />}
-      {loading ? "Laddar..." : price != null ? `Betala ${price} SEK` : "Betala"}
+      {loading ? t("payB2BLoading") : price != null ? t("payB2BWithPrice", { price }) : t("payB2BButton")}
     </button>
   );
 }

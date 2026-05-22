@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { updateBookingStatus } from "./actions";
 import { useToast } from "@/components/ui/toaster";
 import { Check, X, CheckCircle } from "lucide-react";
@@ -11,14 +12,15 @@ const btnBase =
 export function ConfirmButton({ bookingId }: { bookingId: string }) {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
+  const t = useTranslations("bookingsPage");
 
   function handle() {
     startTransition(async () => {
       const result = await updateBookingStatus(bookingId, "confirmed");
       if (result.error) {
-        toast.error("Kunde inte bekräfta bokning", result.error);
+        toast.error(t("toastConfirmError"), result.error);
       } else {
-        toast.success("Bokning bekräftad");
+        toast.success(t("toastConfirmSuccess"));
       }
     });
   }
@@ -30,7 +32,7 @@ export function ConfirmButton({ bookingId }: { bookingId: string }) {
       className={`${btnBase} bg-green-500/10 text-green-400 hover:bg-green-500/20 disabled:opacity-50`}
     >
       <Check size={12} />
-      Bekräfta
+      {t("confirmButton")}
     </button>
   );
 }
@@ -46,21 +48,22 @@ export function CancelButton({
 }) {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
+  const t = useTranslations("bookingsPage");
 
   function handle() {
     const amountSek = paidAmount != null ? Math.round(paidAmount / 100) : null;
     const message = isPaid
       ? amountSek != null
-        ? `Är du säker? Bokningen avbokas och ${amountSek} SEK återbetalas till ditt kort. Återbetalning kan ta 5–10 bankdagar.`
-        : "Är du säker? Bokningen avbokas och betalningen återbetalas. Återbetalning kan ta 5–10 bankdagar."
-      : "Är du säker på att du vill avboka?";
+        ? t("toastCancelConfirmPaidAmount", { amount: amountSek })
+        : t("toastCancelConfirmPaid")
+      : t("toastCancelConfirm");
     if (!confirm(message)) return;
     startTransition(async () => {
       const result = await updateBookingStatus(bookingId, "canceled");
       if (result.error) {
-        toast.error("Kunde inte avboka", result.error);
+        toast.error(t("toastCancelError"), result.error);
       } else {
-        toast.success(isPaid ? "Bokning avbokad och återbetalning igång" : "Bokning avbokad");
+        toast.success(isPaid ? t("toastCancelSuccessPaid") : t("toastCancelSuccess"));
       }
     });
   }
@@ -72,7 +75,7 @@ export function CancelButton({
       className={`${btnBase} border border-[var(--usha-border)] text-[var(--usha-muted)] hover:bg-red-500/10 hover:text-red-400 disabled:opacity-50`}
     >
       <X size={12} />
-      {isPaid ? "Avboka & återbetala" : "Avboka"}
+      {isPaid ? t("cancelRefundButton") : t("cancelButton")}
     </button>
   );
 }
@@ -80,14 +83,15 @@ export function CancelButton({
 export function CompleteButton({ bookingId }: { bookingId: string }) {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
+  const t = useTranslations("bookingsPage");
 
   function handle() {
     startTransition(async () => {
       const result = await updateBookingStatus(bookingId, "completed");
       if (result.error) {
-        toast.error("Kunde inte uppdatera bokning", result.error);
+        toast.error(t("toastCompleteError"), result.error);
       } else {
-        toast.success("Bokning markerad som slutförd");
+        toast.success(t("toastCompleteSuccess"));
       }
     });
   }
@@ -99,7 +103,7 @@ export function CompleteButton({ bookingId }: { bookingId: string }) {
       className={`${btnBase} bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 disabled:opacity-50`}
     >
       <CheckCircle size={12} />
-      Slutförd
+      {t("completeButton")}
     </button>
   );
 }

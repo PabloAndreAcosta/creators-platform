@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { redeemDance } from "./actions";
 import { useToast } from "@/components/ui/toaster";
 import { Music, Check } from "lucide-react";
@@ -16,6 +17,7 @@ export function RedeemDanceButton({
 }) {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
+  const t = useTranslations("bookingsPage");
   const allDone = redeemed >= total;
 
   function handle() {
@@ -23,13 +25,13 @@ export function RedeemDanceButton({
     startTransition(async () => {
       const result = await redeemDance(bookingId);
       if ("error" in result) {
-        toast.error("Kunde inte inlösa", result.error);
+        toast.error(t("redeemRedeemError"), result.error);
         return;
       }
       if (result.reachedTotal) {
-        toast.success("Alla danser inlösta", "Bokningen är slutförd.");
+        toast.success(t("redeemAllDoneTitle"), t("redeemAllDoneBody"));
       } else {
-        toast.success(`Dans ${result.redeemed} av ${result.total} inlöst`);
+        toast.success(t("redeemProgressToast", { redeemed: result.redeemed, total: result.total }));
       }
     });
   }
@@ -42,16 +44,17 @@ export function RedeemDanceButton({
       className="flex items-center gap-1 rounded-lg bg-[var(--usha-gold)]/10 px-3 py-1.5 text-xs font-medium text-[var(--usha-gold)] hover:bg-[var(--usha-gold)]/20 disabled:opacity-50"
     >
       {allDone ? <Check size={12} /> : <Music size={12} />}
-      {allDone ? `Alla ${total} inlösta` : `Inlös dans (${redeemed}/${total})`}
+      {allDone ? t("redeemAllDoneButton", { total }) : t("redeemButton", { redeemed, total })}
     </button>
   );
 }
 
 export function DanceCounter({ redeemed, total }: { redeemed: number; total: number }) {
+  const t = useTranslations("bookingsPage");
   return (
     <span className="flex items-center gap-1 rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-xs font-medium text-[var(--usha-gold)]">
       <Music size={10} />
-      {redeemed}/{total} danser
+      {t("danceCounter", { redeemed, total })}
     </span>
   );
 }

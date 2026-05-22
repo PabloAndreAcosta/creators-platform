@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { createBrowserClient } from '@supabase/ssr';
@@ -32,11 +33,11 @@ function formatDate(dateStr: string): string {
   }).format(new Date(dateStr));
 }
 
-const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  pending: { label: 'Väntande', color: 'text-yellow-400' },
-  in_transit: { label: 'På väg', color: 'text-blue-400' },
-  paid: { label: 'Utbetald', color: 'text-green-400' },
-  failed: { label: 'Misslyckad', color: 'text-red-400' },
+const STATUS_META: Record<string, { labelKey: string; color: string }> = {
+  pending: { labelKey: 'statusPending', color: 'text-yellow-400' },
+  in_transit: { labelKey: 'statusInTransit', color: 'text-blue-400' },
+  paid: { labelKey: 'statusPaid', color: 'text-green-400' },
+  failed: { labelKey: 'statusFailed', color: 'text-red-400' },
 };
 
 const COMMISSION_RATES: Record<string, number> = {
@@ -46,6 +47,7 @@ const COMMISSION_RATES: Record<string, number> = {
 };
 
 export default function PayoutDashboard({ creatorId }: PayoutDashboardProps) {
+  const t = useTranslations('payouts');
   const [loading, setLoading] = useState(true);
   const [tier, setTier] = useState<string>('gratis');
   const [weeklyGross, setWeeklyGross] = useState(0);
@@ -187,46 +189,46 @@ export default function PayoutDashboard({ creatorId }: PayoutDashboardProps) {
       <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-medium text-[var(--usha-muted)]">
-            Denna vecka
+            {t("thisWeek")}
           </h3>
           <span className="text-xs px-2 py-0.5 rounded-full bg-[var(--usha-gold)]/10 text-[var(--usha-gold)]">
-            {Math.round(commissionRate * 100)}% commission
+            {t("commissionBadge", { percent: Math.round(commissionRate * 100) })}
           </span>
         </div>
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
-            <span className="text-[var(--usha-muted)]">Brutto</span>
-            <span className="text-[var(--usha-white)]">{sek(weeklyGross)} SEK</span>
+            <span className="text-[var(--usha-muted)]">{t("gross")}</span>
+            <span className="text-[var(--usha-white)]">{t("amountSek", { amount: sek(weeklyGross) })}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-[var(--usha-muted)]">Commission</span>
-            <span className="text-red-400">-{sek(weeklyCommission)} SEK</span>
+            <span className="text-[var(--usha-muted)]">{t("commission")}</span>
+            <span className="text-red-400">{t("amountSekNegative", { amount: sek(weeklyCommission) })}</span>
           </div>
           <div className="h-px bg-[var(--usha-border)]" />
           <div className="flex justify-between">
-            <span className="text-sm font-medium text-[var(--usha-white)]">Netto</span>
+            <span className="text-sm font-medium text-[var(--usha-white)]">{t("net")}</span>
             <span className="text-xl font-bold text-[var(--usha-gold)]">
-              {sek(weeklyNet)} SEK
+              {t("amountSek", { amount: sek(weeklyNet) })}
             </span>
           </div>
         </div>
         <p className="text-xs text-[var(--usha-muted)] mt-3">
-          Nästa utbetalning: Fredag 23:00
+          {t("nextPayout")}
         </p>
       </div>
 
       {/* Lifetime Stats */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { label: 'Totalt intjänat', value: lifetimeGross },
-          { label: 'Commission', value: lifetimeCommission },
-          { label: 'Utbetalt', value: lifetimeNet },
+          { labelKey: 'statTotalEarned', value: lifetimeGross },
+          { labelKey: 'statCommission', value: lifetimeCommission },
+          { labelKey: 'statPaidOut', value: lifetimeNet },
         ].map((stat) => (
           <div
-            key={stat.label}
+            key={stat.labelKey}
             className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 text-center"
           >
-            <p className="text-xs text-[var(--usha-muted)] mb-1">{stat.label}</p>
+            <p className="text-xs text-[var(--usha-muted)] mb-1">{t(stat.labelKey)}</p>
             <p className="text-sm font-bold text-[var(--usha-white)]">
               {sek(stat.value)}
             </p>
@@ -239,12 +241,12 @@ export default function PayoutDashboard({ creatorId }: PayoutDashboardProps) {
         <div className="flex items-center justify-between mb-3">
           <div>
             <h3 className="text-sm font-semibold text-[var(--usha-white)]">
-              Snabbutbetalning
+              {t("instantTitle")}
             </h3>
             <p className="text-xs text-[var(--usha-muted)] mt-0.5">
               {instantCount === 0
-                ? 'Du kan göra 1 instant payout gratis denna månad'
-                : `Du har redan gjort ${instantCount} instant payout. Nästa kostar 1%`}
+                ? t("instantHintFree")
+                : t("instantHintUsed", { count: instantCount })}
             </p>
           </div>
         </div>
@@ -253,23 +255,23 @@ export default function PayoutDashboard({ creatorId }: PayoutDashboardProps) {
           disabled={availableBalance <= 0}
           className="w-full bg-[var(--usha-gold)] hover:bg-[var(--usha-gold-light)] text-black font-semibold"
         >
-          Uttag Nu — {sek(availableBalance)} SEK
+          {t("withdrawNow", { amount: sek(availableBalance) })}
         </Button>
       </div>
 
       {/* Payout History */}
       <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5">
         <h3 className="text-sm font-semibold text-[var(--usha-white)] mb-3">
-          Utbetalningshistorik
+          {t("historyTitle")}
         </h3>
         {payouts.length === 0 ? (
           <p className="text-sm text-[var(--usha-muted)] text-center py-6">
-            Inga utbetalningar ännu
+            {t("historyEmpty")}
           </p>
         ) : (
           <div className="space-y-3">
             {payouts.map((p) => {
-              const status = STATUS_LABELS[p.status] ?? STATUS_LABELS.pending;
+              const status = STATUS_META[p.status] ?? STATUS_META.pending;
               return (
                 <div
                   key={p.id}
@@ -278,10 +280,10 @@ export default function PayoutDashboard({ creatorId }: PayoutDashboardProps) {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
                       <span className="text-xs font-medium text-[var(--usha-white)]">
-                        {p.payout_type === 'instant' ? 'Instant' : 'Veckovis'}
+                        {p.payout_type === 'instant' ? t("typeInstant") : t("typeWeekly")}
                       </span>
                       <span className={cn('text-xs font-medium', status.color)}>
-                        {status.label}
+                        {t(status.labelKey)}
                       </span>
                     </div>
                     <p className="text-xs text-[var(--usha-muted)]">
@@ -290,10 +292,10 @@ export default function PayoutDashboard({ creatorId }: PayoutDashboardProps) {
                   </div>
                   <div className="text-right flex-shrink-0">
                     <p className="text-sm font-bold text-[var(--usha-white)]">
-                      {sek(Number(p.amount_net))} SEK
+                      {t("amountSek", { amount: sek(Number(p.amount_net)) })}
                     </p>
                     <p className="text-xs text-[var(--usha-muted)]">
-                      av {sek(Number(p.amount_gross))}
+                      {t("historyOf", { amount: sek(Number(p.amount_gross)) })}
                     </p>
                   </div>
                 </div>
@@ -320,12 +322,12 @@ export default function PayoutDashboard({ creatorId }: PayoutDashboardProps) {
           >
             <div className="flex items-center justify-between">
               <h3 id="payout-modal-title" className="text-lg font-bold text-[var(--usha-white)]">
-                Snabbutbetalning
+                {t("instantTitle")}
               </h3>
               <button
                 onClick={() => setShowModal(false)}
                 className="flex h-11 w-11 items-center justify-center rounded-lg text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
-                aria-label="Stäng"
+                aria-label={t("modalClose")}
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -335,28 +337,28 @@ export default function PayoutDashboard({ creatorId }: PayoutDashboardProps) {
 
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-[var(--usha-muted)]">Tillgängligt</span>
-                <span className="text-[var(--usha-white)]">{sek(availableBalance)} SEK</span>
+                <span className="text-[var(--usha-muted)]">{t("available")}</span>
+                <span className="text-[var(--usha-white)]">{t("amountSek", { amount: sek(availableBalance) })}</span>
               </div>
               {instantFee && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-[var(--usha-muted)]">Avgift (1%)</span>
-                  <span className="text-red-400">-{sek(feeAmount)} SEK</span>
+                  <span className="text-[var(--usha-muted)]">{t("fee")}</span>
+                  <span className="text-red-400">{t("amountSekNegative", { amount: sek(feeAmount) })}</span>
                 </div>
               )}
               <div className="h-px bg-[var(--usha-border)]" />
               <div className="flex justify-between">
                 <span className="text-sm font-medium text-[var(--usha-white)]">
-                  Du får
+                  {t("youGet")}
                 </span>
                 <span className="text-xl font-bold text-[var(--usha-gold)]">
-                  {sek(payoutNet)} SEK
+                  {t("amountSek", { amount: sek(payoutNet) })}
                 </span>
               </div>
             </div>
 
             <p className="text-xs text-[var(--usha-muted)]">
-              Pengarna kommer inom 5–10 minuter
+              {t("moneyArrival")}
             </p>
 
             <Button
@@ -364,7 +366,7 @@ export default function PayoutDashboard({ creatorId }: PayoutDashboardProps) {
               disabled={payoutLoading || payoutNet <= 0}
               className="w-full bg-[var(--usha-gold)] hover:bg-[var(--usha-gold-light)] text-black font-semibold"
             >
-              {payoutLoading ? 'Bearbetar...' : 'Bekräfta uttag'}
+              {payoutLoading ? t("processing") : t("confirmWithdraw")}
             </Button>
           </div>
         </div>
