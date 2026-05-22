@@ -2,7 +2,7 @@
 
 Usha (usha.se) är en svensk kreatör-marketplace som kopplar **BankID-verifierade** kreatörer och upplevelse-arrangörer med kunder som bokar tjänster och event. BankID-verifiering är plattformens huvuddifferentiator ("trygghet säljer").
 
-Stack: **Next.js 14 (App Router, TS)** · **Supabase** (auth + Postgres) · **Stripe** (Connect + subscriptions) · **Resend** (e-post) · **Tailwind** · Vercel (hosting) · svenskspråkigt UI.
+Stack: **Next.js 14 (App Router, TS)** · **Supabase** (auth + Postgres) · **Stripe** (Connect + subscriptions) · **Resend** (e-post) · **Tailwind** · Vercel (hosting) · tvåspråkigt UI via next-intl (**engelska default**, svenska valbart).
 
 ---
 
@@ -54,6 +54,13 @@ Vercel-planen är **Hobby** → cron-jobb får köra **högst en gång per dygn*
 
 ### E-post (Resend)
 `@/lib/email/*` — `getResend()`/`getFromEmail()`, `renderEmailToHtml()`, komponenter i `src/components/emails/`. Opt-out via `shouldSendEmail(userId, notifKey)` (`check-preferences.ts`, opt-out-modell). `.ics`-bilagor byggs med `@/lib/email/ics.ts`.
+
+### Språk / i18n (next-intl)
+- **Locales:** `en` (default) + `sv`. All konfig i `src/i18n/config.ts` — `defaultLocale = 'en'`, `LOCALE_COOKIE_NAME = 'usha-locale'`.
+- **Val av locale:** cookien `usha-locale`. `src/i18n/request.ts` läser den; `src/middleware.ts` sätter den när den saknas/är ogiltig (faller tillbaka till `defaultLocale`). Ny besökare utan cookie → **engelska**. `<html lang>` sätts i `src/app/layout.tsx` via `getLocale()`.
+- **Språkväljare:** `src/components/language-switcher.tsx` — togglar en↔sv, skriver `usha-locale` (1 års giltighet) och kör `router.refresh()`. Etiketter ligger i `messages/{en,sv}.json` under `language` (`switchTo`/`current`).
+- **Meddelanden:** `src/i18n/messages/en.json` + `sv.json` (samma namespaces, t.ex. `home`, `landing`, `nav`). Lägg alltid nycklar i **båda** filerna.
+- **Cookie-namnbyte (2026-05-22):** bumpades från `NEXT_LOCALE` → `usha-locale` för att tvinga alla *befintliga* besökare till engelska en gång — gamla `NEXT_LOCALE`-cookies ignoreras, och nästa språkval sparas under det nya namnet. Vill man göra om en sådan global återställning i framtiden: bumpa cookie-namnet igen (alla consumers går via `LOCALE_COOKIE_NAME`, så det räcker att ändra på ett ställe).
 
 ---
 
