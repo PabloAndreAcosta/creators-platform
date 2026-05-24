@@ -38,7 +38,7 @@ export function AppShell({ children, userName }: AppShellProps) {
                   <span className="text-sm font-bold text-black">U</span>
                 </div>
                 {!mobileSearchOpen && (
-                  <span className="text-lg font-bold tracking-tight">Usch-Ja</span>
+                  <span className="text-lg font-bold tracking-tight">Usch-Ja!</span>
                 )}
               </a>
 

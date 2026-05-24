@@ -37,16 +37,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .eq("is_active", true)
     .single();
 
-  if (!listing) return { title: "Event – Usch-Ja" };
+  if (!listing) return { title: "Event – Usch-Ja!" };
 
   const description = listing.description?.slice(0, 160) || `${listing.title} på Usch-Ja Platform`;
   const url = `https://usha.se/listing/${listing.slug || listing.id}`;
 
   return {
-    title: `${listing.title} – Usch-Ja`,
+    title: `${listing.title} – Usch-Ja!`,
     description,
     openGraph: {
-      title: `${listing.title} – Usch-Ja`,
+      title: `${listing.title} – Usch-Ja!`,
       description,
       url,
       type: "website",
@@ -153,7 +153,7 @@ export default async function ListingDetailPage({ params }: Props) {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
               <span className="text-sm font-bold text-black">U</span>
             </div>
-            <span className="text-lg font-bold tracking-tight">Usch-Ja</span>
+            <span className="text-lg font-bold tracking-tight">Usch-Ja!</span>
           </Link>
           {isLoggedIn ? (
             <Link

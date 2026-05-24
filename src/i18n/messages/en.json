@@ -623,7 +623,7 @@
     "liveButton": "Live"
   },
   "marketplace": {
-    "metaTitle": "Marketplace – Usch-Ja Platform",
+    "metaTitle": "Marketplace – Usch-Ja! Platform",
     "metaDescription": "Find and book creative talent. Dance instructors, musicians, photographers and more.",
     "navApp": "App",
     "navLogin": "Log in",
@@ -655,7 +655,7 @@
     "listingCount": "{count, plural, one {# service} other {# services}}"
   },
   "experiences": {
-    "metaTitle": "Experiences – Usch-Ja",
+    "metaTitle": "Experiences – Usch-Ja!",
     "metaDescription": "Explore creative experiences, events and services near you. Dance, music, photography and more.",
     "ogDescription": "Explore creative experiences, events and services near you.",
     "navFeed": "Feed",
@@ -727,9 +727,9 @@
     "levelFallback": "Level {level}"
   },
   "creatorProfile": {
-    "metaTitleFallback": "Creator – Usch-Ja Platform",
-    "metaTitle": "{name} – Usch-Ja Platform",
-    "metaTitleOg": "{name} – Usch-Ja",
+    "metaTitleFallback": "Creator – Usch-Ja! Platform",
+    "metaTitle": "{name} – Usch-Ja! Platform",
+    "metaTitleOg": "{name} – Usch-Ja!",
     "metaDescriptionFallback": "{category} on Usch-Ja Platform",
     "creatorFallbackName": "Creator",
     "nav": {

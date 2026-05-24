@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 export const metadata = {
-  title: "Återbetalningspolicy | Usch-Ja",
+  title: "Återbetalningspolicy | Usch-Ja!",
   description: "Så fungerar avbokning och återbetalning på Usch-Ja.",
 };
 

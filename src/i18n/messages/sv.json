@@ -623,7 +623,7 @@
     "liveButton": "Live"
   },
   "marketplace": {
-    "metaTitle": "Marketplace – Usch-Ja Platform",
+    "metaTitle": "Marketplace – Usch-Ja! Platform",
     "metaDescription": "Hitta och boka kreativa talanger. Dansinstruktörer, musiker, fotografer och mer.",
     "navApp": "Appen",
     "navLogin": "Logga in",
@@ -655,7 +655,7 @@
     "listingCount": "{count, plural, one {# tjänst} other {# tjänster}}"
   },
   "experiences": {
-    "metaTitle": "Upplevelser – Usch-Ja",
+    "metaTitle": "Upplevelser – Usch-Ja!",
     "metaDescription": "Utforska kreativa upplevelser, events och tjänster nära dig. Dans, musik, fotografi och mer.",
     "ogDescription": "Utforska kreativa upplevelser, events och tjänster nära dig.",
     "navFeed": "Flöde",
@@ -727,9 +727,9 @@
     "levelFallback": "Nivå {level}"
   },
   "creatorProfile": {
-    "metaTitleFallback": "Creator – Usch-Ja Platform",
-    "metaTitle": "{name} – Usch-Ja Platform",
-    "metaTitleOg": "{name} – Usch-Ja",
+    "metaTitleFallback": "Creator – Usch-Ja! Platform",
+    "metaTitle": "{name} – Usch-Ja! Platform",
+    "metaTitleOg": "{name} – Usch-Ja!",
     "metaDescriptionFallback": "{category} på Usch-Ja Platform",
     "creatorFallbackName": "Creator",
     "nav": {

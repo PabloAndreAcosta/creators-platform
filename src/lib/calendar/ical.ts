@@ -78,7 +78,7 @@ export function generateIcalFeed(bookings: BookingEvent[]): string {
     "PRODID:-//Usch-Ja//Bokningar//SV",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
-    "X-WR-CALNAME:Usch-Ja Bokningar",
+    "X-WR-CALNAME:Usch-Ja! Bokningar",
     "X-WR-TIMEZONE:Europe/Stockholm",
     events,
     "END:VCALENDAR",

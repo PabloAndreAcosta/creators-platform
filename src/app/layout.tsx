@@ -15,13 +15,13 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Usch-Ja Platform – Marketplace för Creators",
+  title: "Usch-Ja! Platform – Marketplace för Creators",
   description: "Hitta och boka kreativa talanger. Dansinstruktörer, musiker, fotografer och mer.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Usch-Ja",
+    title: "Usch-Ja!",
   },
   other: {
     "mobile-web-app-capable": "yes",
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     apple: "/icon-192.png",
   },
   openGraph: {
-    title: "Usch-Ja Platform",
+    title: "Usch-Ja! Platform",
     description: "Marketplace för Creators",
     type: "website",
     images: [
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "Usch-Ja Platform",
+    title: "Usch-Ja! Platform",
     description: "Marketplace för Creators",
     images: ["https://usha.se/icon-512.png"],
   },

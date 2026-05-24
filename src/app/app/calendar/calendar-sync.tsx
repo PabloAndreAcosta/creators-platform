@@ -41,7 +41,7 @@ export function CalendarSync({ initialFeedUrl }: CalendarSyncProps) {
 
   function getOutlookUrl() {
     if (!feedUrl) return "";
-    return `https://outlook.live.com/calendar/0/addfromweb?url=${encodeURIComponent(feedUrl)}&name=Usch-Ja%20Bokningar`;
+    return `https://outlook.live.com/calendar/0/addfromweb?url=${encodeURIComponent(feedUrl)}&name=Usch-Ja!%20Bokningar`;
   }
 
   function handleCalendarClick(type: string) {

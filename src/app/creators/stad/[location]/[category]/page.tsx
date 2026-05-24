@@ -17,10 +17,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const city = capitalize(decodeURIComponent(params.location));
   const categoryLabel = CATEGORY_LABELS[params.category] || capitalize(params.category);
   return {
-    title: `${categoryLabel} kreatörer i ${city} – Usch-Ja`,
+    title: `${categoryLabel} kreatörer i ${city} – Usch-Ja!`,
     description: `Hitta ${categoryLabel.toLowerCase()} kreatörer i ${city}. Boka direkt på Usch-Ja.`,
     openGraph: {
-      title: `${categoryLabel} i ${city} – Usch-Ja`,
+      title: `${categoryLabel} i ${city} – Usch-Ja!`,
       description: `${categoryLabel} kreatörer i ${city}.`,
     },
   };
@@ -53,7 +53,7 @@ export default async function CreatorLocationCategoryPage({ params }: Props) {
 
       <header className="sticky top-0 z-30 border-b border-[var(--usha-border)] bg-[var(--usha-black)]/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-          <Link href="/" className="text-lg font-bold text-gradient">Usch-Ja</Link>
+          <Link href="/" className="text-lg font-bold text-gradient">Usch-Ja!</Link>
           <nav className="flex items-center gap-4">
             <Link href="/flode" className="text-sm text-[var(--usha-muted)] hover:text-white">Flöde</Link>
             <Link href="/upplevelser" className="text-sm text-[var(--usha-muted)] hover:text-white">Upplevelser</Link>

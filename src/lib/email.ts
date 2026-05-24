@@ -33,7 +33,7 @@ export async function sendEmail({
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "Usch-Ja <noreply@usha.se>",
+        from: "Usch-Ja! <noreply@usha.se>",
         to,
         subject,
         html,
