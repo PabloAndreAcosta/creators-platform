@@ -48,7 +48,7 @@ export function InstallPrompt() {
           className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-5 py-2.5 text-sm font-bold text-black transition hover:opacity-90"
         >
           <Download size={16} />
-          Ladda ner Usha app
+          Ladda ner Usch-Ja app
         </button>
         <button
           onClick={() => setDismissed(true)}

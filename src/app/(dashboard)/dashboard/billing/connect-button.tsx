@@ -137,7 +137,7 @@ export default function ConnectButton() {
           <p className="mt-2 text-[10px] text-[var(--usha-muted)]">
             Du omdirigeras till Stripe för att slutföra verifieringen. Det tar ca 5 minuter.
             <br />
-            Helt gratis — inga månadsavgifter eller dolda kostnader. Alla transaktionsavgifter ingår i Ushas kommission.
+            Helt gratis — inga månadsavgifter eller dolda kostnader. Alla transaktionsavgifter ingår i Usch-Jas kommission.
           </p>
         </>
       )}

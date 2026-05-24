@@ -72,7 +72,7 @@ export function SidebarNav() {
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
             <span className="text-sm font-bold text-black">U</span>
           </div>
-          <span className="text-xl font-bold tracking-tight">Usha</span>
+          <span className="text-xl font-bold tracking-tight">Usch-Ja</span>
         </a>
 
         {/* Navigation */}

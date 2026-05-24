@@ -65,7 +65,7 @@ export function FacebookConnect({ pageName, pageId }: FacebookConnectProps) {
           <span className="text-sm font-medium">Facebook-synk</span>
         </div>
         <p className="mb-4 text-xs text-[var(--usha-muted)]">
-          Anslut din Facebook-sida för att synka evenemang åt båda håll — publicera Usha-event på Facebook och importera befintliga Facebook-event.
+          Anslut din Facebook-sida för att synka evenemang åt båda håll — publicera Usch-Ja-event på Facebook och importera befintliga Facebook-event.
         </p>
         <a
           href="/api/facebook/connect"

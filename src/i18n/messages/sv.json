@@ -186,7 +186,7 @@
     "imageUploadFailed": "Kunde inte ladda upp bilden",
     "now": "nu",
     "creatorFallback": "Kreatör",
-    "postOnUsha": "Inlägg på Usha",
+    "postOnUsha": "Inlägg på Usch-Ja",
     "showMore": "visa mer"
   },
   "onboarding": {
@@ -201,7 +201,7 @@
   "referral": {
     "title": "Bjud in vänner",
     "subtitle": "Dela din länk — de får 50 kr rabatt på första köpet",
-    "shareTitle": "Gå med i Usha",
+    "shareTitle": "Gå med i Usch-Ja",
     "shareText": "Använd min inbjudningslänk och få 50 kr rabatt på ditt första köp!",
     "copy": "Kopiera",
     "copied": "Kopierad",
@@ -242,7 +242,7 @@
   },
   "leaderboard": {
     "title": "Topplista",
-    "subtitle": "De mest engagerade användarna på Usha",
+    "subtitle": "De mest engagerade användarna på Usch-Ja",
     "thisWeek": "Denna vecka",
     "thisMonth": "Denna månad",
     "allTime": "All tid",
@@ -353,7 +353,7 @@
     "noAccount": "Inget konto?",
     "signUp": "Registrera dig",
     "chooseRole": "Välj din roll",
-    "howToUse": "Hur vill du använda Usha?",
+    "howToUse": "Hur vill du använda Usch-Ja?",
     "roleCreator": "Kreatör",
     "roleCreatorDesc": "Jag erbjuder kreativa tjänster",
     "roleExperience": "Upplevelse",
@@ -404,8 +404,8 @@
       "menuAriaLabel": "Meny"
     },
     "install": {
-      "title": "Installera Usha på din dator",
-      "description": "Usha fungerar som en app direkt i din webbläsare. Installera den för snabb åtkomst:",
+      "title": "Installera Usch-Ja på din dator",
+      "description": "Usch-Ja fungerar som en app direkt i din webbläsare. Installera den för snabb åtkomst:",
       "chromeEdge": "Chrome / Edge",
       "chromeEdgeInstructions": "Klicka på installationsikonen i adressfältet → \"Installera\"",
       "safariMac": "Safari (Mac)",
@@ -417,7 +417,7 @@
       "badge": "Köp biljetter direkt — inget konto krävs",
       "headlinePart1": "Kreativitet &",
       "headlinePart2": "upplevelser, förenade",
-      "description": "Usha samlar kreatörer, upplevelser och kunder på en plattform. Profil, bokning och betalning — allt på ett ställe.",
+      "description": "Usch-Ja samlar kreatörer, upplevelser och kunder på en plattform. Profil, bokning och betalning — allt på ett ställe.",
       "ctaPrimary": "Kom igång gratis",
       "ctaSecondary": "Utforska upplevelser"
     },
@@ -465,7 +465,7 @@
       "badge": "Trygghet i varje steg",
       "title": "Boka med",
       "titleHighlight": "fullt förtroende",
-      "subtitle": "Vi tar säkerhet på allvar. Alla som erbjuder tjänster och upplevelser på Usha är identitetsverifierade med svenskt BankID.",
+      "subtitle": "Vi tar säkerhet på allvar. Alla som erbjuder tjänster och upplevelser på Usch-Ja är identitetsverifierade med svenskt BankID.",
       "bankid": {
         "title": "BankID-verifierade kreatörer",
         "desc": "Alla kreatörer och upplevelser verifierar sin identitet med Mobilt BankID innan de skapar konto. Du vet alltid vem du bokar."
@@ -623,7 +623,7 @@
     "liveButton": "Live"
   },
   "marketplace": {
-    "metaTitle": "Marketplace – Usha Platform",
+    "metaTitle": "Marketplace – Usch-Ja Platform",
     "metaDescription": "Hitta och boka kreativa talanger. Dansinstruktörer, musiker, fotografer och mer.",
     "navApp": "Appen",
     "navLogin": "Logga in",
@@ -655,7 +655,7 @@
     "listingCount": "{count, plural, one {# tjänst} other {# tjänster}}"
   },
   "experiences": {
-    "metaTitle": "Upplevelser – Usha",
+    "metaTitle": "Upplevelser – Usch-Ja",
     "metaDescription": "Utforska kreativa upplevelser, events och tjänster nära dig. Dans, musik, fotografi och mer.",
     "ogDescription": "Utforska kreativa upplevelser, events och tjänster nära dig.",
     "navFeed": "Flöde",
@@ -727,10 +727,10 @@
     "levelFallback": "Nivå {level}"
   },
   "creatorProfile": {
-    "metaTitleFallback": "Creator – Usha Platform",
-    "metaTitle": "{name} – Usha Platform",
-    "metaTitleOg": "{name} – Usha",
-    "metaDescriptionFallback": "{category} på Usha Platform",
+    "metaTitleFallback": "Creator – Usch-Ja Platform",
+    "metaTitle": "{name} – Usch-Ja Platform",
+    "metaTitleOg": "{name} – Usch-Ja",
+    "metaDescriptionFallback": "{category} på Usch-Ja Platform",
     "creatorFallbackName": "Creator",
     "nav": {
       "marketplace": "Marketplace",
@@ -947,7 +947,7 @@
       "contactHint": "Visas på din publika profil om du vill bli kontaktad direkt.",
       "whitelabelTitle": "White label",
       "whitelabelBadge": "Premium",
-      "whitelabelHintPremium": "Visa din egen branding istället för Usha på din publika profil.",
+      "whitelabelHintPremium": "Visa din egen branding istället för Usch-Ja på din publika profil.",
       "whitelabelHintLocked": "Uppgradera till Premium för att använda din egen branding.",
       "whitelabelBrandNameLabel": "Varumärkesnamn",
       "whitelabelBrandNamePlaceholder": "Ditt varumärke",

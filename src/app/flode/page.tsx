@@ -5,11 +5,11 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Flöde – Usha",
+  title: "Flöde – Usch-Ja",
   description:
     "Se vad kreatörer och upplevelser delar just nu. Boka och köp direkt från flödet.",
   openGraph: {
-    title: "Flöde – Usha",
+    title: "Flöde – Usch-Ja",
     description:
       "Se vad kreatörer och upplevelser delar just nu. Boka och köp direkt från flödet.",
   },
@@ -29,7 +29,7 @@ export default async function FlodePage() {
       <header className="sticky top-0 z-30 border-b border-[var(--usha-border)] bg-[var(--usha-black)]/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-lg items-center justify-between px-4 py-3">
           <Link href="/" className="text-lg font-bold text-gradient">
-            Usha
+            Usch-Ja
           </Link>
           {user ? (
             <Link

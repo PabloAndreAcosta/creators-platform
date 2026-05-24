@@ -2,8 +2,8 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 export const metadata = {
-  title: "Återbetalningspolicy | Usha",
-  description: "Så fungerar avbokning och återbetalning på Usha.",
+  title: "Återbetalningspolicy | Usch-Ja",
+  description: "Så fungerar avbokning och återbetalning på Usch-Ja.",
 };
 
 export default function RefundPolicyPage() {
@@ -26,7 +26,7 @@ export default function RefundPolicyPage() {
         <section>
           <h2 className="mb-2 text-lg font-semibold text-white">Översikt</h2>
           <p>
-            Usha förmedlar bokningar mellan kunder, kreatörer och arrangörer. När du avbokar
+            Usch-Ja förmedlar bokningar mellan kunder, kreatörer och arrangörer. När du avbokar
             en betald bokning innan den är slutförd får du en full återbetalning till samma kort
             som användes vid betalningen.
           </p>
@@ -108,7 +108,7 @@ export default function RefundPolicyPage() {
         <section>
           <h2 className="mb-2 text-lg font-semibold text-white">Plattformsavgift</h2>
           <p>
-            Vid återbetalning återbetalas hela beloppet till kunden. Den provision Usha tagit
+            Vid återbetalning återbetalas hela beloppet till kunden. Den provision Usch-Ja tagit
             ut från kreatören återgår också, så ingen part bär kostnaden för en korrekt avbokning.
             Fall där bedrägeri eller missbruk misstänks utreds separat.
           </p>

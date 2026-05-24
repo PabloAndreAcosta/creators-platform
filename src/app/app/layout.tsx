@@ -7,7 +7,7 @@ import { SubscriptionProvider } from "@/lib/subscription/context";
 import type { MemberTier, MemberRole } from "@/types/database";
 
 export const metadata = {
-  title: "Usha App",
+  title: "Usch-Ja App",
   description: "Din kreativa plattform",
 };
 

@@ -2,9 +2,9 @@ import Link from "next/link";
 import { Music, ShieldCheck, Wallet, Calendar, GraduationCap, MapPin } from "lucide-react";
 
 export const metadata = {
-  title: "Taxidansare på Usha — boka eller bli en",
+  title: "Taxidansare på Usch-Ja — boka eller bli en",
   description:
-    "Hitta professionella taxidansare för pardans (bugg, foxtrot, salsa, tango) eller bli betald danspartner via Usha. BankID-verifierade dansare, säker betalning, paket och privatlektioner.",
+    "Hitta professionella taxidansare för pardans (bugg, foxtrot, salsa, tango) eller bli betald danspartner via Usch-Ja. BankID-verifierade dansare, säker betalning, paket och privatlektioner.",
 };
 
 export default function TaxiDancerLandingPage() {
@@ -47,7 +47,7 @@ export default function TaxiDancerLandingPage() {
       {/* Value props */}
       <section className="mx-auto max-w-5xl px-6 py-16">
         <h2 className="text-center text-2xl font-bold sm:text-3xl">
-          Varför Usha för taxidans?
+          Varför Usch-Ja för taxidans?
         </h2>
         <div className="mt-12 grid gap-6 sm:grid-cols-3">
           <ValueCard
@@ -133,7 +133,7 @@ export default function TaxiDancerLandingPage() {
         </h2>
         <p className="mx-auto mt-3 max-w-2xl text-center text-sm text-[var(--usha-muted)]">
           Skapa en profil, beskriv dina stilar, sätt dina priser. Bjud även på
-          privatlektioner om du vill — många taxidansare på Usha gör båda.
+          privatlektioner om du vill — många taxidansare på Usch-Ja gör båda.
         </p>
 
         <div className="mt-10 grid gap-4 sm:grid-cols-3">
@@ -172,7 +172,7 @@ export default function TaxiDancerLandingPage() {
             En taxidansare är en betald danspartner för pardans (bugg, foxtrot, salsa, tango,
             lindy hop m.fl.) på offentliga eller privata danstillfällen, eller en
             instruktör som ger privatlektioner. Tjänsten omfattar inte sexuell eller intim
-            kontakt. Användning utanför detta bryter mot Ushas användarvillkor och leder till
+            kontakt. Användning utanför detta bryter mot Usch-Jas användarvillkor och leder till
             avstängning.
           </p>
           <p className="mt-3">

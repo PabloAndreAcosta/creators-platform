@@ -38,7 +38,7 @@ export async function sendBookingConfirmationEmail({
       startsAt: scheduledAt,
       durationMinutes,
       location,
-      description: `Bokning hos ${creatorName} via Usha`,
+      description: `Bokning hos ${creatorName} via Usch-Ja`,
     });
 
     const { error } = await resend.emails.send({

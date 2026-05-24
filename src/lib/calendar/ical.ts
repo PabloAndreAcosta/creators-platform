@@ -1,5 +1,5 @@
 /**
- * iCal (.ics) generator for Usha bookings.
+ * iCal (.ics) generator for Usch-Ja bookings.
  * Produces a valid iCalendar feed that can be subscribed to
  * from Google Calendar, Apple Calendar, Outlook, etc.
  */
@@ -75,10 +75,10 @@ export function generateIcalFeed(bookings: BookingEvent[]): string {
   return [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Usha//Bokningar//SV",
+    "PRODID:-//Usch-Ja//Bokningar//SV",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
-    "X-WR-CALNAME:Usha Bokningar",
+    "X-WR-CALNAME:Usch-Ja Bokningar",
     "X-WR-TIMEZONE:Europe/Stockholm",
     events,
     "END:VCALENDAR",

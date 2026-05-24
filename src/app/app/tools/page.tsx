@@ -10,7 +10,7 @@ import {
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Verktyg – Usha" };
+export const metadata = { title: "Verktyg – Usch-Ja" };
 
 interface Tool {
   href: string;

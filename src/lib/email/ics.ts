@@ -34,7 +34,7 @@ export function buildBookingIcs({
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Usha//Booking//SV",
+    "PRODID:-//Usch-Ja//Booking//SV",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     "BEGIN:VEVENT",
@@ -67,7 +67,7 @@ export function buildEventsCalendarIcs(calendarName: string, events: CalendarEve
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Usha//Calendar//SV",
+    "PRODID:-//Usch-Ja//Calendar//SV",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     `X-WR-CALNAME:${esc(calendarName)}`,

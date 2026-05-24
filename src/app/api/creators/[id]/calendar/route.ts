@@ -35,7 +35,7 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
     .order("event_date", { ascending: true });
 
   const ics = buildEventsCalendarIcs(
-    `${profile.full_name || "Kreatör"} – Usha`,
+    `${profile.full_name || "Kreatör"} – Usch-Ja`,
     (listings ?? []).map((l) => ({
       uid: `event-${l.id}@usha.se`,
       title: l.title || "Event",

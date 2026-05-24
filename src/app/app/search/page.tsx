@@ -119,7 +119,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         )}
         {!query && subcategoryFilter === "taxi_dancer" && (
           <p className="mt-1 text-sm text-[var(--usha-muted)]">
-            {totalResults} taxidansare på Usha
+            {totalResults} taxidansare på Usch-Ja
           </p>
         )}
       </div>
