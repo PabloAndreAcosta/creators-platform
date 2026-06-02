@@ -1,19 +1,24 @@
 import Link from "next/link";
 import { ShieldCheck, ShieldAlert } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { BankIdVerifyButton } from "./bankid-verify-button";
 
 interface BankIdStatusProps {
   verifiedAt: string | null;
   bankidName: string | null;
   isCreatorRole: boolean;
+  profileRole?: "creator" | "experience" | string | null;
 }
 
 export async function BankIdStatus({
   verifiedAt,
   bankidName,
   isCreatorRole,
+  profileRole,
 }: BankIdStatusProps) {
   const t = await getTranslations("dashProfile.bankid");
+  const verifyRole: "creator" | "experience" =
+    profileRole === "experience" ? "experience" : "creator";
   if (verifiedAt) {
     const date = new Date(verifiedAt);
     const formatted = date.toLocaleDateString("sv-SE", {
@@ -68,12 +73,11 @@ export async function BankIdStatus({
             <p className="mt-1 text-sm text-[var(--usha-muted)]">
               {t("requiredDesc")}
             </p>
-            <Link
-              href="/signup"
-              className="mt-4 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-2.5 text-sm font-bold text-black transition hover:opacity-90"
-            >
-              <ShieldCheck size={14} /> {t("verifyNow")}
-            </Link>
+            <BankIdVerifyButton
+              role={verifyRole}
+              label={t("verifyNow")}
+              className="mt-4 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-2.5 text-sm font-bold text-black transition hover:opacity-90 disabled:opacity-60"
+            />
           </div>
         </div>
       </div>
@@ -91,12 +95,11 @@ export async function BankIdStatus({
           <p className="mt-1 text-sm text-[var(--usha-muted)]">
             {t("notVerifiedDesc")}
           </p>
-          <Link
-            href="/signup"
-            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2.5 text-sm font-bold text-black transition hover:opacity-90"
-          >
-            <ShieldCheck size={14} /> {t("verify")}
-          </Link>
+          <BankIdVerifyButton
+            role={verifyRole}
+            label={t("verify")}
+            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2.5 text-sm font-bold text-black transition hover:opacity-90 disabled:opacity-60"
+          />
         </div>
       </div>
     </div>

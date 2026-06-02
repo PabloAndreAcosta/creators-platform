@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getBankIdSessionResult } from "@/lib/signicat/client";
 import { signCookieValue, hashPersonalNumber } from "@/lib/signicat/crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import { computeAge } from "@/lib/age";
 import type { BankIdVerifiedData } from "@/types/bankid";
 
@@ -10,46 +11,45 @@ export async function GET(req: NextRequest) {
   const status = searchParams.get("status");
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || origin;
 
-  // Read session cookie
   const sessionCookie = req.cookies.get("bankid_session")?.value;
   if (!sessionCookie) {
     return NextResponse.redirect(`${baseUrl}/signup?bankid=error`);
   }
 
-  let sessionData: { sessionId: string; role: string; subcategory?: string };
+  let sessionData: { sessionId: string; role: string; subcategory?: string; mode?: "signup" | "add" };
   try {
     sessionData = JSON.parse(sessionCookie);
   } catch {
     return NextResponse.redirect(`${baseUrl}/signup?bankid=error`);
   }
 
-  // If user aborted or error occurred
+  const isAddMode = sessionData.mode === "add";
+  const errorBase = isAddMode ? `${baseUrl}/dashboard/profile` : `${baseUrl}/signup`;
+
   if (status !== "success") {
     const response = NextResponse.redirect(
-      `${baseUrl}/signup?bankid=${status === "abort" ? "aborted" : "failed"}`
+      `${errorBase}?bankid=${status === "abort" ? "aborted" : "failed"}`
     );
     response.cookies.set("bankid_session", "", { path: "/", maxAge: 0 });
     return response;
   }
 
   try {
-    // Fetch verification result from Signicat
     const result = await getBankIdSessionResult(sessionData.sessionId);
 
     if (result.status !== "SUCCESS" || !result.subject) {
-      const response = NextResponse.redirect(`${baseUrl}/signup?bankid=failed`);
+      const response = NextResponse.redirect(`${errorBase}?bankid=failed`);
       response.cookies.set("bankid_session", "", { path: "/", maxAge: 0 });
       return response;
     }
 
     const { firstName, lastName, name, dateOfBirth, nin } = result.subject;
 
-    // Age gate: taxi_dancer subcategory requires 18+
     if (sessionData.subcategory === "taxi_dancer") {
       const age = computeAge(dateOfBirth);
       if (age < 18) {
         const response = NextResponse.redirect(
-          `${baseUrl}/signup?bankid=age_restricted`
+          `${errorBase}?bankid=age_restricted`
         );
         response.cookies.set("bankid_session", "", { path: "/", maxAge: 0 });
         return response;
@@ -58,23 +58,55 @@ export async function GET(req: NextRequest) {
 
     const hashedNin = hashPersonalNumber(nin.value);
 
-    // Check for duplicate personnummer
-    const supabase = createAdminClient();
-    const { data: existing } = await supabase
+    const admin = createAdminClient();
+
+    let currentUserId: string | null = null;
+    if (isAddMode) {
+      const userClient = await createClient();
+      const { data: { user } } = await userClient.auth.getUser();
+      if (!user) {
+        const response = NextResponse.redirect(`${baseUrl}/login?bankid=unauthenticated`);
+        response.cookies.set("bankid_session", "", { path: "/", maxAge: 0 });
+        return response;
+      }
+      currentUserId = user.id;
+    }
+
+    const dupQuery = admin
       .from("profiles")
       .select("id")
-      .eq("bankid_personal_number", hashedNin)
-      .maybeSingle();
+      .eq("bankid_personal_number", hashedNin);
+    if (currentUserId) dupQuery.neq("id", currentUserId);
+    const { data: existing } = await dupQuery.maybeSingle();
 
     if (existing) {
-      const response = NextResponse.redirect(
-        `${baseUrl}/signup?bankid=duplicate`
-      );
+      const response = NextResponse.redirect(`${errorBase}?bankid=duplicate`);
       response.cookies.set("bankid_session", "", { path: "/", maxAge: 0 });
       return response;
     }
 
-    // Store verified data in signed cookie
+    if (isAddMode && currentUserId) {
+      const { error: updateErr } = await admin
+        .from("profiles")
+        .update({
+          bankid_personal_number: hashedNin,
+          bankid_verified_at: new Date().toISOString(),
+          bankid_name: name,
+        })
+        .eq("id", currentUserId);
+
+      if (updateErr) {
+        console.error("BankID add-mode update failed:", updateErr.message);
+        const response = NextResponse.redirect(`${errorBase}?bankid=error`);
+        response.cookies.set("bankid_session", "", { path: "/", maxAge: 0 });
+        return response;
+      }
+
+      const response = NextResponse.redirect(`${baseUrl}/dashboard/profile?bankid=success`);
+      response.cookies.set("bankid_session", "", { path: "/", maxAge: 0 });
+      return response;
+    }
+
     const verifiedData: BankIdVerifiedData = {
       name,
       firstName,
@@ -101,7 +133,7 @@ export async function GET(req: NextRequest) {
     return response;
   } catch (err) {
     console.error("BankID callback error:", err);
-    const response = NextResponse.redirect(`${baseUrl}/signup?bankid=error`);
+    const response = NextResponse.redirect(`${errorBase}?bankid=error`);
     response.cookies.set("bankid_session", "", { path: "/", maxAge: 0 });
     return response;
   }

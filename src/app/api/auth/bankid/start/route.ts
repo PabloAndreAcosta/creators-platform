@@ -3,7 +3,7 @@ import { createBankIdSession } from "@/lib/signicat/client";
 
 export async function POST(req: NextRequest) {
   try {
-    const { role, subcategory } = await req.json();
+    const { role, subcategory, mode } = await req.json();
 
     if (!role || !["creator", "experience"].includes(role)) {
       return NextResponse.json(
@@ -11,6 +11,8 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
+    const resolvedMode: "signup" | "add" = mode === "add" ? "add" : "signup";
 
     const resolvedSubcategory =
       role === "creator" && subcategory === "taxi_dancer"
@@ -24,11 +26,11 @@ export async function POST(req: NextRequest) {
       authenticationUrl: session.authenticationUrl,
     });
 
-    // Store session ID, role, and subcategory in httpOnly cookie for the callback
     response.cookies.set("bankid_session", JSON.stringify({
       sessionId: session.id,
       role,
       subcategory: resolvedSubcategory,
+      mode: resolvedMode,
     }), {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",

@@ -89,6 +89,7 @@ export default async function ProfilePage() {
           verifiedAt={(profile as { bankid_verified_at?: string | null }).bankid_verified_at ?? null}
           bankidName={(profile as { bankid_name?: string | null }).bankid_name ?? null}
           isCreatorRole={isCreator}
+          profileRole={(profile as { role?: string | null }).role ?? null}
         />
       </div>
 
