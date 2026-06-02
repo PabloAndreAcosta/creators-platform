@@ -9,8 +9,10 @@ import { FacebookMediaConnect } from "./facebook-media-connect";
 import { TikTokConnect } from "./tiktok-connect";
 import { ProfileQR } from "./profile-qr";
 import { BankIdStatus } from "./bankid-status";
+import { BankIdResultToast } from "./bankid-result-toast";
 import { BETA_MODE } from "@/lib/beta";
 import { getTranslations } from "next-intl/server";
+import { Suspense } from "react";
 
 export default async function ProfilePage() {
   const t = await getTranslations("dashProfile.page");
@@ -49,6 +51,9 @@ export default async function ProfilePage() {
 
   return (
     <>
+      <Suspense fallback={null}>
+        <BankIdResultToast />
+      </Suspense>
       <div className="mb-8">
         <Link
           href="/dashboard"
