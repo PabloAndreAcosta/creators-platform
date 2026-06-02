@@ -134,6 +134,65 @@ export async function createEvent(formData: FormData) {
   redirect("/app/events");
 }
 
+export async function duplicateEvent(
+  sourceId: string,
+  newDate: string,
+  newTime: string | null,
+  newEndTime: string | null
+) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { error: "Ej inloggad" };
+  if (!newDate) return { error: "Datum krävs" };
+
+  const { tier } = await getSubscriptionStatus(user.id);
+  const limit = await checkListingLimit(user.id, tier);
+  if (!limit.allowed) {
+    return { error: `Du har nått maxgränsen (${limit.max}) för din plan. Uppgradera för att skapa fler.` };
+  }
+
+  const { data: src, error: fetchErr } = await supabase
+    .from("listings")
+    .select("title, description, category, price, duration_minutes, event_tier, image_url, event_location, event_lat, event_lng, event_place_id, listing_type, min_guests, max_guests, experience_details, capacity")
+    .eq("id", sourceId)
+    .eq("user_id", user.id)
+    .single();
+
+  if (fetchErr || !src) return { error: "Hittade inte originalet." };
+
+  const { data: cloned, error: insErr } = await supabase
+    .from("listings")
+    .insert({
+      ...src,
+      user_id: user.id,
+      event_date: newDate,
+      event_time: newTime,
+      event_end_time: newEndTime,
+      is_active: true,
+    })
+    .select("id, title, event_date, event_location, image_url")
+    .single();
+
+  if (insErr || !cloned) return { error: "Kunde inte duplicera evenemanget." };
+
+  const text = `Nytt event: ${cloned.title} — ${new Date(newDate).toLocaleDateString("sv-SE", { day: "numeric", month: "long" })}${cloned.event_location ? ` i ${cloned.event_location}` : ""}. Välkommen!`;
+
+  await supabase.from("posts").insert({
+    user_id: user.id,
+    text,
+    image_url: cloned.image_url,
+    listing_id: cloned.id,
+  });
+
+  revalidatePath("/app/events");
+  revalidatePath("/app");
+  revalidatePath("/app/posts");
+  return { success: true, id: cloned.id };
+}
+
 export async function updateEvent(id: string, formData: FormData) {
   const supabase = await createClient();
   const {

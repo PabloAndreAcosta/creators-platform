@@ -140,7 +140,7 @@ export default function EventForm({
           <ArrowLeft size={16} />
         </button>
         <h1 className="text-xl font-bold">
-          {event ? "Redigera evenemang" : "Nytt evenemang"}
+          {event?.id ? "Redigera evenemang" : "Nytt evenemang"}
         </h1>
       </div>
 

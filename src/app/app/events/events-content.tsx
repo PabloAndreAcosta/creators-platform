@@ -14,11 +14,13 @@ import {
   ToggleLeft,
   ToggleRight,
   Radio,
+  Copy,
+  X as XIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/toaster";
-import { deleteEvent, toggleEventActive } from "./actions";
+import { deleteEvent, toggleEventActive, duplicateEvent } from "./actions";
 import { EVENT_CATEGORY_LABELS } from "./constants";
 import { FacebookConnect } from "@/components/facebook/FacebookConnect";
 import { FacebookSyncButton } from "@/components/facebook/FacebookSyncButton";
@@ -156,6 +158,7 @@ function EventCard({
   hasPageConnected: boolean;
 }) {
   const [showMenu, setShowMenu] = useState(false);
+  const [showCloneModal, setShowCloneModal] = useState(false);
   const [isActive, setIsActive] = useState(listing.is_active);
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
@@ -293,6 +296,24 @@ function EventCard({
                     Redigera
                   </Link>
                   <button
+                    onClick={() => {
+                      setShowMenu(false);
+                      setShowCloneModal(true);
+                    }}
+                    className="flex w-full items-center gap-2 px-4 py-2 text-xs hover:bg-[var(--usha-card-hover)]"
+                  >
+                    <Copy size={12} />
+                    Duplicera med nytt datum
+                  </button>
+                  <Link
+                    href={`/app/events/new?from=${listing.id}`}
+                    className="flex w-full items-center gap-2 px-4 py-2 text-xs hover:bg-[var(--usha-card-hover)]"
+                    onClick={() => setShowMenu(false)}
+                  >
+                    <Copy size={12} />
+                    Duplicera + redigera
+                  </Link>
+                  <button
                     onClick={handleToggle}
                     className="flex w-full items-center gap-2 px-4 py-2 text-xs hover:bg-[var(--usha-card-hover)]"
                   >
@@ -328,6 +349,124 @@ function EventCard({
             hasPageConnected={hasPageConnected}
           />
         </div>
+      </div>
+
+      {showCloneModal && (
+        <CloneModal
+          listing={listing}
+          onClose={() => setShowCloneModal(false)}
+        />
+      )}
+    </div>
+  );
+}
+
+function CloneModal({
+  listing,
+  onClose,
+}: {
+  listing: ListingData;
+  onClose: () => void;
+}) {
+  const { toast } = useToast();
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [newDate, setNewDate] = useState("");
+  const [newTime, setNewTime] = useState(listing.event_time?.slice(0, 5) ?? "");
+  const [newEndTime, setNewEndTime] = useState("");
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!newDate) {
+      toast.error("Datum krävs");
+      return;
+    }
+    startTransition(async () => {
+      const result = await duplicateEvent(
+        listing.id,
+        newDate,
+        newTime || null,
+        newEndTime || null
+      );
+      if (result?.error) {
+        toast.error("Kunde inte duplicera", result.error);
+      } else {
+        toast.success("Duplicerat!", `"${listing.title}" är skapat med nytt datum.`);
+        onClose();
+        router.refresh();
+      }
+    });
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={onClose}>
+      <div
+        className="w-full max-w-sm rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-base font-bold">Duplicera evenemang</h3>
+          <button
+            onClick={onClose}
+            className="rounded-lg p-1 text-[var(--usha-muted)] hover:bg-[var(--usha-card-hover)] hover:text-white"
+            type="button"
+          >
+            <XIcon size={16} />
+          </button>
+        </div>
+        <p className="mb-4 text-xs text-[var(--usha-muted)]">
+          Kopierar &ldquo;{listing.title}&rdquo; med all data utom datum/tid.
+        </p>
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div>
+            <label className="mb-1 block text-xs text-[var(--usha-muted)]">
+              Nytt datum <span className="text-red-400">*</span>
+            </label>
+            <input
+              type="date"
+              required
+              value={newDate}
+              onChange={(e) => setNewDate(e.target.value)}
+              className="w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-bg)] px-3 py-2 text-sm outline-none focus:border-[var(--usha-gold)]/40"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="mb-1 block text-xs text-[var(--usha-muted)]">Starttid</label>
+              <input
+                type="time"
+                value={newTime}
+                onChange={(e) => setNewTime(e.target.value)}
+                className="w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-bg)] px-3 py-2 text-sm outline-none focus:border-[var(--usha-gold)]/40"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-[var(--usha-muted)]">Sluttid</label>
+              <input
+                type="time"
+                value={newEndTime}
+                onChange={(e) => setNewEndTime(e.target.value)}
+                className="w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-bg)] px-3 py-2 text-sm outline-none focus:border-[var(--usha-gold)]/40"
+              />
+            </div>
+          </div>
+          <div className="flex gap-2 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 rounded-lg border border-[var(--usha-border)] py-2 text-sm hover:bg-[var(--usha-card-hover)]"
+            >
+              Avbryt
+            </button>
+            <button
+              type="submit"
+              disabled={isPending}
+              className="flex-1 rounded-lg bg-[var(--usha-gold)] py-2 text-sm font-medium text-black disabled:opacity-50"
+            >
+              {isPending ? "Duplicerar..." : "Duplicera"}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
