@@ -807,6 +807,7 @@ function Footer() {
     [t("footer.platform")]: [
       { label: t("footer.marketplace"), href: "/marketplace" },
       { label: t("footer.pricing"), href: "#pricing" },
+      { label: t("footer.about"), href: "/om" },
     ],
     [t("footer.legal")]: [
       { label: t("footer.terms"), href: "/terms" },

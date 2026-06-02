@@ -97,6 +97,19 @@
     "switchTo": "English",
     "current": "Svenska"
   },
+  "about": {
+    "metaTitle": "Om oss – Usch-Ja!",
+    "metaDescription": "Usha är bolaget bakom Usch-Ja! — plattformen för mänskligt uttryck. Lär känna visionen och vart vi är på väg.",
+    "back": "Tillbaka",
+    "title": "Om oss",
+    "lead": "Usha är bolaget bakom Usch-Ja! — plattformen för mänskligt uttryck.",
+    "p1": "Vi tror att de bästa stunderna uppstår när människor möts på riktigt — i rörelse, i lek och i skapande. Usch-Ja samlar kreatörer, upplevelser och deltagare på ett och samma ställe, där passion möter professionalism och varje bokning känns trygg. Alla kreatörer är BankID-verifierade och alla betalningar hanteras säkert, så att du kan fokusera på det som faktiskt betyder något: upplevelsen.",
+    "p2": "Usha grundades av Pablo Acosta, som arbetar i skärningspunkten mellan dans, teknik och community-building. Visionen är enkel: bygga en plats där kreativitet får leva, talanger får synas och människor får komma närmare varandra.",
+    "roadmapTitle": "Vart vi är på väg",
+    "p3": "Vi bygger steg för steg, med riktiga upplevelser från dag ett. I sommar startar vi med The Kiz Lab — öppen dansträning varje vecka i Stockholm. Därifrån växer vi vidare till återkommande månadsfester och, längre fram, en årlig festival som samlar hela gemenskapen.",
+    "closing": "Det här är bara början. Välkommen att vara med från start.",
+    "tagline": "Usch-Ja! — för mänskligt uttryck."
+  },
   "settings": {
     "title": "Inställningar",
     "notifications": "Notifikationer",
@@ -550,6 +563,7 @@
       "platform": "Plattform",
       "marketplace": "Marketplace",
       "pricing": "Priser",
+      "about": "Om oss",
       "legal": "Juridiskt",
       "terms": "Användarvillkor",
       "privacy": "Integritetspolicy",
