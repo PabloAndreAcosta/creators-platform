@@ -24,14 +24,18 @@ export function slugifyTitle(title: string): string {
  * @param opts.excludeId  ignore this listing's own row (for updates).
  * @param opts.taken      slugs already claimed earlier in the same batch
  *                        (e.g. a bulk import) — mutated as it hands them out.
+ * @param opts.dateSuffix append a date (YYYY-MM-DD) to the base, so each
+ *                        occurrence of a recurring event gets a meaningful,
+ *                        self-describing slug (the-kiz-lab-2026-06-08).
  */
 export async function generateUniqueListingSlug(
   supabase: SupabaseClient,
   title: string,
-  opts: { excludeId?: string; taken?: Set<string> } = {}
+  opts: { excludeId?: string; taken?: Set<string>; dateSuffix?: string } = {}
 ): Promise<string> {
-  const base = slugifyTitle(title) || "event";
-  const { excludeId, taken } = opts;
+  const { excludeId, taken, dateSuffix } = opts;
+  const titlePart = slugifyTitle(title) || "event";
+  const base = dateSuffix ? `${titlePart}-${dateSuffix}` : titlePart;
 
   for (let n = 0; n < 50; n++) {
     const candidate = n === 0 ? base : `${base}-${n + 1}`;

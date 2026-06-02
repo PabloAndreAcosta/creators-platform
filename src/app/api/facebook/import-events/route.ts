@@ -73,6 +73,9 @@ export async function GET() {
   const claimedSlugs = new Set<string>();
   const inserts = [];
   for (const e of newEvents) {
+    // Facebook start_time is ISO 8601 (e.g. 2026-06-08T19:00:00+0200).
+    const eventDate = e.start_time ? e.start_time.slice(0, 10) : null;
+    const eventTime = e.start_time ? e.start_time.slice(11, 16) : null;
     inserts.push({
       user_id: user.id,
       title: e.name,
@@ -80,7 +83,12 @@ export async function GET() {
       category: "other",
       facebook_event_id: e.id,
       is_active: true,
-      slug: await generateUniqueListingSlug(supabase, e.name, { taken: claimedSlugs }),
+      event_date: eventDate,
+      event_time: eventTime,
+      slug: await generateUniqueListingSlug(supabase, e.name, {
+        taken: claimedSlugs,
+        dateSuffix: eventDate ?? undefined,
+      }),
     });
   }
 

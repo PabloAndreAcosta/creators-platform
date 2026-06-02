@@ -34,6 +34,25 @@ async function isBankidCleared(
   );
 }
 
+/**
+ * Expand a recurring event into its occurrence dates (YYYY-MM-DD), starting
+ * from `start` and including it. Date math is done in UTC to avoid timezone
+ * drift. `monthly` uses calendar months (overflow lands in the next month,
+ * e.g. Jan 31 → Mar 3), which is acceptable for scheduling.
+ */
+function computeSeriesDates(start: string, interval: string, count: number): string[] {
+  const [y, m, day] = start.split("-").map(Number);
+  const base = new Date(Date.UTC(y, m - 1, day));
+  const out: string[] = [];
+  for (let i = 0; i < count; i++) {
+    const d = new Date(base);
+    if (interval === "monthly") d.setUTCMonth(base.getUTCMonth() + i);
+    else d.setUTCDate(base.getUTCDate() + i * (interval === "biweekly" ? 14 : 7));
+    out.push(d.toISOString().slice(0, 10));
+  }
+  return out;
+}
+
 function parseEventForm(formData: FormData) {
   const title = (formData.get("title") as string)?.trim();
   const description = (formData.get("description") as string)?.trim();
@@ -139,26 +158,67 @@ export async function createEvent(formData: FormData) {
   const parsed = parseEventForm(formData);
   if ("error" in parsed) return { error: parsed.error };
 
-  const slug = await generateUniqueListingSlug(supabase, parsed.data.title);
+  // Recurring series — generate one occurrence per date (only meaningful with
+  // a start date). Each occurrence is its own bookable listing.
+  const recurrence = (formData.get("recurrence") as string) || "none";
+  const occRaw = parseInt((formData.get("occurrences") as string) || "1", 10);
+  const occurrences = Math.min(Math.max(isNaN(occRaw) ? 1 : occRaw, 1), 52);
+  const isSeries = recurrence !== "none" && !!parsed.data.event_date && occurrences > 1;
 
-  const { data: listing, error } = await supabase
+  const dates: (string | null)[] = isSeries
+    ? computeSeriesDates(parsed.data.event_date as string, recurrence, occurrences)
+    : [parsed.data.event_date];
+
+  // The plan limit covers the whole series, not just one row.
+  if (limit.max !== null) {
+    const remaining = limit.max - limit.current;
+    if (dates.length > remaining) {
+      return {
+        error:
+          remaining <= 0
+            ? `Du har nått maxgränsen (${limit.max}) för din plan. Uppgradera för att skapa fler.`
+            : `Din plan tillåter ${remaining} till (max ${limit.max}). Minska antalet tillfällen eller uppgradera.`,
+      };
+    }
+  }
+
+  // Build one listing per date, each with its own date-based slug.
+  const taken = new Set<string>();
+  const rows = [];
+  for (const d of dates) {
+    rows.push({
+      ...parsed.data,
+      user_id: user.id,
+      event_date: d,
+      slug: await generateUniqueListingSlug(supabase, parsed.data.title, {
+        dateSuffix: d ?? undefined,
+        taken,
+      }),
+    });
+  }
+
+  const { data: created, error } = await supabase
     .from("listings")
-    .insert({ ...parsed.data, user_id: user.id, slug })
-    .select("id, title, price, event_date, event_location, image_url")
-    .single();
+    .insert(rows)
+    .select("id, title, event_date, event_location, image_url");
 
-  if (error || !listing) return { error: "Kunde inte skapa evenemanget. Försök igen." };
+  if (error || !created?.length) return { error: "Kunde inte skapa evenemanget. Försök igen." };
 
-  // Auto-post to feed
-  const text = parsed.data.event_date
-    ? `Nytt event: ${parsed.data.title} — ${new Date(parsed.data.event_date).toLocaleDateString("sv-SE", { day: "numeric", month: "long" })}${parsed.data.event_location ? ` i ${parsed.data.event_location}` : ""}. Välkommen!`
-    : `Nytt event: ${parsed.data.title}${parsed.data.event_location ? ` i ${parsed.data.event_location}` : ""}. Välkommen!`;
+  // Auto-post to feed — one post for the first occurrence (a series notes the rest).
+  const first = created[0];
+  const dateLabel = first.event_date
+    ? new Date(first.event_date).toLocaleDateString("sv-SE", { day: "numeric", month: "long" })
+    : null;
+  const seriesNote = isSeries ? ` (+${created.length - 1} fler tillfällen)` : "";
+  const text = dateLabel
+    ? `Nytt event: ${first.title} — ${dateLabel}${seriesNote}${first.event_location ? ` i ${first.event_location}` : ""}. Välkommen!`
+    : `Nytt event: ${first.title}${first.event_location ? ` i ${first.event_location}` : ""}. Välkommen!`;
 
   await supabase.from("posts").insert({
     user_id: user.id,
     text,
-    image_url: parsed.data.image_url,
-    listing_id: listing.id,
+    image_url: first.image_url,
+    listing_id: first.id,
   });
 
   revalidatePath("/app/events");
@@ -200,7 +260,7 @@ export async function duplicateEvent(
 
   if (fetchErr || !src) return { error: "Hittade inte originalet." };
 
-  const slug = await generateUniqueListingSlug(supabase, src.title);
+  const slug = await generateUniqueListingSlug(supabase, src.title, { dateSuffix: newDate });
 
   const { data: cloned, error: insErr } = await supabase
     .from("listings")
@@ -259,7 +319,10 @@ export async function updateEvent(id: string, formData: FormData) {
 
   const updateData: Record<string, unknown> = { ...parsed.data };
   if (current && !current.slug) {
-    updateData.slug = await generateUniqueListingSlug(supabase, parsed.data.title, { excludeId: id });
+    updateData.slug = await generateUniqueListingSlug(supabase, parsed.data.title, {
+      excludeId: id,
+      dateSuffix: parsed.data.event_date ?? undefined,
+    });
   }
 
   const { error } = await supabase

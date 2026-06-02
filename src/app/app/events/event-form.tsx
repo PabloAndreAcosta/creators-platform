@@ -83,6 +83,10 @@ export default function EventForm({
     (event?.experience_details?.included ?? []).join(", ")
   );
   const showGuestFields = ["table_reservation", "spa_treatment", "group_activity"].includes(listingType);
+  const isEditing = !!event?.id;
+  const [recurring, setRecurring] = useState(false);
+  const [recurInterval, setRecurInterval] = useState("weekly");
+  const [occurrences, setOccurrences] = useState(4);
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -274,6 +278,61 @@ export default function EventForm({
             />
           </div>
         </div>
+
+        {/* Recurring series — only when creating */}
+        {!isEditing && (
+          <div className="space-y-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
+            <label className="flex cursor-pointer items-center gap-2.5 text-sm">
+              <input
+                type="checkbox"
+                checked={recurring}
+                onChange={(e) => setRecurring(e.target.checked)}
+                className="h-4 w-4 accent-[var(--usha-gold)]"
+              />
+              <span className="font-medium">Återkommande event (serie)</span>
+            </label>
+            {recurring && (
+              <>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label htmlFor="recur_interval" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
+                      Intervall
+                    </label>
+                    <select
+                      id="recur_interval"
+                      value={recurInterval}
+                      onChange={(e) => setRecurInterval(e.target.value)}
+                      className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-bg,var(--usha-card))] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+                    >
+                      <option value="weekly">Varje vecka</option>
+                      <option value="biweekly">Varannan vecka</option>
+                      <option value="monthly">Varje månad</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label htmlFor="occurrences" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
+                      Antal tillfällen
+                    </label>
+                    <input
+                      id="occurrences"
+                      type="number"
+                      min={2}
+                      max={52}
+                      value={occurrences}
+                      onChange={(e) => setOccurrences(Math.min(Math.max(parseInt(e.target.value) || 2, 2), 52))}
+                      className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-bg,var(--usha-card))] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+                    />
+                  </div>
+                </div>
+                <p className="text-xs text-[var(--usha-muted)]">
+                  Skapar {occurrences} tillfällen från startdatumet, samma tid varje gång. Varje tillfälle blir en egen bokningsbar sida.
+                </p>
+              </>
+            )}
+          </div>
+        )}
+        <input type="hidden" name="recurrence" value={recurring ? recurInterval : "none"} />
+        <input type="hidden" name="occurrences" value={occurrences} />
 
         {/* Location with Google Places Autocomplete */}
         <PlacesAutocomplete
