@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { generateUniqueListingSlug } from "@/lib/listings/slug";
 
 // GET /api/facebook/import-events
 // Fetches upcoming events from the connected Facebook Page
@@ -66,15 +67,22 @@ export async function GET() {
     return NextResponse.json({ imported: 0, message: "Inga nya evenemang att importera" });
   }
 
-  // Insert new listings for each imported Facebook event
-  const inserts = newEvents.map((e) => ({
-    user_id: user.id,
-    title: e.name,
-    description: e.description ?? null,
-    category: "other",
-    facebook_event_id: e.id,
-    is_active: true,
-  }));
+  // Insert new listings for each imported Facebook event. Generate a unique
+  // slug per event, tracking slugs claimed within this batch so two events
+  // with the same name don't collide before any of them are persisted.
+  const claimedSlugs = new Set<string>();
+  const inserts = [];
+  for (const e of newEvents) {
+    inserts.push({
+      user_id: user.id,
+      title: e.name,
+      description: e.description ?? null,
+      category: "other",
+      facebook_event_id: e.id,
+      is_active: true,
+      slug: await generateUniqueListingSlug(supabase, e.name, { taken: claimedSlugs }),
+    });
+  }
 
   const { error } = await supabase.from("listings").insert(inserts);
 

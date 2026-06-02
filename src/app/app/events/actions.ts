@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { EVENT_CATEGORIES } from "./constants";
 import { getSubscriptionStatus } from "@/lib/subscription/check";
 import { checkListingLimit } from "@/lib/listings/limits";
+import { generateUniqueListingSlug } from "@/lib/listings/slug";
 
 const BANKID_REQUIRED_MSG =
   "Du måste verifiera dig med BankID innan du kan publicera eller duplicera evenemang. Gör det under Profil.";
@@ -138,9 +139,11 @@ export async function createEvent(formData: FormData) {
   const parsed = parseEventForm(formData);
   if ("error" in parsed) return { error: parsed.error };
 
+  const slug = await generateUniqueListingSlug(supabase, parsed.data.title);
+
   const { data: listing, error } = await supabase
     .from("listings")
-    .insert({ ...parsed.data, user_id: user.id })
+    .insert({ ...parsed.data, user_id: user.id, slug })
     .select("id, title, price, event_date, event_location, image_url")
     .single();
 
@@ -197,6 +200,8 @@ export async function duplicateEvent(
 
   if (fetchErr || !src) return { error: "Hittade inte originalet." };
 
+  const slug = await generateUniqueListingSlug(supabase, src.title);
+
   const { data: cloned, error: insErr } = await supabase
     .from("listings")
     .insert({
@@ -206,6 +211,7 @@ export async function duplicateEvent(
       event_time: newTime,
       event_end_time: newEndTime,
       is_active: true,
+      slug,
     })
     .select("id, title, event_date, event_location, image_url")
     .single();
@@ -242,9 +248,23 @@ export async function updateEvent(id: string, formData: FormData) {
   const parsed = parseEventForm(formData);
   if ("error" in parsed) return { error: parsed.error };
 
+  // Backfill a slug for older events that never got one. Existing slugs are
+  // left untouched so already-shared links keep working.
+  const { data: current } = await supabase
+    .from("listings")
+    .select("slug")
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .single();
+
+  const updateData: Record<string, unknown> = { ...parsed.data };
+  if (current && !current.slug) {
+    updateData.slug = await generateUniqueListingSlug(supabase, parsed.data.title, { excludeId: id });
+  }
+
   const { error } = await supabase
     .from("listings")
-    .update(parsed.data)
+    .update(updateData)
     .eq("id", id)
     .eq("user_id", user.id);
 
