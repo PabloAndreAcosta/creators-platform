@@ -401,7 +401,8 @@
       "openApp": "Open app",
       "downloadApp": "Download app",
       "getStarted": "Get started",
-      "menuAriaLabel": "Menu"
+      "menuAriaLabel": "Menu",
+      "login": "Log in"
     },
     "install": {
       "title": "Install Usch-Ja on your computer",

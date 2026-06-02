@@ -91,16 +91,24 @@ function Nav() {
           ))}
           <span className="h-4 w-px bg-[var(--usha-border)]" />
           {appLinks.map((l) => (
-            <a key={l.href} href={l.href} className="text-[#5ce0d2] transition hover:text-[#7eeee2]">
+            <a key={l.href} href={l.href} className="text-[#60a5fa] transition hover:text-[#93c5fd]">
               {l.label}
             </a>
           ))}
           <button
             onClick={handleInstallClick}
-            className="text-[#5ce0d2] transition hover:text-[#7eeee2]"
+            className="text-white transition hover:text-white/80"
           >
             {isLoggedIn ? t("nav.openApp") : t("nav.downloadApp")}
           </button>
+          {!isLoggedIn && (
+            <a
+              href="/login"
+              className="font-bold text-white transition hover:opacity-80"
+            >
+              {t("nav.login")}
+            </a>
+          )}
           <ThemeToggle />
           <LanguageSwitcher />
         </div>
@@ -141,7 +149,7 @@ function Nav() {
                 key={l.href}
                 href={l.href}
                 onClick={() => setMobileOpen(false)}
-                className="py-2 text-sm text-[#5ce0d2] transition hover:text-[#7eeee2]"
+                className="py-2 text-sm text-[#60a5fa] transition hover:text-[#93c5fd]"
               >
                 {l.label}
               </a>
@@ -149,10 +157,19 @@ function Nav() {
             <a
               href="/app"
               onClick={() => setMobileOpen(false)}
-              className="py-2 text-sm text-[#5ce0d2] transition hover:text-[#7eeee2]"
+              className="py-2 text-sm text-white transition hover:text-white/80"
             >
               {isLoggedIn ? t("nav.openApp") : t("nav.downloadApp")}
             </a>
+            {!isLoggedIn && (
+              <a
+                href="/login"
+                onClick={() => setMobileOpen(false)}
+                className="py-2 text-base font-bold text-white transition hover:opacity-80"
+              >
+                {t("nav.login")}
+              </a>
+            )}
             <div className="my-1 h-px bg-[var(--usha-border)]" />
             <div className="flex items-center gap-2">
               <ThemeToggle />
