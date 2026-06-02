@@ -7,6 +7,32 @@ import { EVENT_CATEGORIES } from "./constants";
 import { getSubscriptionStatus } from "@/lib/subscription/check";
 import { checkListingLimit } from "@/lib/listings/limits";
 
+const BANKID_REQUIRED_MSG =
+  "Du måste verifiera dig med BankID innan du kan publicera eller duplicera evenemang. Gör det under Profil.";
+
+/**
+ * Mirrors the `is_bankid_cleared()` DB function that backs the RLS WITH CHECK on
+ * `listings`. Writes by an un-cleared creator are blocked by RLS and would
+ * otherwise surface as a generic "kunde inte"-fel — this lets us return a clear,
+ * actionable message before we even attempt the write.
+ */
+async function isBankidCleared(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string
+): Promise<boolean> {
+  const { data } = await supabase
+    .from("profiles")
+    .select("role, bankid_verified_at, bankid_grandfathered_at")
+    .eq("id", userId)
+    .single();
+  if (!data) return false;
+  return (
+    data.role === "customer" ||
+    data.bankid_verified_at != null ||
+    data.bankid_grandfathered_at != null
+  );
+}
+
 function parseEventForm(formData: FormData) {
   const title = (formData.get("title") as string)?.trim();
   const description = (formData.get("description") as string)?.trim();
@@ -98,6 +124,10 @@ export async function createEvent(formData: FormData) {
 
   if (!user) return { error: "Ej inloggad" };
 
+  if (!(await isBankidCleared(supabase, user.id))) {
+    return { error: BANKID_REQUIRED_MSG };
+  }
+
   // Check listing limit for user's tier
   const { tier } = await getSubscriptionStatus(user.id);
   const limit = await checkListingLimit(user.id, tier);
@@ -147,6 +177,10 @@ export async function duplicateEvent(
 
   if (!user) return { error: "Ej inloggad" };
   if (!newDate) return { error: "Datum krävs" };
+
+  if (!(await isBankidCleared(supabase, user.id))) {
+    return { error: BANKID_REQUIRED_MSG };
+  }
 
   const { tier } = await getSubscriptionStatus(user.id);
   const limit = await checkListingLimit(user.id, tier);
@@ -200,6 +234,10 @@ export async function updateEvent(id: string, formData: FormData) {
   } = await supabase.auth.getUser();
 
   if (!user) return { error: "Ej inloggad" };
+
+  if (!(await isBankidCleared(supabase, user.id))) {
+    return { error: BANKID_REQUIRED_MSG };
+  }
 
   const parsed = parseEventForm(formData);
   if ("error" in parsed) return { error: parsed.error };
