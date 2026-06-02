@@ -42,7 +42,10 @@ export async function POST(req: NextRequest) {
   // so we publish as a page post instead)
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";
   const priceText = listing.price ? `\n💰 Pris: ${listing.price} SEK` : "\n🆓 Gratis";
-  const message = `${listing.title}\n\n${listing.description ?? ""}${priceText}\n\n👉 Boka här: ${appUrl}/marketplace`;
+  // Link straight to the public event page (image, address, date/time, price,
+  // booking) instead of the generic marketplace listing.
+  const eventUrl = `${appUrl}/listing/${listing.slug || listing.id}`;
+  const message = `${listing.title}\n\n${listing.description ?? ""}${priceText}\n\n👉 Boka här: ${eventUrl}`;
 
   const existingFbId = listing.facebook_event_id;
 
