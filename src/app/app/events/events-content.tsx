@@ -16,6 +16,8 @@ import {
   Radio,
   Copy,
   X as XIcon,
+  CalendarClock,
+  CheckCircle2,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -52,6 +54,8 @@ interface ListingData {
   is_active: boolean;
   created_at: string;
   facebook_event_id: string | null;
+  fb_auto_post: boolean | null;
+  fb_reminder_posted_at: string | null;
   image_url: string | null;
   event_date: string | null;
   event_time: string | null;
@@ -259,6 +263,19 @@ function EventCard({
                 </span>
               )}
             </div>
+          )}
+          {listing.fb_auto_post && (
+            listing.facebook_event_id ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-green-500/10 px-2.5 py-1 text-[11px] font-medium text-green-400">
+                <CheckCircle2 size={12} />
+                Publicerad på Facebook
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--usha-gold)]/10 px-2.5 py-1 text-[11px] font-medium text-[var(--usha-gold)]">
+                <CalendarClock size={12} />
+                Auto-publiceras ~3 dagar innan
+              </span>
+            )
           )}
         </div>
 
