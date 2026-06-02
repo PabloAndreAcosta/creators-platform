@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { getFbPagesFromCookie, clearFbPagesCookie } from '@/lib/oauth/state';
+import { getFbPagesFromCookie, getFbPagesPayloadFromCookie, clearFbPagesCookie } from '@/lib/oauth/state';
 
 // GET: return pages data from signed cookie (for client component to fetch)
 export async function GET(req: NextRequest) {
@@ -34,9 +34,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Saknar siddata' }, { status: 400 });
   }
 
-  // Verify the page token came from our signed cookie
-  const cookiePages = getFbPagesFromCookie(req);
-  const matchedPage = cookiePages?.find(
+  const cookiePayload = getFbPagesPayloadFromCookie(req);
+  const matchedPage = cookiePayload?.pages.find(
     (p) => p.id === pageId && p.name === pageName && p.token === pageToken
   );
 
@@ -51,6 +50,7 @@ export async function POST(req: NextRequest) {
       facebook_page_id: pageId,
       facebook_page_name: pageName,
       facebook_page_access_token: pageToken,
+      facebook_user_id: cookiePayload?.fbUserId ?? null,
     }, { onConflict: 'user_id' });
 
   if (error) {

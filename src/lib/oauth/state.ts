@@ -64,11 +64,17 @@ export function clearOAuthStateCookie(response: NextResponse): NextResponse {
 
 const FB_PAGES_COOKIE = "fb_pages";
 
+export interface FbPagesPayload {
+  pages: Array<{ id: string; name: string; token: string }>;
+  fbUserId: string | null;
+}
+
 export function setFbPagesCookie(
   response: NextResponse,
-  pages: Array<{ id: string; name: string; token: string }>
+  pages: Array<{ id: string; name: string; token: string }>,
+  fbUserId: string | null = null
 ): NextResponse {
-  const payload = JSON.stringify(pages);
+  const payload = JSON.stringify({ pages, fbUserId });
   const signature = crypto.createHmac("sha256", SECRET).update(payload).digest("hex");
   const value = Buffer.from(payload).toString("base64") + "." + signature;
 
@@ -86,6 +92,13 @@ export function setFbPagesCookie(
 export function getFbPagesFromCookie(
   request: NextRequest
 ): Array<{ id: string; name: string; token: string }> | null {
+  const data = getFbPagesPayloadFromCookie(request);
+  return data?.pages ?? null;
+}
+
+export function getFbPagesPayloadFromCookie(
+  request: NextRequest
+): FbPagesPayload | null {
   const cookie = request.cookies.get(FB_PAGES_COOKIE)?.value;
   if (!cookie) return null;
 
@@ -100,7 +113,12 @@ export function getFbPagesFromCookie(
   }
 
   try {
-    return JSON.parse(payload);
+    const parsed = JSON.parse(payload);
+    if (Array.isArray(parsed)) {
+      // Legacy cookie format: array of pages, no fbUserId
+      return { pages: parsed, fbUserId: null };
+    }
+    return parsed as FbPagesPayload;
   } catch {
     return null;
   }

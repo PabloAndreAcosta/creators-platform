@@ -66,7 +66,11 @@ export async function GET(req: NextRequest) {
 
   const { access_token: userToken } = await tokenRes.json();
 
-  // Get the list of pages this user manages
+  const meRes = await fetch(
+    `https://graph.facebook.com/v22.0/me?fields=id&access_token=${userToken}`
+  );
+  const fbUserId: string | null = meRes.ok ? (await meRes.json()).id ?? null : null;
+
   const pagesRes = await fetch(
     `https://graph.facebook.com/v22.0/me/accounts?access_token=${userToken}&fields=id,name,access_token`
   );
@@ -92,7 +96,8 @@ export async function GET(req: NextRequest) {
     const response = NextResponse.redirect(`${APP_URL}/app/events/select-page`);
     setFbPagesCookie(
       response,
-      pages.map((p) => ({ id: p.id, name: p.name, token: p.access_token }))
+      pages.map((p) => ({ id: p.id, name: p.name, token: p.access_token })),
+      fbUserId
     );
     clearOAuthStateCookie(response);
     return response;
@@ -108,6 +113,7 @@ export async function GET(req: NextRequest) {
       facebook_page_id: page.id,
       facebook_page_name: page.name,
       facebook_page_access_token: page.access_token,
+      facebook_user_id: fbUserId,
     }, { onConflict: "user_id" });
 
   const response = NextResponse.redirect(`${APP_URL}/app/events?fb_connected=1`);
