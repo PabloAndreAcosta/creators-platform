@@ -1,7 +1,7 @@
 export const revalidate = 60; // ISR: revalidate every 60 seconds
 
 import { createClient } from "@/lib/supabase/server";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
 import type { ExperienceDetails } from "@/types/database";
 import Link from "next/link";
@@ -63,7 +63,7 @@ export default async function ListingDetailPage({ params }: Props) {
     supabase
       .from("listings")
       .select(
-        "id, title, description, category, price, duration_minutes, event_date, event_time, event_end_time, event_location, event_lat, event_lng, image_url, listing_type, min_guests, max_guests, experience_details, user_id, is_active, slug"
+        "id, title, description, category, price, duration_minutes, event_date, event_time, event_end_time, event_location, event_lat, event_lng, image_url, listing_type, min_guests, max_guests, experience_details, user_id, is_active, slug, series_id, series_slug"
       )
       .eq(column, params.id)
       .eq("is_active", true)
@@ -71,7 +71,20 @@ export default async function ListingDetailPage({ params }: Props) {
     supabase.auth.getUser(),
   ]);
 
-  if (!listing) notFound();
+  if (!listing) {
+    // A bare series slug (e.g. "the-kiz-lab") has no listing of its own —
+    // send it to the series landing page if one exists.
+    if (!isUUID(params.id)) {
+      const { data: seriesMatch } = await supabase
+        .from("listings")
+        .select("id")
+        .eq("series_slug", params.id)
+        .eq("is_active", true)
+        .limit(1);
+      if (seriesMatch && seriesMatch.length > 0) redirect(`/series/${params.id}`);
+    }
+    notFound();
+  }
 
   // Fetch creator profile
   const { data: creator } = await supabase
@@ -251,6 +264,17 @@ export default async function ListingDetailPage({ params }: Props) {
                   </span>
                 )}
               </div>
+            )}
+
+            {/* Part of a recurring series */}
+            {listing.series_slug && (
+              <Link
+                href={`/series/${listing.series_slug}`}
+                className="mb-6 inline-flex items-center gap-2 rounded-xl border border-[var(--usha-gold)]/30 bg-[var(--usha-gold)]/5 px-4 py-2.5 text-sm font-medium text-[var(--usha-gold)] transition hover:bg-[var(--usha-gold)]/10"
+              >
+                <Calendar size={14} />
+                Visa alla tillfällen i serien
+              </Link>
             )}
 
             {/* Description */}

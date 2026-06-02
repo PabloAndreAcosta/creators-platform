@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { EVENT_CATEGORIES } from "./constants";
 import { getSubscriptionStatus } from "@/lib/subscription/check";
 import { checkListingLimit } from "@/lib/listings/limits";
-import { generateUniqueListingSlug } from "@/lib/listings/slug";
+import { generateUniqueListingSlug, generateUniqueSeriesSlug } from "@/lib/listings/slug";
 
 const BANKID_REQUIRED_MSG =
   "Du måste verifiera dig med BankID innan du kan publicera eller duplicera evenemang. Gör det under Profil.";
@@ -182,6 +182,11 @@ export async function createEvent(formData: FormData) {
     }
   }
 
+  // A series shares one series_id + series_slug so the occurrences can be
+  // grouped on a /series/<slug> landing page.
+  const seriesId = isSeries ? crypto.randomUUID() : null;
+  const seriesSlug = isSeries ? await generateUniqueSeriesSlug(supabase, parsed.data.title) : null;
+
   // Build one listing per date, each with its own date-based slug.
   const taken = new Set<string>();
   const rows = [];
@@ -194,6 +199,8 @@ export async function createEvent(formData: FormData) {
         dateSuffix: d ?? undefined,
         taken,
       }),
+      series_id: seriesId,
+      series_slug: seriesSlug,
     });
   }
 

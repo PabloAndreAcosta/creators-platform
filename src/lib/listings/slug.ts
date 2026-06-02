@@ -57,3 +57,27 @@ export async function generateUniqueListingSlug(
   taken?.add(candidate);
   return candidate;
 }
+
+/**
+ * Slug for a recurring series' landing page (`/series/<slug>`). Many occurrence
+ * rows share one series_slug, so this checks uniqueness across *distinct*
+ * series (different series_id) and appends `-2`, `-3`, … on collision.
+ */
+export async function generateUniqueSeriesSlug(
+  supabase: SupabaseClient,
+  title: string
+): Promise<string> {
+  const base = slugifyTitle(title) || "serie";
+
+  for (let n = 0; n < 50; n++) {
+    const candidate = n === 0 ? base : `${base}-${n + 1}`;
+    const { data } = await supabase
+      .from("listings")
+      .select("id")
+      .eq("series_slug", candidate)
+      .limit(1);
+    if (!data || data.length === 0) return candidate;
+  }
+
+  return `${base}-${Math.random().toString(36).slice(2, 8)}`;
+}
