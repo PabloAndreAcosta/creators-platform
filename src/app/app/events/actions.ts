@@ -187,6 +187,9 @@ export async function createEvent(formData: FormData) {
   const seriesId = isSeries ? crypto.randomUUID() : null;
   const seriesSlug = isSeries ? await generateUniqueSeriesSlug(supabase, parsed.data.title) : null;
 
+  // Opt-in: auto-publish each occurrence to Facebook ~3 days before its date.
+  const fbAutoPost = formData.get("fb_auto_post") === "on";
+
   // Build one listing per date, each with its own date-based slug.
   const taken = new Set<string>();
   const rows = [];
@@ -201,6 +204,7 @@ export async function createEvent(formData: FormData) {
       }),
       series_id: seriesId,
       series_slug: seriesSlug,
+      fb_auto_post: fbAutoPost,
     });
   }
 

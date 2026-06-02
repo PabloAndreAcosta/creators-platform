@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { buildListingPostMessage } from "@/lib/facebook/listing-post";
 
 // POST /api/facebook/sync-event
 // Body: { listing_id }
@@ -41,11 +42,9 @@ export async function POST(req: NextRequest) {
   // Build page post payload (Facebook deprecated the Page Events API,
   // so we publish as a page post instead)
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";
-  const priceText = listing.price ? `\n💰 Pris: ${listing.price} SEK` : "\n🆓 Gratis";
   // Link straight to the public event page (image, address, date/time, price,
   // booking) instead of the generic marketplace listing.
-  const eventUrl = `${appUrl}/listing/${listing.slug || listing.id}`;
-  const message = `${listing.title}\n\n${listing.description ?? ""}${priceText}\n\n👉 Boka här: ${eventUrl}`;
+  const message = buildListingPostMessage(listing, appUrl);
 
   const existingFbId = listing.facebook_event_id;
 

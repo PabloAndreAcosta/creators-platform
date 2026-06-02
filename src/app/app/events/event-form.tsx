@@ -87,6 +87,7 @@ export default function EventForm({
   const [recurring, setRecurring] = useState(false);
   const [recurInterval, setRecurInterval] = useState("weekly");
   const [occurrences, setOccurrences] = useState(4);
+  const [fbAutoPost, setFbAutoPost] = useState(true);
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -333,6 +334,27 @@ export default function EventForm({
         )}
         <input type="hidden" name="recurrence" value={recurring ? recurInterval : "none"} />
         <input type="hidden" name="occurrences" value={occurrences} />
+
+        {/* Auto-publish to Facebook — only when creating */}
+        {!isEditing && (
+          <div className="space-y-2 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
+            <label className="flex cursor-pointer items-center gap-2.5 text-sm">
+              <input
+                type="checkbox"
+                name="fb_auto_post"
+                checked={fbAutoPost}
+                onChange={(e) => setFbAutoPost(e.target.checked)}
+                className="h-4 w-4 accent-[var(--usha-gold)]"
+              />
+              <span className="font-medium">Publicera automatiskt på Facebook</span>
+            </label>
+            <p className="text-xs text-[var(--usha-muted)]">
+              {recurring
+                ? "Varje tillfälle publiceras automatiskt på din kopplade Facebook-sida ~3 dagar innan dess datum — en jämn ström av påminnelser istället för allt på en gång."
+                : "Eventet publiceras automatiskt på din kopplade Facebook-sida ~3 dagar innan datumet. Kräver en ansluten Facebook-sida."}
+            </p>
+          </div>
+        )}
 
         {/* Location with Google Places Autocomplete */}
         <PlacesAutocomplete

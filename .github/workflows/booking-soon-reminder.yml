@@ -25,3 +25,8 @@ jobs:
           curl -fsS -X GET \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             https://usha.se/api/cron/creator-event-notify
+      - name: Auto-publish upcoming events to Facebook (T-3d)
+        run: |
+          curl -fsS -X GET \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            https://usha.se/api/cron/event-reminders
