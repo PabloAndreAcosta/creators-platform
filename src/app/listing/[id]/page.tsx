@@ -445,13 +445,7 @@ export default async function ListingDetailPage({ params }: Props) {
                     specialties={ins.coaching_specialties ?? []}
                     hourlyRate={ins.coaching_hourly_rate_sek as number}
                     isLoggedIn={isLoggedIn}
-                    disabledReason={
-                      user?.id === ins.id
-                        ? "Det här är du"
-                        : isOwner
-                          ? "Du är värd för eventet"
-                          : undefined
-                    }
+                    disabledReason={user?.id === ins.id ? "Det här är du" : undefined}
                   />
                 ))}
               </div>
