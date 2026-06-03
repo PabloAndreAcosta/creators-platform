@@ -71,6 +71,7 @@ function parseEventForm(formData: FormData) {
   const eventLat = eventLatRaw ? parseFloat(eventLatRaw) : null;
   const eventLng = eventLngRaw ? parseFloat(eventLngRaw) : null;
   const listingType = (formData.get("listing_type") as string) || "event";
+  const openToInstructors = formData.get("open_to_instructors") === "on";
   const minGuestsRaw = formData.get("min_guests") as string;
   const maxGuestsRaw = formData.get("max_guests") as string;
   const amenitiesRaw = (formData.get("amenities") as string)?.trim() || "";
@@ -129,6 +130,7 @@ function parseEventForm(formData: FormData) {
       event_lng: eventLng,
       event_place_id: eventPlaceId,
       listing_type: listingType,
+      open_to_instructors: openToInstructors,
       min_guests,
       max_guests,
       experience_details: experienceDetails,
@@ -385,5 +387,92 @@ export async function toggleEventActive(id: string, isActive: boolean) {
   if (error) return { error: "Kunde inte ändra status." };
 
   revalidatePath("/app/events");
+  return { success: true };
+}
+
+// ── Instructor opt-in: offer paid mini-sessions at someone's open event ──
+
+const INSTRUCTOR_TIERS = ["guld", "premium"];
+const INSTRUCTOR_ROLES = ["creator", "kreator"];
+
+/**
+ * A paying dance-instructor creator joins an open event so they can sell
+ * 15/30/45/60-minute mini-sessions there. Gating mirrors the RLS policy on
+ * event_instructors, but returns clear Swedish messages first.
+ */
+export async function joinOpenEvent(listingId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Ej inloggad" };
+
+  if (!(await isBankidCleared(supabase, user.id))) {
+    return { error: BANKID_REQUIRED_MSG };
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role, tier, offers_coaching, coaching_hourly_rate_sek, stripe_account_id")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile || !INSTRUCTOR_ROLES.includes(profile.role)) {
+    return { error: "Endast instruktörer (kreatörer) kan gå med." };
+  }
+  if (!INSTRUCTOR_TIERS.includes(profile.tier)) {
+    return { error: "Du behöver en Guld- eller Premium-prenumeration för att erbjuda tjänster på event." };
+  }
+  if (!profile.offers_coaching || !profile.coaching_hourly_rate_sek || profile.coaching_hourly_rate_sek <= 0) {
+    return { error: "Aktivera coaching och sätt ett timpris i din profil först." };
+  }
+  if (!profile.stripe_account_id) {
+    return { error: "Anslut Stripe för att ta emot betalningar först." };
+  }
+
+  const { data: listing } = await supabase
+    .from("listings")
+    .select("id, is_active, open_to_instructors")
+    .eq("id", listingId)
+    .single();
+  if (!listing || !listing.is_active || !listing.open_to_instructors) {
+    return { error: "Eventet är inte öppet för instruktörer." };
+  }
+
+  const { error } = await supabase
+    .from("event_instructors")
+    .insert({ listing_id: listingId, instructor_id: user.id });
+
+  if (error) {
+    if (error.code === "23505") return { success: true }; // already joined — idempotent
+    return { error: "Kunde inte gå med. Försök igen." };
+  }
+
+  revalidatePath("/app/events/open");
+  revalidatePath(`/listing/${listingId}`);
+  return { success: true };
+}
+
+/**
+ * Instructor leaves an open event. Only stops NEW sales — already-sold minute
+ * credits remain valid bookings the instructor still redeems.
+ */
+export async function leaveOpenEvent(listingId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Ej inloggad" };
+
+  const { error } = await supabase
+    .from("event_instructors")
+    .delete()
+    .eq("listing_id", listingId)
+    .eq("instructor_id", user.id);
+
+  if (error) return { error: "Kunde inte lämna eventet." };
+
+  revalidatePath("/app/events/open");
+  revalidatePath(`/listing/${listingId}`);
   return { success: true };
 }

@@ -27,6 +27,7 @@ interface EventData {
   event_lng: number | null;
   event_place_id: string | null;
   listing_type: ListingType | null;
+  open_to_instructors: boolean | null;
   min_guests: number | null;
   max_guests: number | null;
   experience_details: ExperienceDetails | null;
@@ -88,6 +89,7 @@ export default function EventForm({
   const [recurInterval, setRecurInterval] = useState("weekly");
   const [occurrences, setOccurrences] = useState(4);
   const [fbAutoPost, setFbAutoPost] = useState(true);
+  const [openToInstructors, setOpenToInstructors] = useState(event?.open_to_instructors ?? false);
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -355,6 +357,24 @@ export default function EventForm({
             </p>
           </div>
         )}
+
+        {/* Open to instructors — shown on both create and edit */}
+        <div className="space-y-2 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
+          <label className="flex cursor-pointer items-center gap-2.5 text-sm">
+            <input
+              type="checkbox"
+              name="open_to_instructors"
+              checked={openToInstructors}
+              onChange={(e) => setOpenToInstructors(e.target.checked)}
+              className="h-4 w-4 accent-[var(--usha-gold)]"
+            />
+            <span className="font-medium">Öppna för instruktörer</span>
+          </label>
+          <p className="text-xs text-[var(--usha-muted)]">
+            Låt betalande instruktörer erbjuda betalda minisessioner (15–60 min) på ditt event.
+            Deltagare köper minuter direkt av instruktören. Du tar ingen del av deras intäkt.
+          </p>
+        </div>
 
         {/* Location with Google Places Autocomplete */}
         <PlacesAutocomplete

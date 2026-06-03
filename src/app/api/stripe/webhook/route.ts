@@ -259,6 +259,50 @@ export async function POST(req: NextRequest) {
           break;
         }
 
+        // Handle instructor minute purchases (transferred to the instructor's
+        // Connect account; creator_id = instructor, listing_id = host event).
+        if (session.metadata?.type === "instructor_minutes") {
+          const listingId = session.metadata.listingId;
+          const instructorId = session.metadata.instructorId;
+          const minutes = parseInt(session.metadata.minutes ?? "0", 10);
+          const amountPaid = session.amount_total; // öre
+          const paymentIntentId = (session.payment_intent as string) || null;
+
+          if (!listingId || !instructorId || !minutes) {
+            console.error("Webhook: missing instructor_minutes metadata");
+            break;
+          }
+
+          await getSupabaseAdmin().from("bookings").insert({
+            listing_id: listingId,
+            creator_id: instructorId, // instructor is paid + sees the redeem UI
+            customer_id: userId,
+            status: "confirmed",
+            scheduled_at: new Date().toISOString(),
+            booking_type: "instructor_minutes",
+            stripe_payment_id: paymentIntentId,
+            amount_paid: amountPaid,
+            minutes_total: minutes,
+            minutes_redeemed: 0,
+          });
+
+          if (amountPaid) {
+            await getSupabaseAdmin().from("payments").insert({
+              user_id: userId,
+              stripe_payment_id: paymentIntentId,
+              amount: amountPaid,
+              currency: session.currency || "sek",
+              status: "succeeded",
+              description: `Instruktörsminuter: ${minutes} min`,
+            });
+          }
+
+          sendTicketConfirmationEmail(getSupabaseAdmin(), userId, instructorId, listingId, new Date())
+            .catch(err => console.error("Instructor minutes confirmation email failed:", err));
+
+          break;
+        }
+
         // Handle paid manual bookings (payment upfront, creator still confirms)
         if (session.metadata?.type === "b2b_payment") {
           const bookingId = session.metadata.bookingId;

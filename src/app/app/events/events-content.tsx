@@ -94,9 +94,17 @@ export function EventsContent({
     <div className="px-4 py-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Mina Evenemang</h1>
-        <span className="rounded-full bg-[var(--usha-gold)]/10 px-3 py-1 text-xs font-medium text-[var(--usha-gold)]">
-          {activeCount} aktiva
-        </span>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/app/events/open"
+            className="text-xs font-medium text-[var(--usha-gold)] underline-offset-2 hover:underline"
+          >
+            Öppna event →
+          </Link>
+          <span className="rounded-full bg-[var(--usha-gold)]/10 px-3 py-1 text-xs font-medium text-[var(--usha-gold)]">
+            {activeCount} aktiva
+          </span>
+        </div>
       </div>
 
       {/* Facebook connect panel */}

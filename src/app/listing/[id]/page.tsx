@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import BookingForm from "@/app/creators/[id]/booking-form";
 import { BuyTicketButton } from "@/components/buy-ticket-button";
+import { InstructorMinutesCard } from "@/components/instructor-minutes-card";
 import { CATEGORY_LABELS } from "@/lib/categories";
 import { calculateDiscountedPrice } from "@/lib/stripe/commission";
 
@@ -63,7 +64,7 @@ export default async function ListingDetailPage({ params }: Props) {
     supabase
       .from("listings")
       .select(
-        "id, title, description, category, price, duration_minutes, event_date, event_time, event_end_time, event_location, event_lat, event_lng, image_url, listing_type, min_guests, max_guests, experience_details, user_id, is_active, slug, series_id, series_slug"
+        "id, title, description, category, price, duration_minutes, event_date, event_time, event_end_time, event_location, event_lat, event_lng, image_url, listing_type, min_guests, max_guests, experience_details, user_id, is_active, slug, series_id, series_slug, open_to_instructors"
       )
       .eq(column, params.id)
       .eq("is_active", true)
@@ -94,6 +95,26 @@ export default async function ListingDetailPage({ params }: Props) {
     .single();
 
   if (!creator) notFound();
+
+  // Instructors offering paid mini-sessions at this open event
+  type EventInstructor = {
+    id: string;
+    full_name: string | null;
+    avatar_url: string | null;
+    coaching_specialties: string[] | null;
+    coaching_hourly_rate_sek: number | null;
+    stripe_account_id: string | null;
+  };
+  let eventInstructors: EventInstructor[] = [];
+  if (listing.open_to_instructors) {
+    const { data: joined } = await supabase
+      .from("event_instructors")
+      .select("profiles!event_instructors_instructor_id_fkey(id, full_name, avatar_url, coaching_specialties, coaching_hourly_rate_sek, stripe_account_id)")
+      .eq("listing_id", listing.id);
+    eventInstructors = ((joined ?? []) as unknown as { profiles: EventInstructor | null }[])
+      .map((r) => r.profiles)
+      .filter((p): p is EventInstructor => !!p && !!p.coaching_hourly_rate_sek && p.coaching_hourly_rate_sek > 0 && !!p.stripe_account_id);
+  }
 
   // Get visitor tier for discounts
   let visitorTier: string | null = null;
@@ -409,6 +430,32 @@ export default async function ListingDetailPage({ params }: Props) {
                 </p>
               </div>
             </Link>
+
+            {/* Instructors offering paid mini-sessions at this event */}
+            {eventInstructors.length > 0 && (
+              <div className="space-y-3">
+                <h2 className="text-sm font-semibold">Boka en instruktör på plats</h2>
+                {eventInstructors.map((ins) => (
+                  <InstructorMinutesCard
+                    key={ins.id}
+                    listingId={listing.id}
+                    instructorId={ins.id}
+                    instructorName={ins.full_name || "Instruktör"}
+                    avatarUrl={ins.avatar_url}
+                    specialties={ins.coaching_specialties ?? []}
+                    hourlyRate={ins.coaching_hourly_rate_sek as number}
+                    isLoggedIn={isLoggedIn}
+                    disabledReason={
+                      user?.id === ins.id
+                        ? "Det här är du"
+                        : isOwner
+                          ? "Du är värd för eventet"
+                          : undefined
+                    }
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

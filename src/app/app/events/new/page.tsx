@@ -21,7 +21,7 @@ export default async function NewEventPage({
   if (from) {
     const { data } = await supabase
       .from("listings")
-      .select("id, title, description, category, price, duration_minutes, event_tier, image_url, event_location, event_lat, event_lng, event_place_id, listing_type, min_guests, max_guests, experience_details")
+      .select("id, title, description, category, price, duration_minutes, event_tier, image_url, event_location, event_lat, event_lng, event_place_id, listing_type, open_to_instructors, min_guests, max_guests, experience_details")
       .eq("id", from)
       .eq("user_id", user.id)
       .single();

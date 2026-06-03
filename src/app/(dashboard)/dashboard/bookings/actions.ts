@@ -475,3 +475,59 @@ export async function redeemDance(bookingId: string) {
   return { success: true, redeemed: nextRedeemed, total, reachedTotal };
 }
 
+/**
+ * Instructor redeems a block of minutes on-site for an instructor-minutes
+ * booking. Mirrors redeemDance but works in `amount`-minute steps (default 15).
+ */
+export async function redeemMinutes(bookingId: string, amount = 15) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { error: "Ej inloggad" };
+
+  const { data: booking } = await supabase
+    .from("bookings")
+    .select("id, creator_id, status, minutes_total, minutes_redeemed")
+    .eq("id", bookingId)
+    .single();
+
+  if (!booking) return { error: "Bokning hittades inte." };
+
+  if (booking.creator_id !== user.id) {
+    return { error: "Bara instruktören kan lösa in minuter." };
+  }
+
+  const total = (booking as { minutes_total?: number | null }).minutes_total ?? null;
+  const redeemed = (booking as { minutes_redeemed?: number | null }).minutes_redeemed ?? 0;
+
+  if (total === null || total <= 0) {
+    return { error: "Den här bokningen har inga minuter." };
+  }
+  if (booking.status !== "confirmed") {
+    return { error: "Kan bara lösa in minuter på bekräftade bokningar." };
+  }
+  if (redeemed + amount > total) {
+    return { error: "Inte tillräckligt med minuter kvar." };
+  }
+
+  const nextRedeemed = redeemed + amount;
+  const reachedTotal = nextRedeemed >= total;
+
+  const { error: updateError } = await supabase
+    .from("bookings")
+    .update({
+      minutes_redeemed: nextRedeemed,
+      ...(reachedTotal ? { status: "completed" } : {}),
+    })
+    .eq("id", bookingId);
+
+  if (updateError) {
+    return { error: "Kunde inte uppdatera bokningen." };
+  }
+
+  revalidatePath("/dashboard/bookings");
+  return { success: true, redeemed: nextRedeemed, total, reachedTotal };
+}
+

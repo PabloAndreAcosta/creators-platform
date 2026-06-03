@@ -14,6 +14,7 @@ import { ReviewForm } from "@/components/review-form";
 import { BookingsViewToggle } from "./bookings-view-toggle";
 import { PayB2BButton } from "./pay-b2b-button";
 import { RedeemDanceButton, DanceCounter } from "./redeem-dance-button";
+import { RedeemMinutesButton, MinutesCounter } from "./redeem-minutes-button";
 
 const STATUS_LABELS: Record<string, { labelKey: string; className: string }> = {
   pending: { labelKey: "statusPending", className: "bg-yellow-500/10 text-yellow-400" },
@@ -35,7 +36,7 @@ export default async function BookingsPage() {
   const { data: incoming } = await supabase
     .from("bookings")
     .select(
-      "id, status, scheduled_at, notes, created_at, listing_id, customer_id, guest_count, special_requests, amount_paid, dances_total, dances_redeemed, agreed_price"
+      "id, status, scheduled_at, notes, created_at, listing_id, customer_id, guest_count, special_requests, amount_paid, dances_total, dances_redeemed, minutes_total, minutes_redeemed, agreed_price"
     )
     .eq("creator_id", user.id)
     .order("scheduled_at", { ascending: true });
@@ -44,7 +45,7 @@ export default async function BookingsPage() {
   const { data: outgoing } = await supabase
     .from("bookings")
     .select(
-      "id, status, scheduled_at, notes, created_at, listing_id, creator_id, guest_count, special_requests, stripe_payment_id, amount_paid, dances_total, dances_redeemed, agreed_price"
+      "id, status, scheduled_at, notes, created_at, listing_id, creator_id, guest_count, special_requests, stripe_payment_id, amount_paid, dances_total, dances_redeemed, minutes_total, minutes_redeemed, agreed_price"
     )
     .eq("customer_id", user.id)
     .order("scheduled_at", { ascending: true });
@@ -227,6 +228,13 @@ export default async function BookingsPage() {
                             total={(booking as { dances_total?: number | null }).dances_total!}
                           />
                         )}
+                      {(booking as { minutes_total?: number | null }).minutes_total != null &&
+                        (booking as { minutes_total?: number | null }).minutes_total! > 0 && (
+                          <MinutesCounter
+                            redeemed={(booking as { minutes_redeemed?: number | null }).minutes_redeemed ?? 0}
+                            total={(booking as { minutes_total?: number | null }).minutes_total!}
+                          />
+                        )}
                       {(booking as { agreed_price?: number | null }).agreed_price != null && (
                         <span className="rounded-full bg-[var(--usha-accent)]/10 px-2 py-0.5 text-xs font-medium text-[var(--usha-accent)]">
                           {t("compensation", { amount: (booking as { agreed_price?: number | null }).agreed_price ?? 0 })}
@@ -278,6 +286,14 @@ export default async function BookingsPage() {
                               total={(booking as { dances_total?: number | null }).dances_total!}
                             />
                           )}
+                        {(booking as { minutes_total?: number | null }).minutes_total != null &&
+                          (booking as { minutes_total?: number | null }).minutes_total! > 0 && (
+                            <RedeemMinutesButton
+                              bookingId={booking.id}
+                              redeemed={(booking as { minutes_redeemed?: number | null }).minutes_redeemed ?? 0}
+                              total={(booking as { minutes_total?: number | null }).minutes_total!}
+                            />
+                          )}
                         <RescheduleButton bookingId={booking.id} currentDate={booking.scheduled_at} />
                         <CompleteButton bookingId={booking.id} />
                         <CancelButton
@@ -327,6 +343,13 @@ export default async function BookingsPage() {
                           <DanceCounter
                             redeemed={(booking as { dances_redeemed?: number | null }).dances_redeemed ?? 0}
                             total={(booking as { dances_total?: number | null }).dances_total!}
+                          />
+                        )}
+                      {(booking as { minutes_total?: number | null }).minutes_total != null &&
+                        (booking as { minutes_total?: number | null }).minutes_total! > 0 && (
+                          <MinutesCounter
+                            redeemed={(booking as { minutes_redeemed?: number | null }).minutes_redeemed ?? 0}
+                            total={(booking as { minutes_total?: number | null }).minutes_total!}
                           />
                         )}
                       {(booking as { agreed_price?: number | null }).agreed_price != null && (
