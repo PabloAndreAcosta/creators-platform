@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function GET(req: NextRequest) {
   const query = req.nextUrl.searchParams.get("q");
@@ -18,14 +17,14 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Use admin client to bypass RLS on profiles (users may not be public)
-  const admin = createAdminClient();
-  const { data: profiles } = await admin
+  // Search via the RLS-respecting client so only profiles the user is allowed
+  // to see (is_public = true, or their own) are returned. Do NOT use the
+  // service-role client here — it would expose creators who set is_public=false.
+  const { data: profiles } = await supabase
     .from("profiles")
     .select("id, full_name, avatar_url, role")
     .neq("id", user.id)
     .ilike("full_name", `%${query}%`)
-    .or("is_public.eq.true,role.neq.publik")
     .limit(10);
 
   return NextResponse.json({

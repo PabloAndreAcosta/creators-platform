@@ -20,6 +20,7 @@ function parseSignedRequest(signedRequest: string, secret: string) {
     .update(payload)
     .digest();
 
+  if (sig.length !== expectedSig.length) return null;
   if (!crypto.timingSafeEqual(sig, expectedSig)) return null;
 
   return JSON.parse(Buffer.from(payload.replace(/-/g, "+").replace(/_/g, "/"), "base64").toString());
