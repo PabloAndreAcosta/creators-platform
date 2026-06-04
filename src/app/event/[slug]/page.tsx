@@ -72,12 +72,13 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 
 function formatDate(dateStr: string | null, timeStr: string | null) {
   if (!dateStr) return null;
-  const date = new Date(`${dateStr}T${timeStr ?? "00:00"}`);
+  const date = new Date(`${dateStr}T${timeStr ?? "12:00"}:00+02:00`);
   return date.toLocaleDateString("sv-SE", {
     weekday: "long",
     day: "numeric",
     month: "long",
     year: "numeric",
+    timeZone: "Europe/Stockholm",
   });
 }
 
