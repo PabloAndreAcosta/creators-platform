@@ -354,6 +354,7 @@
     "emailInvalid": "Invalid email address",
     "passwordRequired": "Password is required",
     "passwordMinLength": "At least 8 characters",
+    "passwordCompromised": "This password has appeared in a known data breach. Please choose another.",
     "nameRequired": "Name is required",
     "nameMinLength": "At least 2 characters",
     "loggingIn": "Logging in...",

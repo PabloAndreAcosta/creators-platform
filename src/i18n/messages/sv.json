@@ -354,6 +354,7 @@
     "emailInvalid": "Ogiltig e-postadress",
     "passwordRequired": "Lösenord krävs",
     "passwordMinLength": "Minst 8 tecken",
+    "passwordCompromised": "Det här lösenordet förekommer i en känd dataläcka. Välj ett annat.",
     "nameRequired": "Namn krävs",
     "nameMinLength": "Minst 2 tecken",
     "loggingIn": "Loggar in...",

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
+import { isPasswordPwned } from "@/lib/auth/password-strength";
 import { Palette, Store, Search, ShieldCheck, Loader2, Music } from "lucide-react";
 
 type Role = "creator" | "experience" | "customer";
@@ -176,6 +177,15 @@ export default function SignupPage() {
 
     setLoading(true);
     setError("");
+
+    // Inline leaked-password check (HIBP k-anonymity). Fails open, so it only
+    // ever blocks on a confirmed breach match.
+    if (await isPasswordPwned(password)) {
+      setPasswordError(t("passwordCompromised"));
+      setPasswordTouched(true);
+      setLoading(false);
+      return;
+    }
 
     const refCode = searchParams.get("ref");
     const metadata: Record<string, string> = {

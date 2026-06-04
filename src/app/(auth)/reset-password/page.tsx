@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { isPasswordPwned } from "@/lib/auth/password-strength";
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState("");
@@ -34,6 +35,14 @@ export default function ResetPasswordPage() {
     }
 
     setLoading(true);
+
+    // Inline leaked-password check (HIBP k-anonymity). Fails open.
+    if (await isPasswordPwned(password)) {
+      setError("Det här lösenordet förekommer i en känd dataläcka. Välj ett annat.");
+      setLoading(false);
+      return;
+    }
+
     const supabase = createClient();
     const { error } = await supabase.auth.updateUser({ password });
 
