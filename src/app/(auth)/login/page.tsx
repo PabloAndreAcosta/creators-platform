@@ -15,6 +15,8 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const bankidPending = searchParams.get("bankid_pending") === "1";
   const prefilledEmail = searchParams.get("email") || "";
+  const rawNext = searchParams.get("next") || "";
+  const nextPath = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/app";
   const [email, setEmail] = useState(prefilledEmail);
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -100,7 +102,7 @@ export default function LoginPage() {
         } catch {
           /* non-fatal */
         }
-        window.location.href = "/app";
+        window.location.href = nextPath;
       } else {
         setError(t("noSessionReturned"));
         setLoading(false);

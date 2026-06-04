@@ -231,7 +231,9 @@ export default function SignupPage() {
     }
 
     if (data.session) {
-      window.location.href = "/app";
+      const rawNext = searchParams.get("next") || "";
+      const nextPath = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/app";
+      window.location.href = nextPath;
       return;
     }
 
