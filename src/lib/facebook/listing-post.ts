@@ -12,7 +12,9 @@ interface ListingForPost {
  * "Boka här" link and formatting stay identical in one place.
  */
 export function buildListingPostMessage(listing: ListingForPost, appUrl: string): string {
-  const priceText = listing.price ? `\n💰 Pris: ${listing.price} SEK` : "\n🆓 Gratis";
-  const eventUrl = `${appUrl}/listing/${listing.slug || listing.id}`;
-  return `${listing.title}\n\n${listing.description ?? ""}${priceText}\n\n👉 Boka här: ${eventUrl}`;
+  const priceText = listing.price ? `\n💰 Price: ${listing.price} SEK` : "\n🆓 Free entry";
+  const eventUrl = listing.slug
+    ? `${appUrl}/event/${listing.slug}`
+    : `${appUrl}/listing/${listing.id}`;
+  return `${listing.title}\n\n${listing.description ?? ""}${priceText}\n\n👉 Reserve your spot: ${eventUrl}`;
 }
