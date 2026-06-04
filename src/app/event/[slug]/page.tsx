@@ -36,7 +36,17 @@ async function getListing(slug: string) {
     .eq("id", listing.user_id)
     .maybeSingle();
 
-  return { listing, host };
+  const today = new Date().toISOString().slice(0, 10);
+  const { data: more } = await supabase
+    .from("listings")
+    .select("id, title, slug, image_url, event_date, event_location, price")
+    .eq("is_active", true)
+    .neq("id", listing.id)
+    .or(`event_date.gte.${today},event_date.is.null`)
+    .order("event_date", { ascending: true, nullsFirst: false })
+    .limit(3);
+
+  return { listing, host, more: more ?? [] };
 }
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
@@ -72,7 +82,9 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 
 function formatDate(dateStr: string | null, timeStr: string | null) {
   if (!dateStr) return null;
-  const date = new Date(`${dateStr}T${timeStr ?? "12:00"}:00+02:00`);
+  const time = timeStr ? (timeStr.length === 5 ? `${timeStr}:00` : timeStr.slice(0, 8)) : "12:00:00";
+  const date = new Date(`${dateStr}T${time}+02:00`);
+  if (isNaN(date.getTime())) return null;
   return date.toLocaleDateString("sv-SE", {
     weekday: "long",
     day: "numeric",
@@ -94,7 +106,7 @@ export default async function EventPage({ params }: Params) {
   const data = await getListing(slug);
   if (!data) notFound();
 
-  const { listing, host } = data;
+  const { listing, host, more } = data;
   const supabase = await createClient();
   const {
     data: { user },
@@ -262,17 +274,74 @@ export default async function EventPage({ params }: Params) {
           </div>
         )}
 
-        <div className="mt-8 text-center text-xs text-[var(--usha-muted)]">
-          En produktion på{" "}
-          <Link href="/" className="underline hover:text-white">
-            Usch-Ja!
-          </Link>
-          <span className="mx-1">·</span>
-          <Link href="/marketplace" className="underline hover:text-white">
-            Fler produktioner
-          </Link>
-        </div>
       </div>
+
+      {more.length > 0 && (
+        <section className="border-t border-[var(--usha-border)] bg-[var(--usha-card)]/30">
+          <div className="mx-auto max-w-5xl px-6 py-12 sm:px-10 sm:py-16">
+            <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-wide text-[var(--usha-muted)]">
+                  Upptäck mer
+                </p>
+                <h2 className="mt-1 text-2xl font-bold sm:text-3xl">
+                  Fler Usha-produktioner
+                </h2>
+              </div>
+              <Link
+                href="/marketplace"
+                className="inline-flex items-center gap-1 rounded-full border border-[var(--usha-border)] px-4 py-2 text-xs font-medium text-white transition hover:border-[var(--usha-gold)]/60 hover:text-[var(--usha-gold)]"
+              >
+                Se alla →
+              </Link>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {more.map((m) => (
+                <Link
+                  key={m.id}
+                  href={m.slug ? `/event/${m.slug}` : `/listing/${m.id}`}
+                  className="group overflow-hidden rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] transition hover:border-[var(--usha-gold)]/40"
+                >
+                  <div className="relative aspect-[1.91/1] bg-black">
+                    {m.image_url ? (
+                      <Image
+                        src={m.image_url}
+                        alt={m.title}
+                        fill
+                        sizes="(max-width: 640px) 100vw, 33vw"
+                        className="object-cover transition group-hover:scale-[1.02]"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-xs text-[var(--usha-muted)]">
+                        Usha-produktion
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-4">
+                    <h3 className="line-clamp-1 text-sm font-semibold">{m.title}</h3>
+                    <div className="mt-2 flex items-center justify-between text-[11px] text-[var(--usha-muted)]">
+                      <span className="line-clamp-1">
+                        {m.event_date
+                          ? new Date(`${m.event_date}T12:00:00+02:00`).toLocaleDateString("sv-SE", {
+                              day: "numeric",
+                              month: "short",
+                              timeZone: "Europe/Stockholm",
+                            })
+                          : "Datum kommer"}
+                        {m.event_location ? ` · ${m.event_location}` : ""}
+                      </span>
+                      <span className="font-semibold text-[var(--usha-gold)]">
+                        {m.price ? `${m.price} kr` : "Gratis"}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
     </main>
   );
 }
