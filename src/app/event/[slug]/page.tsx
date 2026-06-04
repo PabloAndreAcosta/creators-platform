@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -15,6 +15,31 @@ const FALLBACK_IMAGE =
 
 interface Params {
   params: Promise<{ slug: string }>;
+}
+
+async function resolveSlugToOccurrence(slug: string): Promise<string | null> {
+  const supabase = await createClient();
+  const today = new Date().toISOString().slice(0, 10);
+  const { data: upcoming } = await supabase
+    .from("listings")
+    .select("slug, event_date")
+    .eq("series_slug", slug)
+    .eq("is_active", true)
+    .or(`event_date.gte.${today},event_date.is.null`)
+    .order("event_date", { ascending: true, nullsFirst: false })
+    .limit(1)
+    .maybeSingle();
+  if (upcoming?.slug) return upcoming.slug;
+
+  const { data: latest } = await supabase
+    .from("listings")
+    .select("slug")
+    .eq("series_slug", slug)
+    .eq("is_active", true)
+    .order("event_date", { ascending: false, nullsFirst: false })
+    .limit(1)
+    .maybeSingle();
+  return latest?.slug ?? null;
 }
 
 async function getListing(slug: string) {
@@ -51,7 +76,11 @@ async function getListing(slug: string) {
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
-  const data = await getListing(slug);
+  let data = await getListing(slug);
+  if (!data) {
+    const resolved = await resolveSlugToOccurrence(slug);
+    if (resolved) data = await getListing(resolved);
+  }
   if (!data) return { title: "Event hittades inte" };
 
   const { listing, host } = data;
@@ -103,8 +132,12 @@ function formatTime(timeStr: string | null, endTimeStr: string | null) {
 
 export default async function EventPage({ params }: Params) {
   const { slug } = await params;
-  const data = await getListing(slug);
-  if (!data) notFound();
+  let data = await getListing(slug);
+  if (!data) {
+    const resolved = await resolveSlugToOccurrence(slug);
+    if (resolved) redirect(`/event/${resolved}`);
+    notFound();
+  }
 
   const { listing, host, more } = data;
   const supabase = await createClient();
