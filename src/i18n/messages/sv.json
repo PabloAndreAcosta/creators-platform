@@ -1343,5 +1343,35 @@
     "statusCompleted": "Slutförda",
     "statusCanceled": "Avbokade",
     "amountSek": "{amount} SEK"
+  },
+  "invites": {
+    "title": "Du är inbjuden",
+    "subtitleNamed": "{host} har bjudit in dig att vara med på {event}",
+    "subtitleAnon": "Du har blivit inbjuden till {event}",
+    "role": "Roll",
+    "expires": "Inbjudan går ut {date}",
+    "accept": "Acceptera inbjudan",
+    "accepting": "Accepterar...",
+    "bankidRequired": "BankID-verifiering krävs",
+    "bankidRequiredBody": "För att vara med på det här eventet behöver du verifiera din identitet med Mobilt BankID. Vi gör det för att skydda alla inblandade.",
+    "bankidGoVerify": "Verifiera med BankID",
+    "loginRequired": "Logga in för att acceptera",
+    "signupRequired": "Skapa konto för att acceptera",
+    "expiredTitle": "Den här inbjudan har gått ut",
+    "expiredBody": "Be värden om en ny inbjudningslänk.",
+    "acceptedTitle": "Redan accepterad",
+    "acceptedBody": "Du är redan med på det här eventet.",
+    "notFoundTitle": "Inbjudan hittades inte",
+    "notFoundBody": "Den här inbjudningslänken är inte längre giltig.",
+    "successTitle": "Du är med!",
+    "successBody": "Välkommen till teamet. Värden får en notifikation.",
+    "goToEvent": "Gå till eventet",
+    "goToCollaborations": "Se mina samarbeten",
+    "roles": {
+      "creator": "Kreatör",
+      "taxi_dancer": "Taxidansare",
+      "volunteer": "Volontär",
+      "co_host": "Medvärd"
+    }
   }
 }

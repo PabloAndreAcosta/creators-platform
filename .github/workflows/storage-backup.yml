@@ -1,0 +1,58 @@
+name: Daily storage backup
+
+# Mirrors the Supabase Storage buckets to a Cloudflare R2 bucket once a day.
+# Supabase's managed DB backups do NOT include Storage objects (only metadata),
+# so without this a deleted/overwritten file is unrecoverable. rclone syncs
+# incrementally via the S3-compatible endpoints on both sides. The R2 bucket
+# should have Object Versioning + a 30-day noncurrent-version lifecycle so a
+# delete in Supabase leaves the previous version recoverable for 30 days.
+on:
+  schedule:
+    - cron: "0 3 * * *" # 03:00 UTC daily, after the Supabase DB-backup window
+  workflow_dispatch: {} # allow manual runs / first full sync
+
+jobs:
+  backup:
+    # Only run in the production org repo, not the private mirror (matches the
+    # guard in booking-soon-reminder.yml so we don't double-run / double-charge).
+    if: github.repository == 'usha-ab/creators-platform'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install rclone
+        run: curl -fsSL https://rclone.org/install.sh | sudo bash
+
+      - name: Sync each bucket Supabase -> R2
+        env:
+          # Source: Supabase Storage (S3-compatible endpoint)
+          RCLONE_CONFIG_SB_TYPE: s3
+          RCLONE_CONFIG_SB_PROVIDER: Other
+          RCLONE_CONFIG_SB_ENDPOINT: https://hiurrvorwqfihtdfhbhv.storage.supabase.co/storage/v1/s3
+          RCLONE_CONFIG_SB_REGION: eu-central-1
+          RCLONE_CONFIG_SB_ACCESS_KEY_ID: ${{ secrets.SUPABASE_S3_ACCESS_KEY_ID }}
+          RCLONE_CONFIG_SB_SECRET_ACCESS_KEY: ${{ secrets.SUPABASE_S3_SECRET_ACCESS_KEY }}
+          # Destination: Cloudflare R2
+          RCLONE_CONFIG_R2_TYPE: s3
+          RCLONE_CONFIG_R2_PROVIDER: Cloudflare
+          RCLONE_CONFIG_R2_REGION: auto
+          RCLONE_CONFIG_R2_ENDPOINT: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+          RCLONE_CONFIG_R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          RCLONE_CONFIG_R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+        run: |
+          for b in avatars creator-media event-images listing-images; do
+            echo "::group::Syncing $b"
+            rclone sync "SB:$b" "R2:ushja-storage-backup/$b" --fast-list --transfers 8 -v
+            echo "::endgroup::"
+          done
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          curl -fsS -X POST https://api.resend.com/emails \
+            -H "Authorization: Bearer ${{ secrets.RESEND_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "from": "Usch-Ja! Platform <noreply@usha.se>",
+              "to": "pablo.acosta@usha.se",
+              "subject": "⚠️ Daglig storage-backup misslyckades",
+              "text": "Workflowen \"Daily storage backup\" failade. Kolla GitHub Actions-loggen: https://github.com/usha-ab/creators-platform/actions/workflows/storage-backup.yml"
+            }'

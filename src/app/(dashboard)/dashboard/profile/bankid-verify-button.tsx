@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { ShieldCheck, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
 
@@ -12,15 +13,18 @@ interface Props {
 
 export function BankIdVerifyButton({ role, label, className }: Props) {
   const { toast } = useToast();
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
 
   async function handleClick() {
     setLoading(true);
+    const rawNext = searchParams.get("bankid_next") || "";
+    const next = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : null;
     try {
       const res = await fetch("/api/auth/bankid/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role, mode: "add" }),
+        body: JSON.stringify({ role, mode: "add", next }),
       });
       const data = await res.json();
       if (!res.ok || !data.authenticationUrl) {

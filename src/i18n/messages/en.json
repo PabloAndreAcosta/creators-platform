@@ -1343,5 +1343,35 @@
     "statusCompleted": "Completed",
     "statusCanceled": "Canceled",
     "amountSek": "{amount} SEK"
+  },
+  "invites": {
+    "title": "You're invited",
+    "subtitleNamed": "{host} has invited you to join {event}",
+    "subtitleAnon": "You've been invited to join {event}",
+    "role": "Role",
+    "expires": "Invite expires {date}",
+    "accept": "Accept invitation",
+    "accepting": "Accepting...",
+    "bankidRequired": "BankID verification required",
+    "bankidRequiredBody": "Before joining this event you need to verify your identity with Mobile BankID. We use this to protect everyone involved.",
+    "bankidGoVerify": "Verify with BankID",
+    "loginRequired": "Sign in to accept",
+    "signupRequired": "Create an account to accept",
+    "expiredTitle": "This invitation has expired",
+    "expiredBody": "Ask the host for a new invitation link.",
+    "acceptedTitle": "Already accepted",
+    "acceptedBody": "You're already part of this event.",
+    "notFoundTitle": "Invitation not found",
+    "notFoundBody": "This invitation link is no longer valid.",
+    "successTitle": "You're in!",
+    "successBody": "Welcome to the team. The host will be notified.",
+    "goToEvent": "Go to event",
+    "goToCollaborations": "View my collaborations",
+    "roles": {
+      "creator": "Creator",
+      "taxi_dancer": "Taxi dancer",
+      "volunteer": "Volunteer",
+      "co_host": "Co-host"
+    }
   }
 }

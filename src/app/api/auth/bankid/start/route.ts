@@ -3,7 +3,7 @@ import { createBankIdSession } from "@/lib/signicat/client";
 
 export async function POST(req: NextRequest) {
   try {
-    const { role, subcategory, mode } = await req.json();
+    const { role, subcategory, mode, next } = await req.json();
 
     if (!role || !["creator", "experience"].includes(role)) {
       return NextResponse.json(
@@ -26,11 +26,14 @@ export async function POST(req: NextRequest) {
       authenticationUrl: session.authenticationUrl,
     });
 
+    const safeNext = typeof next === "string" && next.startsWith("/") && !next.startsWith("//") ? next : null;
+
     response.cookies.set("bankid_session", JSON.stringify({
       sessionId: session.id,
       role,
       subcategory: resolvedSubcategory,
       mode: resolvedMode,
+      next: safeNext,
     }), {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",

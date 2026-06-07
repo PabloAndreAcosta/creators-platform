@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(`${baseUrl}/signup?bankid=error`);
   }
 
-  let sessionData: { sessionId: string; role: string; subcategory?: string; mode?: "signup" | "add" };
+  let sessionData: { sessionId: string; role: string; subcategory?: string; mode?: "signup" | "add"; next?: string | null };
   try {
     sessionData = JSON.parse(sessionCookie);
   } catch {
@@ -24,6 +24,8 @@ export async function GET(req: NextRequest) {
   }
 
   const isAddMode = sessionData.mode === "add";
+  const safeNext = typeof sessionData.next === "string" && sessionData.next.startsWith("/") && !sessionData.next.startsWith("//") ? sessionData.next : null;
+  const addSuccessBase = safeNext ? `${baseUrl}${safeNext}` : `${baseUrl}/dashboard/profile`;
   const errorBase = isAddMode ? `${baseUrl}/dashboard/profile` : `${baseUrl}/signup`;
 
   if (status !== "success") {
@@ -102,7 +104,10 @@ export async function GET(req: NextRequest) {
         return response;
       }
 
-      const response = NextResponse.redirect(`${baseUrl}/dashboard/profile?bankid=success`);
+      const successUrl = safeNext
+        ? `${baseUrl}${safeNext}${safeNext.includes("?") ? "&" : "?"}bankid=success`
+        : `${baseUrl}/dashboard/profile?bankid=success`;
+      const response = NextResponse.redirect(successUrl);
       response.cookies.set("bankid_session", "", { path: "/", maxAge: 0 });
       return response;
     }
