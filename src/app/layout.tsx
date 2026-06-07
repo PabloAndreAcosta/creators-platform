@@ -4,6 +4,7 @@ import { getLocale, getMessages } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
 import { ToastProvider } from "@/components/ui/toaster";
 import { ConnectionStatus } from "@/components/ConnectionStatus";
+import { GoogleAnalytics } from "@/components/google-analytics";
 import Script from "next/script";
 import "./globals.css";
 
@@ -93,6 +94,7 @@ export default async function RootLayout({
               .catch(function(err) { console.log('[SW] Failed:', err) })
           }
         `}</Script>
+        <GoogleAnalytics />
       </body>
     </html>
   );
