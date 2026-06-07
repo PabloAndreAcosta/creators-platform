@@ -1,5 +1,7 @@
 import * as Sentry from "@sentry/nextjs";
 
+console.log("[instrumentation] MODULE LOADED runtime=" + process.env.NEXT_RUNTIME);
+
 const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
 
 export async function register() {
