@@ -58,4 +58,20 @@ const nextConfig = {
   },
 };
 
-module.exports = withNextIntl(nextConfig);
+let exported = withNextIntl(nextConfig);
+
+if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
+  const { withSentryConfig } = require("@sentry/nextjs");
+  exported = withSentryConfig(exported, {
+    silent: true,
+    org: process.env.SENTRY_ORG,
+    project: process.env.SENTRY_PROJECT,
+    authToken: process.env.SENTRY_AUTH_TOKEN,
+    widenClientFileUpload: true,
+    tunnelRoute: "/monitoring",
+    disableLogger: true,
+    automaticVercelMonitors: false,
+  });
+}
+
+module.exports = exported;
