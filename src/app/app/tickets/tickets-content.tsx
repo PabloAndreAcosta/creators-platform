@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Calendar, MapPin, Clock, QrCode, X, Ticket, User, Star } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
 import { useSubscription } from "@/lib/subscription/context";
+import { trackEvent } from "@/lib/analytics";
 import Image from "next/image";
 import QRCode from "qrcode";
 
@@ -118,6 +119,7 @@ export function TicketsContent({ bookings }: TicketsContentProps) {
   useEffect(() => {
     if (searchParams.get("success") === "true") {
       toast.success("Biljett köpt!", "Din biljett finns nu här nedanför.");
+      trackEvent("booking_complete", { source: "ticket-checkout" });
       window.history.replaceState({}, "", "/app/tickets");
     }
   }, [searchParams, toast]);

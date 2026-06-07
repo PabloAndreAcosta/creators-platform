@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { isPasswordPwned } from "@/lib/auth/password-strength";
+import { trackEvent } from "@/lib/analytics";
 import { Palette, Store, Search, ShieldCheck, Loader2, Music } from "lucide-react";
 
 type Role = "creator" | "experience" | "customer";
@@ -233,6 +234,7 @@ export default function SignupPage() {
     if (data.session) {
       const rawNext = searchParams.get("next") || "";
       const nextPath = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/app";
+      trackEvent("sign_up", { method: "email", role: selectedRole ?? "unknown" });
       window.location.href = nextPath;
       return;
     }

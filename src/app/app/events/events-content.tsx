@@ -23,6 +23,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/toaster";
 import { deleteEvent, toggleEventActive, duplicateEvent } from "./actions";
+import { trackEvent } from "@/lib/analytics";
 import { EVENT_CATEGORY_LABELS } from "./constants";
 import { FacebookConnect } from "@/components/facebook/FacebookConnect";
 import { FacebookSyncButton } from "@/components/facebook/FacebookSyncButton";
@@ -84,6 +85,7 @@ export function EventsContent({
   useEffect(() => {
     if (fbConnected) {
       toast.success("Facebook-sida ansluten!", "Du kan nu synka evenemang med Facebook.");
+      trackEvent("fb_connect");
     }
     if (fbError && FB_ERROR_MESSAGES[fbError]) {
       toast.error("Facebook-anslutning misslyckades", FB_ERROR_MESSAGES[fbError]);

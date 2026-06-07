@@ -7,6 +7,7 @@ import { Calendar, Clock, MapPin, Ticket } from "lucide-react";
 import { EVENT_CATEGORY_LABELS } from "@/app/app/events/constants";
 import { BookButton } from "./book-button";
 import { SocialShareButton } from "@/components/social-share-button";
+import { TrackEvent } from "@/components/track-event";
 
 export const revalidate = 60;
 
@@ -155,6 +156,16 @@ export default async function EventPage({ params }: Params) {
 
   return (
     <main className="min-h-screen bg-[var(--usha-black)] text-white">
+      <TrackEvent
+        name="listing_view"
+        params={{
+          listing_id: listing.id,
+          slug,
+          price: listing.price ?? 0,
+          is_free: isFree,
+          category: listing.category,
+        }}
+      />
       <div className="relative h-[55vh] min-h-[400px] w-full overflow-hidden sm:h-[65vh]">
         <Image
           src={image}
