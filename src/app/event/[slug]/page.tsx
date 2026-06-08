@@ -1,4 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
+import { createClient as createAdminClient } from "@supabase/supabase-js";
+import { collabRoleLabel } from "@/lib/collaborators";
 import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -75,6 +77,36 @@ async function getListing(slug: string) {
   return { listing, host, more: more ?? [] };
 }
 
+async function getCrew(listingId: string) {
+  const admin = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+  // RLS on listing_collaborators is host-or-self only, so the public page reads
+  // accepted crew server-side via the service role (key never reaches the client).
+  const { data: collabs } = await admin
+    .from("listing_collaborators")
+    .select("user_id, role, accepted_at")
+    .eq("listing_id", listingId)
+    .eq("status", "accepted")
+    .order("accepted_at", { ascending: true });
+
+  if (!collabs || collabs.length === 0) return [];
+
+  const ids = collabs.map((c) => c.user_id);
+  const { data: profiles } = await admin
+    .from("profiles")
+    .select("id, full_name, slug, avatar_url")
+    .in("id", ids);
+
+  const byId = new Map((profiles ?? []).map((p) => [p.id, p]));
+  return collabs.map((c) => ({
+    user_id: c.user_id,
+    role: c.role as string,
+    profile: byId.get(c.user_id) ?? null,
+  }));
+}
+
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   let data = await getListing(slug);
@@ -141,6 +173,7 @@ export default async function EventPage({ params }: Params) {
   }
 
   const { listing, host, more } = data;
+  const crew = await getCrew(listing.id);
   const supabase = await createClient();
   const {
     data: { user },
@@ -314,6 +347,56 @@ export default async function EventPage({ params }: Params) {
                   · BankID-verifierad
                 </span>
               )}
+            </div>
+          </div>
+        )}
+
+        {crew.length > 0 && (
+          <div className="mt-8 border-t border-[var(--usha-border)] pt-8">
+            <p className="mb-4 text-xs uppercase tracking-wide text-[var(--usha-muted)]">
+              Medverkande
+            </p>
+            <div className="flex flex-wrap gap-x-6 gap-y-4">
+              {crew.map((c) => {
+                const p = c.profile;
+                const name = p?.full_name ?? "Medverkande";
+                const inner = (
+                  <>
+                    {p?.avatar_url ? (
+                      <Image
+                        src={p.avatar_url}
+                        alt={name}
+                        width={40}
+                        height={40}
+                        className="h-10 w-10 rounded-full object-cover"
+                      />
+                    ) : (
+                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--usha-card)] text-sm font-semibold text-white/70">
+                        {name.slice(0, 1).toUpperCase()}
+                      </span>
+                    )}
+                    <span>
+                      <span className="block text-sm font-medium text-white/90">{name}</span>
+                      <span className="block text-[11px] text-[var(--usha-muted)]">
+                        {collabRoleLabel(c.role)}
+                      </span>
+                    </span>
+                  </>
+                );
+                return p?.slug ? (
+                  <Link
+                    key={c.user_id}
+                    href={`/creators/${p.slug}`}
+                    className="flex items-center gap-3 transition hover:opacity-80"
+                  >
+                    {inner}
+                  </Link>
+                ) : (
+                  <div key={c.user_id} className="flex items-center gap-3">
+                    {inner}
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}

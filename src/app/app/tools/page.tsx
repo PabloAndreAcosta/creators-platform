@@ -5,7 +5,7 @@ import {
   Package, CalendarCheck, CalendarDays, ScanLine, Briefcase, BookOpen,
   Wallet, BarChart3, CreditCard, Tag,
   Search, Store, FileText, Heart, Trophy,
-  Ticket, MessageCircle, BookMarked, Gift, Bell, User, Settings, LayoutGrid,
+  Ticket, MessageCircle, BookMarked, Gift, Bell, User, Settings, LayoutGrid, Users,
 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -61,6 +61,7 @@ const sharedGroups: Group[] = [
     title: "Mitt konto",
     items: [
       { href: "/app/tickets", label: "Biljetter", desc: "Dina bokningar", icon: Ticket },
+      { href: "/app/my-collaborations", label: "Mina samarbeten", desc: "Produktioner du medverkar i", icon: Users },
       { href: "/app/messages", label: "Meddelanden", icon: MessageCircle },
       { href: "/app/library", label: "Bibliotek", desc: "Köpt innehåll", icon: BookMarked },
       { href: "/app/rewards", label: "Belöningar", desc: "Poäng", icon: Gift },

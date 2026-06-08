@@ -15,6 +15,7 @@ import {
   ToggleRight,
   Radio,
   Copy,
+  Users,
   X as XIcon,
   CalendarClock,
   CheckCircle2,
@@ -321,6 +322,14 @@ function EventCard({
                   >
                     <Edit2 size={12} />
                     Redigera
+                  </Link>
+                  <Link
+                    href={`/app/events/${listing.id}/crew`}
+                    className="flex w-full items-center gap-2 px-4 py-2 text-xs hover:bg-[var(--usha-card-hover)]"
+                    onClick={() => setShowMenu(false)}
+                  >
+                    <Users size={12} />
+                    Crew
                   </Link>
                   <button
                     onClick={() => {
