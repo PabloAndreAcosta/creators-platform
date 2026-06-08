@@ -452,7 +452,7 @@ function Features() {
     { key: "tickets", icon: Ticket },
     { key: "scan", icon: QrCode },
     { key: "crew", icon: Users, isNew: true },
-    { key: "delegateScan", icon: ScanLine },
+    { key: "delegateScan", icon: ScanLine, isNew: true },
     { key: "gage", icon: Banknote, isNew: true },
     { key: "live", icon: Radio },
     { key: "bankid", icon: Fingerprint },
