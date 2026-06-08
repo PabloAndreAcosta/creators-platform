@@ -3,7 +3,7 @@ import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Calendar, MapPin, Users } from "lucide-react";
+import { Calendar, MapPin, Users, ScanLine } from "lucide-react";
 import { collabRoleLabel } from "@/lib/collaborators";
 import { GagePanel, type GageView } from "@/components/gage-panel";
 import { StripeConnectButton } from "@/components/stripe-connect-button";
@@ -39,7 +39,7 @@ export default async function MyCollaborationsPage() {
   // RLS allows self-select on listing_collaborators.
   const { data: collabs } = await supabase
     .from("listing_collaborators")
-    .select("listing_id, role, accepted_at")
+    .select("listing_id, role, accepted_at, can_scan")
     .eq("user_id", user.id)
     .eq("status", "accepted")
     .order("accepted_at", { ascending: false });
@@ -110,12 +110,24 @@ export default async function MyCollaborationsPage() {
     .filter((c) => c.listing);
 
   const hasAnyGage = items.some((c) => gageByListing.has(c.listing_id));
+  const canScanAny = (collabs ?? []).some((c) => (c as { can_scan?: boolean }).can_scan);
 
   return (
     <div className="px-4 py-6">
-      <div className="mb-6 flex items-center gap-2">
-        <Users size={22} className="text-[var(--usha-gold)]" />
-        <h1 className="text-2xl font-bold">Mina samarbeten</h1>
+      <div className="mb-6 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <Users size={22} className="text-[var(--usha-gold)]" />
+          <h1 className="text-2xl font-bold">Mina samarbeten</h1>
+        </div>
+        {canScanAny && (
+          <Link
+            href="/app/scan"
+            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-sm font-bold text-black transition hover:opacity-90"
+          >
+            <ScanLine size={16} />
+            Skanna biljetter
+          </Link>
+        )}
       </div>
 
       {invites.length > 0 && (
