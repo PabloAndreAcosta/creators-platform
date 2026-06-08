@@ -171,7 +171,7 @@ export function CreatePostForm({ authorName, authorAvatar, listings }: CreatePos
         <div className="flex gap-2">
           <button
             onClick={() => { setExpanded(false); setText(""); setImagePreview(null); setImageUrl(null); }}
-            className="rounded-lg px-3 py-1.5 text-xs text-[var(--usha-muted)] transition hover:text-white"
+            className="rounded-lg px-3 py-1.5 text-xs text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
           >
             {tc("cancel")}
           </button>

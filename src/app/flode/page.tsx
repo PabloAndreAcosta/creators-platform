@@ -41,7 +41,7 @@ export default async function FlodePage() {
           ) : (
             <Link
               href="/signup"
-              className="rounded-lg px-3 py-1.5 text-xs font-medium text-[var(--usha-muted)] transition hover:text-white"
+              className="rounded-lg px-3 py-1.5 text-xs font-medium text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
             >
               Skapa profil
             </Link>

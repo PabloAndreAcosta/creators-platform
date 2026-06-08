@@ -34,7 +34,7 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-sm">
         <Link
           href="/login"
-          className="mb-6 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-white"
+          className="mb-6 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]"
         >
           <ArrowLeft size={14} />
           Tillbaka till inloggning

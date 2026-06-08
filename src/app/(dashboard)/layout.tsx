@@ -67,7 +67,7 @@ export default async function DashboardLayout({
               <form action="/api/auth/signout" method="POST">
                 <button
                   type="submit"
-                  className="rounded-md p-2 text-[var(--usha-muted)] transition-colors hover:bg-[var(--usha-card)] hover:text-white"
+                  className="rounded-md p-2 text-[var(--usha-muted)] transition-colors hover:bg-[var(--usha-card)] hover:text-[var(--usha-white)]"
                   title={t("logout")}
                 >
                   <LogOut size={16} />

@@ -59,13 +59,13 @@ export function AppShell({ children, userName }: AppShellProps) {
                 {/* Mobile search toggle */}
                 <button
                   onClick={() => setMobileSearchOpen((v) => !v)}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-[var(--usha-muted)] transition-colors hover:bg-[var(--usha-card)] hover:text-white md:hidden"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg text-[var(--usha-muted)] transition-colors hover:bg-[var(--usha-card)] hover:text-[var(--usha-white)] md:hidden"
                   aria-label={mobileSearchOpen ? t("closeSearch") : t("openSearch")}
                 >
                   {mobileSearchOpen ? <X size={18} /> : <Search size={18} />}
                 </button>
                 <ThemeToggle />
-                <LanguageSwitcher className="hidden md:flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs text-[var(--usha-muted)] transition-colors hover:bg-[var(--usha-card)] hover:text-white" />
+                <LanguageSwitcher className="hidden md:flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs text-[var(--usha-muted)] transition-colors hover:bg-[var(--usha-card)] hover:text-[var(--usha-white)]" />
                 <NotificationBell />
                 <RoleToggle />
               </div>

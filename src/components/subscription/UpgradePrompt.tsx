@@ -57,7 +57,7 @@ export function UpgradePrompt({
           </div>
           <button
             onClick={onClose}
-            className="flex h-11 w-11 items-center justify-center rounded-lg text-[var(--usha-muted)] transition hover:text-white"
+            className="flex h-11 w-11 items-center justify-center rounded-lg text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
             aria-label="Stäng"
           >
             <X size={18} />
@@ -77,7 +77,7 @@ export function UpgradePrompt({
           </Link>
           <button
             onClick={onClose}
-            className="block w-full rounded-xl border border-[var(--usha-border)] py-3 text-center text-sm font-medium text-[var(--usha-muted)] transition hover:border-[var(--usha-gold)]/30 hover:text-white"
+            className="block w-full rounded-xl border border-[var(--usha-border)] py-3 text-center text-sm font-medium text-[var(--usha-muted)] transition hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-white)]"
           >
             Inte nu
           </button>

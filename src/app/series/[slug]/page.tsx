@@ -183,7 +183,7 @@ export default async function SeriesPage({ params }: Props) {
       <div className="mx-auto max-w-4xl px-4 py-6 md:px-6 md:py-8">
         <Link
           href={creatorUrl}
-          className="mb-6 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-white"
+          className="mb-6 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]"
         >
           <ArrowLeft size={14} />
           Tillbaka till {creator?.full_name || "kreatören"}

@@ -29,7 +29,7 @@ export default async function EditEventPage({ params }: { params: { id: string }
       <div className="flex flex-wrap gap-2 px-4 pt-4">
         <Link
           href={`/app/events/${event.id}/crew`}
-          className="inline-flex items-center gap-2 rounded-full border border-[var(--usha-border)] px-4 py-2 text-sm font-medium text-white transition hover:border-[var(--usha-gold)]/60 hover:text-[var(--usha-gold)]"
+          className="inline-flex items-center gap-2 rounded-full border border-[var(--usha-border)] px-4 py-2 text-sm font-medium text-[var(--usha-white)] transition hover:border-[var(--usha-gold)]/60 hover:text-[var(--usha-gold)]"
         >
           <Users size={15} />
           Crew

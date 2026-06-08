@@ -365,7 +365,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
                 className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
                   selected
                     ? "bg-[var(--usha-gold)] text-black"
-                    : "bg-[var(--usha-card)] text-[var(--usha-muted)] ring-1 ring-[var(--usha-border)] hover:ring-[var(--usha-gold)]/40 hover:text-white"
+                    : "bg-[var(--usha-card)] text-[var(--usha-muted)] ring-1 ring-[var(--usha-border)] hover:ring-[var(--usha-gold)]/40 hover:text-[var(--usha-white)]"
                 }`}
               >
                 {tc(c.value)}
@@ -431,7 +431,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
           <button
             type="button"
             onClick={addLocation}
-            className="flex shrink-0 items-center gap-1 rounded-xl border border-[var(--usha-border)] px-3 py-2 text-xs text-[var(--usha-muted)] transition hover:border-[var(--usha-gold)]/40 hover:text-white"
+            className="flex shrink-0 items-center gap-1 rounded-xl border border-[var(--usha-border)] px-3 py-2 text-xs text-[var(--usha-muted)] transition hover:border-[var(--usha-gold)]/40 hover:text-[var(--usha-white)]"
           >
             <Plus size={14} />
           </button>
@@ -512,7 +512,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
           <button
             type="button"
             onClick={addWebsite}
-            className="flex shrink-0 items-center gap-1 rounded-xl border border-[var(--usha-border)] px-3 py-2 text-xs text-[var(--usha-muted)] transition hover:border-[var(--usha-gold)]/40 hover:text-white"
+            className="flex shrink-0 items-center gap-1 rounded-xl border border-[var(--usha-border)] px-3 py-2 text-xs text-[var(--usha-muted)] transition hover:border-[var(--usha-gold)]/40 hover:text-[var(--usha-white)]"
           >
             <Plus size={14} />
           </button>
@@ -747,7 +747,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
                   <button
                     type="button"
                     onClick={() => removeFromList(s, danceStyles, setDanceStyles)}
-                    className="text-[var(--usha-muted)] hover:text-white"
+                    className="text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
                     aria-label={t("removeAria")}
                   >
                     <X size={14} />
@@ -789,7 +789,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
                   <button
                     type="button"
                     onClick={() => removeFromList(l, danceLanguages, setDanceLanguages)}
-                    className="text-[var(--usha-muted)] hover:text-white"
+                    className="text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
                     aria-label={t("removeAria")}
                   >
                     <X size={14} />
@@ -875,7 +875,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
                       <button
                         type="button"
                         onClick={() => removeFromList(s, coachingSpecialties, setCoachingSpecialties)}
-                        className="text-[var(--usha-muted)] hover:text-white"
+                        className="text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
                         aria-label={t("removeAria")}
                       >
                         <X size={14} />

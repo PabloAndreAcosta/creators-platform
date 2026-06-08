@@ -57,7 +57,7 @@ export default async function GigsDashboardPage() {
         <div>
           <Link
             href="/dashboard"
-            className="mb-2 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-white"
+            className="mb-2 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]"
           >
             <ArrowLeft size={14} />
             Tillbaka

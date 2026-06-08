@@ -87,7 +87,7 @@ export function PromoTable({ promoCodes }: { promoCodes: PromoCode[] }) {
                     </span>
                     <button
                       onClick={() => handleCopy(promo.code, promo.id)}
-                      className="rounded p-0.5 text-[var(--usha-muted)] transition-colors hover:text-white"
+                      className="rounded p-0.5 text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]"
                     >
                       {copiedId === promo.id ? (
                         <Check size={12} className="text-emerald-400" />
@@ -143,7 +143,7 @@ export function PromoTable({ promoCodes }: { promoCodes: PromoCode[] }) {
                     <button
                       onClick={() => handleToggle(promo.id, promo.is_active)}
                       disabled={isPending}
-                      className="rounded p-1.5 text-[var(--usha-muted)] transition-colors hover:bg-[var(--usha-card)] hover:text-white disabled:opacity-50"
+                      className="rounded p-1.5 text-[var(--usha-muted)] transition-colors hover:bg-[var(--usha-card)] hover:text-[var(--usha-white)] disabled:opacity-50"
                       title={promo.is_active ? "Inaktivera" : "Aktivera"}
                     >
                       {promo.is_active ? <ToggleRight size={16} className="text-emerald-400" /> : <ToggleLeft size={16} />}

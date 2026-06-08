@@ -138,7 +138,7 @@ export function QuickBuyButton({
         <button
           type="button"
           onClick={(e) => { e.stopPropagation(); setShowEmailInput(false); setEmail(""); }}
-          className="rounded p-0.5 text-[var(--usha-muted)] hover:text-white"
+          className="rounded p-0.5 text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
         >
           <X size={14} />
         </button>

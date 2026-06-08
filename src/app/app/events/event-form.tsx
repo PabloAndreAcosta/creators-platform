@@ -142,7 +142,7 @@ export default function EventForm({
         <button
           type="button"
           onClick={() => router.back()}
-          className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--usha-border)] text-[var(--usha-muted)] hover:text-white"
+          className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--usha-border)] text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
         >
           <ArrowLeft size={16} />
         </button>
@@ -552,7 +552,7 @@ export default function EventForm({
           <button
             type="button"
             onClick={() => router.back()}
-            className="flex-1 rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium text-[var(--usha-muted)] transition hover:text-white"
+            className="flex-1 rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
           >
             Avbryt
           </button>

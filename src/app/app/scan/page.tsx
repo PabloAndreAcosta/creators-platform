@@ -240,7 +240,7 @@ export default function ScanPage() {
               <button
                 onClick={startScanner}
                 disabled={scannerLoading}
-                className="flex w-full items-center justify-center gap-2 bg-[var(--usha-card)] py-12 text-sm text-[var(--usha-muted)] transition hover:text-white disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-2 bg-[var(--usha-card)] py-12 text-sm text-[var(--usha-muted)] transition hover:text-[var(--usha-white)] disabled:opacity-50"
               >
                 {scannerLoading ? (
                   <>

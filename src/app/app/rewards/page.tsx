@@ -80,7 +80,7 @@ export default function RewardsPage() {
 
   return (
     <div className="max-w-lg mx-auto px-4 py-6">
-      <h1 className="text-2xl font-bold text-white mb-6">{t("title")}</h1>
+      <h1 className="text-2xl font-bold text-[var(--usha-white)] mb-6">{t("title")}</h1>
 
       {/* Current level card */}
       <div
@@ -92,7 +92,7 @@ export default function RewardsPage() {
         <div className="flex items-center gap-3 mb-4">
           <LevelBadge level={userPoints.current_level} size="lg" showName />
           <div className="flex-1">
-            <p className="text-white/60 text-sm">
+            <p className="text-[var(--usha-muted)] text-sm">
               {userPoints.total_points.toLocaleString("sv-SE")} {tc("points")}
             </p>
           </div>
@@ -100,7 +100,7 @@ export default function RewardsPage() {
 
         {nextThreshold && (
           <div>
-            <div className="flex justify-between text-xs text-white/50 mb-1">
+            <div className="flex justify-between text-xs text-[var(--usha-muted)] mb-1">
               <span>{levelName}</span>
               <span>
                 {nextLevelName} ({nextThreshold.toLocaleString("sv-SE")} p)
@@ -117,13 +117,13 @@ export default function RewardsPage() {
                 style={{ width: `${progress}%` }}
               />
             </div>
-            <p className="text-xs text-white/40 mt-1">
+            <p className="text-xs text-[var(--usha-muted)] mt-1">
               {t("pointsToNext", { points: (nextThreshold - userPoints.total_points).toLocaleString("sv-SE") })}
             </p>
           </div>
         )}
         {!nextThreshold && (
-          <p className="text-sm text-white/60">
+          <p className="text-sm text-[var(--usha-muted)]">
             {t("maxLevel")}
           </p>
         )}
@@ -151,7 +151,7 @@ export default function RewardsPage() {
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-white font-medium">
+                  <span className="text-[var(--usha-white)] font-medium">
                     {reward.name_sv}
                   </span>
                   {reward.unlocked && (
@@ -160,7 +160,7 @@ export default function RewardsPage() {
                     </span>
                   )}
                 </div>
-                <p className="text-white/40 text-sm">
+                <p className="text-[var(--usha-muted)] text-sm">
                   {reward.description_sv}
                 </p>
               </div>

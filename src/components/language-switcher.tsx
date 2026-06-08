@@ -21,7 +21,7 @@ export function LanguageSwitcher({ className }: { className?: string }) {
       onClick={switchLocale}
       className={
         className ??
-        "flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-[var(--usha-muted)] transition-colors hover:bg-[var(--usha-card)] hover:text-white"
+        "flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-[var(--usha-muted)] transition-colors hover:bg-[var(--usha-card)] hover:text-[var(--usha-white)]"
       }
       aria-label={t("switchTo")}
     >

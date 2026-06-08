@@ -60,7 +60,7 @@ export function Feed({ initialPosts, isLoggedIn, currentUserId }: FeedProps) {
           <button
             onClick={loadMore}
             disabled={loading}
-            className="inline-flex items-center gap-2 rounded-xl border border-[var(--usha-border)] px-6 py-2.5 text-sm font-medium text-[var(--usha-muted)] transition hover:border-[var(--usha-gold)]/30 hover:text-white disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-xl border border-[var(--usha-border)] px-6 py-2.5 text-sm font-medium text-[var(--usha-muted)] transition hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-white)] disabled:opacity-50"
           >
             {loading ? <Loader2 size={14} className="animate-spin" /> : null}
             {loading ? tc("loading") : tc("showMore")}

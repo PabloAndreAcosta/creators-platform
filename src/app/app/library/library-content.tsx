@@ -92,7 +92,7 @@ export function LibraryContent({ purchases }: LibraryContentProps) {
               className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
                 filter === "all"
                   ? "bg-[var(--usha-gold)]/10 text-[var(--usha-gold)]"
-                  : "bg-[var(--usha-card)] text-[var(--usha-muted)] hover:text-white"
+                  : "bg-[var(--usha-card)] text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
               }`}
             >
               Alla ({purchases.length})
@@ -104,7 +104,7 @@ export function LibraryContent({ purchases }: LibraryContentProps) {
                 className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
                   filter === type
                     ? "bg-[var(--usha-gold)]/10 text-[var(--usha-gold)]"
-                    : "bg-[var(--usha-card)] text-[var(--usha-muted)] hover:text-white"
+                    : "bg-[var(--usha-card)] text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
                 }`}
               >
                 {TYPE_LABELS[type] || "Övrigt"} ({count})
@@ -190,7 +190,7 @@ function PurchaseCard({ purchase }: { purchase: Purchase }) {
         )}
         <Link
           href={`/creators/${product.creator_id}`}
-          className="flex items-center gap-1.5 rounded-lg bg-[var(--usha-card)] px-3 py-2 text-xs font-medium text-[var(--usha-muted)] transition hover:text-white"
+          className="flex items-center gap-1.5 rounded-lg bg-[var(--usha-card)] px-3 py-2 text-xs font-medium text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
         >
           <ExternalLink size={12} />
           Kreatörens profil

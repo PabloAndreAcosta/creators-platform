@@ -189,7 +189,7 @@ export default async function EventPage({ params }: Params) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://usha.se";
 
   return (
-    <main className="min-h-screen bg-[var(--usha-black)] text-white">
+    <main className="min-h-screen bg-[var(--usha-black)] text-[var(--usha-white)]">
       <TrackEvent
         name="listing_view"
         params={{
@@ -209,7 +209,7 @@ export default async function EventPage({ params }: Params) {
           sizes="100vw"
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/10 to-[var(--usha-black)]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/10 to-black" />
 
         <div className="absolute left-6 top-6 z-10">
           <Link
@@ -223,7 +223,7 @@ export default async function EventPage({ params }: Params) {
           </Link>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 px-6 pb-10 sm:px-10 sm:pb-16">
+        <div className="absolute bottom-0 left-0 right-0 px-6 pb-10 text-white sm:px-10 sm:pb-16">
           <div className="mx-auto max-w-4xl">
             <span className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-[var(--usha-gold)]/15 px-3 py-1 text-xs font-medium text-[var(--usha-gold)]">
               {categoryLabel}
@@ -272,7 +272,7 @@ export default async function EventPage({ params }: Params) {
             </Link>
             <Link
               href={`/app/events/${listing.id}/edit`}
-              className="inline-flex items-center gap-2 rounded-full border border-[var(--usha-border)] px-4 py-2 text-sm font-medium text-white transition hover:border-[var(--usha-gold)]/60"
+              className="inline-flex items-center gap-2 rounded-full border border-[var(--usha-border)] px-4 py-2 text-sm font-medium text-[var(--usha-white)] transition hover:border-[var(--usha-gold)]/60"
             >
               <Pencil size={15} />
               Redigera
@@ -282,17 +282,17 @@ export default async function EventPage({ params }: Params) {
         <div className="grid gap-8 md:grid-cols-[1fr_280px] md:gap-12">
           <div>
             {listing.description ? (
-              <div className="whitespace-pre-wrap text-base leading-relaxed text-white/85 sm:text-lg">
+              <div className="whitespace-pre-wrap text-base leading-relaxed text-[var(--usha-white)] sm:text-lg">
                 {listing.description}
               </div>
             ) : (
-              <p className="text-base text-white/60">
+              <p className="text-base text-[var(--usha-muted)]">
                 Information om denna produktion uppdateras inom kort.
               </p>
             )}
 
             {listing.duration_minutes && (
-              <p className="mt-6 text-sm text-white/60">
+              <p className="mt-6 text-sm text-[var(--usha-muted)]">
                 Längd: {listing.duration_minutes} min
               </p>
             )}
@@ -355,12 +355,12 @@ export default async function EventPage({ params }: Params) {
               {host.slug ? (
                 <Link
                   href={`/creators/${host.slug}`}
-                  className="text-sm font-medium text-white/90 hover:text-[var(--usha-gold)]"
+                  className="text-sm font-medium text-[var(--usha-white)] hover:text-[var(--usha-gold)]"
                 >
                   {host.full_name}
                 </Link>
               ) : (
-                <span className="text-sm font-medium text-white/90">
+                <span className="text-sm font-medium text-[var(--usha-white)]">
                   {host.full_name}
                 </span>
               )}
@@ -393,12 +393,12 @@ export default async function EventPage({ params }: Params) {
                         className="h-10 w-10 rounded-full object-cover"
                       />
                     ) : (
-                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--usha-card)] text-sm font-semibold text-white/70">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--usha-card)] text-sm font-semibold text-[var(--usha-white)]">
                         {name.slice(0, 1).toUpperCase()}
                       </span>
                     )}
                     <span>
-                      <span className="block text-sm font-medium text-white/90">{name}</span>
+                      <span className="block text-sm font-medium text-[var(--usha-white)]">{name}</span>
                       <span className="block text-[11px] text-[var(--usha-muted)]">
                         {collabRoleLabel(c.role)}
                       </span>
@@ -439,7 +439,7 @@ export default async function EventPage({ params }: Params) {
               </div>
               <Link
                 href="/marketplace"
-                className="inline-flex items-center gap-1 rounded-full border border-[var(--usha-border)] px-4 py-2 text-xs font-medium text-white transition hover:border-[var(--usha-gold)]/60 hover:text-[var(--usha-gold)]"
+                className="inline-flex items-center gap-1 rounded-full border border-[var(--usha-border)] px-4 py-2 text-xs font-medium text-[var(--usha-white)] transition hover:border-[var(--usha-gold)]/60 hover:text-[var(--usha-gold)]"
               >
                 Se alla →
               </Link>

@@ -62,8 +62,8 @@ export default function LeaderboardPage() {
 
   return (
     <div className="max-w-lg mx-auto px-4 py-6">
-      <h1 className="text-2xl font-bold text-white mb-1">{t("title")}</h1>
-      <p className="text-white/60 text-sm mb-6">
+      <h1 className="text-2xl font-bold text-[var(--usha-white)] mb-1">{t("title")}</h1>
+      <p className="text-[var(--usha-muted)] text-sm mb-6">
         {t("subtitle")}
       </p>
 
@@ -76,8 +76,8 @@ export default function LeaderboardPage() {
             className={cn(
               "flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors",
               period === p
-                ? "bg-white/10 text-white"
-                : "text-white/50 hover:text-white/70"
+                ? "bg-white/10 text-[var(--usha-white)]"
+                : "text-[var(--usha-muted)] hover:text-[var(--usha-muted)]"
             )}
           >
             {PERIOD_LABELS[p]}
@@ -95,7 +95,7 @@ export default function LeaderboardPage() {
           ))}
         </div>
       ) : entries.length === 0 ? (
-        <div className="text-center py-12 text-white/40">
+        <div className="text-center py-12 text-[var(--usha-muted)]">
           <p className="text-lg mb-1">{t("noActivity")}</p>
           <p className="text-sm">{t("beFirst")}</p>
         </div>
@@ -119,7 +119,7 @@ export default function LeaderboardPage() {
                       ? "text-slate-300"
                       : entry.rank === 3
                         ? "text-amber-700"
-                        : "text-white/40"
+                        : "text-[var(--usha-muted)]"
                 )}
               >
                 {entry.rank}
@@ -134,7 +134,7 @@ export default function LeaderboardPage() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-white/30 text-sm font-bold">
+                  <div className="w-full h-full flex items-center justify-center text-[var(--usha-muted)] text-sm font-bold">
                     {entry.profile?.full_name?.charAt(0)?.toUpperCase() || "?"}
                   </div>
                 )}
@@ -143,12 +143,12 @@ export default function LeaderboardPage() {
               {/* Name + Level */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-white font-medium truncate">
+                  <span className="text-[var(--usha-white)] font-medium truncate">
                     {entry.profile?.full_name || tc("anonymous")}
                   </span>
                   <LevelBadge level={entry.level} size="sm" />
                 </div>
-                <span className="text-white/40 text-xs capitalize">
+                <span className="text-[var(--usha-muted)] text-xs capitalize">
                   {entry.profile?.role || ""}
                 </span>
               </div>
@@ -157,7 +157,7 @@ export default function LeaderboardPage() {
               <span
                 className={cn(
                   "font-bold text-sm",
-                  LEVEL_COLORS[entry.level] || "text-white/60"
+                  LEVEL_COLORS[entry.level] || "text-[var(--usha-muted)]"
                 )}
               >
                 {getPoints(entry).toLocaleString("sv-SE")} p

@@ -95,7 +95,7 @@ export function ProfileQR({
           <button
             type="button"
             onClick={handleCopyLink}
-            className="flex items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-2.5 text-sm font-medium text-[var(--usha-muted)] transition hover:text-white"
+            className="flex items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-2.5 text-sm font-medium text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
           >
             {copied ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
             {copied ? t("copied") : t("copyLink")}

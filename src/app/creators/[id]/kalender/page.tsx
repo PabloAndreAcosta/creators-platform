@@ -65,7 +65,7 @@ export default async function CreatorCalendarPage({ params }: Props) {
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-10">
-      <Link href={profileHref} className="mb-6 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-white">
+      <Link href={profileHref} className="mb-6 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]">
         <ArrowLeft size={14} />
         Tillbaka till profilen
       </Link>
@@ -99,7 +99,7 @@ export default async function CreatorCalendarPage({ params }: Props) {
 
       <a
         href={icsHref}
-        className="mb-8 inline-flex items-center gap-2 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-2.5 text-sm font-medium text-white transition hover:border-[var(--usha-gold)]/50"
+        className="mb-8 inline-flex items-center gap-2 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-2.5 text-sm font-medium text-[var(--usha-white)] transition hover:border-[var(--usha-gold)]/50"
       >
         <CalendarPlus size={16} className="text-[var(--usha-gold)]" />
         Prenumerera i din kalender
@@ -125,7 +125,7 @@ export default async function CreatorCalendarPage({ params }: Props) {
                     <span className="text-[11px] uppercase">{date.toLocaleDateString("sv-SE", { month: "short" })}</span>
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-semibold text-white">{e.title}</p>
+                    <p className="truncate font-semibold text-[var(--usha-white)]">{e.title}</p>
                     <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-[var(--usha-muted)]">
                       {e.event_time && (
                         <span className="inline-flex items-center gap-1"><Clock size={12} /> {e.event_time}</span>

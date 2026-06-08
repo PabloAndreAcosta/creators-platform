@@ -214,7 +214,7 @@ export function CrewManager({
                 className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
                   role === r
                     ? "bg-[var(--usha-gold)] text-black"
-                    : "border border-[var(--usha-border)] text-white/80 hover:text-white"
+                    : "border border-[var(--usha-border)] text-[var(--usha-white)] hover:text-[var(--usha-white)]"
                 }`}
               >
                 {collabRoleLabel(r)}
@@ -226,7 +226,7 @@ export function CrewManager({
             value={contact}
             onChange={(e) => setContact(e.target.value)}
             placeholder="E-post eller telefonnummer"
-            className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-black)] px-4 py-3 text-sm text-white placeholder:text-[var(--usha-muted)] focus:border-[var(--usha-gold)] focus:outline-none"
+            className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-black)] px-4 py-3 text-sm text-[var(--usha-white)] placeholder:text-[var(--usha-muted)] focus:border-[var(--usha-gold)] focus:outline-none"
           />
           {gated && (
             <p className="flex items-start gap-1.5 text-[11px] text-amber-300/90">
@@ -261,7 +261,7 @@ export function CrewManager({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Sök kreatör efter namn"
-            className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-black)] py-3 pl-10 pr-4 text-sm text-white placeholder:text-[var(--usha-muted)] focus:border-[var(--usha-gold)] focus:outline-none"
+            className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-black)] py-3 pl-10 pr-4 text-sm text-[var(--usha-white)] placeholder:text-[var(--usha-muted)] focus:border-[var(--usha-gold)] focus:outline-none"
           />
           {searching && (
             <Loader2
@@ -284,7 +284,7 @@ export function CrewManager({
                   key={cr.id}
                   className="flex items-center gap-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-black)] p-2.5"
                 >
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--usha-card)] text-sm font-semibold text-white/70">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--usha-card)] text-sm font-semibold text-[var(--usha-muted)]">
                     {cr.avatar_url ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={cr.avatar_url} alt="" className="h-full w-full object-cover" />
@@ -293,7 +293,7 @@ export function CrewManager({
                     )}
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="line-clamp-1 text-sm font-medium text-white">
+                    <p className="line-clamp-1 text-sm font-medium text-[var(--usha-white)]">
                       {cr.full_name ?? "Kreatör"}
                     </p>
                     {(cr.category || cr.location) && (
@@ -338,7 +338,7 @@ export function CrewManager({
                 key={c.user_id}
                 className="flex items-center gap-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3"
               >
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--usha-black)] text-sm font-semibold text-white/70">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--usha-black)] text-sm font-semibold text-[var(--usha-muted)]">
                   {c.avatar_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={c.avatar_url} alt="" className="h-full w-full object-cover" />
@@ -347,7 +347,7 @@ export function CrewManager({
                   )}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="line-clamp-1 text-sm font-medium text-white">
+                  <p className="line-clamp-1 text-sm font-medium text-[var(--usha-white)]">
                     {c.full_name ?? "Medverkande"}
                   </p>
                   <p className="text-[11px] text-[var(--usha-muted)]">
@@ -387,7 +387,7 @@ export function CrewManager({
                   className="flex items-center gap-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3"
                 >
                   <div className="min-w-0 flex-1">
-                    <p className="line-clamp-1 text-sm text-white/90">
+                    <p className="line-clamp-1 text-sm text-[var(--usha-white)]">
                       {inv.invited_name ?? inv.invited_email ?? inv.invited_phone ?? "Inbjudan"}
                     </p>
                     <p className="text-[11px] text-[var(--usha-muted)]">
@@ -397,7 +397,7 @@ export function CrewManager({
                   </div>
                   <button
                     onClick={() => copy(inv.invite_url, inv.id)}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--usha-border)] px-3 py-1.5 text-xs text-white/80 transition hover:text-white"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--usha-border)] px-3 py-1.5 text-xs text-[var(--usha-white)] transition hover:text-[var(--usha-white)]"
                   >
                     {copied === inv.id ? <Check size={13} /> : <Copy size={13} />}
                     {copied === inv.id ? "Kopierad" : "Kopiera länk"}

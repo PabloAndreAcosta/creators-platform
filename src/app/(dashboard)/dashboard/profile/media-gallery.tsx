@@ -356,7 +356,7 @@ export function MediaGallery({ userId, initialMedia }: MediaGalleryProps) {
           type="button"
           onClick={() => fileInputRef.current?.click()}
           disabled={uploading}
-          className="flex items-center gap-2 rounded-xl border border-[var(--usha-border)] px-4 py-2.5 text-sm font-medium transition hover:border-[var(--usha-gold)]/40 hover:text-white disabled:opacity-50"
+          className="flex items-center gap-2 rounded-xl border border-[var(--usha-border)] px-4 py-2.5 text-sm font-medium transition hover:border-[var(--usha-gold)]/40 hover:text-[var(--usha-white)] disabled:opacity-50"
         >
           {uploading ? <Loader2 size={16} className="animate-spin" /> : <ImageIcon size={16} />}
           {t("uploadButton")}

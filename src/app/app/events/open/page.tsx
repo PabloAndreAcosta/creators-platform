@@ -57,7 +57,7 @@ export default async function OpenEventsPage() {
       <div className="flex items-center gap-3">
         <Link
           href="/app/events"
-          className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--usha-border)] text-[var(--usha-muted)] hover:text-white"
+          className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--usha-border)] text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
         >
           <ArrowLeft size={16} />
         </Link>
@@ -78,7 +78,7 @@ export default async function OpenEventsPage() {
           <ul className="space-y-1.5 text-sm text-[var(--usha-muted)]">
             {missing.map((m) => (
               <li key={m.label}>
-                <Link href={m.href} className="underline hover:text-white">
+                <Link href={m.href} className="underline hover:text-[var(--usha-white)]">
                   {m.label}
                 </Link>
               </li>

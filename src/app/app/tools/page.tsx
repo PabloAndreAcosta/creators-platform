@@ -109,7 +109,7 @@ export default async function ToolsPage() {
                   <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--usha-gold)]/10 text-[var(--usha-gold)]">
                     <t.icon size={20} />
                   </span>
-                  <span className="font-semibold leading-tight text-white">{t.label}</span>
+                  <span className="font-semibold leading-tight text-[var(--usha-white)]">{t.label}</span>
                   {t.desc && <span className="text-xs text-[var(--usha-muted)]">{t.desc}</span>}
                 </Link>
               ))}

@@ -12,7 +12,7 @@ const variantClasses = {
   primary:
     "bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] text-black hover:opacity-90",
   secondary:
-    "border border-[var(--usha-border)] text-white hover:border-[var(--usha-gold)]/30 hover:bg-[var(--usha-card)]",
+    "border border-[var(--usha-border)] text-[var(--usha-white)] hover:border-[var(--usha-gold)]/30 hover:bg-[var(--usha-card)]",
   danger:
     "bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20",
 };

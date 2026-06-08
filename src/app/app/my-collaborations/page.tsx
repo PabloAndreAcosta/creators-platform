@@ -97,7 +97,7 @@ export default async function MyCollaborationsPage() {
                 className="flex items-center gap-3 rounded-2xl border border-[var(--usha-gold)]/30 bg-[var(--usha-gold)]/5 p-3"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="line-clamp-1 text-sm font-semibold text-white">
+                  <p className="line-clamp-1 text-sm font-semibold text-[var(--usha-white)]">
                     {inv.listing.title}
                   </p>
                   <p className="text-[11px] text-[var(--usha-muted)]">
@@ -118,7 +118,7 @@ export default async function MyCollaborationsPage() {
 
       {items.length === 0 ? (
         <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-8 text-center">
-          <p className="text-sm font-medium text-white/90">Inga samarbeten än</p>
+          <p className="text-sm font-medium text-[var(--usha-white)]">Inga samarbeten än</p>
           <p className="mt-2 text-sm text-[var(--usha-muted)]">
             När en värd bjuder in dig till en produktion och du tackar ja dyker den upp här.
           </p>
@@ -151,7 +151,7 @@ export default async function MyCollaborationsPage() {
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="line-clamp-1 text-sm font-semibold text-white">{l.title}</p>
+                  <p className="line-clamp-1 text-sm font-semibold text-[var(--usha-white)]">{l.title}</p>
                   <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-[var(--usha-muted)]">
                     {dateLabel && (
                       <span className="inline-flex items-center gap-1">

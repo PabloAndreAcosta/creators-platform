@@ -38,7 +38,7 @@ export function FeedPreview() {
       <div className="py-6 text-center">
         <a
           href="/flode"
-          className="inline-flex items-center gap-2 rounded-xl border border-[var(--usha-border)] px-6 py-2.5 text-sm font-medium text-[var(--usha-muted)] transition hover:border-[var(--usha-gold)]/30 hover:text-white"
+          className="inline-flex items-center gap-2 rounded-xl border border-[var(--usha-border)] px-6 py-2.5 text-sm font-medium text-[var(--usha-muted)] transition hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-white)]"
         >
           Se fler i flödet
           <ArrowRight size={14} />

@@ -168,7 +168,7 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
           className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition ${
             editMode
               ? "bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/30"
-              : "bg-[var(--usha-card)] text-[var(--usha-muted)] ring-1 ring-[var(--usha-border)] hover:text-white"
+              : "bg-[var(--usha-card)] text-[var(--usha-muted)] ring-1 ring-[var(--usha-border)] hover:text-[var(--usha-white)]"
           }`}
         >
           <Check size={16} />

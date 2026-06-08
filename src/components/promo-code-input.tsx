@@ -120,7 +120,7 @@ export function PromoCodeInput({
           {status === "valid" && (
             <button
               onClick={handleClear}
-              className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-[var(--usha-muted)] hover:text-white"
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
             >
               <X size={14} />
             </button>
@@ -130,7 +130,7 @@ export function PromoCodeInput({
           <button
             onClick={handleValidate}
             disabled={!code.trim() || status === "loading"}
-            className="rounded-lg border border-[var(--usha-border)] px-4 py-2 text-sm font-medium transition-colors hover:border-[var(--usha-gold)]/30 hover:text-white disabled:opacity-50"
+            className="rounded-lg border border-[var(--usha-border)] px-4 py-2 text-sm font-medium transition-colors hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-white)] disabled:opacity-50"
           >
             {status === "loading" ? (
               <Loader2 size={14} className="animate-spin" />

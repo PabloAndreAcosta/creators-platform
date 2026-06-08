@@ -244,7 +244,7 @@ export default async function MarketplacePage({
               <>
                 <Link
                   href="/login"
-                  className="hidden text-sm text-[var(--usha-muted)] transition hover:text-white sm:block"
+                  className="hidden text-sm text-[var(--usha-muted)] transition hover:text-[var(--usha-white)] sm:block"
                 >
                   {t("marketplace.navLogin")}
                 </Link>
@@ -292,7 +292,7 @@ export default async function MarketplacePage({
             </select>
             <button
               type="submit"
-              className="rounded-xl bg-[var(--usha-card)] border border-[var(--usha-border)] px-6 py-3 text-sm font-medium transition-colors hover:border-[var(--usha-gold)]/40 hover:text-white"
+              className="rounded-xl bg-[var(--usha-card)] border border-[var(--usha-border)] px-6 py-3 text-sm font-medium transition-colors hover:border-[var(--usha-gold)]/40 hover:text-[var(--usha-white)]"
             >
               {t("marketplace.searchButton")}
             </button>
@@ -560,7 +560,7 @@ export default async function MarketplacePage({
                 <Link
                   key={pageNum}
                   href={`/marketplace${qs ? `?${qs}` : ""}`}
-                  className={`flex h-8 w-8 items-center justify-center rounded-lg text-xs transition ${pageNum === currentPage ? "bg-[var(--usha-gold)]/15 font-semibold text-[var(--usha-gold)]" : "text-[var(--usha-muted)] hover:text-white"}`}
+                  className={`flex h-8 w-8 items-center justify-center rounded-lg text-xs transition ${pageNum === currentPage ? "bg-[var(--usha-gold)]/15 font-semibold text-[var(--usha-gold)]" : "text-[var(--usha-muted)] hover:text-[var(--usha-white)]"}`}
                 >
                   {pageNum}
                 </Link>

@@ -115,7 +115,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                     )}
                   </div>
                 </div>
-                <ToastPrimitive.Close className="rounded p-1 text-[var(--usha-muted)] transition-colors hover:text-white shrink-0">
+                <ToastPrimitive.Close className="rounded p-1 text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)] shrink-0">
                   <X size={14} />
                 </ToastPrimitive.Close>
               </div>

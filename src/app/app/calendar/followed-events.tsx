@@ -42,7 +42,7 @@ export function FollowedEvents({ events }: { events: FollowedEvent[] }) {
                     <span className="text-[11px] uppercase">{date.toLocaleDateString("sv-SE", { month: "short" })}</span>
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-semibold text-white">{e.title}</p>
+                    <p className="truncate font-semibold text-[var(--usha-white)]">{e.title}</p>
                     <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[var(--usha-muted)]">
                       <span className="inline-flex items-center gap-1.5">
                         {e.creatorAvatar ? (

@@ -25,7 +25,7 @@ export function FacebookSyncButton({
     return (
       <a
         href="/api/facebook/connect"
-        className="flex items-center gap-2 rounded-xl border border-[var(--usha-border)] px-4 py-2.5 text-sm text-[var(--usha-muted)] transition hover:border-[#1877F2]/40 hover:text-white"
+        className="flex items-center gap-2 rounded-xl border border-[var(--usha-border)] px-4 py-2.5 text-sm text-[var(--usha-muted)] transition hover:border-[#1877F2]/40 hover:text-[var(--usha-white)]"
       >
         <Facebook size={14} className="text-[#1877F2]" />
         Anslut Facebook för att synka
@@ -84,7 +84,7 @@ export function FacebookSyncButton({
           href={fbEventUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-1 rounded-lg px-2 py-2 text-xs text-[var(--usha-muted)] hover:text-white"
+          className="flex items-center gap-1 rounded-lg px-2 py-2 text-xs text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
         >
           <ExternalLink size={12} />
           Visa

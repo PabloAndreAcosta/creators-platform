@@ -42,7 +42,7 @@ export function ApplyToGigButton({ gigId }: { gigId: string }) {
           <div className="relative w-full max-w-md rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-black)] p-6 shadow-2xl">
             <button
               onClick={() => setOpen(false)}
-              className="absolute right-4 top-4 rounded p-1 text-[var(--usha-muted)] transition-colors hover:text-white"
+              className="absolute right-4 top-4 rounded p-1 text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]"
             >
               <X size={16} />
             </button>
@@ -65,7 +65,7 @@ export function ApplyToGigButton({ gigId }: { gigId: string }) {
                 type="button"
                 onClick={() => setOpen(false)}
                 disabled={isPending}
-                className="rounded-xl border border-[var(--usha-border)] px-4 py-2 text-sm text-[var(--usha-muted)] hover:text-white disabled:opacity-50"
+                className="rounded-xl border border-[var(--usha-border)] px-4 py-2 text-sm text-[var(--usha-muted)] hover:text-[var(--usha-white)] disabled:opacity-50"
               >
                 Avbryt
               </button>

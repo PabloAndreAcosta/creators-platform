@@ -87,7 +87,7 @@ export function ContentPageContent({ listings, digitalProducts }: ContentPageCon
           className={`flex-1 rounded-lg px-4 py-2 text-sm font-medium transition ${
             tab === "online"
               ? "bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] text-black"
-              : "text-[var(--usha-muted)] hover:text-white"
+              : "text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
           }`}
         >
           Onlinematerial
@@ -98,7 +98,7 @@ export function ContentPageContent({ listings, digitalProducts }: ContentPageCon
           className={`flex-1 rounded-lg px-4 py-2 text-sm font-medium transition ${
             tab === "services"
               ? "bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] text-black"
-              : "text-[var(--usha-muted)] hover:text-white"
+              : "text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
           }`}
         >
           Tjänster
@@ -485,7 +485,7 @@ function ServiceCard({ listing, index }: { listing: ListingData; index: number }
             <span className="text-sm font-medium">{listing.price ? `${listing.price} kr` : "Gratis"}</span>
           </div>
           <div className="relative">
-            <button onClick={() => setShowMenu(!showMenu)} className="rounded-lg p-2 text-[var(--usha-muted)] hover:bg-[var(--usha-card-hover)] hover:text-white">
+            <button onClick={() => setShowMenu(!showMenu)} className="rounded-lg p-2 text-[var(--usha-muted)] hover:bg-[var(--usha-card-hover)] hover:text-[var(--usha-white)]">
               <MoreVertical size={16} />
             </button>
             {showMenu && (

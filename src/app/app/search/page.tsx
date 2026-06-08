@@ -136,8 +136,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           }
           className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
             !subcategoryFilter
-              ? "bg-[var(--usha-card)] text-[var(--usha-muted)] hover:text-white"
-              : "bg-[var(--usha-card)] text-[var(--usha-muted)] hover:text-white"
+              ? "bg-[var(--usha-card)] text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
+              : "bg-[var(--usha-card)] text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
           }`}
         >
           Alla kreatörer
@@ -153,7 +153,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
             subcategoryFilter === "taxi_dancer"
               ? "bg-[var(--usha-gold)] text-black"
-              : "bg-[var(--usha-card)] text-[var(--usha-muted)] hover:text-white"
+              : "bg-[var(--usha-card)] text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
           }`}
         >
           <Music size={12} />
@@ -172,7 +172,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
             !categoryFilter
               ? "bg-[var(--usha-gold)] text-black"
-              : "bg-[var(--usha-card)] text-[var(--usha-muted)] hover:text-white"
+              : "bg-[var(--usha-card)] text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
           }`}
         >
           Alla
@@ -188,7 +188,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
               categoryFilter === cat.value
                 ? "bg-[var(--usha-gold)] text-black"
-                : "bg-[var(--usha-card)] text-[var(--usha-muted)] hover:text-white"
+                : "bg-[var(--usha-card)] text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
             }`}
           >
             {cat.label}
@@ -215,7 +215,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 <Link
                   key={cat.value}
                   href={`/app/search?q=${cat.label.toLowerCase()}`}
-                  className="rounded-full bg-[var(--usha-card)] px-4 py-2 text-sm text-[var(--usha-muted)] transition-colors hover:bg-[var(--usha-card-hover)] hover:text-white"
+                  className="rounded-full bg-[var(--usha-card)] px-4 py-2 text-sm text-[var(--usha-muted)] transition-colors hover:bg-[var(--usha-card-hover)] hover:text-[var(--usha-white)]"
                 >
                   {cat.label}
                 </Link>
@@ -242,7 +242,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 <Link
                   key={cat.value}
                   href={`/app/search?q=${cat.label.toLowerCase()}`}
-                  className="rounded-full bg-[var(--usha-card)] px-4 py-2 text-sm text-[var(--usha-muted)] transition-colors hover:bg-[var(--usha-card-hover)] hover:text-white"
+                  className="rounded-full bg-[var(--usha-card)] px-4 py-2 text-sm text-[var(--usha-muted)] transition-colors hover:bg-[var(--usha-card-hover)] hover:text-[var(--usha-white)]"
                 >
                   {cat.label}
                 </Link>

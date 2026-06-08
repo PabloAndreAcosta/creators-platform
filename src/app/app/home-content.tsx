@@ -581,7 +581,7 @@ function KreatorHome({
           </div>
           <Link
             href="/app/calendar"
-            className="rounded-lg bg-[var(--usha-card)] border border-[var(--usha-border)] px-3 py-1.5 text-xs font-medium text-[var(--usha-muted)] transition hover:text-white"
+            className="rounded-lg bg-[var(--usha-card)] border border-[var(--usha-border)] px-3 py-1.5 text-xs font-medium text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
           >
             {t("calendar")}
           </Link>

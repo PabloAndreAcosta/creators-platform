@@ -85,7 +85,7 @@ function Nav() {
 
         <div className="hidden items-center gap-6 text-sm md:flex">
           {pageLinks.map((l) => (
-            <a key={l.href} href={l.href} className="text-[var(--usha-muted)] transition hover:text-white">
+            <a key={l.href} href={l.href} className="text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]">
               {l.label}
             </a>
           ))}
@@ -97,14 +97,14 @@ function Nav() {
           ))}
           <button
             onClick={handleInstallClick}
-            className="text-white transition hover:text-white/80"
+            className="text-[var(--usha-white)] transition hover:text-[var(--usha-white)]"
           >
             {isLoggedIn ? t("nav.openApp") : t("nav.downloadApp")}
           </button>
           {!isLoggedIn && (
             <a
               href="/login"
-              className="font-bold text-white transition hover:opacity-80"
+              className="font-bold text-[var(--usha-white)] transition hover:opacity-80"
             >
               {t("nav.login")}
             </a>
@@ -122,7 +122,7 @@ function Nav() {
           </a>
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="ml-1 flex h-11 w-11 items-center justify-center rounded-lg text-[var(--usha-muted)] transition hover:text-white md:hidden"
+            className="ml-1 flex h-11 w-11 items-center justify-center rounded-lg text-[var(--usha-muted)] transition hover:text-[var(--usha-white)] md:hidden"
             aria-label={t("nav.menuAriaLabel")}
           >
             {mobileOpen ? <X size={20} /> : <Menu size={20} />}
@@ -138,7 +138,7 @@ function Nav() {
                 key={l.href}
                 href={l.href}
                 onClick={() => setMobileOpen(false)}
-                className="py-2 text-sm text-[var(--usha-muted)] transition hover:text-white"
+                className="py-2 text-sm text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
               >
                 {l.label}
               </a>
@@ -157,7 +157,7 @@ function Nav() {
             <a
               href="/app"
               onClick={() => setMobileOpen(false)}
-              className="py-2 text-sm text-white transition hover:text-white/80"
+              className="py-2 text-sm text-[var(--usha-white)] transition hover:text-[var(--usha-white)]"
             >
               {isLoggedIn ? t("nav.openApp") : t("nav.downloadApp")}
             </a>
@@ -165,7 +165,7 @@ function Nav() {
               <a
                 href="/login"
                 onClick={() => setMobileOpen(false)}
-                className="py-2 text-base font-bold text-white transition hover:opacity-80"
+                className="py-2 text-base font-bold text-[var(--usha-white)] transition hover:opacity-80"
               >
                 {t("nav.login")}
               </a>
@@ -187,7 +187,7 @@ function Nav() {
         <div className="relative w-full max-w-md rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-black)] p-8 shadow-2xl">
           <button
             onClick={() => setShowInstallModal(false)}
-            className="absolute right-4 top-4 rounded p-1 text-[var(--usha-muted)] transition hover:text-white"
+            className="absolute right-4 top-4 rounded p-1 text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
           >
             <X size={16} />
           </button>
@@ -220,7 +220,7 @@ function Nav() {
           <div className="mt-6 flex gap-3">
             <button
               onClick={() => setShowInstallModal(false)}
-              className="flex-1 rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium text-[var(--usha-muted)] transition hover:text-white"
+              className="flex-1 rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
             >
               {t("install.close")}
             </button>
@@ -687,7 +687,7 @@ function Pricing() {
                 className={`rounded-lg px-3.5 py-2 text-xs font-medium transition sm:px-6 sm:py-2.5 sm:text-sm ${
                   activeRole === tab.key
                     ? "bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] text-black"
-                    : "text-[var(--usha-muted)] hover:text-white"
+                    : "text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
                 }`}
               >
                 {tab.label}
@@ -751,7 +751,7 @@ function Pricing() {
                 className={`block w-full rounded-xl py-3 text-center text-sm font-semibold transition ${
                   plan.popular
                     ? "bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] text-black hover:opacity-90"
-                    : "border border-[var(--usha-border)] text-white hover:border-[var(--usha-gold)]/30"
+                    : "border border-[var(--usha-border)] text-[var(--usha-white)] hover:border-[var(--usha-gold)]/30"
                 }`}
               >
                 {plan.cta}
@@ -842,7 +842,7 @@ function Footer() {
                   <li key={link.label}>
                     <a
                       href={link.href}
-                      className="text-sm text-[var(--usha-muted)] transition-colors hover:text-white"
+                      className="text-sm text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]"
                     >
                       {link.label}
                     </a>

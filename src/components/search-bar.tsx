@@ -101,12 +101,12 @@ export function SearchBar({ onSearch }: SearchBarProps) {
           onFocus={() => query.length >= 2 && setOpen(true)}
           onKeyDown={handleKeyDown}
           placeholder={t("placeholder")}
-          className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] pl-10 pr-10 py-3 text-sm text-white placeholder:text-[var(--usha-muted)] focus:border-[var(--usha-gold)]/50 focus:outline-none"
+          className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] pl-10 pr-10 py-3 text-sm text-[var(--usha-white)] placeholder:text-[var(--usha-muted)] focus:border-[var(--usha-gold)]/50 focus:outline-none"
         />
         {query && (
           <button
             onClick={() => { setQuery(""); setOpen(false); }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--usha-muted)] hover:text-white"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
           >
             <X size={16} />
           </button>

@@ -78,15 +78,15 @@ export default async function VenueDetailPage({ params }: Props) {
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
           <Link href="/" className="text-lg font-bold text-gradient">Usch-Ja!</Link>
           <nav className="flex items-center gap-4">
-            <Link href="/platser" className="text-sm text-[var(--usha-muted)] hover:text-white">Platser</Link>
-            <Link href="/upplevelser" className="text-sm text-[var(--usha-muted)] hover:text-white">Upplevelser</Link>
-            <Link href="/marketplace" className="text-sm text-[var(--usha-muted)] hover:text-white">Marketplace</Link>
+            <Link href="/platser" className="text-sm text-[var(--usha-muted)] hover:text-[var(--usha-white)]">Platser</Link>
+            <Link href="/upplevelser" className="text-sm text-[var(--usha-muted)] hover:text-[var(--usha-white)]">Upplevelser</Link>
+            <Link href="/marketplace" className="text-sm text-[var(--usha-muted)] hover:text-[var(--usha-white)]">Marketplace</Link>
           </nav>
         </div>
       </header>
 
       <main className="mx-auto max-w-5xl px-4 py-8">
-        <Link href="/platser" className="mb-4 flex items-center gap-1 text-sm text-[var(--usha-muted)] hover:text-white">
+        <Link href="/platser" className="mb-4 flex items-center gap-1 text-sm text-[var(--usha-muted)] hover:text-[var(--usha-white)]">
           <ArrowLeft size={14} /> Alla platser
         </Link>
 

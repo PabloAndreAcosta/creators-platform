@@ -471,7 +471,7 @@ export default function MessagesPage() {
                   </span>
                 </div>
                 {convo.lastMessage && (
-                  <p className={`mt-0.5 truncate text-xs ${convo.unreadCount > 0 ? "text-[var(--usha-white)]/80 font-medium" : "text-[var(--usha-muted)]"}`}>
+                  <p className={`mt-0.5 truncate text-xs ${convo.unreadCount > 0 ? "text-[var(--usha-white)] font-medium" : "text-[var(--usha-muted)]"}`}>
                     {convo.lastMessageIsOwn ? `${t("you")}: ` : ""}
                     {convo.lastMessage}
                   </p>

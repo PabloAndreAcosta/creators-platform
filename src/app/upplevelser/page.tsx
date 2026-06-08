@@ -158,9 +158,9 @@ export default async function UpplevelserPage({
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
           <Link href="/" className="text-lg font-bold text-gradient">Usch-Ja!</Link>
           <nav className="flex items-center gap-4">
-            <Link href="/flode" className="text-sm text-[var(--usha-muted)] hover:text-white">{t("experiences.navFeed")}</Link>
-            <Link href="/marketplace" className="text-sm text-[var(--usha-muted)] hover:text-white">{t("experiences.navMarketplace")}</Link>
-            <Link href="/signup" className="rounded-lg px-3 py-1.5 text-xs font-medium text-[var(--usha-muted)] hover:text-white">{t("experiences.navCreateProfile")}</Link>
+            <Link href="/flode" className="text-sm text-[var(--usha-muted)] hover:text-[var(--usha-white)]">{t("experiences.navFeed")}</Link>
+            <Link href="/marketplace" className="text-sm text-[var(--usha-muted)] hover:text-[var(--usha-white)]">{t("experiences.navMarketplace")}</Link>
+            <Link href="/signup" className="rounded-lg px-3 py-1.5 text-xs font-medium text-[var(--usha-muted)] hover:text-[var(--usha-white)]">{t("experiences.navCreateProfile")}</Link>
           </nav>
         </div>
       </header>
@@ -182,7 +182,7 @@ export default async function UpplevelserPage({
           {/* Category filter */}
           <Link
             href={filterUrl({ category: undefined, page: undefined })}
-            className={`rounded-lg px-3 py-1.5 text-xs transition ${!category ? "bg-[var(--usha-gold)]/15 font-semibold text-[var(--usha-gold)]" : "border border-[var(--usha-border)] text-[var(--usha-muted)] hover:border-[var(--usha-gold)]/30 hover:text-white"}`}
+            className={`rounded-lg px-3 py-1.5 text-xs transition ${!category ? "bg-[var(--usha-gold)]/15 font-semibold text-[var(--usha-gold)]" : "border border-[var(--usha-border)] text-[var(--usha-muted)] hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-white)]"}`}
           >
             {t("experiences.filterAll")}
           </Link>
@@ -190,7 +190,7 @@ export default async function UpplevelserPage({
             <Link
               key={cat.value}
               href={filterUrl({ category: cat.value, page: undefined })}
-              className={`rounded-lg px-3 py-1.5 text-xs transition ${category === cat.value ? "bg-[var(--usha-gold)]/15 font-semibold text-[var(--usha-gold)]" : "border border-[var(--usha-border)] text-[var(--usha-muted)] hover:border-[var(--usha-gold)]/30 hover:text-white"}`}
+              className={`rounded-lg px-3 py-1.5 text-xs transition ${category === cat.value ? "bg-[var(--usha-gold)]/15 font-semibold text-[var(--usha-gold)]" : "border border-[var(--usha-border)] text-[var(--usha-muted)] hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-white)]"}`}
             >
               {t(`categories.${cat.value}`)}
               {categoryCounts[cat.value] ? ` (${categoryCounts[cat.value]})` : ""}
@@ -205,7 +205,7 @@ export default async function UpplevelserPage({
             <>
               <Link
                 href={filterUrl({ location: undefined, page: undefined })}
-                className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs transition ${!location ? "bg-[var(--usha-gold)]/15 font-semibold text-[var(--usha-gold)]" : "border border-[var(--usha-border)] text-[var(--usha-muted)] hover:border-[var(--usha-gold)]/30 hover:text-white"}`}
+                className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs transition ${!location ? "bg-[var(--usha-gold)]/15 font-semibold text-[var(--usha-gold)]" : "border border-[var(--usha-border)] text-[var(--usha-muted)] hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-white)]"}`}
               >
                 <MapPin size={10} /> {t("experiences.allCities")}
               </Link>
@@ -213,7 +213,7 @@ export default async function UpplevelserPage({
                 <Link
                   key={city}
                   href={filterUrl({ location: city.toLowerCase(), page: undefined })}
-                  className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs transition ${location?.toLowerCase() === city.toLowerCase() ? "bg-[var(--usha-gold)]/15 font-semibold text-[var(--usha-gold)]" : "border border-[var(--usha-border)] text-[var(--usha-muted)] hover:border-[var(--usha-gold)]/30 hover:text-white"}`}
+                  className={`flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs transition ${location?.toLowerCase() === city.toLowerCase() ? "bg-[var(--usha-gold)]/15 font-semibold text-[var(--usha-gold)]" : "border border-[var(--usha-border)] text-[var(--usha-muted)] hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-white)]"}`}
                 >
                   {city}
                 </Link>
@@ -227,7 +227,7 @@ export default async function UpplevelserPage({
               <Link
                 key={opt.value}
                 href={filterUrl({ sort: opt.value, page: undefined })}
-                className={`rounded-lg px-2.5 py-1.5 text-xs transition ${(sort || "newest") === opt.value ? "bg-white/10 font-medium text-white" : "text-[var(--usha-muted)] hover:text-white"}`}
+                className={`rounded-lg px-2.5 py-1.5 text-xs transition ${(sort || "newest") === opt.value ? "bg-white/10 font-medium text-[var(--usha-white)]" : "text-[var(--usha-muted)] hover:text-[var(--usha-white)]"}`}
               >
                 {t(opt.labelKey)}
               </Link>
@@ -273,7 +273,7 @@ export default async function UpplevelserPage({
             {currentPage > 1 && (
               <Link
                 href={filterUrl({ page: String(currentPage - 1) })}
-                className="rounded-lg border border-[var(--usha-border)] px-3 py-1.5 text-xs text-[var(--usha-muted)] transition hover:border-[var(--usha-gold)]/30 hover:text-white"
+                className="rounded-lg border border-[var(--usha-border)] px-3 py-1.5 text-xs text-[var(--usha-muted)] transition hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-white)]"
               >
                 {t("experiences.paginationPrevious")}
               </Link>
@@ -293,7 +293,7 @@ export default async function UpplevelserPage({
                 <Link
                   key={pageNum}
                   href={filterUrl({ page: String(pageNum) })}
-                  className={`flex h-8 w-8 items-center justify-center rounded-lg text-xs transition ${pageNum === currentPage ? "bg-[var(--usha-gold)]/15 font-semibold text-[var(--usha-gold)]" : "text-[var(--usha-muted)] hover:text-white"}`}
+                  className={`flex h-8 w-8 items-center justify-center rounded-lg text-xs transition ${pageNum === currentPage ? "bg-[var(--usha-gold)]/15 font-semibold text-[var(--usha-gold)]" : "text-[var(--usha-muted)] hover:text-[var(--usha-white)]"}`}
                 >
                   {pageNum}
                 </Link>
@@ -302,7 +302,7 @@ export default async function UpplevelserPage({
             {currentPage < totalPages && (
               <Link
                 href={filterUrl({ page: String(currentPage + 1) })}
-                className="rounded-lg border border-[var(--usha-border)] px-3 py-1.5 text-xs text-[var(--usha-muted)] transition hover:border-[var(--usha-gold)]/30 hover:text-white"
+                className="rounded-lg border border-[var(--usha-border)] px-3 py-1.5 text-xs text-[var(--usha-muted)] transition hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-white)]"
               >
                 {t("experiences.paginationNext")}
               </Link>

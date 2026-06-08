@@ -52,7 +52,7 @@ export function InstallPrompt() {
         </button>
         <button
           onClick={() => setDismissed(true)}
-          className="rounded-lg p-1.5 text-[var(--usha-muted)] transition hover:text-white"
+          className="rounded-lg p-1.5 text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
           aria-label="Stäng"
         >
           <X size={16} />

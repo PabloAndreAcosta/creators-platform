@@ -75,7 +75,7 @@ export default async function CrewPage({ params }: { params: { id: string } }) {
     <div className="px-4 py-6">
       <Link
         href="/app/events"
-        className="mb-4 inline-flex items-center gap-1 text-sm text-[var(--usha-muted)] transition hover:text-white"
+        className="mb-4 inline-flex items-center gap-1 text-sm text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
       >
         <ChevronLeft size={16} />
         Evenemang

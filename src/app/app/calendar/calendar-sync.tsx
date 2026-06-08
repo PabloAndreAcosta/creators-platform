@@ -124,7 +124,7 @@ export function CalendarSync({ initialFeedUrl }: CalendarSyncProps) {
               <a
                 href="/api/calendar/export"
                 download
-                className="flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] text-[var(--usha-muted)] hover:text-white"
+                className="flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
               >
                 <Download size={10} />
                 .ics
@@ -132,7 +132,7 @@ export function CalendarSync({ initialFeedUrl }: CalendarSyncProps) {
               <button
                 onClick={handleGenerate}
                 disabled={isPending}
-                className="flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] text-[var(--usha-muted)] hover:text-white disabled:opacity-50"
+                className="flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] text-[var(--usha-muted)] hover:text-[var(--usha-white)] disabled:opacity-50"
               >
                 <RefreshCw size={10} />
                 Ny URL

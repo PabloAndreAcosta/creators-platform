@@ -103,7 +103,7 @@ export default function NotificationsPage() {
         {unreadCount > 0 && (
           <button
             onClick={markAllRead}
-            className="flex items-center gap-1.5 rounded-lg border border-[var(--usha-border)] px-3 py-1.5 text-xs font-medium text-[var(--usha-muted)] transition hover:text-white"
+            className="flex items-center gap-1.5 rounded-lg border border-[var(--usha-border)] px-3 py-1.5 text-xs font-medium text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
           >
             <CheckCheck size={14} />
             Markera alla lästa
@@ -119,8 +119,8 @@ export default function NotificationsPage() {
             onClick={() => setFilter(f)}
             className={`rounded-md px-4 py-1.5 text-xs font-medium transition ${
               filter === f
-                ? "bg-[var(--usha-card)] text-white shadow-sm"
-                : "text-[var(--usha-muted)] hover:text-white"
+                ? "bg-[var(--usha-card)] text-[var(--usha-white)] shadow-sm"
+                : "text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
             }`}
           >
             {f === "all" ? "Alla" : "Olästa"}
@@ -177,7 +177,7 @@ export default function NotificationsPage() {
                     {!n.is_read && (
                       <button
                         onClick={() => markRead(n.id)}
-                        className="flex items-center gap-1 text-xs text-[var(--usha-muted)] hover:text-white"
+                        className="flex items-center gap-1 text-xs text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
                       >
                         <Check size={11} />
                         Markera som läst

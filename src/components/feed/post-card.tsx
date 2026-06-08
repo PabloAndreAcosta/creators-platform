@@ -149,14 +149,14 @@ export function PostCard({ post, isLoggedIn, currentUserId }: PostCardProps) {
         </div>
         {isOwner && (
           <div className="relative">
-            <button onClick={() => setMenuOpen(!menuOpen)} className="rounded-lg p-1.5 text-[var(--usha-muted)] transition hover:bg-[var(--usha-card)] hover:text-white">
+            <button onClick={() => setMenuOpen(!menuOpen)} className="rounded-lg p-1.5 text-[var(--usha-muted)] transition hover:bg-[var(--usha-card)] hover:text-[var(--usha-white)]">
               <MoreHorizontal size={18} />
             </button>
             {menuOpen && (
               <div className="absolute right-0 top-full z-10 mt-1 w-40 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] py-1 shadow-lg">
                 <button
                   onClick={() => { setEditing(true); setMenuOpen(false); }}
-                  className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-[var(--usha-muted)] transition hover:bg-[var(--usha-gold)]/10 hover:text-white"
+                  className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-[var(--usha-muted)] transition hover:bg-[var(--usha-gold)]/10 hover:text-[var(--usha-white)]"
                 >
                   <Pencil size={14} /> {tc("edit")}
                 </button>
@@ -238,7 +238,7 @@ export function PostCard({ post, isLoggedIn, currentUserId }: PostCardProps) {
         />
         <button
           onClick={handleShare}
-          className="flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition hover:text-white"
+          className="flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
         >
           {shared ? <Check size={18} className="text-green-400" /> : <Share2 size={18} />}
           <span className="text-xs">{shared ? tc("copied") : tc("share")}</span>
@@ -256,7 +256,7 @@ export function PostCard({ post, isLoggedIn, currentUserId }: PostCardProps) {
               {post.text.slice(0, 150)}...{" "}
               <button
                 onClick={() => setExpanded(true)}
-                className="text-[var(--usha-muted)] hover:text-white"
+                className="text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
               >
                 {tf("showMore")}
               </button>

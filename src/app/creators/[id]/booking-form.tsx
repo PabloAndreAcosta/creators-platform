@@ -74,11 +74,11 @@ function MiniCalendar({
   return (
     <div>
       <div className="mb-3 flex items-center justify-between">
-        <button type="button" onClick={prevMonth} className="rounded p-1 text-[var(--usha-muted)] hover:text-white">
+        <button type="button" onClick={prevMonth} className="rounded p-1 text-[var(--usha-muted)] hover:text-[var(--usha-white)]">
           <ChevronLeft size={16} />
         </button>
         <span className="text-sm font-semibold">{monthNames[month - 1]} {year}</span>
-        <button type="button" onClick={nextMonth} className="rounded p-1 text-[var(--usha-muted)] hover:text-white">
+        <button type="button" onClick={nextMonth} className="rounded p-1 text-[var(--usha-muted)] hover:text-[var(--usha-white)]">
           <ChevronRight size={16} />
         </button>
       </div>
@@ -429,7 +429,7 @@ export default function BookingForm({
           <div className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-black)] p-6 shadow-2xl">
             <button
               onClick={() => setOpen(false)}
-              className="absolute right-4 top-4 rounded p-1 text-[var(--usha-muted)] transition-colors hover:text-white"
+              className="absolute right-4 top-4 rounded p-1 text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]"
             >
               <X size={16} />
             </button>
@@ -663,7 +663,7 @@ export default function BookingForm({
                           setGuestCount(next);
                           if (next < attendees.length) setAttendees(attendees.slice(0, next));
                         }}
-                        className="flex h-10 w-10 items-center justify-center rounded-lg border border-[var(--usha-border)] text-[var(--usha-muted)] transition hover:text-white disabled:opacity-30"
+                        className="flex h-10 w-10 items-center justify-center rounded-lg border border-[var(--usha-border)] text-[var(--usha-muted)] transition hover:text-[var(--usha-white)] disabled:opacity-30"
                         disabled={guestCount <= minGuests}
                       >
                         <Minus size={14} />
@@ -672,7 +672,7 @@ export default function BookingForm({
                       <button
                         type="button"
                         onClick={() => setGuestCount(Math.min(maxGuests, guestCount + 1))}
-                        className="flex h-10 w-10 items-center justify-center rounded-lg border border-[var(--usha-border)] text-[var(--usha-muted)] transition hover:text-white disabled:opacity-30"
+                        className="flex h-10 w-10 items-center justify-center rounded-lg border border-[var(--usha-border)] text-[var(--usha-muted)] transition hover:text-[var(--usha-white)] disabled:opacity-30"
                         disabled={guestCount >= maxGuests}
                       >
                         <Plus size={14} />
@@ -799,7 +799,7 @@ export default function BookingForm({
                       <button
                         type="submit"
                         disabled={isPending || !hasDateTime}
-                        className="w-full rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium text-[var(--usha-muted)] transition hover:text-white disabled:opacity-50"
+                        className="w-full rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium text-[var(--usha-muted)] transition hover:text-[var(--usha-white)] disabled:opacity-50"
                       >
                         {isPending ? t("booking.submitting") : t("booking.submitRequestNoPayment")}
                       </button>

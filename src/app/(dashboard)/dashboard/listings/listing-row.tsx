@@ -158,7 +158,7 @@ export default function ListingRow({ listing }: { listing: Listing }) {
         </button>
         <Link
           href={`/dashboard/listings/${listing.id}/edit`}
-          className="flex h-11 w-11 items-center justify-center rounded-lg text-[var(--usha-muted)] transition-colors hover:bg-[var(--usha-card-hover)] hover:text-white"
+          className="flex h-11 w-11 items-center justify-center rounded-lg text-[var(--usha-muted)] transition-colors hover:bg-[var(--usha-card-hover)] hover:text-[var(--usha-white)]"
           aria-label={t("editLabel")}
         >
           <Pencil size={14} />

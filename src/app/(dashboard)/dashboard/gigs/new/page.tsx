@@ -27,7 +27,7 @@ export default async function NewGigPage() {
       <div className="mb-8">
         <Link
           href="/dashboard/gigs"
-          className="mb-4 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-white"
+          className="mb-4 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]"
         >
           <ArrowLeft size={14} />
           Tillbaka

@@ -32,8 +32,8 @@ export function BookingsViewToggle({ bookings, listView, isCreator = false, init
           onClick={() => setView("list")}
           className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition ${
             view === "list"
-              ? "bg-[var(--usha-card)] text-white shadow-sm"
-              : "text-[var(--usha-muted)] hover:text-white"
+              ? "bg-[var(--usha-card)] text-[var(--usha-white)] shadow-sm"
+              : "text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
           }`}
         >
           <List size={13} />
@@ -43,8 +43,8 @@ export function BookingsViewToggle({ bookings, listView, isCreator = false, init
           onClick={() => setView("calendar")}
           className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition ${
             view === "calendar"
-              ? "bg-[var(--usha-card)] text-white shadow-sm"
-              : "text-[var(--usha-muted)] hover:text-white"
+              ? "bg-[var(--usha-card)] text-[var(--usha-white)] shadow-sm"
+              : "text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
           }`}
         >
           <CalendarDays size={13} />

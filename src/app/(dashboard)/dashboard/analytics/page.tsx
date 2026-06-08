@@ -119,7 +119,7 @@ export default function AnalyticsPage() {
       <div className="mb-8">
         <Link
           href="/dashboard"
-          className="mb-4 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-white"
+          className="mb-4 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]"
         >
           <ArrowLeft size={14} />
           {t("back")}
@@ -132,7 +132,7 @@ export default function AnalyticsPage() {
           <a
             href="/api/analytics/export?type=all"
             download
-            className="flex items-center gap-1.5 rounded-xl border border-[var(--usha-border)] px-4 py-2 text-sm font-medium text-[var(--usha-muted)] transition hover:border-[var(--usha-gold)]/30 hover:text-white"
+            className="flex items-center gap-1.5 rounded-xl border border-[var(--usha-border)] px-4 py-2 text-sm font-medium text-[var(--usha-muted)] transition hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-white)]"
           >
             <Download size={14} />
             {t("exportCsv")}

@@ -200,7 +200,7 @@ export default async function CreatorProfilePage({ params }: Props) {
           <div className="flex items-center gap-3">
             <Link
               href="/marketplace"
-              className="text-sm text-[var(--usha-muted)] transition hover:text-white"
+              className="text-sm text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
             >
               {t("nav.marketplace")}
             </Link>
@@ -226,7 +226,7 @@ export default async function CreatorProfilePage({ params }: Props) {
       <div className="mx-auto max-w-6xl px-4 py-6 md:px-6 md:py-10">
         <Link
           href="/marketplace"
-          className="mb-6 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-white"
+          className="mb-6 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]"
         >
           <ArrowLeft size={14} />
           {t("nav.backToMarketplace")}
@@ -292,7 +292,7 @@ export default async function CreatorProfilePage({ params }: Props) {
                   href={url.startsWith("http") ? url : `https://${url}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1 transition-colors hover:text-white"
+                  className="flex items-center gap-1 transition-colors hover:text-[var(--usha-white)]"
                 >
                   <Globe size={13} />
                   {url.replace(/^https?:\/\//, "").replace(/\/$/, "")}
@@ -303,7 +303,7 @@ export default async function CreatorProfilePage({ params }: Props) {
                   href={`https://instagram.com/${profile.social_instagram.replace(/^@/, "")}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1 transition-colors hover:text-white"
+                  className="flex items-center gap-1 transition-colors hover:text-[var(--usha-white)]"
                 >
                   <Instagram size={13} />
                   {profile.social_instagram}
@@ -314,7 +314,7 @@ export default async function CreatorProfilePage({ params }: Props) {
                   href={`https://x.com/${profile.social_x.replace(/^@/, "")}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1 transition-colors hover:text-white"
+                  className="flex items-center gap-1 transition-colors hover:text-[var(--usha-white)]"
                 >
                   <span className="text-xs font-bold">𝕏</span>
                   {profile.social_x}
@@ -325,7 +325,7 @@ export default async function CreatorProfilePage({ params }: Props) {
                   href={profile.social_facebook.startsWith("http") ? profile.social_facebook : `https://facebook.com/${profile.social_facebook}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1 transition-colors hover:text-white"
+                  className="flex items-center gap-1 transition-colors hover:text-[var(--usha-white)]"
                 >
                   <span className="text-xs font-bold">f</span>
                   {profile.social_facebook.replace(/^https?:\/\/(www\.)?facebook\.com\//, "")}
@@ -335,13 +335,13 @@ export default async function CreatorProfilePage({ params }: Props) {
             {((profile as any).contact_email || (profile as any).contact_phone) && (
               <div className="mb-4 flex flex-wrap items-center gap-4 text-sm text-[var(--usha-muted)]">
                 {(profile as any).contact_email && (
-                  <a href={`mailto:${(profile as any).contact_email}`} className="flex items-center gap-1 transition-colors hover:text-white">
+                  <a href={`mailto:${(profile as any).contact_email}`} className="flex items-center gap-1 transition-colors hover:text-[var(--usha-white)]">
                     <Mail size={13} />
                     {(profile as any).contact_email}
                   </a>
                 )}
                 {(profile as any).contact_phone && (
-                  <a href={`tel:${(profile as any).contact_phone}`} className="flex items-center gap-1 transition-colors hover:text-white">
+                  <a href={`tel:${(profile as any).contact_phone}`} className="flex items-center gap-1 transition-colors hover:text-[var(--usha-white)]">
                     <Phone size={13} />
                     {(profile as any).contact_phone}
                   </a>

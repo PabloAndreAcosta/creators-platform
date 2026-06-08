@@ -76,7 +76,7 @@ export function MyPostsContent({
             <button
               onClick={loadMore}
               disabled={loading}
-              className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm text-[var(--usha-muted)] transition hover:text-white"
+              className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
             >
               {loading ? (
                 <Loader2 size={16} className="animate-spin" />

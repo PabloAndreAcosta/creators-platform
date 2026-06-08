@@ -33,7 +33,7 @@ export default function TaxiDancerLandingPage() {
             </Link>
             <Link
               href="/signup"
-              className="flex min-h-[48px] items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] px-8 py-3 text-sm font-medium text-white transition hover:border-[var(--usha-gold)]/40"
+              className="flex min-h-[48px] items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] px-8 py-3 text-sm font-medium text-[var(--usha-white)] transition hover:border-[var(--usha-gold)]/40"
             >
               Bli taxidansare
             </Link>
@@ -81,18 +81,18 @@ export default function TaxiDancerLandingPage() {
               <h3 className="text-xl font-bold">Boka en taxidansare</h3>
               <ol className="mt-4 space-y-3 text-sm text-[var(--usha-muted)]">
                 <li>
-                  <span className="font-semibold text-white">1.</span> Sök upp en taxidansare via
+                  <span className="font-semibold text-[var(--usha-white)]">1.</span> Sök upp en taxidansare via
                   filtret eller länken ovan.
                 </li>
                 <li>
-                  <span className="font-semibold text-white">2.</span> Välj <em>danspaket</em>{" "}
+                  <span className="font-semibold text-[var(--usha-white)]">2.</span> Välj <em>danspaket</em>{" "}
                   (förbetalt, inlöses på event) eller <em>coachning</em> (specifik tid).
                 </li>
                 <li>
-                  <span className="font-semibold text-white">3.</span> Betala säkert via Stripe.
+                  <span className="font-semibold text-[var(--usha-white)]">3.</span> Betala säkert via Stripe.
                 </li>
                 <li>
-                  <span className="font-semibold text-white">4.</span> Träffas på dansgolvet eller
+                  <span className="font-semibold text-[var(--usha-white)]">4.</span> Träffas på dansgolvet eller
                   studion. Dansaren markerar varje dans inlöst i appen.
                 </li>
               </ol>
@@ -105,19 +105,19 @@ export default function TaxiDancerLandingPage() {
               <h3 className="text-xl font-bold">Boka för event</h3>
               <ol className="mt-4 space-y-3 text-sm text-[var(--usha-muted)]">
                 <li>
-                  <span className="font-semibold text-white">1.</span> Skicka eventförfrågan från
+                  <span className="font-semibold text-[var(--usha-white)]">1.</span> Skicka eventförfrågan från
                   taxidansarens profil — datum, tid, lokal, ersättning.
                 </li>
                 <li>
-                  <span className="font-semibold text-white">2.</span> Lägg till förmåner (entré,
+                  <span className="font-semibold text-[var(--usha-white)]">2.</span> Lägg till förmåner (entré,
                   drinkar, hotell) som gör erbjudandet attraktivt.
                 </li>
                 <li>
-                  <span className="font-semibold text-white">3.</span> Taxidansaren accepterar
+                  <span className="font-semibold text-[var(--usha-white)]">3.</span> Taxidansaren accepterar
                   eller avböjer inom kort.
                 </li>
                 <li>
-                  <span className="font-semibold text-white">4.</span> Betala via plattformen när
+                  <span className="font-semibold text-[var(--usha-white)]">4.</span> Betala via plattformen när
                   förfrågan accepterats. Pengarna går direkt till dansaren.
                 </li>
               </ol>
@@ -167,7 +167,7 @@ export default function TaxiDancerLandingPage() {
       {/* Positioning */}
       <section className="border-t border-[var(--usha-border)] bg-[var(--usha-card)]/30">
         <div className="mx-auto max-w-3xl px-6 py-12 text-sm text-[var(--usha-muted)]">
-          <h2 className="mb-3 text-base font-semibold text-white">Vad taxidans är — och inte är</h2>
+          <h2 className="mb-3 text-base font-semibold text-[var(--usha-white)]">Vad taxidans är — och inte är</h2>
           <p>
             En taxidansare är en betald danspartner för pardans (bugg, foxtrot, salsa, tango,
             lindy hop m.fl.) på offentliga eller privata danstillfällen, eller en
@@ -224,7 +224,7 @@ function FeatureRow({
     <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5">
       <div className="mb-2 flex items-center gap-2 text-[var(--usha-gold)]">
         {icon}
-        <span className="text-sm font-semibold text-white">{title}</span>
+        <span className="text-sm font-semibold text-[var(--usha-white)]">{title}</span>
       </div>
       <p className="text-xs text-[var(--usha-muted)]">{description}</p>
     </div>

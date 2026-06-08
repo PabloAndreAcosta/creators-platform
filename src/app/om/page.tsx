@@ -27,7 +27,7 @@ export default async function AboutPage() {
         <div className="mb-8 flex items-center justify-between">
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-white"
+            className="inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]"
           >
             <ArrowLeft size={14} />
             {t("back")}
@@ -36,18 +36,18 @@ export default async function AboutPage() {
         </div>
 
         <h1 className="mb-4 text-4xl font-bold">{t("title")}</h1>
-        <p className="mb-10 text-lg font-medium text-white">{t("lead")}</p>
+        <p className="mb-10 text-lg font-medium text-[var(--usha-white)]">{t("lead")}</p>
 
         <div className="space-y-6 text-sm leading-relaxed text-[var(--usha-muted)]">
           <p>{t("p1")}</p>
           <p>{t("p2")}</p>
 
           <section className="pt-2">
-            <h2 className="mb-3 text-lg font-semibold text-white">{t("roadmapTitle")}</h2>
+            <h2 className="mb-3 text-lg font-semibold text-[var(--usha-white)]">{t("roadmapTitle")}</h2>
             <p>{t("p3")}</p>
           </section>
 
-          <p className="text-white">{t("closing")}</p>
+          <p className="text-[var(--usha-white)]">{t("closing")}</p>
 
           <p className="pt-4 text-sm italic text-[var(--usha-gold)]">{t("tagline")}</p>
         </div>

@@ -68,7 +68,7 @@ export default function PrivacyPage() {
       <div>
         <Link
           href="/app/profile"
-          className="mb-4 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-white"
+          className="mb-4 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]"
         >
           <ArrowLeft size={14} />
           {tc("back")}
@@ -121,9 +121,9 @@ export default function PrivacyPage() {
       <div className="space-y-2 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
         <h3 className="text-sm font-semibold">{ts("legalInfo")}</h3>
         <div className="flex flex-wrap gap-3 text-xs text-[var(--usha-muted)]">
-          <Link href="/privacy" className="underline hover:text-white">{ts("privacyPolicy")}</Link>
-          <Link href="/terms" className="underline hover:text-white">{ts("terms")}</Link>
-          <Link href="/cookies" className="underline hover:text-white">{ts("cookiePolicy")}</Link>
+          <Link href="/privacy" className="underline hover:text-[var(--usha-white)]">{ts("privacyPolicy")}</Link>
+          <Link href="/terms" className="underline hover:text-[var(--usha-white)]">{ts("terms")}</Link>
+          <Link href="/cookies" className="underline hover:text-[var(--usha-white)]">{ts("cookiePolicy")}</Link>
         </div>
       </div>
     </div>

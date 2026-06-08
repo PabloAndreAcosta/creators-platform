@@ -7,7 +7,7 @@ export default function TermsPage() {
       <div className="mx-auto max-w-3xl px-6 py-16">
         <Link
           href="/"
-          className="mb-8 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-white"
+          className="mb-8 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]"
         >
           <ArrowLeft size={14} />
           Tillbaka
@@ -20,7 +20,7 @@ export default function TermsPage() {
 
         <div className="space-y-8 text-sm leading-relaxed text-[var(--usha-muted)]">
           <section>
-            <h2 className="mb-3 text-lg font-semibold text-white">1. Allmänt</h2>
+            <h2 className="mb-3 text-lg font-semibold text-[var(--usha-white)]">1. Allmänt</h2>
             <p>
               Dessa användarvillkor (&ldquo;Villkor&rdquo;) reglerar din användning av Usch-Ja-plattformen
               (&ldquo;Plattformen&rdquo;) som tillhandahålls av Usha AB, med säte i
@@ -30,7 +30,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-semibold text-white">2. Tjänsten</h2>
+            <h2 className="mb-3 text-lg font-semibold text-[var(--usha-white)]">2. Tjänsten</h2>
             <p>
               Usch-Ja är en marknadsplats som kopplar samman kreatörer, upplevelseleverantörer
               och kunder. Plattformen gör det möjligt att publicera tjänster, boka upplevelser
@@ -40,7 +40,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-semibold text-white">3. Konto</h2>
+            <h2 className="mb-3 text-lg font-semibold text-[var(--usha-white)]">3. Konto</h2>
             <p>
               Du måste vara minst 18 år för att skapa ett konto. Du ansvarar för att hålla dina
               inloggningsuppgifter säkra. All aktivitet som sker under ditt konto är ditt ansvar.
@@ -49,7 +49,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-semibold text-white">4. Betalningar</h2>
+            <h2 className="mb-3 text-lg font-semibold text-[var(--usha-white)]">4. Betalningar</h2>
             <p>
               Betalningar hanteras genom Stripe. Genom att använda Plattformen godkänner du
               även Stripes tjänstevillkor. Usch-Ja tar en provision på transaktioner enligt den
@@ -58,7 +58,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-semibold text-white">5. Avbokningar</h2>
+            <h2 className="mb-3 text-lg font-semibold text-[var(--usha-white)]">5. Avbokningar</h2>
             <p>
               Avbokningar kan göras av både kunder och kreatörer. Avbokningsvillkoren
               bestäms av kreatören för varje enskild tjänst. Usch-Ja ansvarar inte för
@@ -67,7 +67,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-semibold text-white">6. Upphovsrätt</h2>
+            <h2 className="mb-3 text-lg font-semibold text-[var(--usha-white)]">6. Upphovsrätt</h2>
             <p>
               Allt innehåll som du laddar upp till Plattformen förblir din egendom. Genom att
               publicera innehåll på Plattformen ger du Usch-Ja en icke-exklusiv rätt att visa
@@ -76,7 +76,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-semibold text-white">7. Ansvarsbegränsning</h2>
+            <h2 className="mb-3 text-lg font-semibold text-[var(--usha-white)]">7. Ansvarsbegränsning</h2>
             <p>
               Usch-Ja tillhandahåller Plattformen &ldquo;som den är&rdquo; utan garantier av något slag.
               Vi ansvarar inte för indirekta skador, utebliven vinst eller förlust av data.
@@ -86,7 +86,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-semibold text-white">8. Ändringar</h2>
+            <h2 className="mb-3 text-lg font-semibold text-[var(--usha-white)]">8. Ändringar</h2>
             <p>
               Usch-Ja förbehåller sig rätten att ändra dessa Villkor. Väsentliga ändringar
               meddelas via e-post eller via Plattformen minst 30 dagar innan de träder i kraft.
@@ -95,7 +95,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-semibold text-white">9. Tillämplig lag</h2>
+            <h2 className="mb-3 text-lg font-semibold text-[var(--usha-white)]">9. Tillämplig lag</h2>
             <p>
               Dessa Villkor regleras av svensk lag. Eventuella tvister ska i första hand lösas
               genom förhandling, i andra hand genom allmän domstol med Malmö tingsrätt som
@@ -104,7 +104,7 @@ export default function TermsPage() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-semibold text-white">10. Kontakt</h2>
+            <h2 className="mb-3 text-lg font-semibold text-[var(--usha-white)]">10. Kontakt</h2>
             <p>
               Har du frågor om dessa Villkor? Kontakta oss på{" "}
               <a href="mailto:legal@usha.se" className="text-[var(--usha-gold)] hover:underline">

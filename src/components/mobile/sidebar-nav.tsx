@@ -89,7 +89,7 @@ export function SidebarNav() {
                 className={`flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
                   isActive
                     ? "bg-[var(--usha-gold)]/10 text-[var(--usha-gold)]"
-                    : "text-[var(--usha-muted)] hover:bg-[var(--usha-card)] hover:text-white"
+                    : "text-[var(--usha-muted)] hover:bg-[var(--usha-card)] hover:text-[var(--usha-white)]"
                 }`}
               >
                 <tab.icon size={20} strokeWidth={isActive ? 2.5 : 1.5} />

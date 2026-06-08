@@ -210,7 +210,7 @@ export default async function ListingDetailPage({ params }: Props) {
       <div className="mx-auto max-w-4xl px-4 py-6 md:px-6 md:py-8">
         <Link
           href={creatorUrl}
-          className="mb-6 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-white"
+          className="mb-6 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]"
         >
           <ArrowLeft size={14} />
           Tillbaka till {creator.full_name || "kreatören"}
@@ -359,7 +359,7 @@ export default async function ListingDetailPage({ params }: Props) {
                     href={`https://www.google.com/maps/search/?api=1&query=${listing.event_lat},${listing.event_lng}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 bg-[var(--usha-card)] px-4 py-3 text-sm text-[var(--usha-muted)] transition hover:text-white"
+                    className="flex items-center gap-2 bg-[var(--usha-card)] px-4 py-3 text-sm text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
                   >
                     <MapPin size={14} className="text-[var(--usha-gold)]" />
                     {listing.event_location || "Öppna i Google Maps"}

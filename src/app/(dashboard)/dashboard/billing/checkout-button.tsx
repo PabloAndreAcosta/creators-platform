@@ -68,7 +68,7 @@ export function CheckoutButton({
         className={`block w-full rounded-xl py-3 text-center text-sm font-semibold transition disabled:opacity-50 ${
           popular
             ? "bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] text-black hover:opacity-90"
-            : "border border-[var(--usha-border)] text-white hover:border-[var(--usha-gold)]/30"
+            : "border border-[var(--usha-border)] text-[var(--usha-white)] hover:border-[var(--usha-gold)]/30"
         }`}
       >
         {loading ? "Laddar..." : label}
@@ -102,7 +102,7 @@ export function PortalButton() {
     <button
       onClick={handlePortal}
       disabled={loading}
-      className="rounded-xl border border-[var(--usha-border)] px-6 py-3 text-sm font-medium transition-colors hover:border-[var(--usha-gold)]/30 hover:text-white disabled:opacity-50"
+      className="rounded-xl border border-[var(--usha-border)] px-6 py-3 text-sm font-medium transition-colors hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-white)] disabled:opacity-50"
     >
       {loading ? "Laddar..." : "Hantera prenumeration"}
     </button>

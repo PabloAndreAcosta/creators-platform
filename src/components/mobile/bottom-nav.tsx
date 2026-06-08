@@ -52,7 +52,7 @@ export function BottomNav() {
               className={`flex flex-1 min-w-0 flex-col items-center gap-0.5 px-0.5 py-1.5 transition-colors ${
                 isActive
                   ? "text-[var(--usha-gold)]"
-                  : "text-[var(--usha-muted)] hover:text-white"
+                  : "text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
               }`}
             >
               <tab.icon size={20} strokeWidth={isActive ? 2.5 : 1.5} />

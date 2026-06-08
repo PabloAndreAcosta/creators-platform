@@ -11,7 +11,7 @@ export default function RefundPolicyPage() {
     <div className="mx-auto max-w-3xl px-6 py-10">
       <Link
         href="/"
-        className="mb-6 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-white"
+        className="mb-6 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]"
       >
         <ArrowLeft size={14} />
         Tillbaka
@@ -24,7 +24,7 @@ export default function RefundPolicyPage() {
 
       <div className="mt-8 space-y-8 text-sm leading-relaxed text-[var(--usha-muted)]">
         <section>
-          <h2 className="mb-2 text-lg font-semibold text-white">Översikt</h2>
+          <h2 className="mb-2 text-lg font-semibold text-[var(--usha-white)]">Översikt</h2>
           <p>
             Usch-Ja förmedlar bokningar mellan kunder, kreatörer och arrangörer. När du avbokar
             en betald bokning innan den är slutförd får du en full återbetalning till samma kort
@@ -33,18 +33,18 @@ export default function RefundPolicyPage() {
         </section>
 
         <section>
-          <h2 className="mb-2 text-lg font-semibold text-white">Avbokning</h2>
+          <h2 className="mb-2 text-lg font-semibold text-[var(--usha-white)]">Avbokning</h2>
           <ul className="ml-5 list-disc space-y-2">
             <li>
-              <strong className="text-white">Pågående bokning (status: väntande):</strong>{" "}
+              <strong className="text-[var(--usha-white)]">Pågående bokning (status: väntande):</strong>{" "}
               Kund eller kreatör kan avboka när som helst. Eventuell betalning återbetalas i sin helhet.
             </li>
             <li>
-              <strong className="text-white">Bekräftad bokning (status: bekräftad):</strong>{" "}
+              <strong className="text-[var(--usha-white)]">Bekräftad bokning (status: bekräftad):</strong>{" "}
               Kund eller kreatör kan avboka. Eventuell betalning återbetalas i sin helhet.
             </li>
             <li>
-              <strong className="text-white">Slutförd bokning (status: slutförd):</strong>{" "}
+              <strong className="text-[var(--usha-white)]">Slutförd bokning (status: slutförd):</strong>{" "}
               Bokningen kan inte avbokas via plattformen. Kontakta motparten direkt eller{" "}
               <a
                 href="mailto:support@usha.se"
@@ -58,20 +58,20 @@ export default function RefundPolicyPage() {
         </section>
 
         <section>
-          <h2 className="mb-2 text-lg font-semibold text-white">
+          <h2 className="mb-2 text-lg font-semibold text-[var(--usha-white)]">
             Specifikt för danspaket (taxidansare)
           </h2>
           <p>
             Ett danspaket är en förbetald produkt med ett specifikt antal danser som inlöses
             successivt på event. När en eller flera danser har inlösts räknas paketet som delvis
             konsumerat. Paketet kan endast återbetalas i sin helhet om{" "}
-            <strong className="text-white">inga danser ännu är inlösta</strong>. Vid delvis
+            <strong className="text-[var(--usha-white)]">inga danser ännu är inlösta</strong>. Vid delvis
             konsumtion, kontakta support för bedömning.
           </p>
         </section>
 
         <section>
-          <h2 className="mb-2 text-lg font-semibold text-white">
+          <h2 className="mb-2 text-lg font-semibold text-[var(--usha-white)]">
             Specifikt för B2B-eventbokningar
           </h2>
           <p>
@@ -82,16 +82,16 @@ export default function RefundPolicyPage() {
         </section>
 
         <section>
-          <h2 className="mb-2 text-lg font-semibold text-white">Tidslinje för återbetalning</h2>
+          <h2 className="mb-2 text-lg font-semibold text-[var(--usha-white)]">Tidslinje för återbetalning</h2>
           <p>
             Återbetalningar initieras direkt via Stripe när bokningen avbokas. Beloppet syns
-            normalt på ditt kort inom <strong className="text-white">5–10 bankdagar</strong>{" "}
+            normalt på ditt kort inom <strong className="text-[var(--usha-white)]">5–10 bankdagar</strong>{" "}
             beroende på bank och kortutgivare.
           </p>
         </section>
 
         <section>
-          <h2 className="mb-2 text-lg font-semibold text-white">Tvister och support</h2>
+          <h2 className="mb-2 text-lg font-semibold text-[var(--usha-white)]">Tvister och support</h2>
           <p>
             Vid oenighet mellan kund och kreatör/arrangör, eller om en återbetalning inte
             kommit fram efter 10 bankdagar, mejla{" "}
@@ -106,7 +106,7 @@ export default function RefundPolicyPage() {
         </section>
 
         <section>
-          <h2 className="mb-2 text-lg font-semibold text-white">Plattformsavgift</h2>
+          <h2 className="mb-2 text-lg font-semibold text-[var(--usha-white)]">Plattformsavgift</h2>
           <p>
             Vid återbetalning återbetalas hela beloppet till kunden. Den provision Usch-Ja tagit
             ut från kreatören återgår också, så ingen part bär kostnaden för en korrekt avbokning.

@@ -22,7 +22,7 @@ export default function HelpPage() {
       <div>
         <Link
           href="/app/profile"
-          className="mb-4 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-white"
+          className="mb-4 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]"
         >
           <ArrowLeft size={14} />
           {tc("back")}
@@ -85,9 +85,9 @@ export default function HelpPage() {
 
       {/* Legal links */}
       <div className="flex flex-wrap justify-center gap-4 text-xs text-[var(--usha-muted)]">
-        <Link href="/privacy" className="underline hover:text-white">{ts("privacyPolicy")}</Link>
-        <Link href="/terms" className="underline hover:text-white">{ts("terms")}</Link>
-        <Link href="/cookies" className="underline hover:text-white">{ts("cookiePolicy")}</Link>
+        <Link href="/privacy" className="underline hover:text-[var(--usha-white)]">{ts("privacyPolicy")}</Link>
+        <Link href="/terms" className="underline hover:text-[var(--usha-white)]">{ts("terms")}</Link>
+        <Link href="/cookies" className="underline hover:text-[var(--usha-white)]">{ts("cookiePolicy")}</Link>
       </div>
     </div>
   );

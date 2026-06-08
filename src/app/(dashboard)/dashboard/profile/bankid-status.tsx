@@ -42,7 +42,7 @@ export async function BankIdStatus({
                 t.rich("verifiedAsNamed", {
                   name: bankidName,
                   date: formatted,
-                  span: (chunks) => <span className="text-white">{chunks}</span>,
+                  span: (chunks) => <span className="text-[var(--usha-white)]">{chunks}</span>,
                 })
               ) : (
                 t("verifiedOn", { date: formatted })

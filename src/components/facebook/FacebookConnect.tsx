@@ -108,7 +108,7 @@ export function FacebookConnect({ pageName, pageId }: FacebookConnectProps) {
 
       <div className="mb-4 flex items-center gap-3">
         <p className="text-xs text-[var(--usha-muted)]">
-          Sida: <span className="font-medium text-white">{pageName}</span>
+          Sida: <span className="font-medium text-[var(--usha-white)]">{pageName}</span>
         </p>
         {followers != null && (
           <p className="text-xs text-[var(--usha-muted)]">
@@ -136,7 +136,7 @@ export function FacebookConnect({ pageName, pageId }: FacebookConnectProps) {
           <button
             onClick={handleImport}
             disabled={importing || verifying}
-            className="flex items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-2.5 text-sm font-medium text-[var(--usha-muted)] transition hover:border-[#1877F2]/40 hover:text-white disabled:opacity-50"
+            className="flex items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-2.5 text-sm font-medium text-[var(--usha-muted)] transition hover:border-[#1877F2]/40 hover:text-[var(--usha-white)] disabled:opacity-50"
           >
             {importing ? (
               <Loader2 size={14} className="animate-spin" />
