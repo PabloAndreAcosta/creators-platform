@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
-import { Users, Radio } from "lucide-react";
+import { Users, Radio, ScanLine } from "lucide-react";
 import EventForm from "../../event-form";
 import { updateEvent } from "../../actions";
 
@@ -27,6 +27,13 @@ export default async function EditEventPage({ params }: { params: { id: string }
   return (
     <>
       <div className="flex flex-wrap gap-2 px-4 pt-4">
+        <Link
+          href="/app/scan"
+          className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-sm font-bold text-black transition hover:opacity-90"
+        >
+          <ScanLine size={15} />
+          Skanna biljetter
+        </Link>
         <Link
           href={`/app/events/${event.id}/crew`}
           className="inline-flex items-center gap-2 rounded-full border border-[var(--usha-border)] px-4 py-2 text-sm font-medium text-[var(--usha-white)] transition hover:border-[var(--usha-gold)]/60 hover:text-[var(--usha-gold)]"
