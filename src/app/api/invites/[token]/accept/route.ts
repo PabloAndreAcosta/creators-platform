@@ -23,7 +23,7 @@ export async function POST(
 
   const { data: invite } = await admin
     .from("collaborator_invites")
-    .select("id, listing_id, role, expires_at, accepted_user_id")
+    .select("id, listing_id, role, expires_at, accepted_user_id, invited_user_id")
     .eq("token", token)
     .maybeSingle();
 
@@ -32,6 +32,10 @@ export async function POST(
   }
   if (invite.accepted_user_id) {
     return NextResponse.json({ error: "Invite already accepted" }, { status: 409 });
+  }
+  // Invites targeted at a specific app user can only be accepted by that user.
+  if (invite.invited_user_id && invite.invited_user_id !== user.id) {
+    return NextResponse.json({ error: "Den här inbjudan gäller någon annan" }, { status: 403 });
   }
   if (new Date(invite.expires_at).getTime() < Date.now()) {
     return NextResponse.json({ error: "Invite expired" }, { status: 410 });

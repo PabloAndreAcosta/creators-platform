@@ -29,6 +29,11 @@ export default async function MyCollaborationsPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
+  const admin = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
   // RLS allows self-select on listing_collaborators.
   const { data: collabs } = await supabase
     .from("listing_collaborators")
@@ -37,23 +42,37 @@ export default async function MyCollaborationsPage() {
     .eq("status", "accepted")
     .order("accepted_at", { ascending: false });
 
-  const ids = (collabs ?? []).map((c) => c.listing_id);
+  // Pending invites targeted directly at this user (RLS on collaborator_invites
+  // is host-scoped, so the invitee reads their own via the service role).
+  const nowIso = new Date().toISOString();
+  const { data: rawInvites } = await admin
+    .from("collaborator_invites")
+    .select("id, listing_id, role, token, expires_at")
+    .eq("invited_user_id", user.id)
+    .is("accepted_user_id", null)
+    .gt("expires_at", nowIso)
+    .order("created_at", { ascending: false });
+
+  const ids = [
+    ...(collabs ?? []).map((c) => c.listing_id),
+    ...(rawInvites ?? []).map((i) => i.listing_id),
+  ];
 
   // Read listing details with the service role, scoped strictly to listings this
-  // user collaborates on — so past/deactivated events stay visible (RLS would
-  // otherwise hide is_active = false from a non-host).
+  // user collaborates on / is invited to — so past/deactivated events stay
+  // visible (RLS would otherwise hide is_active = false from a non-host).
   const listingsById = new Map<string, any>();
   if (ids.length) {
-    const admin = createAdminClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
     const { data: listings } = await admin
       .from("listings")
       .select("id, title, slug, image_url, event_date, event_location")
       .in("id", ids);
     for (const l of listings ?? []) listingsById.set(l.id, l);
   }
+
+  const invites = (rawInvites ?? [])
+    .map((i) => ({ ...i, listing: listingsById.get(i.listing_id) }))
+    .filter((i) => i.listing);
 
   const items = (collabs ?? [])
     .map((c) => ({ ...c, listing: listingsById.get(c.listing_id) }))
@@ -65,6 +84,37 @@ export default async function MyCollaborationsPage() {
         <Users size={22} className="text-[var(--usha-gold)]" />
         <h1 className="text-2xl font-bold">Mina samarbeten</h1>
       </div>
+
+      {invites.length > 0 && (
+        <div className="mb-8">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--usha-gold)]">
+            Inbjudningar ({invites.length})
+          </h2>
+          <div className="space-y-2">
+            {invites.map((inv) => (
+              <div
+                key={inv.id}
+                className="flex items-center gap-3 rounded-2xl border border-[var(--usha-gold)]/30 bg-[var(--usha-gold)]/5 p-3"
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="line-clamp-1 text-sm font-semibold text-white">
+                    {inv.listing.title}
+                  </p>
+                  <p className="text-[11px] text-[var(--usha-muted)]">
+                    Inbjuden som {collabRoleLabel(inv.role).toLowerCase()}
+                  </p>
+                </div>
+                <Link
+                  href={`/app/invites/${inv.token}`}
+                  className="shrink-0 rounded-full bg-[var(--usha-gold)] px-4 py-2 text-xs font-bold text-black transition hover:opacity-90"
+                >
+                  Visa & acceptera
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {items.length === 0 ? (
         <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-8 text-center">

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Loader2, Trash2, Copy, Check, UserPlus, ShieldCheck } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Loader2, Trash2, Copy, Check, UserPlus, ShieldCheck, Search } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
 import {
   COLLAB_ROLES,
@@ -22,8 +22,17 @@ interface PendingInvite {
   role: string;
   invited_email: string | null;
   invited_phone: string | null;
+  invited_name?: string | null;
   invite_url: string;
   expires_at: string;
+}
+
+interface CreatorResult {
+  id: string;
+  full_name: string | null;
+  category: string | null;
+  location: string | null;
+  avatar_url: string | null;
 }
 
 export function CrewManager({
@@ -44,6 +53,70 @@ export function CrewManager({
   const [submitting, setSubmitting] = useState(false);
   const [removing, setRemoving] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
+
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<CreatorResult[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [invitingId, setInvitingId] = useState<string | null>(null);
+  const [invitedIds, setInvitedIds] = useState<Set<string>>(new Set());
+  const searchSeq = useRef(0);
+
+  useEffect(() => {
+    const q = query.trim();
+    if (q.length < 2) {
+      setResults([]);
+      setSearching(false);
+      return;
+    }
+    setSearching(true);
+    const seq = ++searchSeq.current;
+    const handle = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+        const data = await res.json();
+        if (seq === searchSeq.current) setResults(data.creators ?? []);
+      } catch {
+        if (seq === searchSeq.current) setResults([]);
+      } finally {
+        if (seq === searchSeq.current) setSearching(false);
+      }
+    }, 300);
+    return () => clearTimeout(handle);
+  }, [query]);
+
+  async function handleInviteUser(creator: CreatorResult) {
+    setInvitingId(creator.id);
+    try {
+      const res = await fetch(`/api/listings/${listingId}/invites`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role, user_id: creator.id }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error ?? "Kunde inte bjuda in");
+        return;
+      }
+      setPending((prev) => [
+        {
+          id: data.id,
+          role,
+          invited_email: null,
+          invited_phone: null,
+          invited_name: creator.full_name,
+          invite_url: data.invite_url,
+          expires_at: data.expires_at,
+        },
+        ...prev,
+      ]);
+      setInvitedIds((prev) => new Set(prev).add(creator.id));
+      toast.success(`${creator.full_name ?? "Personen"} inbjuden`);
+    } catch {
+      toast.error("Nätverksfel");
+    } finally {
+      setInvitingId(null);
+    }
+  }
 
   async function copy(text: string, key: string) {
     try {
@@ -171,6 +244,84 @@ export function CrewManager({
             Skapa inbjudningslänk
           </button>
         </form>
+
+        {/* Or: invite an existing Usch-Ja creator directly by profile */}
+        <div className="my-4 flex items-center gap-3 text-[11px] uppercase tracking-wide text-[var(--usha-muted)]">
+          <span className="h-px flex-1 bg-[var(--usha-border)]" />
+          eller sök på Usch-Ja
+          <span className="h-px flex-1 bg-[var(--usha-border)]" />
+        </div>
+        <div className="relative">
+          <Search
+            size={16}
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--usha-muted)]"
+          />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Sök kreatör efter namn"
+            className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-black)] py-3 pl-10 pr-4 text-sm text-white placeholder:text-[var(--usha-muted)] focus:border-[var(--usha-gold)] focus:outline-none"
+          />
+          {searching && (
+            <Loader2
+              size={15}
+              className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-[var(--usha-muted)]"
+            />
+          )}
+        </div>
+        {query.trim().length >= 2 && (
+          <div className="mt-2 space-y-1.5">
+            {!searching && results.length === 0 && (
+              <p className="px-1 py-2 text-xs text-[var(--usha-muted)]">
+                Inga kreatörer hittades. De måste ha en publik profil för att synas här.
+              </p>
+            )}
+            {results.map((cr) => {
+              const invited = invitedIds.has(cr.id);
+              return (
+                <div
+                  key={cr.id}
+                  className="flex items-center gap-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-black)] p-2.5"
+                >
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--usha-card)] text-sm font-semibold text-white/70">
+                    {cr.avatar_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={cr.avatar_url} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      (cr.full_name ?? "?").slice(0, 1).toUpperCase()
+                    )}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="line-clamp-1 text-sm font-medium text-white">
+                      {cr.full_name ?? "Kreatör"}
+                    </p>
+                    {(cr.category || cr.location) && (
+                      <p className="line-clamp-1 text-[11px] text-[var(--usha-muted)]">
+                        {[cr.category, cr.location].filter(Boolean).join(" · ")}
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleInviteUser(cr)}
+                    disabled={invited || invitingId === cr.id}
+                    className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[var(--usha-gold)] px-3 py-1.5 text-xs font-bold text-black transition hover:opacity-90 disabled:opacity-50"
+                  >
+                    {invitingId === cr.id ? (
+                      <Loader2 size={13} className="animate-spin" />
+                    ) : invited ? (
+                      <Check size={13} />
+                    ) : (
+                      <UserPlus size={13} />
+                    )}
+                    {invited ? "Inbjuden" : `Bjud in som ${collabRoleLabel(role).toLowerCase()}`}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </section>
 
       {/* Accepted crew */}
@@ -237,7 +388,7 @@ export function CrewManager({
                 >
                   <div className="min-w-0 flex-1">
                     <p className="line-clamp-1 text-sm text-white/90">
-                      {inv.invited_email ?? inv.invited_phone ?? "Inbjudan"}
+                      {inv.invited_name ?? inv.invited_email ?? inv.invited_phone ?? "Inbjudan"}
                     </p>
                     <p className="text-[11px] text-[var(--usha-muted)]">
                       {collabRoleLabel(inv.role)}
