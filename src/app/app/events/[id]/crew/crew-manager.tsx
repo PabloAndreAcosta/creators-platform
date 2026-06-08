@@ -9,6 +9,7 @@ import {
   collabRoleLabel,
   type CollabRole,
 } from "@/lib/collaborators";
+import { GagePanel, type GageView } from "@/components/gage-panel";
 
 interface Collaborator {
   user_id: string;
@@ -16,6 +17,8 @@ interface Collaborator {
   full_name: string | null;
   avatar_url: string | null;
   can_scan: boolean;
+  payee_connected: boolean;
+  gage: GageView | null;
 }
 
 interface PendingInvite {
@@ -372,8 +375,9 @@ export function CrewManager({
             {collaborators.map((c) => (
               <div
                 key={c.user_id}
-                className="flex items-center gap-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3"
+                className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3"
               >
+                <div className="flex items-center gap-3">
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--usha-black)] text-sm font-semibold text-[var(--usha-muted)]">
                   {c.avatar_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -420,6 +424,14 @@ export function CrewManager({
                     <Trash2 size={16} />
                   )}
                 </button>
+                </div>
+                <GagePanel
+                  listingId={listingId}
+                  perspective="host"
+                  collaboratorUserId={c.user_id}
+                  agreement={c.gage}
+                  payeeConnected={c.payee_connected}
+                />
               </div>
             ))}
           </div>

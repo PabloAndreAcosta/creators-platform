@@ -204,6 +204,61 @@ export async function POST(req: NextRequest) {
           });
         }
 
+        // Handle crew gage payments (host → crew member via Connect)
+        if (session.metadata?.type === "crew_gage") {
+          const gageId = session.metadata.gageId;
+          const paymentIntentId = (session.payment_intent as string) || null;
+          if (!gageId) {
+            console.error("Webhook: missing gageId metadata for crew_gage");
+            break;
+          }
+
+          const { data: gage } = await getSupabaseAdmin()
+            .from("gage_agreements")
+            .select("id, host_id, collaborator_user_id, amount_ore, status, listing_id")
+            .eq("id", gageId)
+            .maybeSingle();
+          if (!gage || gage.status === "paid") break; // idempotent
+
+          await getSupabaseAdmin()
+            .from("gage_agreements")
+            .update({
+              status: "paid",
+              paid_at: new Date().toISOString(),
+              stripe_payment_intent_id: paymentIntentId,
+            })
+            .eq("id", gageId)
+            .neq("status", "paid");
+
+          const { data: listing } = await getSupabaseAdmin()
+            .from("listings")
+            .select("title")
+            .eq("id", gage.listing_id)
+            .maybeSingle();
+          const amountKr = Math.round((gage.amount_ore as number) / 100).toLocaleString("sv-SE");
+
+          await getSupabaseAdmin().from("notifications").insert([
+            {
+              user_id: gage.collaborator_user_id,
+              type: "gage_paid",
+              title: "Gage betald",
+              message: `Du har fått ${amountKr} kr för "${listing?.title ?? "eventet"}".`,
+              link: "/app/my-collaborations",
+              is_read: false,
+            },
+            {
+              user_id: gage.host_id,
+              type: "gage_paid",
+              title: "Gage betald",
+              message: `Betalningen på ${amountKr} kr för "${listing?.title ?? "eventet"}" är klar.`,
+              link: `/app/events/${gage.listing_id}/crew`,
+              is_read: false,
+            },
+          ]);
+
+          break;
+        }
+
         // Handle ticket purchases (one-time payments via Connect)
         if (session.metadata?.type === "ticket") {
           const listingId = session.metadata.listingId;

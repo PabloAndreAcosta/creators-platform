@@ -5,6 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { Calendar, MapPin, Users } from "lucide-react";
 import { collabRoleLabel } from "@/lib/collaborators";
+import { GagePanel, type GageView } from "@/components/gage-panel";
+import { StripeConnectButton } from "@/components/stripe-connect-button";
 
 export const dynamic = "force-dynamic";
 
@@ -74,9 +76,40 @@ export default async function MyCollaborationsPage() {
     .map((i) => ({ ...i, listing: listingsById.get(i.listing_id) }))
     .filter((i) => i.listing);
 
+  // Gage agreements where I'm the crew member (one active/latest per listing).
+  const { data: myGages } = await admin
+    .from("gage_agreements")
+    .select("id, listing_id, amount_ore, status, proposed_by, note, created_at")
+    .eq("collaborator_user_id", user.id)
+    .order("created_at", { ascending: false });
+  const gageByListing = new Map<string, GageView>();
+  for (const g of myGages ?? []) {
+    const existing = gageByListing.get(g.listing_id);
+    const isActive = g.status === "proposed" || g.status === "agreed";
+    if (!existing || (isActive && existing.status !== "proposed" && existing.status !== "agreed")) {
+      gageByListing.set(g.listing_id, {
+        id: g.id,
+        amount_ore: g.amount_ore,
+        status: g.status,
+        proposed_by: g.proposed_by,
+        note: g.note,
+      });
+    }
+  }
+
+  // My Stripe Connect status (needed to receive gage payments).
+  const { data: me } = await supabase
+    .from("profiles")
+    .select("stripe_account_id")
+    .eq("id", user.id)
+    .maybeSingle();
+  const stripeConnected = !!me?.stripe_account_id;
+
   const items = (collabs ?? [])
     .map((c) => ({ ...c, listing: listingsById.get(c.listing_id) }))
     .filter((c) => c.listing);
+
+  const hasAnyGage = items.some((c) => gageByListing.has(c.listing_id));
 
   return (
     <div className="px-4 py-6">
@@ -124,56 +157,67 @@ export default async function MyCollaborationsPage() {
           </p>
         </div>
       ) : (
-        <div className="space-y-3">
-          {items.map((c) => {
-            const l = c.listing;
-            const dateLabel = formatDate(l.event_date);
-            const href = l.slug ? `/event/${l.slug}` : `/listing/${l.id}`;
-            return (
-              <Link
-                key={`${c.listing_id}-${c.role}`}
-                href={href}
-                className="flex items-center gap-4 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 transition hover:border-[var(--usha-gold)]/50"
-              >
-                <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-black">
-                  {l.image_url ? (
-                    <Image
-                      src={l.image_url}
-                      alt={l.title}
-                      fill
-                      sizes="64px"
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center text-[10px] text-[var(--usha-muted)]">
-                      Usha
+        <>
+          {hasAnyGage && !stripeConnected && (
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4">
+              <p className="text-sm text-amber-100/90">
+                Koppla Stripe för att kunna ta emot gage-betalningar.
+              </p>
+              <StripeConnectButton />
+            </div>
+          )}
+          <div className="space-y-3">
+            {items.map((c) => {
+              const l = c.listing;
+              const dateLabel = formatDate(l.event_date);
+              const href = l.slug ? `/event/${l.slug}` : `/listing/${l.id}`;
+              const gage = gageByListing.get(c.listing_id) ?? null;
+              return (
+                <div
+                  key={`${c.listing_id}-${c.role}`}
+                  className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3"
+                >
+                  <Link href={href} className="flex items-center gap-4">
+                    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-black">
+                      {l.image_url ? (
+                        <Image src={l.image_url} alt={l.title} fill sizes="64px" className="object-cover" />
+                      ) : (
+                        <div className="flex h-full items-center justify-center text-[10px] text-[var(--usha-muted)]">
+                          Usha
+                        </div>
+                      )}
                     </div>
-                  )}
+                    <div className="min-w-0 flex-1">
+                      <p className="line-clamp-1 text-sm font-semibold text-[var(--usha-white)]">{l.title}</p>
+                      <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-[var(--usha-muted)]">
+                        {dateLabel && (
+                          <span className="inline-flex items-center gap-1">
+                            <Calendar size={11} />
+                            {dateLabel}
+                          </span>
+                        )}
+                        {l.event_location && (
+                          <span className="inline-flex items-center gap-1">
+                            <MapPin size={11} />
+                            {l.event_location}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <span className="shrink-0 rounded-full bg-[var(--usha-gold)]/15 px-3 py-1 text-[11px] font-medium text-[var(--usha-gold)]">
+                      {collabRoleLabel(c.role)}
+                    </span>
+                  </Link>
+                  <GagePanel
+                    listingId={c.listing_id}
+                    perspective="crew"
+                    agreement={gage}
+                  />
                 </div>
-                <div className="min-w-0 flex-1">
-                  <p className="line-clamp-1 text-sm font-semibold text-[var(--usha-white)]">{l.title}</p>
-                  <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-[var(--usha-muted)]">
-                    {dateLabel && (
-                      <span className="inline-flex items-center gap-1">
-                        <Calendar size={11} />
-                        {dateLabel}
-                      </span>
-                    )}
-                    {l.event_location && (
-                      <span className="inline-flex items-center gap-1">
-                        <MapPin size={11} />
-                        {l.event_location}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <span className="shrink-0 rounded-full bg-[var(--usha-gold)]/15 px-3 py-1 text-[11px] font-medium text-[var(--usha-gold)]">
-                  {collabRoleLabel(c.role)}
-                </span>
-              </Link>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        </>
       )}
     </div>
   );

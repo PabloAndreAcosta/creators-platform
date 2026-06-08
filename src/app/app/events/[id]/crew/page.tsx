@@ -4,6 +4,7 @@ import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { CrewManager } from "./crew-manager";
+import type { GageView } from "@/components/gage-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -49,9 +50,25 @@ export default async function CrewPage({ params }: { params: { id: string } }) {
   if (ids.length) {
     const { data: profiles } = await admin
       .from("profiles")
-      .select("id, full_name, avatar_url")
+      .select("id, full_name, avatar_url, stripe_account_id")
       .in("id", ids);
     for (const p of profiles ?? []) profilesById.set(p.id, p);
+  }
+
+  // Most relevant gage per collaborator: an active one (proposed/agreed) if any,
+  // otherwise the latest (e.g. paid) for display.
+  const { data: gages } = await admin
+    .from("gage_agreements")
+    .select("id, collaborator_user_id, amount_ore, status, proposed_by, note, created_at")
+    .eq("listing_id", params.id)
+    .order("created_at", { ascending: false });
+  const gageByUser = new Map<string, any>();
+  for (const g of gages ?? []) {
+    const existing = gageByUser.get(g.collaborator_user_id);
+    const isActive = g.status === "proposed" || g.status === "agreed";
+    if (!existing || (isActive && existing.status !== "proposed" && existing.status !== "agreed")) {
+      gageByUser.set(g.collaborator_user_id, g);
+    }
   }
 
   const collaborators = (collabs ?? []).map((c) => ({
@@ -60,6 +77,16 @@ export default async function CrewPage({ params }: { params: { id: string } }) {
     full_name: profilesById.get(c.user_id)?.full_name ?? null,
     avatar_url: profilesById.get(c.user_id)?.avatar_url ?? null,
     can_scan: !!(c as { can_scan?: boolean }).can_scan,
+    payee_connected: !!profilesById.get(c.user_id)?.stripe_account_id,
+    gage: gageByUser.get(c.user_id)
+      ? ({
+          id: gageByUser.get(c.user_id).id,
+          amount_ore: gageByUser.get(c.user_id).amount_ore,
+          status: gageByUser.get(c.user_id).status,
+          proposed_by: gageByUser.get(c.user_id).proposed_by,
+          note: gageByUser.get(c.user_id).note,
+        } as GageView)
+      : null,
   }));
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://usha.se";
