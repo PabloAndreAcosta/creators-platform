@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function GET(
   req: NextRequest,
@@ -31,12 +32,26 @@ export async function GET(
   const { data: bookings } = await supabase
     .from("bookings")
     .select(
-      "id, status, checked_in_at, guest_count, amount_paid, guest_name, guest_email, customer_id, created_at, profiles!bookings_customer_id_fkey(full_name, email)"
+      "id, status, checked_in_at, scanned_by, guest_count, amount_paid, guest_name, guest_email, customer_id, created_at, profiles!bookings_customer_id_fkey(full_name, email)"
     )
     .eq("listing_id", eventId)
     .in("status", ["confirmed", "completed"]);
 
   const allBookings = bookings ?? [];
+
+  // Resolve who checked each guest in (host or a delegated crew member).
+  const scannerIds = Array.from(
+    new Set(allBookings.map((b) => (b as { scanned_by?: string }).scanned_by).filter(Boolean))
+  ) as string[];
+  const scannerNames = new Map<string, string>();
+  if (scannerIds.length) {
+    const admin = createAdminClient();
+    const { data: scanners } = await admin
+      .from("profiles")
+      .select("id, full_name")
+      .in("id", scannerIds);
+    for (const s of scanners ?? []) scannerNames.set(s.id, s.full_name ?? "");
+  }
 
   // Calculate stats
   const totalTickets = allBookings.length;
@@ -58,6 +73,9 @@ export async function GET(
       name: (b as any).profiles?.full_name || b.guest_name || "Guest",
       checkedInAt: b.checked_in_at,
       guestCount: b.guest_count || 1,
+      scannedBy: (b as { scanned_by?: string }).scanned_by
+        ? scannerNames.get((b as { scanned_by?: string }).scanned_by!) || null
+        : null,
     }));
 
   // Guest list

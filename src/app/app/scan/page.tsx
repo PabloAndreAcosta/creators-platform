@@ -41,6 +41,7 @@ export default function ScanPage() {
   const [error, setError] = useState("");
   const [scannerActive, setScannerActive] = useState(false);
   const [scannerLoading, setScannerLoading] = useState(false);
+  const [delegated, setDelegated] = useState<boolean | null>(null);
   const scannerRef = useRef<any>(null);
   const scannerContainerRef = useRef<HTMLDivElement>(null);
 
@@ -53,7 +54,29 @@ export default function ScanPage() {
     };
   }, []);
 
-  const hasAccess = role === "upplevelse" || (role === "kreator" && (tier === "guld" || tier === "premium"));
+  // Crew members the host delegated scanning to may also use the scanner.
+  useEffect(() => {
+    let active = true;
+    fetch("/api/tickets/can-scan")
+      .then((r) => r.json())
+      .then((d) => active && setDelegated(!!d.allowed))
+      .catch(() => active && setDelegated(false));
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const tierAccess = role === "upplevelse" || (role === "kreator" && (tier === "guld" || tier === "premium"));
+  const hasAccess = tierAccess || delegated === true;
+
+  // While the delegation check is in flight, don't flash the upgrade gate.
+  if (!tierAccess && delegated === null) {
+    return (
+      <div className="flex items-center justify-center px-4 py-24 text-[var(--usha-muted)]">
+        <Loader2 size={20} className="animate-spin" />
+      </div>
+    );
+  }
 
   if (!hasAccess) {
     return (

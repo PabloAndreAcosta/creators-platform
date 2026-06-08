@@ -32,7 +32,7 @@ export default async function CrewPage({ params }: { params: { id: string } }) {
   const [{ data: collabs }, { data: invites }] = await Promise.all([
     admin
       .from("listing_collaborators")
-      .select("user_id, role, status, accepted_at")
+      .select("user_id, role, status, accepted_at, can_scan")
       .eq("listing_id", params.id)
       .eq("status", "accepted")
       .order("accepted_at", { ascending: true }),
@@ -59,6 +59,7 @@ export default async function CrewPage({ params }: { params: { id: string } }) {
     role: c.role as string,
     full_name: profilesById.get(c.user_id)?.full_name ?? null,
     avatar_url: profilesById.get(c.user_id)?.avatar_url ?? null,
+    can_scan: !!(c as { can_scan?: boolean }).can_scan,
   }));
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://usha.se";

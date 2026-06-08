@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Loader2, Trash2, Copy, Check, UserPlus, ShieldCheck, Search } from "lucide-react";
+import { Loader2, Trash2, Copy, Check, UserPlus, ShieldCheck, Search, ScanLine } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
 import {
   COLLAB_ROLES,
@@ -15,6 +15,7 @@ interface Collaborator {
   role: string;
   full_name: string | null;
   avatar_url: string | null;
+  can_scan: boolean;
 }
 
 interface PendingInvite {
@@ -59,6 +60,7 @@ export function CrewManager({
   const [searching, setSearching] = useState(false);
   const [invitingId, setInvitingId] = useState<string | null>(null);
   const [invitedIds, setInvitedIds] = useState<Set<string>>(new Set());
+  const [scanToggling, setScanToggling] = useState<string | null>(null);
   const searchSeq = useRef(0);
 
   useEffect(() => {
@@ -115,6 +117,40 @@ export function CrewManager({
       toast.error("Nätverksfel");
     } finally {
       setInvitingId(null);
+    }
+  }
+
+  async function handleToggleScan(userId: string, next: boolean) {
+    setScanToggling(userId);
+    // optimistic
+    setCollaborators((prev) =>
+      prev.map((c) => (c.user_id === userId ? { ...c, can_scan: next } : c))
+    );
+    try {
+      const res = await fetch(
+        `/api/listings/${listingId}/collaborators/${userId}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ can_scan: next }),
+        }
+      );
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        toast.error(data.error ?? "Kunde inte uppdatera");
+        setCollaborators((prev) =>
+          prev.map((c) => (c.user_id === userId ? { ...c, can_scan: !next } : c))
+        );
+        return;
+      }
+      toast.success(next ? "Kan skanna biljetter" : "Skann-rätt borttagen");
+    } catch {
+      toast.error("Nätverksfel");
+      setCollaborators((prev) =>
+        prev.map((c) => (c.user_id === userId ? { ...c, can_scan: !next } : c))
+      );
+    } finally {
+      setScanToggling(null);
     }
   }
 
@@ -354,6 +390,24 @@ export function CrewManager({
                     {collabRoleLabel(c.role)}
                   </p>
                 </div>
+                <button
+                  onClick={() => handleToggleScan(c.user_id, !c.can_scan)}
+                  disabled={scanToggling === c.user_id}
+                  aria-pressed={c.can_scan}
+                  title="Låt den här personen skanna biljetter för eventet"
+                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-medium transition disabled:opacity-50 ${
+                    c.can_scan
+                      ? "bg-[var(--usha-gold)] text-black"
+                      : "border border-[var(--usha-border)] text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
+                  }`}
+                >
+                  {scanToggling === c.user_id ? (
+                    <Loader2 size={13} className="animate-spin" />
+                  ) : (
+                    <ScanLine size={13} />
+                  )}
+                  {c.can_scan ? "Kan skanna" : "Skanna"}
+                </button>
                 <button
                   onClick={() => handleRemove(c.user_id)}
                   disabled={removing === c.user_id}

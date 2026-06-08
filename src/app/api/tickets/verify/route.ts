@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdminById } from "@/lib/admin/check";
+import { canScanListing } from "@/lib/scan-access";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -91,11 +92,16 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  // Only the creator/organizer of this booking can verify tickets
-  // Admin accounts can verify any ticket (for testing)
-  if (!(await isAdminById(user.id)) && booking.creator_id !== user.id) {
+  // The listing owner, an admin, or a crew member the host delegated scanning
+  // to (can_scan) may verify tickets for this booking's event.
+  const isOwnerOrAdmin =
+    booking.creator_id === user.id || (await isAdminById(user.id));
+  if (
+    !isOwnerOrAdmin &&
+    !(await canScanListing(admin, user.id, booking.listing_id))
+  ) {
     return NextResponse.json(
-      { error: "Bara arrangören kan verifiera biljetter" },
+      { error: "Du har inte behörighet att verifiera biljetter för det här eventet" },
       { status: 403 }
     );
   }

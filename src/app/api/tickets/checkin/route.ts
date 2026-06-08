@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdminById } from "@/lib/admin/check";
+import { canScanListing } from "@/lib/scan-access";
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
@@ -52,11 +53,16 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Only the creator of the listing can check in guests
-  // Admin accounts can check in any ticket (for testing)
-  if (!(await isAdminById(user.id)) && booking.creator_id !== user.id) {
+  // The listing owner, an admin, or a crew member the host delegated scanning
+  // to (can_scan) may check in guests for this booking's event.
+  const isOwnerOrAdmin =
+    booking.creator_id === user.id || (await isAdminById(user.id));
+  if (
+    !isOwnerOrAdmin &&
+    !(await canScanListing(admin, user.id, booking.listing_id))
+  ) {
     return NextResponse.json(
-      { error: "Bara arrangören kan registrera insläpp" },
+      { error: "Du har inte behörighet att registrera insläpp för det här eventet" },
       { status: 403 }
     );
   }
@@ -90,6 +96,7 @@ export async function POST(request: NextRequest) {
     .update({
       checked_in_at: new Date().toISOString(),
       status: "completed",
+      scanned_by: user.id,
     })
     .eq("id", bookingId);
 

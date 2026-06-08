@@ -47,6 +47,7 @@ interface CheckIn {
   name: string;
   checkedInAt: string;
   guestCount: number;
+  scannedBy?: string | null;
 }
 
 interface Guest {
@@ -289,6 +290,7 @@ export default function LiveEventPage() {
                   )}
                 </div>
                 <span className="text-xs text-[var(--usha-muted)]">
+                  {ci.scannedBy ? `av ${ci.scannedBy} · ` : ""}
                   {timeAgo(ci.checkedInAt)}
                 </span>
               </div>
