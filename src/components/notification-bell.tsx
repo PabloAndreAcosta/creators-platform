@@ -117,7 +117,7 @@ export function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-80 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] shadow-xl">
+        <div className="fixed inset-x-2 top-16 z-50 w-auto rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] shadow-xl sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:w-80">
           {/* Header */}
           <div className="flex items-center justify-between border-b border-[var(--usha-border)] px-4 py-3">
             <h3 className="text-sm font-semibold">{t("title")}</h3>
