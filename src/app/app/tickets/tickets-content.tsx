@@ -188,7 +188,12 @@ export function TicketsContent({ bookings }: TicketsContentProps) {
           </h2>
           <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
             {usedTickets.map((ticket) => (
-              <TicketCard key={ticket.id} ticket={ticket} used />
+              <TicketCard
+                key={ticket.id}
+                ticket={ticket}
+                used
+                onShowQR={() => setSelectedTicket(ticket)}
+              />
             ))}
           </div>
         </section>
@@ -341,7 +346,7 @@ function TicketCard({
             </p>
           )}
         </div>
-        {ticket.status !== "used" && onShowQR && (
+        {onShowQR && (
           <button
             onClick={onShowQR}
             className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-3 py-2 text-xs font-semibold text-black transition-opacity hover:opacity-90"
