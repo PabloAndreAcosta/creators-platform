@@ -408,6 +408,7 @@
   "landing": {
     "nav": {
       "ecosystem": "Ekosystemet",
+      "features": "Funktioner",
       "pricing": "Priser",
       "feed": "Flöde",
       "experiences": "Upplevelser",
@@ -464,6 +465,27 @@
         "detail2": "Boka direkt med datum & tid — säker Stripe-betalning",
         "detail3": "Följ kreatörer & prenumerera på deras kalender",
         "detail4": "Omdömen & betyg för att hitta rätt"
+      }
+    },
+    "features": {
+      "title": "Allt du behöver för att",
+      "titleHighlight": "driva dina event",
+      "subtitle": "En plattform — från första biljetten till sista incheckningen, och allt däremellan.",
+      "items": {
+        "create": { "title": "Skapa event på minuter", "desc": "Publicera produktioner och sälj biljetter — gratis eller mot betalning." },
+        "tickets": { "title": "QR-biljetter", "desc": "Varje biljett får en skanningsbar QR-kod, redo vid dörren." },
+        "scan": { "title": "Incheckning & skanning", "desc": "Skanna gäster vid entrén — snabbt och säkert." },
+        "crew": { "title": "Crew & samarbeten", "desc": "Bjud in kreatörer, taxidansare, volontärer och medvärdar till din produktion." },
+        "delegateScan": { "title": "Delegera skanning", "desc": "Låt betrodda crew-medlemmar skanna biljetter åt dig." },
+        "gage": { "title": "Betala ditt crew", "desc": "Kom överens om gage och betala direkt via Stripe." },
+        "live": { "title": "Live-dashboard", "desc": "Realtidsstatistik och incheckningar medan eventet pågår." },
+        "bankid": { "title": "BankID-verifiering", "desc": "Verifierade identiteter för trygghet och förtroende." },
+        "payments": { "title": "Säkra betalningar", "desc": "Stripe-betalningar och snabba utbetalningar till ditt konto." },
+        "marketplace": { "title": "Marknadsplats", "desc": "Bli upptäckt — hitta kreatörer och upplevelser nära dig." },
+        "feed": { "title": "Socialt flöde", "desc": "Dela inlägg, bygg din publik och håll kontakten." },
+        "calendar": { "title": "Kalender & påminnelser", "desc": "Din och följdas kalender, med påminnelser och export." },
+        "courses": { "title": "Kurser & innehåll", "desc": "Sälj kurser och digitalt innehåll direkt i appen." },
+        "rewards": { "title": "Poäng & belöningar", "desc": "Lojalitetspoäng, belöningar och topplista." }
       }
     },
     "onboarding": {

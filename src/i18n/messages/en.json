@@ -408,6 +408,7 @@
   "landing": {
     "nav": {
       "ecosystem": "Ecosystem",
+      "features": "Features",
       "pricing": "Pricing",
       "feed": "Feed",
       "experiences": "Experiences",
@@ -464,6 +465,27 @@
         "detail2": "Book directly with date & time — secure Stripe payment",
         "detail3": "Follow creators & subscribe to their calendar",
         "detail4": "Reviews & ratings to find the right fit"
+      }
+    },
+    "features": {
+      "title": "Everything you need to",
+      "titleHighlight": "run your events",
+      "subtitle": "One platform — from the first ticket to the last check-in, and everything in between.",
+      "items": {
+        "create": { "title": "Create events in minutes", "desc": "Publish productions and sell tickets — free or paid." },
+        "tickets": { "title": "QR tickets", "desc": "Every ticket gets a scannable QR code, ready at the door." },
+        "scan": { "title": "Check-in & scanning", "desc": "Scan guests at the entrance — fast and secure." },
+        "crew": { "title": "Crew & collaborators", "desc": "Invite creators, taxi dancers, volunteers and co-hosts to your production." },
+        "delegateScan": { "title": "Delegate scanning", "desc": "Let trusted crew members scan tickets for you." },
+        "gage": { "title": "Pay your crew", "desc": "Agree on a fee and pay directly via Stripe." },
+        "live": { "title": "Live dashboard", "desc": "Real-time stats and check-ins while the event runs." },
+        "bankid": { "title": "BankID verification", "desc": "Verified identities for safety and trust." },
+        "payments": { "title": "Secure payments", "desc": "Stripe payments and fast payouts to your account." },
+        "marketplace": { "title": "Marketplace", "desc": "Get discovered — find creators and experiences near you." },
+        "feed": { "title": "Social feed", "desc": "Share posts, grow your audience and stay connected." },
+        "calendar": { "title": "Calendar & reminders", "desc": "Your and followed calendars, with reminders and export." },
+        "courses": { "title": "Courses & content", "desc": "Sell courses and digital content right in the app." },
+        "rewards": { "title": "Points & rewards", "desc": "Loyalty points, rewards and a leaderboard." }
       }
     },
     "onboarding": {
