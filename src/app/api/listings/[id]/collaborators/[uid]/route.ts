@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { canDelegateScan, canReceiveScan } from "@/lib/scan-access";
 
 export async function DELETE(
   _req: NextRequest,
@@ -62,6 +64,39 @@ export async function PATCH(
   const body = await req.json().catch(() => null);
   if (typeof body?.can_scan !== "boolean") {
     return NextResponse.json({ error: "can_scan (boolean) is required" }, { status: 400 });
+  }
+
+  const admin = createAdminClient();
+
+  // Only Gold/Premium hosts may delegate scanning.
+  const { data: hostProfile } = await admin
+    .from("profiles")
+    .select("tier")
+    .eq("id", user.id)
+    .maybeSingle();
+  if (!canDelegateScan(hostProfile?.tier)) {
+    return NextResponse.json(
+      { error: "Skanning kan bara delegeras av Guld- eller Premium-konton.", code: "host_not_eligible" },
+      { status: 403 }
+    );
+  }
+
+  // When granting, the recipient must be a paying / creator / experience account.
+  if (body.can_scan === true) {
+    const { data: recipient } = await admin
+      .from("profiles")
+      .select("role, tier")
+      .eq("id", collaboratorUserId)
+      .maybeSingle();
+    if (!canReceiveScan(recipient?.role, recipient?.tier)) {
+      return NextResponse.json(
+        {
+          error: "Personen kan inte få skann-rätt — kräver ett betalande, kreatör- eller upplevelsekonto.",
+          code: "recipient_not_eligible",
+        },
+        { status: 403 }
+      );
+    }
   }
 
   const { error } = await supabase

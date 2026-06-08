@@ -17,6 +17,7 @@ interface Collaborator {
   full_name: string | null;
   avatar_url: string | null;
   can_scan: boolean;
+  scan_eligible: boolean;
   payee_connected: boolean;
   gage: GageView | null;
 }
@@ -43,10 +44,12 @@ export function CrewManager({
   listingId,
   initialCollaborators,
   initialPendingInvites,
+  canDelegateScan = false,
 }: {
   listingId: string;
   initialCollaborators: Collaborator[];
   initialPendingInvites: PendingInvite[];
+  canDelegateScan?: boolean;
 }) {
   const { toast } = useToast();
   const [collaborators, setCollaborators] = useState(initialCollaborators);
@@ -394,24 +397,26 @@ export function CrewManager({
                     {collabRoleLabel(c.role)}
                   </p>
                 </div>
-                <button
-                  onClick={() => handleToggleScan(c.user_id, !c.can_scan)}
-                  disabled={scanToggling === c.user_id}
-                  aria-pressed={c.can_scan}
-                  title="Låt den här personen skanna biljetter för eventet"
-                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-medium transition disabled:opacity-50 ${
-                    c.can_scan
-                      ? "bg-[var(--usha-gold)] text-black"
-                      : "border border-[var(--usha-border)] text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
-                  }`}
-                >
-                  {scanToggling === c.user_id ? (
-                    <Loader2 size={13} className="animate-spin" />
-                  ) : (
-                    <ScanLine size={13} />
-                  )}
-                  {c.can_scan ? "Kan skanna" : "Skanna"}
-                </button>
+                {canDelegateScan && c.scan_eligible && (
+                  <button
+                    onClick={() => handleToggleScan(c.user_id, !c.can_scan)}
+                    disabled={scanToggling === c.user_id}
+                    aria-pressed={c.can_scan}
+                    title="Låt den här personen skanna biljetter för eventet"
+                    className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-medium transition disabled:opacity-50 ${
+                      c.can_scan
+                        ? "bg-[var(--usha-gold)] text-black"
+                        : "border border-[var(--usha-border)] text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
+                    }`}
+                  >
+                    {scanToggling === c.user_id ? (
+                      <Loader2 size={13} className="animate-spin" />
+                    ) : (
+                      <ScanLine size={13} />
+                    )}
+                    {c.can_scan ? "Kan skanna" : "Skanna"}
+                  </button>
+                )}
                 <button
                   onClick={() => handleRemove(c.user_id)}
                   disabled={removing === c.user_id}

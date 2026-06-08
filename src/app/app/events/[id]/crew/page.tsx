@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { CrewManager } from "./crew-manager";
 import type { GageView } from "@/components/gage-panel";
+import { canDelegateScan, canReceiveScan } from "@/lib/scan-access";
 
 export const dynamic = "force-dynamic";
 
@@ -50,10 +51,18 @@ export default async function CrewPage({ params }: { params: { id: string } }) {
   if (ids.length) {
     const { data: profiles } = await admin
       .from("profiles")
-      .select("id, full_name, avatar_url, stripe_account_id")
+      .select("id, full_name, avatar_url, stripe_account_id, role, tier")
       .in("id", ids);
     for (const p of profiles ?? []) profilesById.set(p.id, p);
   }
+
+  // Only Gold/Premium hosts may delegate scanning.
+  const { data: hostProfile } = await admin
+    .from("profiles")
+    .select("tier")
+    .eq("id", user.id)
+    .maybeSingle();
+  const hostCanDelegateScan = canDelegateScan(hostProfile?.tier);
 
   // Most relevant gage per collaborator: an active one (proposed/agreed) if any,
   // otherwise the latest (e.g. paid) for display.
@@ -77,6 +86,10 @@ export default async function CrewPage({ params }: { params: { id: string } }) {
     full_name: profilesById.get(c.user_id)?.full_name ?? null,
     avatar_url: profilesById.get(c.user_id)?.avatar_url ?? null,
     can_scan: !!(c as { can_scan?: boolean }).can_scan,
+    scan_eligible: canReceiveScan(
+      profilesById.get(c.user_id)?.role,
+      profilesById.get(c.user_id)?.tier
+    ),
     payee_connected: !!profilesById.get(c.user_id)?.stripe_account_id,
     gage: gageByUser.get(c.user_id)
       ? ({
@@ -115,6 +128,7 @@ export default async function CrewPage({ params }: { params: { id: string } }) {
         listingId={listing.id}
         initialCollaborators={collaborators}
         initialPendingInvites={pendingInvites}
+        canDelegateScan={hostCanDelegateScan}
       />
     </div>
   );
