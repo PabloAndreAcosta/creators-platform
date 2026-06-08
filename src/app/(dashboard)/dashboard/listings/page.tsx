@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft, Plus, ScanLine } from "lucide-react";
 import ListingRow from "./listing-row";
 import { NoListings } from "@/components/ui/empty-state";
 
@@ -37,13 +37,22 @@ export default async function ListingsPage() {
             {t("subtitle")}
           </p>
         </div>
-        <Link
-          href="/dashboard/listings/new"
-          className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-5 py-2.5 text-sm font-bold text-black transition hover:opacity-90"
-        >
-          <Plus size={16} />
-          {t("newListing")}
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/app/scan"
+            className="flex items-center gap-2 rounded-xl border border-[var(--usha-border)] px-5 py-2.5 text-sm font-semibold text-[var(--usha-white)] transition hover:border-[var(--usha-gold)]/60 hover:text-[var(--usha-gold)]"
+          >
+            <ScanLine size={16} />
+            {t("scanTickets")}
+          </Link>
+          <Link
+            href="/dashboard/listings/new"
+            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-5 py-2.5 text-sm font-bold text-black transition hover:opacity-90"
+          >
+            <Plus size={16} />
+            {t("newListing")}
+          </Link>
+        </div>
       </div>
 
       {!listings || listings.length === 0 ? (

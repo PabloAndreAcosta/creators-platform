@@ -1237,6 +1237,7 @@
     "title": "My services",
     "subtitle": "Manage your services shown in the marketplace.",
     "newListing": "New service",
+    "scanTickets": "Scan tickets",
     "inactiveBadge": "Inactive",
     "durationMinutes": "{minutes} min",
     "priceSek": "{price} SEK",

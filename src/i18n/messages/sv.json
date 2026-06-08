@@ -1237,6 +1237,7 @@
     "title": "Mina tjänster",
     "subtitle": "Hantera dina tjänster som visas i marketplace.",
     "newListing": "Ny tjänst",
+    "scanTickets": "Skanna biljetter",
     "inactiveBadge": "Inaktiv",
     "durationMinutes": "{minutes} min",
     "priceSek": "{price} SEK",
