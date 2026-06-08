@@ -471,6 +471,7 @@
       "title": "Allt du behöver för att",
       "titleHighlight": "driva dina event",
       "subtitle": "En plattform — från första biljetten till sista incheckningen, och allt däremellan.",
+      "newBadge": "Nyhet",
       "items": {
         "create": { "title": "Skapa event på minuter", "desc": "Publicera produktioner och sälj biljetter — gratis eller mot betalning." },
         "tickets": { "title": "QR-biljetter", "desc": "Varje biljett får en skanningsbar QR-kod, redo vid dörren." },

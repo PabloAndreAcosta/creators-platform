@@ -451,9 +451,9 @@ function Features() {
     { key: "create", icon: Sparkles },
     { key: "tickets", icon: Ticket },
     { key: "scan", icon: QrCode },
-    { key: "crew", icon: Users },
+    { key: "crew", icon: Users, isNew: true },
     { key: "delegateScan", icon: ScanLine },
-    { key: "gage", icon: Banknote },
+    { key: "gage", icon: Banknote, isNew: true },
     { key: "live", icon: Radio },
     { key: "bankid", icon: Fingerprint },
     { key: "payments", icon: CreditCard },
@@ -485,8 +485,17 @@ function Features() {
           {FEATURES.map((f) => (
             <div
               key={f.key}
-              className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5 transition hover:border-[var(--usha-gold)]/30"
+              className={`relative rounded-2xl border bg-[var(--usha-card)] p-5 transition ${
+                f.isNew
+                  ? "border-[var(--usha-gold)]/40"
+                  : "border-[var(--usha-border)] hover:border-[var(--usha-gold)]/30"
+              }`}
             >
+              {f.isNew && (
+                <span className="absolute right-3 top-3 rounded-full bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-black">
+                  {t("features.newBadge")}
+                </span>
+              )}
               <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--usha-gold)]/20 to-[var(--usha-accent)]/20">
                 <f.icon size={18} className="text-[var(--usha-gold)]" />
               </div>

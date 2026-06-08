@@ -471,6 +471,7 @@
       "title": "Everything you need to",
       "titleHighlight": "run your events",
       "subtitle": "One platform — from the first ticket to the last check-in, and everything in between.",
+      "newBadge": "New",
       "items": {
         "create": { "title": "Create events in minutes", "desc": "Publish productions and sell tickets — free or paid." },
         "tickets": { "title": "QR tickets", "desc": "Every ticket gets a scannable QR code, ready at the door." },
