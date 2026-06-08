@@ -218,7 +218,7 @@ function EventCard({
       } ${isPending ? "pointer-events-none opacity-50" : ""}`}
     >
       {/* Image */}
-      <div className="relative aspect-[1.91/1]">
+      <Link href={`/app/events/${listing.id}/edit`} className="relative block aspect-[1.91/1]">
         <img src={image} alt={listing.title} className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
 
@@ -237,7 +237,7 @@ function EventCard({
         <div className="absolute bottom-0 left-0 right-0 p-3">
           <h3 className="text-base font-bold text-white">{listing.title}</h3>
         </div>
-      </div>
+      </Link>
 
       {/* Info */}
       <div className="p-4 space-y-3">

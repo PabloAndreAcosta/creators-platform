@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect, notFound } from "next/navigation";
+import Link from "next/link";
+import { Users, Radio } from "lucide-react";
 import EventForm from "../../event-form";
 import { updateEvent } from "../../actions";
 
@@ -22,5 +24,25 @@ export default async function EditEventPage({ params }: { params: { id: string }
 
   const action = updateEvent.bind(null, event.id);
 
-  return <EventForm event={event} action={action} userId={user.id} />;
+  return (
+    <>
+      <div className="flex flex-wrap gap-2 px-4 pt-4">
+        <Link
+          href={`/app/events/${event.id}/crew`}
+          className="inline-flex items-center gap-2 rounded-full border border-[var(--usha-border)] px-4 py-2 text-sm font-medium text-white transition hover:border-[var(--usha-gold)]/60 hover:text-[var(--usha-gold)]"
+        >
+          <Users size={15} />
+          Crew
+        </Link>
+        <Link
+          href={`/app/events/${event.id}/live`}
+          className="inline-flex items-center gap-2 rounded-full border border-[var(--usha-border)] px-4 py-2 text-sm font-medium text-green-400 transition hover:border-green-400/60"
+        >
+          <Radio size={15} />
+          Live Dashboard
+        </Link>
+      </div>
+      <EventForm event={event} action={action} userId={user.id} />
+    </>
+  );
 }

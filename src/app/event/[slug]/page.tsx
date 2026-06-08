@@ -5,7 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Calendar, Clock, MapPin, Ticket } from "lucide-react";
+import { Calendar, Clock, MapPin, Ticket, Users, Pencil } from "lucide-react";
 import { EVENT_CATEGORY_LABELS } from "@/app/app/events/constants";
 import { BookButton } from "./book-button";
 import { SocialShareButton } from "@/components/social-share-button";
@@ -184,6 +184,7 @@ export default async function EventPage({ params }: Params) {
   const dateLabel = formatDate(listing.event_date, listing.event_time);
   const timeLabel = formatTime(listing.event_time, listing.event_end_time);
   const isFree = !listing.price || listing.price <= 0;
+  const isHost = !!user && user.id === listing.user_id;
   const returnPath = `/event/${slug}`;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://usha.se";
 
@@ -257,6 +258,27 @@ export default async function EventPage({ params }: Params) {
       </div>
 
       <div className="mx-auto max-w-4xl px-6 py-10 sm:px-10 sm:py-16">
+        {isHost && (
+          <div className="mb-8 flex flex-wrap items-center gap-2 rounded-2xl border border-[var(--usha-gold)]/30 bg-[var(--usha-gold)]/5 p-3">
+            <span className="mr-1 px-1 text-xs font-medium text-[var(--usha-gold)]">
+              Din produktion
+            </span>
+            <Link
+              href={`/app/events/${listing.id}/crew`}
+              className="inline-flex items-center gap-2 rounded-full bg-[var(--usha-gold)] px-4 py-2 text-sm font-semibold text-black transition hover:opacity-90"
+            >
+              <Users size={15} />
+              Hantera crew
+            </Link>
+            <Link
+              href={`/app/events/${listing.id}/edit`}
+              className="inline-flex items-center gap-2 rounded-full border border-[var(--usha-border)] px-4 py-2 text-sm font-medium text-white transition hover:border-[var(--usha-gold)]/60"
+            >
+              <Pencil size={15} />
+              Redigera
+            </Link>
+          </div>
+        )}
         <div className="grid gap-8 md:grid-cols-[1fr_280px] md:gap-12">
           <div>
             {listing.description ? (
