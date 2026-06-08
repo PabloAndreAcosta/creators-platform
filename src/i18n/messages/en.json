@@ -1367,6 +1367,17 @@
     "successBody": "Welcome to the team. The host will be notified.",
     "goToEvent": "Go to event",
     "goToCollaborations": "View my collaborations",
+    "whatHappensTitle": "When you accept",
+    "whatHappensCrew": "You'll appear as {role} in the event's crew — both to the host and on the public event page.",
+    "whatHappensManage": "The host can see your profile and add or remove you from the production.",
+    "whatHappensBankid": "This role requires you to be BankID-verified before you can accept.",
+    "dateTba": "Date to be announced",
+    "roleDescriptions": {
+      "creator": "You take part as a performer/creator and appear in the event's lineup.",
+      "taxi_dancer": "You dance with the guests during the event as a taxi dancer.",
+      "volunteer": "You help out practically before and during the event.",
+      "co_host": "You help organise and run the event together with the host."
+    },
     "roles": {
       "creator": "Creator",
       "taxi_dancer": "Taxi dancer",

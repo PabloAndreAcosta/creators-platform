@@ -1367,6 +1367,17 @@
     "successBody": "Välkommen till teamet. Värden får en notifikation.",
     "goToEvent": "Gå till eventet",
     "goToCollaborations": "Se mina samarbeten",
+    "whatHappensTitle": "När du tackar ja",
+    "whatHappensCrew": "Du visas som {role} i eventets crew – både för värden och på den publika eventsidan.",
+    "whatHappensManage": "Värden kan se din profil och lägga till eller ta bort dig från produktionen.",
+    "whatHappensBankid": "Rollen kräver att du är BankID-verifierad innan du kan tacka ja.",
+    "dateTba": "Datum meddelas",
+    "roleDescriptions": {
+      "creator": "Du medverkar som artist/kreatör och visas i eventets program.",
+      "taxi_dancer": "Du dansar med gästerna under eventet som taxidansare.",
+      "volunteer": "Du hjälper till praktiskt före och under eventet.",
+      "co_host": "Du hjälper till att arrangera och driva eventet tillsammans med värden."
+    },
     "roles": {
       "creator": "Kreatör",
       "taxi_dancer": "Taxidansare",

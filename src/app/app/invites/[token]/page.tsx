@@ -2,8 +2,9 @@ import { createClient } from "@/lib/supabase/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { getTranslations } from "next-intl/server";
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, Calendar, MapPin, Users, Check } from "lucide-react";
 import { AcceptButton } from "./accept-button";
 
 export const dynamic = "force-dynamic";
@@ -85,7 +86,20 @@ export default async function InvitePage({ params }: Params) {
     timeZone: "Europe/Stockholm",
   });
 
-  const roleLabel = t(`roles.${invite.role as "creator" | "taxi_dancer" | "volunteer" | "co_host"}`);
+  const roleKey = invite.role as "creator" | "taxi_dancer" | "volunteer" | "co_host";
+  const roleLabel = t(`roles.${roleKey}`);
+  const roleDescription = t(`roleDescriptions.${roleKey}`);
+  const isGated = BANKID_GATED_ROLES.has(invite.role);
+
+  const eventDate = listing.event_date
+    ? new Date(`${listing.event_date}T12:00:00+02:00`).toLocaleDateString("sv-SE", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+        timeZone: "Europe/Stockholm",
+      })
+    : t("dateTba");
 
   const subtitle = host?.full_name
     ? t("subtitleNamed", { host: host.full_name, event: listing.title })
@@ -102,21 +116,74 @@ export default async function InvitePage({ params }: Params) {
   }
 
   return (
-    <main className="min-h-screen bg-[var(--usha-black)] text-white">
+    <main className="min-h-screen bg-[var(--usha-black)] text-[var(--usha-white)]">
       <div className="mx-auto max-w-2xl px-6 py-16 sm:py-24">
         <p className="text-xs uppercase tracking-wide text-[var(--usha-muted)]">
           {t("title")}
         </p>
         <h1 className="mt-2 text-3xl font-bold sm:text-4xl">{subtitle}</h1>
 
-        <div className="mt-8 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
+        {/* Event */}
+        <div className="mt-8 overflow-hidden rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)]">
+          {listing.image_url && (
+            <div className="relative aspect-[1.91/1] w-full bg-black">
+              <Image
+                src={listing.image_url}
+                alt={listing.title}
+                fill
+                sizes="(max-width: 672px) 100vw, 672px"
+                className="object-cover"
+              />
+            </div>
+          )}
+          <div className="p-6">
+            <h2 className="text-xl font-bold">{listing.title}</h2>
+            <div className="mt-3 space-y-2 text-sm text-[var(--usha-muted)]">
+              <p className="flex items-center gap-2">
+                <Calendar size={15} className="shrink-0" />
+                <span className="capitalize">{eventDate}</span>
+              </p>
+              {listing.event_location && (
+                <p className="flex items-center gap-2">
+                  <MapPin size={15} className="shrink-0" />
+                  {listing.event_location}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Role */}
+        <div className="mt-4 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
           <p className="text-xs uppercase tracking-wide text-[var(--usha-muted)]">
             {t("role")}
           </p>
           <p className="mt-1 text-lg font-semibold">{roleLabel}</p>
+          <p className="mt-1 text-sm text-[var(--usha-muted)]">{roleDescription}</p>
           <p className="mt-4 text-xs text-[var(--usha-muted)]">
             {t("expires", { date: expiresDate })}
           </p>
+        </div>
+
+        {/* What happens when you accept */}
+        <div className="mt-4 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
+          <h3 className="text-sm font-semibold">{t("whatHappensTitle")}</h3>
+          <ul className="mt-3 space-y-2.5 text-sm text-[var(--usha-muted)]">
+            <li className="flex items-start gap-2.5">
+              <Users size={16} className="mt-0.5 shrink-0 text-[var(--usha-gold)]" />
+              <span>{t("whatHappensCrew", { role: roleLabel.toLowerCase() })}</span>
+            </li>
+            <li className="flex items-start gap-2.5">
+              <Check size={16} className="mt-0.5 shrink-0 text-[var(--usha-gold)]" />
+              <span>{t("whatHappensManage")}</span>
+            </li>
+            {isGated && (
+              <li className="flex items-start gap-2.5">
+                <ShieldCheck size={16} className="mt-0.5 shrink-0 text-amber-400" />
+                <span>{t("whatHappensBankid")}</span>
+              </li>
+            )}
+          </ul>
         </div>
 
         <div className="mt-8">
@@ -171,7 +238,7 @@ function StatusCard({
 }) {
   const borderColor = variant === "ok" ? "border-green-500/30" : "border-[var(--usha-border)]";
   return (
-    <main className="min-h-screen bg-[var(--usha-black)] text-white">
+    <main className="min-h-screen bg-[var(--usha-black)] text-[var(--usha-white)]">
       <div className="mx-auto max-w-xl px-6 py-24">
         <div className={`rounded-2xl border ${borderColor} bg-[var(--usha-card)] p-8`}>
           <h1 className="text-2xl font-bold">{title}</h1>
