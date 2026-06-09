@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Camera, CheckCircle, XCircle, Search, AlertCircle, UserCheck, Loader2, Lock } from "lucide-react";
+import { Camera, CameraOff, CheckCircle, XCircle, Search, AlertCircle, UserCheck, Loader2, Lock } from "lucide-react";
 import { vibrate } from "@/lib/haptics";
 import { useRole } from "@/components/mobile/role-context";
 import { useSubscription } from "@/lib/subscription/context";
@@ -41,6 +41,7 @@ export default function ScanPage() {
   const [error, setError] = useState("");
   const [scannerActive, setScannerActive] = useState(false);
   const [scannerLoading, setScannerLoading] = useState(false);
+  const [cameraBlocked, setCameraBlocked] = useState(false);
   const [delegated, setDelegated] = useState<boolean | null>(null);
   const scannerRef = useRef<any>(null);
   const scannerContainerRef = useRef<HTMLDivElement>(null);
@@ -120,7 +121,19 @@ export default function ScanPage() {
     if (scannerRef.current) return;
 
     setScannerLoading(true);
+    setError("");
+    setCameraBlocked(false);
     try {
+      // Explicitly request camera access first — this triggers (or re-triggers)
+      // the browser's native permission prompt, the most direct "enable camera"
+      // path on the web. If permission is permanently blocked it throws here.
+      if (navigator.mediaDevices?.getUserMedia) {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "environment" },
+        });
+        stream.getTracks().forEach((track) => track.stop());
+      }
+
       const { Html5Qrcode } = await import("html5-qrcode");
       const scanner = new Html5Qrcode("qr-reader");
       scannerRef.current = scanner;
@@ -143,7 +156,13 @@ export default function ScanPage() {
       setScannerActive(true);
     } catch (err) {
       console.error("Scanner start failed:", err);
-      setError("Kunde inte starta kameran. Kontrollera att du gett tillgång till kameran.");
+      const info = `${(err as { name?: string })?.name ?? ""} ${String((err as { message?: string })?.message ?? err ?? "")}`;
+      const blocked = /NotAllowed|Permission|denied|NotFound|NotReadable|SecurityError|Requested device not found/i.test(info);
+      if (blocked) {
+        setCameraBlocked(true);
+      } else {
+        setError("Kunde inte starta kameran. Ange biljettkoden manuellt nedan.");
+      }
     } finally {
       setScannerLoading(false);
     }
@@ -259,7 +278,7 @@ export default function ScanPage() {
         <>
           <div className="mb-4 overflow-hidden rounded-xl border border-[var(--usha-border)] bg-black">
             <div id="qr-reader" ref={scannerContainerRef} className="w-full" />
-            {!scannerActive && (
+            {!scannerActive && !cameraBlocked && (
               <button
                 onClick={startScanner}
                 disabled={scannerLoading}
@@ -277,6 +296,29 @@ export default function ScanPage() {
                   </>
                 )}
               </button>
+            )}
+            {!scannerActive && cameraBlocked && (
+              <div className="bg-[var(--usha-card)] p-6 text-center">
+                <CameraOff size={28} className="mx-auto mb-2 text-amber-400" />
+                <p className="font-semibold text-[var(--usha-white)]">Kameran är blockerad</p>
+                <p className="mt-1 text-sm text-[var(--usha-muted)]">
+                  Tillåt kameraåtkomst för att skanna — eller ange biljettkoden nedan.
+                </p>
+                <button
+                  onClick={startScanner}
+                  disabled={scannerLoading}
+                  className="mt-4 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-6 py-2.5 text-sm font-bold text-black transition hover:opacity-90 disabled:opacity-50"
+                >
+                  {scannerLoading ? <Loader2 size={16} className="animate-spin" /> : <Camera size={16} />}
+                  Tillåt kamera & försök igen
+                </button>
+                <div className="mt-5 space-y-1.5 text-left text-xs text-[var(--usha-muted)]">
+                  <p className="font-semibold text-[var(--usha-white)]">Om frågan inte dyker upp — aktivera manuellt:</p>
+                  <p>• <span className="font-medium">iPhone, Safari:</span> Inställningar → Appar → Safari → Kamera → Tillåt. Eller tryck på <span className="font-medium">aA</span> i adressfältet → Webbplatsinställningar → Kamera.</p>
+                  <p>• <span className="font-medium">Android, Chrome:</span> tryck på låset/ikonen i adressfältet → Behörigheter → Kamera → Tillåt, ladda om.</p>
+                  <p>• <span className="font-medium">Installerad app:</span> telefonens Inställningar → Appar → Usch-Ja → Behörigheter → Kamera.</p>
+                </div>
+              </div>
             )}
           </div>
 
