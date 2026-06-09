@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { groupAttendees, type BookingLike } from "@/lib/attendees";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { groupAttendees, attachProfiles, type BookingLike } from "@/lib/attendees";
 
 // Aggregate attendee insights across all of the host's events.
 export async function GET() {
@@ -14,13 +15,11 @@ export async function GET() {
 
   const { data: all } = await supabase
     .from("bookings")
-    .select(
-      "id, listing_id, customer_id, guest_name, guest_email, checked_in_at, created_at, status, profiles!bookings_customer_id_fkey(full_name, email)"
-    )
+    .select("id, listing_id, customer_id, guest_name, guest_email, checked_in_at, created_at, status")
     .eq("creator_id", user.id)
     .in("status", ["confirmed", "completed"]);
 
-  const bookings = (all ?? []) as unknown as BookingLike[];
+  const bookings = await attachProfiles(createAdminClient(), (all ?? []) as unknown as BookingLike[]);
   const attendees = groupAttendees(bookings);
 
   const uniqueAttendees = attendees.size;

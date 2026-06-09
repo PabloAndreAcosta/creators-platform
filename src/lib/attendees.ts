@@ -15,6 +15,28 @@ export interface BookingLike {
   profiles?: { full_name: string | null; email: string | null } | null;
 }
 
+// bookings.customer_id references auth.users, not profiles, so PostgREST can't
+// embed profiles directly. Fetch the names separately (admin client) and attach.
+export async function attachProfiles(
+  admin: { from: (t: string) => any },
+  bookings: BookingLike[]
+): Promise<BookingLike[]> {
+  const ids = Array.from(
+    new Set(bookings.map((b) => b.customer_id).filter((x): x is string => !!x))
+  );
+  const byId = new Map<string, { full_name: string | null; email: string | null }>();
+  if (ids.length) {
+    const { data } = await admin.from("profiles").select("id, full_name, email").in("id", ids);
+    for (const p of (data ?? []) as { id: string; full_name: string | null; email: string | null }[]) {
+      byId.set(p.id, { full_name: p.full_name, email: p.email });
+    }
+  }
+  return bookings.map((b) => ({
+    ...b,
+    profiles: b.customer_id ? byId.get(b.customer_id) ?? null : null,
+  }));
+}
+
 export function bookingEmail(b: BookingLike): string | null {
   const e = b.profiles?.email || b.guest_email || null;
   return e ? e.trim().toLowerCase() : null;

@@ -32,12 +32,27 @@ export async function GET(
   const { data: bookings } = await supabase
     .from("bookings")
     .select(
-      "id, status, checked_in_at, scanned_by, guest_count, amount_paid, guest_name, guest_email, customer_id, created_at, profiles!bookings_customer_id_fkey(full_name, email)"
+      "id, status, checked_in_at, scanned_by, guest_count, amount_paid, guest_name, guest_email, customer_id, created_at"
     )
     .eq("listing_id", eventId)
     .in("status", ["confirmed", "completed"]);
 
   const allBookings = bookings ?? [];
+
+  // Resolve booking customers' names (customer_id → auth.users, so we look up
+  // profiles separately rather than via an embed).
+  const admin = createAdminClient();
+  const custIds = Array.from(
+    new Set(allBookings.map((b) => b.customer_id).filter((x): x is string => !!x))
+  );
+  const custById = new Map<string, { full_name: string | null; email: string | null }>();
+  if (custIds.length) {
+    const { data: custProfiles } = await admin
+      .from("profiles")
+      .select("id, full_name, email")
+      .in("id", custIds);
+    for (const p of custProfiles ?? []) custById.set(p.id, { full_name: p.full_name, email: p.email });
+  }
 
   // Resolve who checked each guest in (host or a delegated crew member).
   const scannerIds = Array.from(
@@ -45,7 +60,6 @@ export async function GET(
   ) as string[];
   const scannerNames = new Map<string, string>();
   if (scannerIds.length) {
-    const admin = createAdminClient();
     const { data: scanners } = await admin
       .from("profiles")
       .select("id, full_name")
@@ -70,7 +84,7 @@ export async function GET(
     .slice(0, 5)
     .map((b) => ({
       id: b.id,
-      name: (b as any).profiles?.full_name || b.guest_name || "Guest",
+      name: custById.get(b.customer_id ?? "")?.full_name || b.guest_name || "Guest",
       checkedInAt: b.checked_in_at,
       guestCount: b.guest_count || 1,
       scannedBy: (b as { scanned_by?: string }).scanned_by
@@ -81,8 +95,8 @@ export async function GET(
   // Guest list
   const guestList = allBookings.map((b) => ({
     id: b.id,
-    name: (b as any).profiles?.full_name || b.guest_name || "Guest",
-    email: (b as any).profiles?.email || b.guest_email || null,
+    name: custById.get(b.customer_id ?? "")?.full_name || b.guest_name || "Guest",
+    email: custById.get(b.customer_id ?? "")?.email || b.guest_email || null,
     guestCount: b.guest_count || 1,
     checkedIn: !!b.checked_in_at,
     checkedInAt: b.checked_in_at,

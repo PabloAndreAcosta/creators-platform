@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { attendeeKey, attendeeName, bookingEmail, type BookingLike } from "@/lib/attendees";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { attendeeKey, attendeeName, bookingEmail, attachProfiles, type BookingLike } from "@/lib/attendees";
 
 // Per-event attendee statistics: how many booked/came, who, and which of them
 // are returning (also attended another of the host's events).
@@ -30,13 +31,11 @@ export async function GET(
   // this event's list and to detect repeat attendees across events.
   const { data: all } = await supabase
     .from("bookings")
-    .select(
-      "id, listing_id, customer_id, guest_name, guest_email, checked_in_at, created_at, status, profiles!bookings_customer_id_fkey(full_name, email)"
-    )
+    .select("id, listing_id, customer_id, guest_name, guest_email, checked_in_at, created_at, status")
     .eq("creator_id", user.id)
     .in("status", ["confirmed", "completed"]);
 
-  const allBookings = (all ?? []) as unknown as BookingLike[];
+  const allBookings = await attachProfiles(createAdminClient(), (all ?? []) as unknown as BookingLike[]);
 
   // distinct events per attendee key across the host
   const eventsByKey = new Map<string, Set<string>>();
