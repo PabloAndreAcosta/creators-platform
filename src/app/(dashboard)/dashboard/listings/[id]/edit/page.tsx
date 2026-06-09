@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, ScanLine, Users, Radio } from "lucide-react";
+import { ArrowLeft, ScanLine, Users, Radio, BarChart3 } from "lucide-react";
 import ListingForm from "../../listing-form";
 import { updateListing } from "../../actions";
 
@@ -69,6 +69,13 @@ export default async function EditListingPage({
         >
           <Radio size={15} />
           Live Dashboard
+        </Link>
+        <Link
+          href={`/app/events/${listing.id}/stats`}
+          className="inline-flex items-center gap-2 rounded-full border border-[var(--usha-border)] px-4 py-2 text-sm font-medium text-[var(--usha-white)] transition hover:border-[var(--usha-gold)]/60 hover:text-[var(--usha-gold)]"
+        >
+          <BarChart3 size={15} />
+          Statistik
         </Link>
       </div>
 

@@ -15,6 +15,7 @@ import {
   ToggleRight,
   Radio,
   ScanLine,
+  BarChart3,
   Copy,
   Users,
   X as XIcon,
@@ -99,6 +100,13 @@ export function EventsContent({
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Mina Evenemang</h1>
         <div className="flex items-center gap-3">
+          <Link
+            href="/app/events/insights"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--usha-gold)] underline-offset-2 hover:underline"
+          >
+            <BarChart3 size={13} />
+            Statistik
+          </Link>
           <Link
             href="/app/events/open"
             className="text-xs font-medium text-[var(--usha-gold)] underline-offset-2 hover:underline"
@@ -323,6 +331,14 @@ function EventCard({
                   >
                     <Radio size={12} />
                     Live Dashboard
+                  </Link>
+                  <Link
+                    href={`/app/events/${listing.id}/stats`}
+                    className="flex w-full items-center gap-2 px-4 py-2 text-xs hover:bg-[var(--usha-card-hover)]"
+                    onClick={() => setShowMenu(false)}
+                  >
+                    <BarChart3 size={12} />
+                    Statistik
                   </Link>
                   <Link
                     href={`/app/events/${listing.id}/edit`}

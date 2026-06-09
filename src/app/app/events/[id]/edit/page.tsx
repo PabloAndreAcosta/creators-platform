@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
-import { Users, Radio, ScanLine } from "lucide-react";
+import { Users, Radio, ScanLine, BarChart3 } from "lucide-react";
 import EventForm from "../../event-form";
 import { updateEvent } from "../../actions";
 
@@ -47,6 +47,13 @@ export default async function EditEventPage({ params }: { params: { id: string }
         >
           <Radio size={15} />
           Live Dashboard
+        </Link>
+        <Link
+          href={`/app/events/${event.id}/stats`}
+          className="inline-flex items-center gap-2 rounded-full border border-[var(--usha-border)] px-4 py-2 text-sm font-medium text-[var(--usha-white)] transition hover:border-[var(--usha-gold)]/60 hover:text-[var(--usha-gold)]"
+        >
+          <BarChart3 size={15} />
+          Statistik
         </Link>
       </div>
       <EventForm event={event} action={action} userId={user.id} />
