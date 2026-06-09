@@ -1,4 +1,4 @@
-const CACHE_NAME = 'usha-v3';
+const CACHE_NAME = 'usha-v4';
 
 const STATIC_ASSETS = [
   '/',
