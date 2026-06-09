@@ -42,6 +42,7 @@ export default function ScanPage() {
   const [scannerActive, setScannerActive] = useState(false);
   const [scannerLoading, setScannerLoading] = useState(false);
   const [cameraBlocked, setCameraBlocked] = useState(false);
+  const [cameraErrorDetail, setCameraErrorDetail] = useState("");
   const [delegated, setDelegated] = useState<boolean | null>(null);
   const scannerRef = useRef<any>(null);
   const scannerContainerRef = useRef<HTMLDivElement>(null);
@@ -128,6 +129,7 @@ export default function ScanPage() {
     setScannerLoading(true);
     setError("");
     setCameraBlocked(false);
+    setCameraErrorDetail("");
 
     const config = { fps: 10, qrbox: { width: 250, height: 250 } };
     const onScan = (decodedText: string) => {
@@ -165,6 +167,8 @@ export default function ScanPage() {
     } catch (err) {
       console.error("Scanner start failed:", err);
       scannerRef.current = null;
+      const detail = `${(err as { name?: string })?.name ?? "Error"}: ${String((err as { message?: string })?.message ?? err ?? "")}`.slice(0, 160);
+      setCameraErrorDetail(detail);
       if (isPermissionError(err)) {
         setCameraBlocked(true);
       } else {
@@ -322,9 +326,14 @@ export default function ScanPage() {
                 <div className="mt-5 space-y-1.5 text-left text-xs text-[var(--usha-muted)]">
                   <p className="font-semibold text-[var(--usha-white)]">Om frågan inte dyker upp — aktivera manuellt:</p>
                   <p>• <span className="font-medium">iPhone, Safari:</span> Inställningar → Appar → Safari → Kamera → Tillåt. Eller tryck på <span className="font-medium">aA</span> i adressfältet → Webbplatsinställningar → Kamera.</p>
-                  <p>• <span className="font-medium">Android, Chrome:</span> tryck på låset/ikonen i adressfältet → Behörigheter → Kamera → Tillåt, ladda om.</p>
+                  <p>• <span className="font-medium">Android, Chrome:</span> tryck på låset/ikonen i adressfältet → Behörigheter → Kamera → Tillåt, ladda om. (Samt telefonens Inställningar → Appar → Chrome → Behörigheter → Kamera.)</p>
                   <p>• <span className="font-medium">Installerad app:</span> telefonens Inställningar → Appar → Usch-Ja → Behörigheter → Kamera.</p>
                 </div>
+                {cameraErrorDetail && (
+                  <p className="mt-4 break-words rounded-lg bg-[var(--usha-black)] px-3 py-2 text-left font-mono text-[10px] text-[var(--usha-muted)]">
+                    Teknisk orsak: {cameraErrorDetail}
+                  </p>
+                )}
               </div>
             )}
           </div>
@@ -370,6 +379,11 @@ export default function ScanPage() {
           <XCircle size={32} className="mx-auto mb-2 text-red-400" />
           <p className="font-semibold text-red-400">Fel</p>
           <p className="mt-1 text-sm text-[var(--usha-muted)]">{error}</p>
+          {cameraErrorDetail && (
+            <p className="mt-2 break-words font-mono text-[10px] text-[var(--usha-muted)]">
+              Teknisk orsak: {cameraErrorDetail}
+            </p>
+          )}
           <button
             onClick={() => { setError(""); resetScan(); }}
             className="mt-3 rounded-xl border border-[var(--usha-border)] px-6 py-2 text-sm transition hover:bg-[var(--usha-card)]"

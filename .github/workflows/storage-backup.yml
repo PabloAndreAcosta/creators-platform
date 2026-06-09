@@ -3,9 +3,14 @@ name: Daily storage backup
 # Mirrors the Supabase Storage buckets to a Cloudflare R2 bucket once a day.
 # Supabase's managed DB backups do NOT include Storage objects (only metadata),
 # so without this a deleted/overwritten file is unrecoverable. rclone syncs
-# incrementally via the S3-compatible endpoints on both sides. The R2 bucket
-# should have Object Versioning + a 30-day noncurrent-version lifecycle so a
-# delete in Supabase leaves the previous version recoverable for 30 days.
+# incrementally via the S3-compatible endpoints on both sides.
+#
+# R2's dashboard doesn't expose object versioning, so instead of relying on
+# versioning we use rclone --backup-dir: any file that would be overwritten or
+# deleted in the mirror is first MOVED to _archive/<date>/<bucket>/... So the
+# live mirror always matches Supabase, and a deleted file stays recoverable
+# under _archive. An R2 Object Lifecycle Rule on prefix "_archive/" expires
+# those archived copies after 30 days.
 on:
   schedule:
     - cron: "0 3 * * *" # 03:00 UTC daily, after the Supabase DB-backup window
@@ -34,13 +39,16 @@ jobs:
           RCLONE_CONFIG_R2_TYPE: s3
           RCLONE_CONFIG_R2_PROVIDER: Cloudflare
           RCLONE_CONFIG_R2_REGION: auto
-          RCLONE_CONFIG_R2_ENDPOINT: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+          RCLONE_CONFIG_R2_ENDPOINT: https://8565b50b1ae92c826fcd25ada1b15b14.r2.cloudflarestorage.com
           RCLONE_CONFIG_R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           RCLONE_CONFIG_R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
         run: |
+          DATE=$(date -u +%F)
           for b in avatars creator-media event-images listing-images; do
             echo "::group::Syncing $b"
-            rclone sync "SB:$b" "R2:ushja-storage-backup/$b" --fast-list --transfers 8 -v
+            rclone sync "SB:$b" "R2:ushja-storage-backup/$b" \
+              --backup-dir "R2:ushja-storage-backup/_archive/$DATE/$b" \
+              --fast-list --transfers 8 -v
             echo "::endgroup::"
           done
 
