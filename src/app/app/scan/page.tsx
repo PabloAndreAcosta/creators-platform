@@ -6,6 +6,7 @@ import { vibrate } from "@/lib/haptics";
 import { useRole } from "@/components/mobile/role-context";
 import { useSubscription } from "@/lib/subscription/context";
 import { GatedAction } from "@/components/subscription/GatedAction";
+import { ScanInstallBanner } from "@/components/scan-install-banner";
 
 interface TicketResult {
   valid: boolean;
@@ -117,51 +118,58 @@ export default function ScanPage() {
   }
 
   // Start QR scanner
+  function isPermissionError(err: unknown): boolean {
+    const info = `${(err as { name?: string })?.name ?? ""} ${String((err as { message?: string })?.message ?? err ?? "")}`;
+    return /NotAllowed|Permission|denied|dismissed|SecurityError/i.test(info);
+  }
+
   async function startScanner() {
     if (scannerRef.current) return;
 
     setScannerLoading(true);
     setError("");
     setCameraBlocked(false);
-    try {
-      // Explicitly request camera access first — this triggers (or re-triggers)
-      // the browser's native permission prompt, the most direct "enable camera"
-      // path on the web. If permission is permanently blocked it throws here.
-      if (navigator.mediaDevices?.getUserMedia) {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "environment" },
-        });
-        stream.getTracks().forEach((track) => track.stop());
-      }
 
+    const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+    const onScan = (decodedText: string) => {
+      handleQrResult(decodedText);
+      stopScanner();
+    };
+    const onFrameErr = () => {
+      // Ignore frames without a QR code
+    };
+
+    try {
       const { Html5Qrcode } = await import("html5-qrcode");
       const scanner = new Html5Qrcode("qr-reader");
       scannerRef.current = scanner;
 
-      await scanner.start(
-        { facingMode: "environment" },
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 250 },
-        },
-        (decodedText) => {
-          // QR decoded — extract code from URL or direct code
-          handleQrResult(decodedText);
-          stopScanner();
-        },
-        () => {
-          // Ignore scan failures (frames without QR)
+      // Prefer the rear camera, but some devices reject the facingMode
+      // constraint — fall back to any available camera before giving up.
+      try {
+        await scanner.start({ facingMode: "environment" }, config, onScan, onFrameErr);
+      } catch (e1) {
+        if (isPermissionError(e1)) throw e1;
+        try {
+          await scanner.start({ facingMode: "user" }, config, onScan, onFrameErr);
+        } catch (e2) {
+          if (isPermissionError(e2)) throw e2;
+          const cameras = await Html5Qrcode.getCameras();
+          if (cameras && cameras.length > 0) {
+            await scanner.start(cameras[0].id, config, onScan, onFrameErr);
+          } else {
+            throw e2;
+          }
         }
-      );
+      }
       setScannerActive(true);
     } catch (err) {
       console.error("Scanner start failed:", err);
-      const info = `${(err as { name?: string })?.name ?? ""} ${String((err as { message?: string })?.message ?? err ?? "")}`;
-      const blocked = /NotAllowed|Permission|denied|NotFound|NotReadable|SecurityError|Requested device not found/i.test(info);
-      if (blocked) {
+      scannerRef.current = null;
+      if (isPermissionError(err)) {
         setCameraBlocked(true);
       } else {
-        setError("Kunde inte starta kameran. Ange biljettkoden manuellt nedan.");
+        setError("Kunde inte starta kameran. Stäng andra appar som använder kameran och försök igen, eller ange biljettkoden manuellt nedan.");
       }
     } finally {
       setScannerLoading(false);
@@ -272,6 +280,8 @@ export default function ScanPage() {
           Skanna QR-koden eller ange biljettkoden manuellt.
         </p>
       </div>
+
+      <ScanInstallBanner />
 
       {/* QR Scanner */}
       {!result && !checkInDone && (
