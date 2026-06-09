@@ -6,7 +6,6 @@ import { vibrate } from "@/lib/haptics";
 import { useRole } from "@/components/mobile/role-context";
 import { useSubscription } from "@/lib/subscription/context";
 import { GatedAction } from "@/components/subscription/GatedAction";
-import { ScanInstallBanner } from "@/components/scan-install-banner";
 
 interface TicketResult {
   valid: boolean;
@@ -280,8 +279,6 @@ export default function ScanPage() {
           Skanna QR-koden eller ange biljettkoden manuellt.
         </p>
       </div>
-
-      <ScanInstallBanner />
 
       {/* QR Scanner */}
       {!result && !checkInDone && (

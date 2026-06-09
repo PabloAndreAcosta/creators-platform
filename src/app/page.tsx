@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { InstallPrompt } from "@/components/install-prompt";
+import { LandingInstall } from "@/components/landing-install";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { createClient } from "@/lib/supabase/client";
@@ -872,6 +872,11 @@ function CTA() {
           {t("cta.button")}
           <ArrowRight size={16} />
         </a>
+
+        <div className="mt-10 flex flex-col items-center gap-3 border-t border-[var(--usha-border)] pt-10">
+          <p className="text-sm text-[var(--usha-muted)]">{t("cta.installLead")}</p>
+          <LandingInstall />
+        </div>
       </div>
     </section>
   );
@@ -980,7 +985,6 @@ export default function Home() {
       <Pricing />
       <CTA />
       <Footer />
-      <InstallPrompt />
     </main>
   );
 }

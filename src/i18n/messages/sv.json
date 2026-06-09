@@ -580,7 +580,8 @@
       "badge": "Helt gratis under beta",
       "title": "Redo att testa?",
       "description": "Skapa konto på sekunder och utforska hela plattformen utan kostnad.",
-      "button": "Kom igång gratis"
+      "button": "Kom igång gratis",
+      "installLead": "Eller installera appen direkt"
     },
     "footer": {
       "description": "Kreatörer, upplevelser och kunder — förenade på en plattform.",

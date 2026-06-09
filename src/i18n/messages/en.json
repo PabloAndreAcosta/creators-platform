@@ -580,7 +580,8 @@
       "badge": "Completely free during beta",
       "title": "Ready to try?",
       "description": "Create an account in seconds and explore the entire platform at no cost.",
-      "button": "Get started for free"
+      "button": "Get started for free",
+      "installLead": "Or install the app directly"
     },
     "footer": {
       "description": "Creators, experiences and customers — united on one platform.",
