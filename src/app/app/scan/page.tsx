@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Camera, CameraOff, CheckCircle, XCircle, Search, AlertCircle, UserCheck, Loader2, Lock } from "lucide-react";
+import { Camera, CameraOff, CheckCircle, XCircle, Search, AlertCircle, UserCheck, Loader2, Lock, ImagePlus } from "lucide-react";
 import { vibrate } from "@/lib/haptics";
 import { useRole } from "@/components/mobile/role-context";
 import { useSubscription } from "@/lib/subscription/context";
@@ -43,8 +43,10 @@ export default function ScanPage() {
   const [scannerLoading, setScannerLoading] = useState(false);
   const [cameraBlocked, setCameraBlocked] = useState(false);
   const [cameraErrorDetail, setCameraErrorDetail] = useState("");
+  const [scanningFile, setScanningFile] = useState(false);
   const [delegated, setDelegated] = useState<boolean | null>(null);
   const scannerRef = useRef<any>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const scannerContainerRef = useRef<HTMLDivElement>(null);
 
   // Cleanup on unmount
@@ -185,6 +187,30 @@ export default function ScanPage() {
       scannerRef.current = null;
     }
     setScannerActive(false);
+  }
+
+  // Photo fallback: scan a QR from a photo taken with the phone's native camera
+  // app. This uses the camera app's own permission, so it works even when the
+  // browser's getUserMedia camera is blocked.
+  async function handleFilePick(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // allow re-picking the same file
+    if (!file) return;
+
+    setScanningFile(true);
+    setError("");
+    setCameraBlocked(false);
+    setCameraErrorDetail("");
+    try {
+      const { Html5Qrcode } = await import("html5-qrcode");
+      const fileScanner = new Html5Qrcode("qr-file-reader");
+      const decoded = await fileScanner.scanFile(file, false);
+      handleQrResult(decoded);
+    } catch {
+      setError("Ingen QR-kod hittades i bilden. Fota närmare/rakare, eller ange koden manuellt.");
+    } finally {
+      setScanningFile(false);
+    }
   }
 
   // Parse QR result — could be a URL or direct code
@@ -338,6 +364,26 @@ export default function ScanPage() {
               </div>
             )}
           </div>
+
+          {/* Photo fallback — uses the native camera app (own permission) */}
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={scanningFile}
+            className="mb-4 flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] py-3 text-sm font-medium text-[var(--usha-white)] transition hover:border-[var(--usha-gold)]/50 disabled:opacity-50"
+          >
+            {scanningFile ? <Loader2 size={16} className="animate-spin" /> : <ImagePlus size={16} />}
+            {scanningFile ? "Läser av bilden..." : "Fota QR-koden istället"}
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            onChange={handleFilePick}
+            className="hidden"
+          />
+          <div id="qr-file-reader" className="hidden" />
 
           {/* Divider */}
           <div className="mb-4 flex items-center gap-3">
