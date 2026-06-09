@@ -326,8 +326,9 @@ export default function ScanPage() {
                 <div className="mt-5 space-y-1.5 text-left text-xs text-[var(--usha-muted)]">
                   <p className="font-semibold text-[var(--usha-white)]">Om frågan inte dyker upp — aktivera manuellt:</p>
                   <p>• <span className="font-medium">iPhone, Safari:</span> Inställningar → Appar → Safari → Kamera → Tillåt. Eller tryck på <span className="font-medium">aA</span> i adressfältet → Webbplatsinställningar → Kamera.</p>
-                  <p>• <span className="font-medium">Android, Chrome:</span> tryck på låset/ikonen i adressfältet → Behörigheter → Kamera → Tillåt, ladda om. (Samt telefonens Inställningar → Appar → Chrome → Behörigheter → Kamera.)</p>
-                  <p>• <span className="font-medium">Installerad app:</span> telefonens Inställningar → Appar → Usch-Ja → Behörigheter → Kamera.</p>
+                  <p>• <span className="font-medium">Android, Chrome:</span> tryck på låset/ikonen i adressfältet → Behörigheter → Kamera → Tillåt, ladda om.</p>
+                  <p>• <span className="font-medium">Står det &quot;Permission denied&quot; nedan</span> är kameran nekad för usha.se. Öppna Chrome → ⋮ → Inställningar → Webbplatsinställningar → usha.se → <span className="font-medium">Rensa och återställ</span> (eller Kamera → Tillåt) → öppna sidan igen och tryck Tillåt i rutan.</p>
+                  <p>• <span className="font-medium">Installerad app:</span> styrs av samma Chrome-inställning ovan — appen har ingen egen kamera-växel.</p>
                 </div>
                 {cameraErrorDetail && (
                   <p className="mt-4 break-words rounded-lg bg-[var(--usha-black)] px-3 py-2 text-left font-mono text-[10px] text-[var(--usha-muted)]">

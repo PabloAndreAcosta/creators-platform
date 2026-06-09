@@ -1,16 +1,17 @@
 name: Daily storage backup
 
-# Mirrors the Supabase Storage buckets to a Cloudflare R2 bucket once a day.
+# Backs up the Supabase Storage buckets to a Cloudflare R2 bucket once a day.
 # Supabase's managed DB backups do NOT include Storage objects (only metadata),
-# so without this a deleted/overwritten file is unrecoverable. rclone syncs
-# incrementally via the S3-compatible endpoints on both sides.
+# so without this a deleted/overwritten file is unrecoverable.
 #
-# R2's dashboard doesn't expose object versioning, so instead of relying on
-# versioning we use rclone --backup-dir: any file that would be overwritten or
-# deleted in the mirror is first MOVED to _archive/<date>/<bucket>/... So the
-# live mirror always matches Supabase, and a deleted file stays recoverable
-# under _archive. An R2 Object Lifecycle Rule on prefix "_archive/" expires
-# those archived copies after 30 days.
+# This project's Supabase dashboard does not expose dedicated S3 access keys, so
+# scripts/backup-storage.mjs downloads every object via the Storage REST API
+# (authenticated with the secret/service_role key) into a staging dir, then
+# rclone syncs that dir to R2.
+#
+# Retention: R2's dashboard has no object versioning, so rclone --backup-dir
+# MOVES any file that would be overwritten/deleted into _archive/<date>/<bucket>.
+# An R2 Object Lifecycle Rule on prefix "_archive/" expires those after 30 days.
 on:
   schedule:
     - cron: "0 3 * * *" # 03:00 UTC daily, after the Supabase DB-backup window
@@ -23,19 +24,24 @@ jobs:
     if: github.repository == 'usha-ab/creators-platform'
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Download Supabase Storage objects -> staging/
+        env:
+          SUPABASE_URL: https://hiurrvorwqfihtdfhbhv.supabase.co
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          STAGING_DIR: staging
+        run: node scripts/backup-storage.mjs
+
       - name: Install rclone
         run: curl -fsSL https://rclone.org/install.sh | sudo bash
 
-      - name: Sync each bucket Supabase -> R2
+      - name: Sync staging -> R2 (archiving replaced/deleted files)
         env:
-          # Source: Supabase Storage (S3-compatible endpoint)
-          RCLONE_CONFIG_SB_TYPE: s3
-          RCLONE_CONFIG_SB_PROVIDER: Other
-          RCLONE_CONFIG_SB_ENDPOINT: https://hiurrvorwqfihtdfhbhv.storage.supabase.co/storage/v1/s3
-          RCLONE_CONFIG_SB_REGION: eu-central-1
-          RCLONE_CONFIG_SB_ACCESS_KEY_ID: ${{ secrets.SUPABASE_S3_ACCESS_KEY_ID }}
-          RCLONE_CONFIG_SB_SECRET_ACCESS_KEY: ${{ secrets.SUPABASE_S3_SECRET_ACCESS_KEY }}
-          # Destination: Cloudflare R2
           RCLONE_CONFIG_R2_TYPE: s3
           RCLONE_CONFIG_R2_PROVIDER: Cloudflare
           RCLONE_CONFIG_R2_REGION: auto
@@ -46,7 +52,7 @@ jobs:
           DATE=$(date -u +%F)
           for b in avatars creator-media event-images listing-images; do
             echo "::group::Syncing $b"
-            rclone sync "SB:$b" "R2:ushja-storage-backup/$b" \
+            rclone sync "staging/$b" "R2:ushja-storage-backup/$b" \
               --backup-dir "R2:ushja-storage-backup/_archive/$DATE/$b" \
               --fast-list --transfers 8 -v
             echo "::endgroup::"
