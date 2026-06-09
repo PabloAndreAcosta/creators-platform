@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ScanLine, Users, Radio } from "lucide-react";
 import ListingForm from "../../listing-form";
 import { updateListing } from "../../actions";
 
@@ -46,6 +46,30 @@ export default async function EditListingPage({
           Tillbaka
         </Link>
         <h1 className="text-3xl font-bold">Redigera tjänst</h1>
+      </div>
+
+      <div className="mb-6 flex flex-wrap gap-2">
+        <Link
+          href="/app/scan"
+          className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-sm font-bold text-black transition hover:opacity-90"
+        >
+          <ScanLine size={15} />
+          Skanna biljetter
+        </Link>
+        <Link
+          href={`/app/events/${listing.id}/crew`}
+          className="inline-flex items-center gap-2 rounded-full border border-[var(--usha-border)] px-4 py-2 text-sm font-medium text-[var(--usha-white)] transition hover:border-[var(--usha-gold)]/60 hover:text-[var(--usha-gold)]"
+        >
+          <Users size={15} />
+          Crew
+        </Link>
+        <Link
+          href={`/app/events/${listing.id}/live`}
+          className="inline-flex items-center gap-2 rounded-full border border-[var(--usha-border)] px-4 py-2 text-sm font-medium text-green-400 transition hover:border-green-400/60"
+        >
+          <Radio size={15} />
+          Live Dashboard
+        </Link>
       </div>
 
       <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 sm:p-8">
