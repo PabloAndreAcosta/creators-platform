@@ -15,7 +15,7 @@ export async function GET() {
 
   const { data: all } = await supabase
     .from("bookings")
-    .select("id, listing_id, customer_id, guest_name, guest_email, checked_in_at, created_at, status")
+    .select("id, listing_id, customer_id, guest_name, guest_email, checked_in_at, created_at, status, amount_paid")
     .eq("creator_id", user.id)
     .in("status", ["confirmed", "completed"]);
 
@@ -62,6 +62,9 @@ export async function GET() {
     }))
     .sort((a, b) => (b.eventDate ?? "").localeCompare(a.eventDate ?? ""));
 
+  const totalRevenue = bookings.reduce((s, b) => s + (b.amount_paid || 0), 0);
+  const eventCount = listingIds.length;
+
   return NextResponse.json({
     uniqueAttendees,
     returning,
@@ -69,7 +72,10 @@ export async function GET() {
     returningRate: uniqueAttendees > 0 ? Math.round((returning / uniqueAttendees) * 100) : 0,
     totalCheckedIn,
     totalBookings: bookings.length,
-    eventCount: listingIds.length,
+    eventCount,
+    totalRevenue,
+    avgCheckInRate: bookings.length > 0 ? Math.round((totalCheckedIn / bookings.length) * 100) : 0,
+    avgAttendeesPerEvent: eventCount > 0 ? Math.round(bookings.length / eventCount) : 0,
     topReturning: topReturning.slice(0, 50),
     perEvent,
   });

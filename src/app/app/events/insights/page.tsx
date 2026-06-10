@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { ArrowLeft, Users, Repeat, UserPlus, CheckCircle2, Download, Radio } from "lucide-react";
+import { ArrowLeft, Users, Repeat, UserPlus, CheckCircle2, Download, Radio, Banknote, Percent, CalendarDays } from "lucide-react";
 import { useSubscription } from "@/lib/subscription/context";
 
 interface TopReturning {
@@ -26,6 +26,9 @@ interface Insights {
   totalCheckedIn: number;
   totalBookings: number;
   eventCount: number;
+  totalRevenue: number;
+  avgCheckInRate: number;
+  avgAttendeesPerEvent: number;
   topReturning: TopReturning[];
   perEvent: PerEvent[];
 }
@@ -108,10 +111,13 @@ export default function InsightsPage() {
   }
 
   const cards = [
-    { icon: Users, label: "Unika deltagare", value: data.uniqueAttendees },
-    { icon: Repeat, label: `Återkommande (${data.returningRate}%)`, value: data.returning },
-    { icon: UserPlus, label: "Nya", value: data.new },
-    { icon: CheckCircle2, label: "Incheckningar", value: data.totalCheckedIn },
+    { icon: Users, label: "Unika deltagare", value: String(data.uniqueAttendees) },
+    { icon: Repeat, label: `Återkommande (${data.returningRate}%)`, value: String(data.returning) },
+    { icon: UserPlus, label: "Nya", value: String(data.new) },
+    { icon: CheckCircle2, label: "Incheckningar", value: String(data.totalCheckedIn) },
+    { icon: Percent, label: "Incheckningsgrad (snitt)", value: `${data.avgCheckInRate}%` },
+    { icon: CalendarDays, label: "Snitt deltagare/event", value: String(data.avgAttendeesPerEvent) },
+    { icon: Banknote, label: "Total intäkt", value: `${Math.round(data.totalRevenue / 100).toLocaleString("sv-SE")} kr` },
   ];
 
   return (

@@ -31,7 +31,7 @@ export async function GET(
   // this event's list and to detect repeat attendees across events.
   const { data: all } = await supabase
     .from("bookings")
-    .select("id, listing_id, customer_id, guest_name, guest_email, checked_in_at, created_at, status")
+    .select("id, listing_id, customer_id, guest_name, guest_email, checked_in_at, created_at, status, amount_paid")
     .eq("creator_id", user.id)
     .in("status", ["confirmed", "completed"]);
 
@@ -74,15 +74,21 @@ export async function GET(
 
   const attendees = list.length;
   const returning = list.filter((a) => a.returning).length;
-  const checkedInBookings = eventBookings.filter((b) => b.checked_in_at).length;
+  const checkedIn = list.filter((a) => a.checkedIn).length;
+  const revenue = eventBookings.reduce((s, b) => s + (b.amount_paid || 0), 0);
+  const capacity = listing.max_guests ?? null;
 
   return NextResponse.json({
-    event: { id: listing.id, title: listing.title, capacity: listing.max_guests ?? null, eventDate: listing.event_date ?? null },
+    event: { id: listing.id, title: listing.title, capacity, eventDate: listing.event_date ?? null },
     bookings: eventBookings.length,
     attendees,
-    checkedIn: checkedInBookings,
+    checkedIn,
     returning,
     new: attendees - returning,
+    noShows: attendees - checkedIn,
+    checkInRate: attendees > 0 ? Math.round((checkedIn / attendees) * 100) : 0,
+    revenue,
+    fillRate: capacity ? Math.round((attendees / capacity) * 100) : null,
     list,
   });
 }

@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Users, CheckCircle2, Repeat, UserPlus, Download, Radio } from "lucide-react";
+import { ArrowLeft, Users, CheckCircle2, Repeat, UserPlus, Download, Radio, Percent, UserX, Banknote, Gauge } from "lucide-react";
 import { useSubscription } from "@/lib/subscription/context";
 
 interface Attendee {
@@ -20,6 +20,10 @@ interface Stats {
   checkedIn: number;
   returning: number;
   new: number;
+  noShows: number;
+  checkInRate: number;
+  revenue: number;
+  fillRate: number | null;
   list: Attendee[];
 }
 
@@ -103,10 +107,16 @@ export default function EventStatsPage() {
   }
 
   const cards = [
-    { icon: Users, label: "Deltagare", value: data.attendees },
-    { icon: CheckCircle2, label: "Kom (incheckade)", value: data.checkedIn },
-    { icon: Repeat, label: "Återkommande", value: data.returning },
-    { icon: UserPlus, label: "Nya", value: data.new },
+    { icon: Users, label: "Deltagare", value: String(data.attendees) },
+    { icon: CheckCircle2, label: "Kom (incheckade)", value: String(data.checkedIn) },
+    { icon: Percent, label: "Incheckningsgrad", value: `${data.checkInRate}%` },
+    { icon: UserX, label: "No-show", value: String(data.noShows) },
+    { icon: Repeat, label: "Återkommande", value: String(data.returning) },
+    { icon: UserPlus, label: "Nya", value: String(data.new) },
+    { icon: Banknote, label: "Intäkt", value: `${Math.round(data.revenue / 100).toLocaleString("sv-SE")} kr` },
+    ...(data.fillRate != null
+      ? [{ icon: Gauge, label: "Fyllnadsgrad", value: `${data.fillRate}%` }]
+      : []),
   ];
 
   return (
