@@ -9,14 +9,15 @@ import type { Metadata } from "next";
 export const revalidate = 60;
 
 interface Props {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 function isUUID(str: string) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
   const supabase = await createClient();
   const column = isUUID(params.id) ? "id" : "slug";
   const { data: profile } = await supabase
@@ -28,7 +29,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return { title: `${profile?.full_name || "Kreatör"}s kalender – Usch-Ja!` };
 }
 
-export default async function CreatorCalendarPage({ params }: Props) {
+export default async function CreatorCalendarPage(props: Props) {
+  const params = await props.params;
   const supabase = await createClient();
   const column = isUUID(params.id) ? "id" : "slug";
 

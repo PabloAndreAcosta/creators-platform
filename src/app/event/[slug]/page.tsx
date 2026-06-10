@@ -163,7 +163,8 @@ function formatTime(timeStr: string | null, endTimeStr: string | null) {
   return start;
 }
 
-export default async function EventPage({ params }: Params) {
+export default async function EventPage(props: Params) {
+  const params = await props.params;
   const { slug } = await params;
   let data = await getListing(slug);
   if (!data) {

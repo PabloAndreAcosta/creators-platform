@@ -21,14 +21,15 @@ import { filterByGoldExclusivity } from "@/lib/listings/early-bird";
 import { FollowButton } from "@/components/follow-button";
 
 interface Props {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 function isUUID(str: string) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
   const supabase = await createClient();
   const t = await getTranslations("creatorProfile");
   const column = isUUID(params.id) ? "id" : "slug";
@@ -59,7 +60,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function CreatorProfilePage({ params }: Props) {
+export default async function CreatorProfilePage(props: Props) {
+  const params = await props.params;
   const supabase = await createClient();
   const t = await getTranslations("creatorProfile");
 
@@ -222,7 +224,6 @@ export default async function CreatorProfilePage({ params }: Props) {
           </div>
         </div>
       </header>
-
       <div className="mx-auto max-w-6xl px-4 py-6 md:px-6 md:py-10">
         <Link
           href="/marketplace"

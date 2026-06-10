@@ -1,11 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 import { EventsContent } from "./events-content";
 
-export default async function EventsPage({
-  searchParams,
-}: {
-  searchParams: { fb_connected?: string; fb_error?: string };
-}) {
+export default async function EventsPage(
+  props: {
+    searchParams: Promise<{ fb_connected?: string; fb_error?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   let listings: any[] = [];
   let facebookPageId: string | null = null;
   let facebookPageName: string | null = null;

@@ -9,7 +9,7 @@ import { MapPin, Clock, Calendar, ArrowLeft, User, ChevronRight } from "lucide-r
 import { CATEGORY_LABELS } from "@/lib/categories";
 
 interface Props {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 type Occurrence = {
@@ -42,7 +42,8 @@ async function fetchSeries(slug: string): Promise<Occurrence[]> {
   return (data as Occurrence[] | null) ?? [];
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
   const occurrences = await fetchSeries(params.slug);
   if (occurrences.length === 0) return { title: "Serie – Usch-Ja!" };
 
@@ -111,7 +112,8 @@ function OccurrenceRow({ o, past }: { o: Occurrence; past?: boolean }) {
   );
 }
 
-export default async function SeriesPage({ params }: Props) {
+export default async function SeriesPage(props: Props) {
+  const params = await props.params;
   const occurrences = await fetchSeries(params.slug);
   if (occurrences.length === 0) notFound();
 

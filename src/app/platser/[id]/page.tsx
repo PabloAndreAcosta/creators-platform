@@ -8,10 +8,11 @@ import { ListingCard } from "@/components/listing-card";
 import { getBookingCounts, sortWithPromoted, isActivelyPromoted } from "@/lib/listings/popularity";
 
 interface Props {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
   const supabase = await createClient();
   const { data: venue } = await supabase
     .from("venues")
@@ -31,7 +32,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function VenueDetailPage({ params }: Props) {
+export default async function VenueDetailPage(props: Props) {
+  const params = await props.params;
   const supabase = await createClient();
 
   const { data: venue } = await supabase

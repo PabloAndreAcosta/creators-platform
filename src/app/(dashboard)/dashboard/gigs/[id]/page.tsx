@@ -4,7 +4,8 @@ import Link from "next/link";
 import { ArrowLeft, Calendar, MapPin } from "lucide-react";
 import { GigApplicationActions } from "./application-actions";
 
-export default async function GigDetailPage({ params }: { params: { id: string } }) {
+export default async function GigDetailPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const supabase = await createClient();
   const {
     data: { user },

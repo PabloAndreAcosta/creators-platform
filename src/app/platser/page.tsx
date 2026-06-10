@@ -17,11 +17,12 @@ interface SearchParams {
   q?: string;
 }
 
-export default async function PlatserPage({
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
+export default async function PlatserPage(
+  props: {
+    searchParams: Promise<SearchParams>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient();
   const { q } = searchParams;
 

@@ -38,11 +38,12 @@ const SORT_OPTIONS = [
   { value: "newest", labelKey: "experiences.sortNewest" },
 ] as const;
 
-export default async function UpplevelserPage({
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
+export default async function UpplevelserPage(
+  props: {
+    searchParams: Promise<SearchParams>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient();
   const t = await getTranslations();
   const { category, location, sort, page: pageParam } = searchParams;

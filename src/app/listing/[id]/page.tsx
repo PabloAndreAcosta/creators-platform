@@ -21,14 +21,15 @@ import { CATEGORY_LABELS } from "@/lib/categories";
 import { calculateDiscountedPrice } from "@/lib/stripe/commission";
 
 interface Props {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 function isUUID(str: string) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
   const supabase = await createClient();
   const column = isUUID(params.id) ? "id" : "slug";
   const { data: listing } = await supabase
@@ -56,7 +57,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function ListingDetailPage({ params }: Props) {
+export default async function ListingDetailPage(props: Props) {
+  const params = await props.params;
   const supabase = await createClient();
 
   const column = isUUID(params.id) ? "id" : "slug";

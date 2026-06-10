@@ -11,7 +11,8 @@ export const dynamic = "force-dynamic";
 
 export const metadata = { title: "Crew – Usch-Ja!" };
 
-export default async function CrewPage({ params }: { params: { id: string } }) {
+export default async function CrewPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const supabase = await createClient();
   const {
     data: { user },

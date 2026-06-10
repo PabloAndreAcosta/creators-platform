@@ -8,14 +8,15 @@ import { ListingCard } from "@/components/listing-card";
 import { getBookingCounts, sortWithPromoted, isActivelyPromoted } from "@/lib/listings/popularity";
 
 interface Props {
-  params: { location: string };
+  params: Promise<{ location: string }>;
 }
 
 function capitalize(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
   const city = capitalize(decodeURIComponent(params.location));
   return {
     title: `Upplevelser i ${city} – Usch-Ja!`,
@@ -27,7 +28,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function LocationPage({ params }: Props) {
+export default async function LocationPage(props: Props) {
+  const params = await props.params;
   const city = capitalize(decodeURIComponent(params.location));
   const supabase = await createClient();
 

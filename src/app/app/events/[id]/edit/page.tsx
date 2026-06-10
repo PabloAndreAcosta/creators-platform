@@ -5,7 +5,8 @@ import { Users, Radio, ScanLine, BarChart3 } from "lucide-react";
 import EventForm from "../../event-form";
 import { updateEvent } from "../../actions";
 
-export default async function EditEventPage({ params }: { params: { id: string } }) {
+export default async function EditEventPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const supabase = await createClient();
   const {
     data: { user },

@@ -28,11 +28,12 @@ interface SearchParams {
 
 const PAGE_SIZE = 20;
 
-export default async function MarketplacePage({
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
+export default async function MarketplacePage(
+  props: {
+    searchParams: Promise<SearchParams>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const supabase = await createClient();
   const t = await getTranslations();
   const { data: { user } } = await supabase.auth.getUser();

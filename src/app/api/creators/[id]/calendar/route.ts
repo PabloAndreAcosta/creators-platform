@@ -9,7 +9,8 @@ function isUUID(str: string) {
 // Public subscribable calendar feed of a creator's upcoming events.
 // Unauthenticated (no cookies) -> anon -> RLS limits to is_public creators
 // and is_active listings.
-export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const supabase = await createClient();
   const column = isUUID(params.id) ? "id" : "slug";
 
