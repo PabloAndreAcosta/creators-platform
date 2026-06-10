@@ -29,8 +29,15 @@ interface Insights {
   totalRevenue: number;
   avgCheckInRate: number;
   avgAttendeesPerEvent: number;
+  monthlyTrend: { month: string; checkedIn: number; revenue: number; bookings: number }[];
   topReturning: TopReturning[];
   perEvent: PerEvent[];
+}
+
+const MONTHS_SV = ["jan", "feb", "mar", "apr", "maj", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
+function monthLabel(ym: string) {
+  const m = parseInt(ym.slice(5, 7), 10);
+  return MONTHS_SV[m - 1] ?? ym;
 }
 
 function csvEscape(v: string) {
@@ -139,6 +146,33 @@ export default function InsightsPage() {
           </div>
         ))}
       </div>
+
+      {/* Monthly trend */}
+      {data.monthlyTrend.some((m) => m.bookings > 0) && (
+        <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
+          <h3 className="mb-4 text-sm font-semibold">Trend (senaste 6 mån)</h3>
+          <div className="flex h-40 items-end gap-2">
+            {data.monthlyTrend.map((m) => {
+              const max = Math.max(...data.monthlyTrend.map((x) => x.checkedIn), 1);
+              return (
+                <div key={m.month} className="flex flex-1 flex-col items-center gap-1">
+                  <span className="text-[10px] font-semibold text-[var(--usha-white)]">{m.checkedIn || ""}</span>
+                  <div className="flex w-full flex-1 items-end">
+                    <div
+                      className="w-full rounded-t bg-gradient-to-t from-[var(--usha-gold)] to-[var(--usha-accent)] transition-all"
+                      style={{ height: `${Math.max((m.checkedIn / max) * 100, 2)}%` }}
+                      title={`${m.checkedIn} incheckade · ${Math.round(m.revenue / 100).toLocaleString("sv-SE")} kr`}
+                    />
+                  </div>
+                  <span className="text-[10px] text-[var(--usha-muted)]">{monthLabel(m.month)}</span>
+                  <span className="text-[9px] text-[var(--usha-muted)]">{Math.round(m.revenue / 100).toLocaleString("sv-SE")} kr</span>
+                </div>
+              );
+            })}
+          </div>
+          <p className="mt-3 text-center text-[10px] text-[var(--usha-muted)]">Stapelhöjd = incheckade deltagare · belopp = intäkt</p>
+        </div>
+      )}
 
       {/* Top returning */}
       <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] overflow-hidden">

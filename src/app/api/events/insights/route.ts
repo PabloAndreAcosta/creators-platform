@@ -15,7 +15,7 @@ export async function GET() {
 
   const { data: all } = await supabase
     .from("bookings")
-    .select("id, listing_id, customer_id, guest_name, guest_email, checked_in_at, created_at, status, amount_paid")
+    .select("id, listing_id, customer_id, guest_name, guest_email, checked_in_at, created_at, scheduled_at, status, amount_paid")
     .eq("creator_id", user.id)
     .in("status", ["confirmed", "completed"]);
 
@@ -65,6 +65,24 @@ export async function GET() {
   const totalRevenue = bookings.reduce((s, b) => s + (b.amount_paid || 0), 0);
   const eventCount = listingIds.length;
 
+  // Monthly trend (last 6 months, by event date with booking-date fallback)
+  const now = new Date();
+  const months: string[] = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`);
+  }
+  const trendMap = new Map(months.map((m) => [m, { checkedIn: 0, revenue: 0, bookings: 0 }]));
+  for (const b of bookings) {
+    const key = (b.scheduled_at || b.created_at || "").slice(0, 7);
+    const e = trendMap.get(key);
+    if (!e) continue;
+    e.bookings += 1;
+    if (b.checked_in_at) e.checkedIn += 1;
+    e.revenue += b.amount_paid || 0;
+  }
+  const monthlyTrend = months.map((m) => ({ month: m, ...trendMap.get(m)! }));
+
   return NextResponse.json({
     uniqueAttendees,
     returning,
@@ -76,6 +94,7 @@ export async function GET() {
     totalRevenue,
     avgCheckInRate: bookings.length > 0 ? Math.round((totalCheckedIn / bookings.length) * 100) : 0,
     avgAttendeesPerEvent: eventCount > 0 ? Math.round(bookings.length / eventCount) : 0,
+    monthlyTrend,
     topReturning: topReturning.slice(0, 50),
     perEvent,
   });

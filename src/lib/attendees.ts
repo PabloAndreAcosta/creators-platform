@@ -11,6 +11,7 @@ export interface BookingLike {
   guest_email: string | null;
   checked_in_at: string | null;
   created_at: string;
+  scheduled_at?: string | null;
   status: string;
   amount_paid?: number | null;
   profiles?: { full_name: string | null; email: string | null } | null;
