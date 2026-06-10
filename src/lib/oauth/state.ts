@@ -5,7 +5,15 @@ import type { NextRequest } from "next/server";
 const COOKIE_NAME = "oauth_state";
 const SECRET = process.env.BANKID_COOKIE_SECRET || "";
 
-if (typeof window === "undefined" && !SECRET && process.env.NODE_ENV === "production") {
+// Skip during `next build` page-data collection (NEXT_PHASE), where runtime
+// secrets aren't (and shouldn't be) present — e.g. isolated Preview builds.
+// The guard still fires at request time in production, preserving fail-closed.
+if (
+  typeof window === "undefined" &&
+  !SECRET &&
+  process.env.NODE_ENV === "production" &&
+  process.env.NEXT_PHASE !== "phase-production-build"
+) {
   throw new Error(
     "BANKID_COOKIE_SECRET must be set in production. Refusing to sign OAuth state cookies with an empty key (no fallback to service-role)."
   );

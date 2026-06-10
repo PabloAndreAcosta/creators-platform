@@ -3,7 +3,10 @@ import crypto from "crypto";
 const SECRET = process.env.BANKID_COOKIE_SECRET || "";
 
 if (typeof window === "undefined" && !SECRET) {
-  if (process.env.NODE_ENV === "production") {
+  // Skip during `next build` page-data collection (NEXT_PHASE), where runtime
+  // secrets aren't present — e.g. isolated Preview builds. The guard still
+  // fires at request time in production, preserving fail-closed behaviour.
+  if (process.env.NODE_ENV === "production" && process.env.NEXT_PHASE !== "phase-production-build") {
     throw new Error(
       "BANKID_COOKIE_SECRET must be set in production. Refusing to sign cookies or hash personal numbers with an empty key."
     );
