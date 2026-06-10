@@ -30,6 +30,8 @@ interface Listing {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  event_date?: string | null;
+  event_time?: string | null;
 }
 
 type TopCreator = Pick<Profile, "id" | "full_name" | "category" | "avatar_url">;
@@ -66,7 +68,7 @@ export default async function AppHomePage() {
           .in("status", ["pending", "confirmed"]),
         supabase
           .from("listings")
-          .select("id, user_id, title, category, price, duration_minutes, is_active, created_at")
+          .select("id, user_id, title, category, price, duration_minutes, is_active, created_at, event_date, event_time")
           .eq("user_id", user.id)
           .order("created_at", { ascending: false })
           .limit(10),

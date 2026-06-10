@@ -61,6 +61,8 @@ interface Listing {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  event_date?: string | null;
+  event_time?: string | null;
 }
 
 type TopCreator = Pick<Profile, "id" | "full_name" | "category" | "avatar_url">;
@@ -534,6 +536,9 @@ function KreatorHome({
   const todaysListings = ownServices.slice(0, 3).map((listing) => ({
     id: listing.id,
     title: listing.title,
+    date: listing.event_date
+      ? new Date(`${listing.event_date}T12:00:00+02:00`).toLocaleDateString("sv-SE", { day: "numeric", month: "short" })
+      : null,
     time: listing.duration_minutes ? `${listing.duration_minutes} min` : "-",
     category: listing.category || "Övrigt",
   }));
@@ -641,6 +646,12 @@ function KreatorHome({
                   <span className="text-sm">{cls.title}</span>
                 </div>
                 <div className="flex items-center gap-2">
+                  {cls.date && (
+                    <span className="flex items-center gap-1 text-[10px] text-[var(--usha-muted)]">
+                      <Calendar size={11} />
+                      {cls.date}
+                    </span>
+                  )}
                   <span className="text-[10px] text-[var(--usha-muted)]">{cls.time}</span>
                   <span className="rounded bg-[var(--usha-card)] px-1.5 py-0.5 text-[9px] text-[var(--usha-muted)] border border-[var(--usha-border)]">{cls.category}</span>
                   <ChevronRight size={14} className="text-[var(--usha-muted)]" />
@@ -737,7 +748,7 @@ function KreatorHome({
                 <Clock size={16} className="text-[var(--usha-gold)]" />
                 <div className="flex-1">
                   <h3 className="text-sm font-medium">{cls.title}</h3>
-                  <p className="text-[10px] text-[var(--usha-muted)]">{cls.time} · {cls.category}</p>
+                  <p className="text-[10px] text-[var(--usha-muted)]">{cls.date ? `${cls.date} · ` : ""}{cls.time} · {cls.category}</p>
                 </div>
                 <ChevronRight size={16} className="text-[var(--usha-muted)]" />
               </Link>
@@ -851,7 +862,7 @@ function KreatorHome({
               <Clock size={16} className="text-[var(--usha-gold)]" />
               <div className="flex-1">
                 <h3 className="text-sm font-medium">{cls.title}</h3>
-                <p className="text-[10px] text-[var(--usha-muted)]">{cls.time} · {cls.category}</p>
+                <p className="text-[10px] text-[var(--usha-muted)]">{cls.date ? `${cls.date} · ` : ""}{cls.time} · {cls.category}</p>
               </div>
               <ChevronRight size={16} className="text-[var(--usha-muted)]" />
             </Link>
