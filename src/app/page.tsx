@@ -455,6 +455,7 @@ function Features() {
     { key: "delegateScan", icon: ScanLine, isNew: true },
     { key: "gage", icon: Banknote, isNew: true },
     { key: "live", icon: Radio },
+    { key: "stats", icon: BarChart3, isNew: true },
     { key: "bankid", icon: Fingerprint },
     { key: "payments", icon: CreditCard },
     { key: "marketplace", icon: Store },

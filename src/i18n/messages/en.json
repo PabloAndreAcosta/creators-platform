@@ -480,6 +480,7 @@
         "delegateScan": { "title": "Delegate scanning", "desc": "Let trusted crew members scan tickets for you." },
         "gage": { "title": "Pay your crew", "desc": "Agree on a fee and pay directly via Stripe." },
         "live": { "title": "Live dashboard", "desc": "Real-time stats and check-ins while the event runs." },
+        "stats": { "title": "Stats & insights", "desc": "See how many came, who, returning attendees and trends — with CSV export." },
         "bankid": { "title": "BankID verification", "desc": "Verified identities for safety and trust." },
         "payments": { "title": "Secure payments", "desc": "Stripe payments and fast payouts to your account." },
         "marketplace": { "title": "Marketplace", "desc": "Get discovered — find creators and experiences near you." },

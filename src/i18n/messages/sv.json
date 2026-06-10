@@ -480,6 +480,7 @@
         "delegateScan": { "title": "Delegera skanning", "desc": "Låt betrodda crew-medlemmar skanna biljetter åt dig." },
         "gage": { "title": "Betala ditt crew", "desc": "Kom överens om gage och betala direkt via Stripe." },
         "live": { "title": "Live-dashboard", "desc": "Realtidsstatistik och incheckningar medan eventet pågår." },
+        "stats": { "title": "Statistik & insikter", "desc": "Se hur många som kom, vilka, återkommande deltagare och trender — med CSV-export." },
         "bankid": { "title": "BankID-verifiering", "desc": "Verifierade identiteter för trygghet och förtroende." },
         "payments": { "title": "Säkra betalningar", "desc": "Stripe-betalningar och snabba utbetalningar till ditt konto." },
         "marketplace": { "title": "Marknadsplats", "desc": "Bli upptäckt — hitta kreatörer och upplevelser nära dig." },
