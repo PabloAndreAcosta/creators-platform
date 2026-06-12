@@ -1,6 +1,7 @@
 export const revalidate = 60; // ISR: revalidate every 60 seconds
 
 import { createClient } from "@/lib/supabase/server";
+import { safeJsonLd } from "@/lib/json-ld";
 import { CATEGORY_LABELS } from "@/lib/categories";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -184,7 +185,7 @@ export default async function CreatorProfilePage(props: Props) {
     <div className="min-h-screen" style={wlStyle}>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }}
       />
       {/* Header */}
       <header className="border-b border-[var(--usha-border)]">

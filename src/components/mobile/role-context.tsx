@@ -36,27 +36,27 @@ const RoleContext = createContext<RoleContextType>({
   setRole: () => {},
 });
 
-import { isAdmin as checkIsAdmin } from "@/lib/config";
-
 export function RoleProvider({ children }: { children: ReactNode }) {
   const [role, setRole] = useState<UserRole>("publik");
   const [dbRole, setDbRole] = useState<UserRole>("publik");
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    // Sync from database — this is the source of truth
+    // Sync from database — this is the source of truth. Admin status comes from
+    // the protected profiles.is_admin column (not a client-side email list), so
+    // no admin identities need to be shipped in the public bundle.
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) return;
-      if (checkIsAdmin(user.email)) {
-        setIsAdmin(true);
-      }
       supabase
         .from("profiles")
-        .select("role")
+        .select("role, is_admin")
         .eq("id", user.id)
         .single()
         .then(({ data }) => {
+          if (data?.is_admin === true) {
+            setIsAdmin(true);
+          }
           if (data?.role) {
             const appRole = DB_TO_APP_ROLE[data.role] ?? "publik";
             setDbRole(appRole);
