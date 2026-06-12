@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { LandingInstall } from "@/components/landing-install";
 import { LandingStats } from "@/components/landing-stats";
+import UschjaLogo from "@/components/UschjaLogo";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { createClient } from "@/lib/supabase/client";
@@ -86,9 +87,7 @@ function Nav() {
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-[var(--usha-border)] bg-[var(--usha-black)]/80 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <a href={isLoggedIn ? "/app" : "#"} className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
-            <span className="text-sm font-bold text-black">U</span>
-          </div>
+          <UschjaLogo size={40} />
           <span className="text-lg font-bold tracking-tight">Usch-Ja!</span>
         </a>
 

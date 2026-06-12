@@ -32,8 +32,11 @@ export const metadata: Metadata = {
     "mobile-web-app-capable": "yes",
   },
   icons: {
-    icon: "/icon-192.png",
-    apple: "/icon-192.png",
+    icon: [
+      { url: "/icon-192.png" },
+      { url: "/icon-light-192.png", media: "(prefers-color-scheme: light)" },
+    ],
+    apple: "/apple-touch-icon.png",
   },
   openGraph: {
     title: "Usch-Ja! — Skapa event, sälj biljetter, betala ditt crew",

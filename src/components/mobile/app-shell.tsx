@@ -10,6 +10,7 @@ import { RoleToggle } from "./role-toggle";
 import { NotificationBell } from "@/components/notification-bell";
 import { SearchBar } from "@/components/search-bar";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import UschjaLogo from "@/components/UschjaLogo";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 interface AppShellProps {
@@ -34,9 +35,7 @@ export function AppShell({ children, userName }: AppShellProps) {
             <div className="flex items-center gap-3 px-4 py-3">
               {/* Logo – mobile only */}
               <a href="/app" className="flex items-center gap-2 md:hidden">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
-                  <span className="text-sm font-bold text-black">U</span>
-                </div>
+                <UschjaLogo size={32} />
                 {!mobileSearchOpen && (
                   <span className="text-lg font-bold tracking-tight">Usch-Ja!</span>
                 )}

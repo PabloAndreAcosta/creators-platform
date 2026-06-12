@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { ShieldCheck } from "lucide-react";
+import UschjaLogo from "@/components/UschjaLogo";
 
 function FieldError({ message }: { message: string }) {
   return <p className="mt-1 text-xs text-red-400">{message}</p>;
@@ -135,8 +136,8 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center px-6">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
-            <span className="text-lg font-bold text-black">U</span>
+          <div className="mb-4 flex justify-center">
+            <UschjaLogo size={80} />
           </div>
           <h1 className="text-2xl font-bold">{t("welcomeBack")}</h1>
           <p className="mt-1 text-sm text-[var(--usha-muted)]">{t("loginToAccount")}</p>

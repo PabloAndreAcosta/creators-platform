@@ -19,6 +19,7 @@ import {
 import { useRole } from "./role-context";
 import { useSubscription } from "@/lib/subscription/context";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import UschjaLogo from "@/components/UschjaLogo";
 
 export function SidebarNav() {
   const pathname = usePathname();
@@ -69,9 +70,7 @@ export function SidebarNav() {
       <div>
         {/* Logo */}
         <a href="/app" className="flex items-center gap-2.5 px-6 py-6">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
-            <span className="text-sm font-bold text-black">U</span>
-          </div>
+          <UschjaLogo size={36} />
           <span className="text-xl font-bold tracking-tight">Usch-Ja!</span>
         </a>
 
