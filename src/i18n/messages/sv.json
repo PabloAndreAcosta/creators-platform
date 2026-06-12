@@ -127,7 +127,14 @@
     "legalInfo": "Juridisk information",
     "privacyPolicy": "Integritetspolicy",
     "terms": "Användarvillkor",
-    "cookiePolicy": "Cookiepolicy"
+    "cookiePolicy": "Cookiepolicy",
+    "logo": {
+      "title": "Logotyp",
+      "desc": "Visa ljus eller mörk logga",
+      "dark": "Mörk",
+      "light": "Ljus",
+      "system": "Följ systemet"
+    }
   },
   "notifSettings": {
     "newBookings": "Nya bokningar",

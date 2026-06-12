@@ -127,7 +127,14 @@
     "legalInfo": "Legal information",
     "privacyPolicy": "Privacy Policy",
     "terms": "Terms of Service",
-    "cookiePolicy": "Cookie Policy"
+    "cookiePolicy": "Cookie Policy",
+    "logo": {
+      "title": "Logo",
+      "desc": "Show a light or dark logo",
+      "dark": "Dark",
+      "light": "Light",
+      "system": "Follow system"
+    }
   },
   "notifSettings": {
     "newBookings": "New bookings",

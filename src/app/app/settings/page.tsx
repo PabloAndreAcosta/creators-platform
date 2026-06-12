@@ -3,6 +3,7 @@
 import { Settings, Bell, Shield, HelpCircle, UserX, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { LogoModeSetting } from "@/components/logo-mode-setting";
 
 export default function SettingsPage() {
   const t = useTranslations("settings");
@@ -59,6 +60,8 @@ export default function SettingsPage() {
           </Link>
         ))}
       </div>
+
+      <LogoModeSetting />
     </div>
   );
 }
