@@ -431,9 +431,9 @@
     },
     "hero": {
       "badge": "Köp biljetter direkt — inget konto krävs",
-      "headlinePart1": "Kreativitet &",
-      "headlinePart2": "upplevelser, förenade",
-      "description": "Usch-Ja samlar kreatörer, upplevelser och kunder på en plattform. Profil, bokning och betalning — allt på ett ställe.",
+      "headlinePart1": "Skapa event. Sälj biljetter.",
+      "headlinePart2": "Betala ditt crew.",
+      "description": "Plattformen för kreatörer och upplevelser — publicera event på minuter, sälj biljetter, skanna vid dörren och betala ditt crew. Tryggt med BankID & Stripe.",
       "ctaPrimary": "Kom igång gratis",
       "ctaSecondary": "Utforska upplevelser"
     },

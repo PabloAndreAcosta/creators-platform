@@ -431,9 +431,9 @@
     },
     "hero": {
       "badge": "Buy tickets directly — no account required",
-      "headlinePart1": "Creativity &",
-      "headlinePart2": "experiences, united",
-      "description": "Usch-Ja brings creators, experiences and customers together on one platform. Profile, booking and payment — all in one place.",
+      "headlinePart1": "Create events. Sell tickets.",
+      "headlinePart2": "Pay your crew.",
+      "description": "The platform for creators and experiences — publish events in minutes, sell tickets, scan at the door and pay your crew. Secure with BankID & Stripe.",
       "ctaPrimary": "Get started for free",
       "ctaSecondary": "Explore experiences"
     },
