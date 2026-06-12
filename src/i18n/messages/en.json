@@ -592,6 +592,20 @@
       "upplevelsePremium4": "Facebook sync",
       "upplevelsePremium5": "Dedicated support"
     },
+    "faq": {
+      "title": "Questions &",
+      "titleHighlight": "answers",
+      "q1": "What does it cost?",
+      "a1": "Free during beta. On sold tickets we take a commission: 15% on the free plan, 8% on Gold and 3% on Premium. You always see your share before publishing.",
+      "q2": "Do I need BankID?",
+      "a2": "Hosts and creators verify with BankID — it keeps everyone safe. Attendees can usually buy a ticket without verifying.",
+      "q3": "How do I get paid?",
+      "a3": "Ticket revenue flows via Stripe straight to your account. You can cash out fast — the first instant payout each month is free.",
+      "q4": "Can guests buy without an account?",
+      "a4": "Yes. Guests can buy a ticket with just an email and get a QR code to show at the door — no account needed.",
+      "q5": "Can I get help from others?",
+      "a5": "Yes. Invite your crew (creators, taxi dancers, volunteers, co-hosts), delegate ticket scanning, and agree on a fee you pay right in the app."
+    },
     "cta": {
       "badge": "Completely free during beta",
       "title": "Ready to try?",

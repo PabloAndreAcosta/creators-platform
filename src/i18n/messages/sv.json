@@ -592,6 +592,20 @@
       "upplevelsePremium4": "Facebook-sync",
       "upplevelsePremium5": "Dedikerad support"
     },
+    "faq": {
+      "title": "Frågor &",
+      "titleHighlight": "svar",
+      "q1": "Vad kostar det?",
+      "a1": "Gratis under beta. På sålda biljetter tar vi en provision: 15 % på gratisplanen, 8 % på Guld och 3 % på Premium. Du ser alltid din andel innan du publicerar.",
+      "q2": "Behöver jag BankID?",
+      "a2": "Värdar och kreatörer verifieras med BankID — det skapar trygghet för alla. Deltagare kan oftast köpa biljett utan att verifiera sig.",
+      "q3": "Hur får jag betalt?",
+      "a3": "Pengar från biljettförsäljning går via Stripe direkt till ditt konto. Du kan ta ut snabbt — första snabbutbetalningen varje månad är avgiftsfri.",
+      "q4": "Kan gäster köpa utan konto?",
+      "a4": "Ja. Gäster kan köpa en biljett med bara e-post och få en QR-kod att visa vid dörren — inget konto krävs.",
+      "q5": "Kan jag ta hjälp av andra?",
+      "a5": "Ja. Bjud in ditt crew (kreatörer, taxidansare, volontärer, medvärdar), delegera biljettskanning och kom överens om gage som du betalar direkt i appen."
+    },
     "cta": {
       "badge": "Helt gratis under beta",
       "title": "Redo att testa?",
