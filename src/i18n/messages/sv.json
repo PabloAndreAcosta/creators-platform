@@ -467,6 +467,12 @@
         "detail4": "Omdömen & betyg för att hitta rätt"
       }
     },
+    "stats": {
+      "events": "produktioner",
+      "creators": "kreatörer",
+      "checkIns": "incheckningar",
+      "cities": "städer"
+    },
     "features": {
       "title": "Allt du behöver för att",
       "titleHighlight": "driva dina event",

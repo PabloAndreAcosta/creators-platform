@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { LandingInstall } from "@/components/landing-install";
+import { LandingStats } from "@/components/landing-stats";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { createClient } from "@/lib/supabase/client";
@@ -979,6 +980,7 @@ export default function Home() {
     <main>
       <Nav />
       <Hero />
+      <LandingStats />
       <Ecosystem />
       <Features />
       <Onboarding />

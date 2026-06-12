@@ -467,6 +467,12 @@
         "detail4": "Reviews & ratings to find the right fit"
       }
     },
+    "stats": {
+      "events": "productions",
+      "creators": "creators",
+      "checkIns": "check-ins",
+      "cities": "cities"
+    },
     "features": {
       "title": "Everything you need to",
       "titleHighlight": "run your events",
