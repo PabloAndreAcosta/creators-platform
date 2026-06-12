@@ -427,7 +427,10 @@
       "safariMac": "Safari (Mac)",
       "safariMacInstructions": "Arkiv → Lägg till i Dock",
       "close": "Stäng",
-      "openInBrowser": "Öppna i webbläsaren"
+      "openInBrowser": "Öppna i webbläsaren",
+      "appCta": "Installera Usch-Ja app",
+      "iosHelp": "iPhone (Safari): tryck på Dela-ikonen → \"Lägg till på hemskärmen\".",
+      "otherHelp": "Öppna webbläsarens meny (⋮) → \"Installera app\" / \"Lägg till på startskärmen\"."
     },
     "hero": {
       "badge": "Köp biljetter direkt — inget konto krävs",
@@ -473,36 +476,72 @@
       "checkIns": "incheckningar",
       "cities": "städer"
     },
-    "showcase": {
-      "title": "Byggd för att",
-      "titleHighlight": "köra på riktigt",
-      "subtitle": "Från översikt till utbetalning — allt i en app.",
-      "home": "Din översikt",
-      "listings": "Skapa & hantera",
-      "analytics": "Statistik & insikter",
-      "payouts": "Snabba utbetalningar"
-    },
     "features": {
       "title": "Allt du behöver för att",
       "titleHighlight": "driva dina event",
       "subtitle": "En plattform — från första biljetten till sista incheckningen, och allt däremellan.",
       "newBadge": "Nyhet",
       "items": {
-        "create": { "title": "Skapa event på minuter", "desc": "Publicera produktioner och sälj biljetter — gratis eller mot betalning." },
-        "tickets": { "title": "QR-biljetter", "desc": "Varje biljett får en skanningsbar QR-kod, redo vid dörren." },
-        "scan": { "title": "Incheckning & skanning", "desc": "Skanna gäster vid entrén — snabbt och säkert." },
-        "crew": { "title": "Crew & samarbeten", "desc": "Bjud in kreatörer, taxidansare, volontärer och medvärdar till din produktion." },
-        "delegateScan": { "title": "Delegera skanning", "desc": "Låt betrodda crew-medlemmar skanna biljetter åt dig." },
-        "gage": { "title": "Betala ditt crew", "desc": "Kom överens om gage och betala direkt via Stripe." },
-        "live": { "title": "Live-dashboard", "desc": "Realtidsstatistik och incheckningar medan eventet pågår." },
-        "stats": { "title": "Statistik & insikter", "desc": "Se hur många som kom, vilka, återkommande deltagare och trender — med CSV-export." },
-        "bankid": { "title": "BankID-verifiering", "desc": "Verifierade identiteter för trygghet och förtroende." },
-        "payments": { "title": "Säkra betalningar", "desc": "Stripe-betalningar och snabba utbetalningar till ditt konto." },
-        "marketplace": { "title": "Marknadsplats", "desc": "Bli upptäckt — hitta kreatörer och upplevelser nära dig." },
-        "feed": { "title": "Socialt flöde", "desc": "Dela inlägg, bygg din publik och håll kontakten." },
-        "calendar": { "title": "Kalender & påminnelser", "desc": "Din och följdas kalender, med påminnelser och export." },
-        "courses": { "title": "Kurser & innehåll", "desc": "Sälj kurser och digitalt innehåll direkt i appen." },
-        "rewards": { "title": "Poäng & belöningar", "desc": "Lojalitetspoäng, belöningar och topplista." }
+        "create": {
+          "title": "Skapa event på minuter",
+          "desc": "Publicera produktioner och sälj biljetter — gratis eller mot betalning."
+        },
+        "tickets": {
+          "title": "QR-biljetter",
+          "desc": "Varje biljett får en skanningsbar QR-kod, redo vid dörren."
+        },
+        "scan": {
+          "title": "Incheckning & skanning",
+          "desc": "Skanna gäster vid entrén — snabbt och säkert."
+        },
+        "crew": {
+          "title": "Crew & samarbeten",
+          "desc": "Bjud in kreatörer, taxidansare, volontärer och medvärdar till din produktion."
+        },
+        "delegateScan": {
+          "title": "Delegera skanning",
+          "desc": "Låt betrodda crew-medlemmar skanna biljetter åt dig."
+        },
+        "gage": {
+          "title": "Betala ditt crew",
+          "desc": "Kom överens om gage och betala direkt via Stripe."
+        },
+        "live": {
+          "title": "Live-dashboard",
+          "desc": "Realtidsstatistik och incheckningar medan eventet pågår."
+        },
+        "stats": {
+          "title": "Statistik & insikter",
+          "desc": "Se hur många som kom, vilka, återkommande deltagare och trender — med CSV-export."
+        },
+        "bankid": {
+          "title": "BankID-verifiering",
+          "desc": "Verifierade identiteter för trygghet och förtroende."
+        },
+        "payments": {
+          "title": "Säkra betalningar",
+          "desc": "Stripe-betalningar och snabba utbetalningar till ditt konto."
+        },
+        "marketplace": {
+          "title": "Marknadsplats",
+          "desc": "Bli upptäckt — hitta kreatörer och upplevelser nära dig."
+        },
+        "feed": {
+          "title": "Socialt flöde",
+          "desc": "Dela inlägg, bygg din publik och håll kontakten."
+        },
+        "calendar": {
+          "title": "Kalender & påminnelser",
+          "desc": "Din och följdas kalender, med påminnelser och export."
+        },
+        "courses": {
+          "title": "Kurser & innehåll",
+          "desc": "Sälj kurser och digitalt innehåll direkt i appen."
+        },
+        "rewards": {
+          "title": "Poäng & belöningar",
+          "desc": "Lojalitetspoäng, belöningar och topplista."
+        }
       }
     },
     "onboarding": {

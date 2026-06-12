@@ -427,7 +427,10 @@
       "safariMac": "Safari (Mac)",
       "safariMacInstructions": "File → Add to Dock",
       "close": "Close",
-      "openInBrowser": "Open in browser"
+      "openInBrowser": "Open in browser",
+      "appCta": "Install the Usch-Ja app",
+      "iosHelp": "iPhone (Safari): tap the Share icon → \"Add to Home Screen\".",
+      "otherHelp": "Open your browser menu (⋮) → \"Install app\" / \"Add to Home screen\"."
     },
     "hero": {
       "badge": "Buy tickets directly — no account required",
@@ -473,36 +476,72 @@
       "checkIns": "check-ins",
       "cities": "cities"
     },
-    "showcase": {
-      "title": "Built to",
-      "titleHighlight": "run for real",
-      "subtitle": "From overview to payout — all in one app.",
-      "home": "Your overview",
-      "listings": "Create & manage",
-      "analytics": "Stats & insights",
-      "payouts": "Fast payouts"
-    },
     "features": {
       "title": "Everything you need to",
       "titleHighlight": "run your events",
       "subtitle": "One platform — from the first ticket to the last check-in, and everything in between.",
       "newBadge": "New",
       "items": {
-        "create": { "title": "Create events in minutes", "desc": "Publish productions and sell tickets — free or paid." },
-        "tickets": { "title": "QR tickets", "desc": "Every ticket gets a scannable QR code, ready at the door." },
-        "scan": { "title": "Check-in & scanning", "desc": "Scan guests at the entrance — fast and secure." },
-        "crew": { "title": "Crew & collaborators", "desc": "Invite creators, taxi dancers, volunteers and co-hosts to your production." },
-        "delegateScan": { "title": "Delegate scanning", "desc": "Let trusted crew members scan tickets for you." },
-        "gage": { "title": "Pay your crew", "desc": "Agree on a fee and pay directly via Stripe." },
-        "live": { "title": "Live dashboard", "desc": "Real-time stats and check-ins while the event runs." },
-        "stats": { "title": "Stats & insights", "desc": "See how many came, who, returning attendees and trends — with CSV export." },
-        "bankid": { "title": "BankID verification", "desc": "Verified identities for safety and trust." },
-        "payments": { "title": "Secure payments", "desc": "Stripe payments and fast payouts to your account." },
-        "marketplace": { "title": "Marketplace", "desc": "Get discovered — find creators and experiences near you." },
-        "feed": { "title": "Social feed", "desc": "Share posts, grow your audience and stay connected." },
-        "calendar": { "title": "Calendar & reminders", "desc": "Your and followed calendars, with reminders and export." },
-        "courses": { "title": "Courses & content", "desc": "Sell courses and digital content right in the app." },
-        "rewards": { "title": "Points & rewards", "desc": "Loyalty points, rewards and a leaderboard." }
+        "create": {
+          "title": "Create events in minutes",
+          "desc": "Publish productions and sell tickets — free or paid."
+        },
+        "tickets": {
+          "title": "QR tickets",
+          "desc": "Every ticket gets a scannable QR code, ready at the door."
+        },
+        "scan": {
+          "title": "Check-in & scanning",
+          "desc": "Scan guests at the entrance — fast and secure."
+        },
+        "crew": {
+          "title": "Crew & collaborators",
+          "desc": "Invite creators, taxi dancers, volunteers and co-hosts to your production."
+        },
+        "delegateScan": {
+          "title": "Delegate scanning",
+          "desc": "Let trusted crew members scan tickets for you."
+        },
+        "gage": {
+          "title": "Pay your crew",
+          "desc": "Agree on a fee and pay directly via Stripe."
+        },
+        "live": {
+          "title": "Live dashboard",
+          "desc": "Real-time stats and check-ins while the event runs."
+        },
+        "stats": {
+          "title": "Stats & insights",
+          "desc": "See how many came, who, returning attendees and trends — with CSV export."
+        },
+        "bankid": {
+          "title": "BankID verification",
+          "desc": "Verified identities for safety and trust."
+        },
+        "payments": {
+          "title": "Secure payments",
+          "desc": "Stripe payments and fast payouts to your account."
+        },
+        "marketplace": {
+          "title": "Marketplace",
+          "desc": "Get discovered — find creators and experiences near you."
+        },
+        "feed": {
+          "title": "Social feed",
+          "desc": "Share posts, grow your audience and stay connected."
+        },
+        "calendar": {
+          "title": "Calendar & reminders",
+          "desc": "Your and followed calendars, with reminders and export."
+        },
+        "courses": {
+          "title": "Courses & content",
+          "desc": "Sell courses and digital content right in the app."
+        },
+        "rewards": {
+          "title": "Points & rewards",
+          "desc": "Loyalty points, rewards and a leaderboard."
+        }
       }
     },
     "onboarding": {
