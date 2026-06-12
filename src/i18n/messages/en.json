@@ -531,6 +531,10 @@
       "booking": {
         "title": "Protected bookings",
         "desc": "Every booking is confirmed digitally with a QR code. No fake tickets, no misunderstandings."
+      },
+      "crew": {
+        "title": "Safe teamwork",
+        "desc": "Invite your crew, delegate ticket scanning to trusted people, and pay fees securely via Stripe — you stay in full control."
       }
     },
     "pricing": {

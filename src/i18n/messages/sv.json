@@ -531,6 +531,10 @@
       "booking": {
         "title": "Skyddade bokningar",
         "desc": "Varje bokning bekräftas digitalt med QR-kod. Inga falska biljetter, inga missförstånd."
+      },
+      "crew": {
+        "title": "Tryggt teamarbete",
+        "desc": "Bjud in ditt crew, delegera biljettskanning till betrodda och betala gage tryggt via Stripe — du har full kontroll."
       }
     },
     "pricing": {

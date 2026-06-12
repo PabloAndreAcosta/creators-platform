@@ -628,6 +628,11 @@ function Trust() {
       title: t("trust.booking.title"),
       desc: t("trust.booking.desc"),
     },
+    {
+      icon: Users,
+      title: t("trust.crew.title"),
+      desc: t("trust.crew.desc"),
+    },
   ];
 
   return (
@@ -650,7 +655,7 @@ function Trust() {
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {TRUST_POINTS.map((point) => (
             <div
               key={point.title}
