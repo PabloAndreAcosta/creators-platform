@@ -18,8 +18,10 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Usch-Ja! Platform – Marketplace för Creators",
-  description: "Hitta och boka kreativa talanger. Dansinstruktörer, musiker, fotografer och mer.",
+  metadataBase: new URL("https://usha.se"),
+  title: "Usch-Ja! — Skapa event, sälj biljetter, betala ditt crew",
+  description:
+    "Plattformen för kreatörer och upplevelser: skapa event på minuter, sälj biljetter, skanna vid dörren och betala ditt crew — tryggt med BankID och Stripe.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -34,23 +36,18 @@ export const metadata: Metadata = {
     apple: "/icon-192.png",
   },
   openGraph: {
-    title: "Usch-Ja! Platform",
-    description: "Marketplace för Creators",
+    title: "Usch-Ja! — Skapa event, sälj biljetter, betala ditt crew",
+    description:
+      "Skapa event, sälj biljetter, skanna vid dörren och betala ditt crew — allt i en app.",
     type: "website",
-    images: [
-      {
-        url: "https://usha.se/icon-512.png",
-        width: 512,
-        height: 512,
-        alt: "Usch-Ja Platform",
-      },
-    ],
+    url: "https://usha.se",
+    siteName: "Usch-Ja!",
   },
   twitter: {
-    card: "summary",
-    title: "Usch-Ja! Platform",
-    description: "Marketplace för Creators",
-    images: ["https://usha.se/icon-512.png"],
+    card: "summary_large_image",
+    title: "Usch-Ja! — Skapa event, sälj biljetter, betala ditt crew",
+    description:
+      "Skapa event, sälj biljetter, skanna vid dörren och betala ditt crew — allt i en app.",
   },
 };
 
