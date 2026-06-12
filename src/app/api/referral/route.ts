@@ -8,6 +8,12 @@ import { createClient } from "@/lib/supabase/server";
  * 3. Create welcome promo code for referred users
  */
 export async function POST(req: NextRequest) {
+  const { rateLimit, getRateLimitKey } = await import("@/lib/rate-limit");
+  const rl = rateLimit(getRateLimitKey(req, "referral-process"), 10, 60_000);
+  if (!rl.allowed) {
+    return NextResponse.json({ error: "För många försök. Försök igen senare." }, { status: 429 });
+  }
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
