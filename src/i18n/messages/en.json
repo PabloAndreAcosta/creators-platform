@@ -473,6 +473,15 @@
       "checkIns": "check-ins",
       "cities": "cities"
     },
+    "showcase": {
+      "title": "Built to",
+      "titleHighlight": "run for real",
+      "subtitle": "From overview to payout — all in one app.",
+      "home": "Your overview",
+      "listings": "Create & manage",
+      "analytics": "Stats & insights",
+      "payouts": "Fast payouts"
+    },
     "features": {
       "title": "Everything you need to",
       "titleHighlight": "run your events",

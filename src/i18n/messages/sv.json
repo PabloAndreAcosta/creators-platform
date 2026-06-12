@@ -473,6 +473,15 @@
       "checkIns": "incheckningar",
       "cities": "städer"
     },
+    "showcase": {
+      "title": "Byggd för att",
+      "titleHighlight": "köra på riktigt",
+      "subtitle": "Från översikt till utbetalning — allt i en app.",
+      "home": "Din översikt",
+      "listings": "Skapa & hantera",
+      "analytics": "Statistik & insikter",
+      "payouts": "Snabba utbetalningar"
+    },
     "features": {
       "title": "Allt du behöver för att",
       "titleHighlight": "driva dina event",

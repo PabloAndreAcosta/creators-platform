@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { LandingInstall } from "@/components/landing-install";
 import { LandingStats } from "@/components/landing-stats";
@@ -515,6 +516,48 @@ function Features() {
   );
 }
 
+/* ─────────────── SHOWCASE ─────────────── */
+function Showcase() {
+  const t = useTranslations("landing");
+  const shots = [
+    { src: "/screens/home.jpg", label: t("showcase.home") },
+    { src: "/screens/listings.jpg", label: t("showcase.listings") },
+    { src: "/screens/analytics.jpg", label: t("showcase.analytics") },
+    { src: "/screens/payouts.jpg", label: t("showcase.payouts") },
+  ];
+
+  return (
+    <section className="relative py-16 px-4 sm:py-24 sm:px-6">
+      <div className="relative z-10 mx-auto max-w-5xl">
+        <div className="mb-10 text-center sm:mb-14">
+          <h2 className="mb-3 text-2xl font-bold tracking-tight sm:mb-4 sm:text-3xl md:text-4xl">
+            {t("showcase.title")} <span className="text-gradient">{t("showcase.titleHighlight")}</span>
+          </h2>
+          <p className="mx-auto max-w-xl text-[var(--usha-muted)]">{t("showcase.subtitle")}</p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
+          {shots.map((s) => (
+            <div key={s.src} className="flex flex-col items-center gap-3">
+              <div className="overflow-hidden rounded-3xl border-4 border-[var(--usha-border)] bg-black shadow-xl shadow-black/30">
+                <Image
+                  src={s.src}
+                  alt={s.label}
+                  width={320}
+                  height={700}
+                  className="h-auto w-full"
+                  sizes="(max-width: 640px) 45vw, 220px"
+                />
+              </div>
+              <p className="text-center text-xs font-medium text-[var(--usha-muted)]">{s.label}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ─────────────── ONBOARDING ─────────────── */
 function Onboarding() {
   const t = useTranslations("landing");
@@ -983,6 +1026,7 @@ export default function Home() {
       <LandingStats />
       <Ecosystem />
       <Features />
+      <Showcase />
       <Onboarding />
       <Trust />
       <Pricing />
