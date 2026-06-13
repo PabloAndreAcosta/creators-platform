@@ -8,6 +8,12 @@ import { validatePromoCode, applyPromoDiscount } from "@/lib/promo/validate";
  */
 export async function POST(req: NextRequest) {
   try {
+    const { rateLimit, getRateLimitKey } = await import("@/lib/rate-limit");
+    const rl = rateLimit(getRateLimitKey(req, "promo-validate"), 20, 60_000);
+    if (!rl.allowed) {
+      return NextResponse.json({ error: "För många försök. Försök igen senare." }, { status: 429 });
+    }
+
     const { code, scope, planKey, originalPrice } = await req.json();
 
     const supabase = await createClient();
