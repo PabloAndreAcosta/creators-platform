@@ -24,6 +24,8 @@ const nextConfig = {
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "X-Frame-Options", value: "DENY" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          // Reporting endpoint for the Report-Only CSP below (modern Reporting API).
+          { key: "Reporting-Endpoints", value: 'csp-endpoint="https://usha.se/api/csp-report"' },
           {
             key: "Permissions-Policy",
             value: "camera=(self), microphone=(), geolocation=(self), payment=(self), interest-cohort=()",
@@ -49,6 +51,10 @@ const nextConfig = {
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self' https://checkout.stripe.com https://*.signicat.com https://usha-ab.app.signicat.com",
+              // Collect violations so we can review before promoting to enforced.
+              // report-uri = legacy/broadest support; report-to = modern Reporting API.
+              "report-uri /api/csp-report",
+              "report-to csp-endpoint",
             ].join("; "),
           },
         ],
