@@ -43,6 +43,7 @@ export const metadata: Metadata = {
     description:
       "Skapa event, sälj biljetter, skanna vid dörren och betala ditt crew — allt i en app.",
     type: "website",
+    locale: "sv_SE",
     url: "https://usha.se",
     siteName: "Usch-Ja!",
   },
