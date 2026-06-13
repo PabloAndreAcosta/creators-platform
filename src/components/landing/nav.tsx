@@ -55,7 +55,7 @@ export function Nav() {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <a
           href={isLoggedIn ? "/app" : "/"}
-          className="flex items-center gap-2 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-[var(--usha-gold)]/50"
+          className="flex items-center gap-2 outline-none focus:outline-none focus-visible:outline-none"
         >
           <UschjaLogo size={40} />
           <span className="text-lg font-bold tracking-tight">Usch-Ja!</span>
