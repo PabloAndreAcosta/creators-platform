@@ -236,7 +236,15 @@
     "bookings": "{count} bokningar",
     "creatorAlt": "Kreatör",
     "unknownCreator": "Okänd kreatör",
-    "bookNow": "Boka Nu"
+    "bookNow": "Boka Nu",
+    "forYou": "För dig",
+    "launchBadge": "Premium-funktion – fri under lansering",
+    "lockedTitle": "{count} matchningar väntar",
+    "upgrade": "Uppgradera till Premium",
+    "emptyTitle": "Berätta vad du dansar",
+    "emptyBody": "så hittar vi rätt event för dig",
+    "emptyCta": "Kom igång",
+    "editPrefs": "Redigera preferenser"
   },
   "profile": {
     "editProfile": "Redigera Profil",
@@ -1488,6 +1496,25 @@
       "taxi_dancer": "Taxidansare",
       "volunteer": "Volontär",
       "co_host": "Medvärd"
+    }
+  },
+  "matching": {
+    "onboarding": {
+      "title": "Vad letar du efter?",
+      "subtitle": "Tre snabba frågor – så matchar vi dig rätt. Du kan ändra när som helst.",
+      "stylesLabel": "Vilka stilar dansar du?",
+      "levelLabel": "Din nivå",
+      "level": {
+        "nyborjare": "Nybörjare",
+        "medel": "Medel",
+        "avancerad": "Avancerad"
+      },
+      "cityLabel": "Stad",
+      "cityPlaceholder": "t.ex. Stockholm",
+      "skip": "Hoppa över",
+      "save": "Spara",
+      "saving": "Sparar…",
+      "close": "Stäng"
     }
   }
 }

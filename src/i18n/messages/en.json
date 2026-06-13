@@ -236,7 +236,15 @@
     "bookings": "{count} bookings",
     "creatorAlt": "Creator",
     "unknownCreator": "Unknown creator",
-    "bookNow": "Book Now"
+    "bookNow": "Book Now",
+    "forYou": "For you",
+    "launchBadge": "Premium feature – free during launch",
+    "lockedTitle": "{count} matches waiting",
+    "upgrade": "Upgrade to Premium",
+    "emptyTitle": "Tell us what you dance",
+    "emptyBody": "and we will find the right events for you",
+    "emptyCta": "Get started",
+    "editPrefs": "Edit preferences"
   },
   "profile": {
     "editProfile": "Edit Profile",
@@ -1488,6 +1496,25 @@
       "taxi_dancer": "Taxi dancer",
       "volunteer": "Volunteer",
       "co_host": "Co-host"
+    }
+  },
+  "matching": {
+    "onboarding": {
+      "title": "What are you looking for?",
+      "subtitle": "Three quick questions so we can match you well. Change anytime.",
+      "stylesLabel": "Which styles do you dance?",
+      "levelLabel": "Your level",
+      "level": {
+        "nyborjare": "Beginner",
+        "medel": "Intermediate",
+        "avancerad": "Advanced"
+      },
+      "cityLabel": "City",
+      "cityPlaceholder": "e.g. Stockholm",
+      "skip": "Skip",
+      "save": "Save",
+      "saving": "Saving…",
+      "close": "Close"
     }
   }
 }

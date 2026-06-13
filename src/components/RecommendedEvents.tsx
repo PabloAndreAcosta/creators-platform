@@ -1,23 +1,29 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
+import { Sparkles, Lock, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { MatchingOnboardingModal } from '@/components/matching/onboarding-modal';
 
 interface Recommendation {
   id: string;
   title: string;
   price: number;
-  creator: {
-    id: string;
-    name: string | null;
-    avatar: string | null;
-  };
+  creator: { id: string; name: string | null; avatar: string | null };
   category: string;
   eventTier: string;
   bookingCount: number;
+  match_reasons?: string[];
 }
+
+type State =
+  | { kind: 'loading' }
+  | { kind: 'error' }
+  | { kind: 'locked'; count: number }
+  | { kind: 'content'; items: Recommendation[]; launch: boolean };
 
 function sek(amount: number): string {
   return amount.toLocaleString('sv-SE');
@@ -31,67 +37,144 @@ const CATEGORY_COLORS: Record<string, string> = {
   food: 'bg-orange-500/10 text-orange-400',
 };
 
+interface Prefs { dance_styles?: string[]; skill_level?: string | null; city?: string | null }
+
 export default function RecommendedEvents() {
   const t = useTranslations('recommendations');
-  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [state, setState] = useState<State>({ kind: 'loading' });
+  const [onboardOpen, setOnboardOpen] = useState(false);
+  const [prefs, setPrefs] = useState<Prefs | null>(null);
 
-  useEffect(() => {
-    async function fetchRecommendations() {
-      try {
-        const res = await fetch('/api/recommendations?limit=5');
-        if (!res.ok) throw new Error('Fetch failed');
-        const data = await res.json();
-        setRecommendations(data.recommendations ?? []);
-      } catch {
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchRecommendations();
+  const loadPrefs = useCallback(async () => {
+    try {
+      const res = await fetch('/api/preferences');
+      if (res.ok) { const d = await res.json(); setPrefs(d.preferences ?? null); }
+    } catch { /* non-fatal */ }
   }, []);
 
-  if (loading) return <RecommendedSkeleton />;
+  const load = useCallback(async () => {
+    try {
+      const res = await fetch('/api/recommendations?role=user&limit=6');
+      if (res.status === 403) {
+        const data = await res.json().catch(() => ({}));
+        if (data?.error === 'premium_required') {
+          setState({ kind: 'locked', count: Number(data.count) || 0 });
+          return;
+        }
+        setState({ kind: 'error' });
+        return;
+      }
+      if (!res.ok) {
+        // 401 (signed out) or other — hide the surface rather than erroring loudly.
+        setState({ kind: 'content', items: [], launch: false });
+        return;
+      }
+      const data = await res.json();
+      setState({ kind: 'content', items: data.recommendations ?? [], launch: !!data.launch });
+    } catch {
+      setState({ kind: 'error' });
+    }
+  }, []);
 
-  if (error) {
+  useEffect(() => { load(); loadPrefs(); }, [load, loadPrefs]);
+
+  if (state.kind === 'loading') return <RecommendedSkeleton />;
+
+  if (state.kind === 'error') {
     return (
-      <section className="space-y-4">
-        <h2 className="text-lg font-semibold text-[var(--usha-white)]">
-          {t('title')}
-        </h2>
+      <Section>
         <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 text-center">
-          <p className="text-sm text-[var(--usha-muted)]">
-            {t('loadError')}
-          </p>
+          <p className="text-sm text-[var(--usha-muted)]">{t('loadError')}</p>
         </div>
-      </section>
+      </Section>
     );
   }
 
-  const isEmpty = recommendations.length === 0;
+  // Premium gate active and the user is not Premium: count-only teaser.
+  if (state.kind === 'locked') {
+    return (
+      <Section badge={t('launchBadge')}>
+        <div className="relative overflow-hidden rounded-2xl border border-[var(--usha-gold)]/30 bg-[var(--usha-card)]">
+          <div className="grid grid-cols-2 gap-3 p-4 blur-sm select-none sm:grid-cols-3" aria-hidden>
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="h-28 rounded-xl bg-[var(--usha-border)]" />
+            ))}
+          </div>
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[var(--usha-black)]/40 p-6 text-center">
+            <Lock size={22} className="text-[var(--usha-gold)]" />
+            <p className="text-sm font-semibold text-[var(--usha-white)]">
+              {t('lockedTitle', { count: state.count })}
+            </p>
+            <Link
+              href="/dashboard/billing"
+              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-5 py-2.5 text-sm font-bold text-black transition hover:opacity-90"
+            >
+              {t('upgrade')} <ArrowRight size={14} />
+            </Link>
+          </div>
+        </div>
+      </Section>
+    );
+  }
+
+  // Content (open mode, or Premium user in premium mode)
+  const { items, launch } = state;
 
   return (
-    <section className="space-y-4">
-      <h2 className="text-lg font-semibold text-[var(--usha-white)]">
-        {t('title')}
-      </h2>
-
-      {isEmpty && (
-        <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 text-center mb-4">
-          <p className="text-sm text-[var(--usha-muted)]">
-            {t('empty')}
-          </p>
+    <Section badge={launch ? t('launchBadge') : undefined}>
+      {items.length === 0 ? (
+        <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 text-center">
+          <Sparkles size={22} className="mx-auto mb-3 text-[var(--usha-gold)]" />
+          <p className="mb-1 text-sm font-semibold text-[var(--usha-white)]">{t('emptyTitle')}</p>
+          <p className="mb-4 text-sm text-[var(--usha-muted)]">{t('emptyBody')}</p>
+          <button
+            onClick={() => setOnboardOpen(true)}
+            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-5 py-2.5 text-sm font-bold text-black transition hover:opacity-90"
+          >
+            {t('emptyCta')}
+          </button>
         </div>
+      ) : (
+        <>
+          <div className="mb-3 flex justify-end">
+            <button
+              onClick={() => setOnboardOpen(true)}
+              className="text-xs text-[var(--usha-muted)] underline-offset-2 transition hover:text-[var(--usha-white)] hover:underline"
+            >
+              {t('editPrefs')}
+            </button>
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {items.map((rec) => (
+              <EventCard key={rec.id} event={rec} />
+            ))}
+          </div>
+        </>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {recommendations.map((rec) => (
-          <EventCard key={rec.id} event={rec} />
-        ))}
+      <MatchingOnboardingModal
+        open={onboardOpen}
+        onClose={() => setOnboardOpen(false)}
+        onSaved={() => { load(); loadPrefs(); }}
+        initial={prefs}
+      />
+    </Section>
+  );
+}
+
+function Section({ children, badge }: { children: React.ReactNode; badge?: string }) {
+  const t = useTranslations('recommendations');
+  return (
+    <section className="space-y-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <h2 className="text-lg font-semibold text-[var(--usha-white)]">{t('forYou')}</h2>
+        {badge && (
+          <span className="rounded-full border border-[var(--usha-gold)]/30 bg-[var(--usha-gold)]/10 px-2.5 py-0.5 text-[10px] font-medium text-[var(--usha-gold)]">
+            {badge}
+          </span>
+        )}
       </div>
+      {children}
     </section>
   );
 }
@@ -103,25 +186,12 @@ function EventCard({ event }: { event: Recommendation }) {
 
   return (
     <div className="group rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] overflow-hidden hover:border-[var(--usha-gold)]/30 transition-colors">
-      {/* Image placeholder */}
       <div className="relative h-36 bg-gradient-to-br from-[var(--usha-card-hover)] to-[var(--usha-border)]">
         <div className="absolute inset-0 flex items-center justify-center">
-          <svg
-            className="w-10 h-10 text-[var(--usha-muted)]/30"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={1}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-            />
+          <svg className="w-10 h-10 text-[var(--usha-muted)]/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
         </div>
-
-        {/* Event tier badge */}
         {event.eventTier && (
           <span className="absolute top-2 right-2 text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-black/50 text-[var(--usha-gold)]">
             {t('tier', { tier: event.eventTier.toUpperCase() })}
@@ -130,7 +200,6 @@ function EventCard({ event }: { event: Recommendation }) {
       </div>
 
       <div className="p-4 space-y-3">
-        {/* Category + popularity */}
         <div className="flex items-center justify-between">
           <span className={cn('text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full', categoryStyle)}>
             {event.category}
@@ -142,19 +211,24 @@ function EventCard({ event }: { event: Recommendation }) {
           )}
         </div>
 
-        {/* Title */}
         <h3 className="text-sm font-semibold text-[var(--usha-white)] line-clamp-2 leading-tight">
           {event.title}
         </h3>
 
-        {/* Creator */}
+        {/* Match reasons — transparency builds trust */}
+        {event.match_reasons && event.match_reasons.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {event.match_reasons.map((r) => (
+              <span key={r} className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-[10px] font-medium text-[var(--usha-gold)]">
+                {r}
+              </span>
+            ))}
+          </div>
+        )}
+
         <div className="flex items-center gap-2">
           {event.creator?.avatar ? (
-            <img
-              src={event.creator.avatar}
-              alt={event.creator.name ?? t('creatorAlt')}
-              className="w-5 h-5 rounded-full object-cover"
-            />
+            <img src={event.creator.avatar} alt={event.creator.name ?? t('creatorAlt')} className="w-5 h-5 rounded-full object-cover" />
           ) : (
             <div className="w-5 h-5 rounded-full bg-[var(--usha-border)] flex items-center justify-center">
               <span className="text-[9px] font-bold text-[var(--usha-muted)]">
@@ -167,7 +241,6 @@ function EventCard({ event }: { event: Recommendation }) {
           </span>
         </div>
 
-        {/* Price + CTA */}
         <div className="flex items-center justify-between pt-1">
           <span className="text-base font-bold text-[var(--usha-white)]">
             {sek(event.price)} <span className="text-xs text-[var(--usha-muted)] font-normal">SEK</span>
@@ -193,10 +266,7 @@ function RecommendedSkeleton() {
       <div className="h-6 w-48 bg-[var(--usha-card)] rounded animate-pulse" />
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {[1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] overflow-hidden animate-pulse"
-          >
+          <div key={i} className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] overflow-hidden animate-pulse">
             <div className="h-36 bg-[var(--usha-card-hover)]" />
             <div className="p-4 space-y-3">
               <div className="h-3 w-16 bg-[var(--usha-border)] rounded" />
