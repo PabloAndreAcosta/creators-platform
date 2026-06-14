@@ -822,7 +822,9 @@
     "design": "Design",
     "yoga": "Yoga",
     "fitness": "Fitness",
-    "other": "Other"
+    "other": "Other",
+    "venue": "Venue",
+    "wellness": "Wellness"
   },
   "seoFooter": {
     "experiencesHeading": "Experiences",
