@@ -560,6 +560,12 @@
           "title": "Points & rewards",
           "desc": "Loyalty points, rewards and a leaderboard."
         }
+      },
+      "groups": {
+        "highlights": "Highlights",
+        "doorTeam": "At the door & your team",
+        "payInsight": "Payments & insight",
+        "growReach": "Reach & grow"
       }
     },
     "onboarding": {
