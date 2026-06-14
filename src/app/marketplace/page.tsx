@@ -212,6 +212,18 @@ export default async function MarketplacePage(
     new Set((allLocations ?? []).map((p) => p.location).filter(Boolean) as string[])
   ).sort();
 
+  // Creator category counts — only offer categories that actually have public
+  // creators, each with its count, so the filter never advertises an empty one.
+  const { data: catRows } = await supabase
+    .from("profiles")
+    .select("category, categories")
+    .eq("is_public", true);
+  const creatorCategoryCounts: Record<string, number> = {};
+  (catRows ?? []).forEach((p) => {
+    const cats = (p.categories?.length ? p.categories : p.category ? [p.category] : []) as string[];
+    for (const c of cats) if (c) creatorCategoryCounts[c] = (creatorCategoryCounts[c] || 0) + 1;
+  });
+
   // Active filter count (for badge)
   const activeFilters = [
     category && category !== "all",
@@ -285,9 +297,9 @@ export default async function MarketplacePage(
               className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40 sm:w-48"
             >
               <option value="all">{t("marketplace.allCategories")}</option>
-              {CATEGORIES.map((c) => (
+              {CATEGORIES.filter((c) => (creatorCategoryCounts[c.value] || 0) > 0).map((c) => (
                 <option key={c.value} value={c.value}>
-                  {t(`categories.${c.value}`)}
+                  {t(`categories.${c.value}`)} ({creatorCategoryCounts[c.value]})
                 </option>
               ))}
             </select>

@@ -18,9 +18,20 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params;
   const city = capitalize(decodeURIComponent(params.location));
   const categoryLabel = CATEGORY_LABELS[params.category] || capitalize(params.category);
+
+  // Don't index an empty city×category creator page.
+  const supabase = await createClient();
+  const { count } = await supabase
+    .from("profiles")
+    .select("id", { count: "exact", head: true })
+    .eq("is_public", true)
+    .ilike("location", `%${city}%`)
+    .or(`categories.cs.{${params.category}},category.eq.${params.category}`);
+
   return {
     title: `${categoryLabel} kreatörer i ${city} – Usch-Ja!`,
     description: `Hitta ${categoryLabel.toLowerCase()} kreatörer i ${city}. Boka direkt på Usch-Ja.`,
+    ...(!count ? { robots: { index: false } } : {}),
     openGraph: {
       title: `${categoryLabel} i ${city} – Usch-Ja!`,
       description: `${categoryLabel} kreatörer i ${city}.`,
