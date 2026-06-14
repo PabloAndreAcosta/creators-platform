@@ -560,6 +560,12 @@
           "title": "Poäng & belöningar",
           "desc": "Lojalitetspoäng, belöningar och topplista."
         }
+      },
+      "groups": {
+        "highlights": "Höjdpunkter",
+        "doorTeam": "Vid dörren & teamet",
+        "payInsight": "Betalt & insikt",
+        "growReach": "Nå ut & väx"
       }
     },
     "onboarding": {
