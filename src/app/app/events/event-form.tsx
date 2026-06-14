@@ -26,6 +26,8 @@ interface EventData {
   event_lat: number | null;
   event_lng: number | null;
   event_place_id: string | null;
+  event_city?: string | null;
+  event_venue?: string | null;
   listing_type: ListingType | null;
   open_to_instructors: boolean | null;
   min_guests: number | null;
@@ -382,6 +384,8 @@ export default function EventForm({
           defaultLat={event?.event_lat}
           defaultLng={event?.event_lng}
           defaultPlaceId={event?.event_place_id}
+          defaultCity={event?.event_city ?? null}
+          defaultVenue={event?.event_venue ?? null}
         />
 
         {/* Category + Price */}

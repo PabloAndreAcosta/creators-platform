@@ -10,6 +10,8 @@ interface ListingCardProps {
     price: number | null;
     event_date: string | null;
     event_location: string | null;
+    event_city?: string | null;
+    event_venue?: string | null;
     category: string | null;
     image_url: string | null;
   };
@@ -74,10 +76,11 @@ export async function ListingCard({ listing, bookingCount = 0, isPromoted }: Lis
               {new Date(listing.event_date).toLocaleDateString("sv-SE", { day: "numeric", month: "short" })}
             </span>
           )}
-          {listing.event_location && (
+          {(listing.event_venue || listing.event_city || listing.event_location) && (
             <span className="flex items-center gap-0.5">
               <MapPin size={10} />
-              {listing.event_location.split(",")[0]}
+              {[listing.event_venue, listing.event_city].filter(Boolean).join(" · ") ||
+                listing.event_location?.split(",")[0]}
             </span>
           )}
         </div>

@@ -53,7 +53,7 @@ export default async function UpplevelserPage(
   // ── Build filtered listings query ──
   let query = supabase
     .from("listings")
-    .select("id, title, price, event_date, event_location, category, image_url, listing_type, created_at, is_promoted, promoted_until", { count: "exact" })
+    .select("id, title, price, event_date, event_location, event_city, event_venue, category, image_url, listing_type, created_at, is_promoted, promoted_until", { count: "exact" })
     .eq("is_active", true);
 
   if (category && category !== "all") {
@@ -63,7 +63,8 @@ export default async function UpplevelserPage(
   if (location) {
     const sanitized = decodeURIComponent(location).replace(/[,()\\]/g, " ").trim();
     if (sanitized) {
-      query = query.ilike("event_location", `%${sanitized}%`);
+      // Filter on the real city, not the raw address (which starts with the venue).
+      query = query.ilike("event_city", `%${sanitized}%`);
     }
   }
 
@@ -113,7 +114,7 @@ export default async function UpplevelserPage(
   // never advertises an empty filter.
   const { data: countRows } = await supabase
     .from("listings")
-    .select("category, event_location")
+    .select("category, event_city")
     .eq("is_active", true);
 
   const categoryCounts: Record<string, number> = {};
@@ -121,9 +122,9 @@ export default async function UpplevelserPage(
   const cityCatCounts: Record<string, Record<string, number>> = {};
   (countRows || []).forEach((l) => {
     if (l.category) categoryCounts[l.category] = (categoryCounts[l.category] || 0) + 1;
-    const loc = l.event_location?.trim();
-    if (loc) {
-      const city = loc.split(",")[0].trim();
+    // Real city only — venues never appear under "Alla städer".
+    const city = l.event_city?.trim();
+    if (city) {
       locationCounts[city] = (locationCounts[city] || 0) + 1;
       if (l.category) {
         (cityCatCounts[city] ??= {})[l.category] = (cityCatCounts[city][l.category] || 0) + 1;
