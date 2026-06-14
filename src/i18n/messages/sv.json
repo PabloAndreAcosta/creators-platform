@@ -432,7 +432,10 @@
       "downloadApp": "Ladda ner appen",
       "getStarted": "Kom igång",
       "menuAriaLabel": "Meny",
-      "login": "Logga in"
+      "login": "Logga in",
+      "forCreators": "Kreatör",
+      "forVenues": "Plats",
+      "forAudience": "Upplev"
     },
     "install": {
       "title": "Installera Usch-Ja på din dator",
@@ -448,10 +451,10 @@
       "otherHelp": "Öppna webbläsarens meny (⋮) → \"Installera app\" / \"Lägg till på startskärmen\"."
     },
     "hero": {
-      "badge": "Köp biljetter direkt — inget konto krävs",
-      "headlinePart1": "Skapa event. Sälj biljetter.",
-      "headlinePart2": "Betala ditt crew.",
-      "description": "Plattformen för kreatörer och upplevelser — publicera event på minuter, sälj biljetter, skanna vid dörren och betala ditt crew. Tryggt med BankID & Stripe.",
+      "badge": "Kuraterat och BankID-verifierat",
+      "headlinePart1": "Där kreatörer, platser och",
+      "headlinePart2": "publik möts",
+      "description": "Usch-Ja! är kretsloppet som får Sveriges kreativa liv att snurra – kreatörer hittar uppdrag, platser fyller sin kalender, och publiken upptäcker upplevelser att minnas. Tryggt med BankID och Stripe.",
       "ctaPrimary": "Kom igång gratis",
       "ctaSecondary": "Utforska upplevelser"
     },
@@ -683,6 +686,19 @@
       "cookies": "Cookiepolicy",
       "copyright": "© 2026 Usha AB. Alla rättigheter förbehållna.",
       "builtWith": "Byggd med kärlek i Sverige"
+    },
+    "doors": {
+      "heading": "Var börjar du?",
+      "creatorLabel": "Jag är kreatör",
+      "creatorDesc": "Hitta uppdrag och scener",
+      "venueLabel": "Jag har en plats",
+      "venueDesc": "Fyll kalendern med kuraterade kreatörer",
+      "audienceLabel": "Jag vill uppleva",
+      "audienceDesc": "Upptäck upplevelser nära dig"
+    },
+    "homeCta": {
+      "title": "Hitta din plats i kretsloppet",
+      "description": "Tre grupper som förstärker varandra. Välj din ingång."
     }
   },
   "serverNotifications": {
@@ -1518,5 +1534,65 @@
       "saving": "Sparar…",
       "close": "Stäng"
     }
+  },
+  "forCreators": {
+    "meta": {
+      "title": "För kreatörer – Usch-Ja!",
+      "description": "Fler uppdrag utan säljjobbet. BankID-verifiering höjer din trovärdighet, och verktygen för att driva dina event bor här – tryggt med Stripe."
+    },
+    "hero": {
+      "h1": "Fler uppdrag – utan säljjobbet",
+      "sub": "En ny inkomstkanal utan att jaga kunder. Din BankID-verifiering höjer trovärdigheten, och allt du behöver för att driva dina event finns på ett ställe.",
+      "cta": "Skapa profil gratis"
+    },
+    "loop": {
+      "title": "Så snurrar kretsloppet för dig",
+      "body": "Fler platser på Usch-Ja! betyder fler scener för dig. Och fler besökare betyder fler bokningar – utan att du behöver jaga någon."
+    }
+  },
+  "forVenues": {
+    "meta": {
+      "title": "För platser – Usch-Ja!",
+      "description": "Levande program utan att bli bokare. Fyll kalendern med kuraterade, BankID-verifierade kreatörer – utan egen bokningsadministration."
+    },
+    "hero": {
+      "h1": "Levande program – utan att bli bokare",
+      "sub": "Fyll kalendern med kuraterade, BankID-verifierade kreatörer. Ingen egen bokningsadministration, ingen risk – du behåller kontrollen.",
+      "cta": "Anslut din plats"
+    },
+    "loop": {
+      "title": "Så snurrar kretsloppet för dig",
+      "body": "Fler kreatörer betyder mer att fylla din scen med. Och fler besökare upptäcker din plats genom upplevelserna du erbjuder."
+    },
+    "values": {
+      "one": "Kuraterat utbud",
+      "oneDesc": "BankID-verifierade kreatörer, redo att uppträda.",
+      "two": "Ingen bokningsadmin",
+      "twoDesc": "Vi sköter förfrågningar och betalningar – du slipper jobbet.",
+      "three": "Du behåller kontrollen",
+      "threeDesc": "Säg ja till det som passar din plats. Inget tvång."
+    }
+  },
+  "forAudience": {
+    "meta": {
+      "title": "Upptäck upplevelser – Usch-Ja!",
+      "description": "Hitta och boka kreativa upplevelser nära dig – tryggt. Alla kreatörer och platser är BankID-verifierade, betalning via Stripe."
+    },
+    "hero": {
+      "h1": "Upptäck kreativa upplevelser nära dig",
+      "sub": "Hitta och boka tryggt. Alla kreatörer och platser är BankID-verifierade, och betalningen går via Stripe.",
+      "cta": "Utforska upplevelser"
+    },
+    "loop": {
+      "title": "Så snurrar kretsloppet för dig",
+      "body": "Fler kreatörer och platser betyder mer för dig att uppleva – kuraterat och tryggt."
+    }
+  },
+  "perspectiveLinks": {
+    "heading": "Utforska kretsloppet",
+    "hub": "Tillbaka till startsidan",
+    "creators": "För kreatörer",
+    "venues": "För platser",
+    "audience": "För publik"
   }
 }

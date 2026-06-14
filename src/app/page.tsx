@@ -1,66 +1,46 @@
 import type { Metadata } from "next";
 import { useTranslations } from "next-intl";
-import { LandingInstall } from "@/components/landing-install";
 import { LandingStats } from "@/components/landing-stats";
 import { Nav } from "@/components/landing/nav";
 import { Ecosystem } from "@/components/landing/ecosystem";
-import { Pricing } from "@/components/landing/pricing";
-import { Faq } from "@/components/landing/faq";
+import { Trust } from "@/components/landing/trust";
+import { Footer } from "@/components/landing/footer";
+import { AudienceDoors } from "@/components/landing/audience-doors";
 import { RedirectIfAuthed } from "@/components/landing/redirect-if-authed";
-import {
-  ArrowRight,
-  Sparkles,
-  Users,
-  CalendarCheck,
-  CreditCard,
-  Zap,
-  Palette,
-  BarChart3,
-  Shield,
-  ShieldCheck,
-  Ticket,
-  Store,
-  UserPlus,
-  Fingerprint,
-  Lock,
-  ScanLine,
-  QrCode,
-  Banknote,
-  Radio,
-  Newspaper,
-  BookOpen,
-  Gift,
-} from "lucide-react";
 
-// Page-specific canonical; title/description/OG/Twitter are inherited from
-// the root layout's metadata (and the opengraph-image/twitter-image routes).
+// The home page leads with the ecosystem/cycle idea (not the event tooling,
+// which now lives on /for-kreatorer).
 export const metadata: Metadata = {
+  title: "Usch-Ja! — Där kreatörer, platser och publik möts",
+  description:
+    "Kretsloppet som får Sveriges kreativa liv att snurra – kreatörer hittar uppdrag, platser fyller sin kalender, publiken upptäcker upplevelser. Tryggt med BankID och Stripe.",
   alternates: { canonical: "/" },
+  openGraph: {
+    title: "Usch-Ja! — Där kreatörer, platser och publik möts",
+    description:
+      "Kretsloppet där kreatörer, platser och publik förstärker varandra. Tryggt med BankID och Stripe.",
+    url: "https://usha.se",
+    type: "website",
+    locale: "sv_SE",
+    siteName: "Usch-Ja!",
+  },
 };
 
-/* ─────────────── HERO ─────────────── */
+/* ─────────────── HERO (the cycle) ─────────────── */
 function Hero() {
   const t = useTranslations("landing");
 
   return (
     <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 pt-16 sm:px-6">
-      {/* Background glows */}
       <div className="pointer-events-none absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2">
         <div className="h-[600px] w-[900px] rounded-full bg-[var(--usha-gold)] opacity-[0.05] blur-[180px]" />
       </div>
 
       <div className="relative z-10 mx-auto max-w-4xl text-center">
-        {/* Badge */}
-        <a
-          href="/flode"
-          className="animate-fade-up mb-8 inline-flex items-center gap-2 rounded-full border border-[#5ce0d2]/20 bg-[var(--usha-card)] px-5 py-2 text-xs transition hover:border-[#5ce0d2]/40 hover:bg-[var(--usha-card)]/80"
-        >
-          <Zap size={12} className="text-[#5ce0d2]" />
+        <div className="animate-fade-up mb-8 inline-flex items-center gap-2 rounded-full border border-[var(--usha-gold)]/20 bg-[var(--usha-card)] px-5 py-2 text-xs">
           <span className="text-[var(--usha-muted)]">{t("hero.badge")}</span>
-          <ArrowRight size={12} className="text-[#5ce0d2]" />
-        </a>
+        </div>
 
-        {/* Headline */}
         <h1
           className="animate-fade-up delay-100 mb-6 text-3xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl"
           style={{ opacity: 0 }}
@@ -88,34 +68,18 @@ function Hero() {
         </div>
 
         <p
-          className="animate-fade-up delay-200 mx-auto mb-10 max-w-xl text-base leading-relaxed text-[var(--usha-muted)] sm:mb-12 sm:text-lg"
+          className="animate-fade-up delay-200 mx-auto mb-10 max-w-2xl text-base leading-relaxed text-[var(--usha-muted)] sm:mb-12 sm:text-lg"
           style={{ opacity: 0 }}
         >
           {t("hero.description")}
         </p>
 
-        {/* CTA */}
-        <div
-          className="animate-fade-up delay-300 flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-4"
-          style={{ opacity: 0 }}
-        >
-          <a
-            href="/signup"
-            className="glow-gold inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-8 py-3.5 text-sm font-bold text-black transition hover:scale-[1.02] hover:opacity-90 sm:w-auto sm:py-4 sm:text-base"
-          >
-            {t("hero.ctaPrimary")}
-            <ArrowRight size={16} />
-          </a>
-          <a
-            href="/upplevelser"
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#5ce0d2]/30 px-8 py-3.5 text-sm font-medium text-[#5ce0d2] transition hover:border-[#5ce0d2]/50 hover:text-[#7eeee2] sm:w-auto sm:py-4 sm:text-base"
-          >
-            {t("hero.ctaSecondary")}
-          </a>
+        {/* Three doors into the cycle */}
+        <div className="animate-fade-up delay-300 w-full" style={{ opacity: 0 }}>
+          <AudienceDoors />
         </div>
       </div>
 
-      {/* Scroll indicator */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
         <div className="h-8 w-5 rounded-full border-2 border-[var(--usha-border)] p-1">
           <div className="mx-auto h-2 w-1 rounded-full bg-[var(--usha-gold)]" />
@@ -125,195 +89,8 @@ function Hero() {
   );
 }
 
-/* ─────────────── FEATURES ─────────────── */
-function Features() {
-  const t = useTranslations("landing");
-
-  const FEATURES = [
-    { key: "create", icon: Sparkles },
-    { key: "tickets", icon: Ticket },
-    { key: "scan", icon: QrCode },
-    { key: "crew", icon: Users, isNew: true },
-    { key: "delegateScan", icon: ScanLine, isNew: true },
-    { key: "gage", icon: Banknote, isNew: true },
-    { key: "live", icon: Radio },
-    { key: "stats", icon: BarChart3, isNew: true },
-    { key: "bankid", icon: Fingerprint },
-    { key: "payments", icon: CreditCard },
-    { key: "marketplace", icon: Store },
-    { key: "feed", icon: Newspaper },
-    { key: "calendar", icon: CalendarCheck },
-    { key: "courses", icon: BookOpen },
-    { key: "rewards", icon: Gift },
-  ];
-
-  return (
-    <section id="features" className="relative py-16 px-4 sm:py-28 sm:px-6">
-      <div className="pointer-events-none absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2">
-        <div className="h-[500px] w-[700px] rounded-full bg-[var(--usha-accent)] opacity-[0.03] blur-[180px]" />
-      </div>
-
-      <div className="relative z-10 mx-auto max-w-6xl">
-        <div className="mb-10 text-center sm:mb-16">
-          <h2 className="mb-3 text-2xl font-bold tracking-tight sm:mb-4 sm:text-3xl md:text-4xl">
-            {t("features.title")}{" "}
-            <span className="text-gradient">{t("features.titleHighlight")}</span>
-          </h2>
-          <p className="mx-auto max-w-xl text-[var(--usha-muted)]">
-            {t("features.subtitle")}
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
-          {FEATURES.map((f) => (
-            <div
-              key={f.key}
-              className={`relative rounded-2xl border bg-[var(--usha-card)] p-5 transition ${
-                f.isNew
-                  ? "border-[var(--usha-gold)]/40"
-                  : "border-[var(--usha-border)] hover:border-[var(--usha-gold)]/30"
-              }`}
-            >
-              {f.isNew && (
-                <span className="absolute right-3 top-3 rounded-full bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-black">
-                  {t("features.newBadge")}
-                </span>
-              )}
-              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--usha-gold)]/20 to-[var(--usha-accent)]/20">
-                <f.icon size={18} className="text-[var(--usha-gold)]" />
-              </div>
-              <h3 className="text-sm font-semibold sm:text-base">
-                {t(`features.items.${f.key}.title`)}
-              </h3>
-              <p className="mt-1 text-xs leading-relaxed text-[var(--usha-muted)] sm:text-sm">
-                {t(`features.items.${f.key}.desc`)}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ─────────────── ONBOARDING ─────────────── */
-function Onboarding() {
-  const t = useTranslations("landing");
-
-  const ONBOARDING_STEPS = [
-    {
-      icon: UserPlus,
-      title: t("onboarding.step1Title"),
-      desc: t("onboarding.step1Desc"),
-    },
-    {
-      icon: Palette,
-      title: t("onboarding.step2Title"),
-      desc: t("onboarding.step2Desc"),
-    },
-    {
-      icon: CalendarCheck,
-      title: t("onboarding.step3Title"),
-      desc: t("onboarding.step3Desc"),
-    },
-  ];
-
-  return (
-    <section className="relative py-16 px-4 sm:py-20 sm:px-6">
-      <div className="mx-auto max-w-4xl">
-        <div className="mb-10 text-center sm:mb-12">
-          <h2 className="mb-3 text-2xl font-bold tracking-tight sm:mb-4 sm:text-3xl">
-            {t("onboarding.title")} <span className="text-gradient">{t("onboarding.titleHighlight")}</span>
-          </h2>
-        </div>
-
-        <div className="grid gap-6 md:grid-cols-3">
-          {ONBOARDING_STEPS.map((step, i) => (
-            <div key={step.title} className="text-center">
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
-                <step.icon size={20} className="text-black" />
-              </div>
-              <span className="mb-2 block font-mono text-xs text-[var(--usha-muted)]">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <h3 className="mb-1 font-semibold">{step.title}</h3>
-              <p className="text-sm text-[var(--usha-muted)]">{step.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ─────────────── TRUST ─────────────── */
-function Trust() {
-  const t = useTranslations("landing");
-
-  const TRUST_POINTS = [
-    {
-      icon: Fingerprint,
-      title: t("trust.bankid.title"),
-      desc: t("trust.bankid.desc"),
-    },
-    {
-      icon: Lock,
-      title: t("trust.payment.title"),
-      desc: t("trust.payment.desc"),
-    },
-    {
-      icon: ShieldCheck,
-      title: t("trust.booking.title"),
-      desc: t("trust.booking.desc"),
-    },
-    {
-      icon: Users,
-      title: t("trust.crew.title"),
-      desc: t("trust.crew.desc"),
-    },
-  ];
-
-  return (
-    <section className="relative py-16 px-4 sm:py-28 sm:px-6">
-      <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-        <div className="h-[400px] w-[600px] rounded-full bg-[var(--usha-gold)] opacity-[0.03] blur-[150px]" />
-      </div>
-
-      <div className="relative z-10 mx-auto max-w-4xl">
-        <div className="mb-10 text-center sm:mb-16">
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[var(--usha-gold)]/20 bg-[var(--usha-card)] px-4 py-1.5 text-xs sm:mb-4">
-            <Shield size={12} className="text-[var(--usha-gold)]" />
-            <span className="text-[var(--usha-muted)]">{t("trust.badge")}</span>
-          </div>
-          <h2 className="mb-3 text-2xl font-bold tracking-tight sm:mb-4 sm:text-3xl md:text-4xl">
-            {t("trust.title")} <span className="text-gradient">{t("trust.titleHighlight")}</span>
-          </h2>
-          <p className="mx-auto max-w-xl text-[var(--usha-muted)]">
-            {t("trust.subtitle")}
-          </p>
-        </div>
-
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {TRUST_POINTS.map((point) => (
-            <div
-              key={point.title}
-              className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 transition hover:border-[var(--usha-gold)]/20"
-            >
-              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--usha-gold)]/20 to-[var(--usha-accent)]/20">
-                <point.icon size={20} className="text-[var(--usha-gold)]" />
-              </div>
-              <h3 className="mb-2 font-semibold">{point.title}</h3>
-              <p className="text-sm leading-relaxed text-[var(--usha-muted)]">{point.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ─────────────── CTA ─────────────── */
-function CTA() {
+/* ─────────────── CLOSING CTA (pick your door) ─────────────── */
+function HomeCta() {
   const t = useTranslations("landing");
 
   return (
@@ -322,100 +99,14 @@ function CTA() {
         <div className="absolute top-1/2 left-1/2 h-[400px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--usha-gold)] opacity-[0.06] blur-[150px]" />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-2xl text-center">
-        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[var(--usha-gold)]/20 bg-[var(--usha-card)] px-4 py-1.5 text-xs">
-          <Sparkles size={12} className="text-[var(--usha-gold)]" />
-          <span className="text-[var(--usha-muted)]">{t("cta.badge")}</span>
-        </div>
-
-        <h2 className="mb-4 text-2xl font-bold sm:mb-6 sm:text-3xl md:text-4xl">
-          {t("cta.title")}
-        </h2>
+      <div className="relative z-10 mx-auto max-w-3xl text-center">
+        <h2 className="mb-3 text-2xl font-bold sm:text-3xl md:text-4xl">{t("homeCta.title")}</h2>
         <p className="mb-8 text-base text-[var(--usha-muted)] sm:mb-10 sm:text-lg">
-          {t("cta.description")}
+          {t("homeCta.description")}
         </p>
-
-        <a
-          href="/signup"
-          className="glow-gold inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-8 py-4 text-base font-bold text-black transition hover:scale-[1.02] hover:opacity-90"
-        >
-          {t("cta.button")}
-          <ArrowRight size={16} />
-        </a>
-
-        <div className="mt-10 flex flex-col items-center gap-3 border-t border-[var(--usha-border)] pt-10">
-          <p className="text-sm text-[var(--usha-muted)]">{t("cta.installLead")}</p>
-          <LandingInstall />
-        </div>
+        <AudienceDoors />
       </div>
     </section>
-  );
-}
-
-/* ─────────────── FOOTER ─────────────── */
-function Footer() {
-  const t = useTranslations("landing");
-
-  const FOOTER_LINKS = {
-    [t("footer.platform")]: [
-      { label: t("footer.marketplace"), href: "/marketplace" },
-      { label: t("footer.pricing"), href: "#pricing" },
-      { label: t("footer.about"), href: "/om" },
-    ],
-    [t("footer.legal")]: [
-      { label: t("footer.terms"), href: "/terms" },
-      { label: t("footer.privacy"), href: "/privacy" },
-      { label: t("footer.cookies"), href: "/cookies" },
-    ],
-  };
-
-  return (
-    <footer className="border-t border-[var(--usha-border)] pt-12 pb-8 px-4 sm:pt-16 sm:px-6">
-      <div className="mx-auto max-w-6xl">
-        <div className="mb-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
-          {/* Brand */}
-          <div className="lg:col-span-2">
-            <div className="mb-4 flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
-                <span className="text-sm font-bold text-black">U</span>
-              </div>
-              <span className="text-lg font-bold tracking-tight">Usch-Ja!</span>
-            </div>
-            <p className="max-w-xs text-sm leading-relaxed text-[var(--usha-muted)]">
-              {t("footer.description")}
-            </p>
-          </div>
-
-          {/* Link columns */}
-          {Object.entries(FOOTER_LINKS).map(([title, links]) => (
-            <div key={title}>
-              <h4 className="mb-4 text-sm font-semibold">{title}</h4>
-              <ul className="space-y-2.5">
-                {links.map((link) => (
-                  <li key={link.label}>
-                    <a
-                      href={link.href}
-                      className="text-sm text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]"
-                    >
-                      {link.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-
-        <div className="flex flex-col items-center justify-between gap-4 border-t border-[var(--usha-border)] pt-8 sm:flex-row">
-          <p className="font-mono text-xs text-[var(--usha-muted)]">
-            {t("footer.copyright")}
-          </p>
-          <p className="text-xs text-[var(--usha-muted)]">
-            {t("footer.builtWith")}
-          </p>
-        </div>
-      </div>
-    </footer>
   );
 }
 
@@ -423,19 +114,15 @@ function Footer() {
 export default function Home() {
   return (
     <main>
-      {/* Non-blocking: sends logged-in users to /app after render, while
-          anonymous visitors and crawlers always receive full landing HTML. */}
+      {/* Non-blocking: logged-in users go to /app after render; anonymous
+          visitors and crawlers always get the full landing HTML. */}
       <RedirectIfAuthed />
       <Nav />
       <Hero />
       <LandingStats />
       <Ecosystem />
-      <Features />
-      <Onboarding />
       <Trust />
-      <Pricing />
-      <Faq />
-      <CTA />
+      <HomeCta />
       <Footer />
     </main>
   );
