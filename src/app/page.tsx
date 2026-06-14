@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { useTranslations } from "next-intl";
+import { safeJsonLd } from "@/lib/json-ld";
 import { LandingStats } from "@/components/landing-stats";
 import { Nav } from "@/components/landing/nav";
 import { Ecosystem } from "@/components/landing/ecosystem";
@@ -24,6 +25,24 @@ export const metadata: Metadata = {
     locale: "sv_SE",
     siteName: "Usch-Ja!",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "Usch-Ja! — Där kreatörer, platser och publik möts",
+    description:
+      "Kretsloppet där kreatörer, platser och publik förstärker varandra. Tryggt med BankID och Stripe.",
+  },
+};
+
+// Organization structured data (company Usha AB, product Usch-Ja!).
+const ORGANIZATION_JSONLD = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Usch-Ja!",
+  legalName: "Usha AB",
+  url: "https://usha.se",
+  logo: "https://usha.se/icon-192.png",
+  description:
+    "Kuraterad, BankID-verifierad marknadsplats som förenar kreatörer, platser och publik.",
 };
 
 /* ─────────────── HERO (the cycle) ─────────────── */
@@ -114,6 +133,10 @@ function HomeCta() {
 export default function Home() {
   return (
     <main>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(ORGANIZATION_JSONLD) }}
+      />
       {/* Non-blocking: logged-in users go to /app after render; anonymous
           visitors and crawlers always get the full landing HTML. */}
       <RedirectIfAuthed />
