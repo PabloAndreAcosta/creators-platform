@@ -21,9 +21,9 @@ export function Nav() {
   }, []);
 
   const pageLinks = [
-    { href: "#ecosystem", label: t("nav.ecosystem") },
-    { href: "#features", label: t("nav.features") },
-    { href: "#pricing", label: t("nav.pricing") },
+    { href: "/for-kreatorer", label: t("nav.forCreators") },
+    { href: "/for-platser", label: t("nav.forVenues") },
+    { href: "/for-publik", label: t("nav.forAudience") },
   ];
   const appLinks = [
     { href: "/flode", label: t("nav.feed") },

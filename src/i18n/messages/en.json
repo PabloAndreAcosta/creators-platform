@@ -432,7 +432,10 @@
       "downloadApp": "Download app",
       "getStarted": "Get started",
       "menuAriaLabel": "Menu",
-      "login": "Log in"
+      "login": "Log in",
+      "forCreators": "Creators",
+      "forVenues": "Venues",
+      "forAudience": "Discover"
     },
     "install": {
       "title": "Install Usch-Ja on your computer",
@@ -448,10 +451,10 @@
       "otherHelp": "Open your browser menu (⋮) → \"Install app\" / \"Add to Home screen\"."
     },
     "hero": {
-      "badge": "Buy tickets directly — no account required",
-      "headlinePart1": "Create events. Sell tickets.",
-      "headlinePart2": "Pay your crew.",
-      "description": "The platform for creators and experiences — publish events in minutes, sell tickets, scan at the door and pay your crew. Secure with BankID & Stripe.",
+      "badge": "Curated and BankID-verified",
+      "headlinePart1": "Where creators, venues and",
+      "headlinePart2": "audiences meet",
+      "description": "Usch-Ja! is the cycle that keeps Sweden’s creative life spinning – creators find work, venues fill their calendars, and audiences discover experiences to remember. Safe with BankID and Stripe.",
       "ctaPrimary": "Get started for free",
       "ctaSecondary": "Explore experiences"
     },
@@ -683,6 +686,19 @@
       "cookies": "Cookie Policy",
       "copyright": "© 2026 Usha AB. All rights reserved.",
       "builtWith": "Built with love in Sweden"
+    },
+    "doors": {
+      "heading": "Where do you start?",
+      "creatorLabel": "I’m a creator",
+      "creatorDesc": "Find work and stages",
+      "venueLabel": "I have a venue",
+      "venueDesc": "Fill your calendar with curated creators",
+      "audienceLabel": "I want to experience",
+      "audienceDesc": "Discover experiences near you"
+    },
+    "homeCta": {
+      "title": "Find your place in the cycle",
+      "description": "Three groups that strengthen each other. Pick your way in."
     }
   },
   "serverNotifications": {
@@ -1518,5 +1534,65 @@
       "saving": "Saving…",
       "close": "Close"
     }
+  },
+  "forCreators": {
+    "meta": {
+      "title": "For creators – Usch-Ja!",
+      "description": "More work without the sales grind. BankID verification boosts your credibility, and the tools to run your events live here – safe with Stripe."
+    },
+    "hero": {
+      "h1": "More work – without the sales grind",
+      "sub": "A new income channel without chasing clients. Your BankID verification builds trust, and everything you need to run your events is in one place.",
+      "cta": "Create your free profile"
+    },
+    "loop": {
+      "title": "How the cycle works for you",
+      "body": "More venues on Usch-Ja! means more stages for you. And more visitors means more bookings – without chasing anyone."
+    }
+  },
+  "forVenues": {
+    "meta": {
+      "title": "For venues – Usch-Ja!",
+      "description": "A living programme without becoming a booker. Fill your calendar with curated, BankID-verified creators – no booking admin of your own."
+    },
+    "hero": {
+      "h1": "A living programme – without becoming a booker",
+      "sub": "Fill your calendar with curated, BankID-verified creators. No booking admin, no risk – you stay in control.",
+      "cta": "Connect your venue"
+    },
+    "loop": {
+      "title": "How the cycle works for you",
+      "body": "More creators means more to fill your stage with. And more visitors discover your venue through the experiences you offer."
+    },
+    "values": {
+      "one": "A curated supply",
+      "oneDesc": "BankID-verified creators, ready to perform.",
+      "two": "No booking admin",
+      "twoDesc": "We handle requests and payments – you skip the legwork.",
+      "three": "You stay in control",
+      "threeDesc": "Say yes to what fits your venue. No obligations."
+    }
+  },
+  "forAudience": {
+    "meta": {
+      "title": "Discover experiences – Usch-Ja!",
+      "description": "Find and book creative experiences near you – safely. Every creator and venue is BankID-verified, payment via Stripe."
+    },
+    "hero": {
+      "h1": "Discover creative experiences near you",
+      "sub": "Find and book with confidence. Every creator and venue is BankID-verified, and payment goes through Stripe.",
+      "cta": "Explore experiences"
+    },
+    "loop": {
+      "title": "How the cycle works for you",
+      "body": "More creators and venues means more for you to experience – curated and safe."
+    }
+  },
+  "perspectiveLinks": {
+    "heading": "Explore the cycle",
+    "hub": "Back to home",
+    "creators": "For creators",
+    "venues": "For venues",
+    "audience": "For audiences"
   }
 }
