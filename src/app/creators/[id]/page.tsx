@@ -41,16 +41,26 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     .eq("is_public", true)
     .single();
 
-  if (!profile) return { title: t("metaTitleFallback") };
+  // Not found / non-public / archived → not indexable (the page itself 404s).
+  if (!profile) return { title: t("metaTitleFallback"), robots: { index: false } };
 
   const cats = profile.categories?.length ? profile.categories : (profile.category ? [profile.category] : []);
   const categoryLabel = cats.map((c: string) => CATEGORY_LABELS[c] || c).join(", ") || null;
   const description = profile.bio?.slice(0, 160) || t("metaDescriptionFallback", { category: categoryLabel || t("creatorFallbackName") });
   const url = `https://usha.se/creators/${profile.slug || profile.id}`;
 
+  // Empty profile (no bio and no active listings) → noindex.
+  const { count: activeListings } = await supabase
+    .from("listings")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", profile.id)
+    .eq("is_active", true);
+  const isThin = !profile.bio && !activeListings;
+
   return {
     title: t("metaTitle", { name: profile.full_name || t("creatorFallbackName") }),
     description,
+    ...(isThin ? { robots: { index: false } } : {}),
     openGraph: {
       title: t("metaTitleOg", { name: profile.full_name || t("creatorFallbackName") }),
       description,
