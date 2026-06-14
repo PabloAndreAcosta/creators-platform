@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
 import { getLocale, getMessages } from "next-intl/server";
-import { NextIntlClientProvider } from "next-intl";
+import { IntlProvider } from "@/components/intl-provider";
 import { ToastProvider } from "@/components/ui/toaster";
 import { ConnectionStatus } from "@/components/ConnectionStatus";
 import { GoogleAnalytics } from "@/components/google-analytics";
@@ -86,10 +86,10 @@ export default async function RootLayout({
         `}} />
       </head>
       <body className="grain min-h-screen bg-[var(--usha-black)] text-[var(--usha-white)] antialiased" suppressHydrationWarning>
-        <NextIntlClientProvider locale={locale} messages={messages}>
+        <IntlProvider locale={locale} messages={messages}>
           <ConnectionStatus />
           <ToastProvider>{children}</ToastProvider>
-        </NextIntlClientProvider>
+        </IntlProvider>
         <Script id="sw-register" strategy="afterInteractive">{`
           if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js')

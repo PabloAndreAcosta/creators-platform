@@ -822,7 +822,9 @@
     "design": "Design",
     "yoga": "Yoga",
     "fitness": "Fitness",
-    "other": "Övrigt"
+    "other": "Övrigt",
+    "venue": "Lokal",
+    "wellness": "Wellness"
   },
   "seoFooter": {
     "experiencesHeading": "Upplevelser",
