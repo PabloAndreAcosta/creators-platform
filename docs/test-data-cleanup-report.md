@@ -1,5 +1,7 @@
 # Testdata-rapport — usha.se (2026-06-14)
 
+> **Borttagning (2026-06-14):** Test­kontot **"Test Kreatör"** (`testgrupp@usha.se`) och den trasiga **Kiz Lab-dubbletten** (`8d1e2773`) är nu **hård-raderade** (migration `20260614c`), men reversibelt: alla 14 rader (profil + 5 listings + 7 bokningar + dubblett) backades upp till `public.archived_deleted_rows` (jsonb, RLS-låst) före DELETE. Footprint var ren (0 reviews/posts/follows/payments/prenumerationer; bokningarna var självbokningar + ditt "Pablo Test"-altkonto). Efter: **19 konton** (alla riktiga behållna), **3 aktiva listings — alla "The Kiz Lab"**. Auth-login för testkontot borttaget.
+>
 > **Uppdaterad policy (2026-06-14):** Behåll ALLA konton (radera/rör ingen profil). Ta bort allt event-innehåll utom **The Kiz Lab** — endast det är aktuellt. Genomfört via en andra reversibel migration (`20260614b_only_kizlab_listings`) som arkiverade de återstående icke-Kiz-Lab-listsen (Kroppskontroll, Practica, Privat danslektion, Värdskap). Efter detta: **20 konton kvar**, **4 aktiva listings — alla "The Kiz Lab"**, 0 övriga. OSÄKER-frågan nedan är därmed besvarad: inga konton rörs; allt övrigt event-innehåll arkiverat.
 
 
