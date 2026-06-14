@@ -818,7 +818,8 @@
     "paginationPrevious": "Föregående",
     "paginationNext": "Nästa",
     "seoHeading": "Utforska per stad och kategori",
-    "seoCategoryInCity": "{category} i {city}"
+    "seoCategoryInCity": "{category} i {city}",
+    "emptyCreateFirst": "Är du kreatör? Skapa den första upplevelsen här."
   },
   "listingCard": {
     "badgePromoted": "Framhävd",

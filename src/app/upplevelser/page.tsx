@@ -108,37 +108,31 @@ export default async function UpplevelserPage(
     (e) => !e.promoted_until || new Date(e.promoted_until) > new Date()
   );
 
-  // ── Get unique locations for filter ──
-  const { data: locationData } = await supabase
+  // ── Counts for filters + SEO grid (single pass over active listings) ──
+  // Drives "show only categories/cities with real content" so the marketplace
+  // never advertises an empty filter.
+  const { data: countRows } = await supabase
     .from("listings")
-    .select("event_location")
-    .eq("is_active", true)
-    .not("event_location", "is", null);
+    .select("category, event_location")
+    .eq("is_active", true);
 
+  const categoryCounts: Record<string, number> = {};
   const locationCounts: Record<string, number> = {};
-  (locationData || []).forEach((l) => {
+  const cityCatCounts: Record<string, Record<string, number>> = {};
+  (countRows || []).forEach((l) => {
+    if (l.category) categoryCounts[l.category] = (categoryCounts[l.category] || 0) + 1;
     const loc = l.event_location?.trim();
     if (loc) {
       const city = loc.split(",")[0].trim();
       locationCounts[city] = (locationCounts[city] || 0) + 1;
+      if (l.category) {
+        (cityCatCounts[city] ??= {})[l.category] = (cityCatCounts[city][l.category] || 0) + 1;
+      }
     }
   });
   const topLocations = Object.entries(locationCounts)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 20);
-
-  // ── Get category counts ──
-  const { data: categoryData } = await supabase
-    .from("listings")
-    .select("category")
-    .eq("is_active", true);
-
-  const categoryCounts: Record<string, number> = {};
-  (categoryData || []).forEach((l) => {
-    if (l.category) {
-      categoryCounts[l.category] = (categoryCounts[l.category] || 0) + 1;
-    }
-  });
 
   // ── Helper to build filter URLs ──
   function filterUrl(overrides: Record<string, string | undefined>) {
@@ -187,14 +181,14 @@ export default async function UpplevelserPage(
           >
             {t("experiences.filterAll")}
           </Link>
-          {CATEGORIES.filter((c) => c.value !== "other").map((cat) => (
+          {/* Only categories with real, published listings — each with its count */}
+          {CATEGORIES.filter((c) => c.value !== "other" && (categoryCounts[c.value] || 0) > 0).map((cat) => (
             <Link
               key={cat.value}
               href={filterUrl({ category: cat.value, page: undefined })}
               className={`rounded-lg px-3 py-1.5 text-xs transition ${category === cat.value ? "bg-[var(--usha-gold)]/15 font-semibold text-[var(--usha-gold)]" : "border border-[var(--usha-border)] text-[var(--usha-muted)] hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-white)]"}`}
             >
-              {t(`categories.${cat.value}`)}
-              {categoryCounts[cat.value] ? ` (${categoryCounts[cat.value]})` : ""}
+              {t(`categories.${cat.value}`)} ({categoryCounts[cat.value]})
             </Link>
           ))}
         </div>
@@ -258,10 +252,16 @@ export default async function UpplevelserPage(
             ))}
           </div>
         ) : (
-          <div className="mt-12 text-center">
+          <div className="mt-12 flex flex-col items-center gap-3 text-center">
             <p className="text-sm text-[var(--usha-muted)]">{t("experiences.emptyNoMatch")}</p>
+            <Link
+              href="/for-kreatorer"
+              className="rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-5 py-2.5 text-sm font-bold text-black transition hover:opacity-90"
+            >
+              {t("experiences.emptyCreateFirst")}
+            </Link>
             {hasFilters && (
-              <Link href="/upplevelser" className="mt-2 inline-block text-sm text-[var(--usha-gold)] hover:underline">
+              <Link href="/upplevelser" className="text-sm text-[var(--usha-gold)] hover:underline">
                 {t("experiences.clearFilters")}
               </Link>
             )}
@@ -316,23 +316,31 @@ export default async function UpplevelserPage(
           <section className="mt-12 border-t border-[var(--usha-border)] pt-8">
             <h2 className="text-lg font-semibold">{t("experiences.seoHeading")}</h2>
             <div className="mt-4 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-              {topLocations.slice(0, 6).map(([city]) => (
-                <div key={city}>
-                  <h3 className="mb-2 text-sm font-semibold">{city}</h3>
-                  <div className="flex flex-col gap-1">
-                    {CATEGORIES.filter((c) => c.value !== "other").map((cat) => (
-                      <Link
-                        key={`${city}-${cat.value}`}
-                        href={`/upplevelser/${encodeURIComponent(city.toLowerCase())}/${cat.value}`}
-                        className="flex items-center gap-1 text-xs text-[var(--usha-muted)] transition hover:text-[var(--usha-gold)]"
-                      >
-                        <ArrowRight size={10} />
-                        {t("experiences.seoCategoryInCity", { category: t(`categories.${cat.value}`), city })}
-                      </Link>
-                    ))}
+              {topLocations.slice(0, 6).map(([city]) => {
+                // Only link city×category combinations that actually have listings,
+                // so we never generate (or link to) thin/empty SEO pages.
+                const cityCats = CATEGORIES.filter(
+                  (c) => c.value !== "other" && (cityCatCounts[city]?.[c.value] || 0) > 0
+                );
+                if (cityCats.length === 0) return null;
+                return (
+                  <div key={city}>
+                    <h3 className="mb-2 text-sm font-semibold">{city}</h3>
+                    <div className="flex flex-col gap-1">
+                      {cityCats.map((cat) => (
+                        <Link
+                          key={`${city}-${cat.value}`}
+                          href={`/upplevelser/${encodeURIComponent(city.toLowerCase())}/${cat.value}`}
+                          className="flex items-center gap-1 text-xs text-[var(--usha-muted)] transition hover:text-[var(--usha-gold)]"
+                        >
+                          <ArrowRight size={10} />
+                          {t("experiences.seoCategoryInCity", { category: t(`categories.${cat.value}`), city })}
+                        </Link>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </section>
         )}

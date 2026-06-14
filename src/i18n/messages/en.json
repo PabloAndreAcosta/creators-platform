@@ -818,7 +818,8 @@
     "paginationPrevious": "Previous",
     "paginationNext": "Next",
     "seoHeading": "Explore by city and category",
-    "seoCategoryInCity": "{category} in {city}"
+    "seoCategoryInCity": "{category} in {city}",
+    "emptyCreateFirst": "Are you a creator? Create the first experience here."
   },
   "listingCard": {
     "badgePromoted": "Featured",

@@ -21,9 +21,19 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   const city = capitalize(decodeURIComponent(params.location));
   const categoryLabel = CATEGORY_LABELS[params.category] || capitalize(params.category);
 
+  // Don't let empty city×category combinations get indexed (thin pages).
+  const supabase = await createClient();
+  const { count } = await supabase
+    .from("listings")
+    .select("id", { count: "exact", head: true })
+    .eq("is_active", true)
+    .eq("category", params.category)
+    .ilike("event_location", `%${city}%`);
+
   return {
     title: `${categoryLabel} i ${city} – Usch-Ja!`,
     description: `Hitta ${categoryLabel.toLowerCase()} events och upplevelser i ${city}. Boka direkt på Usch-Ja.`,
+    ...(!count ? { robots: { index: false } } : {}),
     openGraph: {
       title: `${categoryLabel} i ${city} – Usch-Ja!`,
       description: `${categoryLabel} events och upplevelser i ${city}.`,
@@ -49,6 +59,14 @@ export default async function LocationCategoryPage(props: Props) {
   const listingIds = (rawListings || []).map((l) => l.id);
   const bookingCounts = await getBookingCounts(supabase, listingIds);
   const listings = sortWithPromoted(rawListings || []);
+
+  // Categories that actually have listings in this city — only cross-link those.
+  const { data: cityCatRows } = await supabase
+    .from("listings")
+    .select("category")
+    .eq("is_active", true)
+    .ilike("event_location", `%${city}%`);
+  const cityCats = new Set((cityCatRows || []).map((r) => r.category).filter(Boolean));
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -96,7 +114,7 @@ export default async function LocationCategoryPage(props: Props) {
 
         {/* Other categories in this city */}
         <div className="mt-4 flex flex-wrap gap-2">
-          {CATEGORIES.filter((c) => c.value !== "other" && c.value !== params.category).map((cat) => (
+          {CATEGORIES.filter((c) => c.value !== "other" && c.value !== params.category && cityCats.has(c.value)).map((cat) => (
             <Link
               key={cat.value}
               href={`/upplevelser/${encodeURIComponent(city.toLowerCase())}/${cat.value}`}
@@ -120,13 +138,19 @@ export default async function LocationCategoryPage(props: Props) {
             ))}
           </div>
         ) : (
-          <div className="mt-12 text-center">
+          <div className="mt-12 flex flex-col items-center gap-3 text-center">
             <p className="text-sm text-[var(--usha-muted)]">
-              Inga {categoryLabel.toLowerCase()} upplevelser i {city} just nu.
+              Inga {categoryLabel.toLowerCase()} upplevelser i {city} ännu – är du kreatör? Skapa den första.
             </p>
             <Link
+              href="/for-kreatorer"
+              className="rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-5 py-2.5 text-sm font-bold text-black transition hover:opacity-90"
+            >
+              Skapa den första
+            </Link>
+            <Link
               href={`/upplevelser/${encodeURIComponent(city.toLowerCase())}`}
-              className="mt-2 inline-block text-sm text-[var(--usha-gold)] hover:underline"
+              className="text-sm text-[var(--usha-gold)] hover:underline"
             >
               Se alla upplevelser i {city}
             </Link>

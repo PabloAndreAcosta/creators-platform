@@ -19,9 +19,19 @@ function capitalize(str: string): string {
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params;
   const city = capitalize(decodeURIComponent(params.location));
+
+  // Don't index a city page with no listings yet.
+  const supabase = await createClient();
+  const { count } = await supabase
+    .from("listings")
+    .select("id", { count: "exact", head: true })
+    .eq("is_active", true)
+    .ilike("event_location", `%${city}%`);
+
   return {
     title: `Upplevelser i ${city} – Usch-Ja!`,
     description: `Hitta kreativa events, tjänster och upplevelser i ${city}. Dans, musik, fotografi och mer.`,
+    ...(!count ? { robots: { index: false } } : {}),
     openGraph: {
       title: `Upplevelser i ${city} – Usch-Ja!`,
       description: `Hitta kreativa events och upplevelser i ${city}.`,
