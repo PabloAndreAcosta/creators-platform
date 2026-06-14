@@ -1,11 +1,13 @@
 import { useTranslations } from "next-intl";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Ticket } from "lucide-react";
 
 type Ns = "forCreators" | "forVenues" | "forAudience";
 
 /** Shared hero for the three perspective pages: H1 + value sub + ONE primary
- *  CTA, copy driven by the page's namespace. */
-export function PerspectiveHero({ ns, ctaHref }: { ns: Ns; ctaHref: string }) {
+ *  CTA, copy driven by the page's namespace. `wedge` shows a subtle reassurance
+ *  line under the CTA (used on the audience page for the no-account ticket
+ *  wedge) — clearly lighter weight than the primary button. */
+export function PerspectiveHero({ ns, ctaHref, wedge }: { ns: Ns; ctaHref: string; wedge?: boolean }) {
   const t = useTranslations(ns);
 
   return (
@@ -28,6 +30,13 @@ export function PerspectiveHero({ ns, ctaHref }: { ns: Ns; ctaHref: string }) {
           {t("hero.cta")}
           <ArrowRight size={16} />
         </a>
+
+        {wedge && (
+          <p className="mt-4 inline-flex items-center justify-center gap-1.5 text-sm text-[var(--usha-muted)]">
+            <Ticket size={14} className="text-[#5ce0d2]" />
+            {t("wedge")}
+          </p>
+        )}
       </div>
     </section>
   );

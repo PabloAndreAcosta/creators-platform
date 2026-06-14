@@ -23,8 +23,9 @@ export default function ForAudiencePage() {
   return (
     <main>
       <Nav />
-      {/* Primary CTA leads into the functional browse page */}
-      <PerspectiveHero ns="forAudience" ctaHref="/upplevelser" />
+      {/* Primary CTA leads into the functional browse page; the no-account
+          ticket wedge sits just beneath it as lighter-weight reassurance. */}
+      <PerspectiveHero ns="forAudience" ctaHref="/upplevelser" wedge />
       <LoopSection ns="forAudience" />
       <PerspectiveLinks exclude="audience" />
       <Trust />
