@@ -8,6 +8,8 @@ interface PlaceResult {
   lat: number;
   lng: number;
   placeId: string;
+  city: string | null;
+  venue: string | null;
 }
 
 interface PlacesAutocompleteProps {
@@ -18,9 +20,13 @@ interface PlacesAutocompleteProps {
   latName?: string;
   lngName?: string;
   placeIdName?: string;
+  cityName?: string;
+  venueName?: string;
   defaultLat?: number | null;
   defaultLng?: number | null;
   defaultPlaceId?: string | null;
+  defaultCity?: string | null;
+  defaultVenue?: string | null;
 }
 
 export default function PlacesAutocomplete({
@@ -31,9 +37,13 @@ export default function PlacesAutocomplete({
   latName = "event_lat",
   lngName = "event_lng",
   placeIdName = "event_place_id",
+  cityName = "event_city",
+  venueName = "event_venue",
   defaultLat = null,
   defaultLng = null,
   defaultPlaceId = null,
+  defaultCity = null,
+  defaultVenue = null,
 }: PlacesAutocompleteProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const hiddenInputRef = useRef<HTMLInputElement>(null);
@@ -41,6 +51,8 @@ export default function PlacesAutocomplete({
   const [lat, setLat] = useState<number | null>(defaultLat);
   const [lng, setLng] = useState<number | null>(defaultLng);
   const [placeId, setPlaceId] = useState<string | null>(defaultPlaceId);
+  const [city, setCity] = useState<string | null>(defaultCity);
+  const [venue, setVenue] = useState<string | null>(defaultVenue);
   const [address, setAddress] = useState(defaultValue);
 
   useEffect(() => {
@@ -167,7 +179,7 @@ export default function PlacesAutocomplete({
           option.addEventListener("click", async () => {
             const place = new Place({ id: item.placeId });
             await place.fetchFields({
-              fields: ["displayName", "formattedAddress", "location", "id"],
+              fields: ["displayName", "formattedAddress", "location", "id", "addressComponents"],
             });
 
             const loc = place.location;
@@ -175,17 +187,27 @@ export default function PlacesAutocomplete({
               ? `${place.displayName}, ${place.formattedAddress}`
               : place.formattedAddress || item.text;
 
+            // Real city (locality), with sensible fallbacks; venue = place name.
+            const comps = (place.addressComponents ?? []) as Array<{ types?: string[]; longText?: string }>;
+            const pick = (type: string) => comps.find((c) => c.types?.includes(type))?.longText || null;
+            const cityVal = pick("locality") || pick("postal_town") || pick("administrative_area_level_2");
+            const venueVal = place.displayName || null;
+
             if (input) input.value = displayAddr || "";
             setAddress(displayAddr || "");
             setLat(loc?.lat() ?? null);
             setLng(loc?.lng() ?? null);
             setPlaceId(place.id || item.placeId);
+            setCity(cityVal);
+            setVenue(venueVal);
 
             onPlaceSelect?.({
               address: displayAddr || "",
               lat: loc?.lat() ?? 0,
               lng: loc?.lng() ?? 0,
               placeId: place.id || item.placeId,
+              city: cityVal,
+              venue: venueVal,
             });
 
             removeSuggestions();
@@ -222,10 +244,12 @@ export default function PlacesAutocomplete({
         autoComplete="off"
         className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
       />
-      {/* Hidden fields for coordinates */}
+      {/* Hidden fields for coordinates + separated city/venue */}
       <input type="hidden" name={latName} value={lat ?? ""} />
       <input type="hidden" name={lngName} value={lng ?? ""} />
       <input type="hidden" name={placeIdName} value={placeId ?? ""} />
+      <input type="hidden" name={cityName} value={city ?? ""} />
+      <input type="hidden" name={venueName} value={venue ?? ""} />
     </div>
   );
 }
