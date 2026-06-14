@@ -40,14 +40,18 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     .eq("is_active", true)
     .single();
 
-  if (!listing) return { title: "Event – Usch-Ja!" };
+  // Not found / inactive / archived → not indexable (the page itself 404s).
+  if (!listing) return { title: "Event – Usch-Ja!", robots: { index: false } };
 
   const description = listing.description?.slice(0, 160) || `${listing.title} på Usch-Ja Platform`;
   const url = `https://usha.se/listing/${listing.slug || listing.id}`;
+  // Thin/empty listing (no description and no location) → noindex.
+  const isThin = !listing.description && !listing.event_location;
 
   return {
     title: `${listing.title} – Usch-Ja!`,
     description,
+    ...(isThin ? { robots: { index: false } } : {}),
     openGraph: {
       title: `${listing.title} – Usch-Ja!`,
       description,
