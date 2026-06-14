@@ -1,5 +1,8 @@
 # Testdata-rapport — usha.se (2026-06-14)
 
+> **Uppdaterad policy (2026-06-14):** Behåll ALLA konton (radera/rör ingen profil). Ta bort allt event-innehåll utom **The Kiz Lab** — endast det är aktuellt. Genomfört via en andra reversibel migration (`20260614b_only_kizlab_listings`) som arkiverade de återstående icke-Kiz-Lab-listsen (Kroppskontroll, Practica, Privat danslektion, Värdskap). Efter detta: **20 konton kvar**, **4 aktiva listings — alla "The Kiz Lab"**, 0 övriga. OSÄKER-frågan nedan är därmed besvarad: inga konton rörs; allt övrigt event-innehåll arkiverat.
+
+
 Mål: ingen test-/seed-/placeholderdata synlig publikt (/marketplace, /upplevelser, /creators) eller i sökmotorer.
 
 Metod: hela `profiles` (20) och `listings` (16) genomgångna manuellt (litet dataset). Inga committade seeds/fixtures i repot (raden `INSERT INTO public.profiles` i `migration.sql` är signup-triggern `handle_new_user`, inte seed-data). Publika ytor + sitemap filtrerar `listings.is_active=true` och `profiles.is_public=true` → reversibel soft-delete via flaggor + arkiv-markör räcker för att dölja allt.
