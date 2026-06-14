@@ -5,14 +5,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://usha.se";
   const supabase = await createClient();
 
-  // Static pages
+  // Static pages — only real, content-rich, indexable pages.
   const staticPages: MetadataRoute.Sitemap = [
     { url: baseUrl, lastModified: new Date(), changeFrequency: "daily", priority: 1 },
-    { url: `${baseUrl}/flode`, lastModified: new Date(), changeFrequency: "hourly", priority: 0.9 },
+    { url: `${baseUrl}/for-kreatorer`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.9 },
+    { url: `${baseUrl}/for-platser`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.9 },
+    { url: `${baseUrl}/for-publik`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.9 },
+    { url: `${baseUrl}/upplevelser`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
     { url: `${baseUrl}/marketplace`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
-    { url: `${baseUrl}/platser`, lastModified: new Date(), changeFrequency: "daily", priority: 0.7 },
-    { url: `${baseUrl}/signup`, changeFrequency: "monthly", priority: 0.6 },
-    { url: `${baseUrl}/login`, changeFrequency: "monthly", priority: 0.3 },
+    { url: `${baseUrl}/flode`, lastModified: new Date(), changeFrequency: "hourly", priority: 0.7 },
+    { url: `${baseUrl}/om`, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${baseUrl}/signup`, changeFrequency: "monthly", priority: 0.5 },
     { url: `${baseUrl}/privacy`, changeFrequency: "yearly", priority: 0.2 },
     { url: `${baseUrl}/terms`, changeFrequency: "yearly", priority: 0.2 },
   ];
@@ -47,49 +50,44 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  // Location landing pages
-  const { data: locationProfiles } = await supabase
+  // City landing pages — only cities that actually have content, derived from
+  // the real city column (not the raw address, which starts with the venue).
+  const { data: listingCities } = await supabase
+    .from("listings")
+    .select("event_city")
+    .eq("is_active", true)
+    .not("event_city", "is", null);
+
+  const upplevelserCitySet = new Set<string>();
+  (listingCities || []).forEach((l) => {
+    const c = l.event_city?.trim().toLowerCase();
+    if (c) upplevelserCitySet.add(c);
+  });
+
+  const { data: creatorCities } = await supabase
     .from("profiles")
     .select("location")
     .eq("is_public", true)
     .not("location", "is", null);
 
-  const locationSet = new Set<string>();
-  (locationProfiles || []).forEach((p) => {
-    const loc = p.location?.trim();
-    if (loc) locationSet.add(loc);
+  const creatorCitySet = new Set<string>();
+  (creatorCities || []).forEach((p) => {
+    const c = p.location?.trim().toLowerCase();
+    if (c) creatorCitySet.add(c);
   });
-  const uniqueLocations = Array.from(locationSet);
 
-  // Extract city names for landing pages
-  const citySet = new Set<string>();
-  uniqueLocations.forEach((loc) => {
-    const city = loc.split(",")[0].trim();
-    if (city) citySet.add(city.toLowerCase());
-  });
-  const cities = Array.from(citySet);
-
-  const locationPages: MetadataRoute.Sitemap = cities.flatMap((city) => [
-    { url: `${baseUrl}/upplevelser/${encodeURIComponent(city)}`, changeFrequency: "daily" as const, priority: 0.7 },
-    { url: `${baseUrl}/creators/stad/${encodeURIComponent(city)}`, changeFrequency: "daily" as const, priority: 0.7 },
-  ]);
-
-  // Upplevelser main page
-  const upplevelserPage: MetadataRoute.Sitemap = [
-    { url: `${baseUrl}/upplevelser`, lastModified: new Date(), changeFrequency: "daily" as const, priority: 0.8 },
+  const cityPages: MetadataRoute.Sitemap = [
+    ...Array.from(upplevelserCitySet).map((city) => ({
+      url: `${baseUrl}/upplevelser/${encodeURIComponent(city)}`,
+      changeFrequency: "daily" as const,
+      priority: 0.7,
+    })),
+    ...Array.from(creatorCitySet).map((city) => ({
+      url: `${baseUrl}/creators/stad/${encodeURIComponent(city)}`,
+      changeFrequency: "daily" as const,
+      priority: 0.7,
+    })),
   ];
 
-  // Venues
-  const { data: venues } = await supabase
-    .from("venues")
-    .select("id")
-    .limit(500);
-
-  const venuePages: MetadataRoute.Sitemap = (venues || []).map((v) => ({
-    url: `${baseUrl}/platser/${v.id}`,
-    changeFrequency: "weekly" as const,
-    priority: 0.5,
-  }));
-
-  return [...staticPages, ...upplevelserPage, ...creatorPages, ...listingPages, ...locationPages, ...venuePages];
+  return [...staticPages, ...creatorPages, ...listingPages, ...cityPages];
 }
