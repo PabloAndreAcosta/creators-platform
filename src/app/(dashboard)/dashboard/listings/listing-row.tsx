@@ -22,6 +22,7 @@ export interface Listing {
   event_date?: string | null;
   event_time?: string | null;
   event_location?: string | null;
+  event_venue?: string | null;
   series_id?: string | null;
   series_slug?: string | null;
   user_id?: string;
