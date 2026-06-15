@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { capabilitiesEnforced } from "@/lib/capabilities/flag";
+import { hasCapability } from "@/lib/capabilities/access";
+import { EVENT_PACK, UNLOCK_COSTS } from "@/lib/capabilities/config";
 
 export async function GET(
   req: NextRequest,
@@ -28,6 +31,20 @@ export async function GET(
     return NextResponse.json({ error: "Event not found" }, { status: 404 });
   }
 
+  const admin = createAdminClient();
+
+  // Capability gate — only blocks once enforcement is flipped on (open during
+  // beta). Live dashboard needs the event pack (tier-granted or token-unlocked).
+  if (await capabilitiesEnforced()) {
+    const allowed = await hasCapability(admin, user.id, "live", eventId);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: "capability_required", capability: EVENT_PACK, cost: UNLOCK_COSTS[EVENT_PACK] },
+        { status: 402 }
+      );
+    }
+  }
+
   // Get all bookings for this event
   const { data: bookings } = await supabase
     .from("bookings")
@@ -41,7 +58,6 @@ export async function GET(
 
   // Resolve booking customers' names (customer_id → auth.users, so we look up
   // profiles separately rather than via an embed).
-  const admin = createAdminClient();
   const custIds = Array.from(
     new Set(allBookings.map((b) => b.customer_id).filter((x): x is string => !!x))
   );
