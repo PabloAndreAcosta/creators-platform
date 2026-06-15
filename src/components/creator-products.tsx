@@ -9,7 +9,6 @@ interface Product {
   description: string | null;
   price: number;
   product_type: string;
-  video_url: string | null;
   thumbnail_url: string | null;
 }
 

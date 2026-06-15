@@ -22,7 +22,7 @@ export default async function ProductsPage() {
 
   const { data: products } = await supabase
     .from("digital_products")
-    .select("id, title, description, price, product_type, video_url, thumbnail_url, is_active, created_at")
+    .select("id, title, description, price, product_type, thumbnail_url, is_active, created_at")
     .eq("creator_id", user.id)
     .order("created_at", { ascending: false });
 

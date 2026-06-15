@@ -20,7 +20,7 @@ export async function createProduct(formData: FormData) {
     return { error: "Ogiltig produkttyp" };
   }
 
-  const { error } = await supabase
+  const { data: product, error } = await supabase
     .from("digital_products")
     .insert({
       creator_id: user.id,
@@ -28,10 +28,18 @@ export async function createProduct(formData: FormData) {
       description,
       price,
       product_type,
-      video_url,
-    } as any);
+    } as any)
+    .select("id")
+    .single();
 
-  if (error) return { error: "Kunde inte skapa produkt" };
+  if (error || !product) return { error: "Kunde inte skapa produkt" };
+
+  // Content URL lives in the gated content table, never on the public row.
+  if (video_url) {
+    await supabase
+      .from("digital_product_content")
+      .insert({ product_id: product.id, video_url } as any);
+  }
 
   revalidatePath("/dashboard/products");
   return { success: true };
