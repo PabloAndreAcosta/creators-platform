@@ -48,7 +48,8 @@ export default async function MarketplacePage(
     .from("profiles")
     .select("id, full_name, avatar_url, bio, category, location, hourly_rate, categories, locations, rates, bankid_verified_at, created_at, slug", { count: "exact" })
     .eq("is_public", true)
-    .in("role", SELLER_ROLE_VALUES);
+    .in("role", SELLER_ROLE_VALUES)
+    .not("bankid_verified_at", "is", null);
 
   if (category && category !== "all") {
     profilesQuery = profilesQuery.or(`categories.cs.{${category}},category.eq.${category}`);
@@ -209,6 +210,7 @@ export default async function MarketplacePage(
     .select("location")
     .eq("is_public", true)
     .in("role", SELLER_ROLE_VALUES)
+    .not("bankid_verified_at", "is", null)
     .not("location", "is", null);
 
   const uniqueLocations = Array.from(
@@ -221,7 +223,8 @@ export default async function MarketplacePage(
     .from("profiles")
     .select("category, categories")
     .eq("is_public", true)
-    .in("role", SELLER_ROLE_VALUES);
+    .in("role", SELLER_ROLE_VALUES)
+    .not("bankid_verified_at", "is", null);
   const creatorCategoryCounts: Record<string, number> = {};
   (catRows ?? []).forEach((p) => {
     const cats = (p.categories?.length ? p.categories : p.category ? [p.category] : []) as string[];
