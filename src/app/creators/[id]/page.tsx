@@ -133,7 +133,7 @@ export default async function CreatorProfilePage(props: Props) {
       .order("sort_order", { ascending: true }),
     supabase
       .from("digital_products")
-      .select("id, title, description, price, product_type, video_url, thumbnail_url")
+      .select("id, title, description, price, product_type, thumbnail_url")
       .eq("creator_id", profile.id)
       .eq("is_active", true)
       .order("created_at", { ascending: false }),
