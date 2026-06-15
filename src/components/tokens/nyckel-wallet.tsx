@@ -4,11 +4,15 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { KeyRound } from "lucide-react";
 import { NYCKEL_PACKAGES } from "@/lib/tokens/config";
+import { monthlyAllowance } from "@/lib/tokens/allowance";
+import { useSubscription } from "@/lib/subscription/context";
 
 /** Low-key wallet: shows the user's nyckel balance + lets them buy a package.
  *  Not a hard sell — a quiet alternative to the subscription tiers. */
 export function NyckelWallet() {
   const t = useTranslations("tokens");
+  const { tier } = useSubscription();
+  const allowance = monthlyAllowance(tier);
   const [balance, setBalance] = useState<number | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
 
@@ -47,9 +51,15 @@ export function NyckelWallet() {
         </div>
       </div>
 
-      <p className="mb-3 text-sm">
+      <p className="text-sm">
         {balance === null ? t("loading") : t("balance", { count: balance })}
       </p>
+      {allowance > 0 && (
+        <p className="mb-3 mt-0.5 text-xs text-[var(--usha-muted)]">
+          {t("allowanceNote", { count: allowance })}
+        </p>
+      )}
+      {allowance <= 0 && <div className="mb-3" />}
 
       <div className="flex flex-wrap gap-2">
         {NYCKEL_PACKAGES.map((p) => (

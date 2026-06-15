@@ -1628,6 +1628,7 @@
       "upgrade": "Uppgradera istället",
       "buyMore": "Köp fler nycklar",
       "insufficient": "För få nycklar – köp fler eller uppgradera."
-    }
+    },
+    "allowanceNote": "Din nivå ger {count} nycklar/mån"
   }
 }

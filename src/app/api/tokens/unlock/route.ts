@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { UNLOCK_COSTS, EVENT_PACK } from "@/lib/capabilities/config";
+import { ensureMonthlyAllowance } from "@/lib/tokens/allowance";
 import { rateLimit, getRateLimitKey } from "@/lib/rate-limit";
 
 /**
@@ -33,6 +34,15 @@ export async function POST(req: NextRequest) {
   if (!listing || listing.user_id !== user.id) {
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
+
+  // Credit this month's tier allowance first (idempotent) so a subscriber can
+  // spend their monthly pot on the unlock without buying nycklar.
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("tier")
+    .eq("id", user.id)
+    .maybeSingle();
+  await ensureMonthlyAllowance(admin, user.id, profile?.tier);
 
   const { data, error } = await admin.rpc("unlock_capability", {
     p_profile: user.id,
