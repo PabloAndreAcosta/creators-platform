@@ -1628,6 +1628,7 @@
       "upgrade": "Upgrade instead",
       "buyMore": "Buy more keys",
       "insufficient": "Not enough keys – buy more or upgrade."
-    }
+    },
+    "allowanceNote": "Your tier includes {count} keys/mo"
   }
 }
