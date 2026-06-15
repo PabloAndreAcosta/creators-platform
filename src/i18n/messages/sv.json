@@ -1602,5 +1602,13 @@
     "creators": "För kreatörer",
     "venues": "För platser",
     "audience": "För publik"
+  },
+  "tokens": {
+    "title": "Nycklar",
+    "desc": "Lås upp verktyg per användning – ett alternativ till abonnemang.",
+    "balance": "Du har {count} nycklar",
+    "buy": "Köp",
+    "loading": "Laddar…",
+    "success": "Köpet är klart – dina nycklar dyker upp strax."
   }
 }

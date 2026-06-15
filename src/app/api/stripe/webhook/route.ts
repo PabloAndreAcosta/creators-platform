@@ -178,6 +178,25 @@ export async function POST(req: NextRequest) {
 
         if (!userId) break;
 
+        // "Nycklar" purchase — credit the token ledger (platform revenue, no Connect).
+        if (session.metadata?.type === "token_purchase") {
+          const tokens = parseInt(session.metadata.tokens ?? "0", 10);
+          const ref = (session.payment_intent as string) || session.id;
+          if (!tokens) break;
+          const { count } = await getSupabaseAdmin()
+            .from("token_ledger")
+            .select("id", { count: "exact", head: true })
+            .eq("ref", ref);
+          if (count && count > 0) break; // idempotent
+          await getSupabaseAdmin().from("token_ledger").insert({
+            profile_id: userId,
+            delta: tokens,
+            reason: "purchase",
+            ref,
+          });
+          break;
+        }
+
         // Idempotency: skip if this session has already been processed
         if (session.payment_intent) {
           const { count } = await getSupabaseAdmin()
