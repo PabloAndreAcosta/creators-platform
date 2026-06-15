@@ -22,5 +22,5 @@ export async function GET(_req: NextRequest) {
 
   // RLS restricts the ledger read to the caller's own rows.
   const balance = await getTokenBalance(supabase, user.id);
-  return NextResponse.json({ balance });
+  return NextResponse.json({ balance }, { headers: { "Cache-Control": "no-store" } });
 }

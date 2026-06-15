@@ -12,6 +12,11 @@ const nextConfig = {
           { key: "Access-Control-Allow-Methods", value: "GET, POST, PUT, DELETE, OPTIONS" },
           { key: "Access-Control-Allow-Headers", value: "Content-Type, Authorization" },
           { key: "Access-Control-Max-Age", value: "86400" },
+          // API responses are per-user/authenticated — never let a shared or
+          // browser cache store them (the framework default was
+          // "public, max-age=0, must-revalidate", which served stale balances
+          // and could serve one user's data to another).
+          { key: "Cache-Control", value: "no-store" },
         ],
       },
       {
