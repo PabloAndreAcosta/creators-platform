@@ -15,11 +15,15 @@ import {
   Package,
   Users,
   Upload,
+  Copy,
+  ChevronDown,
+  Layers,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { createProduct, deleteProduct } from "./actions";
+import { duplicateListing } from "@/app/(dashboard)/dashboard/listings/actions";
 
 // ─── Types ───
 
@@ -33,6 +37,10 @@ interface ListingData {
   is_active: boolean;
   image_url: string | null;
   created_at: string;
+  series_id?: string | null;
+  series_slug?: string | null;
+  event_date?: string | null;
+  event_time?: string | null;
 }
 
 interface DigitalProductData {
@@ -414,17 +422,43 @@ function ServicesTab({ listings }: { listings: ListingData[] }) {
 
   const activeCount = listings.filter((l) => l.is_active).length;
 
+  // Group occurrences sharing a series_id; render them as one collapsible card.
+  const seriesGroups = new Map<string, ListingData[]>();
+  for (const l of listings) {
+    if (l.series_id) {
+      const g = seriesGroups.get(l.series_id) ?? [];
+      g.push(l);
+      seriesGroups.set(l.series_id, g);
+    }
+  }
+  const series = [...seriesGroups.values()].map((g) =>
+    [...g].sort((a, b) => (a.event_date || "").localeCompare(b.event_date || ""))
+  );
+  const standalone = listings.filter((l) => !l.series_id);
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <span className="text-sm text-[var(--usha-muted)]">{activeCount} aktiva tjänster</span>
       </div>
 
-      <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0 lg:grid-cols-3">
-        {listings.map((listing, i) => (
-          <ServiceCard key={listing.id} listing={listing} index={i} />
-        ))}
-      </div>
+      {/* Series — one collapsible card each */}
+      {series.length > 0 && (
+        <div className="space-y-4">
+          {series.map((occ) => (
+            <ServiceSeriesCard key={`series-${occ[0].series_id}`} occurrences={occ} />
+          ))}
+        </div>
+      )}
+
+      {/* Standalone services */}
+      {standalone.length > 0 && (
+        <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0 lg:grid-cols-3">
+          {standalone.map((listing, i) => (
+            <ServiceCard key={listing.id} listing={listing} index={i} />
+          ))}
+        </div>
+      )}
 
       <Link
         href="/dashboard/listings/new"
@@ -456,6 +490,12 @@ function ServiceCard({ listing, index }: { listing: ListingData; index: number }
       setShowConfirm(false);
       setShowMenu(false);
     }
+  }
+
+  async function handleDuplicate() {
+    setShowMenu(false);
+    const r = await duplicateListing(listing.id);
+    if (r?.id) router.push(`/dashboard/listings/${r.id}/edit`);
   }
 
   return (
@@ -495,6 +535,9 @@ function ServiceCard({ listing, index }: { listing: ListingData; index: number }
                   <Link href={`/dashboard/listings/${listing.id}/edit`} className="flex w-full items-center gap-2 px-4 py-2 text-xs hover:bg-[var(--usha-card-hover)]" onClick={() => setShowMenu(false)}>
                     <Edit2 size={12} /> Redigera
                   </Link>
+                  <button onClick={handleDuplicate} className="flex w-full items-center gap-2 px-4 py-2 text-xs hover:bg-[var(--usha-card-hover)]">
+                    <Copy size={12} /> Duplicera
+                  </button>
                   <button onClick={() => { setShowMenu(false); setShowConfirm(true); }} className="flex w-full items-center gap-2 px-4 py-2 text-xs text-red-400 hover:bg-[var(--usha-card-hover)]">
                     <Trash2 size={12} /> Ta bort
                   </button>
@@ -516,6 +559,69 @@ function ServiceCard({ listing, index }: { listing: ListingData; index: number }
                 {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />} Ta bort
               </button>
             </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ServiceSeriesCard({ occurrences }: { occurrences: ListingData[] }) {
+  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const first = occurrences[0];
+  const activeCount = occurrences.filter((o) => o.is_active).length;
+
+  async function duplicate(id: string) {
+    const r = await duplicateListing(id);
+    if (r?.id) router.push(`/dashboard/listings/${r.id}/edit`);
+  }
+  async function remove(id: string) {
+    if (!confirm("Ta bort detta tillfälle?")) return;
+    const res = await fetch(`/api/listings/${id}`, { method: "DELETE" });
+    if (res.ok) router.refresh();
+  }
+
+  return (
+    <div className="overflow-hidden rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)]">
+      <button onClick={() => setOpen((v) => !v)} className="flex w-full items-center gap-3 p-4 text-left">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--usha-gold)]/20 to-[var(--usha-accent)]/20">
+          <Layers size={20} className="text-[var(--usha-gold)]" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <h3 className="truncate font-semibold">{first.title}</h3>
+            <span className="shrink-0 rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-[10px] font-medium text-[var(--usha-gold)]">Serie</span>
+          </div>
+          <p className="mt-0.5 text-xs text-[var(--usha-muted)]">{occurrences.length} tillfällen · {activeCount} aktiva</p>
+        </div>
+        <ChevronDown size={18} className={`shrink-0 text-[var(--usha-muted)] transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+
+      {open && (
+        <div className="border-t border-[var(--usha-border)]">
+          {occurrences.map((o) => (
+            <div key={o.id} className="flex items-center justify-between gap-3 border-b border-[var(--usha-border)] px-4 py-3 last:border-b-0">
+              <div className="flex items-center gap-2 text-sm">
+                <span className={`h-2 w-2 shrink-0 rounded-full ${o.is_active ? "bg-green-500" : "bg-[var(--usha-muted)]"}`} />
+                <span className="font-medium">
+                  {o.event_date
+                    ? new Date(o.event_date + "T00:00").toLocaleDateString("sv-SE", { weekday: "short", day: "numeric", month: "short" })
+                    : "Inget datum"}
+                </span>
+                {o.event_time && <span className="text-[var(--usha-muted)]">{o.event_time.slice(0, 5)}</span>}
+              </div>
+              <div className="flex shrink-0 items-center gap-1">
+                <Link href={`/dashboard/listings/${o.id}/edit`} className="rounded-lg p-2 text-[var(--usha-muted)] hover:bg-[var(--usha-card-hover)] hover:text-[var(--usha-white)]" aria-label="Redigera"><Edit2 size={14} /></Link>
+                <button onClick={() => duplicate(o.id)} className="rounded-lg p-2 text-[var(--usha-muted)] hover:bg-[var(--usha-card-hover)] hover:text-[var(--usha-white)]" aria-label="Duplicera"><Copy size={14} /></button>
+                <button onClick={() => remove(o.id)} className="rounded-lg p-2 text-[var(--usha-muted)] hover:bg-red-500/10 hover:text-red-400" aria-label="Ta bort"><Trash2 size={14} /></button>
+              </div>
+            </div>
+          ))}
+          <div className="px-4 py-3">
+            <button onClick={() => duplicate(first.id)} className="flex items-center gap-1.5 text-xs font-medium text-[var(--usha-gold)] hover:underline">
+              <Plus size={14} /> Lägg till tillfälle
+            </button>
           </div>
         </div>
       )}

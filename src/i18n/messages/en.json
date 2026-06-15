@@ -1371,7 +1371,15 @@
     "confirmEarlyBird": "Enable 48h Gold-exclusive access for this service?",
     "toastEarlyBirdSuccess": "Gold-exclusive access enabled (48h)",
     "toastEarlyBirdError": "Failed",
-    "toastGenericError": "Something went wrong"
+    "toastGenericError": "Something went wrong",
+    "duplicate": "Duplicate",
+    "toastDuplicated": "Copy created as a draft",
+    "toastDuplicateError": "Could not duplicate",
+    "seriesBadge": "Series",
+    "occurrences": "{count} dates",
+    "addOccurrence": "Add date",
+    "showOccurrences": "Show dates",
+    "hideOccurrences": "Hide dates"
   },
   "payouts": {
     "back": "Back",

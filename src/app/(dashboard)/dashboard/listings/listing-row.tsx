@@ -1,15 +1,16 @@
 "use client";
 
 import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { deleteListing, toggleListingActive } from "./actions";
+import { deleteListing, toggleListingActive, duplicateListing } from "./actions";
 import { useToast } from "@/components/ui/toaster";
 import Link from "next/link";
-import { Clock, Pencil, Trash2, Crown, Calendar, MapPin } from "lucide-react";
+import { Clock, Pencil, Trash2, Crown, Calendar, MapPin, Copy } from "lucide-react";
 import { CATEGORY_LABELS } from "@/lib/categories";
 import { SocialShareButton } from "@/components/social-share-button";
 
-interface Listing {
+export interface Listing {
   id: string;
   title: string;
   description: string | null;
@@ -21,6 +22,8 @@ interface Listing {
   event_date?: string | null;
   event_time?: string | null;
   event_location?: string | null;
+  series_id?: string | null;
+  series_slug?: string | null;
   user_id?: string;
   created_at: string;
 }
@@ -28,7 +31,20 @@ interface Listing {
 export default function ListingRow({ listing }: { listing: Listing }) {
   const { toast } = useToast();
   const t = useTranslations("listingsPage");
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
+
+  function handleDuplicate() {
+    startTransition(async () => {
+      const result = await duplicateListing(listing.id);
+      if (result?.error || !result?.id) {
+        toast.error(t("toastDuplicateError"), result?.error);
+      } else {
+        toast.success(t("toastDuplicated"));
+        router.push(`/dashboard/listings/${result.id}/edit`);
+      }
+    });
+  }
 
   function handleToggle() {
     startTransition(async () => {
@@ -78,7 +94,7 @@ export default function ListingRow({ listing }: { listing: Listing }) {
 
   return (
     <div
-      className={`flex items-center justify-between rounded-xl border p-5 transition-colors ${
+      className={`flex flex-col gap-3 rounded-xl border p-5 transition-colors sm:flex-row sm:items-center sm:justify-between ${
         listing.is_active
           ? "border-[var(--usha-border)] bg-[var(--usha-card)]"
           : "border-[var(--usha-border)] bg-[var(--usha-card)] opacity-60"
@@ -125,7 +141,7 @@ export default function ListingRow({ listing }: { listing: Listing }) {
         </div>
       </Link>
 
-      <div className="ml-4 flex shrink-0 items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 sm:ml-4 sm:shrink-0">
         <SocialShareButton
           title={listing.title}
           description={listing.description ?? undefined}
@@ -155,6 +171,14 @@ export default function ListingRow({ listing }: { listing: Listing }) {
           className="rounded-lg border border-[var(--usha-border)] px-3 py-1.5 text-xs font-medium transition-colors hover:bg-[var(--usha-card-hover)]"
         >
           {listing.is_active ? t("deactivate") : t("activate")}
+        </button>
+        <button
+          onClick={handleDuplicate}
+          className="flex h-11 w-11 items-center justify-center rounded-lg text-[var(--usha-muted)] transition-colors hover:bg-[var(--usha-card-hover)] hover:text-[var(--usha-white)]"
+          aria-label={t("duplicate")}
+          title={t("duplicate")}
+        >
+          <Copy size={14} />
         </button>
         <Link
           href={`/dashboard/listings/${listing.id}/edit`}
