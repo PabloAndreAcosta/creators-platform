@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { UNLOCK_COSTS } from "@/lib/capabilities/config";
+import { UNLOCK_COSTS, EVENT_PACK } from "@/lib/capabilities/config";
 import { rateLimit, getRateLimitKey } from "@/lib/rate-limit";
 
 /**
@@ -48,6 +48,18 @@ export async function POST(req: NextRequest) {
   if (!data?.ok) {
     // e.g. insufficient balance
     return NextResponse.json({ error: data?.error ?? "unlock_failed", balance: data?.balance }, { status: 402 });
+  }
+
+  // Unlocking the event pack publishes a draft the host parked while gated —
+  // the "create paid event → unlock → it goes live" flow. Only flips their own
+  // inactive listing; never deactivates anything.
+  if (capability === EVENT_PACK) {
+    await admin
+      .from("listings")
+      .update({ is_active: true })
+      .eq("id", listingId)
+      .eq("user_id", user.id)
+      .eq("is_active", false);
   }
 
   return NextResponse.json(data); // { ok, balance, already? }

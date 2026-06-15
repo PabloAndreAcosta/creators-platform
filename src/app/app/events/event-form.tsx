@@ -66,7 +66,9 @@ export default function EventForm({
   userId,
 }: {
   event?: EventData;
-  action: (formData: FormData) => Promise<{ error?: string } | void>;
+  action: (
+    formData: FormData
+  ) => Promise<{ error?: string; locked?: boolean; id?: string } | void>;
   userId: string;
 }) {
   const { toast } = useToast();
@@ -130,10 +132,21 @@ export default function EventForm({
   function handleSubmit(formData: FormData) {
     startTransition(async () => {
       const result = await action(formData);
-      if (result && "error" in result) {
-        toast.error("Kunde inte spara", result.error ?? "Okänt fel");
+      if (result && "error" in result && result.error) {
+        toast.error("Kunde inte spara", result.error);
+        return;
       }
-      // On success, the server action redirects
+      // Ticketed event pending unlock: it was saved as a draft. Send the host to
+      // its dashboard, where they unlock to publish it.
+      if (result && result.locked && result.id) {
+        toast.info(
+          "Lås upp för att publicera",
+          "Eventet är sparat som utkast. Lås upp med nycklar för att börja sälja."
+        );
+        router.push(`/app/events/${result.id}/live`);
+        return;
+      }
+      // Otherwise the server action redirects on success.
     });
   }
 

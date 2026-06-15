@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useSubscription } from "@/lib/subscription/context";
 import {
   Users,
   Ticket,
@@ -15,7 +14,6 @@ import {
   MapPin,
   Calendar,
   ArrowLeft,
-  Radio,
   ScanLine,
 } from "lucide-react";
 import Link from "next/link";
@@ -75,7 +73,6 @@ function timeAgo(dateStr: string): string {
 export default function LiveEventPage() {
   const { id } = useParams<{ id: string }>();
   const t = useTranslations("eventLive");
-  const { tier } = useSubscription();
   const [event, setEvent] = useState<EventData | null>(null);
   const [stats, setStats] = useState<Stats | null>(null);
   const [recentCheckIns, setRecentCheckIns] = useState<CheckIn[]>([]);
@@ -123,22 +120,9 @@ export default function LiveEventPage() {
     return () => clearInterval(interval);
   }, [fetchData]);
 
-  // Premium gate
-  if (tier === "gratis") {
-    return (
-      <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
-        <Radio size={48} className="mb-4 text-[var(--usha-gold)]" />
-        <h2 className="text-xl font-bold mb-2">{t("premiumFeature")}</h2>
-        <p className="text-[var(--usha-muted)] mb-4">{t("upgradeToAccess")}</p>
-        <Link
-          href="/dashboard/billing"
-          className="rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-6 py-3 text-sm font-bold text-black"
-        >
-          {t("upgrade")}
-        </Link>
-      </div>
-    );
-  }
+  // Access is enforced server-side (capability flag): the API returns 402 when
+  // the host lacks the event pack, which we render as the UnlockGate below. No
+  // client-side tier gate — it would shadow the token unlock path for gratis.
 
   // Capability gate (only when enforcement is on server-side): offer the low-key
   // token unlock with "or upgrade" as the alternative. Never blocks buyers.
