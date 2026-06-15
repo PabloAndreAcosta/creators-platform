@@ -241,3 +241,48 @@ export async function toggleListingActive(id: string, isActive: boolean) {
   revalidatePath("/dashboard/listings");
   return { success: true };
 }
+
+/**
+ * Duplicate a listing as an inactive draft. Keeps series_id/series_slug, so
+ * duplicating a series occurrence adds another occurrence to the same series
+ * (the new copy starts as a draft for the owner to set a new date). Same gating
+ * as creating a listing.
+ */
+export async function duplicateListing(id: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Ej inloggad" };
+
+  try {
+    await requirePaidSubscription();
+  } catch {
+    return { error: "Du behöver en Guld- eller Premium-prenumeration för att skapa tjänster." };
+  }
+
+  const { tier } = await getSubscriptionStatus(user.id);
+  const limit = await checkListingLimit(user.id, tier);
+  if (!limit.allowed) {
+    return { error: `Du har nått maxgränsen (${limit.max}) för din plan. Uppgradera för att skapa fler.` };
+  }
+
+  const { data: src } = await supabase
+    .from("listings")
+    .select(
+      "title, description, category, price, duration_minutes, event_tier, image_url, event_date, event_time, event_end_time, event_location, event_lat, event_lng, event_place_id, event_city, event_venue, listing_type, capacity, min_guests, max_guests, experience_details, series_id, series_slug, open_to_instructors, dance_count"
+    )
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .single();
+  if (!src) return { error: "Tjänsten hittades inte." };
+
+  const { data: copy, error } = await supabase
+    .from("listings")
+    .insert({ ...src, user_id: user.id, is_active: false })
+    .select("id")
+    .single();
+  if (error || !copy) return { error: "Kunde inte duplicera tjänsten." };
+
+  revalidatePath("/dashboard/listings");
+  revalidatePath("/dashboard");
+  return { success: true, id: copy.id };
+}

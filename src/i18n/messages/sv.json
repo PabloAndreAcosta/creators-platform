@@ -1371,7 +1371,15 @@
     "confirmEarlyBird": "Aktivera 48h Gold-exklusiv tillgång för denna tjänst?",
     "toastEarlyBirdSuccess": "Gold-exklusiv tillgång aktiverad (48h)",
     "toastEarlyBirdError": "Misslyckades",
-    "toastGenericError": "Något gick fel"
+    "toastGenericError": "Något gick fel",
+    "duplicate": "Duplicera",
+    "toastDuplicated": "Kopia skapad som utkast",
+    "toastDuplicateError": "Kunde inte duplicera",
+    "seriesBadge": "Serie",
+    "occurrences": "{count} tillfällen",
+    "addOccurrence": "Lägg till tillfälle",
+    "showOccurrences": "Visa tillfällen",
+    "hideOccurrences": "Dölj tillfällen"
   },
   "payouts": {
     "back": "Tillbaka",
