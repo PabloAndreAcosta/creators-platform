@@ -6,6 +6,7 @@ import { ArrowLeft, Plus, ScanLine } from "lucide-react";
 import ListingRow, { type Listing } from "./listing-row";
 import SeriesCard from "./series-card";
 import { NoListings } from "@/components/ui/empty-state";
+import { groupListingsBySeries } from "@/lib/listings/group";
 
 export default async function ListingsPage() {
   const t = await getTranslations("listingsPage");
@@ -25,15 +26,7 @@ export default async function ListingsPage() {
   // Group occurrences that share a series_id so a series renders as one
   // collapsible card instead of N flat rows.
   const all = (listings ?? []) as Listing[];
-  const seriesGroups = new Map<string, Listing[]>();
-  for (const l of all) {
-    if (l.series_id) {
-      const g = seriesGroups.get(l.series_id) ?? [];
-      g.push(l);
-      seriesGroups.set(l.series_id, g);
-    }
-  }
-  const renderedSeries = new Set<string>();
+  const { series, standalone } = groupListingsBySeries(all);
 
   return (
     <>
@@ -73,17 +66,12 @@ export default async function ListingsPage() {
         <NoListings />
       ) : (
         <div className="space-y-3">
-          {all.map((listing) => {
-            if (listing.series_id) {
-              if (renderedSeries.has(listing.series_id)) return null;
-              renderedSeries.add(listing.series_id);
-              const occ = [...(seriesGroups.get(listing.series_id) ?? [])].sort(
-                (a, b) => (a.event_date || "").localeCompare(b.event_date || "")
-              );
-              return <SeriesCard key={`series-${listing.series_id}`} occurrences={occ} />;
-            }
-            return <ListingRow key={listing.id} listing={listing} />;
-          })}
+          {series.map((occ) => (
+            <SeriesCard key={`series-${occ[0].series_id}`} occurrences={occ} />
+          ))}
+          {standalone.map((listing) => (
+            <ListingRow key={listing.id} listing={listing} />
+          ))}
         </div>
       )}
     </>
