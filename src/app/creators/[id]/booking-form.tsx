@@ -288,7 +288,7 @@ export default function BookingForm({
   }
 
   // B2B-offerings can only be booked by experience-role users (arrangörer)
-  if (isB2BOffering && viewerRole !== "experience") {
+  if (isB2BOffering && viewerRole !== "venue") {
     return (
       <span className="flex items-center gap-1.5 rounded-lg border border-[var(--usha-border)] px-3 py-1.5 text-[10px] text-[var(--usha-muted)]">
         {t("booking.onlyOrganizers")}

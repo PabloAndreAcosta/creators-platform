@@ -63,7 +63,7 @@ export async function getFeedPosts(
       full_name: null,
       avatar_url: null,
       category: null,
-      role: "kreator",
+      role: "creator",
     };
     return {
       id: post.id,

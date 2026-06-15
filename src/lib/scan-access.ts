@@ -2,7 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 const PAID_TIERS = new Set(["guld", "premium"]);
 // Account roles that count as creator/experience (both EN + SV spellings exist).
-const PRO_ROLES = new Set(["creator", "kreator", "experience", "upplevelse"]);
+const PRO_ROLES = new Set(["creator", "creator", "venue", "venue"]);
 
 /** Only Gold/Premium accounts may delegate ticket scanning to others. */
 export function canDelegateScan(tier: string | null | undefined): boolean {

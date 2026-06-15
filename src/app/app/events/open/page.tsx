@@ -7,7 +7,7 @@ import { JoinEventButton } from "../join-event-button";
 export const dynamic = "force-dynamic";
 
 const INSTRUCTOR_TIERS = ["guld", "premium"];
-const INSTRUCTOR_ROLES = ["creator", "kreator"];
+const INSTRUCTOR_ROLES = ["creator", "creator"];
 
 export default async function OpenEventsPage() {
   const supabase = await createClient();

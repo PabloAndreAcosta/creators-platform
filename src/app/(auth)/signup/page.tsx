@@ -8,10 +8,10 @@ import { isPasswordPwned } from "@/lib/auth/password-strength";
 import { trackEvent } from "@/lib/analytics";
 import { Palette, Store, Search, ShieldCheck, Loader2, Music } from "lucide-react";
 
-type Role = "creator" | "experience" | "customer";
+type Role = "creator" | "venue" | "customer";
 type CreatorSubcategory = "general" | "taxi_dancer";
 
-const NEEDS_BANKID: Role[] = ["creator", "experience"];
+const NEEDS_BANKID: Role[] = ["creator", "venue"];
 
 function FieldError({ message }: { message: string }) {
   return <p className="mt-1 text-xs text-red-400">{message}</p>;
@@ -45,7 +45,7 @@ export default function SignupPage() {
 
   const ROLES: { value: Role; label: string; description: string; icon: typeof Palette }[] = [
     { value: "creator", label: t("roleCreator"), description: t("roleCreatorDesc"), icon: Palette },
-    { value: "experience", label: t("roleExperience"), description: t("roleExperienceDesc"), icon: Store },
+    { value: "venue", label: t("roleExperience"), description: t("roleExperienceDesc"), icon: Store },
     { value: "customer", label: t("roleCustomer"), description: t("roleCustomerDesc"), icon: Search },
   ];
 
@@ -87,7 +87,7 @@ export default function SignupPage() {
       setBankidError(BANKID_ERRORS[bankidStatus] || BANKID_ERRORS.error);
       // Restore role + subcategory from localStorage if available
       const savedRole = localStorage.getItem("signup_role");
-      if (savedRole && ["creator", "experience"].includes(savedRole)) {
+      if (savedRole && ["creator", "venue"].includes(savedRole)) {
         setSelectedRole(savedRole as Role);
       }
       const savedSubcategory = localStorage.getItem("signup_subcategory");

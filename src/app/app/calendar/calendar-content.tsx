@@ -44,7 +44,7 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
   const [editingDate, setEditingDate] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  const showCreatorTools = isCreator || role === "kreator" || role === "upplevelse";
+  const showCreatorTools = isCreator || role === "creator" || role === "venue";
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();

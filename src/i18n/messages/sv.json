@@ -58,9 +58,9 @@
     "profile": "Profil"
   },
   "roles": {
-    "publik": "Användare",
-    "kreator": "Kreatör",
-    "upplevelse": "Upplevelse"
+    "customer": "Användare",
+    "creator": "Kreatör",
+    "venue": "Venue"
   },
   "roleToggle": {
     "locked": "{role} är låst",
@@ -385,7 +385,7 @@
     "howToUse": "Hur vill du använda Usch-Ja?",
     "roleCreator": "Kreatör",
     "roleCreatorDesc": "Jag erbjuder kreativa tjänster",
-    "roleExperience": "Upplevelse",
+    "roleExperience": "Venue",
     "roleExperienceDesc": "Jag driver en verksamhet",
     "roleCustomer": "Kund",
     "roleCustomerDesc": "Jag vill boka upplevelser",
@@ -608,7 +608,7 @@
       "betaSuffix": "— på obestämd tid.",
       "roleUser": "Användare",
       "roleCreator": "Kreatör",
-      "roleExperience": "Upplevelse",
+      "roleExperience": "Venue",
       "mostPopular": "Populärast",
       "free": "Gratis",
       "freeDesc": "Perfekt för att komma igång",
@@ -869,7 +869,7 @@
   "appProfile": {
     "defaultName": "Användare",
     "roleCreator": "Kreatör",
-    "roleExperience": "Upplevelse",
+    "roleExperience": "Venue",
     "roleUser": "Användare",
     "memberSinceFallback": "nyligen",
     "points": "{points} poäng",

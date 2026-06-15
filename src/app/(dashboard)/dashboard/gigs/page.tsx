@@ -17,7 +17,7 @@ export default async function GigsDashboardPage() {
     .single();
 
   const role = (profile as { role?: string | null } | null)?.role ?? null;
-  if (role !== "experience") {
+  if (role !== "venue") {
     redirect("/dashboard");
   }
 

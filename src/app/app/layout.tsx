@@ -28,7 +28,7 @@ export default async function MobileAppLayout({
 
   let userName = user.email || "Användare";
   let tier: MemberTier = "gratis";
-  let role: MemberRole = "publik";
+  let role: MemberRole = "customer";
   let plan: string | null = null;
   let hasActiveSubscription = false;
 
@@ -40,7 +40,7 @@ export default async function MobileAppLayout({
       .single();
     userName = profile?.full_name || user.email || "Användare";
     tier = (profile?.tier as MemberTier) ?? "gratis";
-    role = (profile?.role as MemberRole) ?? "publik";
+    role = (profile?.role as MemberRole) ?? "customer";
 
     const { data: sub } = await supabase
       .from("subscriptions")

@@ -201,7 +201,7 @@ export async function getMorePosts(page: number) {
     image_url: post.image_url,
     listing_id: post.listing_id,
     created_at: post.created_at,
-    author: (post as any).profiles || { id: post.user_id, full_name: null, avatar_url: null, category: null, role: "kreator" },
+    author: (post as any).profiles || { id: post.user_id, full_name: null, avatar_url: null, category: null, role: "creator" },
     listing: (post as any).listings || null,
     like_count: likeCountMap[post.id] || 0,
     is_liked: userLikedSet.has(post.id),

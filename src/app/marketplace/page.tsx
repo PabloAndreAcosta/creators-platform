@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORIES } from "@/lib/categories";
+import { SELLER_ROLE_VALUES } from "@/lib/roles";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
@@ -46,7 +47,8 @@ export default async function MarketplacePage(
   let profilesQuery = supabase
     .from("profiles")
     .select("id, full_name, avatar_url, bio, category, location, hourly_rate, categories, locations, rates, bankid_verified_at, created_at, slug", { count: "exact" })
-    .eq("is_public", true);
+    .eq("is_public", true)
+    .in("role", SELLER_ROLE_VALUES);
 
   if (category && category !== "all") {
     profilesQuery = profilesQuery.or(`categories.cs.{${category}},category.eq.${category}`);
@@ -206,6 +208,7 @@ export default async function MarketplacePage(
     .from("profiles")
     .select("location")
     .eq("is_public", true)
+    .in("role", SELLER_ROLE_VALUES)
     .not("location", "is", null);
 
   const uniqueLocations = Array.from(
@@ -217,7 +220,8 @@ export default async function MarketplacePage(
   const { data: catRows } = await supabase
     .from("profiles")
     .select("category, categories")
-    .eq("is_public", true);
+    .eq("is_public", true)
+    .in("role", SELLER_ROLE_VALUES);
   const creatorCategoryCounts: Record<string, number> = {};
   (catRows ?? []).forEach((p) => {
     const cats = (p.categories?.length ? p.categories : p.category ? [p.category] : []) as string[];

@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { TrendingUp } from "lucide-react";
 
 interface Props {
-  userRole: "kreator" | "upplevelse";
+  userRole: "creator" | "venue";
 }
 
 const COMMISSION = {
@@ -53,7 +53,7 @@ export function BreakEvenCalculator({ userRole }: Props) {
         ? "guld"
         : "gratis";
 
-  const noun = userRole === "kreator" ? "tjänster" : "events";
+  const noun = userRole === "creator" ? "tjänster" : "events";
 
   return (
     <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 sm:p-8">

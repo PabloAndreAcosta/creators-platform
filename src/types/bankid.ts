@@ -5,7 +5,7 @@ export interface BankIdVerifiedData {
   dateOfBirth: string;
   hashedNin: string;
   verifiedAt: string;
-  role: "creator" | "experience";
+  role: "creator" | "venue";
   subcategory?: "general" | "taxi_dancer";
 }
 

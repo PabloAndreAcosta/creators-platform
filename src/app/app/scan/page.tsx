@@ -70,7 +70,7 @@ export default function ScanPage() {
     };
   }, []);
 
-  const tierAccess = role === "upplevelse" || (role === "kreator" && (tier === "guld" || tier === "premium"));
+  const tierAccess = role === "venue" || (role === "creator" && (tier === "guld" || tier === "premium"));
   const hasAccess = tierAccess || delegated === true;
 
   // While the delegation check is in flight, don't flash the upgrade gate.

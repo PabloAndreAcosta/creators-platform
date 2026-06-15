@@ -18,7 +18,7 @@ export default async function NewGigPage() {
     .eq("id", user.id)
     .single();
 
-  if ((profile as { role?: string | null } | null)?.role !== "experience") {
+  if ((profile as { role?: string | null } | null)?.role !== "venue") {
     redirect("/dashboard");
   }
 

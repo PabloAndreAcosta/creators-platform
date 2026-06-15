@@ -33,12 +33,12 @@ const COMMISSION = { gratis: 0.15, guld: 0.08, premium: 0.03 } as const;
 const SUB_PRICE = { gratis: 0, guld: 299, premium: 599 } as const;
 
 const ROLE_LABEL: Record<MemberRole, string> = {
-  publik: "Publik",
-  kreator: "Kreatör",
-  upplevelse: "Upplevelse",
+  customer: "Publik",
+  creator: "Kreatör",
+  venue: "Venue",
 };
 
-const ROLES: MemberRole[] = ["publik", "kreator", "upplevelse"];
+const ROLES: MemberRole[] = ["customer", "creator", "venue"];
 
 const OUT_DIR = path.resolve(__dirname, "..", "marketing", "generated");
 const DOCX_PATH = path.join(OUT_DIR, "Usha_Planer_Tier-listor.docx");

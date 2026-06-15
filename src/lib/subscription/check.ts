@@ -26,7 +26,7 @@ export async function getSubscriptionStatus(
   }
 
   if (!uid) {
-    return { tier: "gratis", role: "publik", hasActiveSubscription: false };
+    return { tier: "gratis", role: "customer", hasActiveSubscription: false };
   }
 
   const { data: profile } = await supabase
@@ -36,7 +36,7 @@ export async function getSubscriptionStatus(
     .single();
 
   const tier = (profile?.tier as MemberTier) ?? "gratis";
-  const role = (profile?.role as MemberRole) ?? "publik";
+  const role = (profile?.role as MemberRole) ?? "customer";
 
   const { data: sub } = await supabase
     .from("subscriptions")

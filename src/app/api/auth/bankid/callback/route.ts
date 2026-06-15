@@ -119,7 +119,7 @@ export async function GET(req: NextRequest) {
       dateOfBirth,
       hashedNin,
       verifiedAt: new Date().toISOString(),
-      role: sessionData.role as "creator" | "experience",
+      role: sessionData.role as "creator" | "venue",
       subcategory:
         sessionData.subcategory === "taxi_dancer" ? "taxi_dancer" : "general",
     };

@@ -21,7 +21,7 @@ export function BottomNav() {
   const t = useTranslations("nav");
 
   const tabs =
-    role === "publik"
+    role === "customer"
       ? [
           { href: "/app", label: t("home"), icon: Home },
           { href: "/app/calendar", label: t("calendar"), icon: CalendarDays },

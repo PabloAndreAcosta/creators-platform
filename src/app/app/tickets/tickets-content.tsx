@@ -158,7 +158,7 @@ export function TicketsContent({ bookings }: TicketsContentProps) {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Mina Biljetter</h1>
         <span className="rounded-full bg-[var(--usha-gold)]/10 px-3 py-1 text-xs font-medium text-[var(--usha-gold)]">
-          {tickets.length} {tickets.length === 1 ? "upplevelse" : "upplevelser"}
+          {tickets.length} {tickets.length === 1 ? "venue" : "upplevelser"}
         </span>
       </div>
 

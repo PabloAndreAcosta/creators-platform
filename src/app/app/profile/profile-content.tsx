@@ -107,7 +107,7 @@ export function ProfileContent({
               </span>
             </div>
           </div>
-          {role === "kreator" && (
+          {role === "creator" && (
             <div className="absolute -bottom-1 -right-1 rounded-full bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] p-1">
               <Award size={12} className="text-black" />
             </div>
@@ -119,7 +119,7 @@ export function ProfileContent({
         <p className="text-sm text-[var(--usha-muted)]">{email}</p>
         {profile?.category && (
           <p className="mt-0.5 text-xs text-[var(--usha-gold)]">
-            {role === "kreator" ? tr("kreator") : role === "upplevelse" ? tr("upplevelse") : tr("publik")} · {profile.category}
+            {role === "creator" ? tr("creator") : role === "venue" ? tr("venue") : tr("customer")} · {profile.category}
           </p>
         )}
       </div>
@@ -128,9 +128,9 @@ export function ProfileContent({
       <div className="rounded-2xl bg-gradient-to-br from-[var(--usha-gold)]/20 via-[var(--usha-gold)]/10 to-[var(--usha-accent)]/10 border border-[var(--usha-gold)]/30 p-5">
         <div className="mb-3 flex items-center justify-between">
           <span className="text-sm font-bold text-[var(--usha-gold)]">
-            {role === "kreator"
+            {role === "creator"
               ? t("topCreator")
-              : role === "upplevelse"
+              : role === "venue"
                 ? t("premiumVenue")
                 : t("goldMember")}
           </span>
@@ -177,21 +177,21 @@ export function ProfileContent({
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3">
-        {role === "publik" && (
+        {role === "customer" && (
           <>
             <StatBox icon={Calendar} label={t("events")} value={String(bookingsCount)} />
             <StatBox icon={BookOpen} label={t("courses")} value={String(completedCoursesCount)} />
             <StatBox icon={Heart} label={t("favorites")} value={String(favoritesCount)} />
           </>
         )}
-        {role === "kreator" && (
+        {role === "creator" && (
           <>
             <StatBox icon={BookOpen} label={t("courses")} value={String(listingsCount)} />
             <StatBox icon={Users} label={t("students")} value={String(bookingsCount)} />
             <StatBox icon={Star} label={t("rating")} value={averageRating != null ? `${averageRating}/5` : "-"} />
           </>
         )}
-        {role === "upplevelse" && (
+        {role === "venue" && (
           <>
             <StatBox icon={Ticket} label={t("events")} value={String(listingsCount)} />
             <StatBox icon={Users} label={t("visitors")} value={String(bookingsCount)} />
@@ -201,7 +201,7 @@ export function ProfileContent({
       </div>
 
       {/* Revenue card (for creator and venue) */}
-      {(role === "kreator" || role === "upplevelse") && (
+      {(role === "creator" || role === "venue") && (
         <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
           <div className="flex items-center justify-between">
             <div>

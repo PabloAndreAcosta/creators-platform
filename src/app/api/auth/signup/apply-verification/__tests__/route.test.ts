@@ -173,7 +173,7 @@ describe("POST /api/auth/signup/apply-verification", () => {
       bankid_personal_number: "attacker-supplied-hash",
       bankid_name: "Attacker Namn",
       bankid_verified_at: "1999-01-01T00:00:00.000Z",
-      role: "experience",
+      role: "venue",
     });
 
     const req = new NextRequest("https://usha.se/api/auth/signup/apply-verification", {

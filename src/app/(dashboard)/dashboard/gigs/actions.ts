@@ -29,7 +29,7 @@ export async function createGig(formData: FormData) {
   const ctx = await getViewer();
   if ("error" in ctx) return { error: ctx.error };
 
-  if (ctx.role !== "experience") {
+  if (ctx.role !== "venue") {
     return { error: "Endast arrangörer kan skapa gigs." };
   }
 
@@ -144,7 +144,7 @@ export async function acceptApplication(applicationId: string) {
   const ctx = await getViewer();
   if ("error" in ctx) return { error: ctx.error };
 
-  if (ctx.role !== "experience") {
+  if (ctx.role !== "venue") {
     return { error: "Endast arrangörer kan acceptera ansökningar." };
   }
 

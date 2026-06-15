@@ -1,5 +1,5 @@
 export type MemberTier = 'gratis' | 'guld' | 'premium';
-export type MemberRole = 'publik' | 'kreator' | 'upplevelse';
+export type MemberRole = 'customer' | 'creator' | 'venue';
 export type PlanKey =
   | 'publik_guld' | 'publik_premium'
   | 'kreator_guld' | 'kreator_premium'

@@ -6,7 +6,7 @@ import { ShieldCheck, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
 
 interface Props {
-  role: "creator" | "experience";
+  role: "creator" | "venue";
   label: string;
   className: string;
 }

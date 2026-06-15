@@ -43,14 +43,14 @@ export default async function BillingPage({
 
   // Map DB roles to app roles (DB uses creator/experience, app uses kreator/upplevelse)
   const DB_TO_APP_ROLE: Record<string, MemberRole> = {
-    creator: "kreator",
-    experience: "upplevelse",
-    customer: "publik",
-    kreator: "kreator",
-    upplevelse: "upplevelse",
-    publik: "publik",
+    creator: "creator",
+    experience: "venue",
+    customer: "customer",
+    kreator: "creator",
+    upplevelse: "venue",
+    publik: "customer",
   };
-  const userRole = DB_TO_APP_ROLE[profile?.role || "publik"] ?? "publik";
+  const userRole = DB_TO_APP_ROLE[profile?.role || "customer"] ?? "customer";
   // Map legacy tier values (silver/gold/platinum) to current ones (gratis/guld/premium)
   const TIER_MAP: Record<string, 'gratis' | 'guld' | 'premium'> = {
     gratis: 'gratis',
@@ -61,7 +61,7 @@ export default async function BillingPage({
     platinum: 'premium',
   };
   const userTier = TIER_MAP[profile?.tier ?? ''] ?? 'gratis';
-  const isCreatorRole = userRole === "kreator" || userRole === "upplevelse";
+  const isCreatorRole = userRole === "creator" || userRole === "venue";
 
   // Determine current plan: prefer subscription record, fall back to profile.tier
   const currentPlan = subscription?.plan ?? (userTier !== 'gratis' ? `${userRole}_${userTier}` : null);
@@ -169,7 +169,7 @@ export default async function BillingPage({
       {/* Break-even calculator (creator/experience only) */}
       {isCreatorRole && (
         <div className="mb-6">
-          <BreakEvenCalculator userRole={userRole as "kreator" | "upplevelse"} />
+          <BreakEvenCalculator userRole={userRole as "creator" | "venue"} />
         </div>
       )}
 

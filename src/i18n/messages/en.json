@@ -58,9 +58,9 @@
     "profile": "Profile"
   },
   "roles": {
-    "publik": "User",
-    "kreator": "Creator",
-    "upplevelse": "Experience"
+    "customer": "User",
+    "creator": "Creator",
+    "venue": "Venue"
   },
   "roleToggle": {
     "locked": "{role} is locked",
@@ -385,7 +385,7 @@
     "howToUse": "How do you want to use Usch-Ja?",
     "roleCreator": "Creator",
     "roleCreatorDesc": "I offer creative services",
-    "roleExperience": "Experience",
+    "roleExperience": "Venue",
     "roleExperienceDesc": "I run a business",
     "roleCustomer": "Customer",
     "roleCustomerDesc": "I want to book experiences",
@@ -608,7 +608,7 @@
       "betaSuffix": "— indefinitely.",
       "roleUser": "User",
       "roleCreator": "Creator",
-      "roleExperience": "Experience",
+      "roleExperience": "Venue",
       "mostPopular": "Most popular",
       "free": "Free",
       "freeDesc": "Perfect for getting started",
@@ -869,7 +869,7 @@
   "appProfile": {
     "defaultName": "User",
     "roleCreator": "Creator",
-    "roleExperience": "Experience",
+    "roleExperience": "Venue",
     "roleUser": "User",
     "memberSinceFallback": "recently",
     "points": "{points} points",

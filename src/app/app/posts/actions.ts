@@ -58,7 +58,7 @@ export async function getMoreMyPosts(page: number) {
       full_name: null,
       avatar_url: null,
       category: null,
-      role: "kreator",
+      role: "creator",
     },
     listing: (post as any).listings || null,
     like_count: likeCountMap[post.id] || 0,

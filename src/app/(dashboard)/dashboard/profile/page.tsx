@@ -47,7 +47,7 @@ export default async function ProfilePage() {
     redirect("/dashboard");
   }
 
-  const isCreator = profile.role === "creator" || profile.role === "experience" || profile.role === "kreator" || profile.role === "upplevelse";
+  const isCreator = profile.role === "creator" || profile.role === "venue" || profile.role === "creator" || profile.role === "venue";
 
   return (
     <>

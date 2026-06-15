@@ -90,7 +90,7 @@ export function HomeContent({
 }: HomeContentProps) {
   const { role } = useRole();
 
-  if (role === "publik") {
+  if (role === "customer") {
     return (
       <PublikHome
         profile={profile}
@@ -102,7 +102,7 @@ export function HomeContent({
     );
   }
 
-  if (role === "kreator") {
+  if (role === "creator") {
     return (
       <KreatorHome
         profile={profile}
@@ -568,7 +568,7 @@ function KreatorHome({
 
   const postForm = (
     <CreatePostForm
-      authorName={profile?.full_name || tr("kreator")}
+      authorName={profile?.full_name || tr("creator")}
       authorAvatar={profile?.avatar_url || null}
       listings={userListings}
     />
@@ -581,7 +581,7 @@ function KreatorHome({
         {/* Header — minimal */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-bold">{profile?.full_name || tr("kreator")}</h1>
+            <h1 className="text-lg font-bold">{profile?.full_name || tr("creator")}</h1>
             <p className="text-[11px] text-[var(--usha-muted)]">Premium · {t("commission", { commission })}</p>
           </div>
           <Link
@@ -687,10 +687,10 @@ function KreatorHome({
         {/* Header with commission badge */}
         <div>
           <h1 className="text-xl font-bold">
-            {t("greeting", { name: profile?.full_name || tr("kreator") })}
+            {t("greeting", { name: profile?.full_name || tr("creator") })}
           </h1>
           <div className="mt-1 flex items-center gap-2">
-            <span className="text-xs text-[var(--usha-muted)]">{tr("kreator")} · {profile?.category || "Kreativ"}</span>
+            <span className="text-xs text-[var(--usha-muted)]">{tr("creator")} · {profile?.category || "Kreativ"}</span>
             <span className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-[10px] font-semibold text-[var(--usha-gold)]">
               {t("commission", { commission })}
             </span>
@@ -781,10 +781,10 @@ function KreatorHome({
       {/* Greeting */}
       <div>
         <h1 className="text-2xl font-bold">
-          {t("greeting", { name: profile?.full_name || tr("kreator") })} 👋
+          {t("greeting", { name: profile?.full_name || tr("creator") })} 👋
         </h1>
         <div className="mt-1 flex items-center gap-2">
-          <span className="text-xs text-[var(--usha-muted)]">{tr("kreator")} · {profile?.category || "Kreativ"}</span>
+          <span className="text-xs text-[var(--usha-muted)]">{tr("creator")} · {profile?.category || "Kreativ"}</span>
           <span className="rounded-full bg-[var(--usha-muted)]/10 px-2 py-0.5 text-[10px] font-medium text-[var(--usha-muted)]">
             {t("commission", { commission })}
           </span>
@@ -971,7 +971,7 @@ function UpplevelseHome({
 
   const postForm = (
     <CreatePostForm
-      authorName={profile?.full_name || tr("upplevelse")}
+      authorName={profile?.full_name || tr("venue")}
       authorAvatar={profile?.avatar_url || null}
       listings={userListings}
     />
@@ -984,7 +984,7 @@ function UpplevelseHome({
         {/* Header — minimal */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-bold">{profile?.full_name || tr("upplevelse")}</h1>
+            <h1 className="text-lg font-bold">{profile?.full_name || tr("venue")}</h1>
             <p className="text-[11px] text-[var(--usha-muted)]">Premium · {t("commission", { commission })}</p>
           </div>
           <Link
@@ -1073,7 +1073,7 @@ function UpplevelseHome({
         <div>
           <h1 className="text-xl font-bold">{t("greeting", { name: profile?.full_name || "där" })}</h1>
           <div className="mt-1 flex items-center gap-2">
-            <span className="text-xs text-[var(--usha-muted)]">{tr("upplevelse")} · {profile?.category || "Venue"}</span>
+            <span className="text-xs text-[var(--usha-muted)]">{tr("venue")} · {profile?.category || "Venue"}</span>
             <span className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-[10px] font-semibold text-[var(--usha-gold)]">
               {t("commission", { commission })}
             </span>
@@ -1148,7 +1148,7 @@ function UpplevelseHome({
           {t("greeting", { name: profile?.full_name || "där" })} 👋
         </h1>
         <div className="mt-1 flex items-center gap-2">
-          <span className="text-xs text-[var(--usha-muted)]">{tr("upplevelse")} · {profile?.category || "Venue"}</span>
+          <span className="text-xs text-[var(--usha-muted)]">{tr("venue")} · {profile?.category || "Venue"}</span>
           <span className="rounded-full bg-[var(--usha-muted)]/10 px-2 py-0.5 text-[10px] font-medium text-[var(--usha-muted)]">
             {t("commission", { commission })}
           </span>

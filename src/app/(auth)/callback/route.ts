@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
         //    Uses admin client because the privileged-columns trigger blocks
         //    role/tier/is_admin/bankid_* changes from user-context updates.
         const pendingRole = req.cookies.get("pending_role")?.value;
-        const validRoles = ["creator", "experience", "customer"];
+        const validRoles = ["creator", "venue", "customer"];
         if (pendingRole && validRoles.includes(pendingRole)) {
           await admin
             .from("profiles")

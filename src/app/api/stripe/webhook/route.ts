@@ -69,14 +69,14 @@ function extractRoleFromPlan(plan: string, metadataRole?: string): string {
 
   // Try to extract from new format plan key
   const parts = plan.split('_');
-  if (parts.length === 2 && ['publik', 'kreator', 'upplevelse'].includes(parts[0])) {
+  if (parts.length === 2 && ['customer', 'creator', 'venue'].includes(parts[0])) {
     return parts[0];
   }
 
   // Legacy plans were creator-focused
-  if (plan.startsWith('creator_')) return 'kreator';
+  if (plan.startsWith('creator_')) return 'creator';
 
-  return 'publik';
+  return 'customer';
 }
 
 export async function POST(req: NextRequest) {

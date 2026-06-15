@@ -7,7 +7,7 @@ interface BankIdStatusProps {
   verifiedAt: string | null;
   bankidName: string | null;
   isCreatorRole: boolean;
-  profileRole?: "creator" | "experience" | string | null;
+  profileRole?: "creator" | "venue" | string | null;
 }
 
 export async function BankIdStatus({
@@ -17,8 +17,8 @@ export async function BankIdStatus({
   profileRole,
 }: BankIdStatusProps) {
   const t = await getTranslations("dashProfile.bankid");
-  const verifyRole: "creator" | "experience" =
-    profileRole === "experience" ? "experience" : "creator";
+  const verifyRole: "creator" | "venue" =
+    profileRole === "venue" ? "venue" : "creator";
   if (verifiedAt) {
     const date = new Date(verifiedAt);
     const formatted = date.toLocaleDateString("sv-SE", {

@@ -435,7 +435,7 @@ export async function toggleEventActive(id: string, isActive: boolean) {
 // ── Instructor opt-in: offer paid mini-sessions at someone's open event ──
 
 const INSTRUCTOR_TIERS = ["guld", "premium"];
-const INSTRUCTOR_ROLES = ["creator", "kreator"];
+const INSTRUCTOR_ROLES = ["creator", "creator"];
 
 /**
  * A paying dance-instructor creator joins an open event so they can sell

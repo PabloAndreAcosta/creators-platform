@@ -137,7 +137,7 @@ export function PostCard({ post, isLoggedIn, currentUserId }: PostCardProps) {
               {post.author.full_name || tf("creatorFallback")}
             </Link>
             <span className="rounded-full bg-[var(--usha-gold)]/10 px-1.5 py-0.5 text-[9px] font-medium text-[var(--usha-gold)]">
-              {tr(post.author.role as "publik" | "kreator" | "upplevelse")}
+              {tr(post.author.role as "customer" | "creator" | "venue")}
             </span>
             {post.author.level && post.author.level > 1 && (
               <LevelBadge level={post.author.level} size="sm" />

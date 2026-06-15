@@ -24,7 +24,7 @@ interface Plan {
 export const PLANS: Record<PlanKey, Plan> = {
   publik_guld: {
     name: "Guld",
-    role: "publik",
+    role: "customer",
     tier: "guld",
     price: 199,
     currency: "SEK",
@@ -40,7 +40,7 @@ export const PLANS: Record<PlanKey, Plan> = {
   },
   publik_premium: {
     name: "Premium",
-    role: "publik",
+    role: "customer",
     tier: "premium",
     price: 499,
     currency: "SEK",
@@ -58,7 +58,7 @@ export const PLANS: Record<PlanKey, Plan> = {
   },
   kreator_guld: {
     name: "Guld",
-    role: "kreator",
+    role: "creator",
     tier: "guld",
     price: 299,
     currency: "SEK",
@@ -78,7 +78,7 @@ export const PLANS: Record<PlanKey, Plan> = {
   },
   kreator_premium: {
     name: "Premium",
-    role: "kreator",
+    role: "creator",
     tier: "premium",
     price: 599,
     currency: "SEK",
@@ -99,7 +99,7 @@ export const PLANS: Record<PlanKey, Plan> = {
   },
   upplevelse_guld: {
     name: "Guld",
-    role: "upplevelse",
+    role: "venue",
     tier: "guld",
     price: 299,
     currency: "SEK",
@@ -118,7 +118,7 @@ export const PLANS: Record<PlanKey, Plan> = {
   },
   upplevelse_premium: {
     name: "Premium",
-    role: "upplevelse",
+    role: "venue",
     tier: "premium",
     price: 599,
     currency: "SEK",
@@ -162,7 +162,7 @@ export const GRATIS_PLAN = {
  * create listings, so the feature list is reframed for that role.
  */
 export function getGratisPlan(role: MemberRole) {
-  if (role === "publik") {
+  if (role === "customer") {
     return {
       ...GRATIS_PLAN,
       description: "Upptäck och boka utan kostnad",

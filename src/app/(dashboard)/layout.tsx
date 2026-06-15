@@ -31,7 +31,7 @@ export default async function DashboardLayout({
     .single();
 
   const tier: MemberTier = (profile?.tier as MemberTier) ?? "gratis";
-  const role: MemberRole = (profile?.role as MemberRole) ?? "publik";
+  const role: MemberRole = (profile?.role as MemberRole) ?? "customer";
 
   let plan: string | null = null;
   let hasActiveSubscription = false;

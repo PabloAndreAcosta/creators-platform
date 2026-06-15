@@ -28,7 +28,7 @@ export function SidebarNav() {
   const t = useTranslations("nav");
 
   const tabs =
-    role === "publik"
+    role === "customer"
       ? [
           { href: "/app", label: t("home"), icon: Home },
           { href: "/app/posts", label: t("myPosts"), icon: FileText },
@@ -39,7 +39,7 @@ export function SidebarNav() {
           { href: "/app/calendar", label: t("calendar"), icon: CalendarDays },
             { href: "/app/profile", label: t("profile"), icon: User },
         ]
-      : role === "kreator"
+      : role === "creator"
         ? [
             { href: "/app", label: t("home"), icon: Home },
             { href: "/app/posts", label: t("myPosts"), icon: FileText },

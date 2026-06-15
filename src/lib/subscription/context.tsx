@@ -12,7 +12,7 @@ interface SubscriptionData {
 
 const SubscriptionContext = createContext<SubscriptionData>({
   tier: "gratis",
-  role: "publik",
+  role: "customer",
   hasActiveSubscription: false,
   plan: null,
 });

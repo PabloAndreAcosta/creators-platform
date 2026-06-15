@@ -3,23 +3,23 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { createClient } from "@/lib/supabase/client";
 
-export type UserRole = "publik" | "kreator" | "upplevelse";
+export type UserRole = "customer" | "creator" | "venue";
 
 // Map DB roles to mobile app roles
 const DB_TO_APP_ROLE: Record<string, UserRole> = {
-  publik: "publik",
-  customer: "publik",
-  creator: "kreator",
-  kreator: "kreator",
-  experience: "upplevelse",
-  upplevelse: "upplevelse",
+  publik: "customer",
+  customer: "customer",
+  creator: "creator",
+  kreator: "creator",
+  experience: "venue",
+  upplevelse: "venue",
 };
 
 // Static fallback labels (used where useTranslations is not available)
 export const ROLE_LABELS: Record<UserRole, string> = {
-  publik: "Användare",
-  kreator: "Kreatör",
-  upplevelse: "Upplevelse",
+  customer: "Användare",
+  creator: "Kreatör",
+  venue: "Venue",
 };
 
 interface RoleContextType {
@@ -30,15 +30,15 @@ interface RoleContextType {
 }
 
 const RoleContext = createContext<RoleContextType>({
-  role: "publik",
-  dbRole: "publik",
+  role: "customer",
+  dbRole: "customer",
   isAdmin: false,
   setRole: () => {},
 });
 
 export function RoleProvider({ children }: { children: ReactNode }) {
-  const [role, setRole] = useState<UserRole>("publik");
-  const [dbRole, setDbRole] = useState<UserRole>("publik");
+  const [role, setRole] = useState<UserRole>("customer");
+  const [dbRole, setDbRole] = useState<UserRole>("customer");
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
@@ -58,7 +58,7 @@ export function RoleProvider({ children }: { children: ReactNode }) {
             setIsAdmin(true);
           }
           if (data?.role) {
-            const appRole = DB_TO_APP_ROLE[data.role] ?? "publik";
+            const appRole = DB_TO_APP_ROLE[data.role] ?? "customer";
             setDbRole(appRole);
             setRole(appRole);
             localStorage.setItem("usha-role", appRole);

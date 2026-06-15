@@ -80,8 +80,8 @@ export default async function ToolsPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
       const { data } = await supabase.from("profiles").select("role").eq("id", user.id).single();
-      const role = (data?.role as string) ?? "publik";
-      isCreator = role === "kreator" || role === "upplevelse";
+      const role = (data?.role as string) ?? "customer";
+      isCreator = role === "creator" || role === "venue";
     }
   } catch {
     // fall back to non-creator view

@@ -8,9 +8,9 @@ describe('PLANS', () => {
 
   it('has 2 plans per role', () => {
     const roles = Object.values(PLANS).map((p) => p.role);
-    expect(roles.filter((r) => r === 'publik')).toHaveLength(2);
-    expect(roles.filter((r) => r === 'kreator')).toHaveLength(2);
-    expect(roles.filter((r) => r === 'upplevelse')).toHaveLength(2);
+    expect(roles.filter((r) => r === 'customer')).toHaveLength(2);
+    expect(roles.filter((r) => r === 'creator')).toHaveLength(2);
+    expect(roles.filter((r) => r === 'venue')).toHaveLength(2);
   });
 
   it('all plans have SEK currency and monthly interval', () => {
@@ -48,25 +48,25 @@ describe('getPlanList', () => {
   });
 
   it('returns 2 plans for publik role', () => {
-    const plans = getPlanList('publik');
+    const plans = getPlanList('customer');
     expect(plans).toHaveLength(2);
-    expect(plans.every((p) => p.role === 'publik')).toBe(true);
+    expect(plans.every((p) => p.role === 'customer')).toBe(true);
   });
 
   it('returns 2 plans for kreator role', () => {
-    const plans = getPlanList('kreator');
+    const plans = getPlanList('creator');
     expect(plans).toHaveLength(2);
-    expect(plans.every((p) => p.role === 'kreator')).toBe(true);
+    expect(plans.every((p) => p.role === 'creator')).toBe(true);
   });
 
   it('returns 2 plans for upplevelse role', () => {
-    const plans = getPlanList('upplevelse');
+    const plans = getPlanList('venue');
     expect(plans).toHaveLength(2);
-    expect(plans.every((p) => p.role === 'upplevelse')).toBe(true);
+    expect(plans.every((p) => p.role === 'venue')).toBe(true);
   });
 
   it('plan objects include key, name, price, features', () => {
-    const plans = getPlanList('kreator');
+    const plans = getPlanList('creator');
     for (const plan of plans) {
       expect(plan).toHaveProperty('key');
       expect(plan).toHaveProperty('name');

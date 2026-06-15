@@ -44,7 +44,7 @@ export default async function CalendarPage() {
 
       bookings = bookingData || [];
       availableDates = (availabilityData || []).map((r) => r.available_date);
-      isCreator = profile?.role === "creator" || profile?.role === "experience" || profile?.role === "kreator" || profile?.role === "upplevelse";
+      isCreator = profile?.role === "creator" || profile?.role === "venue" || profile?.role === "creator" || profile?.role === "venue";
 
       if ((profile as any)?.calendar_sync_token) {
         const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";

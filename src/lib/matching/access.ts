@@ -1,19 +1,17 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-export type MatchRole = "user" | "creator" | "experience";
+export type MatchRole = "user" | "creator" | "venue";
 
 /**
- * Normalize the messy stored role values (sv/en mix) to a matching role.
- * customer/publik → user, creator/kreator → creator, upplevelse → experience.
+ * Normalize the stored role value to a matching role.
+ * creator → creator, venue → venue, everything else (customer) → user.
  */
 export function normalizeRole(role: string | null | undefined): MatchRole {
   switch ((role || "").toLowerCase()) {
     case "creator":
-    case "kreator":
       return "creator";
-    case "experience":
-    case "upplevelse":
-      return "experience";
+    case "venue":
+      return "venue";
     default:
       return "user";
   }

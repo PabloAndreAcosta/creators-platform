@@ -94,7 +94,7 @@ export async function createBooking(formData: FormData) {
       .select("role")
       .eq("id", user.id)
       .single();
-    if ((viewerProfile as { role?: string | null } | null)?.role !== "experience") {
+    if ((viewerProfile as { role?: string | null } | null)?.role !== "venue") {
       return { error: "Endast arrangörer kan boka B2B-tjänster." };
     }
   }

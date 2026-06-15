@@ -21,9 +21,9 @@ export default async function PayoutsPage() {
     .eq("id", user.id)
     .single();
 
-  const role = profile?.role ?? "publik";
+  const role = profile?.role ?? "customer";
 
-  if (role === "publik") {
+  if (role === "customer") {
     redirect("/dashboard");
   }
 

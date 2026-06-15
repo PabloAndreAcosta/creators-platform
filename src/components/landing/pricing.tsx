@@ -5,16 +5,16 @@ import { useTranslations } from "next-intl";
 
 export function Pricing() {
   const t = useTranslations("landing");
-  const [activeRole, setActiveRole] = useState<"publik" | "kreator" | "upplevelse">("kreator");
+  const [activeRole, setActiveRole] = useState<"customer" | "creator" | "venue">("creator");
 
   const ROLE_TABS = [
-    { key: "publik" as const, label: t("pricing.roleUser") },
-    { key: "kreator" as const, label: t("pricing.roleCreator") },
-    { key: "upplevelse" as const, label: t("pricing.roleExperience") },
+    { key: "customer" as const, label: t("pricing.roleUser") },
+    { key: "creator" as const, label: t("pricing.roleCreator") },
+    { key: "venue" as const, label: t("pricing.roleExperience") },
   ];
 
   const PRICING_DATA: Record<string, { gratis: { features: string[] }; guld: { price: number; features: string[]; popular: boolean }; premium: { price: number; features: string[]; popular: boolean } }> = {
-    publik: {
+    customer: {
       gratis: {
         features: [
           t("pricing.publikFree1"),
@@ -43,7 +43,7 @@ export function Pricing() {
         ],
       },
     },
-    kreator: {
+    creator: {
       gratis: {
         features: [
           t("pricing.kreatorFree1"),
@@ -74,7 +74,7 @@ export function Pricing() {
         ],
       },
     },
-    upplevelse: {
+    venue: {
       gratis: {
         features: [
           t("pricing.upplevelseFree1"),

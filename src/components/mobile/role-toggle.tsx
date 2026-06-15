@@ -5,12 +5,12 @@ import { useRole, UserRole } from "./role-context";
 import { useToast } from "@/components/ui/toaster";
 import { Lock, User, Sparkles, Compass, type LucideIcon } from "lucide-react";
 
-const ROLES: UserRole[] = ["publik", "kreator", "upplevelse"];
+const ROLES: UserRole[] = ["customer", "creator", "venue"];
 
 const ROLE_ICONS: Record<UserRole, LucideIcon> = {
-  publik: User,
-  kreator: Sparkles,
-  upplevelse: Compass,
+  customer: User,
+  creator: Sparkles,
+  venue: Compass,
 };
 
 export function RoleToggle() {

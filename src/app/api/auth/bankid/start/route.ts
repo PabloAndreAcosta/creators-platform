@@ -5,7 +5,7 @@ export async function POST(req: NextRequest) {
   try {
     const { role, subcategory, mode, next } = await req.json();
 
-    if (!role || !["creator", "experience"].includes(role)) {
+    if (!role || !["creator", "venue"].includes(role)) {
       return NextResponse.json(
         { error: "Ogiltig roll" },
         { status: 400 }

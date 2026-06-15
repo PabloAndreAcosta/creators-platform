@@ -145,7 +145,7 @@ export default async function BookingsPage() {
     .eq("id", user.id)
     .single();
 
-  const userIsCreator = profile?.role === "creator" || profile?.role === "experience" || profile?.role === "kreator" || profile?.role === "upplevelse";
+  const userIsCreator = profile?.role === "creator" || profile?.role === "venue" || profile?.role === "creator" || profile?.role === "venue";
 
   let availableDates: string[] = [];
   if (userIsCreator) {
