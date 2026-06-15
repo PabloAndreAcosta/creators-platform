@@ -1,12 +1,14 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { EVENT_CATEGORIES } from "./constants";
 import { getSubscriptionStatus } from "@/lib/subscription/check";
 import { checkListingLimit } from "@/lib/listings/limits";
 import { generateUniqueListingSlug, generateUniqueSeriesSlug } from "@/lib/listings/slug";
+import { ticketGateForNewEvent, ticketGateForListing } from "@/lib/capabilities/gate";
 
 const BANKID_REQUIRED_MSG =
   "Du måste verifiera dig med BankID innan du kan publicera eller duplicera evenemang. Gör det under Profil.";
@@ -196,6 +198,12 @@ export async function createEvent(formData: FormData) {
   // Opt-in: auto-publish each occurrence to Facebook ~3 days before its date.
   const fbAutoPost = formData.get("fb_auto_post") === "on";
 
+  // Capability gate (only when enforcement is on): a non-tier-granted host
+  // selling tickets must unlock event_pack. There's no listing row yet to hang
+  // an event-scoped unlock on, so we create the event as a draft (is_active =
+  // false) and let the unlock publish it. Never touches the buyer flow.
+  const locked = await ticketGateForNewEvent(tier, parsed.data.price, parsed.data.max_guests);
+
   // Build one listing per date, each with its own date-based slug.
   const taken = new Set<string>();
   const rows = [];
@@ -204,6 +212,7 @@ export async function createEvent(formData: FormData) {
       ...parsed.data,
       user_id: user.id,
       event_date: d,
+      is_active: !locked,
       slug: await generateUniqueListingSlug(supabase, parsed.data.title, {
         dateSuffix: d ?? undefined,
         taken,
@@ -220,6 +229,13 @@ export async function createEvent(formData: FormData) {
     .select("id, title, event_date, event_location, image_url");
 
   if (error || !created?.length) return { error: "Kunde inte skapa evenemanget. Försök igen." };
+
+  // Draft pending unlock: don't advertise it yet. Send the host to the event's
+  // dashboard, where the UnlockGate prompts them to unlock (which publishes it).
+  if (locked) {
+    revalidatePath("/app/events");
+    return { success: true as const, id: created[0].id, locked: true as const };
+  }
 
   // Auto-post to feed — one post for the first occurrence (a series notes the rest).
   const first = created[0];
@@ -324,6 +340,28 @@ export async function updateEvent(id: string, formData: FormData) {
 
   const parsed = parseEventForm(formData);
   if ("error" in parsed) return { error: parsed.error };
+
+  // Capability gate (only when enforcement is on): a host turning an event into
+  // a ticketed one must have unlocked event_pack for it. We never gate an event
+  // that already has bookings — pulling the rug after guests have tickets is the
+  // exact rug-pull the design forbids. Buyer checkout is never touched.
+  // Count via admin so RLS can't hide a booking and make us wrongly gate it.
+  const { count: bookingCount } = await createAdminClient()
+    .from("bookings")
+    .select("id", { count: "exact", head: true })
+    .eq("listing_id", id)
+    .in("status", ["confirmed", "completed"]);
+
+  if (!bookingCount) {
+    const locked = await ticketGateForListing(
+      supabase,
+      user.id,
+      id,
+      parsed.data.price,
+      parsed.data.max_guests
+    );
+    if (locked) return { success: true as const, id, locked: true as const };
+  }
 
   // Backfill a slug for older events that never got one. Existing slugs are
   // left untouched so already-shared links keep working.
