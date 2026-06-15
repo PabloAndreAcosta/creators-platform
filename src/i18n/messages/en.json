@@ -1602,5 +1602,13 @@
     "creators": "For creators",
     "venues": "For venues",
     "audience": "For audiences"
+  },
+  "tokens": {
+    "title": "Keys",
+    "desc": "Unlock tools per use – an alternative to a subscription.",
+    "balance": "You have {count} keys",
+    "buy": "Buy",
+    "loading": "Loading…",
+    "success": "Purchase complete – your keys will appear shortly."
   }
 }

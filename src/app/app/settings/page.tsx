@@ -4,6 +4,7 @@ import { Settings, Bell, Shield, HelpCircle, UserX, ChevronRight } from "lucide-
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { LogoModeSetting } from "@/components/logo-mode-setting";
+import { NyckelWallet } from "@/components/tokens/nyckel-wallet";
 
 export default function SettingsPage() {
   const t = useTranslations("settings");
@@ -62,6 +63,8 @@ export default function SettingsPage() {
       </div>
 
       <LogoModeSetting />
+
+      <NyckelWallet />
     </div>
   );
 }
