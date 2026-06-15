@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { UnlockGate } from "@/components/tokens/unlock-gate";
 
 interface EventData {
   id: string;
@@ -82,15 +83,25 @@ export default function LiveEventPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [locked, setLocked] = useState<{ capability: string; cost: number } | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
   const fetchData = useCallback(async () => {
     try {
       const res = await fetch(`/api/events/${id}/live`);
+      if (res.status === 402) {
+        const body = await res.json().catch(() => ({}));
+        if (body?.error === "capability_required") {
+          setLocked({ capability: body.capability, cost: body.cost });
+          setError(null);
+          return;
+        }
+      }
       if (!res.ok) {
         setError("Could not load event data");
         return;
       }
+      setLocked(null);
       const data = await res.json();
       setEvent(data.event);
       setStats(data.stats);
@@ -126,6 +137,23 @@ export default function LiveEventPage() {
           {t("upgrade")}
         </Link>
       </div>
+    );
+  }
+
+  // Capability gate (only when enforcement is on server-side): offer the low-key
+  // token unlock with "or upgrade" as the alternative. Never blocks buyers.
+  if (locked) {
+    return (
+      <UnlockGate
+        listingId={id}
+        capability={locked.capability}
+        cost={locked.cost}
+        onUnlocked={() => {
+          setLocked(null);
+          setLoading(true);
+          fetchData();
+        }}
+      />
     );
   }
 

@@ -1617,6 +1617,17 @@
     "balance": "Du har {count} nycklar",
     "buy": "Köp",
     "loading": "Laddar…",
-    "success": "Köpet är klart – dina nycklar dyker upp strax."
+    "success": "Köpet är klart – dina nycklar dyker upp strax.",
+    "unlock": {
+      "title": "Lås upp för det här eventet",
+      "desc": "Använd nycklar för att låsa upp – eller uppgradera ditt konto.",
+      "cost": "{cost} nycklar",
+      "youHave": "Du har {balance}",
+      "button": "Lås upp",
+      "unlocking": "Låser upp…",
+      "upgrade": "Uppgradera istället",
+      "buyMore": "Köp fler nycklar",
+      "insufficient": "För få nycklar – köp fler eller uppgradera."
+    }
   }
 }

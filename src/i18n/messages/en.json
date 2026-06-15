@@ -1617,6 +1617,17 @@
     "balance": "You have {count} keys",
     "buy": "Buy",
     "loading": "Loading…",
-    "success": "Purchase complete – your keys will appear shortly."
+    "success": "Purchase complete – your keys will appear shortly.",
+    "unlock": {
+      "title": "Unlock for this event",
+      "desc": "Use keys to unlock – or upgrade your account.",
+      "cost": "{cost} keys",
+      "youHave": "You have {balance}",
+      "button": "Unlock",
+      "unlocking": "Unlocking…",
+      "upgrade": "Upgrade instead",
+      "buyMore": "Buy more keys",
+      "insufficient": "Not enough keys – buy more or upgrade."
+    }
   }
 }
