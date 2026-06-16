@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin, Clock, SlidersHorizontal, X, Star, ShieldCheck, Sparkles } from "lucide-react";
+import { MapPin, Clock, SlidersHorizontal, X, Star, ShieldCheck, Sparkles, Building2 } from "lucide-react";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
@@ -46,10 +46,10 @@ export default async function MarketplacePage(
   // Fetch public profiles
   let profilesQuery = supabase
     .from("profiles")
-    .select("id, full_name, avatar_url, bio, category, location, hourly_rate, categories, locations, rates, bankid_verified_at, created_at, slug", { count: "exact" })
+    .select("id, full_name, avatar_url, bio, category, location, hourly_rate, categories, locations, rates, bankid_verified_at, company_verified_at, company_name, created_at, slug", { count: "exact" })
     .eq("is_public", true)
     .in("role", SELLER_ROLE_VALUES)
-    .not("bankid_verified_at", "is", null);
+    .eq("is_marketplace_verified", true);
 
   if (category && category !== "all") {
     profilesQuery = profilesQuery.or(`categories.cs.{${category}},category.eq.${category}`);
@@ -210,7 +210,7 @@ export default async function MarketplacePage(
     .select("location")
     .eq("is_public", true)
     .in("role", SELLER_ROLE_VALUES)
-    .not("bankid_verified_at", "is", null)
+    .eq("is_marketplace_verified", true)
     .not("location", "is", null);
 
   const uniqueLocations = Array.from(
@@ -224,7 +224,7 @@ export default async function MarketplacePage(
     .select("category, categories")
     .eq("is_public", true)
     .in("role", SELLER_ROLE_VALUES)
-    .not("bankid_verified_at", "is", null);
+    .eq("is_marketplace_verified", true);
   const creatorCategoryCounts: Record<string, number> = {};
   (catRows ?? []).forEach((p) => {
     const cats = (p.categories?.length ? p.categories : p.category ? [p.category] : []) as string[];
@@ -425,6 +425,7 @@ export default async function MarketplacePage(
               const review = reviewData[creator.id];
               const heroImg = heroImages[creator.id];
               const isVerified = !!(creator as any).bankid_verified_at;
+              const isCompanyVerified = !!(creator as any).company_verified_at;
               const isNew = creator.created_at && (Date.now() - new Date(creator.created_at).getTime()) < 14 * 24 * 60 * 60 * 1000;
 
               return (
@@ -461,6 +462,11 @@ export default async function MarketplacePage(
 
                     {/* Badges overlay */}
                     <div className="absolute left-2 top-2 flex gap-1">
+                      {isCompanyVerified && (
+                        <span className="flex items-center gap-1 rounded-full bg-blue-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-md shadow-blue-600/40 ring-1 ring-blue-800/20">
+                          <Building2 size={10} strokeWidth={2.5} /> Verifierat bolag
+                        </span>
+                      )}
                       {isVerified && (
                         <span className="flex items-center gap-1 rounded-full bg-green-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-md shadow-green-500/40 ring-1 ring-green-700/20">
                           <ShieldCheck size={10} strokeWidth={2.5} /> BankID

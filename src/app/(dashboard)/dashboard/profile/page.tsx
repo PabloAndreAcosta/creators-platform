@@ -9,7 +9,9 @@ import { FacebookMediaConnect } from "./facebook-media-connect";
 import { TikTokConnect } from "./tiktok-connect";
 import { ProfileQR } from "./profile-qr";
 import { BankIdStatus } from "./bankid-status";
+import { CompanyStatus } from "./company-status";
 import { BankIdResultToast } from "./bankid-result-toast";
+import { isVenueRole } from "@/lib/roles";
 import { BETA_MODE } from "@/lib/beta";
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
@@ -28,7 +30,7 @@ export default async function ProfilePage() {
   const [{ data: profile }, { data: socialConn }, { data: media }] = await Promise.all([
     supabase
       .from("profiles")
-      .select("id, full_name, slug, avatar_url, bio, website, category, location, hourly_rate, is_public, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, role, tier, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3, creator_subcategory, dance_styles, dance_languages, dance_experience_years, offers_coaching, coaching_hourly_rate_sek, coaching_specialties, coaching_bio, bankid_verified_at, bankid_name")
+      .select("id, full_name, slug, avatar_url, bio, website, category, location, hourly_rate, is_public, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, role, tier, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3, creator_subcategory, dance_styles, dance_languages, dance_experience_years, offers_coaching, coaching_hourly_rate_sek, coaching_specialties, coaching_bio, bankid_verified_at, bankid_name, org_number, company_name, company_verified_at")
       .eq("id", user.id)
       .single(),
     supabase
@@ -47,7 +49,8 @@ export default async function ProfilePage() {
     redirect("/dashboard");
   }
 
-  const isCreator = profile.role === "creator" || profile.role === "venue" || profile.role === "creator" || profile.role === "venue";
+  const isVenue = isVenueRole(profile.role);
+  const isCreator = profile.role === "creator" || isVenue;
 
   return (
     <>
@@ -89,11 +92,21 @@ export default async function ProfilePage() {
         <ProfileForm profile={profile} isPaidTier={BETA_MODE || profile.tier === 'guld' || profile.tier === 'premium'} isPremium={BETA_MODE || profile.tier === 'premium'} isCustomer={!isCreator} />
       </div>
 
+      {isVenue && (
+        <div className="mt-8">
+          <CompanyStatus
+            companyVerifiedAt={(profile as { company_verified_at?: string | null }).company_verified_at ?? null}
+            companyName={(profile as { company_name?: string | null }).company_name ?? null}
+            orgNumber={(profile as { org_number?: string | null }).org_number ?? null}
+          />
+        </div>
+      )}
+
       <div className="mt-8">
         <BankIdStatus
           verifiedAt={(profile as { bankid_verified_at?: string | null }).bankid_verified_at ?? null}
           bankidName={(profile as { bankid_name?: string | null }).bankid_name ?? null}
-          isCreatorRole={isCreator}
+          isCreatorRole={isCreator && !isVenue}
           profileRole={(profile as { role?: string | null }).role ?? null}
         />
       </div>
