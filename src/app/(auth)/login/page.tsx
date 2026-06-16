@@ -80,6 +80,11 @@ export default function LoginPage() {
     setStatus(t("loggingIn"));
 
     try {
+      // Clear any existing session first so logging in with a *different* account
+      // always switches cleanly. Without this, a stale/chunked auth cookie from a
+      // previously logged-in account could survive and the SSR would keep serving
+      // that account instead of the one you just signed in as.
+      await supabase.auth.signOut();
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
       if (error) {
