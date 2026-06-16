@@ -11,6 +11,7 @@ const DB_TO_APP_ROLE: Record<string, UserRole> = {
   customer: "customer",
   creator: "creator",
   kreator: "creator",
+  venue: "venue",
   experience: "venue",
   upplevelse: "venue",
 };

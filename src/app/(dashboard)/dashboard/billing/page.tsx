@@ -44,6 +44,7 @@ export default async function BillingPage({
   // Map DB roles to app roles (DB uses creator/experience, app uses kreator/upplevelse)
   const DB_TO_APP_ROLE: Record<string, MemberRole> = {
     creator: "creator",
+    venue: "venue",
     experience: "venue",
     customer: "customer",
     kreator: "creator",
