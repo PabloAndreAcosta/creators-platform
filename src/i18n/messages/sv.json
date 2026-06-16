@@ -492,7 +492,10 @@
       "events": "produktioner",
       "creators": "kreatörer",
       "checkIns": "incheckningar",
-      "cities": "städer"
+      "cities": "städer",
+      "liveBadge": "Live nu",
+      "framingTitle": "Vi har precis börjat",
+      "framingSubtitle": "Siffrorna är på riktigt — och växer varje vecka. Du är tidigt ute: var med och forma Sveriges kreativa kretslopp från start."
     },
     "features": {
       "title": "Allt du behöver för att",

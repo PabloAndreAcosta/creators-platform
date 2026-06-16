@@ -492,7 +492,10 @@
       "events": "productions",
       "creators": "creators",
       "checkIns": "check-ins",
-      "cities": "cities"
+      "cities": "cities",
+      "liveBadge": "Live now",
+      "framingTitle": "We're just getting started",
+      "framingSubtitle": "These numbers are real — and grow every week. You're early: help shape Sweden's creative ecosystem from the start."
     },
     "features": {
       "title": "Everything you need to",
