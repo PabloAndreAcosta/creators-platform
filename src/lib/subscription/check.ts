@@ -59,7 +59,8 @@ export async function getSubscriptionStatus(
 export async function requirePaidSubscription(): Promise<SubscriptionStatus> {
   const status = await getSubscriptionStatus();
 
-  if (status.tier === "gratis") {
+  // During beta everything is unlocked for everyone — don't block gratis users.
+  if (!BETA_MODE && status.tier === "gratis") {
     throw new Error(
       "Du behöver en Guld- eller Premium-prenumeration för att göra detta. Uppgradera på /dashboard/billing."
     );

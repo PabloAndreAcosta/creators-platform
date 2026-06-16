@@ -1,11 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { BETA_MODE, BETA_END_MS } from "@/lib/beta";
 
 export function Pricing() {
   const t = useTranslations("landing");
+  const locale = useLocale();
   const [activeRole, setActiveRole] = useState<"customer" | "creator" | "venue">("creator");
+
+  const betaEndLabel = Number.isNaN(BETA_END_MS)
+    ? null
+    : new Intl.DateTimeFormat(locale === "en" ? "en-GB" : "sv-SE", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }).format(new Date(BETA_END_MS));
 
   const ROLE_TABS = [
     { key: "customer" as const, label: t("pricing.roleUser") },
@@ -128,9 +138,12 @@ export function Pricing() {
           <p className="mx-auto max-w-xl text-sm text-[var(--usha-muted)] sm:text-base">
             {t("pricing.subtitle")}
           </p>
-          <p className="mx-auto mt-3 max-w-lg text-sm text-[var(--usha-muted)]">
-            {t("pricing.betaNotice")} <span className="font-semibold text-[var(--usha-gold)]">{t("pricing.betaHighlight")}</span> {t("pricing.betaSuffix")}
-          </p>
+          {BETA_MODE && (
+            <p className="mx-auto mt-3 max-w-lg text-sm text-[var(--usha-muted)]">
+              {t("pricing.betaNotice")} <span className="font-semibold text-[var(--usha-gold)]">{t("pricing.betaHighlight")}</span>{" "}
+              {betaEndLabel ? t("pricing.betaUntil", { date: betaEndLabel }) : t("pricing.betaSuffix")}
+            </p>
+          )}
         </div>
 
         {/* Role tabs */}
@@ -175,20 +188,27 @@ export function Pricing() {
 
               <div className="my-6">
                 {plan.price > 0 ? (
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-extrabold text-[var(--usha-gold)]">0</span>
-                    <span className="text-[var(--usha-muted)]">{t("pricing.sekMonth")}</span>
-                    <span className="text-lg text-[var(--usha-muted)] line-through decoration-[var(--usha-muted)]/50">
-                      {plan.price} SEK
-                    </span>
-                  </div>
+                  BETA_MODE ? (
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-4xl font-extrabold text-[var(--usha-gold)]">0</span>
+                      <span className="text-[var(--usha-muted)]">{t("pricing.sekMonth")}</span>
+                      <span className="text-lg text-[var(--usha-muted)] line-through decoration-[var(--usha-muted)]/50">
+                        {plan.price} SEK
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-4xl font-extrabold">{plan.price}</span>
+                      <span className="text-[var(--usha-muted)]">{t("pricing.sekMonth")}</span>
+                    </div>
+                  )
                 ) : (
                   <div className="flex items-baseline gap-1">
                     <span className="text-4xl font-extrabold">0</span>
                     <span className="text-[var(--usha-muted)]">{t("pricing.sekForever")}</span>
                   </div>
                 )}
-                {plan.price > 0 && (
+                {plan.price > 0 && BETA_MODE && (
                   <p className="mt-1 text-xs text-[var(--usha-gold)]">{t("pricing.freeDuringBeta")}</p>
                 )}
               </div>

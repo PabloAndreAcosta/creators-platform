@@ -606,6 +606,7 @@
       "betaNotice": "Alla planer är",
       "betaHighlight": "gratis under betaperioden",
       "betaSuffix": "— på obestämd tid.",
+      "betaUntil": "— till och med {date}.",
       "roleUser": "Användare",
       "roleCreator": "Kreatör",
       "roleExperience": "Venue",

@@ -606,6 +606,7 @@
       "betaNotice": "All plans are",
       "betaHighlight": "free during the beta period",
       "betaSuffix": "— indefinitely.",
+      "betaUntil": "— until {date}.",
       "roleUser": "User",
       "roleCreator": "Creator",
       "roleExperience": "Venue",
