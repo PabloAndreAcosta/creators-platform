@@ -66,15 +66,17 @@ export async function POST(req: NextRequest) {
     return response;
   }
 
+  // Apply only the BankID identity fields. Deliberately NOT role/subcategory:
+  // those are already set at account creation (handle_new_user, from the signup
+  // metadata). This route runs on every login, so overwriting role here would
+  // let a stale/replayed bankid_verified cookie flip an established account's
+  // role (e.g. a venue back to creator). BankID verification proves identity —
+  // it must never change the account's role.
   const updatePayload: Record<string, string> = {
     bankid_verified_at: data.verifiedAt,
     bankid_personal_number: data.hashedNin,
     bankid_name: data.name,
-    role: data.role,
   };
-  if (data.subcategory) {
-    updatePayload.creator_subcategory = data.subcategory;
-  }
 
   const { error: updateError } = await admin
     .from("profiles")

@@ -153,11 +153,11 @@ describe("POST /api/auth/signup/apply-verification", () => {
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ ok: true });
     expect(adminUpdateMock).toHaveBeenCalledTimes(1);
+    // Only BankID identity fields are written — never role (set at signup).
     expect(adminUpdateMock).toHaveBeenCalledWith({
       bankid_verified_at: validVerifiedData.verifiedAt,
       bankid_personal_number: validVerifiedData.hashedNin,
       bankid_name: validVerifiedData.name,
-      role: validVerifiedData.role,
     });
     expect(res.cookies.get("bankid_verified")?.value).toBe("");
     expect(res.cookies.get("bankid_verified")?.maxAge).toBe(0);
@@ -192,7 +192,8 @@ describe("POST /api/auth/signup/apply-verification", () => {
     expect(updateArg.bankid_personal_number).toBe(validVerifiedData.hashedNin);
     expect(updateArg.bankid_name).toBe(validVerifiedData.name);
     expect(updateArg.bankid_verified_at).toBe(validVerifiedData.verifiedAt);
-    expect(updateArg.role).toBe(validVerifiedData.role);
+    // role is never written by this route — not from the cookie, not from the body
+    expect(updateArg.role).toBeUndefined();
     expect(updateArg.bankid_personal_number).not.toBe("attacker-supplied-hash");
   });
 
