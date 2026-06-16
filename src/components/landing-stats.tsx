@@ -39,12 +39,12 @@ export function LandingStats() {
   if (items.length < 2) return null;
 
   return (
-    <section className="relative px-4 pb-4 sm:px-6">
-      <div className="mx-auto grid max-w-3xl grid-cols-2 gap-3 sm:grid-cols-4">
+    <section className="relative px-4 pt-12 pb-8 sm:px-6 sm:pt-20 sm:pb-12">
+      <div className="mx-auto grid max-w-3xl grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-5">
         {items.map((i) => (
           <div
             key={i.label}
-            className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-5 text-center"
+            className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-6 text-center"
           >
             <p className="text-2xl font-extrabold text-gradient sm:text-3xl">
               {i.value.toLocaleString("sv-SE")}

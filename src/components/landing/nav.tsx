@@ -61,7 +61,7 @@ export function Nav() {
           <span className="text-lg font-bold tracking-tight">Usch-Ja!</span>
         </a>
 
-        <div className="hidden items-center gap-6 text-sm md:flex">
+        <div className="hidden items-center gap-5 whitespace-nowrap text-sm lg:flex">
           {pageLinks.map((l) => (
             <a key={l.href} href={l.href} className="text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]">
               {l.label}
@@ -100,7 +100,7 @@ export function Nav() {
           </a>
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="ml-1 flex h-11 w-11 items-center justify-center rounded-lg text-[var(--usha-muted)] transition hover:text-[var(--usha-white)] md:hidden"
+            className="ml-1 flex h-11 w-11 items-center justify-center rounded-lg text-[var(--usha-muted)] transition hover:text-[var(--usha-white)] lg:hidden"
             aria-label={t("nav.menuAriaLabel")}
           >
             {mobileOpen ? <X size={20} /> : <Menu size={20} />}
@@ -109,7 +109,7 @@ export function Nav() {
       </div>
 
       {mobileOpen && (
-        <div className="border-t border-[var(--usha-border)] bg-[var(--usha-black)] px-6 py-4 md:hidden">
+        <div className="border-t border-[var(--usha-border)] bg-[var(--usha-black)] px-6 py-4 lg:hidden">
           <div className="flex flex-col gap-3">
             {pageLinks.map((l) => (
               <a

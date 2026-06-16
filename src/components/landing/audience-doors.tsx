@@ -13,12 +13,12 @@ export function AudienceDoors() {
   ];
 
   return (
-    <div className="grid w-full gap-3 text-left sm:grid-cols-3 sm:gap-4">
+    <div className="grid w-full gap-4 text-left sm:grid-cols-3 sm:gap-5">
       {doors.map((d) => (
         <a
           key={d.href}
           href={d.href}
-          className={`group rounded-2xl border p-5 transition hover:scale-[1.01] ${
+          className={`group rounded-2xl border p-6 transition hover:scale-[1.01] ${
             d.primary
               ? "glow-gold border-[var(--usha-gold)]/40 bg-gradient-to-br from-[var(--usha-gold)]/10 to-[var(--usha-accent)]/5"
               : "border-[var(--usha-border)] bg-[var(--usha-card)] hover:border-[var(--usha-gold)]/30"
