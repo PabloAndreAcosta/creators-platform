@@ -11,7 +11,9 @@ import { Palette, Store, Search, ShieldCheck, Loader2, Music } from "lucide-reac
 type Role = "creator" | "venue" | "customer";
 type CreatorSubcategory = "general" | "taxi_dancer";
 
-const NEEDS_BANKID: Role[] = ["creator", "venue"];
+// Only creators must verify with BankID at signup. Venues sign up normally and
+// verify their company (org-nr) in the dashboard; BankID is optional for them.
+const NEEDS_BANKID: Role[] = ["creator"];
 
 function FieldError({ message }: { message: string }) {
   return <p className="mt-1 text-xs text-red-400">{message}</p>;
