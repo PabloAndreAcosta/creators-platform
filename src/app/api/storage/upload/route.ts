@@ -20,10 +20,16 @@ export const runtime = "nodejs";
 
 type BucketName = "event-images" | "listing-images" | "avatars" | "creator-media";
 
-const BUCKETS: Record<BucketName, { maxBytes: number; mimePrefixes: string[] }> = {
+// `singleton`: a user keeps exactly one file in this bucket. Upload to a stable
+// path (`<user.id>/avatar.<ext>`) and delete any other files in the user's
+// folder, so old avatars don't accumulate and the public URL stays stable.
+const BUCKETS: Record<
+  BucketName,
+  { maxBytes: number; mimePrefixes: string[]; singleton?: boolean }
+> = {
   "event-images": { maxBytes: 5 * 1024 * 1024, mimePrefixes: ["image/"] },
   "listing-images": { maxBytes: 5 * 1024 * 1024, mimePrefixes: ["image/"] },
-  avatars: { maxBytes: 5 * 1024 * 1024, mimePrefixes: ["image/"] },
+  avatars: { maxBytes: 5 * 1024 * 1024, mimePrefixes: ["image/"], singleton: true },
   "creator-media": { maxBytes: 50 * 1024 * 1024, mimePrefixes: ["image/", "video/"] },
 };
 
@@ -52,7 +58,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Ingen fil" }, { status: 400 });
   }
 
-  const { maxBytes, mimePrefixes } = BUCKETS[bucket];
+  const { maxBytes, mimePrefixes, singleton } = BUCKETS[bucket];
   if (!mimePrefixes.some((p) => file.type.startsWith(p))) {
     return NextResponse.json({ error: "Otillåten filtyp" }, { status: 400 });
   }
@@ -63,9 +69,12 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Folder = user id so the per-user storage RLS policies match.
+  // Folder = user id so the per-user storage RLS policies match. Singleton
+  // buckets use a stable filename; others get a random one so history is kept.
   const ext = file.name.includes(".") ? file.name.split(".").pop() : "bin";
-  const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
+  const path = singleton
+    ? `${user.id}/avatar.${ext}`
+    : `${user.id}/${crypto.randomUUID()}.${ext}`;
 
   const admin = createAdminClient();
   const { error: uploadError } = await admin.storage
@@ -74,6 +83,18 @@ export async function POST(request: NextRequest) {
 
   if (uploadError) {
     return NextResponse.json({ error: uploadError.message }, { status: 400 });
+  }
+
+  // Cleanup: for singleton buckets, remove any other files in the user's folder
+  // (e.g. an old avatar.png when uploading avatar.jpg, or pre-existing leftovers).
+  if (singleton) {
+    const { data: existing } = await admin.storage.from(bucket).list(user.id);
+    const stale = (existing ?? [])
+      .map((o) => `${user.id}/${o.name}`)
+      .filter((p) => p !== path);
+    if (stale.length > 0) {
+      await admin.storage.from(bucket).remove(stale);
+    }
   }
 
   const { data: urlData } = admin.storage.from(bucket).getPublicUrl(path);
