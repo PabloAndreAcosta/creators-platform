@@ -119,7 +119,21 @@ export default function EventForm({
       .upload(path, file, { upsert: true });
 
     if (uploadError) {
-      toast.error("Uppladdning misslyckades", uploadError.message);
+      // The direct-to-storage upload can fail if the bucket's RLS policies are
+      // missing/misconfigured ("new row violates row-level security policy").
+      // Fall back to a server-side upload (service role) so creating an event is
+      // never blocked. See src/app/api/events/upload-image/route.ts.
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/events/upload-image", { method: "POST", body: fd });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        toast.error("Uppladdning misslyckades", body.error || uploadError.message);
+        setUploading(false);
+        return;
+      }
+      const { url } = await res.json();
+      setImageUrl(`${url}?t=${Date.now()}`);
       setUploading(false);
       return;
     }
