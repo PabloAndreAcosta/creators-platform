@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { ImagePlus, X, Link as LinkIcon, Loader2, Send } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { uploadFile } from "@/lib/storage/upload-client";
 import { createPost } from "@/app/app/feed/actions";
 import { useToast } from "@/components/ui/toaster";
 
@@ -44,29 +44,15 @@ export function CreatePostForm({ authorName, authorAvatar, listings }: CreatePos
     setUploading(true);
     setImagePreview(URL.createObjectURL(file));
 
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { setUploading(false); return; }
-
-    const ext = file.name.split(".").pop();
-    const path = `${user.id}/${Date.now()}.${ext}`;
-    const { error } = await supabase.storage
-      .from("creator-media")
-      .upload(path, file);
-
-    if (error) {
+    try {
+      const url = await uploadFile(file, "creator-media");
+      setImageUrl(url);
+    } catch {
       toast.error(t("imageUploadFailed"));
       setImagePreview(null);
+    } finally {
       setUploading(false);
-      return;
     }
-
-    const { data: urlData } = supabase.storage
-      .from("creator-media")
-      .getPublicUrl(path);
-
-    setImageUrl(urlData.publicUrl);
-    setUploading(false);
   }
 
   async function handleSubmit() {

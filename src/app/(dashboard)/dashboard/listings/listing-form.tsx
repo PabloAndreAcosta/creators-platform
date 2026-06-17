@@ -3,7 +3,7 @@
 import { useTransition, useState, useRef } from "react";
 import { useToast } from "@/components/ui/toaster";
 import { CATEGORIES } from "@/lib/categories";
-import { createBrowserClient } from "@supabase/ssr";
+import { uploadFile } from "@/lib/storage/upload-client";
 import { ImagePlus, Loader2, X } from "lucide-react";
 import PlacesAutocomplete from "@/components/places-autocomplete";
 
@@ -51,26 +51,10 @@ export default function ListingForm({
 
     setUploading(true);
     try {
-      const supabase = createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      );
-      const ext = file.name.split(".").pop();
-      const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-
-      const { error } = await supabase.storage
-        .from("listing-images")
-        .upload(path, file, { upsert: true });
-
-      if (error) {
-        toast.error("Uppladdning misslyckades", error.message);
-        return;
-      }
-
-      const { data: urlData } = supabase.storage.from("listing-images").getPublicUrl(path);
-      setImageUrl(urlData.publicUrl);
-    } catch {
-      toast.error("Fel vid uppladdning");
+      const url = await uploadFile(file, "listing-images");
+      setImageUrl(url);
+    } catch (err) {
+      toast.error("Uppladdning misslyckades", err instanceof Error ? err.message : String(err));
     } finally {
       setUploading(false);
     }

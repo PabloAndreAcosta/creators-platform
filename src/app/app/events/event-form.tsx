@@ -4,7 +4,7 @@ import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ImagePlus, X, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
-import { createClient } from "@/lib/supabase/client";
+import { uploadFile } from "@/lib/storage/upload-client";
 import { EVENT_CATEGORY_LABELS } from "./constants";
 import PlacesAutocomplete from "@/components/places-autocomplete";
 
@@ -63,13 +63,13 @@ function suggestListingType(category: string): ListingType {
 export default function EventForm({
   event,
   action,
-  userId,
 }: {
   event?: EventData;
   action: (
     formData: FormData
   ) => Promise<{ error?: string; locked?: boolean; id?: string } | void>;
-  userId: string;
+  /** Still accepted by callers; upload now happens server-side via the API route. */
+  userId?: string;
 }) {
   const { toast } = useToast();
   const router = useRouter();
@@ -110,23 +110,14 @@ export default function EventForm({
     }
 
     setUploading(true);
-    const supabase = createClient();
-    const ext = file.name.split(".").pop();
-    const path = `${userId}/${crypto.randomUUID()}.${ext}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from("event-images")
-      .upload(path, file, { upsert: true });
-
-    if (uploadError) {
-      toast.error("Uppladdning misslyckades", uploadError.message);
+    try {
+      const url = await uploadFile(file, "event-images");
+      setImageUrl(`${url}?t=${Date.now()}`);
+    } catch (err) {
+      toast.error("Uppladdning misslyckades", err instanceof Error ? err.message : String(err));
+    } finally {
       setUploading(false);
-      return;
     }
-
-    const { data: urlData } = supabase.storage.from("event-images").getPublicUrl(path);
-    setImageUrl(`${urlData.publicUrl}?t=${Date.now()}`);
-    setUploading(false);
   }
 
   function handleSubmit(formData: FormData) {

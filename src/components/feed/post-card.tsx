@@ -8,7 +8,7 @@ import { PostLikeButton } from "./post-like-button";
 import { QuickBuyButton } from "./quick-buy-button";
 import { LevelBadge } from "@/components/level-badge";
 import { updatePost, deletePost } from "@/app/app/feed/actions";
-import { createClient } from "@/lib/supabase/client";
+import { uploadFile } from "@/lib/storage/upload-client";
 import type { FeedPost } from "@/types/database";
 
 function timeAgo(dateStr: string): string {
@@ -82,18 +82,14 @@ export function PostCard({ post, isLoggedIn, currentUserId }: PostCardProps) {
     setUploading(true);
     setEditImagePreview(URL.createObjectURL(file));
 
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { setUploading(false); return; }
-
-    const ext = file.name.split(".").pop();
-    const path = `${user.id}/${Date.now()}.${ext}`;
-    const { error } = await supabase.storage.from("creator-media").upload(path, file);
-    if (error) { setUploading(false); setEditImagePreview(post.image_url); return; }
-
-    const { data: urlData } = supabase.storage.from("creator-media").getPublicUrl(path);
-    setEditImageUrl(urlData.publicUrl);
-    setUploading(false);
+    try {
+      const url = await uploadFile(file, "creator-media");
+      setEditImageUrl(url);
+    } catch {
+      setEditImagePreview(post.image_url);
+    } finally {
+      setUploading(false);
+    }
   }
 
   async function handleSaveEdit() {

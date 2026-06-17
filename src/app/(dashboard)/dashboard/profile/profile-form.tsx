@@ -2,7 +2,7 @@
 
 import { useRef, useState, useTransition } from "react";
 import { updateProfile, updateAvatar } from "./actions";
-import { createClient } from "@/lib/supabase/client";
+import { uploadFile } from "@/lib/storage/upload-client";
 import { useToast } from "@/components/ui/toaster";
 import { Camera, Loader2, X, Plus, Instagram, ExternalLink } from "lucide-react";
 import Image from "next/image";
@@ -182,21 +182,8 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
 
     try {
       const compressed = await resizeImage(file, 800);
-      const supabase = createClient();
-      const path = `${profile.id}/avatar.jpg`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("avatars")
-        .upload(path, compressed, { upsert: true, contentType: "image/jpeg" });
-
-      if (uploadError) {
-        toast.error(t("uploadFailedTitle"), uploadError.message);
-        setUploading(false);
-        return;
-      }
-
-      const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(path);
-      const newUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+      const url = await uploadFile(compressed, "avatars", "avatar.jpg");
+      const newUrl = `${url}?t=${Date.now()}`;
 
       const result = await updateAvatar(newUrl);
       if (result.error) {
