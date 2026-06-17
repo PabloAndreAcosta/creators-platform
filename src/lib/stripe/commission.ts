@@ -71,11 +71,16 @@ export function calculateCreatorPayout(
  * Calculates the discounted price for a user based on their membership tier.
  * Gratis users pay full price.
  * Guld members get 10% discount, Premium members get 20% discount.
+ *
+ * Membership discounts are DISABLED during the free beta (memberships cost
+ * nothing, so the tier discounts shouldn't apply). Re-enable by setting
+ * NEXT_PUBLIC_DISCOUNTS_ENABLED=true once memberships are paid.
  */
 export function calculateDiscountedPrice(
   originalPrice: number,
   userTier: string | null
 ): number {
+  if (process.env.NEXT_PUBLIC_DISCOUNTS_ENABLED !== 'true') return originalPrice;
   if (!userTier || userTier === 'gratis') return originalPrice;
 
   const discount = DISCOUNT_RATES[userTier as 'guld' | 'premium'];
