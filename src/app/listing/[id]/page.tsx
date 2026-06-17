@@ -394,15 +394,19 @@ export default async function ListingDetailPage(props: Props) {
               </div>
 
               <div className="flex flex-col gap-3">
-                {listing.price != null && listing.price > 0 && (
-                  <BuyTicketButton
-                    listingId={listing.id}
-                    originalPrice={listing.price}
-                    discountedPrice={calculateDiscountedPrice(listing.price, visitorTier)}
-                    isLoggedIn={isLoggedIn}
-                    hasConnect={hasConnect}
-                  />
-                )}
+                {/* Tickets are only for events. Services (e.g. private lessons)
+                    are booked via BookingForm, not sold as tickets. */}
+                {listing.listing_type === "event" &&
+                  listing.price != null &&
+                  listing.price > 0 && (
+                    <BuyTicketButton
+                      listingId={listing.id}
+                      originalPrice={listing.price}
+                      discountedPrice={calculateDiscountedPrice(listing.price, visitorTier)}
+                      isLoggedIn={isLoggedIn}
+                      hasConnect={hasConnect}
+                    />
+                  )}
                 <BookingForm
                   listing={listing}
                   creatorId={creator.id}
