@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@/lib/supabase/server";
-import { getCreatorCommissionRate } from "@/lib/stripe/commission";
+import { calculateDiscountedPrice, getCreatorCommissionRate } from "@/lib/stripe/commission";
+
+const PAYABLE_AFTER_CONFIRM = new Set(["b2b_offering", "service"]);
 
 /**
- * Creates a Stripe Checkout session for an already-confirmed B2B booking
- * (listing_type = 'b2b_offering'). The booking already exists; this route
- * only attaches a payment to it. On webhook completion, the booking row
- * is updated with stripe_payment_id and amount_paid (no new row created).
+ * Creates a Stripe Checkout session for an already-confirmed booking that the
+ * creator accepted but that hasn't been paid yet (a paid `service` such as a
+ * private lesson, or a `b2b_offering`). The booking already exists; this route
+ * only attaches a payment to it. On webhook completion, the booking row is
+ * updated with stripe_payment_id and amount_paid (no new row created).
  */
 export async function POST(req: NextRequest) {
   const { rateLimit, getRateLimitKey } = await import('@/lib/rate-limit');
@@ -34,6 +37,13 @@ export async function POST(req: NextRequest) {
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const { data: userProfile } = await supabase
+      .from("profiles")
+      .select("tier")
+      .eq("id", user.id)
+      .single();
+    const userTier = userProfile?.tier ?? null;
 
     const { data: booking } = await supabase
       .from("bookings")
@@ -73,18 +83,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Listing not found" }, { status: 404 });
     }
 
-    if (listing.listing_type !== "b2b_offering") {
+    if (!listing.listing_type || !PAYABLE_AFTER_CONFIRM.has(listing.listing_type)) {
       return NextResponse.json(
-        { error: "Payment route is only for B2B-offerings" },
+        { error: "This booking type cannot be paid here" },
         { status: 400 }
       );
     }
 
-    // Resolve effective price: prefer the negotiated agreed_price on the
-    // booking (set when arrangör submitted the request), fall back to the
-    // listing's base price.
+    // Resolve effective price: prefer the negotiated agreed_price on the booking
+    // (B2B), otherwise the listing price with the buyer's membership discount
+    // applied — matching what they were shown when booking.
     const agreedPrice = (booking as { agreed_price?: number | null }).agreed_price ?? null;
-    const effectivePrice = agreedPrice != null && agreedPrice > 0 ? agreedPrice : listing.price;
+    const effectivePrice =
+      agreedPrice != null && agreedPrice > 0
+        ? agreedPrice
+        : calculateDiscountedPrice(listing.price ?? 0, userTier);
 
     if (!effectivePrice || effectivePrice <= 0) {
       return NextResponse.json(
@@ -118,7 +131,7 @@ export async function POST(req: NextRequest) {
           price_data: {
             currency: "sek",
             product_data: {
-              name: `Eventbokning: ${listing.title}`,
+              name: `Bokning: ${listing.title}`,
             },
             unit_amount: amountInOre,
           },

@@ -15,6 +15,7 @@ import { BookingsViewToggle } from "./bookings-view-toggle";
 import { PayB2BButton } from "./pay-b2b-button";
 import { RedeemDanceButton, DanceCounter } from "./redeem-dance-button";
 import { RedeemMinutesButton, MinutesCounter } from "./redeem-minutes-button";
+import { calculateDiscountedPrice } from "@/lib/stripe/commission";
 
 const STATUS_LABELS: Record<string, { labelKey: string; className: string }> = {
   pending: { labelKey: "statusPending", className: "bg-yellow-500/10 text-yellow-400" },
@@ -141,9 +142,10 @@ export default async function BookingsPage() {
   // Check if user is a creator and fetch availability
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, tier")
     .eq("id", user.id)
     .single();
+  const userTier = profile?.tier ?? null;
 
   const userIsCreator = profile?.role === "creator" || profile?.role === "venue" || profile?.role === "creator" || profile?.role === "venue";
 
@@ -373,14 +375,19 @@ export default async function BookingsPage() {
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
                     {booking.status === "confirmed" &&
-                      listingMetaMap[booking.listing_id]?.listing_type === "b2b_offering" &&
-                      !(booking as { stripe_payment_id?: string | null }).stripe_payment_id && (
+                      ["b2b_offering", "service"].includes(
+                        listingMetaMap[booking.listing_id]?.listing_type ?? ""
+                      ) &&
+                      !(booking as { stripe_payment_id?: string | null }).stripe_payment_id &&
+                      (listingMetaMap[booking.listing_id]?.price ?? 0) > 0 && (
                         <PayB2BButton
                           bookingId={booking.id}
                           price={
                             (booking as { agreed_price?: number | null }).agreed_price ??
-                            listingMetaMap[booking.listing_id]?.price ??
-                            null
+                            calculateDiscountedPrice(
+                              listingMetaMap[booking.listing_id]?.price ?? 0,
+                              userTier
+                            )
                           }
                         />
                       )}
