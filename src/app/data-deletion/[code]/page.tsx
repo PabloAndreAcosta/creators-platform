@@ -43,7 +43,7 @@ export default async function DataDeletionStatusPage({
       </p>
       <p className="mt-4 text-[var(--usha-muted)]">
         All {providerLabel} access tokens and Page references linked to this account have been
-        removed from our database. If you have other data on Usch-Ja! (such as a profile, events,
+        removed from our database. If you have other data on Usha Platform (such as a profile, events,
         or bookings), you can delete those separately under{" "}
         <a href="/app/profile" className="text-[var(--usha-gold)] underline">
           your account settings

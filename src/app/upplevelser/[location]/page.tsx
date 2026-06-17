@@ -29,11 +29,11 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     .ilike("event_city", `%${city}%`);
 
   return {
-    title: `Upplevelser i ${city} – Usch-Ja!`,
+    title: `Upplevelser i ${city} – Usha Platform`,
     description: `Hitta kreativa events, tjänster och upplevelser i ${city}. Dans, musik, fotografi och mer.`,
     ...(!count ? { robots: { index: false } } : {}),
     openGraph: {
-      title: `Upplevelser i ${city} – Usch-Ja!`,
+      title: `Upplevelser i ${city} – Usha Platform`,
       description: `Hitta kreativa events och upplevelser i ${city}.`,
     },
   };
@@ -81,7 +81,7 @@ export default async function LocationPage(props: Props) {
 
       <header className="sticky top-0 z-30 border-b border-[var(--usha-border)] bg-[var(--usha-black)]/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-          <Link href="/" className="text-lg font-bold text-gradient">Usch-Ja!</Link>
+          <Link href="/" className="text-lg font-bold text-gradient">Usha Platform</Link>
           <nav className="flex items-center gap-4">
             <Link href="/flode" className="text-sm text-[var(--usha-muted)] hover:text-[var(--usha-white)]">Flöde</Link>
             <Link href="/upplevelser" className="text-sm text-[var(--usha-muted)] hover:text-[var(--usha-white)]">Upplevelser</Link>

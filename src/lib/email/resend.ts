@@ -13,5 +13,5 @@ export function getResend(): Resend {
 }
 
 export function getFromEmail(): string {
-  return process.env.RESEND_FROM_EMAIL || 'Usch-Ja! Platform <noreply@usha.se>';
+  return process.env.RESEND_FROM_EMAIL || 'Usha Platform <noreply@usha.se>';
 }

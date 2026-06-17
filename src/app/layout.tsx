@@ -19,14 +19,14 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://usha.se"),
-  title: "Usch-Ja! — Skapa event, sälj biljetter, betala ditt crew",
+  title: "Usha Platform — Skapa event, sälj biljetter, betala ditt crew",
   description:
     "Plattformen för kreatörer och upplevelser: skapa event på minuter, sälj biljetter, skanna vid dörren och betala ditt crew — tryggt med BankID och Stripe.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Usch-Ja!",
+    title: "Usha Platform",
   },
   other: {
     "mobile-web-app-capable": "yes",
@@ -39,17 +39,17 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
   },
   openGraph: {
-    title: "Usch-Ja! — Skapa event, sälj biljetter, betala ditt crew",
+    title: "Usha Platform — Skapa event, sälj biljetter, betala ditt crew",
     description:
       "Skapa event, sälj biljetter, skanna vid dörren och betala ditt crew — allt i en app.",
     type: "website",
     locale: "sv_SE",
     url: "https://usha.se",
-    siteName: "Usch-Ja!",
+    siteName: "Usha Platform",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Usch-Ja! — Skapa event, sälj biljetter, betala ditt crew",
+    title: "Usha Platform — Skapa event, sälj biljetter, betala ditt crew",
     description:
       "Skapa event, sälj biljetter, skanna vid dörren och betala ditt crew — allt i en app.",
   },

@@ -45,7 +45,7 @@ function Monogram({ dag }: { dag: boolean }) {
   );
 }
 
-/** Usch-Ja!-logga som följer inställningen uschja-logo-lage. */
+/** Usha Platform-logga som följer inställningen uschja-logo-lage. */
 export default function UschjaLogo({ size = 64 }: { size?: number }) {
   // Deterministic initial value for SSR/first paint; the real setting is read
   // on mount (localStorage/matchMedia are client-only).
@@ -66,7 +66,7 @@ export default function UschjaLogo({ size = 64 }: { size?: number }) {
   }, []);
 
   return (
-    <span role="img" aria-label="Usch-Ja!" style={{ display: "inline-block", width: size, height: size }}>
+    <span role="img" aria-label="Usha Platform" style={{ display: "inline-block", width: size, height: size }}>
       <Monogram dag={!mork} />
     </span>
   );

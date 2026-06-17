@@ -287,10 +287,10 @@ export function CrewManager({
           </button>
         </form>
 
-        {/* Or: invite an existing Usch-Ja creator directly by profile */}
+        {/* Or: invite an existing Usha Platform creator directly by profile */}
         <div className="my-4 flex items-center gap-3 text-[11px] uppercase tracking-wide text-[var(--usha-muted)]">
           <span className="h-px flex-1 bg-[var(--usha-border)]" />
-          eller sök på Usch-Ja
+          eller sök på Usha Platform
           <span className="h-px flex-1 bg-[var(--usha-border)]" />
         </div>
         <div className="relative">

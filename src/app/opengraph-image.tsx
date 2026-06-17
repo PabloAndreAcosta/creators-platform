@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "Usch-Ja! — Skapa event, sälj biljetter, betala ditt crew";
+export const alt = "Usha Platform — Skapa event, sälj biljetter, betala ditt crew";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -38,7 +38,7 @@ export default function OpengraphImage() {
           >
             U
           </div>
-          <div style={{ fontSize: 56, fontWeight: 800 }}>Usch-Ja!</div>
+          <div style={{ fontSize: 56, fontWeight: 800 }}>Usha Platform</div>
         </div>
         <div style={{ display: "flex", fontSize: 66, fontWeight: 800, lineHeight: 1.05, maxWidth: 1000 }}>
           Skapa event. Sälj biljetter. Betala ditt crew.

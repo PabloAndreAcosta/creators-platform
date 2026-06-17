@@ -10,7 +10,7 @@ import { StripeConnectButton } from "@/components/stripe-connect-button";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Mina samarbeten – Usch-Ja!" };
+export const metadata = { title: "Mina samarbeten – Usha Platform" };
 
 function formatDate(dateStr: string | null) {
   if (!dateStr) return null;

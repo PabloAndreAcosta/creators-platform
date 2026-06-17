@@ -208,7 +208,7 @@ export default async function CreatorProfilePage(props: Props) {
                 <span className="text-sm font-bold text-black">U</span>
               </div>
             )}
-            <span className="text-lg font-bold tracking-tight">{wl && wlBrand ? wlBrand : "Usch-Ja!"}</span>
+            <span className="text-lg font-bold tracking-tight">{wl && wlBrand ? wlBrand : "Usha Platform"}</span>
           </Link>
           <div className="flex items-center gap-3">
             <Link

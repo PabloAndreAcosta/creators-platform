@@ -98,17 +98,17 @@
     "current": "Svenska"
   },
   "about": {
-    "metaTitle": "Om oss – Usch-Ja!",
-    "metaDescription": "Usha är bolaget bakom Usch-Ja! — plattformen för mänskligt uttryck. Lär känna visionen och vart vi är på väg.",
+    "metaTitle": "Om oss – Usha Platform",
+    "metaDescription": "Usha är bolaget bakom Usha Platform — plattformen för mänskligt uttryck. Lär känna visionen och vart vi är på väg.",
     "back": "Tillbaka",
     "title": "Om oss",
-    "lead": "Usha är bolaget bakom Usch-Ja! — plattformen för mänskligt uttryck.",
-    "p1": "Vi tror att de bästa stunderna uppstår när människor möts på riktigt — i rörelse, i lek och i skapande. Usch-Ja samlar kreatörer, upplevelser och deltagare på ett och samma ställe, där passion möter professionalism och varje bokning känns trygg. Alla kreatörer är BankID-verifierade och alla betalningar hanteras säkert, så att du kan fokusera på det som faktiskt betyder något: upplevelsen.",
+    "lead": "Usha är bolaget bakom Usha Platform — plattformen för mänskligt uttryck.",
+    "p1": "Vi tror att de bästa stunderna uppstår när människor möts på riktigt — i rörelse, i lek och i skapande. Usha Platform samlar kreatörer, upplevelser och deltagare på ett och samma ställe, där passion möter professionalism och varje bokning känns trygg. Alla kreatörer är BankID-verifierade och alla betalningar hanteras säkert, så att du kan fokusera på det som faktiskt betyder något: upplevelsen.",
     "p2": "Usha grundades av Pablo Acosta, som arbetar i skärningspunkten mellan dans, teknik och community-building. Visionen är enkel: bygga en plats där kreativitet får leva, talanger får synas och människor får komma närmare varandra.",
     "roadmapTitle": "Vart vi är på väg",
     "p3": "Vi bygger steg för steg, med riktiga upplevelser från dag ett. I sommar startar vi med The Kiz Lab — öppen dansträning varje vecka i Stockholm. Därifrån växer vi vidare till återkommande månadsfester och, längre fram, en årlig festival som samlar hela gemenskapen.",
     "closing": "Det här är bara början. Välkommen att vara med från start.",
-    "tagline": "Usch-Ja! — för mänskligt uttryck."
+    "tagline": "Usha Platform — för mänskligt uttryck."
   },
   "settings": {
     "title": "Inställningar",
@@ -206,7 +206,7 @@
     "imageUploadFailed": "Kunde inte ladda upp bilden",
     "now": "nu",
     "creatorFallback": "Kreatör",
-    "postOnUsha": "Inlägg på Usch-Ja",
+    "postOnUsha": "Inlägg på Usha Platform",
     "showMore": "visa mer"
   },
   "onboarding": {
@@ -221,7 +221,7 @@
   "referral": {
     "title": "Bjud in vänner",
     "subtitle": "Dela din länk — de får 50 kr rabatt på första köpet",
-    "shareTitle": "Gå med i Usch-Ja",
+    "shareTitle": "Gå med i Usha Platform",
     "shareText": "Använd min inbjudningslänk och få 50 kr rabatt på ditt första köp!",
     "copy": "Kopiera",
     "copied": "Kopierad",
@@ -270,7 +270,7 @@
   },
   "leaderboard": {
     "title": "Topplista",
-    "subtitle": "De mest engagerade användarna på Usch-Ja",
+    "subtitle": "De mest engagerade användarna på Usha Platform",
     "thisWeek": "Denna vecka",
     "thisMonth": "Denna månad",
     "allTime": "All tid",
@@ -382,7 +382,7 @@
     "noAccount": "Inget konto?",
     "signUp": "Registrera dig",
     "chooseRole": "Välj din roll",
-    "howToUse": "Hur vill du använda Usch-Ja?",
+    "howToUse": "Hur vill du använda Usha Platform?",
     "roleCreator": "Kreatör",
     "roleCreatorDesc": "Jag erbjuder kreativa tjänster",
     "roleExperience": "Venue",
@@ -438,15 +438,15 @@
       "forAudience": "Upplev"
     },
     "install": {
-      "title": "Installera Usch-Ja på din dator",
-      "description": "Usch-Ja fungerar som en app direkt i din webbläsare. Installera den för snabb åtkomst:",
+      "title": "Installera Usha Platform på din dator",
+      "description": "Usha Platform fungerar som en app direkt i din webbläsare. Installera den för snabb åtkomst:",
       "chromeEdge": "Chrome / Edge",
       "chromeEdgeInstructions": "Klicka på installationsikonen i adressfältet → \"Installera\"",
       "safariMac": "Safari (Mac)",
       "safariMacInstructions": "Arkiv → Lägg till i Dock",
       "close": "Stäng",
       "openInBrowser": "Öppna i webbläsaren",
-      "appCta": "Installera Usch-Ja app",
+      "appCta": "Installera Usha Platform app",
       "iosHelp": "iPhone (Safari): tryck på Dela-ikonen → \"Lägg till på hemskärmen\".",
       "otherHelp": "Öppna webbläsarens meny (⋮) → \"Installera app\" / \"Lägg till på startskärmen\"."
     },
@@ -454,7 +454,7 @@
       "badge": "Kuraterat och BankID-verifierat",
       "headlinePart1": "Där kreatörer, platser och",
       "headlinePart2": "publik möts",
-      "description": "Usch-Ja! är kretsloppet som får Sveriges kreativa liv att snurra – kreatörer hittar uppdrag, platser fyller sin kalender, och publiken upptäcker upplevelser att minnas. Tryggt med BankID och Stripe.",
+      "description": "Usha Platform är kretsloppet som får Sveriges kreativa liv att snurra – kreatörer hittar uppdrag, platser fyller sin kalender, och publiken upptäcker upplevelser att minnas. Tryggt med BankID och Stripe.",
       "ctaPrimary": "Kom igång gratis",
       "ctaSecondary": "Utforska upplevelser"
     },
@@ -585,7 +585,7 @@
       "badge": "Trygghet i varje steg",
       "title": "Boka med",
       "titleHighlight": "fullt förtroende",
-      "subtitle": "Vi tar säkerhet på allvar. Alla som erbjuder tjänster och upplevelser på Usch-Ja är identitetsverifierade med svenskt BankID.",
+      "subtitle": "Vi tar säkerhet på allvar. Alla som erbjuder tjänster och upplevelser på Usha Platform är identitetsverifierade med svenskt BankID.",
       "bankid": {
         "title": "BankID-verifierade kreatörer",
         "desc": "Alla kreatörer och upplevelser verifierar sin identitet med Mobilt BankID innan de skapar konto. Du vet alltid vem du bokar."
@@ -777,7 +777,7 @@
     "liveButton": "Live"
   },
   "marketplace": {
-    "metaTitle": "Marketplace – Usch-Ja! Platform",
+    "metaTitle": "Marketplace – Usha Platform",
     "metaDescription": "Hitta och boka kreativa talanger. Dansinstruktörer, musiker, fotografer och mer.",
     "navApp": "Appen",
     "navLogin": "Logga in",
@@ -809,7 +809,7 @@
     "listingCount": "{count, plural, one {# tjänst} other {# tjänster}}"
   },
   "experiences": {
-    "metaTitle": "Upplevelser – Usch-Ja!",
+    "metaTitle": "Upplevelser – Usha Platform",
     "metaDescription": "Utforska kreativa upplevelser, events och tjänster nära dig. Dans, musik, fotografi och mer.",
     "ogDescription": "Utforska kreativa upplevelser, events och tjänster nära dig.",
     "navFeed": "Flöde",
@@ -884,10 +884,10 @@
     "levelFallback": "Nivå {level}"
   },
   "creatorProfile": {
-    "metaTitleFallback": "Creator – Usch-Ja! Platform",
-    "metaTitle": "{name} – Usch-Ja! Platform",
-    "metaTitleOg": "{name} – Usch-Ja!",
-    "metaDescriptionFallback": "{category} på Usch-Ja Platform",
+    "metaTitleFallback": "Creator – Usha Platform",
+    "metaTitle": "{name} – Usha Platform",
+    "metaTitleOg": "{name} – Usha Platform",
+    "metaDescriptionFallback": "{category} på Usha Platform",
     "creatorFallbackName": "Creator",
     "nav": {
       "marketplace": "Marketplace",
@@ -1104,7 +1104,7 @@
       "contactHint": "Visas på din publika profil om du vill bli kontaktad direkt.",
       "whitelabelTitle": "White label",
       "whitelabelBadge": "Premium",
-      "whitelabelHintPremium": "Visa din egen branding istället för Usch-Ja på din publika profil.",
+      "whitelabelHintPremium": "Visa din egen branding istället för Usha Platform på din publika profil.",
       "whitelabelHintLocked": "Uppgradera till Premium för att använda din egen branding.",
       "whitelabelBrandNameLabel": "Varumärkesnamn",
       "whitelabelBrandNamePlaceholder": "Ditt varumärke",
@@ -1556,7 +1556,7 @@
   },
   "forCreators": {
     "meta": {
-      "title": "För kreatörer – Usch-Ja!",
+      "title": "För kreatörer – Usha Platform",
       "description": "Fler uppdrag utan säljjobbet. BankID-verifiering höjer din trovärdighet, och verktygen för att driva dina event bor här – tryggt med Stripe."
     },
     "hero": {
@@ -1566,12 +1566,12 @@
     },
     "loop": {
       "title": "Så snurrar kretsloppet för dig",
-      "body": "Fler platser på Usch-Ja! betyder fler scener för dig. Och fler besökare betyder fler bokningar – utan att du behöver jaga någon."
+      "body": "Fler platser på Usha Platform betyder fler scener för dig. Och fler besökare betyder fler bokningar – utan att du behöver jaga någon."
     }
   },
   "forVenues": {
     "meta": {
-      "title": "För platser – Usch-Ja!",
+      "title": "För platser – Usha Platform",
       "description": "Levande program utan att bli bokare. Fyll kalendern med kuraterade, BankID-verifierade kreatörer – utan egen bokningsadministration."
     },
     "hero": {
@@ -1594,7 +1594,7 @@
   },
   "forAudience": {
     "meta": {
-      "title": "Upptäck upplevelser – Usch-Ja!",
+      "title": "Upptäck upplevelser – Usha Platform",
       "description": "Hitta och boka kreativa upplevelser nära dig – tryggt. Alla kreatörer och platser är BankID-verifierade, betalning via Stripe."
     },
     "hero": {

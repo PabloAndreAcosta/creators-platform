@@ -39,7 +39,7 @@ export function BreakEvenCalculator({ userRole }: Props) {
     [volume]
   );
 
-  // Net to you = volume minus what Usch-Ja takes (commission + subscription)
+  // Net to you = volume minus what Usha Platform takes (commission + subscription)
   const net = {
     gratis: volume - cost.gratis,
     guld: volume - cost.guld,
@@ -65,7 +65,7 @@ export function BreakEvenCalculator({ userRole }: Props) {
           <h2 className="text-lg font-semibold">Räkna ut vilken plan som lönar sig</h2>
           <p className="mt-1 text-sm text-[var(--usha-muted)]">
             Hur mycket säljer du för i {noun} per månad? Vi visar vad du får
-            kvar efter Usch-Jas kommission och eventuellt abonnemang.
+            kvar efter Usha Platforms kommission och eventuellt abonnemang.
           </p>
         </div>
       </div>
