@@ -18,7 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     alternates: { canonical: "/for-kreatorer" },
-    openGraph: { title, description, url: "https://usha.se/for-kreatorer", type: "website", locale: "sv_SE", siteName: "Usch-Ja!" },
+    openGraph: { title, description, url: "https://usha.se/for-kreatorer", type: "website", locale: "sv_SE", siteName: "Usha Platform" },
   };
 }
 

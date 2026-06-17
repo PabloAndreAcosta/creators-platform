@@ -12,32 +12,32 @@ import { RedirectIfAuthed } from "@/components/landing/redirect-if-authed";
 // The home page leads with the ecosystem/cycle idea (not the event tooling,
 // which now lives on /for-kreatorer).
 export const metadata: Metadata = {
-  title: "Usch-Ja! — Där kreatörer, platser och publik möts",
+  title: "Usha Platform — Där kreatörer, platser och publik möts",
   description:
     "Kretsloppet som får Sveriges kreativa liv att snurra – kreatörer hittar uppdrag, platser fyller sin kalender, publiken upptäcker upplevelser. Tryggt med BankID och Stripe.",
   alternates: { canonical: "/" },
   openGraph: {
-    title: "Usch-Ja! — Där kreatörer, platser och publik möts",
+    title: "Usha Platform — Där kreatörer, platser och publik möts",
     description:
       "Kretsloppet där kreatörer, platser och publik förstärker varandra. Tryggt med BankID och Stripe.",
     url: "https://usha.se",
     type: "website",
     locale: "sv_SE",
-    siteName: "Usch-Ja!",
+    siteName: "Usha Platform",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Usch-Ja! — Där kreatörer, platser och publik möts",
+    title: "Usha Platform — Där kreatörer, platser och publik möts",
     description:
       "Kretsloppet där kreatörer, platser och publik förstärker varandra. Tryggt med BankID och Stripe.",
   },
 };
 
-// Organization structured data (company Usha AB, product Usch-Ja!).
+// Organization structured data (company Usha AB, product Usha Platform).
 const ORGANIZATION_JSONLD = {
   "@context": "https://schema.org",
   "@type": "Organization",
-  name: "Usch-Ja!",
+  name: "Usha Platform",
   legalName: "Usha AB",
   url: "https://usha.se",
   logo: "https://usha.se/icon-192.png",

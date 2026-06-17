@@ -39,7 +39,7 @@ export async function sendBookingReminderEmail({
       startsAt: scheduledAt,
       durationMinutes,
       location,
-      description: `Bokning hos ${creatorName} via Usch-Ja`,
+      description: `Bokning hos ${creatorName} via Usha Platform`,
     });
 
     const { error } = await resend.emails.send({

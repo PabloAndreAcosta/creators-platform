@@ -12,7 +12,7 @@ function formatDate(date: Date): string {
 }
 
 export function getGoldWelcomeSubject(): string {
-  return 'Välkommen till Usch-Ja Guld!';
+  return 'Välkommen till Usha Platform Guld!';
 }
 
 const BENEFITS = [
@@ -45,7 +45,7 @@ export default function GoldMemberWelcome({
                     <tr>
                       <td style={{ paddingBottom: 32, textAlign: 'center' }}>
                         <span style={{ fontSize: 28, fontWeight: 700, color: '#c8a445', letterSpacing: '-0.02em' }}>
-                          Usch-Ja!
+                          Usha Platform
                         </span>
                       </td>
                     </tr>
@@ -92,7 +92,7 @@ export default function GoldMemberWelcome({
                           Hej {memberName}!
                         </p>
                         <p style={{ fontSize: 14, color: '#6b6b6b', margin: '0 0 28px', lineHeight: 1.6, textAlign: 'center' }}>
-                          Välkommen till Usch-Ja Guld! Du har nu tillgång till exklusiva förmåner
+                          Välkommen till Usha Platform Guld! Du har nu tillgång till exklusiva förmåner
                           som gör din upplevelse ännu bättre.
                         </p>
 
@@ -190,7 +190,7 @@ export default function GoldMemberWelcome({
                           </a>
                         </p>
                         <p style={{ fontSize: 11, color: '#3f3f3f', margin: 0 }}>
-                          © {new Date().getFullYear()} Usch-Ja! Platform
+                          © {new Date().getFullYear()} Usha Platform
                         </p>
                       </td>
                     </tr>

@@ -65,7 +65,7 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.RESEND_API_KEY }}" \
             -H "Content-Type: application/json" \
             -d '{
-              "from": "Usch-Ja! Platform <noreply@usha.se>",
+              "from": "Usha Platform <noreply@usha.se>",
               "to": "pablo.acosta@usha.se",
               "subject": "⚠️ Daglig storage-backup misslyckades",
               "text": "Workflowen \"Daily storage backup\" failade. Kolla GitHub Actions-loggen: https://github.com/usha-ab/creators-platform/actions/workflows/storage-backup.yml"

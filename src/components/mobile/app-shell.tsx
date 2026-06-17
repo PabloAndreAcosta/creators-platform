@@ -34,10 +34,14 @@ export function AppShell({ children, userName }: AppShellProps) {
           <header className="sticky top-0 z-40 border-b border-[var(--usha-border)] bg-[var(--usha-black)]/95 backdrop-blur-lg">
             <div className="flex items-center gap-3 px-4 py-3">
               {/* Logo – mobile only */}
-              <a href="/app" className="flex items-center gap-2 md:hidden">
+              <a
+                href="/app"
+                aria-label="Usha Platform – hem"
+                className="flex items-center gap-2 transition-opacity duration-150 active:opacity-50 md:hidden"
+              >
                 <UschjaLogo size={32} />
                 {!mobileSearchOpen && (
-                  <span className="text-lg font-bold tracking-tight">Usch-Ja!</span>
+                  <span className="text-lg font-bold tracking-tight">Usha Platform</span>
                 )}
               </a>
 

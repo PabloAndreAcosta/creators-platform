@@ -21,13 +21,13 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     .eq("id", params.id)
     .single();
 
-  if (!venue) return { title: "Plats – Usch-Ja!" };
+  if (!venue) return { title: "Plats – Usha Platform" };
 
   return {
-    title: `${venue.name} – Usch-Ja!`,
+    title: `${venue.name} – Usha Platform`,
     description: `Upplevelser och events på ${venue.name}${venue.city ? ` i ${venue.city}` : ""}.`,
     openGraph: {
-      title: `${venue.name} – Usch-Ja!`,
+      title: `${venue.name} – Usha Platform`,
       description: `Se vad som händer på ${venue.name}.`,
     },
   };
@@ -79,7 +79,7 @@ export default async function VenueDetailPage(props: Props) {
 
       <header className="sticky top-0 z-30 border-b border-[var(--usha-border)] bg-[var(--usha-black)]/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-          <Link href="/" className="text-lg font-bold text-gradient">Usch-Ja!</Link>
+          <Link href="/" className="text-lg font-bold text-gradient">Usha Platform</Link>
           <nav className="flex items-center gap-4">
             <Link href="/platser" className="text-sm text-[var(--usha-muted)] hover:text-[var(--usha-white)]">Platser</Link>
             <Link href="/upplevelser" className="text-sm text-[var(--usha-muted)] hover:text-[var(--usha-white)]">Upplevelser</Link>

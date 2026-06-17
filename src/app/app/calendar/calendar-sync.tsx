@@ -41,7 +41,7 @@ export function CalendarSync({ initialFeedUrl }: CalendarSyncProps) {
 
   function getOutlookUrl() {
     if (!feedUrl) return "";
-    return `https://outlook.live.com/calendar/0/addfromweb?url=${encodeURIComponent(feedUrl)}&name=Usch-Ja!%20Bokningar`;
+    return `https://outlook.live.com/calendar/0/addfromweb?url=${encodeURIComponent(feedUrl)}&name=Usha Platform%20Bokningar`;
   }
 
   function handleCalendarClick(type: string) {
@@ -59,7 +59,7 @@ export function CalendarSync({ initialFeedUrl }: CalendarSyncProps) {
       {!feedUrl ? (
         <div className="space-y-3">
           <p className="text-xs text-[var(--usha-muted)]">
-            Synka dina Usch-Ja-bokningar med Google Calendar, Apple Calendar eller Outlook.
+            Synka dina Usha Platform-bokningar med Google Calendar, Apple Calendar eller Outlook.
           </p>
           <button
             onClick={handleGenerate}

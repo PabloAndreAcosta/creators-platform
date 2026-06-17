@@ -69,9 +69,13 @@ export function SidebarNav() {
     <aside className="hidden md:flex md:w-56 lg:w-64 flex-shrink-0 sticky top-0 h-screen flex-col justify-between border-r border-[var(--usha-border)] bg-[var(--usha-black)]">
       <div>
         {/* Logo */}
-        <a href="/app" className="flex items-center gap-2.5 px-6 py-6">
+        <a
+          href="/app"
+          aria-label="Usha Platform – hem"
+          className="flex items-center gap-2.5 px-6 py-6 transition-opacity duration-150 active:opacity-50"
+        >
           <UschjaLogo size={36} />
-          <span className="text-xl font-bold tracking-tight">Usch-Ja!</span>
+          <span className="text-xl font-bold tracking-tight">Usha Platform</span>
         </a>
 
         {/* Navigation */}

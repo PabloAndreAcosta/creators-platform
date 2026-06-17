@@ -28,7 +28,7 @@ export function Footer() {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
                 <span className="text-sm font-bold text-black">U</span>
               </div>
-              <span className="text-lg font-bold tracking-tight">Usch-Ja!</span>
+              <span className="text-lg font-bold tracking-tight">Usha Platform</span>
             </div>
             <p className="max-w-xs text-sm leading-relaxed text-[var(--usha-muted)]">
               {t("footer.description")}

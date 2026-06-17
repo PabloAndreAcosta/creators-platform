@@ -317,7 +317,7 @@ export default async function EventPage(props: Params) {
               />
               {!user && (
                 <p className="mt-3 text-center text-[11px] text-[var(--usha-muted)]">
-                  Du skapar ett gratis Usch-Ja!-konto i samma flöde
+                  Du skapar ett gratis Usha Platform-konto i samma flöde
                 </p>
               )}
             </div>

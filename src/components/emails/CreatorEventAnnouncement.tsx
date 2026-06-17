@@ -43,7 +43,7 @@ export default function CreatorEventAnnouncement({
                     <tr>
                       <td style={{ paddingBottom: 32, textAlign: "center" }}>
                         <span style={{ fontSize: 28, fontWeight: 700, color: "#c8a445", letterSpacing: "-0.02em" }}>
-                          Usch-Ja!
+                          Usha Platform
                         </span>
                       </td>
                     </tr>
@@ -111,7 +111,7 @@ export default function CreatorEventAnnouncement({
                     <tr>
                       <td style={{ padding: "24px 0", textAlign: "center" }}>
                         <p style={{ fontSize: 11, color: "#3f3f3f", margin: 0 }}>
-                          Du får detta för att du följer {creatorName} på Usch-Ja.
+                          Du får detta för att du följer {creatorName} på Usha Platform.
                         </p>
                       </td>
                     </tr>

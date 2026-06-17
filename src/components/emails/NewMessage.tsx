@@ -5,7 +5,7 @@ interface NewMessageProps {
 }
 
 export function getNewMessageSubject(senderName: string): string {
-  return `Nytt meddelande från ${senderName} — Usch-Ja!`;
+  return `Nytt meddelande från ${senderName} — Usha Platform`;
 }
 
 export default function NewMessage({
@@ -31,7 +31,7 @@ export default function NewMessage({
                     <tr>
                       <td style={{ paddingBottom: 32, textAlign: "center" }}>
                         <span style={{ fontSize: 28, fontWeight: 700, color: "#c8a445", letterSpacing: "-0.02em" }}>
-                          Usch-Ja!
+                          Usha Platform
                         </span>
                       </td>
                     </tr>
@@ -94,7 +94,7 @@ export default function NewMessage({
                     <tr>
                       <td style={{ padding: "24px 0", textAlign: "center" }}>
                         <p style={{ fontSize: 11, color: "#3f3f3f", margin: 0 }}>
-                          Detta mejl skickades automatiskt från Usch-Ja.
+                          Detta mejl skickades automatiskt från Usha Platform.
                         </p>
                       </td>
                     </tr>

@@ -2,7 +2,7 @@ import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
   appId: "se.usha.app",
-  appName: "Usch-Ja!",
+  appName: "Usha Platform",
   webDir: "out",
   server: {
     url: "https://usha.se",

@@ -247,7 +247,7 @@ function StatusCard({
             href="/app"
             className="mt-6 inline-flex rounded-xl border border-[var(--usha-border)] px-5 py-2.5 text-sm font-medium hover:bg-[var(--usha-card-hover)]"
           >
-            Usch-Ja!
+            Usha Platform
           </Link>
         </div>
       </div>

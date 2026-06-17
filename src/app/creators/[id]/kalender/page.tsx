@@ -26,7 +26,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     .eq(column, params.id)
     .eq("is_public", true)
     .single();
-  return { title: `${profile?.full_name || "Kreatör"}s kalender – Usch-Ja!` };
+  return { title: `${profile?.full_name || "Kreatör"}s kalender – Usha Platform` };
 }
 
 export default async function CreatorCalendarPage(props: Props) {

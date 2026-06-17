@@ -9,7 +9,7 @@ import { canDelegateScan, canReceiveScan } from "@/lib/scan-access";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Crew – Usch-Ja!" };
+export const metadata = { title: "Crew – Usha Platform" };
 
 export default async function CrewPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;

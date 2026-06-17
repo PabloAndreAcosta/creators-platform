@@ -46,17 +46,17 @@ async function fetchSeries(slug: string): Promise<Occurrence[]> {
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params;
   const occurrences = await fetchSeries(params.slug);
-  if (occurrences.length === 0) return { title: "Serie – Usch-Ja!" };
+  if (occurrences.length === 0) return { title: "Serie – Usha Platform" };
 
   const s = occurrences[0];
-  const description = s.description?.slice(0, 160) || `${s.title} – återkommande tillfällen på Usch-Ja`;
+  const description = s.description?.slice(0, 160) || `${s.title} – återkommande tillfällen på Usha Platform`;
   const url = `https://usha.se/series/${params.slug}`;
 
   return {
-    title: `${s.title} – Usch-Ja!`,
+    title: `${s.title} – Usha Platform`,
     description,
     openGraph: {
-      title: `${s.title} – Usch-Ja!`,
+      title: `${s.title} – Usha Platform`,
       description,
       url,
       type: "website",
@@ -172,7 +172,7 @@ export default async function SeriesPage(props: Props) {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
               <span className="text-sm font-bold text-black">U</span>
             </div>
-            <span className="text-lg font-bold tracking-tight">Usch-Ja!</span>
+            <span className="text-lg font-bold tracking-tight">Usha Platform</span>
           </Link>
           <Link
             href={isLoggedIn ? "/app" : "/signup"}

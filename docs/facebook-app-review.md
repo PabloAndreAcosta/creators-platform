@@ -1,6 +1,6 @@
 # Facebook App Review Checklist — Creators Marketplace (App ID 2239652853105067)
 
-This document contains everything needed to submit the "Creators Marketplace" (Usch-Ja!) Facebook app for review and get **Advanced Access** on the permissions required for public users to connect their Facebook Pages.
+This document contains everything needed to submit the "Creators Marketplace" (Usha Platform) Facebook app for review and get **Advanced Access** on the permissions required for public users to connect their Facebook Pages.
 
 Reviewer-facing text is in **English** (Meta reviewers don't read Swedish).
 All copy-paste blocks are marked with `>>> COPY <<<` so you can drop them straight into the form.
@@ -60,7 +60,7 @@ Submit these together in **App Review → Permissions and Features** at https://
 
 >>> COPY — "How is your App using this permission/feature?" <<<
 ```
-Creators Marketplace (Usch-Ja!) is a Swedish marketplace where dance instructors, event organizers, and experience providers can list their services and sell tickets/bookings. We use public_profile during the Facebook Login flow to display the creator's name and profile photo in our own app UI immediately after they authenticate, so they can confirm they connected the correct Facebook account before proceeding to select which Page to link.
+Creators Marketplace (Usha Platform) is a Swedish marketplace where dance instructors, event organizers, and experience providers can list their services and sell tickets/bookings. We use public_profile during the Facebook Login flow to display the creator's name and profile photo in our own app UI immediately after they authenticate, so they can confirm they connected the correct Facebook account before proceeding to select which Page to link.
 
 We do not store the public_profile data outside of the user's active session. The display name and avatar shown during the post-login confirmation screen come directly from the access token response and are never persisted to our database. We persist only the Page ID, Page name, and Page access token (in the social_connections table, row-level-security-protected so only the owning user can read it).
 
@@ -78,9 +78,9 @@ Standard access blocks Facebook Login for Business entirely. Any creator who reg
 
 >>> COPY — How are you using this permission? <<<
 ```
-After a creator completes Facebook Login on usha.se, our callback at https://usha.se/api/facebook/callback calls GET /me/accounts to retrieve the list of Pages the user manages. We display this list in a "Choose your Page" UI (/app/events/select-page) so the creator can pick which Page to connect to their Usch-Ja! profile. If they manage only one Page, we skip the picker and connect it automatically.
+After a creator completes Facebook Login on usha.se, our callback at https://usha.se/api/facebook/callback calls GET /me/accounts to retrieve the list of Pages the user manages. We display this list in a "Choose your Page" UI (/app/events/select-page) so the creator can pick which Page to connect to their Usha Platform profile. If they manage only one Page, we skip the picker and connect it automatically.
 
-This permission is required because creators frequently manage multiple Pages (one for each studio, one personal brand, etc.). We can't pre-select a Page on their behalf — they must consciously choose which Page Usch-Ja! is allowed to post to.
+This permission is required because creators frequently manage multiple Pages (one for each studio, one personal brand, etc.). We can't pre-select a Page on their behalf — they must consciously choose which Page Usha Platform is allowed to post to.
 
 The retrieved Page IDs, names, and Page access tokens are stored in our social_connections table (row-level-security-protected per user). We do not transmit the list of Pages to any third party.
 ```
@@ -91,7 +91,7 @@ The retrieved Page IDs, names, and Page access tokens are stored in our social_c
 
 >>> COPY — How are you using this permission? <<<
 ```
-This is the core integration that creators sign up for. When a creator publishes an event in Usch-Ja! (for example, "Privat danslektion, 90 min, 800 SEK, Stockholm"), they can click "Sync to Facebook" on the event card. Our backend at https://usha.se/api/facebook/sync-event:
+This is the core integration that creators sign up for. When a creator publishes an event in Usha Platform (for example, "Privat danslektion, 90 min, 800 SEK, Stockholm"), they can click "Sync to Facebook" on the event card. Our backend at https://usha.se/api/facebook/sync-event:
 
 1. Reads the event from our database
 2. Composes a post with the event title, description, price, and a link to the booking page on usha.se
@@ -99,7 +99,7 @@ This is the core integration that creators sign up for. When a creator publishes
 4. If no image, calls POST /{page-id}/feed with just the message
 5. Saves the returned Facebook post ID back to our database so subsequent edits update the same post (POST /{post-id} with updated message)
 
-This permission is what makes Usch-Ja! valuable to creators — they list their events once on our platform and reach both their existing Facebook Page followers and the new audience discovering them through our marketplace. Without pages_manage_posts the entire posting workflow is impossible.
+This permission is what makes Usha Platform valuable to creators — they list their events once on our platform and reach both their existing Facebook Page followers and the new audience discovering them through our marketplace. Without pages_manage_posts the entire posting workflow is impossible.
 
 We post only to Pages the creator has explicitly connected. Each post is initiated by an explicit user action (clicking "Sync" on an event in our dashboard). We never auto-post without user intent.
 ```
@@ -113,7 +113,7 @@ We post only to Pages the creator has explicitly connected. Each post is initiat
 This permission is bundled with pages_manage_posts by Meta — Facebook requires it for the publish flow to work end-to-end. After publishing an event post via /{page-id}/photos or /{page-id}/feed, we read the post ID from the response so we can:
 
 1. Display a "Posted to Facebook ✓" badge in our event dashboard with a link to the live Facebook post
-2. Update the same post later if the creator edits the event in Usch-Ja!
+2. Update the same post later if the creator edits the event in Usha Platform
 3. Track which events have been synced (vs which are still drafts)
 
 We do not aggregate engagement metrics, do not show like/comment counts in our UI, and do not export this data anywhere. The permission is used purely to enable the publish/update flow.
@@ -125,7 +125,7 @@ We do not aggregate engagement metrics, do not show like/comment counts in our U
 
 >>> COPY — How are you using this permission? <<<
 ```
-Creators who already maintain a Facebook Page with upcoming events frequently ask us to import those events into Usch-Ja! instead of re-typing them. Our endpoint at https://usha.se/api/facebook/import-events calls GET /{page-id}/events?time_filter=upcoming to fetch the next 25 upcoming events from the creator's Page, then creates draft listings in Usch-Ja! for any that aren't already imported (deduplicated by the Facebook event ID we store in listings.facebook_event_id).
+Creators who already maintain a Facebook Page with upcoming events frequently ask us to import those events into Usha Platform instead of re-typing them. Our endpoint at https://usha.se/api/facebook/import-events calls GET /{page-id}/events?time_filter=upcoming to fetch the next 25 upcoming events from the creator's Page, then creates draft listings in Usha Platform for any that aren't already imported (deduplicated by the Facebook event ID we store in listings.facebook_event_id).
 
 The creator triggers this manually via "Import from Facebook" in our event dashboard. We do not run periodic background syncs. We read only events on Pages the creator owns — we never read posts, comments, or any other user-generated content from the Page.
 
@@ -144,7 +144,7 @@ Record using QuickTime (Cmd+Shift+5 → Record Selected Portion). Use a clean br
 
 ```
 [Screen: usha.se home page]
-Narrator (or on-screen caption): "This is Usch-Ja! (creators-platform), a Swedish marketplace for dance instructors and event organizers. I'm logged in as a test creator. I'll now demonstrate how we use [PERMISSION_NAME]."
+Narrator (or on-screen caption): "This is Usha Platform (creators-platform), a Swedish marketplace for dance instructors and event organizers. I'm logged in as a test creator. I'll now demonstrate how we use [PERMISSION_NAME]."
 ```
 
 ### Script for `public_profile` + `pages_show_list` (record together — same flow)
@@ -253,7 +253,7 @@ In our system:
 4. Connect that Test User to a Test Page (auto-created with the Test User)
 5. Add a couple of upcoming Test Events to the Test Page so the import flow has data
 6. Log into usha.se with the test account, run through the Connect Facebook flow once to make sure it works end-to-end with the Test User/Test Page
-7. Paste the credentials (Usch-Ja! login + reminder that Facebook Test User is auto-detected) into the App Review form's Test Account section
+7. Paste the credentials (Usha Platform login + reminder that Facebook Test User is auto-detected) into the App Review form's Test Account section
 
 ---
 
