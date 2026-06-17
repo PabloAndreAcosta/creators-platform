@@ -2,10 +2,11 @@
 
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { ArrowLeft, ImagePlus, X, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
 import { uploadImage } from "@/lib/storage/upload-client";
-import { EVENT_CATEGORY_LABELS } from "./constants";
+import { EVENT_CATEGORIES } from "./constants";
 import PlacesAutocomplete from "@/components/places-autocomplete";
 
 import type { ListingType, ExperienceDetails } from "@/types/database";
@@ -35,21 +36,6 @@ interface EventData {
   experience_details: ExperienceDetails | null;
 }
 
-const CATEGORIES = Object.entries(EVENT_CATEGORY_LABELS).map(([value, label]) => ({ value, label }));
-
-const TIERS = [
-  { value: "", label: "Alla kan se" },
-  { value: "guld", label: "Guld & Premium" },
-  { value: "premium", label: "Endast Premium" },
-];
-
-const LISTING_TYPES: { value: ListingType; label: string }[] = [
-  { value: "event", label: "Evenemang" },
-  { value: "table_reservation", label: "Bordsbokning" },
-  { value: "spa_treatment", label: "SPA-behandling" },
-  { value: "group_activity", label: "Gruppaktivitet" },
-];
-
 // Auto-derive listing type from category
 function suggestListingType(category: string): ListingType {
   switch (category) {
@@ -72,7 +58,23 @@ export default function EventForm({
   userId?: string;
 }) {
   const { toast } = useToast();
+  const t = useTranslations("eventForm");
+  const tCat = useTranslations("eventForm.categories");
   const router = useRouter();
+
+  const CATEGORIES = EVENT_CATEGORIES.map((value) => ({ value, label: tCat(value) }));
+  const TIERS = [
+    { value: "", label: t("tierAll") },
+    { value: "guld", label: t("tierGold") },
+    { value: "premium", label: t("tierPremium") },
+  ];
+  const LISTING_TYPES: { value: ListingType; label: string }[] = [
+    { value: "event", label: t("typeEvent") },
+    { value: "table_reservation", label: t("typeTable") },
+    { value: "spa_treatment", label: t("typeSpa") },
+    { value: "group_activity", label: t("typeGroup") },
+  ];
+
   const [isPending, startTransition] = useTransition();
   const [imageUrl, setImageUrl] = useState<string>(event?.image_url ?? "");
   const [uploading, setUploading] = useState(false);
@@ -103,7 +105,7 @@ export default function EventForm({
     // have an empty MIME type, and are often >5 MB. uploadImage() downscales and
     // re-encodes to JPEG, which normalises all of that.
     if (file.type && !file.type.startsWith("image/")) {
-      toast.error("Ogiltig fil", "Välj en bildfil.");
+      toast.error(t("toastInvalidFileTitle"), t("toastInvalidFileBody"));
       return;
     }
 
@@ -112,7 +114,7 @@ export default function EventForm({
       const url = await uploadImage(file, "event-images");
       setImageUrl(`${url}?t=${Date.now()}`);
     } catch (err) {
-      toast.error("Uppladdning misslyckades", err instanceof Error ? err.message : String(err));
+      toast.error(t("toastUploadFailed"), err instanceof Error ? err.message : String(err));
     } finally {
       setUploading(false);
     }
@@ -122,16 +124,13 @@ export default function EventForm({
     startTransition(async () => {
       const result = await action(formData);
       if (result && "error" in result && result.error) {
-        toast.error("Kunde inte spara", result.error);
+        toast.error(t("toastSaveFailedTitle"), result.error);
         return;
       }
       // Ticketed event pending unlock: it was saved as a draft. Send the host to
       // its dashboard, where they unlock to publish it.
       if (result && result.locked && result.id) {
-        toast.info(
-          "Lås upp för att publicera",
-          "Eventet är sparat som utkast. Lås upp med nycklar för att börja sälja."
-        );
+        toast.info(t("toastUnlockTitle"), t("toastUnlockBody"));
         router.push(`/app/events/${result.id}/live`);
         return;
       }
@@ -151,7 +150,7 @@ export default function EventForm({
           <ArrowLeft size={16} />
         </button>
         <h1 className="text-xl font-bold">
-          {event?.id ? "Redigera evenemang" : "Nytt evenemang"}
+          {event?.id ? t("editTitle") : t("newTitle")}
         </h1>
       </div>
 
@@ -159,7 +158,7 @@ export default function EventForm({
         {/* Event image */}
         <div>
           <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-            Evenemangsbild
+            {t("image")}
           </label>
           <div
             onClick={() => !uploading && fileInputRef.current?.click()}
@@ -169,7 +168,7 @@ export default function EventForm({
               <div className="relative aspect-[1.91/1] bg-black">
                 <img
                   src={imageUrl}
-                  alt="Evenemangsbild"
+                  alt={t("imageAlt")}
                   className="h-full w-full object-cover"
                 />
                 <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
@@ -183,8 +182,8 @@ export default function EventForm({
                 ) : (
                   <>
                     <ImagePlus size={24} />
-                    <span className="text-xs">Klicka för att ladda upp bild</span>
-                    <span className="text-[10px]">JPG, PNG eller WebP. Max 5 MB. Bäst i 1200x630px (Facebook-format).</span>
+                    <span className="text-xs">{t("imageUpload")}</span>
+                    <span className="text-[10px]">{t("imageHint")}</span>
                   </>
                 )}
               </div>
@@ -200,7 +199,7 @@ export default function EventForm({
               className="mt-2 flex items-center gap-1 text-xs text-red-400 hover:text-red-300"
             >
               <X size={12} />
-              Ta bort bild
+              {t("imageRemove")}
             </button>
           )}
           <input
@@ -216,7 +215,7 @@ export default function EventForm({
         {/* Title */}
         <div>
           <label htmlFor="title" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-            Titel <span className="text-red-400">*</span>
+            {t("title")} <span className="text-red-400">*</span>
           </label>
           <input
             id="title"
@@ -224,7 +223,7 @@ export default function EventForm({
             type="text"
             required
             defaultValue={event?.title ?? ""}
-            placeholder="t.ex. Fredagsmiddag med DJ"
+            placeholder={t("titlePlaceholder")}
             className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
           />
         </div>
@@ -232,14 +231,14 @@ export default function EventForm({
         {/* Description */}
         <div>
           <label htmlFor="description" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-            Beskrivning
+            {t("description")}
           </label>
           <textarea
             id="description"
             name="description"
             rows={4}
             defaultValue={event?.description ?? ""}
-            placeholder="Beskriv evenemanget – vad händer, vad ingår, vad ska gäster förvänta sig..."
+            placeholder={t("descriptionPlaceholder")}
             className="w-full resize-none rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
           />
         </div>
@@ -247,7 +246,7 @@ export default function EventForm({
         {/* Date */}
         <div>
           <label htmlFor="event_date" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-            Datum
+            {t("date")}
           </label>
           <input
             id="event_date"
@@ -262,7 +261,7 @@ export default function EventForm({
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="event_time" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-              Starttid
+              {t("startTime")}
             </label>
             <input
               id="event_time"
@@ -274,7 +273,7 @@ export default function EventForm({
           </div>
           <div>
             <label htmlFor="event_end_time" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-              Sluttid
+              {t("endTime")}
             </label>
             <input
               id="event_end_time"
@@ -296,14 +295,14 @@ export default function EventForm({
                 onChange={(e) => setRecurring(e.target.checked)}
                 className="h-4 w-4 accent-[var(--usha-gold)]"
               />
-              <span className="font-medium">Återkommande event (serie)</span>
+              <span className="font-medium">{t("recurring")}</span>
             </label>
             {recurring && (
               <>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <label htmlFor="recur_interval" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-                      Intervall
+                      {t("interval")}
                     </label>
                     <select
                       id="recur_interval"
@@ -311,14 +310,14 @@ export default function EventForm({
                       onChange={(e) => setRecurInterval(e.target.value)}
                       className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-bg,var(--usha-card))] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
                     >
-                      <option value="weekly">Varje vecka</option>
-                      <option value="biweekly">Varannan vecka</option>
-                      <option value="monthly">Varje månad</option>
+                      <option value="weekly">{t("intervalWeekly")}</option>
+                      <option value="biweekly">{t("intervalBiweekly")}</option>
+                      <option value="monthly">{t("intervalMonthly")}</option>
                     </select>
                   </div>
                   <div>
                     <label htmlFor="occurrences" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-                      Antal tillfällen
+                      {t("occurrences")}
                     </label>
                     <input
                       id="occurrences"
@@ -332,7 +331,7 @@ export default function EventForm({
                   </div>
                 </div>
                 <p className="text-xs text-[var(--usha-muted)]">
-                  Skapar {occurrences} tillfällen från startdatumet, samma tid varje gång. Varje tillfälle blir en egen bokningsbar sida.
+                  {t("recurringHint", { count: occurrences })}
                 </p>
               </>
             )}
@@ -352,12 +351,10 @@ export default function EventForm({
                 onChange={(e) => setFbAutoPost(e.target.checked)}
                 className="h-4 w-4 accent-[var(--usha-gold)]"
               />
-              <span className="font-medium">Publicera automatiskt på Facebook</span>
+              <span className="font-medium">{t("fbAutoPost")}</span>
             </label>
             <p className="text-xs text-[var(--usha-muted)]">
-              {recurring
-                ? "Varje tillfälle publiceras automatiskt på din kopplade Facebook-sida ~3 dagar innan dess datum — en jämn ström av påminnelser istället för allt på en gång."
-                : "Eventet publiceras automatiskt på din kopplade Facebook-sida ~3 dagar innan datumet. Kräver en ansluten Facebook-sida."}
+              {recurring ? t("fbAutoPostHintRecurring") : t("fbAutoPostHint")}
             </p>
           </div>
         )}
@@ -372,11 +369,10 @@ export default function EventForm({
               onChange={(e) => setOpenToInstructors(e.target.checked)}
               className="h-4 w-4 accent-[var(--usha-gold)]"
             />
-            <span className="font-medium">Öppna för instruktörer</span>
+            <span className="font-medium">{t("openToInstructors")}</span>
           </label>
           <p className="text-xs text-[var(--usha-muted)]">
-            Låt betalande instruktörer erbjuda betalda minisessioner (15–60 min) på ditt event.
-            Deltagare köper minuter direkt av instruktören. Du tar ingen del av deras intäkt.
+            {t("openToInstructorsHint")}
           </p>
         </div>
 
@@ -394,7 +390,7 @@ export default function EventForm({
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="category" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-              Kategori <span className="text-red-400">*</span>
+              {t("category")} <span className="text-red-400">*</span>
             </label>
             <select
               id="category"
@@ -407,7 +403,7 @@ export default function EventForm({
               }}
               className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
             >
-              <option value="">Välj kategori...</option>
+              <option value="">{t("categoryPlaceholder")}</option>
               {CATEGORIES.map((c) => (
                 <option key={c.value} value={c.value}>
                   {c.label}
@@ -418,7 +414,7 @@ export default function EventForm({
 
           <div>
             <label htmlFor="price" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-              Pris (SEK)
+              {t("price")}
             </label>
             <input
               id="price"
@@ -426,7 +422,7 @@ export default function EventForm({
               type="number"
               min={0}
               defaultValue={event?.price ?? ""}
-              placeholder="t.ex. 350"
+              placeholder={t("pricePlaceholder")}
               className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
             />
           </div>
@@ -436,7 +432,7 @@ export default function EventForm({
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="duration_minutes" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-              Varaktighet (minuter)
+              {t("duration")}
             </label>
             <input
               id="duration_minutes"
@@ -445,14 +441,14 @@ export default function EventForm({
               min={0}
               step={15}
               defaultValue={event?.duration_minutes ?? ""}
-              placeholder="t.ex. 120"
+              placeholder={t("durationPlaceholder")}
               className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
             />
           </div>
 
           <div>
             <label htmlFor="event_tier" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-              Tillgänglighet
+              {t("availability")}
             </label>
             <select
               id="event_tier"
@@ -460,9 +456,9 @@ export default function EventForm({
               defaultValue={event?.event_tier ?? ""}
               className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
             >
-              {TIERS.map((t) => (
-                <option key={t.value} value={t.value}>
-                  {t.label}
+              {TIERS.map((tier) => (
+                <option key={tier.value} value={tier.value}>
+                  {tier.label}
                 </option>
               ))}
             </select>
@@ -472,7 +468,7 @@ export default function EventForm({
         {/* Listing type */}
         <div>
           <label htmlFor="listing_type" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-            Typ av upplevelse
+            {t("listingType")}
           </label>
           <select
             id="listing_type"
@@ -481,9 +477,9 @@ export default function EventForm({
             onChange={(e) => setListingType(e.target.value as ListingType)}
             className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
           >
-            {LISTING_TYPES.map((t) => (
-              <option key={t.value} value={t.value}>
-                {t.label}
+            {LISTING_TYPES.map((lt) => (
+              <option key={lt.value} value={lt.value}>
+                {lt.label}
               </option>
             ))}
           </select>
@@ -494,7 +490,7 @@ export default function EventForm({
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label htmlFor="min_guests" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-                Min antal gäster
+                {t("minGuests")}
               </label>
               <input
                 id="min_guests"
@@ -507,7 +503,7 @@ export default function EventForm({
             </div>
             <div>
               <label htmlFor="max_guests" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-                Max antal gäster
+                {t("maxGuests")}
               </label>
               <input
                 id="max_guests"
@@ -515,7 +511,7 @@ export default function EventForm({
                 type="number"
                 min={1}
                 defaultValue={event?.max_guests ?? ""}
-                placeholder="Obegränsat"
+                placeholder={t("maxGuestsPlaceholder")}
                 className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
               />
             </div>
@@ -525,7 +521,7 @@ export default function EventForm({
         {/* Experience details */}
         <div>
           <label htmlFor="amenities" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-            Bekvämligheter <span className="text-xs">(kommaseparerat)</span>
+            {t("amenities")} <span className="text-xs">{t("commaSeparated")}</span>
           </label>
           <input
             id="amenities"
@@ -533,14 +529,14 @@ export default function EventForm({
             type="text"
             value={amenities}
             onChange={(e) => setAmenities(e.target.value)}
-            placeholder="t.ex. Wi-Fi, Parkering, Garderob, Rullstolsanpassat"
+            placeholder={t("amenitiesPlaceholder")}
             className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
           />
         </div>
 
         <div>
           <label htmlFor="included" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-            Vad ingår <span className="text-xs">(kommaseparerat)</span>
+            {t("included")} <span className="text-xs">{t("commaSeparated")}</span>
           </label>
           <input
             id="included"
@@ -548,7 +544,7 @@ export default function EventForm({
             type="text"
             value={included}
             onChange={(e) => setIncluded(e.target.value)}
-            placeholder="t.ex. 3-rätters meny, Välkomstdrink, Entré"
+            placeholder={t("includedPlaceholder")}
             className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
           />
         </div>
@@ -560,14 +556,14 @@ export default function EventForm({
             onClick={() => router.back()}
             className="flex-1 rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
           >
-            Avbryt
+            {t("cancel")}
           </button>
           <button
             type="submit"
             disabled={isPending}
             className="flex-1 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] py-3 text-sm font-bold text-black transition hover:opacity-90 disabled:opacity-50"
           >
-            {isPending ? "Sparar..." : event ? "Spara ändringar" : "Skapa evenemang"}
+            {isPending ? t("saving") : event ? t("saveChanges") : t("create")}
           </button>
         </div>
       </form>
