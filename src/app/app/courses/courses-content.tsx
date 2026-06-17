@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { uploadFile } from "@/lib/storage/upload-client";
 import { createProduct, deleteProduct } from "./actions";
 import { duplicateListing } from "@/app/(dashboard)/dashboard/listings/actions";
 import { SeriesCard } from "@/components/listings/series-card";
@@ -249,23 +249,14 @@ function CreateProductForm({ onClose }: { onClose: () => void }) {
     }
 
     setUploading(true);
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { setUploading(false); return; }
-
-    const ext = file.name.split(".").pop();
-    const path = `${user.id}/products/${Date.now()}.${ext}`;
-    const { error: uploadError } = await supabase.storage.from("creator-media").upload(path, file);
-
-    if (uploadError) {
+    try {
+      const url = await uploadFile(file, "creator-media");
+      setFileUrl(url);
+    } catch {
       setError("Kunde inte ladda upp filen");
+    } finally {
       setUploading(false);
-      return;
     }
-
-    const { data: urlData } = supabase.storage.from("creator-media").getPublicUrl(path);
-    setFileUrl(urlData.publicUrl);
-    setUploading(false);
   }
 
   async function handleSubmit(e: React.FormEvent) {

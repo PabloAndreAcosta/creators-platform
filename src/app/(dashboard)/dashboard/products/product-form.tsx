@@ -3,7 +3,7 @@
 import { useTransition, useRef, useState } from "react";
 import { useToast } from "@/components/ui/toaster";
 import { createProduct } from "./actions";
-import { createClient } from "@/lib/supabase/client";
+import { uploadFile } from "@/lib/storage/upload-client";
 import { Loader2, Upload } from "lucide-react";
 
 const inputClass = "w-full min-h-[44px] rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-base sm:text-sm outline-none transition focus:border-[var(--usha-gold)]/40";
@@ -26,27 +26,15 @@ export function ProductForm() {
     }
 
     setUploading(true);
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { setUploading(false); return; }
-
-    const ext = file.name.split(".").pop();
-    const path = `${user.id}/${Date.now()}.${ext}`;
-
-    const { error } = await supabase.storage
-      .from("creator-media")
-      .upload(path, file, { upsert: false });
-
-    if (error) {
-      toast.error("Uppladdning misslyckades", error.message);
+    try {
+      const url = await uploadFile(file, "creator-media");
+      setVideoUrl(url);
+      toast.success("Video uppladdad");
+    } catch (err) {
+      toast.error("Uppladdning misslyckades", err instanceof Error ? err.message : String(err));
+    } finally {
       setUploading(false);
-      return;
     }
-
-    const { data: urlData } = supabase.storage.from("creator-media").getPublicUrl(path);
-    setVideoUrl(urlData.publicUrl);
-    setUploading(false);
-    toast.success("Video uppladdad");
   }
 
   function handleSubmit(formData: FormData) {

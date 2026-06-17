@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useTransition } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { uploadFile } from "@/lib/storage/upload-client";
 import { useToast } from "@/components/ui/toaster";
 import { Plus, X, Image as ImageIcon, Film, Loader2, GripVertical, Instagram, Star, Music } from "lucide-react";
 import Image from "next/image";
@@ -194,7 +194,7 @@ function SortableMediaCard({
   );
 }
 
-export function MediaGallery({ userId, initialMedia }: MediaGalleryProps) {
+export function MediaGallery({ initialMedia }: MediaGalleryProps) {
   const t = useTranslations("dashProfile.gallery");
   const { toast } = useToast();
   const [media, setMedia] = useState<MediaItem[]>(initialMedia);
@@ -217,7 +217,6 @@ export function MediaGallery({ userId, initialMedia }: MediaGalleryProps) {
     if (files.length === 0) return;
 
     setUploading(true);
-    const supabase = createClient();
 
     for (const file of files) {
       if (file.size > 50 * 1024 * 1024) {
@@ -226,24 +225,18 @@ export function MediaGallery({ userId, initialMedia }: MediaGalleryProps) {
       }
 
       const isVideo = file.type.startsWith("video/");
-      const ext = file.name.split(".").pop();
-      const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("creator-media")
-        .upload(path, file, { upsert: false });
-
-      if (uploadError) {
-        toast.error(t("uploadFailedTitle"), uploadError.message);
+      let url: string;
+      try {
+        url = await uploadFile(file, "creator-media");
+      } catch (err) {
+        toast.error(t("uploadFailedTitle"), err instanceof Error ? err.message : String(err));
         continue;
       }
-
-      const { data: urlData } = supabase.storage.from("creator-media").getPublicUrl(path);
 
       startTransition(async () => {
         const result = await addMedia({
           media_type: isVideo ? "video" : "image",
-          url: urlData.publicUrl,
+          url,
           thumbnail_url: null,
           caption: null,
         });
