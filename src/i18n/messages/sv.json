@@ -1644,7 +1644,7 @@
     "imageRemove": "Ta bort bild",
     "imageAlt": "Evenemangsbild",
     "toastInvalidFileTitle": "Ogiltig fil",
-    "toastInvalidFileBody": "Välj en bildfil (JPG, PNG eller WebP).",
+    "toastInvalidFileBody": "Välj en bildfil.",
     "toastTooLargeTitle": "För stor fil",
     "toastTooLargeBody": "Max 5 MB.",
     "toastUploadFailed": "Uppladdning misslyckades",

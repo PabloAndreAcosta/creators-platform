@@ -1644,7 +1644,7 @@
     "imageRemove": "Remove image",
     "imageAlt": "Event image",
     "toastInvalidFileTitle": "Invalid file",
-    "toastInvalidFileBody": "Choose an image file (JPG, PNG or WebP).",
+    "toastInvalidFileBody": "Choose an image file.",
     "toastTooLargeTitle": "File too large",
     "toastTooLargeBody": "Max 5 MB.",
     "toastUploadFailed": "Upload failed",
