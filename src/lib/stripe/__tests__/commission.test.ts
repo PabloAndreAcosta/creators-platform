@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   getCreatorCommissionRate,
   calculateCreatorPayout,
@@ -107,6 +107,16 @@ describe('calculateCreatorPayout', () => {
 });
 
 describe('calculateDiscountedPrice', () => {
+  // Discounts are off during the free beta; enable the flag to test the math.
+  beforeEach(() => vi.stubEnv('NEXT_PUBLIC_DISCOUNTS_ENABLED', 'true'));
+  afterEach(() => vi.unstubAllEnvs());
+
+  it('returns full price for all tiers when discounts are disabled (beta)', () => {
+    vi.stubEnv('NEXT_PUBLIC_DISCOUNTS_ENABLED', 'false');
+    expect(calculateDiscountedPrice(300, 'premium')).toBe(300);
+    expect(calculateDiscountedPrice(300, 'guld')).toBe(300);
+  });
+
   it('returns full price for gratis users', () => {
     expect(calculateDiscountedPrice(300, 'gratis')).toBe(300);
   });
