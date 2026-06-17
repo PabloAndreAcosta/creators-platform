@@ -93,3 +93,38 @@ export async function uploadImage(file: File, bucket: UploadBucket): Promise<str
   const isJpeg = blob !== file; // re-encoded → .jpg; otherwise keep original name
   return uploadFile(blob, bucket, isJpeg ? "image.jpg" : file.name);
 }
+
+/**
+ * Uploads a (potentially large) file by requesting a signed upload URL from
+ * `/api/storage/signed-upload` and PUTting the bytes straight to Storage. Use
+ * this for video / large files — it bypasses the serverless ~4.5 MB request-body
+ * limit that `uploadFile` is subject to. The bucket still enforces its size/MIME
+ * caps (e.g. creator-media ≤ 50 MB).
+ */
+export async function uploadViaSignedUrl(file: File, bucket: UploadBucket): Promise<string> {
+  const ext = file.name.includes(".") ? file.name.split(".").pop() : "bin";
+
+  const res = await fetch("/api/storage/signed-upload", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ bucket, ext }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(data?.error || "Kunde inte förbereda uppladdning");
+  }
+
+  // Lazy import keeps the browser supabase client out of bundles that only need
+  // the simple upload path.
+  const { createClient } = await import("@/lib/supabase/client");
+  const supabase = createClient();
+  const { error } = await supabase.storage
+    .from(bucket)
+    .uploadToSignedUrl(data.path, data.token, file, {
+      contentType: file.type || undefined,
+    });
+  if (error) {
+    throw new Error(error.message);
+  }
+  return data.publicUrl as string;
+}

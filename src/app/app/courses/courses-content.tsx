@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { uploadFile } from "@/lib/storage/upload-client";
+import { uploadViaSignedUrl } from "@/lib/storage/upload-client";
 import { createProduct, deleteProduct } from "./actions";
 import { duplicateListing } from "@/app/(dashboard)/dashboard/listings/actions";
 import { SeriesCard } from "@/components/listings/series-card";
@@ -243,14 +243,14 @@ function CreateProductForm({ onClose }: { onClose: () => void }) {
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 500 * 1024 * 1024) {
-      setError("Filen får vara max 500 MB");
+    if (file.size > 50 * 1024 * 1024) {
+      setError("Filen får vara max 50 MB");
       return;
     }
 
     setUploading(true);
     try {
-      const url = await uploadFile(file, "creator-media");
+      const url = await uploadViaSignedUrl(file, "creator-media");
       setFileUrl(url);
     } catch {
       setError("Kunde inte ladda upp filen");
@@ -349,7 +349,7 @@ function CreateProductForm({ onClose }: { onClose: () => void }) {
 
       {productType === "download" && (
         <div>
-          <label className="mb-1 block text-xs text-[var(--usha-muted)]">Ladda upp fil (max 500 MB)</label>
+          <label className="mb-1 block text-xs text-[var(--usha-muted)]">Ladda upp fil (max 50 MB)</label>
           <input ref={fileRef} type="file" className="hidden" onChange={handleFileUpload} />
           <button
             type="button"
