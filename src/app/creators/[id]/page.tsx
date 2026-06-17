@@ -475,15 +475,18 @@ export default async function CreatorProfilePage(props: Props) {
                     </div>
                     {!isOwnProfile && (
                       <div className="flex items-center gap-2">
-                        {listing.price != null && listing.price > 0 && (
-                          <BuyTicketButton
-                            listingId={listing.id}
-                            originalPrice={listing.price}
-                            discountedPrice={calculateDiscountedPrice(listing.price, visitorTier)}
-                            isLoggedIn={isLoggedIn}
-                            hasConnect={hasConnect}
-                          />
-                        )}
+                        {/* Tickets are only for events; services are booked, not ticketed. */}
+                        {listing.listing_type === "event" &&
+                          listing.price != null &&
+                          listing.price > 0 && (
+                            <BuyTicketButton
+                              listingId={listing.id}
+                              originalPrice={listing.price}
+                              discountedPrice={calculateDiscountedPrice(listing.price, visitorTier)}
+                              isLoggedIn={isLoggedIn}
+                              hasConnect={hasConnect}
+                            />
+                          )}
                         <BookingForm
                           listing={listing}
                           creatorId={profile.id}

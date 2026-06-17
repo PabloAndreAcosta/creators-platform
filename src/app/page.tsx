@@ -113,7 +113,7 @@ function HomeCta() {
   const t = useTranslations("landing");
 
   return (
-    <section className="relative py-16 px-4 sm:py-28 sm:px-6">
+    <section className="relative overflow-hidden py-16 px-4 sm:py-28 sm:px-6">
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute top-1/2 left-1/2 h-[400px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--usha-gold)] opacity-[0.06] blur-[150px]" />
       </div>
@@ -132,7 +132,10 @@ function HomeCta() {
 /* ─────────────── PAGE (Server Component) ─────────────── */
 export default function Home() {
   return (
-    <main>
+    // overflow-x-clip: decorative blur glows are wider than a phone screen; without
+    // clipping they overflow horizontally, which widens the layout viewport and
+    // pushes the fixed nav's hamburger button off-screen on mobile.
+    <main className="overflow-x-clip">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: safeJsonLd(ORGANIZATION_JSONLD) }}
