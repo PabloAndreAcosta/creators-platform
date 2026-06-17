@@ -8,7 +8,7 @@ import { PostLikeButton } from "./post-like-button";
 import { QuickBuyButton } from "./quick-buy-button";
 import { LevelBadge } from "@/components/level-badge";
 import { updatePost, deletePost } from "@/app/app/feed/actions";
-import { uploadFile } from "@/lib/storage/upload-client";
+import { uploadImage } from "@/lib/storage/upload-client";
 import type { FeedPost } from "@/types/database";
 
 function timeAgo(dateStr: string): string {
@@ -78,12 +78,12 @@ export function PostCard({ post, isLoggedIn, currentUserId }: PostCardProps) {
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    if (!file || file.size > 5 * 1024 * 1024) return;
+    if (!file) return;
     setUploading(true);
     setEditImagePreview(URL.createObjectURL(file));
 
     try {
-      const url = await uploadFile(file, "creator-media");
+      const url = await uploadImage(file, "creator-media");
       setEditImageUrl(url);
     } catch {
       setEditImagePreview(post.image_url);

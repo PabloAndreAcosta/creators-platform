@@ -4,7 +4,7 @@ import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ImagePlus, X, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
-import { uploadFile } from "@/lib/storage/upload-client";
+import { uploadImage } from "@/lib/storage/upload-client";
 import { EVENT_CATEGORY_LABELS } from "./constants";
 import PlacesAutocomplete from "@/components/places-autocomplete";
 
@@ -99,19 +99,17 @@ export default function EventForm({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      toast.error("Ogiltig fil", "Välj en bildfil (JPG, PNG eller WebP).");
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("För stor fil", "Max 5 MB.");
+    // Note: don't reject by file.type / size here — phone photos are HEIC, can
+    // have an empty MIME type, and are often >5 MB. uploadImage() downscales and
+    // re-encodes to JPEG, which normalises all of that.
+    if (file.type && !file.type.startsWith("image/")) {
+      toast.error("Ogiltig fil", "Välj en bildfil.");
       return;
     }
 
     setUploading(true);
     try {
-      const url = await uploadFile(file, "event-images");
+      const url = await uploadImage(file, "event-images");
       setImageUrl(`${url}?t=${Date.now()}`);
     } catch (err) {
       toast.error("Uppladdning misslyckades", err instanceof Error ? err.message : String(err));

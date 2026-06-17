@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useTransition } from "react";
-import { uploadFile } from "@/lib/storage/upload-client";
+import { uploadFile, uploadImage } from "@/lib/storage/upload-client";
 import { useToast } from "@/components/ui/toaster";
 import { Plus, X, Image as ImageIcon, Film, Loader2, GripVertical, Instagram, Star, Music } from "lucide-react";
 import Image from "next/image";
@@ -227,7 +227,9 @@ export function MediaGallery({ initialMedia }: MediaGalleryProps) {
       const isVideo = file.type.startsWith("video/");
       let url: string;
       try {
-        url = await uploadFile(file, "creator-media");
+        url = isVideo
+          ? await uploadFile(file, "creator-media")
+          : await uploadImage(file, "creator-media");
       } catch (err) {
         toast.error(t("uploadFailedTitle"), err instanceof Error ? err.message : String(err));
         continue;

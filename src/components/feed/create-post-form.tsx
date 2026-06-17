@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { ImagePlus, X, Link as LinkIcon, Loader2, Send } from "lucide-react";
-import { uploadFile } from "@/lib/storage/upload-client";
+import { uploadImage } from "@/lib/storage/upload-client";
 import { createPost } from "@/app/app/feed/actions";
 import { useToast } from "@/components/ui/toaster";
 
@@ -36,16 +36,13 @@ export function CreatePostForm({ authorName, authorAvatar, listings }: CreatePos
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error(t("imageTooLarge"));
-      return;
-    }
 
     setUploading(true);
     setImagePreview(URL.createObjectURL(file));
 
     try {
-      const url = await uploadFile(file, "creator-media");
+      // uploadImage downscales/re-encodes to JPEG so phone photos (HEIC, large) work.
+      const url = await uploadImage(file, "creator-media");
       setImageUrl(url);
     } catch {
       toast.error(t("imageUploadFailed"));

@@ -3,7 +3,7 @@
 import { useTransition, useState, useRef } from "react";
 import { useToast } from "@/components/ui/toaster";
 import { CATEGORIES } from "@/lib/categories";
-import { uploadFile } from "@/lib/storage/upload-client";
+import { uploadImage } from "@/lib/storage/upload-client";
 import { ImagePlus, Loader2, X } from "lucide-react";
 import PlacesAutocomplete from "@/components/places-autocomplete";
 
@@ -51,7 +51,7 @@ export default function ListingForm({
 
     setUploading(true);
     try {
-      const url = await uploadFile(file, "listing-images");
+      const url = await uploadImage(file, "listing-images");
       setImageUrl(url);
     } catch (err) {
       toast.error("Uppladdning misslyckades", err instanceof Error ? err.message : String(err));
