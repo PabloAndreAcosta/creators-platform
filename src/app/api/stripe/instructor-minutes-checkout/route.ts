@@ -3,6 +3,7 @@ import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@/lib/supabase/server";
 import { getCreatorCommissionRate } from "@/lib/stripe/commission";
 import { priceForMinutes, isMinuteOption, MIN_PRICE_SEK } from "@/lib/coaching/minute-pricing";
+import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
 
 /**
  * Creates a Stripe Checkout session for buying a block of instructor minutes
@@ -66,12 +67,15 @@ export async function POST(req: NextRequest) {
     // Instructor profile: Connect account + rate + commission inputs
     const { data: instructor } = await supabase
       .from("profiles")
-      .select("full_name, stripe_account_id, tier, creator_subcategory, coaching_hourly_rate_sek, offers_coaching")
+      .select("full_name, stripe_account_id, tier, creator_subcategory, coaching_hourly_rate_sek, offers_coaching, company_verified_at")
       .eq("id", instructorId)
       .single();
 
     if (!instructor?.stripe_account_id) {
       return NextResponse.json({ error: "Instruktören kan inte ta emot betalningar ännu." }, { status: 400 });
+    }
+    if (!canReceivePayments({ id: instructorId, company_verified_at: instructor.company_verified_at })) {
+      return NextResponse.json({ error: PAYMENTS_BETA_BLOCKED_MESSAGE }, { status: 403 });
     }
     if (!instructor.offers_coaching || !instructor.coaching_hourly_rate_sek || instructor.coaching_hourly_rate_sek <= 0) {
       return NextResponse.json({ error: "Instruktören har inget timpris satt." }, { status: 400 });

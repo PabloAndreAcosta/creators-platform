@@ -6,6 +6,7 @@ import {
   getCreatorCommissionRate,
 } from '@/lib/stripe/commission';
 import { isGoldExclusive } from '@/lib/listings/early-bird';
+import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from '@/lib/payments/beta-gate';
 
 export async function POST(req: NextRequest) {
   const { rateLimit, getRateLimitKey } = await import('@/lib/rate-limit');
@@ -147,7 +148,7 @@ export async function POST(req: NextRequest) {
     // Get creator profile (for Connect account and tier)
     const { data: creator } = await supabase
       .from('profiles')
-      .select('stripe_account_id, tier')
+      .select('stripe_account_id, tier, company_verified_at')
       .eq('id', listing.user_id)
       .single();
 
@@ -156,6 +157,10 @@ export async function POST(req: NextRequest) {
         { error: 'Creator has not connected their Stripe account' },
         { status: 400 }
       );
+    }
+
+    if (!canReceivePayments({ id: listing.user_id, company_verified_at: creator.company_verified_at })) {
+      return NextResponse.json({ error: PAYMENTS_BETA_BLOCKED_MESSAGE }, { status: 403 });
     }
 
     // Calculate pricing
