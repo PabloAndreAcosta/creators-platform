@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@/lib/supabase/server";
 import { calculateDiscountedPrice, getCreatorCommissionRate } from "@/lib/stripe/commission";
+import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
 
 const PAYABLE_AFTER_CONFIRM = new Set(["b2b_offering", "service"]);
 
@@ -108,7 +109,7 @@ export async function POST(req: NextRequest) {
 
     const { data: creator } = await supabase
       .from("profiles")
-      .select("stripe_account_id, tier, creator_subcategory")
+      .select("stripe_account_id, tier, creator_subcategory, company_verified_at")
       .eq("id", listing.user_id)
       .single();
 
@@ -117,6 +118,10 @@ export async function POST(req: NextRequest) {
         { error: "Creator has not connected their Stripe account" },
         { status: 400 }
       );
+    }
+
+    if (!canReceivePayments({ id: listing.user_id, company_verified_at: creator.company_verified_at })) {
+      return NextResponse.json({ error: PAYMENTS_BETA_BLOCKED_MESSAGE }, { status: 403 });
     }
 
     const amountInOre = Math.round(effectivePrice * 100);

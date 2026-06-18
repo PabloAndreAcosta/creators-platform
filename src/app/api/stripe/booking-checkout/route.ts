@@ -5,6 +5,7 @@ import {
   calculateDiscountedPrice,
   getCreatorCommissionRate,
 } from "@/lib/stripe/commission";
+import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
 
 /**
  * Creates a Stripe Checkout session for a paid manual booking.
@@ -113,7 +114,7 @@ export async function POST(req: NextRequest) {
     // Get creator's Stripe Connect account
     const { data: creator } = await supabase
       .from("profiles")
-      .select("stripe_account_id, tier, creator_subcategory")
+      .select("stripe_account_id, tier, creator_subcategory, company_verified_at")
       .eq("id", listing.user_id)
       .single();
 
@@ -122,6 +123,10 @@ export async function POST(req: NextRequest) {
         { error: "Creator has not connected their Stripe account" },
         { status: 400 }
       );
+    }
+
+    if (!canReceivePayments({ id: listing.user_id, company_verified_at: creator.company_verified_at })) {
+      return NextResponse.json({ error: PAYMENTS_BETA_BLOCKED_MESSAGE }, { status: 403 });
     }
 
     // Calculate pricing

@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import {
   getCreatorCommissionRate,
 } from "@/lib/stripe/commission";
+import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
 
 export async function POST(req: NextRequest) {
   // Rate limit: 5 guest checkouts per minute per IP
@@ -78,7 +79,7 @@ export async function POST(req: NextRequest) {
     // Get creator for Connect account
     const { data: creator } = await supabase
       .from("profiles")
-      .select("stripe_account_id, tier")
+      .select("stripe_account_id, tier, company_verified_at")
       .eq("id", listing.user_id)
       .single();
 
@@ -87,6 +88,10 @@ export async function POST(req: NextRequest) {
         { error: "Creator has not connected their Stripe account" },
         { status: 400 }
       );
+    }
+
+    if (!canReceivePayments({ id: listing.user_id, company_verified_at: creator.company_verified_at })) {
+      return NextResponse.json({ error: PAYMENTS_BETA_BLOCKED_MESSAGE }, { status: 403 });
     }
 
     const amountInOre = Math.round(listing.price * 100);

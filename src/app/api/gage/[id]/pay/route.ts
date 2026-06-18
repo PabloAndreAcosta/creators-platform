@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
 
 // Host pays an agreed gage: a destination charge transferring the full amount
 // to the crew member's Stripe Connect account. The webhook marks it paid.
@@ -37,7 +38,7 @@ export async function POST(
 
   const [{ data: host }, { data: payee }, { data: listing }] = await Promise.all([
     admin.from("profiles").select("email, stripe_account_id, full_name").eq("id", g.host_id).maybeSingle(),
-    admin.from("profiles").select("email, stripe_account_id, full_name").eq("id", g.collaborator_user_id).maybeSingle(),
+    admin.from("profiles").select("email, stripe_account_id, full_name, company_verified_at").eq("id", g.collaborator_user_id).maybeSingle(),
     admin.from("listings").select("title, slug").eq("id", g.listing_id).maybeSingle(),
   ]);
 
@@ -52,6 +53,12 @@ export async function POST(
       { error: `${payee?.full_name ?? "Mottagaren"} måste koppla Stripe innan du kan betala.`, code: "payee_not_connected" },
       { status: 400 }
     );
+  }
+
+  // Beta gate: the recipient (crew member) may only receive real payments if
+  // they are the owner or a verified company.
+  if (!canReceivePayments({ id: g.collaborator_user_id, company_verified_at: payee.company_verified_at })) {
+    return NextResponse.json({ error: PAYMENTS_BETA_BLOCKED_MESSAGE, code: "payee_beta_blocked" }, { status: 403 });
   }
 
   // Confirm the payee can actually receive transfers (completed onboarding).
