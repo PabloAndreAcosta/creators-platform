@@ -6,8 +6,13 @@ import { rateLimit, getRateLimitKey } from "@/lib/rate-limit";
 
 /**
  * POST /api/tokens/checkout — buy a "nyckel" package.
- * One-time platform charge (no Connect transfer). The webhook credits the
- * token_ledger on checkout.session.completed (type=token_purchase).
+ *
+ * One-time platform charge (no Connect transfer) — and that is correct, NOT a
+ * §1.1 violation: "nycklar" are Usha's OWN product (credits to unlock features on
+ * the buyer's own events, see /api/tokens/unlock). The full amount is therefore
+ * Usha's revenue, like a subscription. No third-party seller's gross passes
+ * through Usha here, so no destination charge / beta-gate applies. The webhook
+ * credits the token_ledger on checkout.session.completed (type=token_purchase).
  */
 export async function POST(req: NextRequest) {
   const rl = rateLimit(getRateLimitKey(req, "tokens-checkout"), 10, 60_000);

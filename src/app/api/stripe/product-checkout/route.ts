@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@/lib/supabase/server";
+import { getCreatorCommissionRate } from "@/lib/stripe/commission";
+import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
 
 export async function POST(req: NextRequest) {
   const { rateLimit, getRateLimitKey } = await import('@/lib/rate-limit');
@@ -100,11 +102,38 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ url: `/app/library?purchased=${productId}` });
     }
 
+    // Paid digital product → destination charge to the creator's Connect account
+    // so the gross goes to the creator and only the commission lands on Usha
+    // (§1.1 / G4 — gross must never land on Usha's account).
+    const { data: creator } = await supabase
+      .from("profiles")
+      .select("stripe_account_id, tier, creator_subcategory, company_verified_at")
+      .eq("id", product.creator_id)
+      .single();
+
+    if (!creator?.stripe_account_id) {
+      return NextResponse.json({ error: "Kreatören har inte kopplat Stripe ännu." }, { status: 400 });
+    }
+    if (!canReceivePayments({ id: product.creator_id, company_verified_at: creator.company_verified_at })) {
+      return NextResponse.json({ error: PAYMENTS_BETA_BLOCKED_MESSAGE }, { status: 403 });
+    }
+
+    const commissionRate = getCreatorCommissionRate(
+      creator.tier ?? "gratis",
+      (creator as { creator_subcategory?: string | null }).creator_subcategory ?? null,
+    );
+    const amountOre = finalPrice * 100;
+    const applicationFee = Math.round(amountOre * commissionRate);
+
     // Create Stripe checkout session
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
+      payment_intent_data: {
+        application_fee_amount: applicationFee,
+        transfer_data: { destination: creator.stripe_account_id },
+      },
       line_items: [
         {
           price_data: {
@@ -113,7 +142,7 @@ export async function POST(req: NextRequest) {
               name: product.title,
               description: product.description || undefined,
             },
-            unit_amount: finalPrice * 100, // Convert to öre
+            unit_amount: amountOre, // öre
           },
           quantity: 1,
         },
