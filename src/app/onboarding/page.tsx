@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { createClient } from "@/lib/supabase/server";
 import { OnboardingFlow } from "./onboarding-flow";
 
 export const metadata: Metadata = {
@@ -7,14 +8,19 @@ export const metadata: Metadata = {
 };
 
 /**
- * Testable onboarding-router demo (Usha_byggspec_onboarding.md). BankID, Stripe,
- * EOR and Skatteverket are all mocked; no real payments. This is a standalone
- * module that does not touch the live profiles/bookings flows.
+ * Onboarding-router demo wired to the real ob_* tables. BankID is mocked and no
+ * real payments run (§9 gate). When the visitor is logged in, their progress is
+ * persisted to their account; otherwise the flow runs as an unsaved demo.
  */
-export default function OnboardingPage() {
+export default async function OnboardingPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   return (
     <main className="min-h-screen bg-[var(--usha-black)] px-4 py-10 text-[var(--usha-white)]">
-      <OnboardingFlow />
+      <OnboardingFlow isLoggedIn={!!user} />
     </main>
   );
 }
