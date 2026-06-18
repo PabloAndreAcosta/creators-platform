@@ -11,7 +11,7 @@ import {
   type Step,
 } from "@/lib/onboarding/router";
 import type { Track } from "@/lib/onboarding/types";
-import { mockBankId } from "@/lib/onboarding/adapters";
+import { verifyBankId, completeOnboarding, type OnboardingFields } from "./actions";
 
 const TRACK_LABEL: Record<Track, string> = {
   C1: "C1 · Egenföretagare",
@@ -33,10 +33,14 @@ const TRACK_DESC: Record<Track, string> = {
   V3: "Offentlig aktör. B2B-faktura med PO/referens. Beakta upphandlingsregler och ramavtal.",
 };
 
-export function OnboardingFlow() {
+export function OnboardingFlow({ isLoggedIn }: { isLoggedIn: boolean }) {
   const [answers, setAnswers] = useState<OnboardingAnswers>({});
   const [overrideStep, setOverrideStep] = useState<Step | null>(null);
   const [bankIdLoading, setBankIdLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [persisted, setPersisted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [fields, setFields] = useState<OnboardingFields>({});
 
   const computed = currentStep(answers);
   const step: Step = overrideStep ?? computed;
@@ -44,6 +48,7 @@ export function OnboardingFlow() {
 
   function set(patch: Partial<OnboardingAnswers>) {
     setOverrideStep(null);
+    setError(null);
     setAnswers((a) => ({ ...a, ...patch }));
   }
   function goBack() {
@@ -53,14 +58,49 @@ export function OnboardingFlow() {
   function reset() {
     setAnswers({});
     setOverrideStep(null);
+    setFields({});
+    setPersisted(false);
+    setError(null);
   }
 
   async function handleBankId() {
+    setError(null);
+    if (!isLoggedIn) {
+      set({ bankIdVerified: true }); // demo — not persisted
+      return;
+    }
     setBankIdLoading(true);
-    const res = await mockBankId.authenticate(); // MOCK — no real BankID
+    const res = await verifyBankId();
     setBankIdLoading(false);
-    if (res.verified) set({ bankIdVerified: true });
+    if (res.ok) set({ bankIdVerified: true });
+    else setError(res.error);
   }
+
+  async function handleFinish() {
+    setError(null);
+    if (!track) return;
+    if (!isLoggedIn) {
+      setOverrideStep("DONE"); // demo — not persisted
+      return;
+    }
+    setSaving(true);
+    const res = await completeOnboarding({ track, fields });
+    setSaving(false);
+    if (res.ok) {
+      setPersisted(true);
+      setOverrideStep("DONE");
+    } else {
+      setError(res.error);
+    }
+  }
+
+  /** The one identifier we collect per track (kept minimal for this version). */
+  const identifierKey: keyof OnboardingFields | null = track
+    ? track === "C2" || track === "C3"
+      ? "bank_account"
+      : "org_no"
+    : null;
+  const identifierLabel = identifierKey === "bank_account" ? "Bankkonto (clearing + nr)" : "Organisationsnummer";
 
   return (
     <div className="mx-auto flex min-h-[560px] max-w-sm flex-col rounded-3xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5">
@@ -80,6 +120,10 @@ export function OnboardingFlow() {
         {step === "S0_BANKID" && (
           <Screen title="Välkommen" sub="Alla användare verifieras med BankID. Det är vår grund för trygghet.">
             <Field label="BankID">Namn, personnummer och kontaktuppgifter hämtas säkert.</Field>
+            {!isLoggedIn && (
+              <Note tone="muted">Demo – logga in på usha.se för att spara din onboarding.</Note>
+            )}
+            {error && <Note tone="warn">{error}</Note>}
             <Spacer />
             <Primary onClick={handleBankId} disabled={bankIdLoading}>
               {bankIdLoading ? <Loader2 size={16} className="mx-auto animate-spin" /> : "Logga in med BankID (mock)"}
@@ -114,17 +158,35 @@ export function OnboardingFlow() {
 
         {/* Track forms C1–C4 + venue form */}
         {["C1_FORM", "C2_FORM", "C3_FORM", "C4_FORM", "V_FORM"].includes(step) && track && (
-          <Screen title={`Spår ${TRACK_LABEL[track]}`} sub={track === "C3" ? undefined : "Fälten samlas in (mock – inget sparas)."}>
+          <Screen title={`Spår ${TRACK_LABEL[track]}`} sub={track === "C3" ? undefined : undefined}>
             {track === "C3" && (
               <p className="mb-2 text-[13px] leading-relaxed text-[var(--usha-muted)]">
                 Volontär = du hjälper till utan betalning. Du kan bara få ersättning för utlägg mot kvitto.
               </p>
             )}
-            {fieldsForTrack(track).map((f) => (
-              <Field key={f.key} label={`${f.label}${f.required ? " *" : ""}`}>
-                {f.key === "fskatt_status" ? "Hämtas automatiskt från Skatteverket (mock)" : "—"}
-              </Field>
-            ))}
+
+            {/* One real input is collected and saved; the rest are shown as the
+                fields that will be collected (per §4). */}
+            {identifierKey && (
+              <label className="mt-2.5 block">
+                <span className="text-[13px] font-semibold">{identifierLabel} *</span>
+                <input
+                  value={fields[identifierKey] ?? ""}
+                  onChange={(e) => setFields((f) => ({ ...f, [identifierKey]: e.target.value }))}
+                  placeholder={identifierKey === "org_no" ? "ex. 5560000000" : "ex. 8327-9 1234567"}
+                  className="mt-1 w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-black)] px-3 py-2.5 text-sm text-[var(--usha-white)] outline-none focus:border-[var(--usha-gold)]/60"
+                />
+              </label>
+            )}
+
+            {fieldsForTrack(track)
+              .filter((f) => f.key !== identifierKey)
+              .map((f) => (
+                <Field key={f.key} label={`${f.label}${f.required ? " *" : ""}`}>
+                  {f.key === "fskatt_status" ? "Hämtas automatiskt från Skatteverket (mock)" : "samlas in"}
+                </Field>
+              ))}
+
             {track === "C3" && (
               <Note tone="warn">
                 Får du betalt eller någon förmån – gage, gåvor, produkter, fri entré – är du inte volontär. Välj då lön (C2)
@@ -132,8 +194,11 @@ export function OnboardingFlow() {
               </Note>
             )}
             <Note tone="info">{TRACK_DESC[track]}</Note>
+            {error && <Note tone="warn">{error}</Note>}
             <Spacer />
-            <Primary onClick={() => setOverrideStep("DONE")}>Slutför</Primary>
+            <Primary onClick={handleFinish} disabled={saving}>
+              {saving ? <Loader2 size={16} className="mx-auto animate-spin" /> : "Slutför"}
+            </Primary>
           </Screen>
         )}
 
@@ -157,6 +222,11 @@ export function OnboardingFlow() {
                 <Note tone="info">{TRACK_DESC[track]}</Note>
               </>
             )}
+            <Note tone={persisted ? "info" : "muted"}>
+              {persisted
+                ? "Sparat i ditt konto ✓"
+                : "Demo – logga in på usha.se för att spara din onboarding."}
+            </Note>
             <Note tone="muted">Kvartalsvis ersättning loggas automatiskt för DAC7-rapportering.</Note>
             <Spacer />
             <Outline onClick={() => setOverrideStep("ESCROW_INFO")}>Se hur utbetalningen fungerar</Outline>
