@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import {
-  Package, CalendarCheck, CalendarDays, ScanLine, Briefcase, BookOpen,
+  Package, CalendarCheck, CalendarDays, ScanLine, Briefcase, BookOpen, Building2,
   Wallet, BarChart3, CreditCard, Tag,
   Search, Store, FileText, Heart, Trophy,
   Ticket, MessageCircle, BookMarked, Gift, Bell, User, Settings, LayoutGrid, Users,
@@ -32,6 +32,7 @@ const creatorGroups: Group[] = [
       { href: "/app/calendar", label: "Kalender", desc: "Din & följdas", icon: CalendarDays },
       { href: "/app/scan", label: "Skanna", desc: "Checka in biljetter", icon: ScanLine },
       { href: "/dashboard/gigs", label: "Gigs", desc: "B2B-uppdrag", icon: Briefcase },
+      { href: "/app/events", label: "Evenemang", desc: "Skapa, dela & synka", icon: Building2 },
       { href: "/app/courses", label: "Kurser", desc: "Digitalt innehåll", icon: BookOpen },
       { href: "/app/events/insights", label: "Statistik", desc: "Deltagare & återkommande", icon: BarChart3 },
     ],
