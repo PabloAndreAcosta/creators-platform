@@ -46,6 +46,7 @@ export function SidebarNav() {
             { href: "/app/messages", label: t("messages"), icon: MessageCircle },
             { href: "/app/tickets", label: t("tickets"), icon: Ticket },
             { href: "/app/scan", label: t("scan"), icon: ScanLine },
+            { href: "/app/events", label: t("events"), icon: Building2 },
             { href: "/app/courses", label: t("content"), icon: BookOpen },
             { href: "/app/library", label: t("library"), icon: BookMarked },
             { href: "/app/leaderboard", label: t("leaderboard"), icon: Trophy },

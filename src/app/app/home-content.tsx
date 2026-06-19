@@ -612,10 +612,11 @@ function KreatorHome({
           ))}
         </div>
 
-        {/* Quick actions — 2x2 grid */}
+        {/* Quick actions */}
         <div className="grid grid-cols-2 gap-2">
           {[
             { label: t("newService"), href: "/app/courses", icon: Clock },
+            { label: t("newEvent"), href: "/app/events/new", icon: Ticket },
             { label: t("bookings"), href: "/app/calendar", icon: Calendar },
             { label: tc("messages"), href: "/app/messages", icon: Users },
             { label: tc("profile"), href: "/app/profile", icon: Star },
