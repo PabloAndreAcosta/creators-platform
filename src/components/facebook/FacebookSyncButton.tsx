@@ -48,8 +48,8 @@ export function FacebookSyncButton({
       } else {
         setFbEventUrl(data.facebook_event_url);
         toast.success(
-          facebookEventId ? "Facebook-inlägget uppdaterat" : "Publicerat på Facebook",
-          `Sida: ${data.page_name}`
+          facebookEventId ? "Facebook-inlägget uppdaterat" : "Inlägg publicerat på Facebook",
+          `Som inlägg på sidan: ${data.page_name}`
         );
       }
     } catch {
@@ -64,6 +64,7 @@ export function FacebookSyncButton({
       <button
         onClick={handleSync}
         disabled={loading}
+        title="Skapar ett inlägg på din Facebook-sida (Facebook tillåter inte längre evenemang via appar)."
         className="flex items-center gap-2 rounded-xl bg-[#1877F2]/10 border border-[#1877F2]/20 px-4 py-2.5 text-sm font-medium text-[#1877F2] transition hover:bg-[#1877F2]/20 disabled:opacity-50"
       >
         {loading ? (
@@ -76,8 +77,8 @@ export function FacebookSyncButton({
         {loading
           ? "Synkar..."
           : facebookEventId
-          ? "Uppdatera på Facebook"
-          : "Publicera på Facebook"}
+          ? "Uppdatera FB-inlägget"
+          : "Publicera som inlägg"}
       </button>
 
       {fbEventUrl && (
@@ -88,7 +89,7 @@ export function FacebookSyncButton({
           className="flex items-center gap-1 rounded-lg px-2 py-2 text-xs text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
         >
           <ExternalLink size={12} />
-          Visa
+          Visa inlägget
         </a>
       )}
     </div>
