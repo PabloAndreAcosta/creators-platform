@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Facebook, Loader2, ExternalLink, RefreshCw } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
+import { facebookPostUrl } from "@/lib/facebook/post-url";
 
 interface FacebookSyncButtonProps {
   listingId: string;
@@ -17,7 +18,7 @@ export function FacebookSyncButton({
 }: FacebookSyncButtonProps) {
   const [loading, setLoading] = useState(false);
   const [fbEventUrl, setFbEventUrl] = useState<string | null>(
-    facebookEventId ? `https://www.facebook.com/${facebookEventId}` : null
+    facebookEventId ? facebookPostUrl(facebookEventId) : null
   );
   const { toast } = useToast();
 
