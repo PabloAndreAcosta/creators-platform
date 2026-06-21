@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { buildListingPostMessage } from "@/lib/facebook/listing-post";
+import { facebookPostUrl } from "@/lib/facebook/post-url";
 
 // POST /api/facebook/sync-event
 // Body: { listing_id }
@@ -137,10 +138,26 @@ export async function POST(req: NextRequest) {
       .eq("id", listing_id);
   }
 
+  // Resolve the canonical, navigable permalink (the "{pageId}_{postId}" id is not
+  // a valid URL path). Prefer the Graph API's permalink_url; fall back to the
+  // /{pageId}/posts/{postId} form.
+  let permalink = facebookPostUrl(fbPostId);
+  try {
+    const pr = await fetch(
+      `https://graph.facebook.com/v22.0/${fbPostId}?fields=permalink_url&access_token=${encodeURIComponent(social.facebook_page_access_token)}`,
+    );
+    if (pr.ok) {
+      const pd = await pr.json();
+      if (pd?.permalink_url) permalink = pd.permalink_url;
+    }
+  } catch {
+    // keep the constructed fallback
+  }
+
   return NextResponse.json({
     success: true,
     facebook_event_id: fbPostId,
-    facebook_event_url: `https://www.facebook.com/${fbPostId}`,
+    facebook_event_url: permalink,
     page_name: social.facebook_page_name,
   });
 }

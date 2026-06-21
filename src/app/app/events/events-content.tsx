@@ -288,7 +288,7 @@ function EventCard({
             listing.facebook_event_id ? (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-green-500/10 px-2.5 py-1 text-[11px] font-medium text-green-400">
                 <CheckCircle2 size={12} />
-                Publicerad på Facebook
+                Inlägg publicerat på Facebook
               </span>
             ) : (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--usha-gold)]/10 px-2.5 py-1 text-[11px] font-medium text-[var(--usha-gold)]">
