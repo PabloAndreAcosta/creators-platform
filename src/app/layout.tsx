@@ -22,7 +22,9 @@ export const metadata: Metadata = {
   title: "Usha Platform — Skapa event, sälj biljetter, betala ditt crew",
   description:
     "Plattformen för kreatörer och upplevelser: skapa event på minuter, sälj biljetter, skanna vid dörren och betala ditt crew — tryggt med BankID och Stripe.",
-  manifest: "/manifest.json",
+  // NOTE: manifest + apple-touch-icon are declared manually in <head> (see
+  // RootLayout) because metadata-API tags render into <body> in production,
+  // which breaks PWA installability. Do not re-add `manifest` here.
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -36,7 +38,8 @@ export const metadata: Metadata = {
       { url: "/icon-192.png" },
       { url: "/icon-light-192.png", media: "(prefers-color-scheme: light)" },
     ],
-    apple: "/apple-touch-icon.png",
+    // apple-touch-icon is declared manually in <head> (see RootLayout) so it
+    // lands in <head> rather than <body> in production streaming.
   },
   openGraph: {
     title: "Usha Platform — Skapa event, sälj biljetter, betala ditt crew",
@@ -69,6 +72,14 @@ export default async function RootLayout({
   return (
     <html lang={locale} className={themeClass} suppressHydrationWarning>
       <head>
+        {/* PWA tags are declared explicitly here instead of via the Next.js
+            metadata API: in production streaming, metadata-generated tags render
+            into <body>, and React does NOT hoist <link rel="manifest"> to <head>.
+            Chrome only reads a manifest linked from <head>, so a body-placed link
+            makes the app non-installable (no install icon, no beforeinstallprompt).
+            Elements inside this manual <head> are reliably emitted in <head>. */}
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <script dangerouslySetInnerHTML={{ __html: `
           (function(){
             try {
