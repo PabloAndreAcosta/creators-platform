@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Download, X } from "lucide-react";
 
 interface BeforeInstallPromptEvent extends Event {
@@ -9,6 +10,7 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export function InstallPrompt() {
+  const t = useTranslations("landing.install");
   const [installPrompt, setInstallPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
@@ -48,12 +50,12 @@ export function InstallPrompt() {
           className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-5 py-2.5 text-sm font-bold text-black transition hover:opacity-90"
         >
           <Download size={16} />
-          Ladda ner Usha Platform app
+          {t("appCta")}
         </button>
         <button
           onClick={() => setDismissed(true)}
           className="rounded-lg p-1.5 text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
-          aria-label="Stäng"
+          aria-label={t("close")}
         >
           <X size={16} />
         </button>
