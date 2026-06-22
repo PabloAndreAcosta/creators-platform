@@ -22,17 +22,11 @@ export const metadata: Metadata = {
   title: "Usha Platform — Skapa event, sälj biljetter, betala ditt crew",
   description:
     "Plattformen för kreatörer och upplevelser: skapa event på minuter, sälj biljetter, skanna vid dörren och betala ditt crew — tryggt med BankID och Stripe.",
-  // NOTE: manifest + apple-touch-icon are declared manually in <head> (see
-  // RootLayout) because metadata-API tags render into <body> in production,
-  // which breaks PWA installability. Do not re-add `manifest` here.
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "black-translucent",
-    title: "Usha Platform",
-  },
-  other: {
-    "mobile-web-app-capable": "yes",
-  },
+  // NOTE: manifest, apple-touch-icon and the apple/mobile web-app meta tags are
+  // declared manually in <head> (see RootLayout) because metadata-API tags
+  // render into <body> in production streaming, which breaks PWA installability
+  // (Chrome) and the iOS "Add to Home Screen" standalone experience (Safari).
+  // Do not re-add `manifest`, `appleWebApp` or `mobile-web-app-capable` here.
   icons: {
     icon: [
       { url: "/icon-192.png" },
@@ -80,6 +74,13 @@ export default async function RootLayout({
             Elements inside this manual <head> are reliably emitted in <head>. */}
         <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        {/* iOS "Add to Home Screen" standalone hints — Safari only honors these
+            from <head>. mobile-web-app-capable is the modern name; the apple-
+            prefixed variant covers older iOS (<16.4) that ignore the manifest. */}
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Usha Platform" />
         <script dangerouslySetInnerHTML={{ __html: `
           (function(){
             try {
