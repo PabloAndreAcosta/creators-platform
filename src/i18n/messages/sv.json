@@ -438,7 +438,7 @@
       "forAudience": "Upplev"
     },
     "install": {
-      "title": "Installera Usha Platform på din dator",
+      "title": "Installera Usha Platform",
       "description": "Usha Platform fungerar som en app direkt i din webbläsare. Installera den för snabb åtkomst:",
       "chromeEdge": "Chrome / Edge",
       "chromeEdgeInstructions": "Klicka på installationsikonen i adressfältet → \"Installera\"",

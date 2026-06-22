@@ -438,8 +438,8 @@
       "forAudience": "Discover"
     },
     "install": {
-      "title": "Install Usha Platform on your computer",
-      "description": "Usha Platform works as an app right in your browser. Install it for quick access:",
+      "title": "Install Usha Platform",
+      "description": "Usha Platform works as an app right from your browser. Install it for quick access:",
       "chromeEdge": "Chrome / Edge",
       "chromeEdgeInstructions": "Click the install icon in the address bar → \"Install\"",
       "safariMac": "Safari (Mac)",

@@ -8,16 +8,42 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { createClient } from "@/lib/supabase/client";
 import { Menu, X } from "lucide-react";
 
+interface BeforeInstallPromptEvent extends Event {
+  prompt(): Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+}
+
 export function Nav() {
   const t = useTranslations("landing");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showInstallModal, setShowInstallModal] = useState(false);
+  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [isIOS, setIsIOS] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(false);
 
   useEffect(() => {
     createClient().auth.getUser().then(({ data: { user } }) => {
       setIsLoggedIn(!!user);
     });
+  }, []);
+
+  useEffect(() => {
+    // PWA install state: capture the deferred install prompt (Android/Chrome),
+    // detect iOS (no beforeinstallprompt — needs manual Add to Home Screen),
+    // and whether we're already running as an installed app.
+    const standalone =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      (window.navigator as unknown as { standalone?: boolean }).standalone === true;
+    if (standalone) setIsInstalled(true);
+    setIsIOS(/iphone|ipad|ipod/i.test(window.navigator.userAgent));
+
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setInstallPrompt(e as BeforeInstallPromptEvent);
+    };
+    window.addEventListener("beforeinstallprompt", handler);
+    return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
 
   const pageLinks = [
@@ -31,21 +57,26 @@ export function Nav() {
     { href: "/marketplace", label: t("nav.marketplace") },
   ];
 
-  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
-
-  function handleInstallClick(e: React.MouseEvent) {
-    if (isLoggedIn) {
-      // Already logged in — go to app
-      window.location.href = "/app";
-      return;
-    }
-    if (isMobile) {
-      // Mobile — go to app/signup
-      window.location.href = "/app";
-      return;
-    }
-    // Desktop + not logged in — show install instructions
+  async function handleInstallClick(e: React.MouseEvent) {
     e.preventDefault();
+    setMobileOpen(false);
+
+    // Logged in or already installed — just open the app.
+    if (isLoggedIn || isInstalled) {
+      window.location.href = "/app";
+      return;
+    }
+
+    // Android/Chrome (and desktop Chromium) — fire the native install dialog.
+    if (installPrompt) {
+      installPrompt.prompt();
+      const { outcome } = await installPrompt.userChoice;
+      if (outcome === "accepted") setInstallPrompt(null);
+      return;
+    }
+
+    // iOS Safari and anything without a deferred prompt — show manual
+    // Add-to-Home-Screen / install instructions instead of dead-ending at login.
     setShowInstallModal(true);
   }
 
@@ -133,13 +164,12 @@ export function Nav() {
                 {l.label}
               </a>
             ))}
-            <a
-              href="/app"
-              onClick={() => setMobileOpen(false)}
-              className="py-2 text-sm text-[var(--usha-white)] transition hover:text-[var(--usha-white)]"
+            <button
+              onClick={handleInstallClick}
+              className="py-2 text-left text-sm text-[var(--usha-white)] transition hover:text-[var(--usha-white)]"
             >
               {isLoggedIn ? t("nav.openApp") : t("nav.downloadApp")}
-            </a>
+            </button>
             {!isLoggedIn && (
               <a
                 href="/login"
@@ -181,19 +211,37 @@ export function Nav() {
           </p>
 
           <div className="space-y-4">
-            <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
-              <p className="mb-1 text-sm font-semibold">{t("install.chromeEdge")}</p>
-              <p className="text-xs text-[var(--usha-muted)]">
-                {t("install.chromeEdgeInstructions")}
-              </p>
-            </div>
+            {isIOS ? (
+              <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
+                <p className="mb-1 text-sm font-semibold">iPhone / iPad (Safari)</p>
+                <p className="text-xs text-[var(--usha-muted)]">
+                  {t("install.iosHelp")}
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
+                  <p className="mb-1 text-sm font-semibold">{t("install.chromeEdge")}</p>
+                  <p className="text-xs text-[var(--usha-muted)]">
+                    {t("install.chromeEdgeInstructions")}
+                  </p>
+                </div>
 
-            <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
-              <p className="mb-1 text-sm font-semibold">{t("install.safariMac")}</p>
-              <p className="text-xs text-[var(--usha-muted)]">
-                {t("install.safariMacInstructions")}
-              </p>
-            </div>
+                <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
+                  <p className="mb-1 text-sm font-semibold">{t("install.safariMac")}</p>
+                  <p className="text-xs text-[var(--usha-muted)]">
+                    {t("install.safariMacInstructions")}
+                  </p>
+                </div>
+
+                <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
+                  <p className="mb-1 text-sm font-semibold">Android</p>
+                  <p className="text-xs text-[var(--usha-muted)]">
+                    {t("install.otherHelp")}
+                  </p>
+                </div>
+              </>
+            )}
           </div>
 
           <div className="mt-6 flex gap-3">
@@ -204,10 +252,10 @@ export function Nav() {
               {t("install.close")}
             </button>
             <a
-              href="/app"
+              href={isLoggedIn ? "/app" : "/signup"}
               className="flex-1 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] py-3 text-center text-sm font-bold text-black transition hover:opacity-90"
             >
-              {t("install.openInBrowser")}
+              {isLoggedIn ? t("install.openInBrowser") : t("nav.getStarted")}
             </a>
           </div>
         </div>
