@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { useTranslations } from "next-intl";
 import { safeJsonLd } from "@/lib/json-ld";
 import { LandingStats } from "@/components/landing-stats";
+import { LandingInstall } from "@/components/landing-install";
 import { Nav } from "@/components/landing/nav";
 import { Ecosystem } from "@/components/landing/ecosystem";
 import { Trust } from "@/components/landing/trust";
@@ -124,6 +125,9 @@ function HomeCta() {
           {t("homeCta.description")}
         </p>
         <AudienceDoors />
+        <div className="mt-10 border-t border-[var(--usha-border)] pt-10">
+          <LandingInstall />
+        </div>
       </div>
     </section>
   );
