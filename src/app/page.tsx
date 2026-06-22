@@ -3,6 +3,7 @@ import { useTranslations } from "next-intl";
 import { safeJsonLd } from "@/lib/json-ld";
 import { LandingStats } from "@/components/landing-stats";
 import { LandingInstall } from "@/components/landing-install";
+import { InstallPrompt } from "@/components/install-prompt";
 import { Nav } from "@/components/landing/nav";
 import { Ecosystem } from "@/components/landing/ecosystem";
 import { Trust } from "@/components/landing/trust";
@@ -154,6 +155,10 @@ export default function Home() {
       <Trust />
       <HomeCta />
       <Footer />
+      {/* Floating, opportunistic install nudge — only renders on installable
+          browsers (Android/Chrome) when beforeinstallprompt fires, hidden in
+          standalone mode, and dismissible. Complements the bottom-of-page CTA. */}
+      <InstallPrompt />
     </main>
   );
 }
