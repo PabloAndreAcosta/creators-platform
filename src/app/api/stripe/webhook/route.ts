@@ -25,6 +25,30 @@ function getSupabaseAdmin() {
   );
 }
 
+/**
+ * Resolves which payment method the customer actually used (e.g. "card", "swish",
+ * "klarna") for a completed Checkout Session. Reads it from the PaymentIntent's
+ * latest charge. Returns null when there is no charge (e.g. free / trial subscriptions)
+ * or if the lookup fails — callers should treat null as "unknown" and not block on it.
+ */
+async function resolvePaymentMethod(
+  session: Stripe.Checkout.Session
+): Promise<string | null> {
+  const paymentIntentId =
+    typeof session.payment_intent === "string" ? session.payment_intent : null;
+  if (!paymentIntentId) return null;
+  try {
+    const pi = await stripe.paymentIntents.retrieve(paymentIntentId, {
+      expand: ["latest_charge"],
+    });
+    const charge = pi.latest_charge as Stripe.Charge | null;
+    return charge?.payment_method_details?.type ?? null;
+  } catch (err) {
+    console.error("resolvePaymentMethod failed:", err);
+    return null;
+  }
+}
+
 /** Safely convert a Stripe timestamp (number | string | object) to ISO string */
 function toISO(value: unknown): string {
   if (typeof value === "number") {
@@ -100,6 +124,11 @@ export async function POST(req: NextRequest) {
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
+
+        // Which method the customer actually paid with (card / swish / klarna / …).
+        // Resolved once here and stamped onto every payments row below. null = unknown
+        // (e.g. free trial subscriptions with no charge).
+        const paymentMethod = await resolvePaymentMethod(session);
 
         // Handle guest ticket purchases (no user account needed)
         if (session.metadata?.type === "guest_ticket") {
@@ -323,6 +352,7 @@ export async function POST(req: NextRequest) {
               currency: session.currency || "sek",
               status: "succeeded",
               description: `Biljett: ${session.metadata.listingId}`,
+              payment_method: paymentMethod,
             });
           }
 
@@ -368,6 +398,7 @@ export async function POST(req: NextRequest) {
               currency: session.currency || "sek",
               status: "succeeded",
               description: `Instruktörsminuter: ${minutes} min`,
+              payment_method: paymentMethod,
             });
           }
 
@@ -406,6 +437,7 @@ export async function POST(req: NextRequest) {
               currency: session.currency || "sek",
               status: "succeeded",
               description: `B2B-bokning: ${bookingId}`,
+              payment_method: paymentMethod,
             });
           }
 
@@ -452,6 +484,7 @@ export async function POST(req: NextRequest) {
               currency: session.currency || "sek",
               status: "succeeded",
               description: `Bokning: ${listingId}`,
+              payment_method: paymentMethod,
             });
           }
 
@@ -479,6 +512,7 @@ export async function POST(req: NextRequest) {
                 currency: session.currency || "sek",
                 status: "succeeded",
                 description: `Digital product: ${productId}`,
+                payment_method: paymentMethod,
               });
             }
 
@@ -542,6 +576,7 @@ export async function POST(req: NextRequest) {
             currency: session.currency || "sek",
             status: "succeeded",
             description: `Prenumeration: ${planKey}`,
+            payment_method: paymentMethod,
           });
         }
 
