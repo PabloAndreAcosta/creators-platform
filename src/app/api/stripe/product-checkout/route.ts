@@ -129,7 +129,8 @@ export async function POST(req: NextRequest) {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
-      payment_method_types: ["card"],
+      // Inga pinnade payment_method_types — Stripe visar de metoder som aktiverats
+      // i Dashboard (kort, Swish, Klarna) för behöriga SE/SEK-kunder, som övriga flöden.
       payment_intent_data: {
         application_fee_amount: applicationFee,
         transfer_data: { destination: creator.stripe_account_id },

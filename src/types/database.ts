@@ -178,11 +178,13 @@ export interface Database {
           currency: string;
           status: "succeeded" | "pending" | "failed";
           description: string | null;
+          payment_method: string | null;
           created_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["payments"]["Row"], "id" | "created_at" | "currency"> & {
+        Insert: Omit<Database["public"]["Tables"]["payments"]["Row"], "id" | "created_at" | "currency" | "payment_method"> & {
           id?: string;
           currency?: string;
+          payment_method?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["payments"]["Insert"]>;
       };
