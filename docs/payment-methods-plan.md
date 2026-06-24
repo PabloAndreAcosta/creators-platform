@@ -11,10 +11,10 @@ Stripe visar automatiskt de metoder som aktiveras i Dashboard.
 
 | Metod | Väg | Status |
 |-------|-----|--------|
-| Swish | Inbyggd i Stripe (engång, SEK) | ✅ Implementerad |
-| Klarna | Inbyggd i Stripe (engång + prenumeration) | ✅ Implementerad |
+| Klarna | Inbyggd i Stripe (engång + prenumeration), automatisk | ✅ Aktiverad & live |
+| Google Pay | Wallet på `card`, renderas automatiskt (Chrome/Android) | ✅ Aktiverad & live |
 | Apple Pay | Wallet på `card`, renderas automatiskt (Safari/iOS) | ✅ Live |
-| Google Pay | Wallet på `card`, renderas automatiskt (Chrome/Android) | ✅ Inget extra kodarbete — kräver bara Dashboard-toggle |
+| Swish | Stripe-metod men kräver **manuell** integration (ej automatisk) | ⛔ **Blockerad av Stripe** — åtkomst pausad för nya företag (Private preview), kan ej aktiveras |
 
 Kodändringar (Fas 1):
 - `product-checkout`: tog bort den enda hårdkodade `["card"]`-låsningen.
@@ -23,10 +23,28 @@ Kodändringar (Fas 1):
 
 ### Manuella förkrav (görs i Stripe Dashboard — inget i repo)
 
-1. **Aktivera Swish** i Dashboard → Settings → Payment methods (inkl. på Connect destination charges).
-2. **Aktivera Klarna** i Dashboard → Settings → Payment methods (inkl. på Connect destination charges).
-3. **Aktivera Google Pay** i Dashboard → Settings → Payment methods (oftast på som standard). Ingen domänverifiering krävs (till skillnad från Apple Pay). Rider på `card`, funkar på Connect destination charges. Visas automatiskt för användare på Chrome/Android med sparat kort — inget kodarbete kvar tack vare Fas 1.
-4. **Testa i Stripe test mode** att metoderna dyker upp i varje flöde och att `payment_method` skrivs rätt, innan skarp drift. Verifiera Google Pay i Chrome (Apple Pay syns bara i Safari/iOS — samma wallet-mekanism, enhetsstyrt).
+Konfiguration som gäller: plattformskontots **Default**-config (`pmc_1RTe1GFsO4M77KHOtf3yDsOR`),
+eftersom alla flöden använder destination charges på plattformskontot.
+
+1. ✅ **Klarna** — aktiverad (config `pmc_1RTe1…`).
+2. ✅ **Google Pay** — aktiverad. Ingen domänverifiering krävs (till skillnad från Apple Pay). Rider på `card`, funkar på Connect destination charges. Visas automatiskt på Chrome/Android.
+3. **Testa i Stripe test mode** att metoderna dyker upp i varje flöde och att `payment_method` skrivs rätt, innan skarp drift. Verifiera Google Pay i Chrome (Apple Pay syns bara i Safari/iOS — samma wallet-mekanism, enhetsstyrt).
+
+### Swish — blockerad av Stripe ⛔
+
+Stripe har **pausat åtkomst till Swish för nya företag** (Swish är "Private preview").
+Usha kan därför **inte** aktivera Swish via Dashboard just nu — det är inte en kod- eller
+toggle-fråga, utan en spärr hos Stripe. Källa: https://docs.stripe.com/payments/swish
+
+Vad som gäller när/om åtkomst öppnar igen:
+- Anmäl intresse för avisering: https://docs.stripe.com/payments/swish (formuläret "Interested in getting access to Swish?").
+- Swish kräver **manuell** integration — explicit `payment_method_types: ['swish']` i SEK-engångsflöden (inte automatisk som Klarna/wallets).
+- Engång endast (ingen prenumeration). Connect destination charges stöds. Stripe är merchant of record. Dans/rörelse är inte i någon förbjuden bransch.
+- Kodändring som då krävs: villkorligt lägga till `swish` i `payment_method_types` för SEK + engångsläge i checkout-route(s). Webhookens `resolvePaymentMethod()` hanterar redan `swish`-strängen.
+
+Alternativ väg (om Swish blir affärskritiskt innan Stripe öppnar): direktintegration mot
+Getswish AB (Swish Handel) — separat bankavtal + certifikat + callbacks, helt utanför Stripe.
+Stor lift, behandlas som eget spår (jfr Epassi).
 
 ## Fas 2 — Epassi (friskvård) 📋 (kräver partneravtal)
 
