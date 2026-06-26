@@ -54,7 +54,7 @@ export default async function UpplevelserPage(
   let query = supabase
     .from("listings")
     .select("id, title, price, event_date, event_location, event_city, event_venue, category, image_url, listing_type, created_at, is_promoted, promoted_until", { count: "exact" })
-    .eq("is_active", true);
+    .eq("is_active", true).eq("is_public", true);
 
   if (category && category !== "all") {
     query = query.eq("category", category);
@@ -101,6 +101,7 @@ export default async function UpplevelserPage(
     .from("listings")
     .select("id, slug, title, price, event_date, event_location, image_url, category, is_promoted, promoted_until")
     .eq("is_active", true)
+    .eq("is_public", true)
     .eq("is_promoted", true)
     .order("created_at", { ascending: false })
     .limit(6);
@@ -115,7 +116,7 @@ export default async function UpplevelserPage(
   const { data: countRows } = await supabase
     .from("listings")
     .select("category, event_city")
-    .eq("is_active", true);
+    .eq("is_active", true).eq("is_public", true);
 
   const categoryCounts: Record<string, number> = {};
   const locationCounts: Record<string, number> = {};

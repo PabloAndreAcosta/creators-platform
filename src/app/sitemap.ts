@@ -40,6 +40,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .from("listings")
     .select("id, slug, updated_at")
     .eq("is_active", true)
+    .eq("is_public", true)
     .order("updated_at", { ascending: false })
     .limit(1000);
 
@@ -56,6 +57,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .from("listings")
     .select("event_city")
     .eq("is_active", true)
+    .eq("is_public", true)
     .not("event_city", "is", null);
 
   const upplevelserCitySet = new Set<string>();

@@ -22,6 +22,7 @@ export async function GET(req: NextRequest) {
         .from('listings')
         .select('id, title, category, price, user_id, profiles(full_name)')
         .eq('is_active', true)
+        .eq('is_public', true)
         .or(`title.ilike.${pattern},description.ilike.${pattern},category.ilike.${pattern},event_location.ilike.${pattern}`)
         .order('created_at', { ascending: false })
         .limit(10),

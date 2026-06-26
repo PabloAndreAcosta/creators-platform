@@ -9,7 +9,7 @@ export async function GET() {
   try {
     const admin = createAdminClient();
     const [events, creators, checkIns, venues] = await Promise.all([
-      admin.from("listings").select("id", { count: "exact", head: true }).eq("is_active", true),
+      admin.from("listings").select("id", { count: "exact", head: true }).eq("is_active", true).eq("is_public", true),
       admin.from("profiles").select("id", { count: "exact", head: true }).eq("is_public", true),
       admin
         .from("bookings")
@@ -19,6 +19,7 @@ export async function GET() {
         .from("listings")
         .select("event_location")
         .eq("is_active", true)
+        .eq("is_public", true)
         .not("event_location", "is", null),
     ]);
 
