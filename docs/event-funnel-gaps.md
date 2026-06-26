@@ -83,9 +83,30 @@ Resend finns redan, men det saknas ett UI för att komponera och skicka.
 
 ---
 
+## Lucka 4 — olistat event ("hemlig länk") — VERIFIERAD
+
+**Status:** Fungerar **inte** idag. Verifierat mot live-DB (Platform, 2026-06-26):
+- `listings` har **ingen** `is_public`-kolumn (det är en `profiles`-kolumn).
+- RLS SELECT-policy: `Active listings are viewable => (is_active = true)`.
+- Sök/marknadsplats filtrerar på `is_active = true`.
+
+Alltså är `is_active` en allt-eller-inget-spak: `true` = synlig överallt (inkl.
+marknadsplats, ej hemlig); `false` = 404 för alla, biljett ej köpbar. Ingen
+"olistad men köpbar"-status finns. Detta blockerar Annas fas 2 (hemlig
+early-bird-länk bara till väntelistan).
+
+**Fix (litet, additivt):**
+- [ ] Migration: `listings.is_public boolean NOT NULL DEFAULT true` (befintliga event förblir publika).
+- [ ] **Rör inte RLS** — behåll `USING (is_active = true)` så anon slug-sidan kan servera olistade event.
+- [ ] Lägg `.eq('is_public', true)` i alla *listnings*-browse-frågor: `api/search`, `home-content`, "fler event"-blocket i `event/[slug]/page.tsx` (`getListing.more`), kalender/följda, serie-sidan, samt `cron/creator-event-notify` (maila ej ut olistade).
+- [ ] Slug-detaljsidan: ingen ändring (filtrerar redan bara `is_active`).
+- [ ] Host-UI-toggle: "Lista på marknadsplatsen / Endast via länk".
+- [ ] Test: säkerställ att olistat event inte läcker i NÅGON browse-yta, men nås via direktlänk.
+
+**Beror på:** inget. Behövs före Annas fas 2 (11 juli) om den ska köras skarpt.
+
 ## Inte en lucka (noteras för Anna)
 - **Engelskt event:** innehåll (titel/beskrivning/copy) är fritext → engelska OK. Men plattforms-UI (knappar, kassa, mejlmallar) är svenskt. Acceptabelt för test, men kommunicera det.
-- **Hemlig länk:** ett event med `is_public=false` nås via `slug` och döljs från sök/marknadsplats — räcker troligen som "hemlig länk" i fas 2. **Verifiera** att slug-sidan inte kräver `is_public=true` innan testet.
 
 ## Förslag på ordning
 Lucka 1 → Lucka 2 → Lucka 3. Under Annas test körs faserna halv-manuellt (host
