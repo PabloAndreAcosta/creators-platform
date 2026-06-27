@@ -1734,6 +1734,34 @@
     "joining": "Joining…",
     "successTitle": "You are on the list! 🎉",
     "successBody": "We will email {email} when tickets drop.",
-    "errorGeneric": "Something went wrong. Try again."
+    "errorGeneric": "Something went wrong. Try again.",
+    "production": "Usha production",
+    "yourProduction": "Your production",
+    "manageCrew": "Manage crew",
+    "edit": "Edit",
+    "descriptionSoon": "Information about this production is coming soon.",
+    "durationMin": "Duration: {minutes} min",
+    "share": "Share",
+    "discoverMore": "Discover more",
+    "moreProductions": "More Usha productions",
+    "metaTitle": "{title} — Usha production",
+    "metaDescription": "An Usha production.",
+    "metaDescriptionBy": "An Usha production by {name}.",
+    "cat_restaurant": "Restaurant",
+    "cat_concert": "Concert",
+    "cat_nightclub": "Nightclub",
+    "cat_spa": "Spa & Wellness",
+    "cat_retreat": "Retreat",
+    "cat_venue": "Venue",
+    "cat_fitness": "Fitness",
+    "cat_other": "Other"
+  },
+  "eventErrors": {
+    "notReleased": "Tickets have not been released yet.",
+    "soldOut": "This event is sold out.",
+    "invalidEmail": "Enter a valid email address.",
+    "consentRequired": "Consent is required.",
+    "eventNotFound": "Event not found.",
+    "generic": "Something went wrong. Please try again."
   }
 }

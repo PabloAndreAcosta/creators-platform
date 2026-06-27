@@ -1734,6 +1734,34 @@
     "joining": "Anmäler…",
     "successTitle": "Du är med på listan! 🎉",
     "successBody": "Vi hör av oss till {email} när biljetterna släpps.",
-    "errorGeneric": "Något gick fel. Försök igen."
+    "errorGeneric": "Något gick fel. Försök igen.",
+    "production": "Usha-produktion",
+    "yourProduction": "Din produktion",
+    "manageCrew": "Hantera crew",
+    "edit": "Redigera",
+    "descriptionSoon": "Information om denna produktion uppdateras inom kort.",
+    "durationMin": "Längd: {minutes} min",
+    "share": "Dela",
+    "discoverMore": "Upptäck mer",
+    "moreProductions": "Fler Usha-produktioner",
+    "metaTitle": "{title} — Usha-produktion",
+    "metaDescription": "En Usha-produktion.",
+    "metaDescriptionBy": "En Usha-produktion av {name}.",
+    "cat_restaurant": "Restaurang",
+    "cat_concert": "Konsert",
+    "cat_nightclub": "Nattklubb",
+    "cat_spa": "SPA & Wellness",
+    "cat_retreat": "Retreat",
+    "cat_venue": "Eventlokal",
+    "cat_fitness": "Fitness",
+    "cat_other": "Övrigt"
+  },
+  "eventErrors": {
+    "notReleased": "Biljetterna har inte släppts än.",
+    "soldOut": "Eventet är slutsålt.",
+    "invalidEmail": "Ange en giltig e-postadress.",
+    "consentRequired": "Samtycke krävs.",
+    "eventNotFound": "Eventet hittades inte.",
+    "generic": "Något gick fel. Försök igen."
   }
 }
