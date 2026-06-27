@@ -3,12 +3,19 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, Download, Mail } from "lucide-react";
+import { getTranslations, getLocale } from "next-intl/server";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Väntelista – Usha Platform" };
+export async function generateMetadata() {
+  const t = await getTranslations("hostEvent");
+  return { title: `${t("waitlistTitle")} – Usha Platform` };
+}
 
 export default async function WaitlistPage(props: { params: Promise<{ id: string }> }) {
   const { id } = await props.params;
+  const t = await getTranslations("hostEvent");
+  const locale = await getLocale();
+  const dateFmt = locale === "en" ? "en-GB" : "sv-SE";
   const supabase = await createClient();
   const {
     data: { user },
@@ -39,17 +46,17 @@ export default async function WaitlistPage(props: { params: Promise<{ id: string
         href={`/event/${listing.slug ?? ""}`}
         className="mb-4 inline-flex items-center gap-1 text-sm text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
       >
-        <ChevronLeft className="h-4 w-4" /> Tillbaka till eventet
+        <ChevronLeft className="h-4 w-4" /> {t("backToEvent")}
       </Link>
 
       <div className="mb-6 flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Väntelista</h1>
+          <h1 className="text-2xl font-bold">{t("waitlistTitle")}</h1>
           <p className="mt-1 text-sm text-[var(--usha-muted)]">{listing.title}</p>
           <p className="mt-2 text-sm">
             <span className="text-2xl font-bold text-[var(--usha-gold)]">{active}</span>{" "}
             <span className="text-[var(--usha-muted)]">
-              aktiva anmälningar{entries.length !== active ? ` (${entries.length} totalt)` : ""}
+              {t("activeSignups")}{entries.length !== active ? t("totalCount", { total: entries.length }) : ""}
             </span>
           </p>
         </div>
@@ -58,7 +65,7 @@ export default async function WaitlistPage(props: { params: Promise<{ id: string
             href={`/app/events/${id}/broadcast`}
             className="inline-flex items-center gap-2 rounded-lg bg-[var(--usha-gold)] px-4 py-2 text-sm font-bold text-black hover:opacity-90"
           >
-            <Mail className="h-4 w-4" /> Mejla listan
+            <Mail className="h-4 w-4" /> {t("emailList")}
           </Link>
           {entries.length > 0 && (
             <a
@@ -73,17 +80,17 @@ export default async function WaitlistPage(props: { params: Promise<{ id: string
 
       {entries.length === 0 ? (
         <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-8 text-center text-sm text-[var(--usha-muted)]">
-          Inga anmälningar än. Dela eventlänken så börjar listan fyllas på.
+          {t("noSignups")}
         </div>
       ) : (
         <div className="overflow-hidden rounded-2xl border border-[var(--usha-border)]">
           <table className="w-full text-left text-sm">
             <thead className="bg-[var(--usha-card)] text-[var(--usha-muted)]">
               <tr>
-                <th className="px-4 py-3 font-medium">Namn</th>
-                <th className="px-4 py-3 font-medium">E-post</th>
-                <th className="px-4 py-3 font-medium">Anmäld</th>
-                <th className="px-4 py-3 font-medium">Status</th>
+                <th className="px-4 py-3 font-medium">{t("colName")}</th>
+                <th className="px-4 py-3 font-medium">{t("colEmail")}</th>
+                <th className="px-4 py-3 font-medium">{t("colSignedUp")}</th>
+                <th className="px-4 py-3 font-medium">{t("colStatus")}</th>
               </tr>
             </thead>
             <tbody>
@@ -92,13 +99,13 @@ export default async function WaitlistPage(props: { params: Promise<{ id: string
                   <td className="px-4 py-3">{r.name ?? "—"}</td>
                   <td className="px-4 py-3">{r.email}</td>
                   <td className="px-4 py-3 text-[var(--usha-muted)]">
-                    {new Date(r.created_at).toLocaleDateString("sv-SE")}
+                    {new Date(r.created_at).toLocaleDateString(dateFmt)}
                   </td>
                   <td className="px-4 py-3">
                     {r.unsubscribed_at ? (
-                      <span className="text-[var(--usha-muted)]">Avregistrerad</span>
+                      <span className="text-[var(--usha-muted)]">{t("statusUnsubscribed")}</span>
                     ) : (
-                      <span className="text-[var(--usha-gold)]">Aktiv</span>
+                      <span className="text-[var(--usha-gold)]">{t("statusActive")}</span>
                     )}
                   </td>
                 </tr>

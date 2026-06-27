@@ -1,7 +1,11 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getTranslations } from "next-intl/server";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Avregistrera – Usha Platform" };
+export async function generateMetadata() {
+  const t = await getTranslations("eventPage");
+  return { title: t("unsubMetaTitle") };
+}
 
 // GDPR: a guest unsubscribes from an event waitlist via their unique token.
 // Idempotent — re-visiting an already-unsubscribed token still confirms.
@@ -9,6 +13,7 @@ export default async function UnsubscribePage(props: {
   params: Promise<{ token: string }>;
 }) {
   const { token } = await props.params;
+  const t = await getTranslations("eventPage");
   const admin = createAdminClient();
 
   // Match on the token only; set unsubscribed_at if not already set.
@@ -34,16 +39,16 @@ export default async function UnsubscribePage(props: {
       <div className="max-w-md rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-8 text-center">
         {ok ? (
           <>
-            <h1 className="text-xl font-bold text-[var(--usha-gold)]">Du är avregistrerad</h1>
+            <h1 className="text-xl font-bold text-[var(--usha-gold)]">{t("unsubSuccessTitle")}</h1>
             <p className="mt-3 text-sm text-[var(--usha-muted)]">
-              Du tas bort från väntelistan och får inga fler utskick för det här eventet.
+              {t("unsubSuccessBody")}
             </p>
           </>
         ) : (
           <>
-            <h1 className="text-xl font-bold">Länken är ogiltig</h1>
+            <h1 className="text-xl font-bold">{t("unsubInvalidTitle")}</h1>
             <p className="mt-3 text-sm text-[var(--usha-muted)]">
-              Avregistreringslänken kunde inte hittas. Den kan redan ha använts.
+              {t("unsubInvalidBody")}
             </p>
           </>
         )}

@@ -377,25 +377,22 @@ export default function EventForm({
               onChange={(e) => setUnlisted(e.target.checked)}
               className="h-4 w-4 accent-[var(--usha-gold)]"
             />
-            <span className="font-medium">Endast via länk</span>
+            <span className="font-medium">{t("unlistedLabel")}</span>
           </label>
           <p className="text-xs text-[var(--usha-muted)]">
-            Dölj eventet från marknadsplatsen och sök — det går bara att hitta via
-            den direktlänk du delar. Perfekt för förköp till en väntelista.
+            {t("unlistedHelp")}
           </p>
         </div>
 
         {/* Tidsstyrd automatisering — förköpsfönster, schemalagt släpp, kapacitet */}
         <details className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
-          <summary className="cursor-pointer text-sm font-medium">Automatisering (valfritt)</summary>
+          <summary className="cursor-pointer text-sm font-medium">{t("automationSummary")}</summary>
           <p className="mt-2 text-xs text-[var(--usha-muted)]">
-            Tider anges i svensk tid. Lämna tomt för att stänga av. Förköpspriset gäller
-            mellan start och stopp; efter stopp blir eventet automatiskt slutsålt tills
-            det publika släppet.
+            {t("automationHelp")}
           </p>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             <label className="text-xs text-[var(--usha-muted)]">
-              Förköp öppnar
+              {t("ebStart")}
               <input
                 type="datetime-local"
                 name="early_bird_start"
@@ -404,7 +401,7 @@ export default function EventForm({
               />
             </label>
             <label className="text-xs text-[var(--usha-muted)]">
-              Förköp stänger
+              {t("ebEnd")}
               <input
                 type="datetime-local"
                 name="early_bird_end"
@@ -413,7 +410,7 @@ export default function EventForm({
               />
             </label>
             <label className="text-xs text-[var(--usha-muted)]">
-              Förköpspris (kr)
+              {t("ebPrice")}
               <input
                 type="number"
                 name="early_bird_price"
@@ -423,7 +420,7 @@ export default function EventForm({
               />
             </label>
             <label className="text-xs text-[var(--usha-muted)]">
-              Publikt släpp (ordinarie pris)
+              {t("publicSale")}
               <input
                 type="datetime-local"
                 name="public_sale_at"
@@ -432,7 +429,7 @@ export default function EventForm({
               />
             </label>
             <label className="text-xs text-[var(--usha-muted)]">
-              Kapacitet (antal platser)
+              {t("capacityField")}
               <input
                 type="number"
                 name="capacity"
