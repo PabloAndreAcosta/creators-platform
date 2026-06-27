@@ -1707,5 +1707,33 @@
       "fitness": "Fitness",
       "other": "Other"
     }
+  },
+  "eventPage": {
+    "ticket": "Ticket",
+    "free": "Free",
+    "freeTicket": "Get free ticket",
+    "buyTicket": "Buy ticket · {price} kr",
+    "booking": "Booking...",
+    "errorTitle": "Could not book",
+    "errorRetry": "Please try again.",
+    "badgeEarlyBird": "Early bird",
+    "badgeSoldOut": "Sold out",
+    "badgeComingSoon": "Coming soon",
+    "earlyBirdUntil": "Early-bird price until {date}",
+    "releasesAt": "Releases {date}",
+    "soldOut": "Sold out",
+    "notReleased": "Not released yet",
+    "createAccountNote": "You will create a free Usha Platform account in the same flow",
+    "waitlistLabel": "Waitlist",
+    "waitlistHeading": "Secure your spot in line",
+    "waitlistSub": "Sign up free and be the first to know when tickets drop.",
+    "namePlaceholder": "Name (optional)",
+    "emailPlaceholder": "Your email",
+    "consent": "I agree that my email is stored so I can receive information about this event. You can unsubscribe at any time.",
+    "joinButton": "Join the waitlist",
+    "joining": "Joining…",
+    "successTitle": "You are on the list! 🎉",
+    "successBody": "We will email {email} when tickets drop.",
+    "errorGeneric": "Something went wrong. Try again."
   }
 }

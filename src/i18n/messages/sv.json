@@ -1707,5 +1707,33 @@
       "fitness": "Fitness",
       "other": "Övrigt"
     }
+  },
+  "eventPage": {
+    "ticket": "Biljett",
+    "free": "Gratis",
+    "freeTicket": "Få gratis biljett",
+    "buyTicket": "Köp biljett · {price} kr",
+    "booking": "Bokar...",
+    "errorTitle": "Kunde inte boka",
+    "errorRetry": "Försök igen.",
+    "badgeEarlyBird": "Förköp",
+    "badgeSoldOut": "Slutsålt",
+    "badgeComingSoon": "Snart",
+    "earlyBirdUntil": "Förköpspris t.o.m. {date}",
+    "releasesAt": "Släpps {date}",
+    "soldOut": "Slutsålt",
+    "notReleased": "Inte släppt än",
+    "createAccountNote": "Du skapar ett gratis Usha Platform-konto i samma flöde",
+    "waitlistLabel": "Väntelista",
+    "waitlistHeading": "Säkra din plats i kön",
+    "waitlistSub": "Anmäl dig gratis så får du veta först när biljetterna släpps.",
+    "namePlaceholder": "Namn (valfritt)",
+    "emailPlaceholder": "Din e-post",
+    "consent": "Jag godkänner att min e-post sparas för att få information om det här eventet. Du kan avregistrera dig när som helst.",
+    "joinButton": "Gå med i väntelistan",
+    "joining": "Anmäler…",
+    "successTitle": "Du är med på listan! 🎉",
+    "successBody": "Vi hör av oss till {email} när biljetterna släpps.",
+    "errorGeneric": "Något gick fel. Försök igen."
   }
 }

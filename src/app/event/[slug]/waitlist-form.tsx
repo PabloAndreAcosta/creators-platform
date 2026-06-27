@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 export function WaitlistForm({ listingId }: { listingId: string }) {
+  const t = useTranslations("eventPage");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [consent, setConsent] = useState(false);
@@ -22,7 +24,7 @@ export function WaitlistForm({ listingId }: { listingId: string }) {
       const data = await res.json();
       if (!res.ok) {
         setStatus("error");
-        setMessage(data?.error ?? "Något gick fel. Försök igen.");
+        setMessage(data?.error ?? t("errorGeneric"));
         return;
       }
       setStatus("done");
@@ -35,9 +37,9 @@ export function WaitlistForm({ listingId }: { listingId: string }) {
   if (status === "done") {
     return (
       <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 text-center">
-        <p className="text-lg font-bold text-[var(--usha-gold)]">Du är med på listan! 🎉</p>
+        <p className="text-lg font-bold text-[var(--usha-gold)]">{t("successTitle")}</p>
         <p className="mt-2 text-sm text-[var(--usha-muted)]">
-          Vi hör av oss till {email} när biljetterna släpps.
+          {t("successBody", { email })}
         </p>
       </div>
     );
@@ -49,10 +51,10 @@ export function WaitlistForm({ listingId }: { listingId: string }) {
       className="space-y-3 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6"
     >
       <div>
-        <p className="text-xs uppercase tracking-wide text-[var(--usha-muted)]">Väntelista</p>
-        <p className="mt-1 text-lg font-bold">Säkra din plats i kön</p>
+        <p className="text-xs uppercase tracking-wide text-[var(--usha-muted)]">{t("waitlistLabel")}</p>
+        <p className="mt-1 text-lg font-bold">{t("waitlistHeading")}</p>
         <p className="mt-1 text-xs text-[var(--usha-muted)]">
-          Anmäl dig gratis så får du veta först när biljetterna släpps.
+          {t("waitlistSub")}
         </p>
       </div>
 
@@ -60,7 +62,7 @@ export function WaitlistForm({ listingId }: { listingId: string }) {
         type="text"
         value={name}
         onChange={(e) => setName(e.target.value)}
-        placeholder="Namn (valfritt)"
+        placeholder={t("namePlaceholder")}
         autoComplete="name"
         className="w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-3 py-2 text-sm"
       />
@@ -69,7 +71,7 @@ export function WaitlistForm({ listingId }: { listingId: string }) {
         required
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        placeholder="Din e-post"
+        placeholder={t("emailPlaceholder")}
         autoComplete="email"
         className="w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-3 py-2 text-sm"
       />
@@ -82,10 +84,7 @@ export function WaitlistForm({ listingId }: { listingId: string }) {
           onChange={(e) => setConsent(e.target.checked)}
           className="mt-0.5 h-3.5 w-3.5 accent-[var(--usha-gold)]"
         />
-        <span>
-          Jag godkänner att min e-post sparas för att få information om det här eventet.
-          Du kan avregistrera dig när som helst.
-        </span>
+        <span>{t("consent")}</span>
       </label>
 
       {status === "error" && <p className="text-xs text-red-400">{message}</p>}
@@ -95,7 +94,7 @@ export function WaitlistForm({ listingId }: { listingId: string }) {
         disabled={status === "loading"}
         className="w-full rounded-lg bg-[var(--usha-gold)] px-4 py-2.5 text-sm font-bold text-black disabled:opacity-60"
       >
-        {status === "loading" ? "Anmäler…" : "Gå med i väntelistan"}
+        {status === "loading" ? t("joining") : t("joinButton")}
       </button>
     </form>
   );

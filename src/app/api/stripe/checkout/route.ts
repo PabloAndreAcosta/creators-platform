@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PLANS, type PlanKey } from "@/lib/stripe/config";
 import { validatePromoCode, applyPromoDiscount } from "@/lib/promo/validate";
 import { BETA_MODE } from "@/lib/beta";
+import { getStripeLocale } from "@/lib/i18n/stripe-locale";
 
 export async function POST(req: NextRequest) {
   const { rateLimit, getRateLimitKey } = await import('@/lib/rate-limit');
@@ -119,6 +120,7 @@ export async function POST(req: NextRequest) {
     }
 
     sessionParams.automatic_tax = { enabled: true };
+    sessionParams.locale = await getStripeLocale();
 
     const session = await stripe.checkout.sessions.create(sessionParams);
 

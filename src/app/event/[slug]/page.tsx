@@ -10,6 +10,7 @@ import { EVENT_CATEGORY_LABELS } from "@/app/app/events/constants";
 import { BookButton } from "./book-button";
 import { WaitlistForm } from "./waitlist-form";
 import { getSaleState } from "@/lib/listings/sale-state";
+import { getTranslations, getLocale } from "next-intl/server";
 import { SocialShareButton } from "@/components/social-share-button";
 import { TrackEvent } from "@/components/track-event";
 
@@ -190,22 +191,24 @@ export default async function EventPage(props: Params) {
   const dateLabel = formatDate(listing.event_date, listing.event_time);
   const timeLabel = formatTime(listing.event_time, listing.event_end_time);
   // Timed automation: effective price + whether tickets are buyable right now.
+  const t = await getTranslations("eventPage");
+  const locale = await getLocale();
   const sale = getSaleState(listing, new Date());
   const isFree = !sale.price || sale.price <= 0;
   const saleUntil = sale.until
-    ? new Intl.DateTimeFormat("sv-SE", {
+    ? new Intl.DateTimeFormat(locale === "en" ? "en-GB" : "sv-SE", {
         day: "numeric", month: "long", hour: "2-digit", minute: "2-digit",
         timeZone: "Europe/Stockholm",
       }).format(sale.until)
     : null;
   const saleBadge =
-    sale.state === "early_bird" ? "Förköp" :
-    sale.state === "sold_out" ? "Slutsålt" :
-    sale.state === "before" ? "Snart" : null;
+    sale.state === "early_bird" ? t("badgeEarlyBird") :
+    sale.state === "sold_out" ? t("badgeSoldOut") :
+    sale.state === "before" ? t("badgeComingSoon") : null;
   const saleNote =
-    sale.state === "early_bird" && saleUntil ? `Förköpspris t.o.m. ${saleUntil}` :
-    sale.state === "before" && saleUntil ? `Släpps ${saleUntil}` :
-    sale.state === "sold_out" && saleUntil ? `Släpps ${saleUntil}` : null;
+    sale.state === "early_bird" && saleUntil ? t("earlyBirdUntil", { date: saleUntil }) :
+    sale.state === "before" && saleUntil ? t("releasesAt", { date: saleUntil }) :
+    sale.state === "sold_out" && saleUntil ? t("releasesAt", { date: saleUntil }) : null;
   const isHost = !!user && user.id === listing.user_id;
   const returnPath = `/event/${slug}`;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://usha.se";
@@ -331,10 +334,10 @@ export default async function EventPage(props: Params) {
             <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
               <div className="mb-4 text-center">
                 <p className="text-xs uppercase tracking-wide text-[var(--usha-muted)]">
-                  {saleBadge ?? "Biljett"}
+                  {saleBadge ?? t("ticket")}
                 </p>
                 <p className="mt-1 text-3xl font-bold text-[var(--usha-gold)]">
-                  {isFree ? "Gratis" : `${sale.price} kr`}
+                  {isFree ? t("free") : `${sale.price} kr`}
                 </p>
                 {saleNote && (
                   <p className="mt-1 text-xs text-[var(--usha-muted)]">{saleNote}</p>
@@ -349,12 +352,12 @@ export default async function EventPage(props: Params) {
                 />
               ) : (
                 <div className="w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-4 py-2.5 text-center text-sm font-semibold text-[var(--usha-muted)]">
-                  {sale.state === "sold_out" ? "Slutsålt" : "Inte släppt än"}
+                  {sale.state === "sold_out" ? t("soldOut") : t("notReleased")}
                 </div>
               )}
               {sale.buyable && !user && (
                 <p className="mt-3 text-center text-[11px] text-[var(--usha-muted)]">
-                  Du skapar ett gratis Usha Platform-konto i samma flöde
+                  {t("createAccountNote")}
                 </p>
               )}
             </div>

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getStripeLocale } from "@/lib/i18n/stripe-locale";
 import { stripe } from '@/lib/stripe/client';
 import { createClient } from '@/lib/supabase/server';
 import { getSaleState } from '@/lib/listings/sale-state';
@@ -183,7 +184,9 @@ export async function POST(req: NextRequest) {
     const applicationFee = Math.round(amountInOre * commissionRate);
 
     // Create Stripe Checkout session with Connect split
+    const stripeLocale = await getStripeLocale();
     const session = await stripe.checkout.sessions.create({
+      locale: stripeLocale,
       customer_email: user.email,
       line_items: [
         {
