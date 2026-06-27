@@ -3,6 +3,7 @@ import { getStripeLocale } from "@/lib/i18n/stripe-locale";
 import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@/lib/supabase/server";
 import { getSaleState } from "@/lib/listings/sale-state";
+import { getTranslations } from "next-intl/server";
 import {
   getCreatorCommissionRate,
 } from "@/lib/stripe/commission";
@@ -46,7 +47,8 @@ export async function POST(req: NextRequest) {
     // Timed automation: block when not buyable; use effective (early-bird) price.
     const sale = getSaleState(listing, new Date());
     if (!sale.buyable) {
-      const msg = sale.state === "before" ? "Biljetterna har inte släppts än." : "Eventet är slutsålt.";
+      const te = await getTranslations("eventErrors");
+      const msg = sale.state === "before" ? te("notReleased") : te("soldOut");
       return NextResponse.json({ error: msg }, { status: 403 });
     }
 

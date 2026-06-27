@@ -123,14 +123,15 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   if (!data) return { title: "Event hittades inte" };
 
   const { listing, host } = data;
+  const t = await getTranslations("eventPage");
   const image = listing.image_url ?? FALLBACK_IMAGE;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://usha.se";
   const description =
     listing.description?.slice(0, 200) ??
-    `En Usha-produktion${host?.full_name ? ` av ${host.full_name}` : ""}.`;
+    (host?.full_name ? t("metaDescriptionBy", { name: host.full_name }) : t("metaDescription"));
 
   return {
-    title: `${listing.title} — Usha-produktion`,
+    title: t("metaTitle", { title: listing.title }),
     description,
     openGraph: {
       title: listing.title,
@@ -148,12 +149,12 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   };
 }
 
-function formatDate(dateStr: string | null, timeStr: string | null) {
+function formatDate(dateStr: string | null, timeStr: string | null, locale = "sv") {
   if (!dateStr) return null;
   const time = timeStr ? (timeStr.length === 5 ? `${timeStr}:00` : timeStr.slice(0, 8)) : "12:00:00";
   const date = new Date(`${dateStr}T${time}+02:00`);
   if (isNaN(date.getTime())) return null;
-  return date.toLocaleDateString("sv-SE", {
+  return date.toLocaleDateString(locale === "en" ? "en-GB" : "sv-SE", {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -186,13 +187,15 @@ export default async function EventPage(props: Params) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const image = listing.image_url ?? FALLBACK_IMAGE;
-  const categoryLabel = EVENT_CATEGORY_LABELS[listing.category] ?? listing.category;
-  const dateLabel = formatDate(listing.event_date, listing.event_time);
-  const timeLabel = formatTime(listing.event_time, listing.event_end_time);
-  // Timed automation: effective price + whether tickets are buyable right now.
   const t = await getTranslations("eventPage");
   const locale = await getLocale();
+  const image = listing.image_url ?? FALLBACK_IMAGE;
+  const categoryLabel = t.has(`cat_${listing.category}`)
+    ? t(`cat_${listing.category}`)
+    : EVENT_CATEGORY_LABELS[listing.category] ?? listing.category;
+  const dateLabel = formatDate(listing.event_date, listing.event_time, locale);
+  const timeLabel = formatTime(listing.event_time, listing.event_end_time);
+  // Timed automation: effective price + whether tickets are buyable right now.
   const sale = getSaleState(listing, new Date());
   const isFree = !sale.price || sale.price <= 0;
   const saleUntil = sale.until
@@ -244,7 +247,7 @@ export default async function EventPage(props: Params) {
             <span className="flex h-5 w-5 items-center justify-center rounded bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)] text-[10px] font-bold text-black">
               U
             </span>
-            Usha-produktion
+            {t("production")}
           </Link>
         </div>
 
@@ -286,28 +289,28 @@ export default async function EventPage(props: Params) {
         {isHost && (
           <div className="mb-8 flex flex-wrap items-center gap-2 rounded-2xl border border-[var(--usha-gold)]/30 bg-[var(--usha-gold)]/5 p-3">
             <span className="mr-1 px-1 text-xs font-medium text-[var(--usha-gold)]">
-              Din produktion
+              {t("yourProduction")}
             </span>
             <Link
               href={`/app/events/${listing.id}/crew`}
               className="inline-flex items-center gap-2 rounded-full bg-[var(--usha-gold)] px-4 py-2 text-sm font-semibold text-black transition hover:opacity-90"
             >
               <Users size={15} />
-              Hantera crew
+              {t("manageCrew")}
             </Link>
             <Link
               href={`/app/events/${listing.id}/waitlist`}
               className="inline-flex items-center gap-2 rounded-full border border-[var(--usha-border)] px-4 py-2 text-sm font-medium text-[var(--usha-white)] transition hover:border-[var(--usha-gold)]/60"
             >
               <Clock size={15} />
-              Väntelista
+              {t("waitlistLabel")}
             </Link>
             <Link
               href={`/app/events/${listing.id}/edit`}
               className="inline-flex items-center gap-2 rounded-full border border-[var(--usha-border)] px-4 py-2 text-sm font-medium text-[var(--usha-white)] transition hover:border-[var(--usha-gold)]/60"
             >
               <Pencil size={15} />
-              Redigera
+              {t("edit")}
             </Link>
           </div>
         )}
@@ -319,13 +322,13 @@ export default async function EventPage(props: Params) {
               </div>
             ) : (
               <p className="text-base text-[var(--usha-muted)]">
-                Information om denna produktion uppdateras inom kort.
+                {t("descriptionSoon")}
               </p>
             )}
 
             {listing.duration_minutes && (
               <p className="mt-6 text-sm text-[var(--usha-muted)]">
-                Längd: {listing.duration_minutes} min
+                {t("durationMin", { minutes: listing.duration_minutes })}
               </p>
             )}
           </div>
@@ -366,7 +369,7 @@ export default async function EventPage(props: Params) {
 
             <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
               <p className="mb-2 text-[11px] uppercase tracking-wide text-[var(--usha-muted)]">
-                Dela
+                {t("share")}
               </p>
               <SocialShareButton
                 title={listing.title}
@@ -474,10 +477,10 @@ export default async function EventPage(props: Params) {
             <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
               <div>
                 <p className="text-xs uppercase tracking-wide text-[var(--usha-muted)]">
-                  Upptäck mer
+                  {t("discoverMore")}
                 </p>
                 <h2 className="mt-1 text-2xl font-bold sm:text-3xl">
-                  Fler Usha-produktioner
+                  {t("moreProductions")}
                 </h2>
               </div>
               <Link
@@ -506,7 +509,7 @@ export default async function EventPage(props: Params) {
                       />
                     ) : (
                       <div className="flex h-full items-center justify-center text-xs text-[var(--usha-muted)]">
-                        Usha-produktion
+                        {t("production")}
                       </div>
                     )}
                   </div>

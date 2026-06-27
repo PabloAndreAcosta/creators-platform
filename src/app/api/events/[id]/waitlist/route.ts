@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getTranslations } from "next-intl/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isValidEmail, normalizeEmail, cleanName } from "@/lib/waitlist";
 
@@ -10,19 +11,20 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id: listingId } = await params;
+  const te = await getTranslations("eventErrors");
 
   let body: { name?: unknown; email?: unknown; source?: unknown; consent?: unknown };
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ error: "Ogiltig förfrågan" }, { status: 400 });
+    return NextResponse.json({ error: te("generic") }, { status: 400 });
   }
 
   if (!isValidEmail(body.email)) {
-    return NextResponse.json({ error: "Ange en giltig e-postadress" }, { status: 400 });
+    return NextResponse.json({ error: te("invalidEmail") }, { status: 400 });
   }
   if (body.consent !== true) {
-    return NextResponse.json({ error: "Samtycke krävs" }, { status: 400 });
+    return NextResponse.json({ error: te("consentRequired") }, { status: 400 });
   }
 
   const admin = createAdminClient();
@@ -35,7 +37,7 @@ export async function POST(
     .eq("is_active", true)
     .maybeSingle();
   if (!listing) {
-    return NextResponse.json({ error: "Eventet hittades inte" }, { status: 404 });
+    return NextResponse.json({ error: te("eventNotFound") }, { status: 404 });
   }
 
   const email = normalizeEmail(body.email);
@@ -49,7 +51,7 @@ export async function POST(
   // 23505 = unique_violation → already on the list. Treat as success (idempotent).
   if (error && error.code !== "23505") {
     console.error("waitlist insert failed:", error);
-    return NextResponse.json({ error: "Något gick fel. Försök igen." }, { status: 500 });
+    return NextResponse.json({ error: te("generic") }, { status: 500 });
   }
 
   return NextResponse.json({ ok: true, alreadyOn: error?.code === "23505" });
