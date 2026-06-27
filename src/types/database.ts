@@ -198,6 +198,7 @@ export interface Database {
           price: number | null;
           duration_minutes: number | null;
           is_active: boolean;
+          is_public: boolean;
           event_tier: string | null;
           event_date: string | null;
           event_time: string | null;
@@ -210,9 +211,10 @@ export interface Database {
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["listings"]["Row"], "id" | "created_at" | "updated_at" | "is_active" | "listing_type" | "min_guests" | "experience_details"> & {
+        Insert: Omit<Database["public"]["Tables"]["listings"]["Row"], "id" | "created_at" | "updated_at" | "is_active" | "is_public" | "listing_type" | "min_guests" | "experience_details"> & {
           id?: string;
           is_active?: boolean;
+          is_public?: boolean;
           listing_type?: ListingType;
           min_guests?: number;
           experience_details?: ExperienceDetails;

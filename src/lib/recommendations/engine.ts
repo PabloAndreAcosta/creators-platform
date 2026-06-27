@@ -74,6 +74,7 @@ export async function getRecommendations(
       'id, title, description, category, price, duration_minutes, event_tier, event_date, event_location, image_url, created_at, user_id'
     )
     .eq('is_active', true)
+    .eq('is_public', true)
     .in('category', Array.from(categories));
 
   if (candidatesError) {
@@ -161,6 +162,7 @@ async function getPopularEvents(limit: number): Promise<RecommendedListing[]> {
       'id, title, description, category, price, duration_minutes, event_tier, event_date, event_location, image_url, created_at, user_id'
     )
     .eq('is_active', true)
+    .eq('is_public', true)
     .order('created_at', { ascending: false })
     .limit(50);
 

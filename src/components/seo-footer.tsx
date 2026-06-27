@@ -20,6 +20,7 @@ export async function SeoFooter() {
       .from("listings")
       .select("event_location")
       .eq("is_active", true)
+      .eq("is_public", true)
       .not("event_location", "is", null);
 
     // Get top cities from public profiles

@@ -116,6 +116,7 @@ export default async function MarketplacePage(
         .from("listings")
         .select("user_id")
         .eq("is_active", true)
+        .eq("is_public", true)
         .in("user_id", creatorIds),
       supabase
         .from("follows")
@@ -174,6 +175,7 @@ export default async function MarketplacePage(
       .from("listings")
       .select("user_id, image_url")
       .eq("is_active", true)
+      .eq("is_public", true)
       .not("image_url", "is", null)
       .in("user_id", creatorIds)
       .order("created_at", { ascending: false });

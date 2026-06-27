@@ -53,6 +53,7 @@ export default async function CreatorCalendarPage(props: Props) {
       .select("id, title, event_date, event_time, event_location")
       .eq("user_id", profile.id)
       .eq("is_active", true)
+      .eq("is_public", true)
       .eq("listing_type", "event")
       .gte("event_date", today)
       .order("event_date", { ascending: true }),

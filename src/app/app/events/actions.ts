@@ -198,6 +198,10 @@ export async function createEvent(formData: FormData) {
   // Opt-in: auto-publish each occurrence to Facebook ~3 days before its date.
   const fbAutoPost = formData.get("fb_auto_post") === "on";
 
+  // Opt-in: unlisted event — nåbart via direktlänk (slug) men dolt från
+  // marknadsplats/browse (den "hemliga länken"). Default = publikt/listat.
+  const isPublic = formData.get("unlisted") !== "on";
+
   // Capability gate (only when enforcement is on): a non-tier-granted host
   // selling tickets must unlock event_pack. There's no listing row yet to hang
   // an event-scoped unlock on, so we create the event as a draft (is_active =
@@ -213,6 +217,7 @@ export async function createEvent(formData: FormData) {
       user_id: user.id,
       event_date: d,
       is_active: !locked,
+      is_public: isPublic,
       slug: await generateUniqueListingSlug(supabase, parsed.data.title, {
         dateSuffix: d ?? undefined,
         taken,
@@ -373,6 +378,7 @@ export async function updateEvent(id: string, formData: FormData) {
     .single();
 
   const updateData: Record<string, unknown> = { ...parsed.data };
+  updateData.is_public = formData.get("unlisted") !== "on";
   if (current && !current.slug) {
     updateData.slug = await generateUniqueListingSlug(supabase, parsed.data.title, {
       excludeId: id,

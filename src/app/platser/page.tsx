@@ -50,6 +50,7 @@ export default async function PlatserPage(
       .from("listings")
       .select("event_place_id")
       .eq("is_active", true)
+      .eq("is_public", true)
       .in("event_place_id", placeIds as string[]);
 
     if (listings) {

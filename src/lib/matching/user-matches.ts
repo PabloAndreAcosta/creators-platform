@@ -69,6 +69,7 @@ export async function getUserMatches(userId: string, limit = 10): Promise<UserMa
     .from("listings")
     .select("id, user_id, title, description, category, price, duration_minutes, event_tier, event_date, event_time, event_location, image_url, listing_type, created_at")
     .eq("is_active", true)
+    .eq("is_public", true)
     .limit(120);
 
   const pool = (candidates ?? []).filter((l) => !booked.has(l.id));

@@ -59,6 +59,7 @@ export default async function AppHomePage() {
           .from("listings")
           .select("*, profiles(full_name, avatar_url)")
           .eq("is_active", true)
+          .eq("is_public", true)
           .order("created_at", { ascending: false })
           .limit(6),
         supabase

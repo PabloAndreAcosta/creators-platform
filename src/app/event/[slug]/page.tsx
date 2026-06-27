@@ -28,6 +28,7 @@ async function resolveSlugToOccurrence(slug: string): Promise<string | null> {
     .select("slug, event_date")
     .eq("series_slug", slug)
     .eq("is_active", true)
+    .eq("is_public", true)
     .or(`event_date.gte.${today},event_date.is.null`)
     .order("event_date", { ascending: true, nullsFirst: false })
     .limit(1)
@@ -39,6 +40,7 @@ async function resolveSlugToOccurrence(slug: string): Promise<string | null> {
     .select("slug")
     .eq("series_slug", slug)
     .eq("is_active", true)
+    .eq("is_public", true)
     .order("event_date", { ascending: false, nullsFirst: false })
     .limit(1)
     .maybeSingle();
@@ -69,6 +71,7 @@ async function getListing(slug: string) {
     .from("listings")
     .select("id, title, slug, image_url, event_date, event_location, price")
     .eq("is_active", true)
+    .eq("is_public", true)
     .neq("id", listing.id)
     .or(`event_date.gte.${today},event_date.is.null`)
     .order("event_date", { ascending: true, nullsFirst: false })

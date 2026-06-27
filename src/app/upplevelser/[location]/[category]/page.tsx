@@ -27,6 +27,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     .from("listings")
     .select("id", { count: "exact", head: true })
     .eq("is_active", true)
+    .eq("is_public", true)
     .eq("category", params.category)
     .ilike("event_city", `%${city}%`);
 
@@ -51,6 +52,7 @@ export default async function LocationCategoryPage(props: Props) {
     .from("listings")
     .select("id, title, description, price, event_date, event_location, event_city, event_venue, category, image_url, listing_type, is_promoted, promoted_until")
     .eq("is_active", true)
+    .eq("is_public", true)
     .eq("category", params.category)
     .ilike("event_city", `%${city}%`)
     .order("event_date", { ascending: true, nullsFirst: false })
@@ -65,6 +67,7 @@ export default async function LocationCategoryPage(props: Props) {
     .from("listings")
     .select("category")
     .eq("is_active", true)
+    .eq("is_public", true)
     .ilike("event_city", `%${city}%`);
   const cityCats = new Set((cityCatRows || []).map((r) => r.category).filter(Boolean));
 

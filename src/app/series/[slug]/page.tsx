@@ -39,6 +39,7 @@ async function fetchSeries(slug: string): Promise<Occurrence[]> {
     )
     .eq("series_slug", slug)
     .eq("is_active", true)
+    .eq("is_public", true)
     .order("event_date", { ascending: true });
   return (data as Occurrence[] | null) ?? [];
 }

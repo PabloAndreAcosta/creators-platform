@@ -54,7 +54,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     .from("listings")
     .select("id", { count: "exact", head: true })
     .eq("user_id", profile.id)
-    .eq("is_active", true);
+    .eq("is_active", true).eq("is_public", true);
   const isThin = !profile.bio && !activeListings;
 
   return {
@@ -96,6 +96,7 @@ export default async function CreatorProfilePage(props: Props) {
     .select("id, title, description, category, price, duration_minutes, event_date, event_time, event_location, release_to_gold_at, listing_type, min_guests, max_guests, experience_details")
     .eq("user_id", profile.id)
     .eq("is_active", true)
+    .eq("is_public", true)
     .order("created_at", { ascending: false });
 
   // Get visitor's tier for discount calculation + early bird filtering, and role for B2B booking gating

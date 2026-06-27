@@ -31,6 +31,7 @@ interface EventData {
   event_venue?: string | null;
   listing_type: ListingType | null;
   open_to_instructors: boolean | null;
+  is_public?: boolean | null;
   min_guests: number | null;
   max_guests: number | null;
   experience_details: ExperienceDetails | null;
@@ -96,6 +97,7 @@ export default function EventForm({
   const [occurrences, setOccurrences] = useState(4);
   const [fbAutoPost, setFbAutoPost] = useState(true);
   const [openToInstructors, setOpenToInstructors] = useState(event?.open_to_instructors ?? false);
+  const [unlisted, setUnlisted] = useState(event?.is_public === false);
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -358,6 +360,24 @@ export default function EventForm({
             </p>
           </div>
         )}
+
+        {/* Olistat event — nåbart via direktlänk men dolt från marknadsplats/sök */}
+        <div className="space-y-2 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
+          <label className="flex cursor-pointer items-center gap-2.5 text-sm">
+            <input
+              type="checkbox"
+              name="unlisted"
+              checked={unlisted}
+              onChange={(e) => setUnlisted(e.target.checked)}
+              className="h-4 w-4 accent-[var(--usha-gold)]"
+            />
+            <span className="font-medium">Endast via länk</span>
+          </label>
+          <p className="text-xs text-[var(--usha-muted)]">
+            Dölj eventet från marknadsplatsen och sök — det går bara att hitta via
+            den direktlänk du delar. Perfekt för förköp till en väntelista.
+          </p>
+        </div>
 
         {/* Open to instructors — shown on both create and edit */}
         <div className="space-y-2 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
