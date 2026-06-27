@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 export function BroadcastForm({
   listingId,
@@ -9,6 +10,7 @@ export function BroadcastForm({
   listingId: string;
   recipientCount: number;
 }) {
+  const t = useTranslations("hostEvent");
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [ctaLabel, setCtaLabel] = useState("");
@@ -18,9 +20,7 @@ export function BroadcastForm({
 
   async function send(mode: "test" | "live") {
     if (mode === "live") {
-      const ok = window.confirm(
-        `Skicka detta utskick till ${recipientCount} mottagare på väntelistan? Det går inte att ångra.`
-      );
+      const ok = window.confirm(t("confirmSend", { count: recipientCount }));
       if (!ok) return;
     }
     setBusy(mode);
@@ -33,14 +33,15 @@ export function BroadcastForm({
       });
       const data = await res.json();
       if (!res.ok) {
-        setMsg({ kind: "err", text: data?.error ?? "Något gick fel." });
+        setMsg({ kind: "err", text: data?.error ?? t("errGeneric") });
       } else if (mode === "test") {
-        setMsg({ kind: "ok", text: "Testutskick skickat till din e-post. Kontrollera innan du skickar skarpt." });
+        setMsg({ kind: "ok", text: t("testSent") });
       } else {
-        setMsg({ kind: "ok", text: `Utskick skickat till ${data.sent} mottagare${data.failed ? ` (${data.failed} misslyckades)` : ""}.` });
+        const failed = data.failed ? t("failedSuffix", { failed: data.failed }) : "";
+        setMsg({ kind: "ok", text: t("sentLive", { sent: data.sent, failed }) });
       }
     } catch {
-      setMsg({ kind: "err", text: "Något gick fel. Försök igen." });
+      setMsg({ kind: "err", text: t("errRetry") });
     } finally {
       setBusy("");
     }
@@ -53,38 +54,38 @@ export function BroadcastForm({
       {/* Compose */}
       <div className="space-y-3">
         <div>
-          <label className="text-xs uppercase tracking-wide text-[var(--usha-muted)]">Rubrik</label>
+          <label className="text-xs uppercase tracking-wide text-[var(--usha-muted)]">{t("labelSubject")}</label>
           <input
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
             maxLength={200}
-            placeholder="T.ex. Förköpet öppnar nu – 72 timmar"
+            placeholder={t("placeholderSubject")}
             className="mt-1 w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-3 py-2 text-sm"
           />
         </div>
         <div>
-          <label className="text-xs uppercase tracking-wide text-[var(--usha-muted)]">Meddelande</label>
+          <label className="text-xs uppercase tracking-wide text-[var(--usha-muted)]">{t("labelMessage")}</label>
           <textarea
             value={body}
             onChange={(e) => setBody(e.target.value)}
             rows={8}
             maxLength={10000}
-            placeholder="Skriv ditt meddelande…"
+            placeholder={t("placeholderMessage")}
             className="mt-1 w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-3 py-2 text-sm"
           />
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-xs uppercase tracking-wide text-[var(--usha-muted)]">Knapp-text (valfri)</label>
+            <label className="text-xs uppercase tracking-wide text-[var(--usha-muted)]">{t("labelButtonText")}</label>
             <input
               value={ctaLabel}
               onChange={(e) => setCtaLabel(e.target.value)}
-              placeholder="Köp biljett"
+              placeholder={t("placeholderButtonText")}
               className="mt-1 w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-3 py-2 text-sm"
             />
           </div>
           <div>
-            <label className="text-xs uppercase tracking-wide text-[var(--usha-muted)]">Knapp-länk (valfri)</label>
+            <label className="text-xs uppercase tracking-wide text-[var(--usha-muted)]">{t("labelButtonLink")}</label>
             <input
               value={ctaUrl}
               onChange={(e) => setCtaUrl(e.target.value)}
@@ -104,28 +105,28 @@ export function BroadcastForm({
             disabled={!canSend || !!busy}
             className="rounded-lg border border-[var(--usha-border)] px-4 py-2.5 text-sm font-medium disabled:opacity-50"
           >
-            {busy === "test" ? "Skickar…" : "Skicka testutskick till mig"}
+            {busy === "test" ? t("sending") : t("sendTest")}
           </button>
           <button
             onClick={() => send("live")}
             disabled={!canSend || !!busy || recipientCount === 0}
             className="rounded-lg bg-[var(--usha-gold)] px-4 py-2.5 text-sm font-bold text-black disabled:opacity-50"
           >
-            {busy === "live" ? "Skickar…" : `Skicka till ${recipientCount} mottagare`}
+            {busy === "live" ? t("sending") : t("sendLive", { count: recipientCount })}
           </button>
         </div>
         <p className="text-[11px] text-[var(--usha-muted)]">
-          Skicka alltid ett testutskick till dig själv först. Varje mejl innehåller en avregistreringslänk.
+          {t("testFirstNote")}
         </p>
       </div>
 
       {/* Preview */}
       <div>
-        <p className="mb-2 text-xs uppercase tracking-wide text-[var(--usha-muted)]">Förhandsvisning</p>
+        <p className="mb-2 text-xs uppercase tracking-wide text-[var(--usha-muted)]">{t("preview")}</p>
         <div className="rounded-2xl border border-[var(--usha-border)] bg-white p-5 text-[#111]">
-          <p className="text-sm font-bold">{subject || "(rubrik)"}</p>
+          <p className="text-sm font-bold">{subject || t("previewSubjectPlaceholder")}</p>
           <div className="mt-3 whitespace-pre-wrap text-sm leading-relaxed">
-            {body || "(meddelande)"}
+            {body || t("previewBodyPlaceholder")}
           </div>
           {ctaLabel && ctaUrl && (
             <p className="mt-5">
@@ -136,7 +137,7 @@ export function BroadcastForm({
           )}
           <hr className="my-4 border-[#eee]" />
           <p className="text-[11px] text-[#999]">
-            Du får detta mejl för att du anmälde dig till väntelistan. Avregistrera dig.
+            {t("previewFooter")}
           </p>
         </div>
       </div>

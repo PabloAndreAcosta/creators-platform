@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendBroadcast, isValidCtaUrl, type BroadcastRecipient } from "@/lib/email/broadcast";
@@ -19,6 +20,7 @@ export async function POST(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const te = await getTranslations("eventErrors");
 
   let payload: {
     subject?: unknown; body?: unknown; ctaLabel?: unknown; ctaUrl?: unknown; mode?: unknown;
@@ -26,7 +28,7 @@ export async function POST(
   try {
     payload = await req.json();
   } catch {
-    return NextResponse.json({ error: "Ogiltig förfrågan" }, { status: 400 });
+    return NextResponse.json({ error: te("generic") }, { status: 400 });
   }
 
   const subject = typeof payload.subject === "string" ? payload.subject.trim() : "";
@@ -36,13 +38,13 @@ export async function POST(
   const mode = payload.mode === "live" ? "live" : "test";
 
   if (!subject || subject.length > 200) {
-    return NextResponse.json({ error: "Ange en rubrik (max 200 tecken)" }, { status: 400 });
+    return NextResponse.json({ error: te("subjectRequired") }, { status: 400 });
   }
   if (!body || body.length > 10000) {
-    return NextResponse.json({ error: "Ange ett meddelande (max 10 000 tecken)" }, { status: 400 });
+    return NextResponse.json({ error: te("messageRequired") }, { status: 400 });
   }
   if (ctaUrl && !isValidCtaUrl(ctaUrl)) {
-    return NextResponse.json({ error: "Knapp-länken måste vara en giltig http(s)-adress" }, { status: 400 });
+    return NextResponse.json({ error: te("ctaUrlInvalid") }, { status: 400 });
   }
 
   const admin = createAdminClient();
@@ -52,13 +54,13 @@ export async function POST(
     .eq("id", listingId)
     .maybeSingle();
   if (!listing || listing.user_id !== user.id) {
-    return NextResponse.json({ error: "Event not found" }, { status: 404 });
+    return NextResponse.json({ error: te("eventNotFound") }, { status: 404 });
   }
 
   // Test mode: one email to the host, then done. Logged as 'test'.
   if (mode === "test") {
     if (!user.email) {
-      return NextResponse.json({ error: "Din profil saknar e-post" }, { status: 400 });
+      return NextResponse.json({ error: te("broadcastNoEmail") }, { status: 400 });
     }
     const result = await sendBroadcast({
       recipients: [{ email: user.email, unsubscribeUrl: `${APP_URL}/waitlist/unsubscribe/forhandsvisning` }],
@@ -89,7 +91,7 @@ export async function POST(
   }));
 
   if (recipients.length === 0) {
-    return NextResponse.json({ error: "Inga aktiva mottagare på väntelistan" }, { status: 400 });
+    return NextResponse.json({ error: te("noRecipients") }, { status: 400 });
   }
 
   const result = await sendBroadcast({ recipients, subject, body, ctaLabel, ctaUrl });

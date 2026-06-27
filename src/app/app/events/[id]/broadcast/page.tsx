@@ -4,12 +4,19 @@ import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { BroadcastForm } from "./broadcast-form";
+import { getTranslations, getLocale } from "next-intl/server";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Mejla väntelistan – Usha Platform" };
+export async function generateMetadata() {
+  const t = await getTranslations("hostEvent");
+  return { title: `${t("broadcastTitle")} – Usha Platform` };
+}
 
 export default async function BroadcastPage(props: { params: Promise<{ id: string }> }) {
   const { id } = await props.params;
+  const t = await getTranslations("hostEvent");
+  const locale = await getLocale();
+  const dateFmt = locale === "en" ? "en-GB" : "sv-SE";
   const supabase = await createClient();
   const {
     data: { user },
@@ -46,12 +53,12 @@ export default async function BroadcastPage(props: { params: Promise<{ id: strin
         href={`/app/events/${id}/waitlist`}
         className="mb-4 inline-flex items-center gap-1 text-sm text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
       >
-        <ChevronLeft className="h-4 w-4" /> Tillbaka till väntelistan
+        <ChevronLeft className="h-4 w-4" /> {t("backToWaitlist")}
       </Link>
 
-      <h1 className="text-2xl font-bold">Mejla väntelistan</h1>
+      <h1 className="text-2xl font-bold">{t("broadcastTitle")}</h1>
       <p className="mt-1 text-sm text-[var(--usha-muted)]">
-        {listing.title} · <span className="text-[var(--usha-gold)]">{recipientCount}</span> aktiva mottagare
+        {listing.title} · <span className="text-[var(--usha-gold)]">{recipientCount}</span> {t("activeRecipients")}
       </p>
 
       <div className="mt-6">
@@ -60,7 +67,7 @@ export default async function BroadcastPage(props: { params: Promise<{ id: strin
 
       {past && past.length > 0 && (
         <div className="mt-10">
-          <h2 className="mb-3 text-sm font-semibold text-[var(--usha-muted)]">Tidigare utskick</h2>
+          <h2 className="mb-3 text-sm font-semibold text-[var(--usha-muted)]">{t("pastBroadcasts")}</h2>
           <ul className="space-y-2">
             {past.map((b, i) => (
               <li
@@ -74,7 +81,7 @@ export default async function BroadcastPage(props: { params: Promise<{ id: strin
                   {b.subject}
                 </span>
                 <span className="ml-3 shrink-0 text-[var(--usha-muted)]">
-                  {b.recipient_count} st · {new Date(b.created_at).toLocaleDateString("sv-SE")}
+                  {t("recipientsShort", { count: b.recipient_count })} · {new Date(b.created_at).toLocaleDateString(dateFmt)}
                 </span>
               </li>
             ))}
