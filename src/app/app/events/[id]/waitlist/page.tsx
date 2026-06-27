@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft, Download } from "lucide-react";
+import { ChevronLeft, Download, Mail } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Väntelista – Usha Platform" };
@@ -53,14 +53,22 @@ export default async function WaitlistPage(props: { params: Promise<{ id: string
             </span>
           </p>
         </div>
-        {entries.length > 0 && (
-          <a
-            href={`/api/events/${id}/waitlist/export`}
-            className="inline-flex items-center gap-2 rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-2 text-sm font-medium hover:bg-[var(--usha-border)]"
+        <div className="flex shrink-0 gap-2">
+          <Link
+            href={`/app/events/${id}/broadcast`}
+            className="inline-flex items-center gap-2 rounded-lg bg-[var(--usha-gold)] px-4 py-2 text-sm font-bold text-black hover:opacity-90"
           >
-            <Download className="h-4 w-4" /> Exportera CSV
-          </a>
-        )}
+            <Mail className="h-4 w-4" /> Mejla listan
+          </Link>
+          {entries.length > 0 && (
+            <a
+              href={`/api/events/${id}/waitlist/export`}
+              className="inline-flex items-center gap-2 rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-2 text-sm font-medium hover:bg-[var(--usha-border)]"
+            >
+              <Download className="h-4 w-4" /> CSV
+            </a>
+          )}
+        </div>
       </div>
 
       {entries.length === 0 ? (
