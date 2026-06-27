@@ -8,6 +8,7 @@ import Link from "next/link";
 import { Calendar, Clock, MapPin, Ticket, Users, Pencil } from "lucide-react";
 import { EVENT_CATEGORY_LABELS } from "@/app/app/events/constants";
 import { BookButton } from "./book-button";
+import { WaitlistForm } from "./waitlist-form";
 import { SocialShareButton } from "@/components/social-share-button";
 import { TrackEvent } from "@/components/track-event";
 
@@ -275,6 +276,13 @@ export default async function EventPage(props: Params) {
               Hantera crew
             </Link>
             <Link
+              href={`/app/events/${listing.id}/waitlist`}
+              className="inline-flex items-center gap-2 rounded-full border border-[var(--usha-border)] px-4 py-2 text-sm font-medium text-[var(--usha-white)] transition hover:border-[var(--usha-gold)]/60"
+            >
+              <Clock size={15} />
+              Väntelista
+            </Link>
+            <Link
               href={`/app/events/${listing.id}/edit`}
               className="inline-flex items-center gap-2 rounded-full border border-[var(--usha-border)] px-4 py-2 text-sm font-medium text-[var(--usha-white)] transition hover:border-[var(--usha-gold)]/60"
             >
@@ -324,6 +332,8 @@ export default async function EventPage(props: Params) {
                 </p>
               )}
             </div>
+
+            <WaitlistForm listingId={listing.id} />
 
             <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
               <p className="mb-2 text-[11px] uppercase tracking-wide text-[var(--usha-muted)]">

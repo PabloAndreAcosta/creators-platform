@@ -221,6 +221,29 @@ export interface Database {
         };
         Update: Partial<Database["public"]["Tables"]["listings"]["Insert"]>;
       };
+      event_waitlist: {
+        Row: {
+          id: string;
+          listing_id: string;
+          name: string | null;
+          email: string;
+          source: string | null;
+          unsubscribe_token: string;
+          unsubscribed_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          listing_id: string;
+          name?: string | null;
+          email: string;
+          source?: string | null;
+          unsubscribe_token?: string;
+          unsubscribed_at?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["event_waitlist"]["Insert"]>;
+      };
       bookings: {
         Row: {
           id: string;
