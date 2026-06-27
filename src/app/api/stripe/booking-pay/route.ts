@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getStripeLocale } from "@/lib/i18n/stripe-locale";
 import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@/lib/supabase/server";
 import { calculateDiscountedPrice, getCreatorCommissionRate } from "@/lib/stripe/commission";
@@ -129,7 +130,9 @@ export async function POST(req: NextRequest) {
     const commissionRate = getCreatorCommissionRate(creator.tier ?? "gratis", creatorSubcategory);
     const applicationFee = Math.round(amountInOre * commissionRate);
 
+    const stripeLocale = await getStripeLocale();
     const session = await stripe.checkout.sessions.create({
+      locale: stripeLocale,
       customer_email: user.email,
       line_items: [
         {
