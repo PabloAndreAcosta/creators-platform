@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
+import { utcToStockholmLocal } from "@/lib/time";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { ArrowLeft, ImagePlus, X, Loader2 } from "lucide-react";
@@ -32,6 +33,11 @@ interface EventData {
   listing_type: ListingType | null;
   open_to_instructors: boolean | null;
   is_public?: boolean | null;
+  early_bird_start?: string | null;
+  early_bird_end?: string | null;
+  early_bird_price?: number | null;
+  public_sale_at?: string | null;
+  capacity?: number | null;
   min_guests: number | null;
   max_guests: number | null;
   experience_details: ExperienceDetails | null;
@@ -378,6 +384,65 @@ export default function EventForm({
             den direktlänk du delar. Perfekt för förköp till en väntelista.
           </p>
         </div>
+
+        {/* Tidsstyrd automatisering — förköpsfönster, schemalagt släpp, kapacitet */}
+        <details className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
+          <summary className="cursor-pointer text-sm font-medium">Automatisering (valfritt)</summary>
+          <p className="mt-2 text-xs text-[var(--usha-muted)]">
+            Tider anges i svensk tid. Lämna tomt för att stänga av. Förköpspriset gäller
+            mellan start och stopp; efter stopp blir eventet automatiskt slutsålt tills
+            det publika släppet.
+          </p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <label className="text-xs text-[var(--usha-muted)]">
+              Förköp öppnar
+              <input
+                type="datetime-local"
+                name="early_bird_start"
+                defaultValue={utcToStockholmLocal(event?.early_bird_start)}
+                className="mt-1 w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-3 py-2 text-sm text-[var(--usha-white)]"
+              />
+            </label>
+            <label className="text-xs text-[var(--usha-muted)]">
+              Förköp stänger
+              <input
+                type="datetime-local"
+                name="early_bird_end"
+                defaultValue={utcToStockholmLocal(event?.early_bird_end)}
+                className="mt-1 w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-3 py-2 text-sm text-[var(--usha-white)]"
+              />
+            </label>
+            <label className="text-xs text-[var(--usha-muted)]">
+              Förköpspris (kr)
+              <input
+                type="number"
+                name="early_bird_price"
+                min={0}
+                defaultValue={event?.early_bird_price ?? ""}
+                className="mt-1 w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-3 py-2 text-sm text-[var(--usha-white)]"
+              />
+            </label>
+            <label className="text-xs text-[var(--usha-muted)]">
+              Publikt släpp (ordinarie pris)
+              <input
+                type="datetime-local"
+                name="public_sale_at"
+                defaultValue={utcToStockholmLocal(event?.public_sale_at)}
+                className="mt-1 w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-3 py-2 text-sm text-[var(--usha-white)]"
+              />
+            </label>
+            <label className="text-xs text-[var(--usha-muted)]">
+              Kapacitet (antal platser)
+              <input
+                type="number"
+                name="capacity"
+                min={0}
+                defaultValue={event?.capacity ?? ""}
+                className="mt-1 w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-3 py-2 text-sm text-[var(--usha-white)]"
+              />
+            </label>
+          </div>
+        </details>
 
         {/* Open to instructors — shown on both create and edit */}
         <div className="space-y-2 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">

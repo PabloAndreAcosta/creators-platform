@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/client';
 import { createClient } from '@/lib/supabase/server';
+import { getSaleState } from '@/lib/listings/sale-state';
 import {
   calculateDiscountedPrice,
   getCreatorCommissionRate,
@@ -47,7 +48,7 @@ export async function POST(req: NextRequest) {
     // Get listing details
     const { data: listing, error: listingError } = await supabase
       .from('listings')
-      .select('id, title, price, user_id, is_active, event_date, event_time, release_to_gold_at')
+      .select('id, title, price, user_id, is_active, event_date, event_time, release_to_gold_at, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold')
       .eq('id', listingId)
       .single();
 
@@ -100,8 +101,19 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Timed automation: block when not buyable (sold out / not released yet)
+    // and use the effective price (early-bird price during the window).
+    const sale = getSaleState(listing, new Date());
+    if (!sale.buyable) {
+      const msg =
+        sale.state === 'before'
+          ? 'Biljetterna har inte släppts än.'
+          : 'Eventet är slutsålt.';
+      return NextResponse.json({ error: msg }, { status: 403 });
+    }
+
     // Free tickets — create booking directly without Stripe
-    if (!listing.price || listing.price <= 0) {
+    if (!sale.price || sale.price <= 0) {
       let scheduledAt: string;
       if (listing.event_date) {
         scheduledAt = listing.event_time
@@ -163,8 +175,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: PAYMENTS_BETA_BLOCKED_MESSAGE }, { status: 403 });
     }
 
-    // Calculate pricing
-    const originalPrice = listing.price;
+    // Calculate pricing — effective price honours the early-bird window.
+    const originalPrice = sale.price;
     const discountedPrice = calculateDiscountedPrice(originalPrice, userTier);
     const amountInOre = Math.round(discountedPrice * 100);
     const commissionRate = getCreatorCommissionRate(creator.tier ?? 'gratis');

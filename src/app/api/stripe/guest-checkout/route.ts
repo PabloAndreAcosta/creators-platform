@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@/lib/supabase/server";
+import { getSaleState } from "@/lib/listings/sale-state";
 import {
   getCreatorCommissionRate,
 } from "@/lib/stripe/commission";
@@ -29,7 +30,7 @@ export async function POST(req: NextRequest) {
     // Fetch listing
     const { data: listing } = await supabase
       .from("listings")
-      .select("id, title, price, user_id, is_active, event_date, event_time")
+      .select("id, title, price, user_id, is_active, event_date, event_time, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold")
       .eq("id", listingId)
       .eq("is_active", true)
       .single();
@@ -41,8 +42,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Timed automation: block when not buyable; use effective (early-bird) price.
+    const sale = getSaleState(listing, new Date());
+    if (!sale.buyable) {
+      const msg = sale.state === "before" ? "Biljetterna har inte släppts än." : "Eventet är slutsålt.";
+      return NextResponse.json({ error: msg }, { status: 403 });
+    }
+
     // Free tickets — create booking directly
-    if (!listing.price || listing.price <= 0) {
+    if (!sale.price || sale.price <= 0) {
       const { createClient: createAdmin } = await import("@supabase/supabase-js");
       const admin = createAdmin(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -94,7 +102,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: PAYMENTS_BETA_BLOCKED_MESSAGE }, { status: 403 });
     }
 
-    const amountInOre = Math.round(listing.price * 100);
+    const amountInOre = Math.round(sale.price * 100);
     const commissionRate = getCreatorCommissionRate(creator.tier ?? "gratis");
     const applicationFee = Math.round(amountInOre * commissionRate);
 

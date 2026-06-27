@@ -177,6 +177,9 @@ export async function POST(req: NextRequest) {
             amount_paid: amountPaid,
           });
 
+          // Timed automation: count the sold ticket (atomic) for capacity.
+          await getSupabaseAdmin().rpc("increment_tickets_sold", { p_listing: listingId, p_n: 1 });
+
           // Send confirmation to guest email
           const listingRes = await getSupabaseAdmin()
             .from("listings")
@@ -342,6 +345,9 @@ export async function POST(req: NextRequest) {
             stripe_payment_id: paymentIntentId,
             amount_paid: amountPaid,
           });
+
+          // Timed automation: count the sold ticket (atomic) for capacity.
+          await getSupabaseAdmin().rpc("increment_tickets_sold", { p_listing: listingId, p_n: 1 });
 
           // Record payment
           if (amountPaid) {

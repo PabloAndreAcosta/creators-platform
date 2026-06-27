@@ -9,6 +9,7 @@ import { Calendar, Clock, MapPin, Ticket, Users, Pencil } from "lucide-react";
 import { EVENT_CATEGORY_LABELS } from "@/app/app/events/constants";
 import { BookButton } from "./book-button";
 import { WaitlistForm } from "./waitlist-form";
+import { getSaleState } from "@/lib/listings/sale-state";
 import { SocialShareButton } from "@/components/social-share-button";
 import { TrackEvent } from "@/components/track-event";
 
@@ -53,7 +54,7 @@ async function getListing(slug: string) {
   const { data: listing } = await supabase
     .from("listings")
     .select(
-      "id, user_id, title, description, category, price, duration_minutes, image_url, event_date, event_time, event_end_time, event_location, slug, is_active"
+      "id, user_id, title, description, category, price, duration_minutes, image_url, event_date, event_time, event_end_time, event_location, slug, is_active, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold"
     )
     .eq("slug", slug)
     .eq("is_active", true)
@@ -188,7 +189,23 @@ export default async function EventPage(props: Params) {
   const categoryLabel = EVENT_CATEGORY_LABELS[listing.category] ?? listing.category;
   const dateLabel = formatDate(listing.event_date, listing.event_time);
   const timeLabel = formatTime(listing.event_time, listing.event_end_time);
-  const isFree = !listing.price || listing.price <= 0;
+  // Timed automation: effective price + whether tickets are buyable right now.
+  const sale = getSaleState(listing, new Date());
+  const isFree = !sale.price || sale.price <= 0;
+  const saleUntil = sale.until
+    ? new Intl.DateTimeFormat("sv-SE", {
+        day: "numeric", month: "long", hour: "2-digit", minute: "2-digit",
+        timeZone: "Europe/Stockholm",
+      }).format(sale.until)
+    : null;
+  const saleBadge =
+    sale.state === "early_bird" ? "Förköp" :
+    sale.state === "sold_out" ? "Slutsålt" :
+    sale.state === "before" ? "Snart" : null;
+  const saleNote =
+    sale.state === "early_bird" && saleUntil ? `Förköpspris t.o.m. ${saleUntil}` :
+    sale.state === "before" && saleUntil ? `Släpps ${saleUntil}` :
+    sale.state === "sold_out" && saleUntil ? `Släpps ${saleUntil}` : null;
   const isHost = !!user && user.id === listing.user_id;
   const returnPath = `/event/${slug}`;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://usha.se";
@@ -314,19 +331,28 @@ export default async function EventPage(props: Params) {
             <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
               <div className="mb-4 text-center">
                 <p className="text-xs uppercase tracking-wide text-[var(--usha-muted)]">
-                  Biljett
+                  {saleBadge ?? "Biljett"}
                 </p>
                 <p className="mt-1 text-3xl font-bold text-[var(--usha-gold)]">
-                  {isFree ? "Gratis" : `${listing.price} kr`}
+                  {isFree ? "Gratis" : `${sale.price} kr`}
                 </p>
+                {saleNote && (
+                  <p className="mt-1 text-xs text-[var(--usha-muted)]">{saleNote}</p>
+                )}
               </div>
-              <BookButton
-                listingId={listing.id}
-                price={listing.price ?? 0}
-                isLoggedIn={!!user}
-                returnPath={returnPath}
-              />
-              {!user && (
+              {sale.buyable ? (
+                <BookButton
+                  listingId={listing.id}
+                  price={sale.price}
+                  isLoggedIn={!!user}
+                  returnPath={returnPath}
+                />
+              ) : (
+                <div className="w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-4 py-2.5 text-center text-sm font-semibold text-[var(--usha-muted)]">
+                  {sale.state === "sold_out" ? "Slutsålt" : "Inte släppt än"}
+                </div>
+              )}
+              {sale.buyable && !user && (
                 <p className="mt-3 text-center text-[11px] text-[var(--usha-muted)]">
                   Du skapar ett gratis Usha Platform-konto i samma flöde
                 </p>

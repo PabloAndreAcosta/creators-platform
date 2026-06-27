@@ -9,6 +9,24 @@ import { getSubscriptionStatus } from "@/lib/subscription/check";
 import { checkListingLimit } from "@/lib/listings/limits";
 import { generateUniqueListingSlug, generateUniqueSeriesSlug } from "@/lib/listings/slug";
 import { ticketGateForNewEvent, ticketGateForListing } from "@/lib/capabilities/gate";
+import { stockholmLocalToUtcISO } from "@/lib/time";
+
+/** Tidsstyrd automatisering (Lucka 3) ur formuläret. Datetime-fält tolkas som
+ *  svensk tid och lagras som UTC. Tomma fält → null (avstängt). */
+function parseAutomation(formData: FormData) {
+  const num = (k: string) => {
+    const v = formData.get(k);
+    const n = v ? Number(v) : NaN;
+    return Number.isFinite(n) && n >= 0 ? n : null;
+  };
+  return {
+    early_bird_start: stockholmLocalToUtcISO(formData.get("early_bird_start") as string | null),
+    early_bird_end: stockholmLocalToUtcISO(formData.get("early_bird_end") as string | null),
+    early_bird_price: num("early_bird_price"),
+    public_sale_at: stockholmLocalToUtcISO(formData.get("public_sale_at") as string | null),
+    capacity: num("capacity"),
+  };
+}
 
 const BANKID_REQUIRED_MSG =
   "Du måste verifiera dig med BankID innan du kan publicera eller duplicera evenemang. Gör det under Profil.";
@@ -202,6 +220,9 @@ export async function createEvent(formData: FormData) {
   // marknadsplats/browse (den "hemliga länken"). Default = publikt/listat.
   const isPublic = formData.get("unlisted") !== "on";
 
+  // Tidsstyrd automatisering (förköpsfönster, schemalagt släpp, kapacitet).
+  const automation = parseAutomation(formData);
+
   // Capability gate (only when enforcement is on): a non-tier-granted host
   // selling tickets must unlock event_pack. There's no listing row yet to hang
   // an event-scoped unlock on, so we create the event as a draft (is_active =
@@ -218,6 +239,7 @@ export async function createEvent(formData: FormData) {
       event_date: d,
       is_active: !locked,
       is_public: isPublic,
+      ...automation,
       slug: await generateUniqueListingSlug(supabase, parsed.data.title, {
         dateSuffix: d ?? undefined,
         taken,
@@ -379,6 +401,7 @@ export async function updateEvent(id: string, formData: FormData) {
 
   const updateData: Record<string, unknown> = { ...parsed.data };
   updateData.is_public = formData.get("unlisted") !== "on";
+  Object.assign(updateData, parseAutomation(formData));
   if (current && !current.slug) {
     updateData.slug = await generateUniqueListingSlug(supabase, parsed.data.title, {
       excludeId: id,
