@@ -244,6 +244,35 @@ export interface Database {
         };
         Update: Partial<Database["public"]["Tables"]["event_waitlist"]["Insert"]>;
       };
+      email_broadcasts: {
+        Row: {
+          id: string;
+          listing_id: string;
+          sender_id: string;
+          subject: string;
+          body: string;
+          cta_label: string | null;
+          cta_url: string | null;
+          audience: string;
+          recipient_count: number;
+          status: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          listing_id: string;
+          sender_id: string;
+          subject: string;
+          body: string;
+          cta_label?: string | null;
+          cta_url?: string | null;
+          audience?: string;
+          recipient_count?: number;
+          status?: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["email_broadcasts"]["Insert"]>;
+      };
       bookings: {
         Row: {
           id: string;
