@@ -1705,7 +1705,8 @@
       "retreat": "Retreat",
       "venue": "Eventlokal",
       "fitness": "Fitness",
-      "other": "Övrigt"
+      "other": "Övrigt",
+      "day_party": "Dagfest"
     },
     "automationSummary": "Automatisering (valfritt)",
     "automationHelp": "Tider anges i svensk tid. Lämna tomt för att stänga av. Förköpspriset gäller mellan start och stopp; efter stopp blir eventet automatiskt slutsålt tills det publika släppet.",
@@ -1768,7 +1769,8 @@
     "unsubSuccessBody": "Du tas bort från väntelistan och får inga fler utskick för det här eventet.",
     "unsubInvalidTitle": "Länken är ogiltig",
     "unsubInvalidBody": "Avregistreringslänken kunde inte hittas. Den kan redan ha använts.",
-    "unsubMetaTitle": "Avregistrera – Usha Platform"
+    "unsubMetaTitle": "Avregistrera – Usha Platform",
+    "cat_day_party": "Dagfest"
   },
   "eventErrors": {
     "notReleased": "Biljetterna har inte släppts än.",

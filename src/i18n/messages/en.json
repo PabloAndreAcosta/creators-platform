@@ -1705,7 +1705,8 @@
       "retreat": "Retreat",
       "venue": "Event venue",
       "fitness": "Fitness",
-      "other": "Other"
+      "other": "Other",
+      "day_party": "Day party"
     },
     "automationSummary": "Automation (optional)",
     "automationHelp": "Times are in Swedish time. Leave blank to disable. The pre-sale price applies between start and end; after the end the event automatically becomes sold out until the public release.",
@@ -1735,7 +1736,7 @@
     "createAccountNote": "You will create a free Usha Platform account in the same flow",
     "waitlistLabel": "Waitlist",
     "waitlistHeading": "Secure your spot in line",
-    "waitlistSub": "Sign up free and be the first to know when tickets drop.",
+    "waitlistSub": "Sign up and get ticket access when tickets are released.",
     "namePlaceholder": "Name (optional)",
     "emailPlaceholder": "Your email",
     "consent": "I agree that my email is stored so I can receive information about this event. You can unsubscribe at any time.",
@@ -1768,7 +1769,8 @@
     "unsubSuccessBody": "You've been removed from the waitlist and won't receive any more emails for this event.",
     "unsubInvalidTitle": "Invalid link",
     "unsubInvalidBody": "The unsubscribe link couldn't be found. It may already have been used.",
-    "unsubMetaTitle": "Unsubscribe – Usha Platform"
+    "unsubMetaTitle": "Unsubscribe – Usha Platform",
+    "cat_day_party": "Day party"
   },
   "eventErrors": {
     "notReleased": "Tickets have not been released yet.",

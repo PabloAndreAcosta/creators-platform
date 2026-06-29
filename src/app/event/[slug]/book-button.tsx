@@ -27,7 +27,7 @@ export function BookButton({ listingId, price, isLoggedIn, returnPath }: Props) 
     return (
       <a
         href={`/signup?next=${next}`}
-        className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-8 py-4 text-base font-bold text-black shadow-lg transition hover:opacity-90 sm:text-lg"
+        className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-8 py-4 text-base font-bold text-black shadow-lg transition hover:opacity-90 whitespace-nowrap sm:text-lg"
       >
         <Ticket size={20} />
         {label}
@@ -66,7 +66,7 @@ export function BookButton({ listingId, price, isLoggedIn, returnPath }: Props) 
     <button
       onClick={handleClick}
       disabled={loading}
-      className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-8 py-4 text-base font-bold text-black shadow-lg transition hover:opacity-90 disabled:opacity-60 sm:text-lg"
+      className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-8 py-4 text-base font-bold text-black shadow-lg transition hover:opacity-90 disabled:opacity-60 whitespace-nowrap sm:text-lg"
     >
       {loading ? <Loader2 size={20} className="animate-spin" /> : <Ticket size={20} />}
       {loading ? t("booking") : label}
