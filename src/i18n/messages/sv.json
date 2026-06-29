@@ -1830,5 +1830,13 @@
     "previewSubjectPlaceholder": "(rubrik)",
     "previewBodyPlaceholder": "(meddelande)",
     "previewFooter": "Du får detta mejl för att du anmälde dig till väntelistan. Avregistrera dig."
+  },
+  "eventEmails": {
+    "confirmSubject": "Du är med på väntelistan – {title}",
+    "confirmHeading": "Du är med på listan! 🎉",
+    "confirmBody": "Tack för att du anmälde dig till {title}. Vi mejlar dig så fort biljetterna släpps.",
+    "saveTheDate": "Spara datumet: {date}",
+    "confirmUnsub": "Avregistrera dig",
+    "confirmFooter": "Du får detta mejl för att du anmälde dig till väntelistan på Usha Platform."
   }
 }
