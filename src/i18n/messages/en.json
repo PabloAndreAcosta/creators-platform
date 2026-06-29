@@ -1770,7 +1770,8 @@
     "unsubInvalidTitle": "Invalid link",
     "unsubInvalidBody": "The unsubscribe link couldn't be found. It may already have been used.",
     "unsubMetaTitle": "Unsubscribe – Usha Platform",
-    "cat_day_party": "Day party"
+    "cat_day_party": "Day party",
+    "noAccountNote": "No account needed — your ticket is sent to your email."
   },
   "eventErrors": {
     "notReleased": "Tickets have not been released yet.",

@@ -374,7 +374,7 @@ export default async function EventPage(props: Params) {
               )}
               {sale.buyable && !user && (
                 <p className="mt-3 text-center text-[11px] text-[var(--usha-muted)]">
-                  {t("createAccountNote")}
+                  {t("noAccountNote")}
                 </p>
               )}
             </div>
