@@ -210,6 +210,7 @@ export interface Database {
           public_sale_at: string | null;
           capacity: number | null;
           tickets_sold: number;
+          image_url_square: string | null;
           listing_type: ListingType;
           min_guests: number;
           max_guests: number | null;
@@ -217,7 +218,7 @@ export interface Database {
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["listings"]["Row"], "id" | "created_at" | "updated_at" | "is_active" | "is_public" | "listing_type" | "min_guests" | "experience_details" | "early_bird_start" | "early_bird_end" | "early_bird_price" | "public_sale_at" | "capacity" | "tickets_sold"> & {
+        Insert: Omit<Database["public"]["Tables"]["listings"]["Row"], "id" | "created_at" | "updated_at" | "is_active" | "is_public" | "listing_type" | "min_guests" | "experience_details" | "early_bird_start" | "early_bird_end" | "early_bird_price" | "public_sale_at" | "capacity" | "tickets_sold" | "image_url_square"> & {
           id?: string;
           is_active?: boolean;
           is_public?: boolean;
@@ -227,6 +228,7 @@ export interface Database {
           public_sale_at?: string | null;
           capacity?: number | null;
           tickets_sold?: number;
+          image_url_square?: string | null;
           listing_type?: ListingType;
           min_guests?: number;
           experience_details?: ExperienceDetails;

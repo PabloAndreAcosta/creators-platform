@@ -55,7 +55,7 @@ async function getListing(slug: string) {
   const { data: listing } = await supabase
     .from("listings")
     .select(
-      "id, user_id, title, description, category, price, duration_minutes, image_url, event_date, event_time, event_end_time, event_location, slug, is_active, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold"
+      "id, user_id, title, description, category, price, duration_minutes, image_url, image_url_square, event_date, event_time, event_end_time, event_location, slug, is_active, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold"
     )
     .eq("slug", slug)
     .eq("is_active", true)
@@ -228,15 +228,18 @@ export default async function EventPage(props: Params) {
           category: listing.category,
         }}
       />
-      <div className="relative h-[55vh] min-h-[400px] w-full overflow-hidden sm:h-[65vh]">
-        <Image
-          src={image}
-          alt={listing.title}
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover"
-        />
+      <div className="relative aspect-square w-full overflow-hidden sm:aspect-auto sm:h-[65vh] sm:min-h-[400px]">
+        {/* Mobil: kvadratisk banner (hela titeln syns). Desktop: bred banner,
+            top-justerad så den inbakade titeln inte beskärs. */}
+        <picture>
+          <source media="(max-width: 639px)" srcSet={listing.image_url_square ?? image} />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={image}
+            alt={listing.title}
+            className="absolute inset-0 h-full w-full object-cover object-top"
+          />
+        </picture>
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/10 to-black" />
 
         <div className="absolute left-6 top-6 z-10">
@@ -339,8 +342,19 @@ export default async function EventPage(props: Params) {
                 <p className="text-xs uppercase tracking-wide text-[var(--usha-muted)]">
                   {saleBadge ?? t("ticket")}
                 </p>
-                <p className="mt-1 text-3xl font-bold text-[var(--usha-gold)]">
-                  {isFree ? t("free") : `${sale.price} kr`}
+                <p className="mt-1 whitespace-nowrap text-3xl font-bold text-[var(--usha-gold)]">
+                  {isFree ? (
+                    t("free")
+                  ) : (
+                    <>
+                      {sale.price < (listing.price ?? 0) && (
+                        <span className="mr-2 align-middle text-xl font-normal text-[var(--usha-muted)] line-through">
+                          {listing.price} kr
+                        </span>
+                      )}
+                      {`${sale.price} kr`}
+                    </>
+                  )}
                 </p>
                 {saleNote && (
                   <p className="mt-1 text-xs text-[var(--usha-muted)]">{saleNote}</p>

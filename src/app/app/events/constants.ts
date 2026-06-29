@@ -1,4 +1,5 @@
 export const EVENT_CATEGORIES = [
+  "day_party",
   "restaurant",
   "concert",
   "nightclub",
@@ -10,6 +11,7 @@ export const EVENT_CATEGORIES = [
 ] as const;
 
 export const EVENT_CATEGORY_LABELS: Record<string, string> = {
+  day_party: "Dagfest",
   restaurant: "Restaurang",
   concert: "Konsert",
   nightclub: "Nattklubb",
