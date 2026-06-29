@@ -1830,5 +1830,13 @@
     "previewSubjectPlaceholder": "(subject)",
     "previewBodyPlaceholder": "(message)",
     "previewFooter": "You're receiving this because you joined the waitlist. Unsubscribe."
+  },
+  "eventEmails": {
+    "confirmSubject": "You’re on the waitlist – {title}",
+    "confirmHeading": "You’re on the list! 🎉",
+    "confirmBody": "Thanks for signing up for {title}. We’ll email you the moment tickets are released.",
+    "saveTheDate": "Save the date: {date}",
+    "confirmUnsub": "Unsubscribe",
+    "confirmFooter": "You’re receiving this because you joined the waitlist on Usha Platform."
   }
 }
