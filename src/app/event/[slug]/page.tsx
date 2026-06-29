@@ -10,7 +10,8 @@ import { EVENT_CATEGORY_LABELS } from "@/app/app/events/constants";
 import { BookButton } from "./book-button";
 import { WaitlistForm } from "./waitlist-form";
 import { getSaleState } from "@/lib/listings/sale-state";
-import { getTranslations, getLocale } from "next-intl/server";
+import { getTranslations, getLocale, getMessages } from "next-intl/server";
+import { NextIntlClientProvider } from "next-intl";
 import { SocialShareButton } from "@/components/social-share-button";
 import { TrackEvent } from "@/components/track-event";
 
@@ -55,7 +56,7 @@ async function getListing(slug: string) {
   const { data: listing } = await supabase
     .from("listings")
     .select(
-      "id, user_id, title, description, category, price, duration_minutes, image_url, image_url_square, event_date, event_time, event_end_time, event_location, slug, is_active, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold"
+      "id, user_id, title, description, category, price, duration_minutes, image_url, image_url_square, event_date, event_time, event_end_time, event_location, slug, is_active, content_language, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold"
     )
     .eq("slug", slug)
     .eq("is_active", true)
@@ -123,7 +124,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   if (!data) return { title: "Event hittades inte" };
 
   const { listing, host } = data;
-  const t = await getTranslations("eventPage");
+  const eventLocale = listing.content_language ?? (await getLocale());
+  const t = await getTranslations({ locale: eventLocale, namespace: "eventPage" });
   const image = listing.image_url ?? FALLBACK_IMAGE;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://usha.se";
   const description =
@@ -187,8 +189,13 @@ export default async function EventPage(props: Params) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const t = await getTranslations("eventPage");
-  const locale = await getLocale();
+  // Per-event language: if the host pinned a language, the WHOLE page (server
+  // text + client components) renders in it for every visitor; else follow the
+  // visitor's locale. Client children are wrapped in a matching provider below.
+  const eventLocale = listing.content_language ?? (await getLocale());
+  const t = await getTranslations({ locale: eventLocale, namespace: "eventPage" });
+  const messages = await getMessages({ locale: eventLocale });
+  const locale = eventLocale;
   const image = listing.image_url ?? FALLBACK_IMAGE;
   const categoryLabel = t.has(`cat_${listing.category}`)
     ? t(`cat_${listing.category}`)
@@ -217,6 +224,7 @@ export default async function EventPage(props: Params) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://usha.se";
 
   return (
+    <NextIntlClientProvider locale={eventLocale} messages={messages}>
     <main className="min-h-screen bg-[var(--usha-black)] text-[var(--usha-white)]">
       <TrackEvent
         name="listing_view"
@@ -552,5 +560,6 @@ export default async function EventPage(props: Params) {
         </section>
       )}
     </main>
+    </NextIntlClientProvider>
   );
 }

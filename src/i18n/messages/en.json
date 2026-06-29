@@ -1716,7 +1716,12 @@
     "publicSale": "Public release (regular price)",
     "capacityField": "Capacity (number of seats)",
     "unlistedLabel": "Link only",
-    "unlistedHelp": "Hide the event from the marketplace and search — it can only be found via the direct link you share. Perfect for pre-sale to a waitlist."
+    "unlistedHelp": "Hide the event from the marketplace and search — it can only be found via the direct link you share. Perfect for pre-sale to a waitlist.",
+    "contentLanguageLabel": "Event language",
+    "contentLanguageHelp": "Forces the event page into this language for all visitors. Auto = follow the visitor’s language.",
+    "langAuto": "Auto (visitor’s language)",
+    "langSv": "Swedish",
+    "langEn": "English"
   },
   "eventPage": {
     "ticket": "Ticket",
