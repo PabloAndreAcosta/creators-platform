@@ -19,12 +19,14 @@ function parseAutomation(formData: FormData) {
     const n = v ? Number(v) : NaN;
     return Number.isFinite(n) && n >= 0 ? n : null;
   };
+  const lang = formData.get("content_language");
   return {
     early_bird_start: stockholmLocalToUtcISO(formData.get("early_bird_start") as string | null),
     early_bird_end: stockholmLocalToUtcISO(formData.get("early_bird_end") as string | null),
     early_bird_price: num("early_bird_price"),
     public_sale_at: stockholmLocalToUtcISO(formData.get("public_sale_at") as string | null),
     capacity: num("capacity"),
+    content_language: lang === "sv" || lang === "en" ? lang : null,
   };
 }
 

@@ -33,6 +33,7 @@ interface EventData {
   listing_type: ListingType | null;
   open_to_instructors: boolean | null;
   is_public?: boolean | null;
+  content_language?: string | null;
   early_bird_start?: string | null;
   early_bird_end?: string | null;
   early_bird_price?: number | null;
@@ -366,6 +367,24 @@ export default function EventForm({
             </p>
           </div>
         )}
+
+        {/* Per-event språk — tvingar event-sidan till valt språk för alla besökare */}
+        <div className="space-y-2 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
+          <label className="block text-sm font-medium" htmlFor="content_language">
+            {t("contentLanguageLabel")}
+          </label>
+          <select
+            id="content_language"
+            name="content_language"
+            defaultValue={event?.content_language ?? ""}
+            className="w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-3 py-2 text-sm text-[var(--usha-white)]"
+          >
+            <option value="">{t("langAuto")}</option>
+            <option value="sv">{t("langSv")}</option>
+            <option value="en">{t("langEn")}</option>
+          </select>
+          <p className="text-xs text-[var(--usha-muted)]">{t("contentLanguageHelp")}</p>
+        </div>
 
         {/* Olistat event — nåbart via direktlänk men dolt från marknadsplats/sök */}
         <div className="space-y-2 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">

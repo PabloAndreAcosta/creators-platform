@@ -1716,7 +1716,12 @@
     "publicSale": "Publikt släpp (ordinarie pris)",
     "capacityField": "Kapacitet (antal platser)",
     "unlistedLabel": "Endast via länk",
-    "unlistedHelp": "Dölj eventet från marknadsplatsen och sök — det går bara att hitta via den direktlänk du delar. Perfekt för förköp till en väntelista."
+    "unlistedHelp": "Dölj eventet från marknadsplatsen och sök — det går bara att hitta via den direktlänk du delar. Perfekt för förköp till en väntelista.",
+    "contentLanguageLabel": "Eventets språk",
+    "contentLanguageHelp": "Tvingar event-sidan till detta språk för alla besökare. Auto = följ besökarens språk.",
+    "langAuto": "Auto (besökarens språk)",
+    "langSv": "Svenska",
+    "langEn": "Engelska"
   },
   "eventPage": {
     "ticket": "Biljett",
