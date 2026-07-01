@@ -22,7 +22,10 @@ async function sendWaitlistConfirmation(opts: {
       ? opts.contentLanguage
       : await getLocale();
   const t = await getTranslations({ locale: lang, namespace: "eventEmails" });
-  const title = escapeHtml(opts.title);
+  // Use the raw title in interpolation; the single escapeHtml() on the rendered
+  // string below escapes it exactly once (pre-escaping here would double-encode
+  // "&" → "&amp;amp;", which renders as a literal "&amp;").
+  const title = opts.title;
   const unsubUrl = `${APP_URL}/waitlist/unsubscribe/${opts.token}`;
 
   let dateBlock = "";
