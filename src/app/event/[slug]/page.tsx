@@ -236,16 +236,16 @@ export default async function EventPage(props: Params) {
           category: listing.category,
         }}
       />
-      <div className="relative aspect-square w-full overflow-hidden sm:aspect-auto sm:h-[65vh] sm:min-h-[400px]">
-        {/* Mobil: kvadratisk banner (hela titeln syns). Desktop: bred banner,
-            top-justerad så den inbakade titeln inte beskärs. */}
+      <div className="relative aspect-square w-full overflow-hidden sm:aspect-[2/1]">
+        {/* Mobil: kvadratisk banner. Desktop: bred banner i sitt naturliga 2:1
+            så hela bilden syns (titel + publikens ansikten), ingen beskärning. */}
         <picture>
           <source media="(max-width: 639px)" srcSet={listing.image_url_square ?? image} />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={image}
             alt={listing.title}
-            className="absolute inset-0 h-full w-full object-cover object-top"
+            className="absolute inset-0 h-full w-full object-cover object-center"
           />
         </picture>
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/10 to-black" />
