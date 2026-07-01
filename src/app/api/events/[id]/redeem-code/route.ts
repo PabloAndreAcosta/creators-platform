@@ -52,7 +52,7 @@ export async function POST(
   }
 
   const scheduledAt = listing.event_date
-    ? new Date(`${listing.event_date}T${listing.event_time || "00:00"}:00`).toISOString()
+    ? new Date(`${listing.event_date}T${listing.event_time || "00:00:00"}`).toISOString()
     : new Date().toISOString();
 
   const { error: bookErr } = await admin.from("bookings").insert({
