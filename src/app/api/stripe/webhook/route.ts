@@ -478,12 +478,14 @@ export async function POST(req: NextRequest) {
             attendees = JSON.parse(session.metadata.attendees || "[]");
           } catch { /* ignore */ }
 
-          // Create pending booking (creator must confirm)
+          // Payment already succeeded → auto-confirm the booking (no manual
+          // creator confirmation step). The creator is notified below and can
+          // still cancel (→ refund) if the proposed time doesn't work.
           await getSupabaseAdmin().from("bookings").insert({
             listing_id: listingId,
             creator_id: creatorId,
             customer_id: userId,
-            status: "pending",
+            status: "confirmed",
             scheduled_at: scheduledAt,
             booking_type: "manual",
             stripe_payment_id: (session.payment_intent as string) || null,
@@ -494,6 +496,22 @@ export async function POST(req: NextRequest) {
             notes,
             ...(danceCount && danceCount > 0 ? { dances_total: danceCount, dances_redeemed: 0 } : {}),
           });
+
+          // Notify the creator of the new paid, confirmed booking.
+          if (creatorId) {
+            const { data: paidListing } = await getSupabaseAdmin()
+              .from("listings")
+              .select("title")
+              .eq("id", listingId)
+              .single();
+            await getSupabaseAdmin().from("notifications").insert({
+              user_id: creatorId,
+              type: "booking_confirmed",
+              title: "Ny betald bokning",
+              message: `En betald bokning för «${paidListing?.title ?? "din tjänst"}» är bekräftad.`,
+              link: "/dashboard/bookings",
+            });
+          }
 
           // Record payment
           if (amountPaid) {
