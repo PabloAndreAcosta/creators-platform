@@ -9,6 +9,7 @@ import { Calendar, Clock, MapPin, Ticket, Users, Pencil } from "lucide-react";
 import { EVENT_CATEGORY_LABELS } from "@/app/app/events/constants";
 import { BookButton } from "./book-button";
 import { WaitlistForm } from "./waitlist-form";
+import { AccessCodeForm } from "./access-code-form";
 import { getSaleState } from "@/lib/listings/sale-state";
 import { getTranslations, getLocale, getMessages } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
@@ -317,6 +318,13 @@ export default async function EventPage(props: Params) {
               {t("waitlistLabel")}
             </Link>
             <Link
+              href={`/app/events/${listing.id}/codes`}
+              className="inline-flex items-center gap-2 rounded-full border border-[var(--usha-border)] px-4 py-2 text-sm font-medium text-[var(--usha-white)] transition hover:border-[var(--usha-gold)]/60"
+            >
+              <Ticket size={15} />
+              {t("manageCodes")}
+            </Link>
+            <Link
               href={`/app/events/${listing.id}/edit`}
               className="inline-flex items-center gap-2 rounded-full border border-[var(--usha-border)] px-4 py-2 text-sm font-medium text-[var(--usha-white)] transition hover:border-[var(--usha-gold)]/60"
             >
@@ -390,6 +398,9 @@ export default async function EventPage(props: Params) {
             {/* Väntelistan visas bara när biljetter INTE säljs (ännu ej släppt
                 eller slutsålt) — under aktiv försäljning köper man direkt. */}
             {!sale.buyable && <WaitlistForm listingId={listing.id} />}
+
+            {/* Åtkomstkod (team/VIP) — alltid tillgänglig, ger gratis biljett. */}
+            <AccessCodeForm listingId={listing.id} isLoggedIn={!!user} />
 
             <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
               <p className="mb-2 text-[11px] uppercase tracking-wide text-[var(--usha-muted)]">
