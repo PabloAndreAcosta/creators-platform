@@ -180,6 +180,13 @@ export async function POST(req: NextRequest) {
           // Timed automation: count the sold ticket (atomic) for capacity.
           await getSupabaseAdmin().rpc("increment_tickets_sold", { p_listing: listingId, p_n: 1 });
 
+          // Discount access code: consume one use now that payment succeeded.
+          if (session.metadata?.accessCodeId) {
+            await getSupabaseAdmin()
+              .rpc("consume_access_code", { p_id: session.metadata.accessCodeId })
+              .then(({ error }) => error && console.error("consume_access_code failed:", error));
+          }
+
           // Send confirmation to guest email
           const listingRes = await getSupabaseAdmin()
             .from("listings")
@@ -348,6 +355,13 @@ export async function POST(req: NextRequest) {
 
           // Timed automation: count the sold ticket (atomic) for capacity.
           await getSupabaseAdmin().rpc("increment_tickets_sold", { p_listing: listingId, p_n: 1 });
+
+          // Discount access code: consume one use now that payment succeeded.
+          if (session.metadata?.accessCodeId) {
+            await getSupabaseAdmin()
+              .rpc("consume_access_code", { p_id: session.metadata.accessCodeId })
+              .then(({ error }) => error && console.error("consume_access_code failed:", error));
+          }
 
           // Record payment
           if (amountPaid) {

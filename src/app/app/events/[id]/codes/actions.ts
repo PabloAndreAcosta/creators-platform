@@ -29,10 +29,13 @@ export async function createAccessCode(listingId: string, formData: FormData) {
   const label = String(formData.get("label") || "").trim() || null;
   const maxRaw = formData.get("max_uses");
   const maxUses = maxRaw && Number(maxRaw) > 0 ? Math.floor(Number(maxRaw)) : null;
+  // discount_price = final ticket price in kr. Empty / 0 = free ticket.
+  const discRaw = formData.get("discount_price");
+  const discountPrice = discRaw && Number(discRaw) > 0 ? Math.floor(Number(discRaw)) : null;
 
   const { error } = await admin
     .from("event_access_codes")
-    .insert({ listing_id: listingId, code, label, max_uses: maxUses });
+    .insert({ listing_id: listingId, code, label, max_uses: maxUses, discount_price: discountPrice });
   if (error) {
     return { error: error.code === "23505" ? "Koden finns redan." : "Kunde inte skapa koden." };
   }

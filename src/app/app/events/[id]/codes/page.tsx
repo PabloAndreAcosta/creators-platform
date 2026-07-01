@@ -32,7 +32,7 @@ export default async function CodesPage(props: { params: Promise<{ id: string }>
 
   const { data: codes } = await admin
     .from("event_access_codes")
-    .select("id, code, label, max_uses, used_count, is_active")
+    .select("id, code, label, max_uses, used_count, is_active, discount_price")
     .eq("listing_id", id)
     .order("created_at", { ascending: true });
 

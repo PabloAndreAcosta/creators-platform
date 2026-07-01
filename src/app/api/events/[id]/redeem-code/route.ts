@@ -4,10 +4,16 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isValidEmail, normalizeEmail, cleanName } from "@/lib/waitlist";
 import { sendBookingConfirmationEmail } from "@/lib/email/send-booking";
+import { getStripeLocale } from "@/lib/i18n/stripe-locale";
+import { stripe } from "@/lib/stripe/client";
+import { getCreatorCommissionRate } from "@/lib/stripe/commission";
+import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
 
-// Redeem an event access code (team / VIP) for a FREE ticket. Works for
-// logged-in users and guests (email required). Redemption is atomic so a code's
-// max_uses can never be exceeded even under concurrency.
+// Redeem an event access code for a ticket. Works for logged-in users and guests
+// (email required). Two kinds of code:
+//   • discount_price = NULL → FREE ticket (team / VIP). Booked directly, atomic.
+//   • discount_price set (kr) → PAID ticket at that price via Stripe. The use is
+//     consumed in the webhook AFTER successful payment (never on an abandoned checkout).
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -36,13 +42,92 @@ export async function POST(
   const admin = createAdminClient();
   const { data: listing } = await admin
     .from("listings")
-    .select("id, user_id, title, event_date, event_time")
+    .select("id, user_id, title, event_date, event_time, capacity, tickets_sold")
     .eq("id", listingId)
     .eq("is_active", true)
     .maybeSingle();
   if (!listing) return NextResponse.json({ error: te("eventNotFound") }, { status: 404 });
 
-  // Atomically consume one use if the code is valid + available.
+  // Look up the code (validate-only) to decide free vs discount. Codes are stored
+  // upper/trimmed, matching redeem_access_code's upper(btrim()).
+  const { data: codeRow } = await admin
+    .from("event_access_codes")
+    .select("id, discount_price, is_active, max_uses, used_count")
+    .eq("listing_id", listingId)
+    .eq("code", code.toUpperCase())
+    .maybeSingle();
+  if (
+    !codeRow ||
+    !codeRow.is_active ||
+    (codeRow.max_uses !== null && codeRow.used_count >= codeRow.max_uses)
+  ) {
+    return NextResponse.json({ error: te("invalidCode") }, { status: 400 });
+  }
+
+  // ── DISCOUNT CODE → paid ticket at discount_price via Stripe Connect ──
+  if (codeRow.discount_price && codeRow.discount_price > 0) {
+    if (listing.capacity !== null && (listing.tickets_sold ?? 0) >= listing.capacity) {
+      return NextResponse.json({ error: te("soldOut") }, { status: 403 });
+    }
+
+    const { data: creator } = await admin
+      .from("profiles")
+      .select("stripe_account_id, tier, company_verified_at")
+      .eq("id", listing.user_id)
+      .maybeSingle();
+
+    if (!creator?.stripe_account_id) {
+      return NextResponse.json({ error: te("generic") }, { status: 400 });
+    }
+    if (!canReceivePayments({ id: listing.user_id, company_verified_at: creator.company_verified_at })) {
+      return NextResponse.json({ error: PAYMENTS_BETA_BLOCKED_MESSAGE }, { status: 403 });
+    }
+
+    const amountInOre = Math.round(codeRow.discount_price * 100);
+    const applicationFee = Math.round(amountInOre * getCreatorCommissionRate(creator.tier ?? "gratis"));
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";
+    const stripeLocale = await getStripeLocale();
+
+    const session = await stripe.checkout.sessions.create({
+      locale: stripeLocale,
+      customer_email: email,
+      line_items: [
+        {
+          price_data: {
+            currency: "sek",
+            product_data: { name: listing.title },
+            unit_amount: amountInOre,
+          },
+          quantity: 1,
+        },
+      ],
+      mode: "payment",
+      payment_intent_data: {
+        application_fee_amount: applicationFee,
+        transfer_data: { destination: creator.stripe_account_id },
+      },
+      automatic_tax: { enabled: true },
+      success_url: `${baseUrl}/flode?ticket=success`,
+      cancel_url: `${baseUrl}/flode`,
+      metadata: {
+        // Reuse the existing webhook ticket branches; accessCodeId consumes the
+        // use on payment success.
+        type: user ? "ticket" : "guest_ticket",
+        listingId: listing.id,
+        creatorId: listing.user_id,
+        accessCodeId: codeRow.id,
+        eventDate: listing.event_date || "",
+        eventTime: listing.event_time || "",
+        ...(user
+          ? { userId: user.id }
+          : { guestEmail: email, guestName: name || "" }),
+      },
+    });
+
+    return NextResponse.json({ url: session.url });
+  }
+
+  // ── FREE CODE → atomically consume one use, then book the free ticket ──
   const { data: codeId, error: rpcErr } = await admin.rpc("redeem_access_code", {
     p_listing: listingId,
     p_code: code,

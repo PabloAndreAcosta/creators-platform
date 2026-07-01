@@ -28,6 +28,11 @@ export function AccessCodeForm({ listingId, isLoggedIn }: { listingId: string; i
         setMessage(data?.error ?? t("errorGeneric"));
         return;
       }
+      // Discount code → server returns a Stripe Checkout URL. Free code → { ok }.
+      if (data?.url) {
+        window.location.href = data.url;
+        return;
+      }
       setStatus("done");
     } catch {
       setStatus("error");

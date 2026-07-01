@@ -12,6 +12,7 @@ interface Code {
   max_uses: number | null;
   used_count: number;
   is_active: boolean;
+  discount_price: number | null;
 }
 
 export function CodesManager({ listingId, codes }: { listingId: string; codes: Code[] }) {
@@ -44,7 +45,7 @@ export function CodesManager({ listingId, codes }: { listingId: string; codes: C
 
   return (
     <div className="space-y-6">
-      <form onSubmit={onCreate} className="grid gap-2 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 sm:grid-cols-4">
+      <form onSubmit={onCreate} className="grid gap-2 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 sm:grid-cols-5">
         <input
           name="code"
           required
@@ -63,6 +64,13 @@ export function CodesManager({ listingId, codes }: { listingId: string; codes: C
           placeholder={t("maxUsesPlaceholder")}
           className="rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-3 py-2 text-sm"
         />
+        <input
+          name="discount_price"
+          type="number"
+          min={1}
+          placeholder={t("discountPricePlaceholder")}
+          className="rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-3 py-2 text-sm"
+        />
         <button
           type="submit"
           disabled={pending}
@@ -70,7 +78,8 @@ export function CodesManager({ listingId, codes }: { listingId: string; codes: C
         >
           {t("createCode")}
         </button>
-        {error && <p className="text-xs text-red-400 sm:col-span-4">{error}</p>}
+        <p className="text-xs text-[var(--usha-muted)] sm:col-span-5">{t("discountHint")}</p>
+        {error && <p className="text-xs text-red-400 sm:col-span-5">{error}</p>}
       </form>
 
       {codes.length === 0 ? (
@@ -84,6 +93,7 @@ export function CodesManager({ listingId, codes }: { listingId: string; codes: C
               <tr>
                 <th className="px-4 py-3 font-medium">{t("colCode")}</th>
                 <th className="px-4 py-3 font-medium">{t("colLabel")}</th>
+                <th className="px-4 py-3 font-medium">{t("colPrice")}</th>
                 <th className="px-4 py-3 font-medium">{t("colUsed")}</th>
                 <th className="px-4 py-3 font-medium">{t("colActive")}</th>
               </tr>
@@ -93,6 +103,9 @@ export function CodesManager({ listingId, codes }: { listingId: string; codes: C
                 <tr key={c.id} className="border-t border-[var(--usha-border)]">
                   <td className="px-4 py-3 font-mono font-semibold">{c.code}</td>
                   <td className="px-4 py-3 text-[var(--usha-muted)]">{c.label ?? "—"}</td>
+                  <td className="px-4 py-3">
+                    {c.discount_price ? `${c.discount_price} kr` : t("freeLabel")}
+                  </td>
                   <td className="px-4 py-3">
                     {c.used_count} / {c.max_uses ?? t("unlimited")}
                   </td>
