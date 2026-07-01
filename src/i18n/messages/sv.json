@@ -1777,7 +1777,14 @@
     "unsubMetaTitle": "Avregistrera – Usha Platform",
     "cat_day_party": "Dagfest",
     "noAccountNote": "Inget konto behövs — biljetten skickas till din e-post.",
-    "organizer": "Arrangör"
+    "organizer": "Arrangör",
+    "haveCode": "Har du en kod?",
+    "codePlaceholder": "Åtkomstkod",
+    "redeemButton": "Hämta gratisbiljett",
+    "redeeming": "Löser in…",
+    "codeSuccessTitle": "Du är med! 🎫",
+    "codeSuccessBody": "Din gratisbiljett är bekräftad — kolla {email}.",
+    "manageCodes": "Åtkomstkoder"
   },
   "eventErrors": {
     "notReleased": "Biljetterna har inte släppts än.",
@@ -1790,7 +1797,9 @@
     "messageRequired": "Ange ett meddelande (max 10 000 tecken).",
     "ctaUrlInvalid": "Knapp-länken måste vara en giltig http(s)-adress.",
     "broadcastNoEmail": "Din profil saknar e-post.",
-    "noRecipients": "Inga aktiva mottagare på väntelistan."
+    "noRecipients": "Inga aktiva mottagare på väntelistan.",
+    "codeRequired": "Ange en kod.",
+    "invalidCode": "Ogiltig eller förbrukad kod."
   },
   "hostEvent": {
     "backToEvent": "Tillbaka till eventet",
@@ -1830,7 +1839,21 @@
     "preview": "Förhandsvisning",
     "previewSubjectPlaceholder": "(rubrik)",
     "previewBodyPlaceholder": "(meddelande)",
-    "previewFooter": "Du får detta mejl för att du anmälde dig till väntelistan. Avregistrera dig."
+    "previewFooter": "Du får detta mejl för att du anmälde dig till väntelistan. Avregistrera dig.",
+    "codesTitle": "Åtkomstkoder",
+    "codesDesc": "Koder ger en gratis biljett — för crew på plats eller VIP-gäster.",
+    "manageCodes": "Åtkomstkoder",
+    "colCode": "Kod",
+    "colLabel": "Etikett",
+    "colUsed": "Använd",
+    "colActive": "Aktiv",
+    "createCode": "Skapa kod",
+    "noCodes": "Inga koder än. Skapa en för din crew eller VIP-gäster.",
+    "labelPlaceholder": "Etikett (t.ex. Team, VIP)",
+    "maxUsesPlaceholder": "Max antal (tomt = obegränsat)",
+    "unlimited": "obegränsat",
+    "codeYes": "Ja",
+    "codeNo": "Nej"
   },
   "eventEmails": {
     "confirmSubject": "Du är med på väntelistan – {title}",
