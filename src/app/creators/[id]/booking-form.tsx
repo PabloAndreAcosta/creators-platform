@@ -226,12 +226,16 @@ export default function BookingForm({
   creatorId,
   isLoggedIn,
   hasConnect,
+  payeeCanReceive,
   viewerRole,
 }: {
   listing: Listing;
   creatorId: string;
   isLoggedIn: boolean;
   hasConnect?: boolean;
+  /** Whether the creator may actually receive payments now (Connect + beta gate).
+   *  When true, paid bookings must be paid at booking time (no free request). */
+  payeeCanReceive?: boolean;
   viewerRole?: string | null;
 }) {
   const t = useTranslations("creatorProfile");
@@ -349,7 +353,10 @@ export default function BookingForm({
     });
   }
 
-  const canPayOnline = hasConnect && listing.price != null && listing.price > 0;
+  // Only offer online payment when the creator can actually receive it (Connect
+  // account + beta payment gate). Otherwise fall back to the offline request flow.
+  const canPayOnline =
+    hasConnect && payeeCanReceive !== false && listing.price != null && listing.price > 0;
 
   function handlePaidBooking(formData: FormData) {
     startTransition(async () => {
@@ -795,7 +802,10 @@ export default function BookingForm({
                     >
                       {isPending ? t("booking.loadingButton") : t("booking.bookAndPay", { price: listing.price! })}
                     </button>
-                    {!hasFixedDate && (
+                    {/* Free "request without payment" escape is only offered when we
+                        can't be sure the creator can take payment. When they can
+                        (owner / verified company), payment happens at booking time. */}
+                    {!hasFixedDate && payeeCanReceive !== true && (
                       <button
                         type="submit"
                         disabled={isPending || !hasDateTime}
