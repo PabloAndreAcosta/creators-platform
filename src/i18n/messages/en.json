@@ -1776,7 +1776,8 @@
     "unsubInvalidBody": "The unsubscribe link couldn't be found. It may already have been used.",
     "unsubMetaTitle": "Unsubscribe – Usha Platform",
     "cat_day_party": "Day party",
-    "noAccountNote": "No account needed — your ticket is sent to your email."
+    "noAccountNote": "No account needed — your ticket is sent to your email.",
+    "organizer": "Organizer"
   },
   "eventErrors": {
     "notReleased": "Tickets have not been released yet.",

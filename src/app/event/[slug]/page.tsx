@@ -56,7 +56,7 @@ async function getListing(slug: string) {
   const { data: listing } = await supabase
     .from("listings")
     .select(
-      "id, user_id, title, description, category, price, duration_minutes, image_url, image_url_square, event_date, event_time, event_end_time, event_location, slug, is_active, content_language, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold"
+      "id, user_id, title, description, category, price, duration_minutes, image_url, image_url_square, event_date, event_time, event_end_time, event_location, slug, is_active, content_language, organizer_name, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold"
     )
     .eq("slug", slug)
     .eq("is_active", true)
@@ -387,7 +387,9 @@ export default async function EventPage(props: Params) {
               )}
             </div>
 
-            <WaitlistForm listingId={listing.id} />
+            {/* Väntelistan visas bara när biljetter INTE säljs (ännu ej släppt
+                eller slutsålt) — under aktiv försäljning köper man direkt. */}
+            {!sale.buyable && <WaitlistForm listingId={listing.id} />}
 
             <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
               <p className="mb-2 text-[11px] uppercase tracking-wide text-[var(--usha-muted)]">
@@ -407,7 +409,7 @@ export default async function EventPage(props: Params) {
 
         {host && (
           <div className="mt-12 flex items-center gap-4 border-t border-[var(--usha-border)] pt-8">
-            {host.avatar_url && (
+            {!listing.organizer_name && host.avatar_url && (
               <Image
                 src={host.avatar_url}
                 alt={host.full_name ?? ""}
@@ -418,9 +420,13 @@ export default async function EventPage(props: Params) {
             )}
             <div className="flex-1">
               <p className="text-xs uppercase tracking-wide text-[var(--usha-muted)]">
-                Producent
+                {t("organizer")}
               </p>
-              {host.slug ? (
+              {listing.organizer_name ? (
+                <span className="text-sm font-medium text-[var(--usha-white)]">
+                  {listing.organizer_name}
+                </span>
+              ) : host.slug ? (
                 <Link
                   href={`/creators/${host.slug}`}
                   className="text-sm font-medium text-[var(--usha-white)] hover:text-[var(--usha-gold)]"

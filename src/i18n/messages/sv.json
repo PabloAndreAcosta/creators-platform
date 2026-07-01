@@ -1776,7 +1776,8 @@
     "unsubInvalidBody": "Avregistreringslänken kunde inte hittas. Den kan redan ha använts.",
     "unsubMetaTitle": "Avregistrera – Usha Platform",
     "cat_day_party": "Dagfest",
-    "noAccountNote": "Inget konto behövs — biljetten skickas till din e-post."
+    "noAccountNote": "Inget konto behövs — biljetten skickas till din e-post.",
+    "organizer": "Arrangör"
   },
   "eventErrors": {
     "notReleased": "Biljetterna har inte släppts än.",
