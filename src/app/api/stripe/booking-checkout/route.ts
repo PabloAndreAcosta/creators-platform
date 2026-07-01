@@ -188,7 +188,7 @@ export async function POST(req: NextRequest) {
         },
       },
       automatic_tax: { enabled: true },
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/bookings?success=true`,
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/app/tickets?success=true`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/creators/${listing.user_id}`,
       metadata: {
         type: "paid_booking",
