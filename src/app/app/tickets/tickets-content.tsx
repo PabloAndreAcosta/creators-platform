@@ -23,6 +23,9 @@ interface TicketData {
   imageUrl: string | null;
   creatorName: string | null;
   creatorAvatar: string | null;
+  /** Confirmed but unpaid priced booking the customer can still pay in-app. */
+  payable: boolean;
+  price: number | null;
 }
 
 interface BookingData {
@@ -31,10 +34,13 @@ interface BookingData {
   status: string;
   notes: string | null;
   amount_paid: number | null;
+  stripe_payment_id?: string | null;
   booking_type: string | null;
   listings: {
     title: string;
     category: string;
+    price?: number | null;
+    listing_type?: string | null;
     image_url?: string | null;
     event_date?: string | null;
     event_time?: string | null;
@@ -94,9 +100,24 @@ function bookingToTicket(booking: BookingData): TicketData {
 
   const displayLocation = listing?.event_location || booking.notes || "-";
 
+  // A paid service/B2B booking that the creator confirmed but the customer
+  // hasn't paid yet → let them pay in-app (booking-pay).
+  const isPaid =
+    booking.stripe_payment_id != null ||
+    (booking.amount_paid != null && booking.amount_paid > 0);
+  const listingType = listing?.listing_type ?? null;
+  const price = listing?.price ?? null;
+  const payable =
+    booking.status === "confirmed" &&
+    !isPaid &&
+    (price ?? 0) > 0 &&
+    (listingType === "service" || listingType === "b2b_offering");
+
   return {
     id: booking.id,
     code: `USH-${booking.id.slice(0, 8).toUpperCase()}`,
+    payable,
+    price,
     title: listing?.title || "Bokning",
     date: displayDate,
     time: displayTime,
@@ -220,12 +241,36 @@ function TicketCard({
   used?: boolean;
 }) {
   const { tier } = useSubscription();
+  const { toast } = useToast();
+  const [paying, setPaying] = useState(false);
   const tierBadge = tier === "premium" ? { label: "VIP", className: "bg-purple-500/90 text-white" }
     : tier === "guld" ? { label: "GULD", className: "bg-[var(--usha-gold)]/90 text-black" }
     : null;
 
+  async function handlePay() {
+    setPaying(true);
+    try {
+      const res = await fetch("/api/stripe/booking-pay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bookingId: ticket.id }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error("Kunde inte betala", data.error);
+        setPaying(false);
+        return;
+      }
+      if (data.url) window.location.href = data.url;
+      else setPaying(false);
+    } catch {
+      toast.error("Fel", "Kunde inte starta betalningen");
+      setPaying(false);
+    }
+  }
+
   return (
-    <div className={`overflow-hidden rounded-xl border ${tierBadge ? "border-[var(--usha-gold)]/30" : "border-[var(--usha-border)]"} bg-[var(--usha-card)] ${used ? "opacity-60" : ""}`}>
+    <div className={`overflow-hidden rounded-xl border ${tierBadge ? "border-[var(--usha-gold)]/30" : "border-[var(--usha-border)]"} bg-[var(--usha-card)] ${used && !ticket.payable ? "opacity-60" : ""}`}>
       {/* Event image */}
       {ticket.imageUrl && (
         <div className="relative h-32 w-full">
@@ -318,6 +363,22 @@ function TicketCard({
             </div>
           )}
         </div>
+
+        {/* Unpaid, confirmed booking → pay directly here */}
+        {ticket.payable && (
+          <div className="mt-4">
+            <button
+              onClick={handlePay}
+              disabled={paying}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2.5 text-sm font-bold text-black transition hover:opacity-90 disabled:opacity-50"
+            >
+              {paying ? "Öppnar betalning…" : `Betala ${ticket.price} kr`}
+            </button>
+            <p className="mt-1.5 text-center text-[11px] text-[var(--usha-muted)]">
+              Obetald – betalning sker säkert via Stripe.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Ticket divider (perforated line effect) */}
