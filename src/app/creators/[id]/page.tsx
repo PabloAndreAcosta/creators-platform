@@ -18,6 +18,7 @@ import { AvailabilityCalendar } from "@/components/availability-calendar";
 import { CreatorGallery } from "@/components/creator-gallery";
 import { CreatorProducts } from "@/components/creator-products";
 import { calculateDiscountedPrice } from "@/lib/stripe/commission";
+import { canReceivePayments } from "@/lib/payments/beta-gate";
 import { filterByGoldExclusivity } from "@/lib/listings/early-bird";
 import { FollowButton } from "@/components/follow-button";
 
@@ -81,7 +82,7 @@ export default async function CreatorProfilePage(props: Props) {
     supabase
       .from("profiles")
       .select(
-        "id, full_name, avatar_url, bio, category, location, hourly_rate, website, stripe_account_id, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3, bankid_verified_at, bankid_name"
+        "id, full_name, avatar_url, bio, category, location, hourly_rate, website, stripe_account_id, company_verified_at, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3, bankid_verified_at, bankid_name"
       )
       .eq(column, params.id)
       .eq("is_public", true)
@@ -166,6 +167,10 @@ export default async function CreatorProfilePage(props: Props) {
   const isOwnProfile = user?.id === profile.id;
   const isFollowing = !!isFollowingData;
   const hasConnect = !!profile.stripe_account_id;
+  const payeeCanReceive = canReceivePayments({
+    id: profile.id,
+    company_verified_at: (profile as { company_verified_at?: string | null }).company_verified_at ?? null,
+  });
   const wl = (profile as any).whitelabel_enabled;
   const wlBrand = (profile as any).whitelabel_brand_name;
   const wlLogo = (profile as any).whitelabel_logo_url;
@@ -493,6 +498,7 @@ export default async function CreatorProfilePage(props: Props) {
                           creatorId={profile.id}
                           isLoggedIn={isLoggedIn}
                           hasConnect={hasConnect}
+                          payeeCanReceive={payeeCanReceive}
                           viewerRole={visitorRole}
                         />
                       </div>

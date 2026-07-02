@@ -20,6 +20,7 @@ import { BuyTicketButton } from "@/components/buy-ticket-button";
 import { InstructorMinutesCard } from "@/components/instructor-minutes-card";
 import { CATEGORY_LABELS } from "@/lib/categories";
 import { calculateDiscountedPrice } from "@/lib/stripe/commission";
+import { canReceivePayments } from "@/lib/payments/beta-gate";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -97,7 +98,7 @@ export default async function ListingDetailPage(props: Props) {
   // Fetch creator profile
   const { data: creator } = await supabase
     .from("profiles")
-    .select("id, full_name, avatar_url, category, stripe_account_id, slug")
+    .select("id, full_name, avatar_url, category, stripe_account_id, company_verified_at, slug")
     .eq("id", listing.user_id)
     .single();
 
@@ -137,6 +138,10 @@ export default async function ListingDetailPage(props: Props) {
   const isLoggedIn = !!user;
   const isOwner = user?.id === listing.user_id;
   const hasConnect = !!creator.stripe_account_id;
+  const payeeCanReceive = canReceivePayments({
+    id: creator.id,
+    company_verified_at: (creator as { company_verified_at?: string | null }).company_verified_at ?? null,
+  });
   const details = listing.experience_details as ExperienceDetails | null;
   const creatorUrl = creator.slug ? `/${creator.slug}` : `/creators/${creator.id}`;
 
@@ -412,6 +417,7 @@ export default async function ListingDetailPage(props: Props) {
                   creatorId={creator.id}
                   isLoggedIn={isLoggedIn}
                   hasConnect={hasConnect}
+                  payeeCanReceive={payeeCanReceive}
                 />
               </div>
             </div>
