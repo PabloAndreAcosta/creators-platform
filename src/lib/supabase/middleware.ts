@@ -55,7 +55,19 @@ export async function updateSession(request: NextRequest) {
   );
 
   try {
-    await supabase.auth.getUser();
+    const { data } = await supabase.auth.getUser();
+    // Defense-in-depth for soft-deleted accounts: the account is banned at the
+    // auth layer (so token *refresh* is rejected), but an already-issued access
+    // token stays valid until it expires. If its metadata already carries the
+    // deleted flag, force a logout now by clearing the auth cookies.
+    if (data.user?.user_metadata?.deleted === true) {
+      const authCookies = [...request.cookies.getAll()]
+        .filter((c) => c.name.includes("-auth-token"))
+        .map((c) => c.name);
+      for (const name of authCookies) {
+        response.cookies.delete(name);
+      }
+    }
   } catch {
     // Invalid or corrupted session — clear auth cookies so the browser
     // client doesn't keep hitting "Invalid UTF-8 sequence" errors.

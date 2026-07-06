@@ -1,7 +1,20 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
+
+// Account deletion = soft-delete + anonymize + release identity.
+//
+// We intentionally do NOT hard-delete the auth user or cascade-delete their
+// rows: the user is a counterparty on bookings/payments/payouts/reviews that
+// must survive for accounting and legal retention. Instead we anonymize the
+// profile (soft_delete_account RPC), free the login email + hashed personnummer
+// so the person can register again, and ban the auth user so login is blocked
+// while the row stays intact.
+//
+// The old flow required a password and verified it with signInWithPassword,
+// which made deletion impossible for the ~24% of users with no password
+// (Google OAuth, BankID-only, magic-link). The user is already authenticated
+// here, so we gate on a typed confirmation instead — method-agnostic.
 
 export async function POST(request: Request) {
   try {
@@ -17,153 +30,53 @@ export async function POST(request: Request) {
       );
     }
 
-    const body = await request.json();
-    const { password } = body;
+    const body = await request.json().catch(() => ({}));
+    const { confirm } = body as { confirm?: string };
 
-    if (!password) {
+    // Method-agnostic confirmation: the caller must type the word RADERA. Works
+    // for every auth method (password, Google, BankID, magic-link) because it
+    // relies on the authenticated session, not a password.
+    if (typeof confirm !== "string" || confirm.trim().toUpperCase() !== "RADERA") {
       return NextResponse.json(
-        { error: "Lösenord krävs för att bekräfta kontoradering." },
+        { error: "Bekräftelse saknas. Skriv RADERA för att bekräfta." },
         { status: 400 }
       );
     }
 
-    // Check that the user has an email address for password verification
-    if (!user.email) {
-      return NextResponse.json(
-        { error: "Kontot har ingen e-postadress kopplad." },
-        { status: 400 }
-      );
-    }
-
-    // Verify password using a standalone client that does NOT write cookies.
-    // Using the cookie-based server client for signInWithPassword would corrupt
-    // the current session by overwriting the session cookie mid-request.
-    const verifyClient = createSupabaseClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      { auth: { persistSession: false } }
-    );
-    const { error: signInError } = await verifyClient.auth.signInWithPassword({
-      email: user.email,
-      password,
-    });
-
-    if (signInError) {
-      return NextResponse.json(
-        { error: "Felaktigt lösenord. Försök igen." },
-        { status: 403 }
-      );
-    }
-
-    const adminClient = createAdminClient();
+    const admin = createAdminClient();
     const userId = user.id;
 
-    // Delete user data in order to respect foreign key constraints.
-    // Best-effort GDPR deletion: log errors but continue so partial failures
-    // don't prevent the rest of the data from being removed.
-
-    // 1. Delete reviews (both written and received)
-    const { error: reviewsError } = await adminClient
-      .from("reviews")
-      .delete()
-      .or(`reviewer_id.eq.${userId},creator_id.eq.${userId}`);
-    if (reviewsError) console.error("Account deletion: failed to delete reviews", reviewsError);
-
-    // 2. Delete messages (both sent AND received)
-    // First, find all conversations where the user is a participant
-    const { data: userConversations, error: convLookupError } = await adminClient
-      .from("conversations")
-      .select("id")
-      .or(`participant_a.eq.${userId},participant_b.eq.${userId}`);
-    if (convLookupError) console.error("Account deletion: failed to look up conversations", convLookupError);
-
-    // Delete all messages in those conversations (covers both sent and received)
-    if (userConversations && userConversations.length > 0) {
-      const conversationIds = userConversations.map((c) => c.id);
-      const { error: messagesError } = await adminClient
-        .from("messages")
-        .delete()
-        .in("conversation_id", conversationIds);
-      if (messagesError) console.error("Account deletion: failed to delete messages", messagesError);
-    }
-
-    // Also delete any messages by sender_id in case they exist outside tracked conversations
-    const { error: senderMsgError } = await adminClient
-      .from("messages")
-      .delete()
-      .eq("sender_id", userId);
-    if (senderMsgError) console.error("Account deletion: failed to delete sent messages", senderMsgError);
-
-    // 3. Delete conversations
-    const { error: convsError } = await adminClient
-      .from("conversations")
-      .delete()
-      .or(`participant_a.eq.${userId},participant_b.eq.${userId}`);
-    if (convsError) console.error("Account deletion: failed to delete conversations", convsError);
-
-    // 4. Cancel pending/confirmed bookings, then delete
-    const { error: bookingsCancelError } = await adminClient
-      .from("bookings")
-      .update({ status: "canceled" })
-      .or(`customer_id.eq.${userId},creator_id.eq.${userId}`)
-      .in("status", ["pending", "confirmed"]);
-    if (bookingsCancelError) console.error("Account deletion: failed to cancel bookings", bookingsCancelError);
-
-    const { error: bookingsDeleteError } = await adminClient
-      .from("bookings")
-      .delete()
-      .or(`customer_id.eq.${userId},creator_id.eq.${userId}`);
-    if (bookingsDeleteError) console.error("Account deletion: failed to delete bookings", bookingsDeleteError);
-
-    // 5. Delete notifications
-    const { error: notificationsError } = await adminClient
-      .from("notifications")
-      .delete()
-      .eq("user_id", userId);
-    if (notificationsError) console.error("Account deletion: failed to delete notifications", notificationsError);
-
-    // 6. Delete user settings
-    const { error: settingsError } = await adminClient
-      .from("user_settings")
-      .delete()
-      .eq("user_id", userId);
-    if (settingsError) console.error("Account deletion: failed to delete user settings", settingsError);
-
-    // 7. Delete favorites
-    const { error: favoritesError } = await adminClient
-      .from("favorites")
-      .delete()
-      .eq("user_id", userId);
-    if (favoritesError) console.error("Account deletion: failed to delete favorites", favoritesError);
-
-    // 8. Delete listings
-    const { error: listingsError } = await adminClient
-      .from("listings")
-      .delete()
-      .eq("user_id", userId);
-    if (listingsError) console.error("Account deletion: failed to delete listings", listingsError);
-
-    // 9. Delete profile
-    const { error: profileError } = await adminClient
-      .from("profiles")
-      .delete()
-      .eq("id", userId);
-    if (profileError) console.error("Account deletion: failed to delete profile", profileError);
-
-    // 10. Delete auth user
-    const { error: deleteAuthError } =
-      await adminClient.auth.admin.deleteUser(userId);
-
-    if (deleteAuthError) {
-      console.error("Account deletion: failed to delete auth user", deleteAuthError);
+    // 1. Anonymize profile + release personnummer + hide listings (atomic).
+    const { error: rpcError } = await admin.rpc("soft_delete_account", {
+      p_user_id: userId,
+      p_reason: "user-requested",
+    });
+    if (rpcError) {
+      console.error("Account deletion: soft_delete_account RPC failed", rpcError);
       return NextResponse.json(
         { error: "Något gick fel vid radering av kontot. Kontakta support." },
         { status: 500 }
       );
     }
 
-    // Note: The client-side page is responsible for signing the user out
-    // and clearing the local session after receiving this success response.
+    // 2. Auth-layer changes GoTrue must own: free the login email for reuse and
+    //    ban the user so login is blocked without deleting the row. The uuid in
+    //    the freed address guarantees uniqueness against the auth.users email index.
+    const { error: authError } = await admin.auth.admin.updateUserById(userId, {
+      email: `deleted+${userId}@deleted.usha.se`,
+      email_confirm: true,
+      ban_duration: "876000h", // ~100 years = effectively permanent
+      user_metadata: { deleted: true },
+    });
+    if (authError) {
+      console.error("Account deletion: failed to release/ban auth user", authError);
+      return NextResponse.json(
+        { error: "Något gick fel vid radering av kontot. Kontakta support." },
+        { status: 500 }
+      );
+    }
+
+    // The client signs the user out and clears the local session after this.
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json(
