@@ -134,7 +134,9 @@
       "dark": "Dark",
       "light": "Light",
       "system": "Follow system"
-    }
+    },
+    "security": "Login & security",
+    "securityDesc": "Login email, BankID, delete account"
   },
   "notifSettings": {
     "newBookings": "New bookings",
@@ -1870,5 +1872,25 @@
     "saveTheDate": "Save the date: {date}",
     "confirmUnsub": "Unsubscribe",
     "confirmFooter": "You’re receiving this because you joined the waitlist on Usha Platform."
+  },
+  "security": {
+    "title": "Login & security",
+    "subtitle": "Manage your login, BankID and account actions.",
+    "loginEmail": "Login email",
+    "loginEmailDesc": "The address you sign in with. Changing it requires confirmation.",
+    "changeLoginEmail": "Change login email",
+    "newLoginEmail": "New login email",
+    "newLoginEmailPlaceholder": "your@new-address.com",
+    "sendConfirmation": "Send confirmation",
+    "saving": "Sending…",
+    "cancel": "Cancel",
+    "emailChangeSent": "We sent a confirmation link to both your old and new address. The change applies once you confirm.",
+    "bankidSection": "BankID",
+    "publicContactEmail": "Public contact email",
+    "noPublicEmail": "No public email set",
+    "publicContactEmailHint": "This is the email shown publicly on your profile — separate from your login email.",
+    "editOnProfile": "Edit on your profile",
+    "deleteAccount": "Delete account",
+    "deleteAccountDesc": "Anonymize your profile and close the account"
   }
 }
