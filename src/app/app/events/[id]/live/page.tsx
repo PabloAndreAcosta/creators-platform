@@ -19,6 +19,7 @@ import {
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { UnlockGate } from "@/components/tokens/unlock-gate";
+import { FreeToggleButton } from "@/app/(dashboard)/dashboard/bookings/booking-actions";
 
 interface EventData {
   id: string;
@@ -29,6 +30,7 @@ interface EventData {
   location: string | null;
   capacity: number | null;
   price: number | null;
+  listingType: string | null;
 }
 
 interface Stats {
@@ -58,6 +60,9 @@ interface Guest {
   checkedInAt: string | null;
   amountPaid: number;
   bookedAt: string;
+  status: string;
+  isFree: boolean;
+  unpaid: boolean;
 }
 
 function timeAgo(dateStr: string): string {
@@ -370,11 +375,29 @@ export default function LiveEventPage() {
                     </p>
                   </div>
                 </div>
-                {guest.amountPaid > 0 && (
-                  <span className="text-xs text-[var(--usha-muted)]">
-                    {Math.round(guest.amountPaid / 100)} kr
-                  </span>
-                )}
+                <div className="flex shrink-0 items-center gap-2">
+                  {guest.amountPaid > 0 && (
+                    <span className="text-xs text-[var(--usha-muted)]">
+                      {Math.round(guest.amountPaid / 100)} kr
+                    </span>
+                  )}
+                  {guest.isFree && (
+                    <span className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-[10px] font-medium text-[var(--usha-gold)]">
+                      {t("freeLabel")}
+                    </span>
+                  )}
+                  {event &&
+                    (event.price ?? 0) > 0 &&
+                    ["service", "b2b_offering"].includes(event.listingType ?? "") &&
+                    guest.status === "confirmed" &&
+                    guest.unpaid && (
+                      <FreeToggleButton
+                        bookingId={guest.id}
+                        isFree={guest.isFree}
+                        onDone={fetchData}
+                      />
+                    )}
+                </div>
               </div>
             ))
           )}

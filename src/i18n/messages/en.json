@@ -772,6 +772,7 @@
     "guests": "guests",
     "searchGuests": "Search guest...",
     "noGuests": "No guests yet",
+    "freeLabel": "Free",
     "checkedInAt": "Checked in",
     "notCheckedIn": "Not checked in",
     "liveButton": "Live"

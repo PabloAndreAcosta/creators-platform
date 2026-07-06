@@ -772,6 +772,7 @@
     "guests": "gäster",
     "searchGuests": "Sök gäst...",
     "noGuests": "Inga gäster ännu",
+    "freeLabel": "Gratis",
     "checkedInAt": "Incheckad",
     "notCheckedIn": "Ej incheckad",
     "liveButton": "Live"

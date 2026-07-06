@@ -111,9 +111,12 @@ export function CompleteButton({ bookingId }: { bookingId: string }) {
 export function FreeToggleButton({
   bookingId,
   isFree,
+  onDone,
 }: {
   bookingId: string;
   isFree: boolean;
+  /** Called after a successful toggle — used by client views to refetch. */
+  onDone?: () => void;
 }) {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
@@ -123,7 +126,10 @@ export function FreeToggleButton({
     startTransition(async () => {
       const result = await setBookingFree(bookingId, !isFree);
       if (result.error) toast.error(t("freeToggleError"), result.error);
-      else toast.success(t("freeToggleDone"));
+      else {
+        toast.success(t("freeToggleDone"));
+        onDone?.();
+      }
     });
   }
 
