@@ -15,7 +15,7 @@ export default function PrivacyPage() {
 
         <h1 className="mb-2 text-4xl font-bold">Integritetspolicy</h1>
         <p className="mb-12 text-sm text-[var(--usha-muted)]">
-          Senast uppdaterad: 1 januari 2026
+          Senast uppdaterad: 6 juli 2026
         </p>
 
         <div className="space-y-8 text-sm leading-relaxed text-[var(--usha-muted)]">
@@ -71,9 +71,12 @@ export default function PrivacyPage() {
           <section>
             <h2 className="mb-3 text-lg font-semibold text-[var(--usha-white)]">6. Lagringstid</h2>
             <p>
-              Vi sparar dina uppgifter så länge ditt konto är aktivt. Efter kontoborttagning
-              raderar vi dina personuppgifter inom 30 dagar, med undantag för uppgifter som
-              vi enligt lag är skyldiga att spara (t.ex. bokföringsuppgifter i 7 år).
+              Vi sparar dina uppgifter så länge ditt konto är aktivt. När du raderar ditt konto
+              anonymiseras och döljs dina personuppgifter direkt: din profil tas bort från alla
+              publika ytor, din inloggning spärras och kopplingen till din e-postadress och ditt
+              BankID släpps så att du kan registrera dig på nytt. Uppgifter som vi enligt lag är
+              skyldiga att spara (t.ex. betalnings- och bokföringsunderlag i 7 år) behålls under
+              den lagstadgade tiden och gallras därefter. Åtgärden kan inte ångras.
             </p>
           </section>
 
