@@ -213,3 +213,45 @@ export async function updateAvatar(avatarUrl: string) {
   revalidatePath("/dashboard");
   return { success: true };
 }
+
+/**
+ * Change the LOGIN email (auth.users.email). Supabase sends a confirmation link
+ * to both the old and new address; the change only takes effect once confirmed,
+ * so this works for password, Google and BankID users alike (it acts on the
+ * session, not on a password). This is separate from profiles.contact_email,
+ * which is the public contact field edited via updateProfile.
+ */
+export async function updateLoginEmail(newEmail: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "Ej inloggad" };
+  }
+
+  const email = (newEmail || "").trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return { error: "Ogiltig e-postadress." };
+  }
+  if (email === user.email?.toLowerCase()) {
+    return { error: "Det är redan din inloggnings-e-post." };
+  }
+
+  const { error } = await supabase.auth.updateUser({ email });
+  if (error) {
+    // Surface provider errors verbatim (e.g. a Google-managed identity may
+    // reject a direct email change) so the user understands what happened.
+    return { error: error.message };
+  }
+
+  // Optimistically sync the profiles.email receipt copy. It is never used as a
+  // login/identity key (that's auth.users.email); worst case is a stale receipt
+  // address if the user abandons the confirmation. handle_new_user only runs at
+  // signup, so nothing else would keep this in sync.
+  await supabase.from("profiles").update({ email }).eq("id", user.id);
+
+  revalidatePath("/app/settings/security");
+  return { success: true };
+}

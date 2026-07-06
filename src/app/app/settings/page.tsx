@@ -1,6 +1,6 @@
 "use client";
 
-import { Settings, Bell, Shield, HelpCircle, UserX, ChevronRight } from "lucide-react";
+import { Settings, Bell, Shield, HelpCircle, UserX, Lock, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { LogoModeSetting } from "@/components/logo-mode-setting";
@@ -10,6 +10,12 @@ export default function SettingsPage() {
   const t = useTranslations("settings");
 
   const settingsItems = [
+    {
+      href: "/app/settings/security",
+      label: t("security"),
+      description: t("securityDesc"),
+      icon: Lock,
+    },
     {
       href: "/app/settings/notifications",
       label: t("notifications"),
