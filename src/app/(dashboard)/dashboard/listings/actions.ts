@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requirePaidSubscription, getSubscriptionStatus } from "@/lib/subscription/check";
 import { checkListingLimit } from "@/lib/listings/limits";
+import { generateUniqueListingSlug } from "@/lib/listings/slug";
 
 const CATEGORIES = ["dance", "music", "photo", "video", "design", "yoga", "fitness", "other"] as const;
 const VALID_LISTING_TYPES = [
@@ -275,9 +276,16 @@ export async function duplicateListing(id: string) {
     .single();
   if (!src) return { error: "Tjänsten hittades inte." };
 
+  // Always give the copy its own slug — never inherit null. A null slug breaks
+  // /event/<series-slug> resolution for occurrences. The owner sets a new date
+  // afterward; updateEvent() then re-slugs the occurrence to match that date.
+  const slug = await generateUniqueListingSlug(supabase, src.title, {
+    dateSuffix: src.event_date ?? undefined,
+  });
+
   const { data: copy, error } = await supabase
     .from("listings")
-    .insert({ ...src, user_id: user.id, is_active: false })
+    .insert({ ...src, user_id: user.id, is_active: false, slug })
     .select("id")
     .single();
   if (error || !copy) return { error: "Kunde inte duplicera tjänsten." };

@@ -393,10 +393,13 @@ export async function updateEvent(id: string, formData: FormData) {
   }
 
   // Backfill a slug for older events that never got one. Existing slugs are
-  // left untouched so already-shared links keep working.
+  // left untouched so already-shared links keep working — EXCEPT a series
+  // occurrence with no bookings whose date changed: re-slug it so the date in
+  // the slug matches (this is the duplicate→set-new-date flow; a copy inherits
+  // the source date's slug, and gets corrected here once the real date is set).
   const { data: current } = await supabase
     .from("listings")
-    .select("slug")
+    .select("slug, event_date, series_id")
     .eq("id", id)
     .eq("user_id", user.id)
     .single();
@@ -404,7 +407,11 @@ export async function updateEvent(id: string, formData: FormData) {
   const updateData: Record<string, unknown> = { ...parsed.data };
   updateData.is_public = formData.get("unlisted") !== "on";
   Object.assign(updateData, parseAutomation(formData));
-  if (current && !current.slug) {
+  const dateChanged =
+    !!current && current.event_date !== (parsed.data.event_date ?? null);
+  const reslugSeriesOccurrence =
+    !!current?.series_id && dateChanged && !bookingCount;
+  if (current && (!current.slug || reslugSeriesOccurrence)) {
     updateData.slug = await generateUniqueListingSlug(supabase, parsed.data.title, {
       excludeId: id,
       dateSuffix: parsed.data.event_date ?? undefined,
