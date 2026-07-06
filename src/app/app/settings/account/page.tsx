@@ -10,13 +10,19 @@ export default function AccountSettingsPage() {
   const tc = useTranslations("common");
 
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [password, setPassword] = useState("");
+  const [confirmText, setConfirmText] = useState("");
   const [confirmed, setConfirmed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Method-agnostic confirmation: type the word RADERA. No password field — the
+  // user is already authenticated, and a password check locked out Google/BankID
+  // (passwordless) users entirely.
+  const CONFIRM_WORD = "RADERA";
+  const canDelete = confirmed && confirmText.trim().toUpperCase() === CONFIRM_WORD;
+
   const handleDelete = async () => {
-    if (!confirmed || !password) return;
+    if (!canDelete) return;
 
     setLoading(true);
     setError(null);
@@ -25,7 +31,7 @@ export default function AccountSettingsPage() {
       const res = await fetch("/api/account/delete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ confirm: confirmText.trim() }),
       });
 
       const data = await res.json();
@@ -49,9 +55,7 @@ export default function AccountSettingsPage() {
     <div className="max-w-2xl mx-auto space-y-8">
       <div>
         <h1 className="text-2xl font-semibold">{t("title")}</h1>
-        <p className="text-[var(--usha-muted)] mt-1">
-          {t("subtitle")}
-        </p>
+        <p className="text-[var(--usha-muted)] mt-1">{t("subtitle")}</p>
       </div>
 
       {/* GDPR Delete Account Section */}
@@ -72,45 +76,20 @@ export default function AccountSettingsPage() {
 
         <div className="flex items-start gap-3 rounded-lg bg-[var(--usha-card)] border border-[var(--usha-border)] p-4">
           <Shield className="h-5 w-5 text-[var(--usha-muted)] mt-0.5 shrink-0" />
-          <p className="text-sm text-[var(--usha-muted)]">
-            {t("gdprInfo")}
-          </p>
+          <p className="text-sm text-[var(--usha-muted)]">{t("gdprInfo")}</p>
         </div>
 
         <div className="space-y-2">
-          <p className="text-sm font-medium text-red-400">
-            {t("dataToDelete")}
-          </p>
-          <ul className="grid grid-cols-2 gap-1.5 text-sm text-[var(--usha-muted)]">
-            <li className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-red-400" />
-              {t("profile")}
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-red-400" />
-              {t("bookings")}
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-red-400" />
-              {t("messages")}
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-red-400" />
-              {t("reviews")}
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-red-400" />
-              {t("notificationsData")}
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-red-400" />
-              {t("favorites")}
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-red-400" />
-              {t("servicesExperiences")}
-            </li>
+          <p className="text-sm font-medium text-red-400">{t("whatHappens")}</p>
+          <ul className="grid gap-1.5 text-sm text-[var(--usha-muted)]">
+            {["outAnon", "outListings", "outLogin", "outBankid"].map((k) => (
+              <li key={k} className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-red-400" />
+                {t(k)}
+              </li>
+            ))}
           </ul>
+          <p className="pt-1 text-xs text-[var(--usha-muted)]">{t("retentionNote")}</p>
         </div>
 
         {!showConfirmation ? (
@@ -124,26 +103,25 @@ export default function AccountSettingsPage() {
           <div className="mt-2 space-y-4 rounded-xl border border-red-500/20 bg-[var(--usha-card)] p-4">
             <div className="flex items-center gap-2 text-red-400">
               <AlertTriangle className="h-4 w-4" />
-              <span className="text-sm font-medium">
-                {t("confirmDeletion")}
-              </span>
+              <span className="text-sm font-medium">{t("confirmDeletion")}</span>
             </div>
 
             <div className="space-y-3">
               <div>
                 <label
-                  htmlFor="delete-password"
+                  htmlFor="delete-confirm"
                   className="block text-sm text-[var(--usha-muted)] mb-1.5"
                 >
-                  {t("enterPassword")}
+                  {t("confirmWord")}
                 </label>
                 <input
-                  id="delete-password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder={t("passwordPlaceholder")}
-                  autoComplete="current-password"
+                  id="delete-confirm"
+                  type="text"
+                  value={confirmText}
+                  onChange={(e) => setConfirmText(e.target.value)}
+                  placeholder={t("confirmWordPlaceholder")}
+                  autoComplete="off"
+                  autoCapitalize="characters"
                   className="w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2 text-sm outline-none focus:border-red-400 transition-colors"
                 />
               </div>
@@ -170,7 +148,7 @@ export default function AccountSettingsPage() {
             <div className="flex items-center gap-3">
               <button
                 onClick={handleDelete}
-                disabled={!confirmed || !password || loading}
+                disabled={!canDelete || loading}
                 className="rounded-xl bg-red-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? t("deleting") : t("confirmDelete")}
@@ -178,7 +156,7 @@ export default function AccountSettingsPage() {
               <button
                 onClick={() => {
                   setShowConfirmation(false);
-                  setPassword("");
+                  setConfirmText("");
                   setConfirmed(false);
                   setError(null);
                 }}
