@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORIES, CATEGORY_LABELS } from "@/lib/categories";
 import Link from "next/link";
+import { BuyTicketCta } from "@/components/buy-ticket-cta";
 import { MapPin, Search, Music } from "lucide-react";
 
 interface SearchPageProps {
@@ -316,11 +317,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                       {CATEGORY_LABELS[l.category] || l.category}
                     </p>
                   </div>
-                  {l.price != null && (
-                    <span className="ml-3 shrink-0 text-sm font-semibold text-[var(--usha-gold)]">
-                      {l.price} kr
-                    </span>
-                  )}
+                  <BuyTicketCta
+                    listingId={l.id}
+                    price={l.price}
+                    className="ml-3 flex shrink-0 items-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-3 py-2 text-xs font-semibold text-black transition hover:opacity-90"
+                  />
                 </Link>
               );
             })}

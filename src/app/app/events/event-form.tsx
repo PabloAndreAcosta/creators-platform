@@ -86,6 +86,8 @@ export default function EventForm({
   const [isPending, startTransition] = useTransition();
   const [imageUrl, setImageUrl] = useState<string>(event?.image_url ?? "");
   const [uploading, setUploading] = useState(false);
+  // Free-ticket option: an existing event with no/zero price is treated as free.
+  const [isFree, setIsFree] = useState<boolean>(event ? !event.price : false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [listingType, setListingType] = useState<ListingType>(
     event?.listing_type ?? suggestListingType(event?.category ?? "")
@@ -514,18 +516,28 @@ export default function EventForm({
           </div>
 
           <div>
-            <label htmlFor="price" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-              {t("price")}
+            <label className="mb-1.5 flex items-center gap-2 text-sm text-[var(--usha-muted)]">
+              <input
+                type="checkbox"
+                checked={isFree}
+                onChange={(e) => setIsFree(e.target.checked)}
+                className="h-4 w-4 rounded border-[var(--usha-border)] accent-[var(--usha-gold)]"
+              />
+              {t("freeTicket")}
             </label>
-            <input
-              id="price"
-              name="price"
-              type="number"
-              min={0}
-              defaultValue={event?.price ?? ""}
-              placeholder={t("pricePlaceholder")}
-              className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
-            />
+            {isFree ? (
+              <input type="hidden" name="price" value="0" />
+            ) : (
+              <input
+                id="price"
+                name="price"
+                type="number"
+                min={0}
+                defaultValue={event?.price ?? ""}
+                placeholder={t("pricePlaceholder")}
+                className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+              />
+            )}
           </div>
         </div>
 

@@ -25,6 +25,7 @@ import Link from "next/link";
 import { CreatorOnboarding } from "./creator-onboarding";
 import RecommendedEvents from "@/components/RecommendedEvents";
 import { FavoriteButton } from "@/components/favorite-button";
+import { BuyTicketCta } from "@/components/buy-ticket-cta";
 import { SearchBar } from "@/components/search-bar";
 import { GatedAction } from "@/components/subscription/GatedAction";
 import { Feed } from "@/components/feed/feed";
@@ -156,6 +157,8 @@ function PublikHome({
       ? new Date(listing.created_at).toLocaleDateString("sv-SE", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })
       : "",
     price: listing.price ? `${listing.price} kr` : "Gratis",
+    priceNum: listing.price ?? null,
+    slug: (listing as { slug?: string | null }).slug ?? null,
     category: listing.category || "Övrigt",
   }));
 
@@ -319,6 +322,12 @@ function PublikHome({
                       <Calendar size={10} />
                       <span>{event.date}</span>
                     </div>
+                    <BuyTicketCta
+                      listingId={event.id}
+                      slug={event.slug}
+                      price={event.priceNum}
+                      className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-3 py-2 text-xs font-semibold text-black transition hover:opacity-90"
+                    />
                   </div>
                 </div>
               ))}

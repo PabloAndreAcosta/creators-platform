@@ -1678,6 +1678,7 @@
     "category": "Category",
     "categoryPlaceholder": "Choose category...",
     "price": "Price (SEK)",
+    "freeTicket": "Free ticket",
     "pricePlaceholder": "e.g. 350",
     "duration": "Duration (minutes)",
     "durationPlaceholder": "e.g. 120",
