@@ -531,3 +531,35 @@ export async function redeemMinutes(bookingId: string, amount = 15) {
   return { success: true, redeemed: nextRedeemed, total, reachedTotal };
 }
 
+
+/**
+ * Creator marks (or unmarks) one of their bookings as free/comped — e.g. a free
+ * intro. A free booking shows no "Betala" button to the customer and cannot be
+ * paid. Only the booking's creator may set it, and not once it's already paid.
+ */
+export async function setBookingFree(bookingId: string, isFree: boolean) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Ej inloggad" };
+
+  const { data: booking } = await supabase
+    .from("bookings")
+    .select("creator_id, stripe_payment_id")
+    .eq("id", bookingId)
+    .single();
+
+  if (!booking) return { error: "Bokningen hittades inte" };
+  if (booking.creator_id !== user.id) return { error: "Du kan bara ändra dina egna bokningar" };
+  if (booking.stripe_payment_id) return { error: "Bokningen är redan betald" };
+
+  const { error } = await supabase
+    .from("bookings")
+    .update({ is_free: isFree })
+    .eq("id", bookingId);
+  if (error) return { error: error.message };
+
+  revalidatePath("/dashboard/bookings");
+  return { ok: true };
+}

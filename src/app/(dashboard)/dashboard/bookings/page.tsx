@@ -7,6 +7,7 @@ import {
   ConfirmButton,
   CancelButton,
   CompleteButton,
+  FreeToggleButton,
 } from "./booking-actions";
 import { RescheduleButton } from "./reschedule-button";
 import { NoBookings } from "@/components/ui/empty-state";
@@ -37,7 +38,7 @@ export default async function BookingsPage() {
   const { data: incoming } = await supabase
     .from("bookings")
     .select(
-      "id, status, scheduled_at, notes, created_at, listing_id, customer_id, guest_count, special_requests, amount_paid, dances_total, dances_redeemed, minutes_total, minutes_redeemed, agreed_price"
+      "id, status, scheduled_at, notes, created_at, listing_id, customer_id, guest_count, special_requests, amount_paid, stripe_payment_id, is_free, dances_total, dances_redeemed, minutes_total, minutes_redeemed, agreed_price"
     )
     .eq("creator_id", user.id)
     .order("scheduled_at", { ascending: true });
@@ -297,6 +298,18 @@ export default async function BookingsPage() {
                             />
                           )}
                         <RescheduleButton bookingId={booking.id} currentDate={booking.scheduled_at} />
+                        {/* Comp a paid service/b2b booking (free intro etc.) — hides
+                            the customer's "Betala" button. Only while unpaid. */}
+                        {!(booking as { stripe_payment_id?: string | null }).stripe_payment_id &&
+                          (listingMetaMap[booking.listing_id]?.price ?? 0) > 0 &&
+                          ["service", "b2b_offering"].includes(
+                            listingMetaMap[booking.listing_id]?.listing_type ?? ""
+                          ) && (
+                            <FreeToggleButton
+                              bookingId={booking.id}
+                              isFree={!!(booking as { is_free?: boolean | null }).is_free}
+                            />
+                          )}
                         <CompleteButton bookingId={booking.id} />
                         <CancelButton
                           bookingId={booking.id}

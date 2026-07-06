@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
 
     const { data: booking } = await supabase
       .from("bookings")
-      .select("id, listing_id, creator_id, customer_id, status, stripe_payment_id, agreed_price")
+      .select("id, listing_id, creator_id, customer_id, status, stripe_payment_id, agreed_price, is_free")
       .eq("id", bookingId)
       .single();
 
@@ -71,6 +71,13 @@ export async function POST(req: NextRequest) {
     if (booking.stripe_payment_id) {
       return NextResponse.json(
         { error: "Booking is already paid" },
+        { status: 400 }
+      );
+    }
+
+    if ((booking as { is_free?: boolean | null }).is_free) {
+      return NextResponse.json(
+        { error: "Denna bokning är gratis – ingen betalning krävs." },
         { status: 400 }
       );
     }

@@ -35,6 +35,7 @@ interface BookingData {
   notes: string | null;
   amount_paid: number | null;
   stripe_payment_id?: string | null;
+  is_free?: boolean | null;
   booking_type: string | null;
   listings: {
     title: string;
@@ -110,6 +111,7 @@ function bookingToTicket(booking: BookingData): TicketData {
   const payable =
     booking.status === "confirmed" &&
     !isPaid &&
+    !booking.is_free && // creator waived payment (e.g. a free intro)
     (price ?? 0) > 0 &&
     (listingType === "service" || listingType === "b2b_offering");
 
