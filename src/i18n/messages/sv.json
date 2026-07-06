@@ -1678,6 +1678,7 @@
     "category": "Kategori",
     "categoryPlaceholder": "Välj kategori...",
     "price": "Pris (SEK)",
+    "freeTicket": "Gratis biljett",
     "pricePlaceholder": "t.ex. 350",
     "duration": "Varaktighet (minuter)",
     "durationPlaceholder": "t.ex. 120",

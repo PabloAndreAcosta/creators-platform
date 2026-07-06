@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { MapPin, Calendar, Flame, Star } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { BuyTicketCta } from "@/components/buy-ticket-cta";
 
 interface ListingCardProps {
   listing: {
@@ -94,6 +95,12 @@ export async function ListingCard({ listing, bookingCount = 0, isPromoted }: Lis
             </span>
           )}
         </div>
+        <BuyTicketCta
+          listingId={listing.id}
+          slug={listing.slug}
+          price={listing.price}
+          className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-3 py-2 text-xs font-semibold text-black transition hover:opacity-90"
+        />
       </div>
     </Link>
   );
