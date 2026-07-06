@@ -23,7 +23,7 @@ export async function GET(
   // Verify this event belongs to the user
   const { data: listing } = await supabase
     .from("listings")
-    .select("id, title, event_date, event_time, event_end_time, event_location, max_guests, user_id, price")
+    .select("id, title, event_date, event_time, event_end_time, event_location, max_guests, user_id, price, listing_type")
     .eq("id", eventId)
     .single();
 
@@ -49,7 +49,7 @@ export async function GET(
   const { data: bookings } = await supabase
     .from("bookings")
     .select(
-      "id, status, checked_in_at, scanned_by, guest_count, amount_paid, guest_name, guest_email, customer_id, created_at"
+      "id, status, checked_in_at, scanned_by, guest_count, amount_paid, stripe_payment_id, is_free, guest_name, guest_email, customer_id, created_at"
     )
     .eq("listing_id", eventId)
     .in("status", ["confirmed", "completed"]);
@@ -118,6 +118,9 @@ export async function GET(
     checkedInAt: b.checked_in_at,
     amountPaid: b.amount_paid || 0,
     bookedAt: b.created_at,
+    status: b.status,
+    isFree: !!(b as { is_free?: boolean | null }).is_free,
+    unpaid: !(b as { stripe_payment_id?: string | null }).stripe_payment_id && !b.amount_paid,
   }));
 
     return NextResponse.json(
@@ -131,6 +134,7 @@ export async function GET(
           location: listing.event_location,
           capacity: listing.max_guests,
           price: listing.price,
+          listingType: (listing as { listing_type?: string | null }).listing_type ?? null,
         },
         stats: {
           totalTickets,
