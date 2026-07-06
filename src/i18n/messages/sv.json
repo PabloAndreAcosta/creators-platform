@@ -134,7 +134,9 @@
       "dark": "Mörk",
       "light": "Ljus",
       "system": "Följ systemet"
-    }
+    },
+    "security": "Login & säkerhet",
+    "securityDesc": "Inloggnings-e-post, BankID, radera konto"
   },
   "notifSettings": {
     "newBookings": "Nya bokningar",
@@ -1870,5 +1872,25 @@
     "saveTheDate": "Spara datumet: {date}",
     "confirmUnsub": "Avregistrera dig",
     "confirmFooter": "Du får detta mejl för att du anmälde dig till väntelistan på Usha Platform."
+  },
+  "security": {
+    "title": "Login & säkerhet",
+    "subtitle": "Hantera din inloggning, BankID och kontoåtgärder.",
+    "loginEmail": "Inloggnings-e-post",
+    "loginEmailDesc": "Adressen du loggar in med. Byte kräver bekräftelse.",
+    "changeLoginEmail": "Byt inloggnings-e-post",
+    "newLoginEmail": "Ny inloggnings-e-post",
+    "newLoginEmailPlaceholder": "din@nya-adress.se",
+    "sendConfirmation": "Skicka bekräftelse",
+    "saving": "Skickar…",
+    "cancel": "Avbryt",
+    "emailChangeSent": "Vi har skickat en bekräftelselänk till både din gamla och nya adress. Bytet gäller när du bekräftat.",
+    "bankidSection": "BankID",
+    "publicContactEmail": "Publik kontakt-e-post",
+    "noPublicEmail": "Ingen publik e-post angiven",
+    "publicContactEmailHint": "Detta är e-posten som visas publikt på din profil — skild från inloggnings-e-posten.",
+    "editOnProfile": "Redigera på din profil",
+    "deleteAccount": "Radera konto",
+    "deleteAccountDesc": "Anonymisera din profil och stäng av kontot"
   }
 }
