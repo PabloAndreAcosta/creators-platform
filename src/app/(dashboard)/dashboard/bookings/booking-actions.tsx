@@ -2,9 +2,9 @@
 
 import { useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { updateBookingStatus } from "./actions";
+import { updateBookingStatus, setBookingFree } from "./actions";
 import { useToast } from "@/components/ui/toaster";
-import { Check, X, CheckCircle } from "lucide-react";
+import { Check, X, CheckCircle, Gift } from "lucide-react";
 
 const btnBase =
   "flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors";
@@ -104,6 +104,41 @@ export function CompleteButton({ bookingId }: { bookingId: string }) {
     >
       <CheckCircle size={12} />
       {t("completeButton")}
+    </button>
+  );
+}
+
+export function FreeToggleButton({
+  bookingId,
+  isFree,
+}: {
+  bookingId: string;
+  isFree: boolean;
+}) {
+  const [isPending, startTransition] = useTransition();
+  const { toast } = useToast();
+  const t = useTranslations("bookingsPage");
+
+  function handle() {
+    startTransition(async () => {
+      const result = await setBookingFree(bookingId, !isFree);
+      if (result.error) toast.error(t("freeToggleError"), result.error);
+      else toast.success(t("freeToggleDone"));
+    });
+  }
+
+  return (
+    <button
+      onClick={handle}
+      disabled={isPending}
+      className={`${btnBase} ${
+        isFree
+          ? "bg-[var(--usha-gold)]/10 text-[var(--usha-gold)] hover:bg-[var(--usha-gold)]/20"
+          : "bg-[var(--usha-border)]/30 text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
+      } disabled:opacity-50`}
+    >
+      <Gift size={12} />
+      {isFree ? t("chargeAgain") : t("makeFree")}
     </button>
   );
 }
