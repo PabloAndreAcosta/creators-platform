@@ -25,12 +25,21 @@ interface Params {
   params: Promise<{ slug: string }>;
 }
 
+function isUUID(str: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+}
+
+// Resolve a series slug (e.g. from a Facebook ticket link like /event/the-kiz-lab)
+// to a concrete occurrence. Occurrences don't always carry their own `slug`
+// (recurring instances are often created with slug=null), so fall back to the
+// occurrence `id` — getListing() resolves either. Returns null only when the
+// series has no active occurrence at all.
 async function resolveSlugToOccurrence(slug: string): Promise<string | null> {
   const supabase = await createClient();
   const today = new Date().toISOString().slice(0, 10);
   const { data: upcoming } = await supabase
     .from("listings")
-    .select("slug, event_date")
+    .select("id, slug, event_date")
     .eq("series_slug", slug)
     .eq("is_active", true)
     .eq("is_public", true)
@@ -38,18 +47,18 @@ async function resolveSlugToOccurrence(slug: string): Promise<string | null> {
     .order("event_date", { ascending: true, nullsFirst: false })
     .limit(1)
     .maybeSingle();
-  if (upcoming?.slug) return upcoming.slug;
+  if (upcoming) return upcoming.slug ?? upcoming.id;
 
   const { data: latest } = await supabase
     .from("listings")
-    .select("slug")
+    .select("id, slug")
     .eq("series_slug", slug)
     .eq("is_active", true)
     .eq("is_public", true)
     .order("event_date", { ascending: false, nullsFirst: false })
     .limit(1)
     .maybeSingle();
-  return latest?.slug ?? null;
+  return latest ? latest.slug ?? latest.id : null;
 }
 
 async function getListing(slug: string) {
@@ -59,7 +68,7 @@ async function getListing(slug: string) {
     .select(
       "id, user_id, title, description, category, price, duration_minutes, image_url, image_url_square, event_date, event_time, event_end_time, event_location, slug, is_active, content_language, organizer_name, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold"
     )
-    .eq("slug", slug)
+    .eq(isUUID(slug) ? "id" : "slug", slug)
     .eq("is_active", true)
     .maybeSingle();
 
