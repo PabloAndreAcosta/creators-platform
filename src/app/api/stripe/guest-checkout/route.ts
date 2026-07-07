@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
     // Fetch listing
     const { data: listing } = await supabase
       .from("listings")
-      .select("id, title, price, user_id, is_active, event_date, event_time, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold")
+      .select("id, title, price, user_id, is_active, event_date, event_time, event_location, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold")
       .eq("id", listingId)
       .eq("is_active", true)
       .single();
@@ -69,21 +69,44 @@ export async function POST(req: NextRequest) {
         scheduledAt = new Date().toISOString();
       }
 
-      await admin.from("bookings").insert({
-        listing_id: listing.id,
-        creator_id: listing.user_id,
-        customer_id: null,
-        guest_email: email,
-        guest_name: name || null,
-        status: "confirmed",
-        scheduled_at: scheduledAt,
-        booking_type: "ticket",
-        amount_paid: 0,
-      });
+      const { data: booking } = await admin
+        .from("bookings")
+        .insert({
+          listing_id: listing.id,
+          creator_id: listing.user_id,
+          customer_id: null,
+          guest_email: email,
+          guest_name: name || null,
+          status: "confirmed",
+          scheduled_at: scheduledAt,
+          booking_type: "ticket",
+          amount_paid: 0,
+          is_free: true,
+        })
+        .select("id")
+        .single();
+
+      // Send the confirmation email with the ticket QR + public ticket link.
+      // Without this, free guests got no email at all and no way to show a QR.
+      const { data: creator } = await admin
+        .from("profiles")
+        .select("full_name")
+        .eq("id", listing.user_id)
+        .maybeSingle();
+      const { sendBookingConfirmationEmail } = await import("@/lib/email/send-booking");
+      sendBookingConfirmationEmail({
+        to: email,
+        customerName: name || "Gäst",
+        serviceName: listing.title,
+        scheduledAt: new Date(scheduledAt),
+        creatorName: creator?.full_name || "Usha Platform",
+        location: (listing as { event_location?: string }).event_location || undefined,
+        bookingId: booking?.id,
+      }).catch((e) => console.error("guest free-ticket confirmation email failed:", e));
 
       const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";
       return NextResponse.json({
-        url: `${baseUrl}/flode?ticket=success`,
+        url: booking?.id ? `${baseUrl}/biljett/${booking.id}` : `${baseUrl}/flode?ticket=success`,
       });
     }
 

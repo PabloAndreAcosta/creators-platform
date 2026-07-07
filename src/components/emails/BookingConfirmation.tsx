@@ -4,6 +4,7 @@ interface BookingConfirmationProps {
   scheduledAt: Date;
   creatorName: string;
   location?: string;
+  bookingId?: string;
 }
 
 function formatDate(date: Date): string {
@@ -31,8 +32,12 @@ export default function BookingConfirmation({
   scheduledAt,
   creatorName,
   location,
+  bookingId,
 }: BookingConfirmationProps) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";
+  // Link to the public, login-free ticket page so guests (no account) can open
+  // their QR. Fall back to the in-app tickets page when we don't have an id.
+  const ticketUrl = bookingId ? `${appUrl}/biljett/${bookingId}` : `${appUrl}/app/tickets`;
 
   return (
     <html>
@@ -94,12 +99,36 @@ export default function BookingConfirmation({
                           </tbody>
                         </table>
 
+                        {bookingId && (
+                          <table width="100%" cellPadding={0} cellSpacing={0} style={{ marginBottom: 24 }}>
+                            <tbody>
+                              <tr>
+                                <td style={{ textAlign: "center" }}>
+                                  <div style={{ display: "inline-block", backgroundColor: "#ffffff", borderRadius: 12, padding: 12 }}>
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img
+                                      src={`${appUrl}/api/tickets/qr?id=${bookingId}`}
+                                      width={200}
+                                      height={200}
+                                      alt="Biljett QR-kod"
+                                      style={{ display: "block" }}
+                                    />
+                                  </div>
+                                  <p style={{ fontSize: 12, color: "#6b6b6b", margin: "10px 0 0" }}>
+                                    Visa den här QR-koden vid entrén
+                                  </p>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        )}
+
                         <table width="100%" cellPadding={0} cellSpacing={0}>
                           <tbody>
                             <tr>
                               <td style={{ textAlign: "center" }}>
                                 <a
-                                  href={`${appUrl}/app/tickets`}
+                                  href={ticketUrl}
                                   style={{
                                     display: "inline-block",
                                     padding: "14px 36px",

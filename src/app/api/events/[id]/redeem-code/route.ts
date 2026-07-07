@@ -140,15 +140,16 @@ export async function POST(
     ? new Date(`${listing.event_date}T${listing.event_time || "00:00:00"}`).toISOString()
     : new Date().toISOString();
 
-  const { error: bookErr } = await admin.from("bookings").insert({
+  const { data: codeBooking, error: bookErr } = await admin.from("bookings").insert({
     listing_id: listing.id,
     creator_id: listing.user_id,
     status: "confirmed",
     scheduled_at: scheduledAt,
     booking_type: "ticket",
     amount_paid: 0,
+    is_free: true,
     ...(user ? { customer_id: user.id } : { guest_email: email, guest_name: name }),
-  });
+  }).select("id").single();
   if (bookErr) {
     console.error("access-code booking failed:", bookErr);
     return NextResponse.json({ error: te("generic") }, { status: 500 });
@@ -162,13 +163,17 @@ export async function POST(
     .select("full_name")
     .eq("id", listing.user_id)
     .maybeSingle();
-  sendBookingConfirmationEmail({
-    to: email,
-    customerName: name || "",
-    serviceName: listing.title,
-    scheduledAt: new Date(scheduledAt),
-    creatorName: creator?.full_name || "Usha Platform",
-  }).catch((e) => console.error("access-code confirmation email failed:", e));
+  if (email) {
+    sendBookingConfirmationEmail({
+      to: email,
+      customerName: name || "",
+      serviceName: listing.title,
+      scheduledAt: new Date(scheduledAt),
+      creatorName: creator?.full_name || "Usha Platform",
+      location: (listing as { event_location?: string }).event_location || undefined,
+      bookingId: codeBooking?.id,
+    }).catch((e) => console.error("access-code confirmation email failed:", e));
+  }
 
   return NextResponse.json({ ok: true });
 }
