@@ -75,15 +75,13 @@ export default async function ProfilePage() {
             </p>
           </div>
           {profile.slug && profile.is_public && (
-            <a
+            <Link
               href={`/creators/${profile.slug}`}
-              target="_blank"
-              rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent,var(--usha-gold))] px-4 py-2.5 text-sm font-medium text-black transition hover:opacity-90"
             >
               <ExternalLink size={14} />
               {t("viewProfile")}
-            </a>
+            </Link>
           )}
         </div>
       </div>

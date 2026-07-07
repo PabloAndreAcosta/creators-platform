@@ -68,7 +68,7 @@ export async function GET(req: NextRequest) {
   const { data: profiles } = otherIds.length > 0
     ? await supabase
         .from('profiles')
-        .select('id, full_name, avatar_url')
+        .select('id, full_name, avatar_url, slug, is_public, role')
         .in('id', otherIds)
     : { data: [] };
 
@@ -101,6 +101,11 @@ export async function GET(req: NextRequest) {
           id: otherId,
           name: profile?.full_name ?? 'Användare',
           avatar: profile?.avatar_url ?? null,
+          slug: profile?.slug ?? null,
+          // Only creators/venues have a public profile page; customers don't,
+          // so the name is only linkable when they're a public creator.
+          isPublicCreator:
+            !!profile?.is_public && (profile?.role === 'creator' || profile?.role === 'venue'),
         },
         lastMessage: lastMsg?.content ?? null,
         lastMessageAt: lastMsg?.created_at ?? c.last_message_at,
