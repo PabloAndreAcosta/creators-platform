@@ -3,7 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { TicketsContent } from "./tickets-content";
 
 const BOOKING_SELECT =
-  "id, scheduled_at, status, notes, amount_paid, stripe_payment_id, is_free, booking_type, creator_id, listings(title, category, price, listing_type, image_url, event_date, event_time, event_location)";
+  "id, listing_id, scheduled_at, status, notes, amount_paid, stripe_payment_id, is_free, booking_type, creator_id, listings(title, category, price, listing_type, image_url, event_date, event_time, event_location)";
 
 export default async function TicketsPage() {
   let bookings: any[] = [];

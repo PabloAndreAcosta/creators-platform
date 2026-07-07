@@ -8,9 +8,11 @@ import { useSubscription } from "@/lib/subscription/context";
 import { trackEvent } from "@/lib/analytics";
 import Image from "next/image";
 import QRCode from "qrcode";
+import { ShareEventButton } from "@/components/share-event-button";
 
 interface TicketData {
   id: string;
+  listingId: string;
   code: string;
   title: string;
   date: string;
@@ -30,6 +32,7 @@ interface TicketData {
 
 interface BookingData {
   id: string;
+  listing_id?: string;
   scheduled_at: string;
   status: string;
   notes: string | null;
@@ -117,6 +120,7 @@ function bookingToTicket(booking: BookingData): TicketData {
 
   return {
     id: booking.id,
+    listingId: booking.listing_id || "",
     code: `USH-${booking.id.slice(0, 8).toUpperCase()}`,
     payable,
     price,
@@ -498,6 +502,18 @@ function QRModal({
             {ticket.code}
           </p>
         </div>
+
+        {ticket.listingId && (
+          <div className="mt-5">
+            <ShareEventButton
+              url={`${typeof window !== "undefined" ? window.location.origin : "https://usha.se"}/listing/${ticket.listingId}`}
+              title={ticket.title}
+              text={`Jag ska på ${ticket.title} — häng med!`}
+              label="Bjud in vänner"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] px-4 py-2.5 text-sm font-medium transition hover:border-[var(--usha-gold)]/40"
+            />
+          </div>
+        )}
       </div>
     </div>
   );
