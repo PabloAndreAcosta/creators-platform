@@ -34,6 +34,7 @@ import {
   Gift,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { ReferralCard } from "@/components/referral-card";
 
 interface Profile {
   id: string;
@@ -214,6 +215,9 @@ export function ProfileContent({
           </div>
         </div>
       )}
+
+      {/* Invite friends — moved here from the home page */}
+      <ReferralCard />
 
       {/* Settings list */}
       <div className="space-y-1 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] overflow-hidden">

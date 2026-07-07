@@ -332,7 +332,12 @@
     "createFirstEvent": "Create your first event",
     "startSellingTickets": "Start selling tickets today",
     "createEvent": "Create event",
-    "createFirstService": "Create your first service"
+    "createFirstService": "Create your first service",
+    "quickActionsTitle": "What do you want to do today?",
+    "qaFindEvent": "Find an event",
+    "qaMyBookings": "My bookings",
+    "qaDiscoverCreators": "Discover creators",
+    "upcomingBookings": "Upcoming bookings"
   },
   "billing": {
     "title": "Subscription",

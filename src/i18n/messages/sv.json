@@ -332,7 +332,12 @@
     "createFirstEvent": "Skapa ditt första event",
     "startSellingTickets": "Börja sälja biljetter idag",
     "createEvent": "Skapa event",
-    "createFirstService": "Skapa din första tjänst"
+    "createFirstService": "Skapa din första tjänst",
+    "quickActionsTitle": "Vad vill du göra idag?",
+    "qaFindEvent": "Hitta event",
+    "qaMyBookings": "Mina bokningar",
+    "qaDiscoverCreators": "Upptäck kreatörer",
+    "upcomingBookings": "Kommande bokningar"
   },
   "billing": {
     "title": "Prenumeration",
