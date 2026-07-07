@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import QRCode from "qrcode";
 import { Calendar, Clock, MapPin, CheckCircle2, XCircle } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { ShareEventButton } from "@/components/share-event-button";
 
 export const dynamic = "force-dynamic";
 
@@ -151,6 +152,16 @@ export default async function GuestTicketPage({
             <p className="text-center text-xs text-[var(--usha-muted)]">
               Visa den här QR-koden vid entrén.
             </p>
+          )}
+
+          {!canceled && (
+            <ShareEventButton
+              url={`${appUrl}/listing/${booking.listing_id}`}
+              title={listing?.title ?? "Event"}
+              text={`Jag ska på ${listing?.title ?? "detta event"} — häng med!`}
+              label="Bjud in vänner"
+              className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2.5 text-sm font-semibold text-black transition hover:opacity-90"
+            />
           )}
         </div>
       </div>
