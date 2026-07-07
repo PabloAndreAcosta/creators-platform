@@ -29,7 +29,7 @@ export async function sendBookingConfirmationEmail({
   try {
     const resend = getResend();
     const html = await renderEmailToHtml(
-      createElement(BookingConfirmation, { customerName, serviceName, scheduledAt, creatorName, location })
+      createElement(BookingConfirmation, { customerName, serviceName, scheduledAt, creatorName, location, bookingId })
     );
 
     const ics = buildBookingIcs({

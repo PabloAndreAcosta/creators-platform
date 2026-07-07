@@ -164,7 +164,7 @@ export async function POST(req: NextRequest) {
             scheduledAt = new Date().toISOString();
           }
 
-          await getSupabaseAdmin().from("bookings").insert({
+          const { data: guestBooking } = await getSupabaseAdmin().from("bookings").insert({
             listing_id: listingId,
             creator_id: creatorId,
             customer_id: null,
@@ -175,7 +175,7 @@ export async function POST(req: NextRequest) {
             booking_type: "ticket",
             stripe_payment_id: paymentIntentId,
             amount_paid: amountPaid,
-          });
+          }).select("id").single();
 
           // Timed automation: count the sold ticket (atomic) for capacity.
           await getSupabaseAdmin().rpc("increment_tickets_sold", { p_listing: listingId, p_n: 1 });
@@ -207,6 +207,7 @@ export async function POST(req: NextRequest) {
               scheduledAt: new Date(scheduledAt),
               creatorName: creatorRes.data?.full_name || "Kreatör",
               location: listingRes.data?.event_location || undefined,
+              bookingId: guestBooking?.id,
             }).catch(err => console.error("Guest confirmation email failed:", err));
           }
 
