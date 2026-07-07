@@ -45,6 +45,7 @@ export default async function AppHomePage() {
   let monthlyRevenue = 0;
   let averageRating: number | null = null;
   let feedPosts: any[] = [];
+  let upcomingBookings: { id: string; title: string; scheduledAt: string; location: string | null }[] = [];
 
   try {
     const supabase = await createClient();
@@ -121,6 +122,22 @@ export default async function AppHomePage() {
       } catch {
         feedPosts = [];
       }
+
+      // The user's next upcoming confirmed bookings (for the home "Kommande bokningar" card).
+      const { data: upcomingRes } = await supabase
+        .from("bookings")
+        .select("id, scheduled_at, listings(title, event_location)")
+        .eq("customer_id", user.id)
+        .eq("status", "confirmed")
+        .gte("scheduled_at", new Date().toISOString())
+        .order("scheduled_at", { ascending: true })
+        .limit(3);
+      upcomingBookings = (upcomingRes || []).map((b: any) => ({
+        id: b.id,
+        title: b.listings?.title || "Bokning",
+        scheduledAt: b.scheduled_at,
+        location: b.listings?.event_location ?? null,
+      }));
     }
   } catch {
     // Continue with mock data
@@ -136,6 +153,7 @@ export default async function AppHomePage() {
       monthlyRevenue={monthlyRevenue}
       averageRating={averageRating}
       feedPosts={feedPosts}
+      upcomingBookings={upcomingBookings}
     />
   );
 }

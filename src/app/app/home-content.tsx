@@ -19,6 +19,9 @@ import {
   TrendingUp,
   Sparkles,
   Plus,
+  Search,
+  MessageCircle,
+  Compass,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
@@ -30,7 +33,6 @@ import { SearchBar } from "@/components/search-bar";
 import { GatedAction } from "@/components/subscription/GatedAction";
 import { Feed } from "@/components/feed/feed";
 import { CreatePostForm } from "@/components/feed/create-post-form";
-import { ReferralCard } from "@/components/referral-card";
 import { useTranslations } from "next-intl";
 import type { FeedPost } from "@/types/database";
 
@@ -68,6 +70,13 @@ interface Listing {
 
 type TopCreator = Pick<Profile, "id" | "full_name" | "category" | "avatar_url">;
 
+export interface UpcomingBooking {
+  id: string;
+  title: string;
+  scheduledAt: string;
+  location: string | null;
+}
+
 interface HomeContentProps {
   profile: Profile | null;
   listings: Listing[];
@@ -77,6 +86,7 @@ interface HomeContentProps {
   monthlyRevenue?: number;
   averageRating?: number | null;
   feedPosts?: FeedPost[];
+  upcomingBookings?: UpcomingBooking[];
 }
 
 export function HomeContent({
@@ -88,6 +98,7 @@ export function HomeContent({
   monthlyRevenue = 0,
   averageRating = null,
   feedPosts = [],
+  upcomingBookings = [],
 }: HomeContentProps) {
   const { role } = useRole();
 
@@ -99,6 +110,7 @@ export function HomeContent({
         topCreators={topCreators}
         tier={profile?.tier || "gratis"}
         feedPosts={feedPosts}
+        upcomingBookings={upcomingBookings}
       />
     );
   }
@@ -130,15 +142,25 @@ function PublikHome({
   topCreators,
   tier = "gratis",
   feedPosts = [],
+  upcomingBookings = [],
 }: {
   profile: Profile | null;
   listings: Listing[];
   topCreators: TopCreator[];
   tier?: string;
   feedPosts?: FeedPost[];
+  upcomingBookings?: UpcomingBooking[];
 }) {
   const t = useTranslations("home");
   const tc = useTranslations("common");
+
+  // "What do you want to do today?" quick actions — the user's primary jobs.
+  const quickActions = [
+    { label: t("qaFindEvent"), href: "/app/search", icon: Search },
+    { label: t("qaMyBookings"), href: "/app/tickets", icon: Ticket },
+    { label: tc("messages"), href: "/app/messages", icon: MessageCircle },
+    { label: t("qaDiscoverCreators"), href: "/marketplace", icon: Compass },
+  ];
   const isGuld = tier === "guld" || tier === "premium";
   const isPremium = tier === "premium";
   const eventImages = [
@@ -256,28 +278,64 @@ function PublikHome({
           </div>
         )}
 
-        {/* Search */}
+        {/* Search — first focus */}
         <SearchBar />
 
-        {/* Create post — all users */}
-        {profile && (
-          <CreatePostForm
-            authorName={profile.full_name || "Användare"}
-            authorAvatar={profile.avatar_url || null}
-            listings={[]}
-          />
-        )}
+        {/* Quick actions — "Vad vill du göra idag?" */}
+        <section>
+          <h2 className="mb-3 text-lg font-bold">{t("quickActionsTitle")}</h2>
+          <div className="grid grid-cols-2 gap-2">
+            {quickActions.map((action) => (
+              <Link
+                key={action.href}
+                href={action.href}
+                className="flex items-center gap-2.5 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 text-sm font-medium transition hover:border-[var(--usha-gold)]/30"
+              >
+                <action.icon size={16} className="text-[var(--usha-gold)]" />
+                {action.label}
+              </Link>
+            ))}
+          </div>
+        </section>
 
-        {/* Referral */}
-        <ReferralCard />
-
-        {/* Social Feed */}
-        {feedPosts.length > 0 && (
+        {/* Upcoming bookings — second focus */}
+        {upcomingBookings.length > 0 && (
           <section>
-            <h2 className="mb-4 text-lg font-bold">{t("feed")}</h2>
-            <Feed initialPosts={feedPosts} isLoggedIn={!!profile} currentUserId={profile?.id} />
+            <div className="mb-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Calendar size={16} className="text-[var(--usha-gold)]" />
+                <h2 className="text-lg font-bold">{t("upcomingBookings")}</h2>
+              </div>
+              <Link href="/app/tickets" className="text-xs text-[var(--usha-gold)]">
+                {tc("viewAll")}
+              </Link>
+            </div>
+            <div className="space-y-2">
+              {upcomingBookings.map((b) => (
+                <Link
+                  key={b.id}
+                  href="/app/tickets"
+                  className="flex items-center gap-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 transition hover:border-[var(--usha-gold)]/30"
+                >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--usha-gold)]/10">
+                    <Ticket size={16} className="text-[var(--usha-gold)]" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold">{b.title}</p>
+                    <p className="truncate text-xs text-[var(--usha-muted)]">
+                      {new Date(b.scheduledAt).toLocaleDateString("sv-SE", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                      {b.location ? ` · ${b.location}` : ""}
+                    </p>
+                  </div>
+                  <ChevronRight size={16} className="text-[var(--usha-muted)]" />
+                </Link>
+              ))}
+            </div>
           </section>
         )}
+
+        {/* Personalized Recommendations — near you */}
+        <RecommendedEvents />
 
         {/* Event Carousel — snap scroll with dots */}
         {restEvents.length > 0 && (
@@ -348,8 +406,13 @@ function PublikHome({
           </section>
         )}
 
-        {/* Personalized Recommendations */}
-        <RecommendedEvents />
+        {/* Social Feed — moved below discovery */}
+        {feedPosts.length > 0 && (
+          <section>
+            <h2 className="mb-4 text-lg font-bold">{t("feed")}</h2>
+            <Feed initialPosts={feedPosts} isLoggedIn={!!profile} currentUserId={profile?.id} />
+          </section>
+        )}
 
         {/* Guld/Premium exclusive section */}
         {isGuld && (
