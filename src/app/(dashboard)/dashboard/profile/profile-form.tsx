@@ -695,8 +695,6 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
         {isPremium && profile.slug && (
           <a
             href={`/creators/${profile.slug}`}
-            target="_blank"
-            rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-xl border border-[var(--usha-premium)]/30 px-4 py-2.5 text-sm font-medium text-[var(--usha-premium)] transition hover:bg-[var(--usha-premium)]/10"
           >
             <ExternalLink size={14} />

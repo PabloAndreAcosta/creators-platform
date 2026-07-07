@@ -131,6 +131,26 @@ export async function createBooking(formData: FormData) {
     }
   }
 
+  // Idempotency for fixed-date events (tickets): a user should hold ONE ticket
+  // per event. A fast double-tap or a retry was creating duplicate bookings —
+  // and thus a duplicate "Bokning bekräftad" confirmation. If they already have
+  // a non-canceled booking for this listing, treat it as already booked instead
+  // of inserting a duplicate. (Service bookings — non auto-confirm — can repeat.)
+  if (autoConfirm) {
+    const { data: existing } = await supabase
+      .from("bookings")
+      .select("id")
+      .eq("listing_id", listing_id)
+      .eq("customer_id", user.id)
+      .neq("status", "canceled")
+      .limit(1)
+      .maybeSingle();
+    if (existing) {
+      revalidatePath("/dashboard/bookings");
+      return { success: true };
+    }
+  }
+
   // Only persist agreed_price for B2B-offerings.
   const persistAgreedPrice = listing.listing_type === "b2b_offering" && agreed_price !== null;
 

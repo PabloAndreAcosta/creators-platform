@@ -3,11 +3,12 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 import { MessageCircle, Send, ArrowLeft, Loader2, Plus, Search, X } from "lucide-react";
 
 interface Conversation {
   id: string;
-  otherUser: { id: string; name: string; avatar: string | null };
+  otherUser: { id: string; name: string; avatar: string | null; slug?: string | null; isPublicCreator?: boolean };
   lastMessage: string | null;
   lastMessageAt: string;
   lastMessageIsOwn: boolean;
@@ -266,7 +267,16 @@ export default function MessagesPage() {
                 activeConvo.otherUser.name[0]?.toUpperCase() || "?"
               )}
             </div>
-            <span className="font-semibold">{activeConvo.otherUser.name}</span>
+            {activeConvo.otherUser.isPublicCreator ? (
+              <Link
+                href={`/creators/${activeConvo.otherUser.slug || activeConvo.otherUser.id}`}
+                className="font-semibold hover:underline"
+              >
+                {activeConvo.otherUser.name}
+              </Link>
+            ) : (
+              <span className="font-semibold">{activeConvo.otherUser.name}</span>
+            )}
           </div>
         </div>
 
