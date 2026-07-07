@@ -34,6 +34,11 @@ export async function GET(req: NextRequest) {
         .limit(8),
     ]);
 
+    // Surface query errors instead of silently returning [] — a broken embed
+    // (missing FK relationship) previously hid all event results with no trace.
+    if (listingsRes.error) console.error("search: listings query failed", listingsRes.error);
+    if (creatorsRes.error) console.error("search: creators query failed", creatorsRes.error);
+
     return NextResponse.json({
       listings: listingsRes.data ?? [],
       creators: creatorsRes.data ?? [],
