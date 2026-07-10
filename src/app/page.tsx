@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { useTranslations } from "next-intl";
+import { Ticket } from "lucide-react";
 import { safeJsonLd } from "@/lib/json-ld";
 import { LandingStats } from "@/components/landing-stats";
 import { LandingInstall } from "@/components/landing-install";
@@ -95,6 +96,17 @@ function Hero() {
           {t("hero.description")}
         </p>
 
+        {/* Primary CTA — straight to the live events */}
+        <div className="animate-fade-up delay-250 mb-10 flex justify-center sm:mb-12" style={{ opacity: 0 }}>
+          <a
+            href="/upplevelser"
+            className="glow-gold inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-7 py-3.5 text-base font-bold text-black transition hover:opacity-90"
+          >
+            <Ticket size={18} />
+            {t("hero.eventsCta")}
+          </a>
+        </div>
+
         {/* Three doors into the cycle */}
         <div className="animate-fade-up delay-300 w-full" style={{ opacity: 0 }}>
           <AudienceDoors />
@@ -125,6 +137,15 @@ function HomeCta() {
         <p className="mb-8 text-base text-[var(--usha-muted)] sm:mb-10 sm:text-lg">
           {t("homeCta.description")}
         </p>
+        <div className="mb-10 flex justify-center">
+          <a
+            href="/upplevelser"
+            className="glow-gold inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-7 py-3.5 text-base font-bold text-black transition hover:opacity-90"
+          >
+            <Ticket size={18} />
+            {t("hero.eventsCta")}
+          </a>
+        </div>
         <AudienceDoors />
         <div className="mt-10 border-t border-[var(--usha-border)] pt-10">
           <LandingInstall />
