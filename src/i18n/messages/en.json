@@ -55,7 +55,8 @@
     "leaderboard": "Leaderboard",
     "calendar": "Calendar",
     "more": "More",
-    "profile": "Profile"
+    "profile": "Profile",
+    "shop": "Shop"
   },
   "roles": {
     "customer": "User",
