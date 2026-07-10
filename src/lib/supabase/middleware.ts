@@ -1,5 +1,6 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { sharedCookieOptions } from "./cookie-options";
 
 function isValidBase64URL(str: string): boolean {
   try {
@@ -23,6 +24,7 @@ export async function updateSession(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     {
+      cookieOptions: sharedCookieOptions,
       cookies: {
         get(name: string) {
           const value = request.cookies.get(name)?.value;
