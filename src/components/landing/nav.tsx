@@ -50,6 +50,8 @@ export function Nav() {
     { href: "/for-kreatorer", label: t("nav.forCreators") },
     { href: "/for-platser", label: t("nav.forVenues") },
     { href: "/for-publik", label: t("nav.forAudience") },
+    // Storefront lives on the shop.usha.se subdomain (same brand, separate app).
+    { href: "https://shop.usha.se", label: t("nav.shop") },
   ];
   const appLinks = [
     { href: "/flode", label: t("nav.feed") },
