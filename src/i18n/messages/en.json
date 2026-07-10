@@ -461,7 +461,8 @@
       "headlinePart2": "audiences meet",
       "description": "Usha Platform is the cycle that keeps Sweden’s creative life spinning – creators find work, venues fill their calendars, and audiences discover experiences to remember. Safe with BankID and Stripe.",
       "ctaPrimary": "Get started for free",
-      "ctaSecondary": "Explore experiences"
+      "ctaSecondary": "Explore experiences",
+      "eventsCta": "See events"
     },
     "ecosystem": {
       "title": "Three pillars, one",

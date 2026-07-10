@@ -461,7 +461,8 @@
       "headlinePart2": "publik möts",
       "description": "Usha Platform är kretsloppet som får Sveriges kreativa liv att snurra – kreatörer hittar uppdrag, platser fyller sin kalender, och publiken upptäcker upplevelser att minnas. Tryggt med BankID och Stripe.",
       "ctaPrimary": "Kom igång gratis",
-      "ctaSecondary": "Utforska upplevelser"
+      "ctaSecondary": "Utforska upplevelser",
+      "eventsCta": "Se evenemang"
     },
     "ecosystem": {
       "title": "Tre ben, ett",
