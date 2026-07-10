@@ -4,7 +4,7 @@ import type { LucideIcon } from "lucide-react";
 import {
   Package, CalendarCheck, CalendarDays, ScanLine, Briefcase, BookOpen, Building2,
   Wallet, BarChart3, CreditCard, Tag,
-  Search, Store, FileText, Heart, Trophy,
+  Search, Store, FileText, Heart, Trophy, ShoppingBag,
   Ticket, MessageCircle, BookMarked, Gift, Bell, User, Settings, LayoutGrid, Users,
 } from "lucide-react";
 
@@ -54,6 +54,7 @@ const sharedGroups: Group[] = [
     items: [
       { href: "/app/search", label: "Sök", desc: "Hitta kreatörer", icon: Search },
       { href: "/marketplace", label: "Marknadsplats", desc: "Bläddra", icon: Store },
+      { href: "https://shop.usha.se", label: "Butik", desc: "Usha Shop", icon: ShoppingBag },
       { href: "/app/posts", label: "Flöde", desc: "Inlägg", icon: FileText },
       { href: "/app/favorites", label: "Favoriter", desc: "Sparade", icon: Heart },
       { href: "/app/leaderboard", label: "Topplista", desc: "Ranking", icon: Trophy },

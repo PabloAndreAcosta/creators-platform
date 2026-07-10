@@ -15,6 +15,7 @@ import {
   BookMarked,
   Trophy,
   CalendarDays,
+  ShoppingBag,
 } from "lucide-react";
 import { useRole } from "./role-context";
 import { useSubscription } from "@/lib/subscription/context";
@@ -101,6 +102,17 @@ export function SidebarNav() {
               </Link>
             );
           })}
+
+          {/* Usha Shop — separate storefront on the shop.usha.se subdomain.
+              External link, so a plain <a> (not next/link) and its own group. */}
+          <div className="my-1.5 h-px bg-[var(--usha-border)]" />
+          <a
+            href="https://shop.usha.se"
+            className="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-[var(--usha-muted)] transition-colors hover:bg-[var(--usha-card)] hover:text-[var(--usha-white)]"
+          >
+            <ShoppingBag size={20} strokeWidth={1.5} />
+            {t("shop")}
+          </a>
         </nav>
       </div>
 
