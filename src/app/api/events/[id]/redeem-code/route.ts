@@ -140,6 +140,12 @@ export async function POST(
     ? new Date(`${listing.event_date}T${listing.event_time || "00:00:00"}`).toISOString()
     : new Date().toISOString();
 
+  // Atomically reserve a seat (row-locked capacity check) before booking.
+  const { data: reserved } = await admin.rpc("reserve_ticket", { p_listing: listingId });
+  if (!reserved) {
+    return NextResponse.json({ error: te("soldOut") }, { status: 403 });
+  }
+
   const { data: codeBooking, error: bookErr } = await admin.from("bookings").insert({
     listing_id: listing.id,
     creator_id: listing.user_id,
@@ -151,11 +157,11 @@ export async function POST(
     ...(user ? { customer_id: user.id } : { guest_email: email, guest_name: name }),
   }).select("id").single();
   if (bookErr) {
+    // Release the reserved seat on failure.
+    await admin.rpc("increment_tickets_sold", { p_listing: listingId, p_n: -1 });
     console.error("access-code booking failed:", bookErr);
     return NextResponse.json({ error: te("generic") }, { status: 500 });
   }
-
-  await admin.rpc("increment_tickets_sold", { p_listing: listingId, p_n: 1 });
 
   // Confirmation email (non-blocking; the free ticket is already booked).
   const { data: creator } = await admin
