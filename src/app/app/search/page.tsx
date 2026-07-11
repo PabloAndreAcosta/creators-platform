@@ -38,7 +38,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     const supabase = await createClient();
     const hasQuery = query.length >= 2;
     // Sanitize to prevent PostgREST filter injection
-    const sanitized = hasQuery ? query.replace(/[,()\\]/g, ' ').trim() : "";
+    const sanitized = hasQuery ? query.slice(0, 100).replace(/[,()\\%*_]/g, ' ').trim() : "";
     if (hasQuery && !sanitized) {
       return (
         <div className="px-4 py-6 md:max-w-3xl md:mx-auto">

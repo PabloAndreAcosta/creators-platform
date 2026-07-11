@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createBankIdSession } from "@/lib/signicat/client";
+import { signCookieValue } from "@/lib/signicat/crypto";
 
 export async function POST(req: NextRequest) {
   try {
@@ -28,7 +29,9 @@ export async function POST(req: NextRequest) {
 
     const safeNext = typeof next === "string" && next.startsWith("/") && !next.startsWith("//") ? next : null;
 
-    response.cookies.set("bankid_session", JSON.stringify({
+    // Sign the cookie — it carries server-trusted role/mode/next that the
+    // callback acts on, so it must not be attacker-forgeable plaintext.
+    response.cookies.set("bankid_session", signCookieValue({
       sessionId: session.id,
       role,
       subcategory: resolvedSubcategory,

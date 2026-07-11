@@ -3,15 +3,21 @@ import { createClient } from '@/lib/supabase/server';
 
 export async function GET(req: NextRequest) {
   try {
+    // Throttle the public search (per IP) — it's unauthenticated and hits the DB.
+    const { rateLimit, getRateLimitKey } = await import('@/lib/rate-limit');
+    if (!rateLimit(getRateLimitKey(req, 'search'), 30, 60_000).allowed) {
+      return NextResponse.json({ listings: [], creators: [] }, { status: 429 });
+    }
+
     const q = req.nextUrl.searchParams.get('q')?.trim();
     if (!q || q.length < 2) {
       return NextResponse.json({ listings: [], creators: [] });
     }
 
     const supabase = await createClient();
-    // Sanitize search input to prevent PostgREST filter injection
-    // Commas, parens, and backslashes have special meaning in .or() filter syntax
-    const sanitized = q.replace(/[,()\\]/g, ' ').trim();
+    // Sanitize search input: strip PostgREST .or() metacharacters (, ( ) \) AND
+    // ilike wildcards (% * _) so a query can't become a match-all, and cap length.
+    const sanitized = q.slice(0, 100).replace(/[,()\\%*_]/g, ' ').trim();
     if (!sanitized) {
       return NextResponse.json({ listings: [], creators: [] });
     }

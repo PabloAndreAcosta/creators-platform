@@ -22,10 +22,12 @@ export async function GET(req: NextRequest) {
   }
 
   return NextResponse.json({
+    // hashedNin is deliberately NOT returned to the client — the pseudonymised
+    // personnummer is applied server-side in apply-verification; the signup form
+    // only needs the display name + role.
     name: data.name,
     firstName: data.firstName,
     lastName: data.lastName,
-    hashedNin: data.hashedNin,
     role: data.role,
   });
 }

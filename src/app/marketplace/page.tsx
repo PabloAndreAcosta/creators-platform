@@ -58,7 +58,7 @@ export default async function MarketplacePage(
   }
 
   if (q) {
-    const sanitized = q.replace(/[,()\\]/g, " ").trim();
+    const sanitized = q.slice(0, 100).replace(/[,()\\%*_]/g, " ").trim();
     if (sanitized) {
       profilesQuery = profilesQuery.or(
         `full_name.ilike.%${sanitized}%,location.ilike.%${sanitized}%,bio.ilike.%${sanitized}%`
@@ -67,7 +67,7 @@ export default async function MarketplacePage(
   }
 
   if (location) {
-    const sanitizedLocation = location.replace(/[,()\\]/g, " ").trim();
+    const sanitizedLocation = location.slice(0, 100).replace(/[,()\\%*_]/g, " ").trim();
     if (sanitizedLocation) {
       profilesQuery = profilesQuery.ilike("location", `%${sanitizedLocation}%`);
     }
