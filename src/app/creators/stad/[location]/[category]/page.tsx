@@ -21,12 +21,18 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 
   // Don't index an empty city×category creator page.
   const supabase = await createClient();
-  const { count } = await supabase
+  // Guard the category slug — it comes from the URL and is interpolated into a
+  // PostgREST .or() string; never allow filter-injection characters.
+  const safeCategory = /^[a-z0-9_-]+$/i.test(params.category) ? params.category : null;
+  let countQuery = supabase
     .from("profiles")
     .select("id", { count: "exact", head: true })
     .eq("is_public", true)
-    .ilike("location", `%${city}%`)
-    .or(`categories.cs.{${params.category}},category.eq.${params.category}`);
+    .ilike("location", `%${city}%`);
+  if (safeCategory) {
+    countQuery = countQuery.or(`categories.cs.{${safeCategory}},category.eq.${safeCategory}`);
+  }
+  const { count } = await countQuery;
 
   return {
     title: `${categoryLabel} kreatörer i ${city} – Usha Platform`,
@@ -44,13 +50,17 @@ export default async function CreatorLocationCategoryPage(props: Props) {
   const city = capitalize(decodeURIComponent(params.location));
   const categoryLabel = CATEGORY_LABELS[params.category] || capitalize(params.category);
   const supabase = await createClient();
+  const safeCategory = /^[a-z0-9_-]+$/i.test(params.category) ? params.category : null;
 
-  const { data: creators } = await supabase
+  let creatorsQuery = supabase
     .from("profiles")
     .select("id, full_name, avatar_url, bio, category, location, hourly_rate, categories, slug")
     .eq("is_public", true)
-    .ilike("location", `%${city}%`)
-    .or(`categories.cs.{${params.category}},category.eq.${params.category}`)
+    .ilike("location", `%${city}%`);
+  if (safeCategory) {
+    creatorsQuery = creatorsQuery.or(`categories.cs.{${safeCategory}},category.eq.${safeCategory}`);
+  }
+  const { data: creators } = await creatorsQuery
     .order("created_at", { ascending: false })
     .limit(50);
 

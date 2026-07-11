@@ -49,13 +49,26 @@ export function CreatorGallery({ media }: { media: MediaItem[] }) {
       return match ? `https://www.instagram.com/p/${match[1]}/embed` : null;
     }
     if (item.media_type === "instagram-profile") {
-      return item.url;
+      // Never trust the stored URL raw as an iframe src — only allow a real
+      // https instagram.com URL (defense-in-depth on top of server validation).
+      return isHost(item.url, "instagram.com") ? item.url : null;
     }
     if (item.media_type === "tiktok") {
-      // url contains embed_link or share_url
-      return item.url.includes("embed") ? item.url : null;
+      return isHost(item.url, "tiktok.com") && item.url.includes("embed") ? item.url : null;
     }
     return null;
+  }
+
+  function isHost(rawUrl: string, host: string): boolean {
+    try {
+      const u = new URL(rawUrl);
+      return (
+        u.protocol === "https:" &&
+        (u.hostname === host || u.hostname.endsWith(`.${host}`))
+      );
+    } catch {
+      return false;
+    }
   }
 
   function renderMediaCard(item: MediaItem) {

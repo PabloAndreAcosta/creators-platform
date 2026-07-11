@@ -50,7 +50,9 @@ export function getOAuthStateFromCookie(request: NextRequest): { userId: string;
   const payload = Buffer.from(encodedPayload, "base64").toString("utf-8");
   const expectedSig = crypto.createHmac("sha256", SECRET).update(payload).digest("hex");
 
-  if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSig))) {
+  const sigBuf = Buffer.from(signature);
+  const expBuf = Buffer.from(expectedSig);
+  if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(sigBuf, expBuf)) {
     return null;
   }
 
@@ -116,7 +118,9 @@ export function getFbPagesPayloadFromCookie(
   const payload = Buffer.from(encodedPayload, "base64").toString("utf-8");
   const expectedSig = crypto.createHmac("sha256", SECRET).update(payload).digest("hex");
 
-  if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSig))) {
+  const sigBuf = Buffer.from(signature);
+  const expBuf = Buffer.from(expectedSig);
+  if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(sigBuf, expBuf)) {
     return null;
   }
 
