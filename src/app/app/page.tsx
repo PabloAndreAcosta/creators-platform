@@ -89,6 +89,10 @@ export default async function AppHomePage() {
           .from("profiles")
           .select("id, full_name, avatar_url, category, hourly_rate")
           .eq("is_public", true)
+          // "Top creators" should actually be creators/venues, and deterministic
+          // (was an arbitrary set of any public profile with no ordering).
+          .in("role", ["creator", "venue"])
+          .order("created_at", { ascending: false })
           .limit(8),
         supabase
           .from("payments")

@@ -178,7 +178,7 @@ function PublikHome({
     date: listing.created_at
       ? new Date(listing.created_at).toLocaleDateString("sv-SE", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })
       : "",
-    price: listing.price ? `${listing.price} kr` : "Gratis",
+    price: listing.price ? `${listing.price} kr` : t("free"),
     priceNum: listing.price ?? null,
     slug: (listing as { slug?: string | null }).slug ?? null,
     image: (listing as { image_url?: string | null }).image_url ?? null,
@@ -258,7 +258,7 @@ function PublikHome({
       ) : (
         <div className="px-4 pt-4">
           <h1 className="text-2xl font-bold">
-            {t("greeting", { name: profile?.full_name || "där" })}
+            {t("greeting", { name: profile?.full_name || t("greetingFallback") })}
           </h1>
           <p className="text-sm text-[var(--usha-muted)]">
             {t("discoverSubtitle")}
@@ -271,7 +271,7 @@ function PublikHome({
         {heroEvent && (
           <div>
             <h1 className="text-xl font-bold">
-              {t("greeting", { name: profile?.full_name || "där" })}
+              {t("greeting", { name: profile?.full_name || t("greetingFallback") })}
             </h1>
             <p className="text-xs text-[var(--usha-muted)]">
               {t("discoverSubtitle")}
@@ -1145,7 +1145,7 @@ function UpplevelseHome({
     return (
       <div className="px-4 py-6 space-y-6">
         <div>
-          <h1 className="text-xl font-bold">{t("greeting", { name: profile?.full_name || "där" })}</h1>
+          <h1 className="text-xl font-bold">{t("greeting", { name: profile?.full_name || t("greetingFallback") })}</h1>
           <div className="mt-1 flex items-center gap-2">
             <span className="text-xs text-[var(--usha-muted)]">{tr("venue")} · {profile?.category || "Venue"}</span>
             <span className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-[10px] font-semibold text-[var(--usha-gold)]">
@@ -1219,7 +1219,7 @@ function UpplevelseHome({
     <div className="px-4 py-6 space-y-6">
       <div>
         <h1 className="text-2xl font-bold">
-          {t("greeting", { name: profile?.full_name || "där" })} 👋
+          {t("greeting", { name: profile?.full_name || t("greetingFallback") })} 👋
         </h1>
         <div className="mt-1 flex items-center gap-2">
           <span className="text-xs text-[var(--usha-muted)]">{tr("venue")} · {profile?.category || "Venue"}</span>

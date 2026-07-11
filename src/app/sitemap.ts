@@ -18,6 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/signup`, changeFrequency: "monthly", priority: 0.5 },
     { url: `${baseUrl}/privacy`, changeFrequency: "yearly", priority: 0.2 },
     { url: `${baseUrl}/terms`, changeFrequency: "yearly", priority: 0.2 },
+    { url: `${baseUrl}/cookies`, changeFrequency: "yearly", priority: 0.2 },
   ];
 
   // Public creator profiles

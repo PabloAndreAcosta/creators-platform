@@ -37,6 +37,7 @@ export interface FeedPost extends Post {
     avatar_url: string | null;
     category: string | null;
     role: string;
+    is_public?: boolean;
     level?: number;
   };
   listing: {
