@@ -114,6 +114,14 @@ export async function POST(req: NextRequest) {
 
     // Free tickets — create booking directly without Stripe
     if (!sale.price || sale.price <= 0) {
+      // Atomically reserve a seat (row-locked capacity check) so concurrent
+      // free-ticket requests can't oversell the event.
+      const { data: reserved } = await supabase.rpc('reserve_ticket', { p_listing: listing.id });
+      if (!reserved) {
+        const te = await getTranslations('eventErrors');
+        return NextResponse.json({ error: te('soldOut') }, { status: 403 });
+      }
+
       let scheduledAt: string;
       if (listing.event_date) {
         scheduledAt = listing.event_time
@@ -123,7 +131,6 @@ export async function POST(req: NextRequest) {
         scheduledAt = new Date().toISOString();
       }
 
-      // Use a unique check to prevent race condition on free tickets
       const { error: insertError } = await supabase.from('bookings').insert({
         listing_id: listing.id,
         creator_id: listing.user_id,
@@ -135,7 +142,8 @@ export async function POST(req: NextRequest) {
       });
 
       if (insertError) {
-        // Likely a duplicate — re-check
+        // Release the seat we reserved, then find out why the insert failed.
+        await supabase.rpc('increment_tickets_sold', { p_listing: listing.id, p_n: -1 });
         const { count } = await supabase
           .from('bookings')
           .select('id', { count: 'exact', head: true })
@@ -151,10 +159,6 @@ export async function POST(req: NextRequest) {
         }
         return NextResponse.json({ error: 'Could not create booking' }, { status: 500 });
       }
-
-      // Count the free ticket toward capacity — previously only the paid/webhook
-      // and access-code paths did this, so free events had no capacity limit.
-      await supabase.rpc('increment_tickets_sold', { p_listing: listing.id, p_n: 1 });
 
       return NextResponse.json({
         url: `${process.env.NEXT_PUBLIC_APP_URL}/app/tickets?success=true`,

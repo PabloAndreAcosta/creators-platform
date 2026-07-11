@@ -85,7 +85,14 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ url: `${baseUrlDup}/biljett/${existingTicket.id}` });
       }
 
-      const { data: booking } = await admin
+      // Atomically reserve a seat (row-locked capacity check) before creating
+      // the booking, so concurrent guests can't oversell.
+      const { data: reserved } = await admin.rpc("reserve_ticket", { p_listing: listing.id });
+      if (!reserved) {
+        return NextResponse.json({ error: "Slutsålt." }, { status: 403 });
+      }
+
+      const { data: booking, error: bookingError } = await admin
         .from("bookings")
         .insert({
           listing_id: listing.id,
@@ -102,9 +109,10 @@ export async function POST(req: NextRequest) {
         .select("id")
         .single();
 
-      // Count the free ticket toward capacity.
-      if (booking?.id) {
-        await admin.rpc("increment_tickets_sold", { p_listing: listing.id, p_n: 1 });
+      // Release the reserved seat if the booking failed to persist.
+      if (bookingError || !booking?.id) {
+        await admin.rpc("increment_tickets_sold", { p_listing: listing.id, p_n: -1 });
+        return NextResponse.json({ error: "Kunde inte skapa bokningen." }, { status: 500 });
       }
 
       // Send the confirmation email with the ticket QR + public ticket link.
