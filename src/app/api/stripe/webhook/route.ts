@@ -555,15 +555,19 @@ export async function POST(req: NextRequest) {
               });
             }
 
-            // Record digital purchase
-            try {
-              await getSupabaseAdmin().from("digital_purchases").insert({
+            // Record digital purchase. Don't swallow errors silently — a paid
+            // buyer who isn't granted the product must leave a trace to debug.
+            // A duplicate (unique stripe_payment_id) is fine: treat as already
+            // processed, everything else is logged.
+            const { error: dpError } = await getSupabaseAdmin()
+              .from("digital_purchases")
+              .insert({
                 user_id: buyerId,
                 product_id: productId,
                 stripe_payment_id: paymentIntentId,
               });
-            } catch {
-              // table may not exist yet
+            if (dpError && dpError.code !== "23505") {
+              console.error("digital_purchases insert failed", { paymentIntentId, productId, buyerId, dpError });
             }
           }
 
