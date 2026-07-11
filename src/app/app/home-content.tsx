@@ -181,6 +181,7 @@ function PublikHome({
     price: listing.price ? `${listing.price} kr` : "Gratis",
     priceNum: listing.price ?? null,
     slug: (listing as { slug?: string | null }).slug ?? null,
+    image: (listing as { image_url?: string | null }).image_url ?? null,
     category: listing.category || "Övrigt",
   }));
 
@@ -220,7 +221,7 @@ function PublikHome({
       {heroEvent ? (
         <div className="relative -mx-4 -mt-2 overflow-hidden md:-mx-0 md:rounded-2xl">
           <img
-            src={eventImages[0]}
+            src={heroEvent.image || eventImages[0]}
             alt={heroEvent.title}
             className="h-[280px] w-full object-cover md:h-[320px]"
           />
@@ -357,7 +358,7 @@ function PublikHome({
                 >
                   <div className="relative h-36 overflow-hidden">
                     <img
-                      src={eventImages[(i + 1) % eventImages.length]}
+                      src={event.image || eventImages[(i + 1) % eventImages.length]}
                       alt={event.title}
                       className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />

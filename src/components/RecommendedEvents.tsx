@@ -249,7 +249,9 @@ function EventCard({ event }: { event: Recommendation }) {
             size="sm"
             className="bg-[var(--usha-gold)] hover:bg-[var(--usha-gold-light)] text-black text-xs font-semibold px-4"
             onClick={() => {
-              window.location.href = `/creators/${event.creator?.id ?? event.id}?listing=${event.id}`;
+              // Go to the listing detail (resolves by id or slug) — the creator
+              // profile route 404s for non-public creators and drops the listing.
+              window.location.href = `/listing/${event.id}`;
             }}
           >
             {t('bookNow')}
