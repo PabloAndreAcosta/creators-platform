@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getBankIdSessionResult } from "@/lib/signicat/client";
-import { signCookieValue, hashPersonalNumber } from "@/lib/signicat/crypto";
+import { signCookieValue, verifyCookieValue, hashPersonalNumber } from "@/lib/signicat/crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { computeAge } from "@/lib/age";
@@ -16,10 +16,15 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(`${baseUrl}/signup?bankid=error`);
   }
 
-  let sessionData: { sessionId: string; role: string; subcategory?: string; mode?: "signup" | "add"; next?: string | null };
-  try {
-    sessionData = JSON.parse(sessionCookie);
-  } catch {
+  // Verify the signed cookie — it carries server-trusted role/mode/next.
+  const sessionData = verifyCookieValue<{
+    sessionId: string;
+    role: string;
+    subcategory?: string;
+    mode?: "signup" | "add";
+    next?: string | null;
+  }>(sessionCookie);
+  if (!sessionData) {
     return NextResponse.redirect(`${baseUrl}/signup?bankid=error`);
   }
 

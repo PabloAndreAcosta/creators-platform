@@ -2,8 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET(req: NextRequest) {
+  const { rateLimit, getRateLimitKey } = await import("@/lib/rate-limit");
+  if (!rateLimit(getRateLimitKey(req, "contacts"), 30, 60_000).allowed) {
+    return NextResponse.json({ contacts: [] }, { status: 429 });
+  }
+
   const query = req.nextUrl.searchParams.get("q");
   if (!query || query.length < 2) {
+    return NextResponse.json({ contacts: [] });
+  }
+  // Strip ilike wildcards + cap length so a query can't become a match-all.
+  const safeQuery = query.slice(0, 100).replace(/[%_]/g, "");
+  if (!safeQuery) {
     return NextResponse.json({ contacts: [] });
   }
 
@@ -24,7 +34,7 @@ export async function GET(req: NextRequest) {
     .from("profiles")
     .select("id, full_name, avatar_url, role")
     .neq("id", user.id)
-    .ilike("full_name", `%${query}%`)
+    .ilike("full_name", `%${safeQuery}%`)
     .limit(10);
 
   return NextResponse.json({
