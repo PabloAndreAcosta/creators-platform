@@ -338,7 +338,9 @@
     "qaFindEvent": "Encontrar un evento",
     "qaMyBookings": "Mis reservas",
     "qaDiscoverCreators": "Descubrir creadores",
-    "upcomingBookings": "Próximas reservas"
+    "upcomingBookings": "Próximas reservas",
+    "greetingFallback": "por aquí",
+    "free": "Gratis"
   },
   "billing": {
     "title": "Suscripción",

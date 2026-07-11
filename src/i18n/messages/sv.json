@@ -338,7 +338,9 @@
     "qaFindEvent": "Hitta event",
     "qaMyBookings": "Mina bokningar",
     "qaDiscoverCreators": "Upptäck kreatörer",
-    "upcomingBookings": "Kommande bokningar"
+    "upcomingBookings": "Kommande bokningar",
+    "greetingFallback": "där",
+    "free": "Gratis"
   },
   "billing": {
     "title": "Prenumeration",

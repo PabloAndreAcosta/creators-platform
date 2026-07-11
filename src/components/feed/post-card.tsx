@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, type ReactNode } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Calendar, MapPin, MoreHorizontal, Pencil, Trash2, X, Loader2, ImagePlus, Send, Share2, Check } from "lucide-react";
@@ -10,6 +10,26 @@ import { LevelBadge } from "@/components/level-badge";
 import { updatePost, deletePost } from "@/app/app/feed/actions";
 import { uploadImage } from "@/lib/storage/upload-client";
 import type { FeedPost } from "@/types/database";
+
+// Only public creators/venues have a viewable profile at /creators/[id]; for
+// anyone else, render the name/avatar as plain text so it doesn't 404.
+function ProfileWrap({
+  href,
+  className,
+  children,
+}: {
+  href: string | null;
+  className?: string;
+  children: ReactNode;
+}) {
+  return href ? (
+    <Link href={href} className={className}>
+      {children}
+    </Link>
+  ) : (
+    <span className={className}>{children}</span>
+  );
+}
 
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -108,11 +128,16 @@ export function PostCard({ post, isLoggedIn, currentUserId }: PostCardProps) {
 
   if (deleted) return null;
 
+  const authorHref =
+    post.author.is_public && (post.author.role === "creator" || post.author.role === "venue")
+      ? `/creators/${post.author.id}`
+      : null;
+
   return (
     <div className="border-b border-[var(--usha-border)] pb-4 md:pb-5">
       {/* Header */}
       <div className="flex items-center gap-2.5 px-4 py-3 md:gap-3">
-        <Link href={`/creators/${post.author.id}`}>
+        <ProfileWrap href={authorHref}>
           {post.author.avatar_url ? (
             <img
               src={post.author.avatar_url}
@@ -126,12 +151,12 @@ export function PostCard({ post, isLoggedIn, currentUserId }: PostCardProps) {
               </span>
             </div>
           )}
-        </Link>
+        </ProfileWrap>
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <Link href={`/creators/${post.author.id}`} className="text-sm font-semibold hover:underline">
+            <ProfileWrap href={authorHref} className="text-sm font-semibold hover:underline">
               {post.author.full_name || tf("creatorFallback")}
-            </Link>
+            </ProfileWrap>
             <span className="rounded-full bg-[var(--usha-gold)]/10 px-1.5 py-0.5 text-[9px] font-medium text-[var(--usha-gold)]">
               {tr(post.author.role as "customer" | "creator" | "venue")}
             </span>
@@ -244,9 +269,9 @@ export function PostCard({ post, isLoggedIn, currentUserId }: PostCardProps) {
       {/* Text */}
       <div className="px-4 pt-2">
         <p className="text-sm leading-relaxed">
-          <Link href={`/creators/${post.author.id}`} className="font-semibold hover:underline">
+          <ProfileWrap href={authorHref} className="font-semibold hover:underline">
             {(post.author.full_name || tf("creatorFallback")).split(" ")[0]}
-          </Link>{" "}
+          </ProfileWrap>{" "}
           {isLong && !expanded ? (
             <>
               {post.text.slice(0, 150)}...{" "}

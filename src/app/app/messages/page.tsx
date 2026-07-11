@@ -67,7 +67,9 @@ export default function MessagesPage() {
   }, []);
 
   useEffect(() => {
-    if (activeConvo) {
+    // Only poll once the conversation has a real id — a brand-new conversation
+    // (empty id) would fetch conversationId= and wipe the message view.
+    if (activeConvo?.id) {
       pollRef.current = setInterval(() => {
         fetchMessages(activeConvo.id, true);
       }, 5000);
