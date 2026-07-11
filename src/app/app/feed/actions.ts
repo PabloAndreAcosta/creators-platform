@@ -194,18 +194,32 @@ export async function getMorePosts(page: number) {
     likeCountMap[l.post_id] = (likeCountMap[l.post_id] || 0) + 1;
   });
 
-  const enrichedPosts = posts.map((post) => ({
-    id: post.id,
-    user_id: post.user_id,
-    text: post.text,
-    image_url: post.image_url,
-    listing_id: post.listing_id,
-    created_at: post.created_at,
-    author: (post as any).profiles || { id: post.user_id, full_name: null, avatar_url: null, category: null, role: "creator" },
-    listing: (post as any).listings || null,
-    like_count: likeCountMap[post.id] || 0,
-    is_liked: userLikedSet.has(post.id),
-  }));
+  // Author levels — mirror getFeedPosts so "load more" posts show the LevelBadge too.
+  const authorIds = Array.from(new Set(posts.map((p) => p.user_id)));
+  const { data: authorPoints } = await supabase
+    .from("user_points")
+    .select("user_id, current_level")
+    .in("user_id", authorIds);
+  const levelMap: Record<string, number> = {};
+  (authorPoints || []).forEach((up) => {
+    levelMap[up.user_id] = up.current_level;
+  });
+
+  const enrichedPosts = posts.map((post) => {
+    const author = (post as any).profiles || { id: post.user_id, full_name: null, avatar_url: null, category: null, role: "creator" };
+    return {
+      id: post.id,
+      user_id: post.user_id,
+      text: post.text,
+      image_url: post.image_url,
+      listing_id: post.listing_id,
+      created_at: post.created_at,
+      author: { ...author, level: levelMap[post.user_id] || 1 },
+      listing: (post as any).listings || null,
+      like_count: likeCountMap[post.id] || 0,
+      is_liked: userLikedSet.has(post.id),
+    };
+  });
 
   return { posts: enrichedPosts, hasMore: posts.length === pageSize };
 }

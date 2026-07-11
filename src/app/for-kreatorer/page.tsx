@@ -9,6 +9,7 @@ import { LoopSection } from "@/components/landing/loop-section";
 import { PerspectiveLinks } from "@/components/landing/perspective-links";
 import { Trust } from "@/components/landing/trust";
 import { Footer } from "@/components/landing/footer";
+import { RedirectIfAuthed } from "@/components/landing/redirect-if-authed";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("forCreators");
@@ -25,6 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function ForCreatorsPage() {
   return (
     <main>
+      <RedirectIfAuthed />
       <Nav />
       <PerspectiveHero ns="forCreators" ctaHref="/signup" />
       <Onboarding />

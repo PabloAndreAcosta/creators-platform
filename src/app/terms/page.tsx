@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Användarvillkor – Usha Platform",
+  description: "Användarvillkor för Usha Platform (usha.se).",
+  alternates: { canonical: "/terms" },
+};
 
 export default function TermsPage() {
   return (

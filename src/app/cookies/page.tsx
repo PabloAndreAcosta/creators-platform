@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Cookiepolicy – Usha Platform",
+  description: "Hur Usha Platform använder cookies.",
+  alternates: { canonical: "/cookies" },
+};
 
 export default function CookiesPage() {
   return (
