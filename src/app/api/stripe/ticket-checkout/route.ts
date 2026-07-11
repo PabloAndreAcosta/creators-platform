@@ -152,6 +152,10 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Could not create booking' }, { status: 500 });
       }
 
+      // Count the free ticket toward capacity — previously only the paid/webhook
+      // and access-code paths did this, so free events had no capacity limit.
+      await supabase.rpc('increment_tickets_sold', { p_listing: listing.id, p_n: 1 });
+
       return NextResponse.json({
         url: `${process.env.NEXT_PUBLIC_APP_URL}/app/tickets?success=true`,
       });

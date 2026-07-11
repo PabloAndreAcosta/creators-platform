@@ -59,22 +59,27 @@ export async function GET(request: NextRequest) {
   // Use admin client to bypass RLS — we verify permissions manually below
   const admin = createAdminClient();
 
-  // Search for booking where id starts with the prefix
-  // UUID columns don't support ilike, so construct the UUID range to match the prefix
-  const paddedStart = idPrefix + "0".repeat(32 - idPrefix.length);
-  const uuidStart = `${paddedStart.slice(0,8)}-${paddedStart.slice(8,12)}-${paddedStart.slice(12,16)}-${paddedStart.slice(16,20)}-${paddedStart.slice(20,32)}`;
-  const paddedEnd = idPrefix + "f".repeat(32 - idPrefix.length);
-  const uuidEnd = `${paddedEnd.slice(0,8)}-${paddedEnd.slice(8,12)}-${paddedEnd.slice(12,16)}-${paddedEnd.slice(16,20)}-${paddedEnd.slice(20,32)}`;
-
-  const { data: booking, error: bookingError } = await admin
+  let bookingQuery = admin
     .from("bookings")
-    .select(
-      "id, listing_id, creator_id, status, scheduled_at, notes, amount_paid, booking_type"
-    )
-    .gte("id", uuidStart)
-    .lte("id", uuidEnd)
-    .limit(1)
-    .single();
+    .select("id, listing_id, creator_id, status, scheduled_at, notes, amount_paid, booking_type");
+
+  // The QR encodes the FULL booking UUID as `id` — match it exactly. Only the
+  // code-only path (USH-XXXXXXXX, 8 hex) needs the prefix range. Using
+  // maybeSingle() (not single()) means a prefix collision or no match returns
+  // cleanly instead of a PGRST116 error that showed a valid ticket as not_found.
+  const isFullUuid = !!id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+  if (isFullUuid) {
+    bookingQuery = bookingQuery.eq("id", id!);
+  } else {
+    // UUID columns don't support ilike; build a UUID range covering the prefix.
+    const paddedStart = idPrefix + "0".repeat(32 - idPrefix.length);
+    const uuidStart = `${paddedStart.slice(0,8)}-${paddedStart.slice(8,12)}-${paddedStart.slice(12,16)}-${paddedStart.slice(16,20)}-${paddedStart.slice(20,32)}`;
+    const paddedEnd = idPrefix + "f".repeat(32 - idPrefix.length);
+    const uuidEnd = `${paddedEnd.slice(0,8)}-${paddedEnd.slice(8,12)}-${paddedEnd.slice(12,16)}-${paddedEnd.slice(16,20)}-${paddedEnd.slice(20,32)}`;
+    bookingQuery = bookingQuery.gte("id", uuidStart).lte("id", uuidEnd);
+  }
+
+  const { data: booking, error: bookingError } = await bookingQuery.limit(1).maybeSingle();
 
   const ticketCode = code || `USH-${idPrefix.toUpperCase()}`;
 
