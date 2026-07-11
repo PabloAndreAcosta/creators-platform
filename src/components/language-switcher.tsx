@@ -1,32 +1,48 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useLocale, useTranslations } from "next-intl";
-import { LOCALE_COOKIE_NAME, type Locale } from "@/i18n/config";
-import { Globe } from "lucide-react";
+import { useLocale } from "next-intl";
+import { LOCALE_COOKIE_NAME, locales, type Locale } from "@/i18n/config";
+
+// Uppercase codes, matching the shop's SV / EN / ES segmented switcher.
+const LABELS: Record<Locale, string> = { sv: "SV", en: "EN", es: "ES" };
+const NAMES: Record<Locale, string> = { sv: "Svenska", en: "English", es: "Español" };
 
 export function LanguageSwitcher({ className }: { className?: string }) {
-  const locale = useLocale();
+  const active = useLocale() as Locale;
   const router = useRouter();
-  const t = useTranslations("language");
 
-  function switchLocale() {
-    const next: Locale = locale === "sv" ? "en" : "sv";
+  function setLocale(next: Locale) {
+    if (next === active) return;
     document.cookie = `${LOCALE_COOKIE_NAME}=${next};path=/;max-age=${60 * 60 * 24 * 365};samesite=lax`;
     router.refresh();
   }
 
   return (
-    <button
-      onClick={switchLocale}
+    <div
+      role="group"
+      aria-label="Language"
       className={
         className ??
-        "flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-[var(--usha-muted)] transition-colors hover:bg-[var(--usha-card)] hover:text-[var(--usha-white)]"
+        "inline-flex items-center gap-0.5 rounded-lg border border-[var(--usha-border)] p-0.5"
       }
-      aria-label={t("switchTo")}
     >
-      <Globe size={16} />
-      <span>{t("switchTo")}</span>
-    </button>
+      {locales.map((loc) => (
+        <button
+          key={loc}
+          type="button"
+          onClick={() => setLocale(loc)}
+          aria-pressed={active === loc}
+          aria-label={NAMES[loc]}
+          className={`rounded-md px-2 py-1 text-xs font-semibold transition-colors ${
+            active === loc
+              ? "bg-[var(--usha-gold)] text-black"
+              : "text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
+          }`}
+        >
+          {LABELS[loc]}
+        </button>
+      ))}
+    </div>
   );
 }

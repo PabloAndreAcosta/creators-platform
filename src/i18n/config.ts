@@ -1,4 +1,4 @@
-export const locales = ['sv', 'en'] as const;
+export const locales = ['sv', 'en', 'es'] as const;
 export type Locale = (typeof locales)[number];
 // Swedish-first: usha.se is a Swedish platform (.se, BankID, Swedish audience)
 // and the landing metadata is Swedish. Cookieless visitors and crawlers must
