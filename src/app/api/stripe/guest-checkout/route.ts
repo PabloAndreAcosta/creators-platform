@@ -69,6 +69,22 @@ export async function POST(req: NextRequest) {
         scheduledAt = new Date().toISOString();
       }
 
+      // Duplicate guard: a double-tap/retry should not issue a second ticket to
+      // the same email. Return the existing ticket link if one already exists.
+      const baseUrlDup = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";
+      const { data: existingTicket } = await admin
+        .from("bookings")
+        .select("id")
+        .eq("listing_id", listing.id)
+        .eq("guest_email", email)
+        .eq("booking_type", "ticket")
+        .neq("status", "canceled")
+        .limit(1)
+        .maybeSingle();
+      if (existingTicket) {
+        return NextResponse.json({ url: `${baseUrlDup}/biljett/${existingTicket.id}` });
+      }
+
       const { data: booking } = await admin
         .from("bookings")
         .insert({
@@ -85,6 +101,11 @@ export async function POST(req: NextRequest) {
         })
         .select("id")
         .single();
+
+      // Count the free ticket toward capacity.
+      if (booking?.id) {
+        await admin.rpc("increment_tickets_sold", { p_listing: listing.id, p_n: 1 });
+      }
 
       // Send the confirmation email with the ticket QR + public ticket link.
       // Without this, free guests got no email at all and no way to show a QR.

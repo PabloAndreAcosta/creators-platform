@@ -58,7 +58,7 @@ export async function createBooking(formData: FormData) {
     return { error: "Du kan inte boka din egen tjänst." };
   }
 
-  const scheduledDate = scheduled_at ? new Date(scheduled_at) : new Date();
+  let scheduledDate = scheduled_at ? new Date(scheduled_at) : new Date();
   if (!autoConfirm && scheduledDate <= new Date()) {
     return { error: "Välj ett datum i framtiden." };
   }
@@ -74,7 +74,7 @@ export async function createBooking(formData: FormData) {
   // Check capacity and validate guest count
   const { data: listing } = await supabase
     .from("listings")
-    .select("id, user_id, duration_minutes, release_to_gold_at, listing_type, min_guests, max_guests, is_active")
+    .select("id, user_id, duration_minutes, release_to_gold_at, listing_type, min_guests, max_guests, is_active, event_date, event_time")
     .eq("id", listing_id)
     .single();
 
@@ -85,6 +85,16 @@ export async function createBooking(formData: FormData) {
   // Verify creator_id matches the listing owner
   if (listing.user_id !== creator_id) {
     return { error: "Ogiltig kreatör för denna tjänst." };
+  }
+
+  // For fixed-date events, derive scheduled_at server-side from the listing's
+  // own event_date/event_time instead of trusting the client's value, which is
+  // parsed in the browser's timezone and drifts for non-Stockholm users.
+  if (autoConfirm && listing.event_date) {
+    const evListing = listing as { event_date?: string | null; event_time?: string | null };
+    scheduledDate = evListing.event_time
+      ? new Date(`${evListing.event_date}T${evListing.event_time}`)
+      : new Date(`${evListing.event_date}T00:00:00`);
   }
 
   // B2B offerings can only be booked by experience-role users (arrangörer).
@@ -208,7 +218,7 @@ export async function updateBookingStatus(
   // Verify the user is the creator or customer of this booking
   const { data: booking } = await supabase
     .from("bookings")
-    .select("creator_id, customer_id, status, listing_id, scheduled_at, stripe_payment_id, amount_paid")
+    .select("creator_id, customer_id, status, listing_id, scheduled_at, stripe_payment_id, amount_paid, booking_type")
     .eq("id", bookingId)
     .single();
 
@@ -262,6 +272,14 @@ export async function updateBookingStatus(
     .eq("id", bookingId);
 
   if (error) return { error: "Kunde inte uppdatera bokningen." };
+
+  // Free up the seat when a ticket is canceled — tickets_sold was only ever
+  // incremented, so canceled tickets used to permanently consume capacity.
+  if (status === "canceled" && booking.booking_type === "ticket") {
+    await createAdminClient()
+      .rpc("increment_tickets_sold", { p_listing: booking.listing_id, p_n: -1 })
+      .then(({ error: decErr }) => decErr && console.error("tickets_sold decrement failed:", decErr));
+  }
 
   // Send email notifications (non-blocking)
   const { data: bookingListing } = await supabase.from("listings").select("title").eq("id", booking.listing_id).single();
