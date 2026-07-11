@@ -48,7 +48,16 @@ export function rateLimit(
  * Get rate limit key from request (uses IP + optional prefix).
  */
 export function getRateLimitKey(req: Request, prefix: string = ""): string {
-  const forwarded = req.headers.get("x-forwarded-for");
-  const ip = forwarded?.split(",")[0]?.trim() || "unknown";
+  // Prefer x-real-ip (set by Vercel's edge to the true client IP). A client can
+  // prepend its own value to x-forwarded-for, so the LEFTMOST XFF entry is
+  // spoofable — fall back to the last (proxy-appended) entry, not the first.
+  const realIp = req.headers.get("x-real-ip")?.trim();
+  const xffLast = req.headers
+    .get("x-forwarded-for")
+    ?.split(",")
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .pop();
+  const ip = realIp || xffLast || "unknown";
   return `${prefix}:${ip}`;
 }

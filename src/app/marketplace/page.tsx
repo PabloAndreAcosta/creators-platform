@@ -51,7 +51,9 @@ export default async function MarketplacePage(
     .in("role", SELLER_ROLE_VALUES)
     .eq("is_marketplace_verified", true);
 
-  if (category && category !== "all") {
+  // Only use the category filter when it's a safe slug — never interpolate
+  // free-form input into a PostgREST .or() string (filter injection).
+  if (category && category !== "all" && /^[a-z0-9_-]+$/i.test(category)) {
     profilesQuery = profilesQuery.or(`categories.cs.{${category}},category.eq.${category}`);
   }
 

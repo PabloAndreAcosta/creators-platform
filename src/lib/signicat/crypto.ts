@@ -38,7 +38,12 @@ export function verifyCookieValue<T = unknown>(
     .update(encoded)
     .digest("base64url");
 
-  if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
+  // timingSafeEqual throws RangeError on unequal-length buffers — length-check
+  // first so an attacker-supplied wrong-length signature returns null cleanly
+  // instead of throwing an uncaught 500.
+  const sigBuf = Buffer.from(signature);
+  const expBuf = Buffer.from(expected);
+  if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(sigBuf, expBuf)) {
     return null;
   }
 
