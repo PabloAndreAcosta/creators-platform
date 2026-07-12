@@ -11,6 +11,9 @@ interface BuyTicketButtonProps {
   discountedPrice: number;
   isLoggedIn: boolean;
   hasConnect: boolean;
+  /** Event has ticket types (price tiers) — send the buyer to the event page to pick one. */
+  hasTicketTypes?: boolean;
+  eventSlug?: string | null;
 }
 
 export function BuyTicketButton({
@@ -19,10 +22,25 @@ export function BuyTicketButton({
   discountedPrice,
   isLoggedIn,
   hasConnect,
+  hasTicketTypes = false,
+  eventSlug,
 }: BuyTicketButtonProps) {
   const t = useTranslations("creatorProfile");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+
+  // Typed events: tier selection lives on the full event page.
+  if (hasTicketTypes && eventSlug) {
+    return (
+      <a
+        href={`/event/${eventSlug}`}
+        className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-xs font-bold text-black transition hover:opacity-90"
+      >
+        <Ticket size={13} />
+        {t("buyTicket.chooseTicket")}
+      </a>
+    );
+  }
 
   if (!isLoggedIn) {
     return (

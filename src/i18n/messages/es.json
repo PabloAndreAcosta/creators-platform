@@ -1021,7 +1021,8 @@
       "loading": "Cargando...",
       "buy": "Comprar entrada",
       "discountedPriceSek": "{discounted} SEK",
-      "priceSek": "{price} SEK"
+      "priceSek": "{price} SEK",
+      "chooseTicket": "Elegir entrada"
     },
     "report": {
       "ariaTrigger": "Denunciar o bloquear a {name}",

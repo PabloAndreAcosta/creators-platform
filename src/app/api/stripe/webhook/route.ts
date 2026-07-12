@@ -802,11 +802,17 @@ export async function POST(req: NextRequest) {
           // Cancel associated booking
           const { data: refundedBooking } = await getSupabaseAdmin()
             .from("bookings")
-            .select("id, customer_id, creator_id, listing_id")
+            .select("id, customer_id, creator_id, listing_id, status, booking_type, guest_count, ticket_type_id")
             .eq("stripe_payment_id", paymentIntentId)
             .single();
 
           if (refundedBooking) {
+            // Was it already canceled (e.g. by the in-app refund, which already
+            // released the seat)? Only an EXTERNAL refund (Stripe dashboard) that
+            // hits a still-active booking should free the seat here — otherwise
+            // we'd double-decrement.
+            const alreadyCanceled = refundedBooking.status === "canceled";
+
             await getSupabaseAdmin()
               .from("bookings")
               .update({
@@ -816,6 +822,21 @@ export async function POST(req: NextRequest) {
                 stripe_refund_id: charge.refunds?.data?.[0]?.id ?? null,
               })
               .eq("id", refundedBooking.id);
+
+            // External refund on an active ticket → release the seat(s) and
+            // notify the waitlist, mirroring the in-app path.
+            if (!alreadyCanceled && refundedBooking.booking_type === "ticket") {
+              const seats = refundedBooking.guest_count ?? 1;
+              await getSupabaseAdmin()
+                .rpc("increment_tickets_sold", {
+                  p_listing: refundedBooking.listing_id,
+                  p_n: -seats,
+                  p_ticket_type: refundedBooking.ticket_type_id ?? undefined,
+                })
+                .then(({ error: e }: { error: unknown }) => e && console.error("refund seat release failed:", e));
+              const { notifyWaitlistSeatFreed } = await import("@/lib/tickets/waitlist-notify");
+              await notifyWaitlistSeatFreed(getSupabaseAdmin(), refundedBooking.listing_id, seats);
+            }
 
             // Notify both parties
             const { data: listing } = await getSupabaseAdmin()
