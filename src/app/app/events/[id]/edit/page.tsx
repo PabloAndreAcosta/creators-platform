@@ -23,6 +23,13 @@ export default async function EditEventPage(props: { params: Promise<{ id: strin
 
   if (!event) notFound();
 
+  // Existing ticket types (price tiers) so the editor can pre-fill them.
+  const { data: ticketTypes } = await supabase
+    .from("ticket_types")
+    .select("id, name, price, capacity")
+    .eq("listing_id", event.id)
+    .order("sort_order", { ascending: true });
+
   const action = updateEvent.bind(null, event.id);
 
   return (
@@ -57,7 +64,7 @@ export default async function EditEventPage(props: { params: Promise<{ id: strin
           Statistik
         </Link>
       </div>
-      <EventForm event={event} action={action} userId={user.id} />
+      <EventForm event={{ ...event, ticketTypes: ticketTypes ?? [] }} action={action} userId={user.id} />
     </>
   );
 }

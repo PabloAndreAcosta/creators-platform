@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { listingId, email, name } = await req.json();
+    const { listingId, email, name, ticketTypeId } = await req.json();
 
     if (!listingId || !email) {
       return NextResponse.json(
@@ -46,6 +46,25 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Optional ticket type (price tier) — overrides price + capacity, validated
+    // to belong to this listing.
+    let ticketType: { id: string; name: string; price: number; capacity: number | null; tickets_sold: number } | null = null;
+    if (ticketTypeId) {
+      const { data: tt } = await supabase
+        .from("ticket_types")
+        .select("id, name, price, capacity, tickets_sold")
+        .eq("id", ticketTypeId)
+        .eq("listing_id", listing.id)
+        .single();
+      if (!tt) {
+        return NextResponse.json({ error: "Invalid ticket type" }, { status: 400 });
+      }
+      ticketType = tt as { id: string; name: string; price: number; capacity: number | null; tickets_sold: number };
+      if (ticketType!.capacity != null && ticketType!.tickets_sold >= ticketType!.capacity) {
+        return NextResponse.json({ error: "Slutsålt." }, { status: 403 });
+      }
+    }
+
     // Timed automation: block when not buyable; use effective (early-bird) price.
     const sale = getSaleState(listing, new Date());
     if (!sale.buyable) {
@@ -54,8 +73,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: msg }, { status: 403 });
     }
 
+    // A selected ticket type sets its own price; otherwise the listing price.
+    const effectivePrice = ticketType ? ticketType.price : sale.price;
+
     // Free tickets — create booking directly
-    if (!sale.price || sale.price <= 0) {
+    if (!effectivePrice || effectivePrice <= 0) {
       const { createClient: createAdmin } = await import("@supabase/supabase-js");
       const admin = createAdmin(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -89,7 +111,7 @@ export async function POST(req: NextRequest) {
 
       // Atomically reserve a seat (row-locked capacity check) before creating
       // the booking, so concurrent guests can't oversell.
-      const { data: reserved } = await admin.rpc("reserve_ticket", { p_listing: listing.id });
+      const { data: reserved } = await admin.rpc("reserve_ticket", { p_listing: listing.id, p_ticket_type: ticketType?.id ?? undefined });
       if (!reserved) {
         return NextResponse.json({ error: "Slutsålt." }, { status: 403 });
       }
@@ -107,13 +129,15 @@ export async function POST(req: NextRequest) {
           booking_type: "ticket",
           amount_paid: 0,
           is_free: true,
+          ticket_type_id: ticketType?.id ?? null,
+          ticket_type_name: ticketType?.name ?? null,
         })
         .select("id")
         .single();
 
       // Release the reserved seat if the booking failed to persist.
       if (bookingError || !booking?.id) {
-        await admin.rpc("increment_tickets_sold", { p_listing: listing.id, p_n: -1 });
+        await admin.rpc("increment_tickets_sold", { p_listing: listing.id, p_n: -1, p_ticket_type: ticketType?.id ?? undefined });
         return NextResponse.json({ error: "Kunde inte skapa bokningen." }, { status: 500 });
       }
 
@@ -159,7 +183,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: PAYMENTS_BETA_BLOCKED_MESSAGE }, { status: 403 });
     }
 
-    const amountInOre = Math.round(sale.price * 100);
+    const amountInOre = Math.round(effectivePrice * 100);
     const commissionRate = getCreatorCommissionRate(creator.tier ?? "gratis");
     const applicationFee = Math.round(amountInOre * commissionRate);
 
@@ -171,7 +195,7 @@ export async function POST(req: NextRequest) {
       {
         price_data: {
           currency: "sek",
-          product_data: { name: listing.title },
+          product_data: { name: ticketType ? `${listing.title} – ${ticketType.name}` : listing.title },
           unit_amount: amountInOre,
         },
         quantity: 1,
@@ -213,6 +237,8 @@ export async function POST(req: NextRequest) {
         guestName: name || "",
         serviceFeeOre: String(serviceFee),
         serviceFeeMode: feeMode,
+        ticketTypeId: ticketType?.id ?? "",
+        ticketTypeName: ticketType?.name ?? "",
         eventDate: listing.event_date || "",
         eventTime: listing.event_time || "",
       },

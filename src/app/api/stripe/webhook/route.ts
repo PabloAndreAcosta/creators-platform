@@ -175,10 +175,12 @@ export async function POST(req: NextRequest) {
             booking_type: "ticket",
             stripe_payment_id: paymentIntentId,
             amount_paid: amountPaid,
+            ticket_type_id: session.metadata?.ticketTypeId || null,
+            ticket_type_name: session.metadata?.ticketTypeName || null,
           }).select("id").single();
 
           // Timed automation: count the sold ticket (atomic) for capacity.
-          await getSupabaseAdmin().rpc("increment_tickets_sold", { p_listing: listingId, p_n: 1 });
+          await getSupabaseAdmin().rpc("increment_tickets_sold", { p_listing: listingId, p_n: 1, p_ticket_type: session.metadata?.ticketTypeId || undefined });
 
           // Discount access code: consume one use now that payment succeeded.
           if (session.metadata?.accessCodeId) {
@@ -352,10 +354,12 @@ export async function POST(req: NextRequest) {
             booking_type: "ticket",
             stripe_payment_id: paymentIntentId,
             amount_paid: amountPaid,
+            ticket_type_id: session.metadata?.ticketTypeId || null,
+            ticket_type_name: session.metadata?.ticketTypeName || null,
           });
 
           // Timed automation: count the sold ticket (atomic) for capacity.
-          await getSupabaseAdmin().rpc("increment_tickets_sold", { p_listing: listingId, p_n: 1 });
+          await getSupabaseAdmin().rpc("increment_tickets_sold", { p_listing: listingId, p_n: 1, p_ticket_type: session.metadata?.ticketTypeId || undefined });
 
           // Discount access code: consume one use now that payment succeeded.
           if (session.metadata?.accessCodeId) {

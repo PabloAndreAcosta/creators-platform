@@ -40,6 +40,7 @@ interface BookingData {
   stripe_payment_id?: string | null;
   is_free?: boolean | null;
   booking_type: string | null;
+  ticket_type_name?: string | null;
   listings: {
     title: string;
     category: string;
@@ -124,7 +125,11 @@ function bookingToTicket(booking: BookingData): TicketData {
     code: `USH-${booking.id.slice(0, 8).toUpperCase()}`,
     payable,
     price,
-    title: listing?.title || "Bokning",
+    title: listing?.title
+      ? booking.ticket_type_name
+        ? `${listing.title} · ${booking.ticket_type_name}`
+        : listing.title
+      : "Bokning",
     date: displayDate,
     time: displayTime,
     location: displayLocation,
