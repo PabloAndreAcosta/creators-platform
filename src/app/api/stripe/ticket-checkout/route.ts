@@ -276,6 +276,7 @@ export async function POST(req: NextRequest) {
         discountedPrice: String(discountedPrice),
         serviceFeeOre: String(serviceFee),
         serviceFeeMode: feeMode,
+        platformFeeOre: String(applicationFee * qty + serviceFee),
         ticketTypeId: ticketType?.id ?? '',
         ticketTypeName: ticketType?.name ?? '',
         quantity: String(qty),

@@ -243,6 +243,7 @@ export async function POST(req: NextRequest) {
         guestName: name || "",
         serviceFeeOre: String(serviceFee),
         serviceFeeMode: feeMode,
+        platformFeeOre: String(applicationFee * qty + serviceFee),
         ticketTypeId: ticketType?.id ?? "",
         ticketTypeName: ticketType?.name ?? "",
         quantity: String(qty),
