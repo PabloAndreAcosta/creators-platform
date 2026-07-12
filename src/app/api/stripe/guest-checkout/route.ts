@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import type Stripe from "stripe";
 import { getStripeLocale } from "@/lib/i18n/stripe-locale";
 import { stripe } from "@/lib/stripe/client";
+import { computeServiceFeeOre, serviceFeeMode } from "@/lib/tickets/service-fee";
 import { createClient } from "@/lib/supabase/server";
 import { getSaleState } from "@/lib/listings/sale-state";
 import { getTranslations } from "next-intl/server";
@@ -32,7 +34,7 @@ export async function POST(req: NextRequest) {
     // Fetch listing
     const { data: listing } = await supabase
       .from("listings")
-      .select("id, title, price, user_id, is_active, event_date, event_time, event_location, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold")
+      .select("id, title, price, user_id, is_active, event_date, event_time, event_location, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, service_fee_mode")
       .eq("id", listingId)
       .eq("is_active", true)
       .single();
@@ -161,25 +163,41 @@ export async function POST(req: NextRequest) {
     const commissionRate = getCreatorCommissionRate(creator.tier ?? "gratis");
     const applicationFee = Math.round(amountInOre * commissionRate);
 
+    // Tickster-style service fee (gated off until the flag is set). Fee is added
+    // to the application_fee in both modes; "buyer" mode also adds a line item.
+    const feeMode = serviceFeeMode(listing.service_fee_mode);
+    const serviceFee = computeServiceFeeOre(amountInOre, 1);
+    const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
+      {
+        price_data: {
+          currency: "sek",
+          product_data: { name: listing.title },
+          unit_amount: amountInOre,
+        },
+        quantity: 1,
+      },
+    ];
+    if (serviceFee > 0 && feeMode === "buyer") {
+      lineItems.push({
+        price_data: {
+          currency: "sek",
+          product_data: { name: "Serviceavgift" },
+          unit_amount: serviceFee,
+        },
+        quantity: 1,
+      });
+    }
+
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";
 
     const stripeLocale = await getStripeLocale();
     const session = await stripe.checkout.sessions.create({
       locale: stripeLocale,
       customer_email: email,
-      line_items: [
-        {
-          price_data: {
-            currency: "sek",
-            product_data: { name: listing.title },
-            unit_amount: amountInOre,
-          },
-          quantity: 1,
-        },
-      ],
+      line_items: lineItems,
       mode: "payment",
       payment_intent_data: {
-        application_fee_amount: applicationFee,
+        application_fee_amount: applicationFee + serviceFee,
         transfer_data: {
           destination: creator.stripe_account_id,
         },
@@ -193,6 +211,8 @@ export async function POST(req: NextRequest) {
         creatorId: listing.user_id,
         guestEmail: email,
         guestName: name || "",
+        serviceFeeOre: String(serviceFee),
+        serviceFeeMode: feeMode,
         eventDate: listing.event_date || "",
         eventTime: listing.event_time || "",
       },
