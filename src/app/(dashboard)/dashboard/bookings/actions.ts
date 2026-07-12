@@ -286,13 +286,19 @@ export async function updateBookingStatus(
   // Free up the seat when a ticket is canceled — tickets_sold was only ever
   // incremented, so canceled tickets used to permanently consume capacity.
   if (status === "canceled" && booking.booking_type === "ticket") {
+    const seats = booking.guest_count ?? 1;
     await createAdminClient()
       .rpc("increment_tickets_sold", {
         p_listing: booking.listing_id,
-        p_n: -(booking.guest_count ?? 1),
+        p_n: -seats,
         p_ticket_type: booking.ticket_type_id ?? undefined,
       })
       .then(({ error: decErr }) => decErr && console.error("tickets_sold decrement failed:", decErr));
+
+    // A freed seat on a (now buyable) event → email the next people on the
+    // waitlist. Best-effort, non-blocking.
+    const { notifyWaitlistSeatFreed } = await import("@/lib/tickets/waitlist-notify");
+    await notifyWaitlistSeatFreed(createAdminClient(), booking.listing_id, seats);
   }
 
   // Send email notifications (non-blocking)
