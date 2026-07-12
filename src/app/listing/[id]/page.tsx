@@ -104,6 +104,14 @@ export default async function ListingDetailPage(props: Props) {
 
   if (!creator) notFound();
 
+  // Typed events (price tiers) can't be bought from the compact inline button —
+  // the buyer must pick a tier on the full event page.
+  const { count: ticketTypeCount } = await supabase
+    .from("ticket_types")
+    .select("id", { count: "exact", head: true })
+    .eq("listing_id", listing.id);
+  const hasTicketTypes = (ticketTypeCount ?? 0) > 0;
+
   // Instructors offering paid mini-sessions at this open event
   type EventInstructor = {
     id: string;
@@ -410,6 +418,8 @@ export default async function ListingDetailPage(props: Props) {
                       discountedPrice={calculateDiscountedPrice(listing.price, visitorTier)}
                       isLoggedIn={isLoggedIn}
                       hasConnect={hasConnect}
+                      hasTicketTypes={hasTicketTypes}
+                      eventSlug={listing.slug}
                     />
                   )}
                 <BookingForm

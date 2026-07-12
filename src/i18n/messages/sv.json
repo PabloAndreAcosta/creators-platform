@@ -1021,7 +1021,8 @@
       "loading": "Laddar...",
       "buy": "Köp biljett",
       "discountedPriceSek": "{discounted} SEK",
-      "priceSek": "{price} SEK"
+      "priceSek": "{price} SEK",
+      "chooseTicket": "Välj biljett"
     },
     "report": {
       "ariaTrigger": "Rapportera eller blockera {name}",

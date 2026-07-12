@@ -1021,7 +1021,8 @@
       "loading": "Loading...",
       "buy": "Buy ticket",
       "discountedPriceSek": "{discounted} SEK",
-      "priceSek": "{price} SEK"
+      "priceSek": "{price} SEK",
+      "chooseTicket": "Choose ticket"
     },
     "report": {
       "ariaTrigger": "Report or block {name}",
