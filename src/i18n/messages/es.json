@@ -1814,7 +1814,8 @@
     "redeeming": "Canjeando…",
     "codeSuccessTitle": "¡Ya estás dentro! 🎫",
     "codeSuccessBody": "Tu entrada gratis está confirmada: revisa {email}.",
-    "manageCodes": "Códigos de acceso"
+    "manageCodes": "Códigos de acceso",
+    "quantity": "Cantidad"
   },
   "eventErrors": {
     "notReleased": "Las entradas aún no están disponibles.",

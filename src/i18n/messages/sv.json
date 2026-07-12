@@ -1814,7 +1814,8 @@
     "redeeming": "Löser in…",
     "codeSuccessTitle": "Du är med! 🎫",
     "codeSuccessBody": "Din gratisbiljett är bekräftad — kolla {email}.",
-    "manageCodes": "Åtkomstkoder"
+    "manageCodes": "Åtkomstkoder",
+    "quantity": "Antal"
   },
   "eventErrors": {
     "notReleased": "Biljetterna har inte släppts än.",

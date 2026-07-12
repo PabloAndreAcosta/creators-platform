@@ -11,6 +11,8 @@ interface TicketResult {
   valid: boolean;
   status: string;
   bookingId: string;
+  attendeeId?: string | null;
+  attendeeLabel?: string | null;
   ticket: {
     code: string;
     title: string;
@@ -27,6 +29,7 @@ interface CheckInResult {
   title?: string;
   error?: string;
   status?: string;
+  attendeeLabel?: string;
 }
 
 export default function ScanPage() {
@@ -217,10 +220,11 @@ export default function ScanPage() {
   function handleQrResult(text: string) {
     vibrate();
 
-    // Try URL format: .../api/tickets/verify?code=USH-XXXXXXXX&id=...
+    // Try URL format: .../api/tickets/verify?code=USH-XXXXXXXX&id=...&att=...
     const urlMatch = text.match(/code=(USH-[A-Fa-f0-9]{8})/i);
     if (urlMatch) {
-      verifyCode(urlMatch[1].toUpperCase());
+      const attMatch = text.match(/[?&]att=([0-9a-f-]{36})/i);
+      verifyCode(urlMatch[1].toUpperCase(), attMatch?.[1]);
       return;
     }
 
@@ -234,7 +238,7 @@ export default function ScanPage() {
     setError("QR-koden kunde inte tolkas. Prova ange koden manuellt.");
   }
 
-  async function verifyCode(ticketCode: string) {
+  async function verifyCode(ticketCode: string, att?: string) {
     setError("");
     setResult(null);
     setCheckInDone(null);
@@ -250,7 +254,7 @@ export default function ScanPage() {
 
     try {
       const res = await fetch(
-        `/api/tickets/verify?code=${encodeURIComponent(ticketCode)}&id=${match[1]}`
+        `/api/tickets/verify?code=${encodeURIComponent(ticketCode)}&id=${match[1]}${att ? `&att=${att}` : ""}`
       );
       const data = await res.json();
 
@@ -277,7 +281,7 @@ export default function ScanPage() {
       const res = await fetch("/api/tickets/checkin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bookingId: result.bookingId }),
+        body: JSON.stringify({ bookingId: result.bookingId, attendeeId: result.attendeeId ?? undefined }),
       });
       const data: CheckInResult = await res.json();
       if (data.success) vibrate([50, 30, 50]);
@@ -468,6 +472,11 @@ export default function ScanPage() {
 
           <div className="mt-4 space-y-1 text-sm">
             <p className="font-semibold">{result.ticket.title}</p>
+            {result.attendeeLabel && (
+              <p className="inline-block rounded-full bg-[var(--usha-gold)]/15 px-2.5 py-0.5 text-xs font-medium text-[var(--usha-gold)]">
+                {result.attendeeLabel}
+              </p>
+            )}
             <p className="text-[var(--usha-muted)]">
               <span className="font-mono">{result.ticket.code}</span>
             </p>
