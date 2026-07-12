@@ -33,7 +33,7 @@ export default async function GuestTicketPage({
   const admin = createAdminClient();
   const { data: booking } = await admin
     .from("bookings")
-    .select("id, status, scheduled_at, guest_name, customer_id, creator_id, listing_id, checked_in_at")
+    .select("id, status, scheduled_at, guest_name, customer_id, creator_id, listing_id, checked_in_at, ticket_type_name")
     .eq("id", id)
     .maybeSingle();
   if (!booking) notFound();
@@ -97,6 +97,11 @@ export default async function GuestTicketPage({
         <div className="space-y-4 p-6">
           <div className="text-center">
             <h1 className="text-xl font-semibold">{listing?.title ?? "Event"}</h1>
+            {booking.ticket_type_name && (
+              <p className="mt-1 inline-block rounded-full bg-[var(--usha-gold)]/10 px-2.5 py-0.5 text-xs font-medium text-[var(--usha-gold)]">
+                {booking.ticket_type_name}
+              </p>
+            )}
             {attendee && (
               <p className="mt-1 text-sm text-[var(--usha-muted)]">{attendee}</p>
             )}

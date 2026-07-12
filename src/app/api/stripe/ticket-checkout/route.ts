@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { listingId } = await req.json();
+    const { listingId, ticketTypeId } = await req.json();
 
     if (!listingId) {
       return NextResponse.json(
@@ -77,6 +77,26 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Optional ticket type (price tier). When present it overrides the price and
+    // capacity for this purchase; validated to belong to this listing.
+    let ticketType: { id: string; name: string; price: number; capacity: number | null; tickets_sold: number } | null = null;
+    if (ticketTypeId) {
+      const { data: tt } = await supabase
+        .from('ticket_types')
+        .select('id, name, price, capacity, tickets_sold')
+        .eq('id', ticketTypeId)
+        .eq('listing_id', listing.id)
+        .single();
+      if (!tt) {
+        return NextResponse.json({ error: 'Invalid ticket type' }, { status: 400 });
+      }
+      ticketType = tt as { id: string; name: string; price: number; capacity: number | null; tickets_sold: number };
+      if (ticketType!.capacity != null && ticketType!.tickets_sold >= ticketType!.capacity) {
+        const te = await getTranslations('eventErrors');
+        return NextResponse.json({ error: te('soldOut') }, { status: 403 });
+      }
+    }
+
     // Prevent duplicate ticket purchases for the same event
     const { count: existingTickets } = await supabase
       .from('bookings')
@@ -114,11 +134,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: msg }, { status: 403 });
     }
 
+    // A selected ticket type sets its own price; otherwise the listing price
+    // (honouring the early-bird window) applies.
+    const effectivePrice = ticketType ? ticketType.price : sale.price;
+
     // Free tickets — create booking directly without Stripe
-    if (!sale.price || sale.price <= 0) {
+    if (!effectivePrice || effectivePrice <= 0) {
       // Atomically reserve a seat (row-locked capacity check) so concurrent
-      // free-ticket requests can't oversell the event.
-      const { data: reserved } = await supabase.rpc('reserve_ticket', { p_listing: listing.id });
+      // free-ticket requests can't oversell the event (or the ticket type).
+      const { data: reserved } = await supabase.rpc('reserve_ticket', { p_listing: listing.id, p_ticket_type: ticketType?.id ?? undefined });
       if (!reserved) {
         const te = await getTranslations('eventErrors');
         return NextResponse.json({ error: te('soldOut') }, { status: 403 });
@@ -141,11 +165,13 @@ export async function POST(req: NextRequest) {
         scheduled_at: scheduledAt,
         booking_type: 'ticket',
         amount_paid: 0,
+        ticket_type_id: ticketType?.id ?? null,
+        ticket_type_name: ticketType?.name ?? null,
       });
 
       if (insertError) {
         // Release the seat we reserved, then find out why the insert failed.
-        await supabase.rpc('increment_tickets_sold', { p_listing: listing.id, p_n: -1 });
+        await supabase.rpc('increment_tickets_sold', { p_listing: listing.id, p_n: -1, p_ticket_type: ticketType?.id ?? undefined });
         const { count } = await supabase
           .from('bookings')
           .select('id', { count: 'exact', head: true })
@@ -185,8 +211,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: PAYMENTS_BETA_BLOCKED_MESSAGE }, { status: 403 });
     }
 
-    // Calculate pricing — effective price honours the early-bird window.
-    const originalPrice = sale.price;
+    // Calculate pricing — the ticket type's price, else the early-bird price.
+    const originalPrice = effectivePrice;
     const discountedPrice = calculateDiscountedPrice(originalPrice, userTier);
     const amountInOre = Math.round(discountedPrice * 100);
     const commissionRate = getCreatorCommissionRate(creator.tier ?? 'gratis');
@@ -201,7 +227,7 @@ export async function POST(req: NextRequest) {
       {
         price_data: {
           currency: 'sek',
-          product_data: { name: listing.title },
+          product_data: { name: ticketType ? `${listing.title} – ${ticketType.name}` : listing.title },
           unit_amount: amountInOre,
         },
         quantity: 1,
@@ -243,6 +269,8 @@ export async function POST(req: NextRequest) {
         discountedPrice: String(discountedPrice),
         serviceFeeOre: String(serviceFee),
         serviceFeeMode: feeMode,
+        ticketTypeId: ticketType?.id ?? '',
+        ticketTypeName: ticketType?.name ?? '',
         eventDate: listing.event_date || '',
         eventTime: listing.event_time || '',
       },

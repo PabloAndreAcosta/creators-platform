@@ -166,6 +166,76 @@ function parseEventForm(formData: FormData) {
   } as const;
 }
 
+type ParsedTicketType = { id: string | null; name: string; price: number; capacity: number | null };
+
+/** Parse the ticket-types editor (a JSON hidden field). Empty/invalid → []. */
+function parseTicketTypes(formData: FormData): ParsedTicketType[] {
+  const raw = formData.get("ticket_types");
+  if (typeof raw !== "string" || !raw.trim()) return [];
+  try {
+    const arr = JSON.parse(raw);
+    if (!Array.isArray(arr)) return [];
+    return arr
+      .map((t) => {
+        const capRaw = t?.capacity;
+        const capNum = capRaw != null && String(capRaw).trim() !== "" ? parseInt(String(capRaw), 10) : NaN;
+        const id = typeof t?.id === "string" && t.id.length >= 32 ? t.id : null;
+        return {
+          id,
+          name: String(t?.name ?? "").trim(),
+          price: Math.max(0, parseInt(String(t?.price ?? "0"), 10) || 0),
+          capacity: Number.isFinite(capNum) && capNum > 0 ? capNum : null,
+        };
+      })
+      .filter((t) => t.name.length > 0);
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Reconcile a listing's ticket types to the submitted set, preserving
+ * tickets_sold on rows that survive: rows carrying an id are updated, rows
+ * without one are inserted, and existing rows absent from the set are deleted.
+ * Every write is scoped to listing_id so a spoofed id can't touch another event.
+ */
+async function reconcileTicketTypes(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  listingId: string,
+  types: ParsedTicketType[]
+) {
+  const { data: existing } = await supabase
+    .from("ticket_types")
+    .select("id")
+    .eq("listing_id", listingId);
+  const existingIds = new Set((existing ?? []).map((r: { id: string }) => r.id));
+
+  const keptIds = types.map((t) => t.id).filter((id): id is string => !!id && existingIds.has(id));
+  const toDelete = [...existingIds].filter((id) => !keptIds.includes(id));
+  if (toDelete.length > 0) {
+    await supabase.from("ticket_types").delete().eq("listing_id", listingId).in("id", toDelete);
+  }
+
+  for (let i = 0; i < types.length; i++) {
+    const t = types[i];
+    if (t.id && existingIds.has(t.id)) {
+      await supabase
+        .from("ticket_types")
+        .update({ name: t.name, price: t.price, capacity: t.capacity, sort_order: i })
+        .eq("id", t.id)
+        .eq("listing_id", listingId);
+    } else {
+      await supabase.from("ticket_types").insert({
+        listing_id: listingId,
+        name: t.name,
+        price: t.price,
+        capacity: t.capacity,
+        sort_order: i,
+      });
+    }
+  }
+}
+
 export async function createEvent(formData: FormData) {
   const supabase = await createClient();
   const {
@@ -187,6 +257,11 @@ export async function createEvent(formData: FormData) {
 
   const parsed = parseEventForm(formData);
   if ("error" in parsed) return { error: parsed.error };
+
+  // Ticket types (price tiers). When present, the listing price mirrors the
+  // cheapest tier so existing "från X kr" displays keep working.
+  const ticketTypes = parseTicketTypes(formData);
+  const priceOverride = ticketTypes.length > 0 ? Math.min(...ticketTypes.map((t) => t.price)) : null;
 
   // Recurring series — generate one occurrence per date (only meaningful with
   // a start date). Each occurrence is its own bookable listing.
@@ -239,6 +314,7 @@ export async function createEvent(formData: FormData) {
   for (const d of dates) {
     rows.push({
       ...parsed.data,
+      ...(priceOverride !== null ? { price: priceOverride } : {}),
       user_id: user.id,
       event_date: d,
       is_active: !locked,
@@ -260,6 +336,13 @@ export async function createEvent(formData: FormData) {
     .select("id, title, event_date, event_location, image_url");
 
   if (error || !created?.length) return { error: "Kunde inte skapa evenemanget. Försök igen." };
+
+  // Persist ticket types for every created occurrence.
+  if (ticketTypes.length > 0) {
+    for (const l of created) {
+      await reconcileTicketTypes(supabase, l.id, ticketTypes);
+    }
+  }
 
   // Draft pending unlock: don't advertise it yet. Send the host to the event's
   // dashboard, where the UnlockGate prompts them to unlock (which publishes it).
@@ -372,6 +455,10 @@ export async function updateEvent(id: string, formData: FormData) {
   const parsed = parseEventForm(formData);
   if ("error" in parsed) return { error: parsed.error };
 
+  const ticketTypes = parseTicketTypes(formData);
+  const priceOverride = ticketTypes.length > 0 ? Math.min(...ticketTypes.map((t) => t.price)) : null;
+  const effectivePrice = priceOverride ?? parsed.data.price;
+
   // Capability gate (only when enforcement is on): a host turning an event into
   // a ticketed one must have unlocked event_pack for it. We never gate an event
   // that already has bookings — pulling the rug after guests have tickets is the
@@ -388,7 +475,7 @@ export async function updateEvent(id: string, formData: FormData) {
       supabase,
       user.id,
       id,
-      parsed.data.price,
+      effectivePrice,
       parsed.data.max_guests
     );
     if (locked) return { success: true as const, id, locked: true as const };
@@ -407,6 +494,7 @@ export async function updateEvent(id: string, formData: FormData) {
     .single();
 
   const updateData: Record<string, unknown> = { ...parsed.data };
+  if (priceOverride !== null) updateData.price = priceOverride;
   updateData.is_public = formData.get("unlisted") !== "on";
   Object.assign(updateData, parseAutomation(formData));
   const dateChanged =
@@ -427,6 +515,9 @@ export async function updateEvent(id: string, formData: FormData) {
     .eq("user_id", user.id);
 
   if (error) return { error: "Kunde inte uppdatera evenemanget. Försök igen." };
+
+  // Sync ticket types, preserving tickets_sold on surviving rows.
+  await reconcileTicketTypes(supabase, id, ticketTypes);
 
   revalidatePath("/app/events");
   redirect("/app/events");

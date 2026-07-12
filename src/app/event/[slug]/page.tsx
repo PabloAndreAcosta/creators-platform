@@ -195,6 +195,13 @@ export default async function EventPage(props: Params) {
   const { listing, host, more } = data;
   const crew = await getCrew(listing.id);
   const supabase = await createClient();
+
+  // Ticket types (price tiers). Empty → single-price event (unchanged).
+  const { data: ticketTypes } = await supabase
+    .from("ticket_types")
+    .select("id, name, price, capacity, tickets_sold")
+    .eq("listing_id", listing.id)
+    .order("sort_order", { ascending: true });
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -391,6 +398,7 @@ export default async function EventPage(props: Params) {
                   price={sale.price}
                   isLoggedIn={!!user}
                   returnPath={returnPath}
+                  ticketTypes={ticketTypes ?? []}
                 />
               ) : (
                 <div className="w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-4 py-2.5 text-center text-sm font-semibold text-[var(--usha-muted)]">

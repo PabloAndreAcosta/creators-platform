@@ -43,6 +43,7 @@ interface EventData {
   min_guests: number | null;
   max_guests: number | null;
   experience_details: ExperienceDetails | null;
+  ticketTypes?: { id: string; name: string; price: number; capacity: number | null }[];
 }
 
 // Auto-derive listing type from category
@@ -112,6 +113,31 @@ export default function EventForm({
   const [serviceFeeMode, setServiceFeeMode] = useState<"buyer" | "absorb">(
     event?.service_fee_mode === "absorb" ? "absorb" : "buyer"
   );
+  // Ticket types (price tiers). Empty = single-price event (unchanged behaviour).
+  const [types, setTypes] = useState<{ id?: string; name: string; price: string; capacity: string }[]>(
+    () =>
+      (event?.ticketTypes ?? []).map((tt) => ({
+        id: tt.id,
+        name: tt.name,
+        price: String(tt.price),
+        capacity: tt.capacity != null ? String(tt.capacity) : "",
+      }))
+  );
+  const addType = () => setTypes((p) => [...p, { name: "", price: "", capacity: "" }]);
+  const updateType = (i: number, field: "name" | "price" | "capacity", val: string) =>
+    setTypes((p) => p.map((t, idx) => (idx === i ? { ...t, [field]: val } : t)));
+  const removeType = (i: number) => setTypes((p) => p.filter((_, idx) => idx !== i));
+  const typesJson = JSON.stringify(
+    types
+      .filter((t) => t.name.trim())
+      .map((t) => ({
+        ...(t.id ? { id: t.id } : {}),
+        name: t.name.trim(),
+        price: parseInt(t.price || "0", 10) || 0,
+        capacity: t.capacity.trim() === "" ? null : parseInt(t.capacity, 10) || null,
+      }))
+  );
+  const hasTypes = types.some((t) => t.name.trim());
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -533,15 +559,21 @@ export default function EventForm({
             {isFree ? (
               <input type="hidden" name="price" value="0" />
             ) : (
-              <input
-                id="price"
-                name="price"
-                type="number"
-                min={0}
-                defaultValue={event?.price ?? ""}
-                placeholder={t("pricePlaceholder")}
-                className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
-              />
+              <>
+                <input
+                  id="price"
+                  name="price"
+                  type="number"
+                  min={0}
+                  defaultValue={event?.price ?? ""}
+                  placeholder={t("pricePlaceholder")}
+                  disabled={hasTypes}
+                  className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40 disabled:opacity-40"
+                />
+                {hasTypes && (
+                  <p className="mt-1 text-xs text-[var(--usha-muted)]">{t("ticketTypesOverridePrice")}</p>
+                )}
+              </>
             )}
 
             {/* Service fee — organizer chooses who pays Usha's per-ticket fee.
@@ -577,6 +609,60 @@ export default function EventForm({
                     <span className="block text-xs opacity-80">{t("serviceFeeAbsorbHint")}</span>
                   </button>
                 </div>
+              </div>
+            )}
+
+            {/* Ticket types (price tiers). Optional — leave empty for a single
+                price. When present, buyers pick a type and its price applies. */}
+            {!isFree && (
+              <div className="mt-4">
+                <input type="hidden" name="ticket_types" value={typesJson} />
+                <p className="mb-1.5 text-sm text-[var(--usha-muted)]">{t("ticketTypesLabel")}</p>
+                {types.length > 0 && (
+                  <div className="space-y-2">
+                    {types.map((tt, i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <input
+                          value={tt.name}
+                          onChange={(e) => updateType(i, "name", e.target.value)}
+                          placeholder={t("ticketTypeNamePlaceholder")}
+                          className="min-w-0 flex-1 rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2 text-sm outline-none focus:border-[var(--usha-gold)]/40"
+                        />
+                        <input
+                          value={tt.price}
+                          onChange={(e) => updateType(i, "price", e.target.value)}
+                          type="number"
+                          min={0}
+                          placeholder={t("ticketTypePricePlaceholder")}
+                          className="w-20 rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2 text-sm outline-none focus:border-[var(--usha-gold)]/40"
+                        />
+                        <input
+                          value={tt.capacity}
+                          onChange={(e) => updateType(i, "capacity", e.target.value)}
+                          type="number"
+                          min={1}
+                          placeholder={t("ticketTypeCapacityPlaceholder")}
+                          className="w-20 rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2 text-sm outline-none focus:border-[var(--usha-gold)]/40"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeType(i)}
+                          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--usha-border)] text-[var(--usha-muted)] hover:text-red-400"
+                          aria-label={t("ticketTypeRemove")}
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <button
+                  type="button"
+                  onClick={addType}
+                  className="mt-2 rounded-lg border border-dashed border-[var(--usha-border)] px-3 py-2 text-sm text-[var(--usha-muted)] transition hover:border-[var(--usha-gold)]/40 hover:text-[var(--usha-white)]"
+                >
+                  + {t("ticketTypeAdd")}
+                </button>
               </div>
             )}
           </div>
