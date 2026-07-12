@@ -44,7 +44,11 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [] }: P
   const typeSoldOut = selectedType ? soldOut(selectedType) : false;
 
   const isFree = !effectivePrice || effectivePrice <= 0;
-  const label = isFree ? t("freeTicket") : t("buyTicket", { price: effectivePrice });
+  // Quantity (paid tickets only). Buying N → one order, N scannable QRs.
+  const MAX_QTY = 10;
+  const [qty, setQty] = useState(1);
+  const total = effectivePrice * qty;
+  const label = isFree ? t("freeTicket") : t("buyTicket", { price: total });
 
   async function checkout(endpoint: string, payload: Record<string, unknown>) {
     setLoading(true);
@@ -94,13 +98,42 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [] }: P
     </div>
   ) : null;
 
+  // Quantity stepper (paid tickets only). Free events stay one-per-order.
+  const qtyStepper = !isFree ? (
+    <div className="mb-3 flex items-center justify-between rounded-xl border border-[var(--usha-border)] px-4 py-2.5">
+      <span className="text-sm text-[var(--usha-muted)]">{t("quantity")}</span>
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => setQty((q) => Math.max(1, q - 1))}
+          disabled={qty <= 1}
+          className="flex h-7 w-7 items-center justify-center rounded-lg border border-[var(--usha-border)] text-lg leading-none disabled:opacity-40"
+          aria-label="−"
+        >
+          −
+        </button>
+        <span className="w-6 text-center text-sm font-semibold">{qty}</span>
+        <button
+          type="button"
+          onClick={() => setQty((q) => Math.min(MAX_QTY, q + 1))}
+          disabled={qty >= MAX_QTY}
+          className="flex h-7 w-7 items-center justify-center rounded-lg border border-[var(--usha-border)] text-lg leading-none disabled:opacity-40"
+          aria-label="+"
+        >
+          +
+        </button>
+      </div>
+    </div>
+  ) : null;
+
   // Logged-in: existing ticket checkout (uses the account).
   if (isLoggedIn) {
     return (
       <>
         {picker}
+        {qtyStepper}
         <button
-          onClick={() => checkout("/api/stripe/ticket-checkout", { listingId, ticketTypeId: selectedTypeId || undefined })}
+          onClick={() => checkout("/api/stripe/ticket-checkout", { listingId, ticketTypeId: selectedTypeId || undefined, quantity: qty })}
           disabled={loading || typeSoldOut}
           className={BTN}
         >
@@ -116,11 +149,12 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [] }: P
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        checkout("/api/stripe/guest-checkout", { listingId, email, name, ticketTypeId: selectedTypeId || undefined });
+        checkout("/api/stripe/guest-checkout", { listingId, email, name, ticketTypeId: selectedTypeId || undefined, quantity: qty });
       }}
       className="space-y-2"
     >
       {picker}
+      {qtyStepper}
       <input
         type="email"
         required

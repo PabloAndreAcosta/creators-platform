@@ -218,7 +218,7 @@ export async function updateBookingStatus(
   // Verify the user is the creator or customer of this booking
   const { data: booking } = await supabase
     .from("bookings")
-    .select("creator_id, customer_id, status, listing_id, scheduled_at, stripe_payment_id, amount_paid, booking_type, ticket_type_id")
+    .select("creator_id, customer_id, status, listing_id, scheduled_at, stripe_payment_id, amount_paid, booking_type, ticket_type_id, guest_count")
     .eq("id", bookingId)
     .single();
 
@@ -289,7 +289,7 @@ export async function updateBookingStatus(
     await createAdminClient()
       .rpc("increment_tickets_sold", {
         p_listing: booking.listing_id,
-        p_n: -1,
+        p_n: -(booking.guest_count ?? 1),
         p_ticket_type: booking.ticket_type_id ?? undefined,
       })
       .then(({ error: decErr }) => decErr && console.error("tickets_sold decrement failed:", decErr));

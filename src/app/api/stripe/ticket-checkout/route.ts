@@ -3,6 +3,8 @@ import type Stripe from 'stripe';
 import { getStripeLocale } from "@/lib/i18n/stripe-locale";
 import { stripe } from '@/lib/stripe/client';
 import { computeServiceFeeOre, serviceFeeMode } from '@/lib/tickets/service-fee';
+import { clampQuantity, createTicketAttendees } from '@/lib/tickets/attendees';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
 import { getSaleState } from '@/lib/listings/sale-state';
 import { getTranslations } from 'next-intl/server';
@@ -21,7 +23,8 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { listingId, ticketTypeId } = await req.json();
+    const { listingId, ticketTypeId, quantity } = await req.json();
+    const qty = clampQuantity(quantity);
 
     if (!listingId) {
       return NextResponse.json(
@@ -142,7 +145,7 @@ export async function POST(req: NextRequest) {
     if (!effectivePrice || effectivePrice <= 0) {
       // Atomically reserve a seat (row-locked capacity check) so concurrent
       // free-ticket requests can't oversell the event (or the ticket type).
-      const { data: reserved } = await supabase.rpc('reserve_ticket', { p_listing: listing.id, p_ticket_type: ticketType?.id ?? undefined });
+      const { data: reserved } = await supabase.rpc('reserve_ticket', { p_listing: listing.id, p_ticket_type: ticketType?.id ?? undefined, p_n: qty });
       if (!reserved) {
         const te = await getTranslations('eventErrors');
         return NextResponse.json({ error: te('soldOut') }, { status: 403 });
@@ -157,7 +160,7 @@ export async function POST(req: NextRequest) {
         scheduledAt = new Date().toISOString();
       }
 
-      const { error: insertError } = await supabase.from('bookings').insert({
+      const { data: freeBooking, error: insertError } = await supabase.from('bookings').insert({
         listing_id: listing.id,
         creator_id: listing.user_id,
         customer_id: user.id,
@@ -165,13 +168,14 @@ export async function POST(req: NextRequest) {
         scheduled_at: scheduledAt,
         booking_type: 'ticket',
         amount_paid: 0,
+        guest_count: qty,
         ticket_type_id: ticketType?.id ?? null,
         ticket_type_name: ticketType?.name ?? null,
-      });
+      }).select('id').single();
 
       if (insertError) {
-        // Release the seat we reserved, then find out why the insert failed.
-        await supabase.rpc('increment_tickets_sold', { p_listing: listing.id, p_n: -1, p_ticket_type: ticketType?.id ?? undefined });
+        // Release the seats we reserved, then find out why the insert failed.
+        await supabase.rpc('increment_tickets_sold', { p_listing: listing.id, p_n: -qty, p_ticket_type: ticketType?.id ?? undefined });
         const { count } = await supabase
           .from('bookings')
           .select('id', { count: 'exact', head: true })
@@ -187,6 +191,9 @@ export async function POST(req: NextRequest) {
         }
         return NextResponse.json({ error: 'Could not create booking' }, { status: 500 });
       }
+
+      // One scannable attendee per seat (only for multi-ticket orders).
+      if (freeBooking?.id) await createTicketAttendees(createAdminClient(), freeBooking.id, qty);
 
       return NextResponse.json({
         url: `${process.env.NEXT_PUBLIC_APP_URL}/app/tickets?success=true`,
@@ -222,7 +229,7 @@ export async function POST(req: NextRequest) {
     // modes the fee is added to the application_fee so it stays with Usha; in
     // "buyer" mode it is ALSO added as a line item so the buyer pays it on top.
     const feeMode = serviceFeeMode(listing.service_fee_mode);
-    const serviceFee = computeServiceFeeOre(amountInOre, 1);
+    const serviceFee = computeServiceFeeOre(amountInOre, qty); // total for all N tickets
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
       {
         price_data: {
@@ -230,7 +237,7 @@ export async function POST(req: NextRequest) {
           product_data: { name: ticketType ? `${listing.title} – ${ticketType.name}` : listing.title },
           unit_amount: amountInOre,
         },
-        quantity: 1,
+        quantity: qty,
       },
     ];
     if (serviceFee > 0 && feeMode === 'buyer') {
@@ -252,7 +259,7 @@ export async function POST(req: NextRequest) {
       line_items: lineItems,
       mode: 'payment',
       payment_intent_data: {
-        application_fee_amount: applicationFee + serviceFee,
+        application_fee_amount: applicationFee * qty + serviceFee,
         transfer_data: {
           destination: creator.stripe_account_id,
         },
@@ -271,6 +278,7 @@ export async function POST(req: NextRequest) {
         serviceFeeMode: feeMode,
         ticketTypeId: ticketType?.id ?? '',
         ticketTypeName: ticketType?.name ?? '',
+        quantity: String(qty),
         eventDate: listing.event_date || '',
         eventTime: listing.event_time || '',
       },

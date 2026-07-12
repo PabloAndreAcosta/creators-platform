@@ -8,6 +8,7 @@ import { sendBookingConfirmationEmail } from "@/lib/email/send-booking";
 import { sendGoldWelcomeEmail } from "@/lib/email/send-welcome";
 import { sendTrialEndingEmail as sendTrialEndingEmailService } from "@/lib/email/send-trial-ending";
 import { createNotification } from "@/lib/notifications/create";
+import { clampQuantity, createTicketAttendees } from "@/lib/tickets/attendees";
 
 /** Reverse lookup: Stripe price ID → plan key */
 function planKeyFromPriceId(priceId: string): string | null {
@@ -164,6 +165,7 @@ export async function POST(req: NextRequest) {
             scheduledAt = new Date().toISOString();
           }
 
+          const guestQty = clampQuantity(session.metadata?.quantity);
           const { data: guestBooking } = await getSupabaseAdmin().from("bookings").insert({
             listing_id: listingId,
             creator_id: creatorId,
@@ -175,12 +177,16 @@ export async function POST(req: NextRequest) {
             booking_type: "ticket",
             stripe_payment_id: paymentIntentId,
             amount_paid: amountPaid,
+            guest_count: guestQty,
             ticket_type_id: session.metadata?.ticketTypeId || null,
             ticket_type_name: session.metadata?.ticketTypeName || null,
           }).select("id").single();
 
-          // Timed automation: count the sold ticket (atomic) for capacity.
-          await getSupabaseAdmin().rpc("increment_tickets_sold", { p_listing: listingId, p_n: 1, p_ticket_type: session.metadata?.ticketTypeId || undefined });
+          // One scannable attendee per seat (only for multi-ticket orders).
+          if (guestBooking?.id) await createTicketAttendees(getSupabaseAdmin(), guestBooking.id, guestQty);
+
+          // Timed automation: count the sold tickets (atomic) for capacity.
+          await getSupabaseAdmin().rpc("increment_tickets_sold", { p_listing: listingId, p_n: guestQty, p_ticket_type: session.metadata?.ticketTypeId || undefined });
 
           // Discount access code: consume one use now that payment succeeded.
           if (session.metadata?.accessCodeId) {
@@ -345,7 +351,8 @@ export async function POST(req: NextRequest) {
           }
 
           // Create confirmed booking
-          await getSupabaseAdmin().from("bookings").insert({
+          const ticketQty = clampQuantity(session.metadata?.quantity);
+          const { data: acctBooking } = await getSupabaseAdmin().from("bookings").insert({
             listing_id: listingId,
             creator_id: creatorId,
             customer_id: userId,
@@ -354,12 +361,16 @@ export async function POST(req: NextRequest) {
             booking_type: "ticket",
             stripe_payment_id: paymentIntentId,
             amount_paid: amountPaid,
+            guest_count: ticketQty,
             ticket_type_id: session.metadata?.ticketTypeId || null,
             ticket_type_name: session.metadata?.ticketTypeName || null,
-          });
+          }).select("id").single();
 
-          // Timed automation: count the sold ticket (atomic) for capacity.
-          await getSupabaseAdmin().rpc("increment_tickets_sold", { p_listing: listingId, p_n: 1, p_ticket_type: session.metadata?.ticketTypeId || undefined });
+          // One scannable attendee per seat (only for multi-ticket orders).
+          if (acctBooking?.id) await createTicketAttendees(getSupabaseAdmin(), acctBooking.id, ticketQty);
+
+          // Timed automation: count the sold tickets (atomic) for capacity.
+          await getSupabaseAdmin().rpc("increment_tickets_sold", { p_listing: listingId, p_n: ticketQty, p_ticket_type: session.metadata?.ticketTypeId || undefined });
 
           // Discount access code: consume one use now that payment succeeded.
           if (session.metadata?.accessCodeId) {

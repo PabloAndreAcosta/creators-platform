@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   }
-  const { bookingId } = body;
+  const { bookingId, attendeeId } = body;
 
   if (!bookingId) {
     return NextResponse.json(
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
   // Fetch booking and verify the scanner is the creator of this listing
   const { data: booking, error: bookingError } = await admin
     .from("bookings")
-    .select("id, status, creator_id, checked_in_at, listing_id, listings(title)")
+    .select("id, status, creator_id, checked_in_at, listing_id, guest_count, listings(title)")
     .eq("id", bookingId)
     .single();
 
@@ -65,6 +65,70 @@ export async function POST(request: NextRequest) {
       { error: "Du har inte behörighet att registrera insläpp för det här eventet" },
       { status: 403 }
     );
+  }
+
+  const title = (booking as any).listings?.title || "Bokning";
+  const isMulti = (booking.guest_count ?? 1) > 1;
+
+  // Multi-ticket order: check in ONE attendee. The booking is only marked
+  // completed once every attendee has been scanned.
+  if (isMulti) {
+    if (!attendeeId) {
+      return NextResponse.json({
+        success: false,
+        error: "Skanna en enskild gästbiljett",
+      });
+    }
+    if (booking.status === "canceled") {
+      return NextResponse.json({ success: false, error: "Bokningen är avbokad", status: "canceled" });
+    }
+
+    const { data: attendee } = await admin
+      .from("ticket_attendees")
+      .select("id, idx, name, checked_in_at")
+      .eq("id", attendeeId)
+      .eq("booking_id", booking.id)
+      .maybeSingle();
+
+    if (!attendee) {
+      return NextResponse.json({ error: "Biljetten hittades inte" }, { status: 404 });
+    }
+    const label = attendee.name || `Gäst ${attendee.idx} av ${booking.guest_count}`;
+    if (attendee.checked_in_at) {
+      return NextResponse.json({
+        success: false,
+        alreadyCheckedIn: true,
+        checkedInAt: attendee.checked_in_at,
+        title,
+        attendeeLabel: label,
+      });
+    }
+
+    const now = new Date().toISOString();
+    // Atomic: only claim the slot if still unchecked.
+    const { data: claimed } = await admin
+      .from("ticket_attendees")
+      .update({ checked_in_at: now, scanned_by: user.id })
+      .eq("id", attendee.id)
+      .is("checked_in_at", null)
+      .select("id")
+      .maybeSingle();
+
+    if (!claimed) {
+      return NextResponse.json({ success: false, alreadyCheckedIn: true, title, attendeeLabel: label });
+    }
+
+    // Mark the whole booking completed once every attendee is in.
+    const { count: remaining } = await admin
+      .from("ticket_attendees")
+      .select("id", { count: "exact", head: true })
+      .eq("booking_id", booking.id)
+      .is("checked_in_at", null);
+    if ((remaining ?? 0) === 0) {
+      await admin.from("bookings").update({ checked_in_at: now, status: "completed" }).eq("id", booking.id);
+    }
+
+    return NextResponse.json({ success: true, title, checkedInAt: now, attendeeLabel: label });
   }
 
   // Already checked in

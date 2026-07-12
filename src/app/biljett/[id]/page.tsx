@@ -33,7 +33,7 @@ export default async function GuestTicketPage({
   const admin = createAdminClient();
   const { data: booking } = await admin
     .from("bookings")
-    .select("id, status, scheduled_at, guest_name, customer_id, creator_id, listing_id, checked_in_at, ticket_type_name")
+    .select("id, status, scheduled_at, guest_name, customer_id, creator_id, listing_id, checked_in_at, ticket_type_name, guest_count")
     .eq("id", id)
     .maybeSingle();
   if (!booking) notFound();
@@ -64,12 +64,33 @@ export default async function GuestTicketPage({
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";
   const code = `USH-${booking.id.slice(0, 8).toUpperCase()}`;
   const verifyUrl = `${appUrl}/api/tickets/verify?code=${code}&id=${booking.id}`;
-  const qrDataUrl = await QRCode.toDataURL(verifyUrl, {
+  const qrOpts = {
     width: 240,
     margin: 2,
-    errorCorrectionLevel: "M",
+    errorCorrectionLevel: "M" as const,
     color: { dark: "#000000", light: "#ffffff" },
-  });
+  };
+  const qrDataUrl = await QRCode.toDataURL(verifyUrl, qrOpts);
+
+  // Multi-ticket order: one QR per attendee, each individually scannable.
+  const isMulti = (booking.guest_count ?? 1) > 1;
+  const attendeeQrs: { id: string; label: string; checkedIn: boolean; qr: string }[] = [];
+  if (isMulti) {
+    const { data: attRows } = await admin
+      .from("ticket_attendees")
+      .select("id, idx, name, checked_in_at")
+      .eq("booking_id", booking.id)
+      .order("idx", { ascending: true });
+    for (const a of attRows ?? []) {
+      const url = `${appUrl}/api/tickets/verify?code=${code}&id=${booking.id}&att=${a.id}`;
+      attendeeQrs.push({
+        id: a.id,
+        label: a.name || `Gäst ${a.idx} av ${booking.guest_count}`,
+        checkedIn: !!a.checked_in_at,
+        qr: await QRCode.toDataURL(url, qrOpts),
+      });
+    }
+  }
 
   const scheduled = new Date(booking.scheduled_at);
   const dateLabel = listing?.event_date
@@ -112,6 +133,31 @@ export default async function GuestTicketPage({
             <div className="flex flex-col items-center gap-2 rounded-xl bg-red-500/10 p-6 text-center">
               <XCircle className="h-8 w-8 text-red-400" />
               <p className="text-sm font-medium text-red-400">Bokningen är avbokad</p>
+            </div>
+          ) : isMulti ? (
+            <div className="flex flex-col items-center gap-5">
+              <p className="text-xs text-[var(--usha-muted)]">
+                {booking.guest_count} biljetter — en QR per gäst
+              </p>
+              {attendeeQrs.map((a) => (
+                <div key={a.id} className="flex flex-col items-center gap-2">
+                  <p className="text-sm font-medium">{a.label}</p>
+                  {a.checkedIn && (
+                    <div className="flex items-center gap-1.5 text-xs font-medium text-green-400">
+                      <CheckCircle2 className="h-3.5 w-3.5" /> Incheckad
+                    </div>
+                  )}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={a.qr}
+                    alt={`QR-kod ${a.label}`}
+                    width={200}
+                    height={200}
+                    className={`rounded-xl bg-white p-3 ${a.checkedIn ? "opacity-40" : ""}`}
+                  />
+                </div>
+              ))}
+              <p className="text-xs tracking-wider text-[var(--usha-muted)]">{code}</p>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-3">

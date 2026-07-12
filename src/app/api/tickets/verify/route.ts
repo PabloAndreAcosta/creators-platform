@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
   const id = searchParams.get("id");
+  const att = searchParams.get("att"); // attendee id (multi-ticket orders)
 
   if (!code && !id) {
     return NextResponse.json(
@@ -61,7 +62,7 @@ export async function GET(request: NextRequest) {
 
   let bookingQuery = admin
     .from("bookings")
-    .select("id, listing_id, creator_id, status, scheduled_at, notes, amount_paid, booking_type");
+    .select("id, listing_id, creator_id, status, scheduled_at, notes, amount_paid, booking_type, guest_count");
 
   // The QR encodes the FULL booking UUID as `id` — match it exactly. Only the
   // code-only path (USH-XXXXXXXX, 8 hex) needs the prefix range. Using
@@ -175,10 +176,52 @@ export async function GET(request: NextRequest) {
       break;
   }
 
+  // Multi-ticket order: validity is per attendee. A canceled/pending booking
+  // still blocks all its attendees; otherwise each attendee is valid until its
+  // own check-in. The booking-level `status=completed` here just means every
+  // attendee was already scanned.
+  let attendeeId: string | null = null;
+  let attendeeLabel: string | null = null;
+  if (att && (booking.guest_count ?? 1) > 1) {
+    const { data: attendee } = await admin
+      .from("ticket_attendees")
+      .select("id, idx, name, checked_in_at")
+      .eq("id", att)
+      .eq("booking_id", booking.id)
+      .maybeSingle();
+
+    if (!attendee) {
+      return NextResponse.json({
+        valid: false,
+        status: "not_found",
+        bookingId: booking.id,
+        ticket: { code: ticketCode, title, date: displayDate, time: displayTime, location: displayLocation },
+      });
+    }
+
+    attendeeId = attendee.id;
+    attendeeLabel = attendee.name || `Gäst ${attendee.idx} av ${booking.guest_count}`;
+    if (booking.status === "canceled") {
+      valid = false;
+      status = "canceled";
+    } else if (booking.status === "pending") {
+      valid = false;
+      status = "pending";
+    } else if (attendee.checked_in_at) {
+      valid = false;
+      status = "already_used";
+    } else {
+      valid = true;
+      status = "confirmed";
+    }
+  }
+
   return NextResponse.json({
     valid,
     status,
     bookingId: booking.id,
+    attendeeId,
+    attendeeLabel,
     ticket: {
       code: `USH-${booking.id.slice(0, 8).toUpperCase()}`,
       title,

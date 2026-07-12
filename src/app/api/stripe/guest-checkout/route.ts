@@ -3,6 +3,7 @@ import type Stripe from "stripe";
 import { getStripeLocale } from "@/lib/i18n/stripe-locale";
 import { stripe } from "@/lib/stripe/client";
 import { computeServiceFeeOre, serviceFeeMode } from "@/lib/tickets/service-fee";
+import { clampQuantity, createTicketAttendees } from "@/lib/tickets/attendees";
 import { createClient } from "@/lib/supabase/server";
 import { getSaleState } from "@/lib/listings/sale-state";
 import { getTranslations } from "next-intl/server";
@@ -20,7 +21,8 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { listingId, email, name, ticketTypeId } = await req.json();
+    const { listingId, email, name, ticketTypeId, quantity } = await req.json();
+    const qty = clampQuantity(quantity);
 
     if (!listingId || !email) {
       return NextResponse.json(
@@ -111,7 +113,7 @@ export async function POST(req: NextRequest) {
 
       // Atomically reserve a seat (row-locked capacity check) before creating
       // the booking, so concurrent guests can't oversell.
-      const { data: reserved } = await admin.rpc("reserve_ticket", { p_listing: listing.id, p_ticket_type: ticketType?.id ?? undefined });
+      const { data: reserved } = await admin.rpc("reserve_ticket", { p_listing: listing.id, p_ticket_type: ticketType?.id ?? undefined, p_n: qty });
       if (!reserved) {
         return NextResponse.json({ error: "Slutsålt." }, { status: 403 });
       }
@@ -129,17 +131,21 @@ export async function POST(req: NextRequest) {
           booking_type: "ticket",
           amount_paid: 0,
           is_free: true,
+          guest_count: qty,
           ticket_type_id: ticketType?.id ?? null,
           ticket_type_name: ticketType?.name ?? null,
         })
         .select("id")
         .single();
 
-      // Release the reserved seat if the booking failed to persist.
+      // Release the reserved seats if the booking failed to persist.
       if (bookingError || !booking?.id) {
-        await admin.rpc("increment_tickets_sold", { p_listing: listing.id, p_n: -1, p_ticket_type: ticketType?.id ?? undefined });
+        await admin.rpc("increment_tickets_sold", { p_listing: listing.id, p_n: -qty, p_ticket_type: ticketType?.id ?? undefined });
         return NextResponse.json({ error: "Kunde inte skapa bokningen." }, { status: 500 });
       }
+
+      // One scannable attendee per seat (only for multi-ticket orders).
+      await createTicketAttendees(admin, booking.id, qty);
 
       // Send the confirmation email with the ticket QR + public ticket link.
       // Without this, free guests got no email at all and no way to show a QR.
@@ -190,7 +196,7 @@ export async function POST(req: NextRequest) {
     // Tickster-style service fee (gated off until the flag is set). Fee is added
     // to the application_fee in both modes; "buyer" mode also adds a line item.
     const feeMode = serviceFeeMode(listing.service_fee_mode);
-    const serviceFee = computeServiceFeeOre(amountInOre, 1);
+    const serviceFee = computeServiceFeeOre(amountInOre, qty); // total for all N tickets
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
       {
         price_data: {
@@ -198,7 +204,7 @@ export async function POST(req: NextRequest) {
           product_data: { name: ticketType ? `${listing.title} – ${ticketType.name}` : listing.title },
           unit_amount: amountInOre,
         },
-        quantity: 1,
+        quantity: qty,
       },
     ];
     if (serviceFee > 0 && feeMode === "buyer") {
@@ -221,7 +227,7 @@ export async function POST(req: NextRequest) {
       line_items: lineItems,
       mode: "payment",
       payment_intent_data: {
-        application_fee_amount: applicationFee + serviceFee,
+        application_fee_amount: applicationFee * qty + serviceFee,
         transfer_data: {
           destination: creator.stripe_account_id,
         },
@@ -239,6 +245,7 @@ export async function POST(req: NextRequest) {
         serviceFeeMode: feeMode,
         ticketTypeId: ticketType?.id ?? "",
         ticketTypeName: ticketType?.name ?? "",
+        quantity: String(qty),
         eventDate: listing.event_date || "",
         eventTime: listing.event_time || "",
       },
