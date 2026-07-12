@@ -1816,7 +1816,8 @@
     "codeSuccessTitle": "Du är med! 🎫",
     "codeSuccessBody": "Din gratisbiljett är bekräftad — kolla {email}.",
     "manageCodes": "Åtkomstkoder",
-    "quantity": "Antal"
+    "quantity": "Antal",
+    "attendeeNamePlaceholder": "Namn på gäst {n} (valfritt)"
   },
   "eventErrors": {
     "notReleased": "Biljetterna har inte släppts än.",

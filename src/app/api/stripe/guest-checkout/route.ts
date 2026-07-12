@@ -3,7 +3,7 @@ import type Stripe from "stripe";
 import { getStripeLocale } from "@/lib/i18n/stripe-locale";
 import { stripe } from "@/lib/stripe/client";
 import { computeServiceFeeOre, serviceFeeMode } from "@/lib/tickets/service-fee";
-import { clampQuantity, createTicketAttendees } from "@/lib/tickets/attendees";
+import { clampQuantity, createTicketAttendees, attendeeNamesToMeta } from "@/lib/tickets/attendees";
 import { createClient } from "@/lib/supabase/server";
 import { getSaleState } from "@/lib/listings/sale-state";
 import { getTranslations } from "next-intl/server";
@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { listingId, email, name, ticketTypeId, quantity } = await req.json();
+    const { listingId, email, name, ticketTypeId, quantity, attendeeNames } = await req.json();
     const qty = clampQuantity(quantity);
 
     if (!listingId || !email) {
@@ -145,7 +145,7 @@ export async function POST(req: NextRequest) {
       }
 
       // One scannable attendee per seat (only for multi-ticket orders).
-      await createTicketAttendees(admin, booking.id, qty);
+      await createTicketAttendees(admin, booking.id, qty, attendeeNames);
 
       // Send the confirmation email with the ticket QR + public ticket link.
       // Without this, free guests got no email at all and no way to show a QR.
@@ -247,6 +247,7 @@ export async function POST(req: NextRequest) {
         ticketTypeId: ticketType?.id ?? "",
         ticketTypeName: ticketType?.name ?? "",
         quantity: String(qty),
+        attendeeNames: attendeeNamesToMeta(attendeeNames, qty),
         eventDate: listing.event_date || "",
         eventTime: listing.event_time || "",
       },

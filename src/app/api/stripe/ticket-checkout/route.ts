@@ -3,7 +3,7 @@ import type Stripe from 'stripe';
 import { getStripeLocale } from "@/lib/i18n/stripe-locale";
 import { stripe } from '@/lib/stripe/client';
 import { computeServiceFeeOre, serviceFeeMode } from '@/lib/tickets/service-fee';
-import { clampQuantity, createTicketAttendees } from '@/lib/tickets/attendees';
+import { clampQuantity, createTicketAttendees, attendeeNamesToMeta } from '@/lib/tickets/attendees';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
 import { getSaleState } from '@/lib/listings/sale-state';
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { listingId, ticketTypeId, quantity } = await req.json();
+    const { listingId, ticketTypeId, quantity, attendeeNames } = await req.json();
     const qty = clampQuantity(quantity);
 
     if (!listingId) {
@@ -193,7 +193,7 @@ export async function POST(req: NextRequest) {
       }
 
       // One scannable attendee per seat (only for multi-ticket orders).
-      if (freeBooking?.id) await createTicketAttendees(createAdminClient(), freeBooking.id, qty);
+      if (freeBooking?.id) await createTicketAttendees(createAdminClient(), freeBooking.id, qty, attendeeNames);
 
       return NextResponse.json({
         url: `${process.env.NEXT_PUBLIC_APP_URL}/app/tickets?success=true`,
@@ -280,6 +280,7 @@ export async function POST(req: NextRequest) {
         ticketTypeId: ticketType?.id ?? '',
         ticketTypeName: ticketType?.name ?? '',
         quantity: String(qty),
+        attendeeNames: attendeeNamesToMeta(attendeeNames, qty),
         eventDate: listing.event_date || '',
         eventTime: listing.event_time || '',
       },

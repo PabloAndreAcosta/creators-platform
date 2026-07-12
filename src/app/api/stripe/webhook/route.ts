@@ -8,7 +8,7 @@ import { sendBookingConfirmationEmail } from "@/lib/email/send-booking";
 import { sendGoldWelcomeEmail } from "@/lib/email/send-welcome";
 import { sendTrialEndingEmail as sendTrialEndingEmailService } from "@/lib/email/send-trial-ending";
 import { createNotification } from "@/lib/notifications/create";
-import { clampQuantity, createTicketAttendees } from "@/lib/tickets/attendees";
+import { clampQuantity, createTicketAttendees, attendeeNamesFromMeta } from "@/lib/tickets/attendees";
 
 /** Reverse lookup: Stripe price ID → plan key */
 function planKeyFromPriceId(priceId: string): string | null {
@@ -184,7 +184,7 @@ export async function POST(req: NextRequest) {
           }).select("id").single();
 
           // One scannable attendee per seat (only for multi-ticket orders).
-          if (guestBooking?.id) await createTicketAttendees(getSupabaseAdmin(), guestBooking.id, guestQty);
+          if (guestBooking?.id) await createTicketAttendees(getSupabaseAdmin(), guestBooking.id, guestQty, attendeeNamesFromMeta(session.metadata?.attendeeNames));
 
           // Timed automation: count the sold tickets (atomic) for capacity.
           await getSupabaseAdmin().rpc("increment_tickets_sold", { p_listing: listingId, p_n: guestQty, p_ticket_type: session.metadata?.ticketTypeId || undefined });
@@ -369,7 +369,7 @@ export async function POST(req: NextRequest) {
           }).select("id").single();
 
           // One scannable attendee per seat (only for multi-ticket orders).
-          if (acctBooking?.id) await createTicketAttendees(getSupabaseAdmin(), acctBooking.id, ticketQty);
+          if (acctBooking?.id) await createTicketAttendees(getSupabaseAdmin(), acctBooking.id, ticketQty, attendeeNamesFromMeta(session.metadata?.attendeeNames));
 
           // Timed automation: count the sold tickets (atomic) for capacity.
           await getSupabaseAdmin().rpc("increment_tickets_sold", { p_listing: listingId, p_n: ticketQty, p_ticket_type: session.metadata?.ticketTypeId || undefined });
