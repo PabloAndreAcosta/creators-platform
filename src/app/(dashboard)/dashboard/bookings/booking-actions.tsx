@@ -4,7 +4,7 @@ import { useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { updateBookingStatus, setBookingFree } from "./actions";
 import { useToast } from "@/components/ui/toaster";
-import { Check, X, CheckCircle, Gift } from "lucide-react";
+import { Check, X, CheckCircle, Gift, Undo2 } from "lucide-react";
 
 const btnBase =
   "flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors";
@@ -76,6 +76,54 @@ export function CancelButton({
     >
       <X size={12} />
       {isPaid ? t("cancelRefundButton") : t("cancelButton")}
+    </button>
+  );
+}
+
+/**
+ * Refund a paid ticket from the organizer's live event view. Cancels the
+ * booking, refunds the buyer (reversing the Connect transfer), frees the seat
+ * and emails the buyer — all via updateBookingStatus(..., "canceled").
+ */
+export function RefundButton({
+  bookingId,
+  paidAmount,
+  onDone,
+}: {
+  bookingId: string;
+  paidAmount?: number | null;
+  onDone?: () => void;
+}) {
+  const [isPending, startTransition] = useTransition();
+  const { toast } = useToast();
+  const t = useTranslations("bookingsPage");
+
+  function handle() {
+    const amountSek = paidAmount != null ? Math.round(paidAmount / 100) : null;
+    const message =
+      amountSek != null
+        ? t("toastCancelConfirmPaidAmount", { amount: amountSek })
+        : t("toastCancelConfirmPaid");
+    if (!confirm(message)) return;
+    startTransition(async () => {
+      const result = await updateBookingStatus(bookingId, "canceled");
+      if (result.error) {
+        toast.error(t("toastCancelError"), result.error);
+      } else {
+        toast.success(t("toastCancelSuccessPaid"));
+        onDone?.();
+      }
+    });
+  }
+
+  return (
+    <button
+      onClick={handle}
+      disabled={isPending}
+      className={`${btnBase} border border-[var(--usha-border)] text-[var(--usha-muted)] hover:bg-red-500/10 hover:text-red-400 disabled:opacity-50`}
+    >
+      <Undo2 size={12} />
+      {t("refundButton")}
     </button>
   );
 }

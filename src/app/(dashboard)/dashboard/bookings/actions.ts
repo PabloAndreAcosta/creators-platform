@@ -5,7 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import { handleCapacityReached, autoPromoteFromQueue, addToQueue, getQueuePosition } from "@/lib/bookings/queue";
 import { requirePaidSubscription } from "@/lib/subscription/check";
-import { stripe } from "@/lib/stripe/client";
+import { refundBookingCharge } from "@/lib/tickets/refund";
 import { sendBookingConfirmationEmail, sendBookingCancellationEmail } from "@/lib/email/send-booking";
 import { shouldSendEmail } from "@/lib/email/check-preferences";
 import { isGoldExclusive } from "@/lib/listings/early-bird";
@@ -251,13 +251,14 @@ export async function updateBookingStatus(
     return { error: "Denna bokning kan inte avbokas." };
   }
 
-  // Auto-refund paid bookings BEFORE canceling (so we don't cancel without refunding)
+  // Auto-refund paid bookings BEFORE canceling (so we don't cancel without
+  // refunding). refundBookingCharge reverses the Connect transfer + refunds the
+  // application fee for destination charges, so Usha isn't left out of pocket.
+  let refundInfo: { refundId: string; amount: number } | null = null;
   if (status === "canceled" && booking.stripe_payment_id && booking.amount_paid) {
     try {
-      await stripe.refunds.create({
-        payment_intent: booking.stripe_payment_id,
-      });
-      console.log(`Refunded payment ${booking.stripe_payment_id} for booking ${bookingId}`);
+      refundInfo = await refundBookingCharge(booking.stripe_payment_id);
+      console.log(`Refunded ${refundInfo.amount} öre (${refundInfo.refundId}) for booking ${bookingId}`);
     } catch (err) {
       console.error("Auto-refund failed:", err);
       return { error: "Kunde inte återbetala. Kontakta support." };
@@ -268,7 +269,16 @@ export async function updateBookingStatus(
   const updateClient = (status === "canceled" && isCustomer) ? createAdminClient() : supabase;
   const { error } = await updateClient
     .from("bookings")
-    .update({ status })
+    .update(
+      refundInfo
+        ? {
+            status,
+            refunded_at: new Date().toISOString(),
+            refund_amount: refundInfo.amount,
+            stripe_refund_id: refundInfo.refundId,
+          }
+        : { status }
+    )
     .eq("id", bookingId);
 
   if (error) return { error: "Kunde inte uppdatera bokningen." };

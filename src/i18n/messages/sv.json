@@ -1330,6 +1330,7 @@
     "freeToggleError": "Kunde inte ändra",
     "cancelButton": "Avboka",
     "cancelRefundButton": "Avboka & återbetala",
+    "refundButton": "Återbetala",
     "completeButton": "Slutförd",
     "rescheduleButton": "Omboka",
     "rescheduleConfirmLabel": "Bekräfta nytt datum",

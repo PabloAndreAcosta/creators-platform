@@ -19,7 +19,7 @@ import {
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { UnlockGate } from "@/components/tokens/unlock-gate";
-import { FreeToggleButton } from "@/app/(dashboard)/dashboard/bookings/booking-actions";
+import { FreeToggleButton, RefundButton } from "@/app/(dashboard)/dashboard/bookings/booking-actions";
 
 interface EventData {
   id: string;
@@ -397,6 +397,13 @@ export default function LiveEventPage() {
                         onDone={fetchData}
                       />
                     )}
+                  {guest.amountPaid > 0 && guest.status === "confirmed" && (
+                    <RefundButton
+                      bookingId={guest.id}
+                      paidAmount={guest.amountPaid}
+                      onDone={fetchData}
+                    />
+                  )}
                 </div>
               </div>
             ))

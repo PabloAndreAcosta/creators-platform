@@ -1330,6 +1330,7 @@
     "freeToggleError": "No se pudo actualizar",
     "cancelButton": "Cancelar",
     "cancelRefundButton": "Cancelar y reembolsar",
+    "refundButton": "Reembolsar",
     "completeButton": "Completada",
     "rescheduleButton": "Reprogramar",
     "rescheduleConfirmLabel": "Confirmar nueva fecha",
