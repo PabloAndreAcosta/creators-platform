@@ -792,7 +792,12 @@ export async function POST(req: NextRequest) {
           if (refundedBooking) {
             await getSupabaseAdmin()
               .from("bookings")
-              .update({ status: "canceled" })
+              .update({
+                status: "canceled",
+                refunded_at: new Date().toISOString(),
+                refund_amount: charge.amount_refunded,
+                stripe_refund_id: charge.refunds?.data?.[0]?.id ?? null,
+              })
               .eq("id", refundedBooking.id);
 
             // Notify both parties
