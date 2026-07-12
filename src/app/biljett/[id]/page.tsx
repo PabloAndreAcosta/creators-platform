@@ -4,6 +4,7 @@ import QRCode from "qrcode";
 import { Calendar, Clock, MapPin, CheckCircle2, XCircle } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ShareEventButton } from "@/components/share-event-button";
+import { appleWalletConfigured, googleWalletConfigured } from "@/lib/tickets/wallet";
 
 export const dynamic = "force-dynamic";
 
@@ -108,6 +109,34 @@ export default async function GuestTicketPage({
   const canceled = booking.status === "canceled";
   const used = booking.status === "completed" || !!booking.checked_in_at;
 
+  // Wallet passes — only rendered when the provider's credentials are configured.
+  const appleOn = appleWalletConfigured();
+  const googleOn = googleWalletConfigured();
+  const walletButtons = (att?: string) => {
+    if (canceled || (!appleOn && !googleOn)) return null;
+    const q = `id=${booking.id}${att ? `&att=${att}` : ""}`;
+    return (
+      <div className="flex w-full flex-col gap-2">
+        {appleOn && (
+          <a
+            href={`/api/tickets/wallet?${q}&provider=apple`}
+            className="flex items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] bg-black px-4 py-2.5 text-sm font-medium text-white transition hover:border-white/40"
+          >
+             Lägg till i Apple Wallet
+          </a>
+        )}
+        {googleOn && (
+          <a
+            href={`/api/tickets/wallet?${q}&provider=google`}
+            className="flex items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-2.5 text-sm font-medium text-[var(--usha-white)] transition hover:border-[var(--usha-gold)]/40"
+          >
+            Spara i Google Wallet
+          </a>
+        )}
+      </div>
+    );
+  };
+
   return (
     <main className="flex min-h-screen items-center justify-center bg-[var(--usha-black)] px-4 py-10 text-[var(--usha-white)]">
       <div className="w-full max-w-sm overflow-hidden rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)]">
@@ -155,6 +184,7 @@ export default async function GuestTicketPage({
                     height={200}
                     className={`rounded-xl bg-white p-3 ${a.checkedIn ? "opacity-40" : ""}`}
                   />
+                  {!a.checkedIn && walletButtons(a.id)}
                 </div>
               ))}
               <p className="text-xs tracking-wider text-[var(--usha-muted)]">{code}</p>
@@ -175,6 +205,7 @@ export default async function GuestTicketPage({
                 className={`rounded-xl bg-white p-3 ${used ? "opacity-40" : ""}`}
               />
               <p className="text-xs tracking-wider text-[var(--usha-muted)]">{code}</p>
+              {!used && walletButtons()}
             </div>
           )}
 
