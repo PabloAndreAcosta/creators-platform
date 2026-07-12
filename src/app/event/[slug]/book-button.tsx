@@ -47,6 +47,15 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [] }: P
   // Quantity (paid tickets only). Buying N → one order, N scannable QRs.
   const MAX_QTY = 10;
   const [qty, setQty] = useState(1);
+  // Optional per-attendee names (index 0..qty-1). Left blank → "Gäst i" on the QR.
+  const [names, setNames] = useState<string[]>([]);
+  const setAttendeeName = (i: number, v: string) =>
+    setNames((p) => {
+      const next = [...p];
+      next[i] = v;
+      return next;
+    });
+  const attendeeNames = Array.from({ length: qty }, (_, i) => names[i] ?? "");
   const total = effectivePrice * qty;
   const label = isFree ? t("freeTicket") : t("buyTicket", { price: total });
 
@@ -126,14 +135,31 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [] }: P
     </div>
   ) : null;
 
+  // Optional per-ticket name inputs (multi-ticket orders only).
+  const nameInputs = !isFree && qty > 1 ? (
+    <div className="mb-3 space-y-2">
+      {Array.from({ length: qty }, (_, i) => (
+        <input
+          key={i}
+          value={names[i] ?? ""}
+          onChange={(e) => setAttendeeName(i, e.target.value)}
+          maxLength={60}
+          placeholder={t("attendeeNamePlaceholder", { n: i + 1 })}
+          className="w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-3 py-2 text-sm outline-none focus:border-[var(--usha-gold)]/50"
+        />
+      ))}
+    </div>
+  ) : null;
+
   // Logged-in: existing ticket checkout (uses the account).
   if (isLoggedIn) {
     return (
       <>
         {picker}
         {qtyStepper}
+        {nameInputs}
         <button
-          onClick={() => checkout("/api/stripe/ticket-checkout", { listingId, ticketTypeId: selectedTypeId || undefined, quantity: qty })}
+          onClick={() => checkout("/api/stripe/ticket-checkout", { listingId, ticketTypeId: selectedTypeId || undefined, quantity: qty, attendeeNames })}
           disabled={loading || typeSoldOut}
           className={BTN}
         >
@@ -149,12 +175,13 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [] }: P
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        checkout("/api/stripe/guest-checkout", { listingId, email, name, ticketTypeId: selectedTypeId || undefined, quantity: qty });
+        checkout("/api/stripe/guest-checkout", { listingId, email, name, ticketTypeId: selectedTypeId || undefined, quantity: qty, attendeeNames });
       }}
       className="space-y-2"
     >
       {picker}
       {qtyStepper}
+      {nameInputs}
       <input
         type="email"
         required

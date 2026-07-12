@@ -1816,7 +1816,8 @@
     "codeSuccessTitle": "¡Ya estás dentro! 🎫",
     "codeSuccessBody": "Tu entrada gratis está confirmada: revisa {email}.",
     "manageCodes": "Códigos de acceso",
-    "quantity": "Cantidad"
+    "quantity": "Cantidad",
+    "attendeeNamePlaceholder": "Nombre del invitado {n} (opcional)"
   },
   "eventErrors": {
     "notReleased": "Las entradas aún no están disponibles.",
