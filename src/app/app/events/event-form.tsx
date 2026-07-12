@@ -32,6 +32,7 @@ interface EventData {
   event_venue?: string | null;
   listing_type: ListingType | null;
   open_to_instructors: boolean | null;
+  service_fee_mode?: string | null;
   is_public?: boolean | null;
   content_language?: string | null;
   early_bird_start?: string | null;
@@ -107,6 +108,10 @@ export default function EventForm({
   const [fbAutoPost, setFbAutoPost] = useState(true);
   const [openToInstructors, setOpenToInstructors] = useState(event?.open_to_instructors ?? false);
   const [unlisted, setUnlisted] = useState(event?.is_public === false);
+  // Tickster-style service fee: organizer chooses who pays Usha's per-ticket fee.
+  const [serviceFeeMode, setServiceFeeMode] = useState<"buyer" | "absorb">(
+    event?.service_fee_mode === "absorb" ? "absorb" : "buyer"
+  );
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -537,6 +542,42 @@ export default function EventForm({
                 placeholder={t("pricePlaceholder")}
                 className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
               />
+            )}
+
+            {/* Service fee — organizer chooses who pays Usha's per-ticket fee.
+                Only relevant for paid tickets; the fee itself stays inactive
+                until the platform enables it. */}
+            {!isFree && (
+              <div className="mt-3">
+                <input type="hidden" name="service_fee_mode" value={serviceFeeMode} />
+                <p className="mb-1.5 text-sm text-[var(--usha-muted)]">{t("serviceFeeLabel")}</p>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    onClick={() => setServiceFeeMode("buyer")}
+                    className={`rounded-xl border px-3 py-2.5 text-left text-sm transition ${
+                      serviceFeeMode === "buyer"
+                        ? "border-[var(--usha-gold)]/60 bg-[var(--usha-gold)]/10 text-[var(--usha-white)]"
+                        : "border-[var(--usha-border)] bg-[var(--usha-card)] text-[var(--usha-muted)]"
+                    }`}
+                  >
+                    <span className="block font-medium">{t("serviceFeeBuyerTitle")}</span>
+                    <span className="block text-xs opacity-80">{t("serviceFeeBuyerHint")}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setServiceFeeMode("absorb")}
+                    className={`rounded-xl border px-3 py-2.5 text-left text-sm transition ${
+                      serviceFeeMode === "absorb"
+                        ? "border-[var(--usha-gold)]/60 bg-[var(--usha-gold)]/10 text-[var(--usha-white)]"
+                        : "border-[var(--usha-border)] bg-[var(--usha-card)] text-[var(--usha-muted)]"
+                    }`}
+                  >
+                    <span className="block font-medium">{t("serviceFeeAbsorbTitle")}</span>
+                    <span className="block text-xs opacity-80">{t("serviceFeeAbsorbHint")}</span>
+                  </button>
+                </div>
+              </div>
             )}
           </div>
         </div>
