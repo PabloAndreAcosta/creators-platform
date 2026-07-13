@@ -1,16 +1,18 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
-import { locales, LOCALE_COOKIE_NAME, detectLocaleFromAcceptLanguage } from "@/i18n/config";
+import { locales, LOCALE_COOKIE_NAME, detectLocaleFromAcceptLanguage, isLikelyBot } from "@/i18n/config";
 
 export async function middleware(request: NextRequest) {
   // 1. Ensure locale cookie exists. A cookieless visitor gets their device
-  //    language (sv/en/es) or English — never Swedish-by-default — and the same
-  //    resolution as i18n/request.ts, so persisting it here doesn't lock the
-  //    page to Swedish on the second load.
+  //    language (sv/en/es); when nothing matches, real visitors fall back to
+  //    English and crawlers to Swedish (the .se site's canonical language).
+  //    Same resolution as i18n/request.ts, so persisting it here doesn't lock
+  //    the page to the wrong language on the second load.
   const localeCookie = request.cookies.get(LOCALE_COOKIE_NAME)?.value;
+  const fallback = isLikelyBot(request.headers.get("user-agent")) ? "sv" : "en";
   const locale = locales.includes(localeCookie as (typeof locales)[number])
     ? localeCookie!
-    : detectLocaleFromAcceptLanguage(request.headers.get("accept-language"));
+    : detectLocaleFromAcceptLanguage(request.headers.get("accept-language"), fallback);
 
   let response: NextResponse;
   try {
