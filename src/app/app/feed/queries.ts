@@ -14,7 +14,7 @@ export async function getFeedPosts(
     .select(`
       *,
       profiles!posts_user_id_fkey(id, full_name, avatar_url, category, role, is_public),
-      listings(id, title, price, listing_type, event_date, event_location)
+      listings(id, title, price, listing_type, event_date, event_location, slug, ticket_types(id))
     `)
     .order("created_at", { ascending: false })
     .range(offset, offset + pageSize - 1);

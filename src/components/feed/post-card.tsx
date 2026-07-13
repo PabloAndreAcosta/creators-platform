@@ -324,6 +324,8 @@ export function PostCard({ post, isLoggedIn, currentUserId }: PostCardProps) {
               listingType={post.listing.listing_type || "event"}
               price={post.listing.price}
               isLoggedIn={isLoggedIn}
+              hasTicketTypes={(post.listing.ticket_types?.length ?? 0) > 0}
+              eventSlug={post.listing.slug}
             />
           </div>
         </div>

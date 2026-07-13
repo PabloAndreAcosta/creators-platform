@@ -47,6 +47,8 @@ export interface FeedPost extends Post {
     listing_type: string;
     event_date: string | null;
     event_location: string | null;
+    slug: string | null;
+    ticket_types?: { id: string }[];
   } | null;
   like_count: number;
   is_liked: boolean;
