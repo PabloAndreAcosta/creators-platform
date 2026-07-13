@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Receipt } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { getCreatorCommissionRate } from "@/lib/stripe/commission";
 
 // Organizer settlement / payout report for one event. Read-only: it reconciles
@@ -61,11 +62,12 @@ export default async function SettlementPage(props: { params: Promise<{ id: stri
   const netOre = grossOre - platformFeeOre - refundedOre;
   const kr = (ore: number) => (ore / 100).toLocaleString("sv-SE", { maximumFractionDigits: 0 });
 
+  const t = await getTranslations("settlement");
   const rows: { label: string; value: string; sub?: string; strong?: boolean; negative?: boolean }[] = [
-    { label: "Bruttoförsäljning", value: `${kr(grossOre)} kr`, sub: `${ticketsSold} sålda biljetter` },
-    { label: "Usha-avgift", value: `−${kr(platformFeeOre)} kr`, sub: "provision + ev. serviceavgift", negative: true },
-    { label: "Återbetalt", value: `−${kr(refundedOre)} kr`, sub: refundedCount ? `${refundedCount} återbetalningar` : "inga", negative: true },
-    { label: "Netto till dig", value: `${kr(netOre)} kr`, sub: "före Stripes transaktionsavgift", strong: true },
+    { label: t("grossLabel"), value: `${kr(grossOre)} kr`, sub: t("grossSub", { count: ticketsSold }) },
+    { label: t("feeLabel"), value: `−${kr(platformFeeOre)} kr`, sub: t("feeSub"), negative: true },
+    { label: t("refundedLabel"), value: `−${kr(refundedOre)} kr`, sub: refundedCount ? t("refundedSub", { count: refundedCount }) : t("refundedNone"), negative: true },
+    { label: t("netLabel"), value: `${kr(netOre)} kr`, sub: t("netSub"), strong: true },
   ];
 
   return (
@@ -76,12 +78,12 @@ export default async function SettlementPage(props: { params: Promise<{ id: stri
           className="mb-6 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]"
         >
           <ArrowLeft size={14} />
-          Tillbaka
+          {t("back")}
         </Link>
 
         <div className="mb-6 flex items-center gap-2">
           <Receipt size={20} className="text-[var(--usha-gold)]" />
-          <h1 className="text-xl font-bold">Avräkning</h1>
+          <h1 className="text-xl font-bold">{t("heading")}</h1>
         </div>
         <p className="mb-6 text-sm text-[var(--usha-muted)]">{listing.title}</p>
 
@@ -109,11 +111,7 @@ export default async function SettlementPage(props: { params: Promise<{ id: stri
           ))}
         </div>
 
-        <p className="mt-4 text-xs leading-relaxed text-[var(--usha-muted)]">
-          Utbetalning sker till ditt anslutna Stripe-konto. Stripe drar sin transaktionsavgift
-          direkt vid utbetalningen, så det utbetalda beloppet kan vara något lägre än nettot ovan.
-          Gratisbiljetter räknas inte in.
-        </p>
+        <p className="mt-4 text-xs leading-relaxed text-[var(--usha-muted)]">{t("footer")}</p>
       </div>
     </main>
   );
