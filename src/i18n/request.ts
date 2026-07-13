@@ -1,13 +1,12 @@
 import { getRequestConfig } from 'next-intl/server';
-import { cookies } from 'next/headers';
-import { defaultLocale, locales, LOCALE_COOKIE_NAME, type Locale } from './config';
+import { cookies, headers } from 'next/headers';
+import { locales, LOCALE_COOKIE_NAME, detectLocaleFromAcceptLanguage, type Locale } from './config';
 import { getMessageFallback, onIntlError } from './fallback';
 
 export default getRequestConfig(async ({ requestLocale }) => {
   // An explicitly requested locale (e.g. getTranslations({ locale }) for a
-  // per-event language override) wins; otherwise fall back to the visitor's
-  // cookie, then the platform default. Without this, explicit-locale calls
-  // would silently get the cookie locale's messages.
+  // per-event language override) wins; then the visitor's saved cookie; then we
+  // detect the device language (English fallback), never Swedish-by-default.
   const requested = await requestLocale;
   const cookieStore = await cookies();
   const cookieLocale = cookieStore.get(LOCALE_COOKIE_NAME)?.value;
@@ -16,7 +15,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
     ? (requested as Locale)
     : locales.includes(cookieLocale as Locale)
       ? (cookieLocale as Locale)
-      : defaultLocale;
+      : detectLocaleFromAcceptLanguage((await headers()).get('accept-language'));
 
   return {
     locale,
