@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { Camera, CameraOff, CheckCircle, XCircle, Search, AlertCircle, UserCheck, Loader2, Lock, ImagePlus } from "lucide-react";
 import { vibrate } from "@/lib/haptics";
 import { useRole } from "@/components/mobile/role-context";
@@ -35,6 +36,7 @@ interface CheckInResult {
 export default function ScanPage() {
   const { role } = useRole();
   const { tier } = useSubscription();
+  const t = useTranslations("scanPage");
 
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
@@ -89,21 +91,21 @@ export default function ScanPage() {
     return (
       <div className="px-4 py-6">
         <div className="mb-6">
-          <h1 className="text-xl font-bold">Skanna biljetter</h1>
+          <h1 className="text-xl font-bold">{t("title")}</h1>
           <p className="mt-1 text-sm text-[var(--usha-muted)]">
-            Skanna QR-koden eller ange biljettkoden manuellt.
+            {t("subtitle")}
           </p>
         </div>
-        <GatedAction message="Uppgradera till Guld eller Premium för att skanna biljetter." showLock>
+        <GatedAction message={t("gateMessage")} showLock>
           <div className="mb-4 overflow-hidden rounded-xl border border-[var(--usha-border)] bg-black">
             <div className="flex w-full items-center justify-center gap-2 bg-[var(--usha-card)] py-12 text-sm text-[var(--usha-muted)]">
               <Camera size={24} />
-              <span>Tryck för att starta kameran</span>
+              <span>{t("tapToStart")}</span>
             </div>
           </div>
           <div className="mb-4 flex items-center gap-3">
             <div className="flex-1 border-t border-[var(--usha-border)]" />
-            <span className="text-xs text-[var(--usha-muted)]">eller ange kod</span>
+            <span className="text-xs text-[var(--usha-muted)]">{t("orEnterCode")}</span>
             <div className="flex-1 border-t border-[var(--usha-border)]" />
           </div>
           <div className="flex gap-2">
@@ -177,7 +179,7 @@ export default function ScanPage() {
       if (isPermissionError(err)) {
         setCameraBlocked(true);
       } else {
-        setError("Kunde inte starta kameran. Stäng andra appar som använder kameran och försök igen, eller ange biljettkoden manuellt nedan.");
+        setError(t("errCouldNotStartCamera"));
       }
     } finally {
       setScannerLoading(false);
@@ -210,7 +212,7 @@ export default function ScanPage() {
       const decoded = await fileScanner.scanFile(file, false);
       handleQrResult(decoded);
     } catch {
-      setError("Ingen QR-kod hittades i bilden. Fota närmare/rakare, eller ange koden manuellt.");
+      setError(t("errNoQrInImage"));
     } finally {
       setScanningFile(false);
     }
@@ -235,7 +237,7 @@ export default function ScanPage() {
       return;
     }
 
-    setError("QR-koden kunde inte tolkas. Prova ange koden manuellt.");
+    setError(t("errCouldNotParseQr"));
   }
 
   async function verifyCode(ticketCode: string, att?: string) {
@@ -247,7 +249,7 @@ export default function ScanPage() {
 
     const match = ticketCode.match(/^USH-([A-Fa-f0-9]{8})$/i);
     if (!match) {
-      setError("Ogiltigt kodformat. Förväntat: USH-XXXXXXXX");
+      setError(t("errInvalidFormat"));
       setLoading(false);
       return;
     }
@@ -260,15 +262,15 @@ export default function ScanPage() {
 
       if (!res.ok) {
         if (res.status === 403) {
-          setError("Du kan bara skanna biljetter för dina egna evenemang.");
+          setError(t("errOnlyOwnEvents"));
         } else {
-          setError(data.error || "Kunde inte verifiera biljett");
+          setError(data.error || t("errCouldNotVerify"));
         }
       } else {
         setResult(data);
       }
     } catch {
-      setError("Nätverksfel. Försök igen.");
+      setError(t("errNetwork"));
     }
     setLoading(false);
   }
@@ -287,7 +289,7 @@ export default function ScanPage() {
       if (data.success) vibrate([50, 30, 50]);
       setCheckInDone(data);
     } catch {
-      setCheckInDone({ success: false, error: "Nätverksfel" });
+      setCheckInDone({ success: false, error: t("errNetworkShort") });
     }
     setCheckingIn(false);
   }
@@ -308,7 +310,7 @@ export default function ScanPage() {
   return (
     <div className="px-4 py-6">
       <div className="mb-6">
-        <h1 className="text-xl font-bold">Skanna biljetter</h1>
+        <h1 className="text-xl font-bold">{t("title")}</h1>
         <p className="mt-1 text-sm text-[var(--usha-muted)]">
           Skanna QR-koden eller ange biljettkoden manuellt.
         </p>
@@ -328,12 +330,12 @@ export default function ScanPage() {
                 {scannerLoading ? (
                   <>
                     <Loader2 size={24} className="animate-spin" />
-                    <span>Startar kameran...</span>
+                    <span>{t("startingCamera")}</span>
                   </>
                 ) : (
                   <>
                     <Camera size={24} />
-                    <span>Tryck för att starta kameran</span>
+                    <span>{t("tapToStart")}</span>
                   </>
                 )}
               </button>
@@ -341,9 +343,9 @@ export default function ScanPage() {
             {!scannerActive && cameraBlocked && (
               <div className="bg-[var(--usha-card)] p-6 text-center">
                 <CameraOff size={28} className="mx-auto mb-2 text-amber-400" />
-                <p className="font-semibold text-[var(--usha-white)]">Kameran är blockerad</p>
+                <p className="font-semibold text-[var(--usha-white)]">{t("cameraBlocked")}</p>
                 <p className="mt-1 text-sm text-[var(--usha-muted)]">
-                  Tillåt kameraåtkomst för att skanna — eller ange biljettkoden nedan.
+                  {t("allowCameraHint")}
                 </p>
                 <button
                   onClick={startScanner}
@@ -351,18 +353,18 @@ export default function ScanPage() {
                   className="mt-4 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-6 py-2.5 text-sm font-bold text-black transition hover:opacity-90 disabled:opacity-50"
                 >
                   {scannerLoading ? <Loader2 size={16} className="animate-spin" /> : <Camera size={16} />}
-                  Tillåt kamera & försök igen
+                  {t("allowRetry")}
                 </button>
                 <div className="mt-5 space-y-1.5 text-left text-xs text-[var(--usha-muted)]">
-                  <p className="font-semibold text-[var(--usha-white)]">Om frågan inte dyker upp — aktivera manuellt:</p>
-                  <p>• <span className="font-medium">iPhone, Safari:</span> Inställningar → Appar → Safari → Kamera → Tillåt. Eller tryck på <span className="font-medium">aA</span> i adressfältet → Webbplatsinställningar → Kamera.</p>
-                  <p>• <span className="font-medium">Android, Chrome:</span> tryck på låset/ikonen i adressfältet → Behörigheter → Kamera → Tillåt, ladda om.</p>
-                  <p>• <span className="font-medium">Står det &quot;Permission denied&quot; nedan</span> är kameran nekad för usha.se. Öppna Chrome → ⋮ → Inställningar → Webbplatsinställningar → usha.se → <span className="font-medium">Rensa och återställ</span> (eller Kamera → Tillåt) → öppna sidan igen och tryck Tillåt i rutan.</p>
-                  <p>• <span className="font-medium">Installerad app:</span> styrs av samma Chrome-inställning ovan — appen har ingen egen kamera-växel.</p>
+                  <p className="font-semibold text-[var(--usha-white)]">{t("manualHelpTitle")}</p>
+                  <p>• {t("manualHelpIphone")}</p>
+                  <p>• {t("manualHelpAndroid")}</p>
+                  <p>• {t("manualHelpDenied")}</p>
+                  <p>• {t("manualHelpInstalled")}</p>
                 </div>
                 {cameraErrorDetail && (
                   <p className="mt-4 break-words rounded-lg bg-[var(--usha-black)] px-3 py-2 text-left font-mono text-[10px] text-[var(--usha-muted)]">
-                    Teknisk orsak: {cameraErrorDetail}
+                    {t("technicalReason", { detail: cameraErrorDetail })}
                   </p>
                 )}
               </div>
@@ -377,7 +379,7 @@ export default function ScanPage() {
             className="mb-4 flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] py-3 text-sm font-medium text-[var(--usha-white)] transition hover:border-[var(--usha-gold)]/50 disabled:opacity-50"
           >
             {scanningFile ? <Loader2 size={16} className="animate-spin" /> : <ImagePlus size={16} />}
-            {scanningFile ? "Läser av bilden..." : "Fota QR-koden istället"}
+            {scanningFile ? t("readingImage") : t("photoFallback")}
           </button>
           <input
             ref={fileInputRef}
@@ -392,7 +394,7 @@ export default function ScanPage() {
           {/* Divider */}
           <div className="mb-4 flex items-center gap-3">
             <div className="flex-1 border-t border-[var(--usha-border)]" />
-            <span className="text-xs text-[var(--usha-muted)]">eller ange kod</span>
+            <span className="text-xs text-[var(--usha-muted)]">{t("orEnterCode")}</span>
             <div className="flex-1 border-t border-[var(--usha-border)]" />
           </div>
 
@@ -428,18 +430,18 @@ export default function ScanPage() {
       {error && (
         <div className="mb-4 rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-center">
           <XCircle size={32} className="mx-auto mb-2 text-red-400" />
-          <p className="font-semibold text-red-400">Fel</p>
+          <p className="font-semibold text-red-400">{t("errorTitle")}</p>
           <p className="mt-1 text-sm text-[var(--usha-muted)]">{error}</p>
           {cameraErrorDetail && (
             <p className="mt-2 break-words font-mono text-[10px] text-[var(--usha-muted)]">
-              Teknisk orsak: {cameraErrorDetail}
+              {t("technicalReason", { detail: cameraErrorDetail })}
             </p>
           )}
           <button
             onClick={() => { setError(""); resetScan(); }}
             className="mt-3 rounded-xl border border-[var(--usha-border)] px-6 py-2 text-sm transition hover:bg-[var(--usha-card)]"
           >
-            Försök igen
+            {t("tryAgain")}
           </button>
         </div>
       )}
@@ -456,16 +458,16 @@ export default function ScanPage() {
           {result.valid ? (
             <>
               <CheckCircle size={48} className="mx-auto mb-3 text-green-400" />
-              <p className="text-lg font-bold text-green-400">Giltig biljett</p>
+              <p className="text-lg font-bold text-green-400">{t("validTicket")}</p>
             </>
           ) : (
             <>
               <XCircle size={48} className="mx-auto mb-3 text-red-400" />
               <p className="text-lg font-bold text-red-400">
-                {result.status === "already_used" ? "Redan insläppt" :
-                 result.status === "canceled" ? "Avbokad" :
-                 result.status === "pending" ? "Ej bekräftad" :
-                 "Ogiltig biljett"}
+                {result.status === "already_used" ? t("statusAlreadyUsed") :
+                 result.status === "canceled" ? t("statusCanceled") :
+                 result.status === "pending" ? t("statusPending") :
+                 t("statusInvalid")}
               </p>
             </>
           )}
@@ -501,14 +503,14 @@ export default function ScanPage() {
                 ) : (
                   <UserCheck size={16} />
                 )}
-                Registrera insläpp
+                {t("checkInButton")}
               </button>
             )}
             <button
               onClick={resetScan}
               className="rounded-xl border border-[var(--usha-border)] px-6 py-2 text-sm transition hover:bg-[var(--usha-card)]"
             >
-              Skanna nästa
+              {t("scanNext")}
             </button>
           </div>
         </div>
@@ -528,7 +530,7 @@ export default function ScanPage() {
           {checkInDone.success ? (
             <>
               <UserCheck size={48} className="mx-auto mb-3 text-green-400" />
-              <p className="text-lg font-bold text-green-400">Insläpp registrerat!</p>
+              <p className="text-lg font-bold text-green-400">{t("checkedInSuccess")}</p>
               <p className="mt-2 text-sm font-medium">{checkInDone.title}</p>
               <p className="mt-1 text-xs text-[var(--usha-muted)]">
                 {new Date(checkInDone.checkedInAt!).toLocaleTimeString("sv-SE", {
@@ -540,19 +542,21 @@ export default function ScanPage() {
           ) : checkInDone.alreadyCheckedIn ? (
             <>
               <AlertCircle size={48} className="mx-auto mb-3 text-yellow-400" />
-              <p className="text-lg font-bold text-yellow-400">Redan insläppt</p>
+              <p className="text-lg font-bold text-yellow-400">{t("statusAlreadyUsed")}</p>
               <p className="mt-2 text-sm font-medium">{checkInDone.title}</p>
               <p className="mt-1 text-xs text-[var(--usha-muted)]">
-                Incheckning: {new Date(checkInDone.checkedInAt!).toLocaleTimeString("sv-SE", {
-                  hour: "2-digit",
-                  minute: "2-digit",
+                {t("checkInTimeLabel", {
+                  time: new Date(checkInDone.checkedInAt!).toLocaleTimeString("sv-SE", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  }),
                 })}
               </p>
             </>
           ) : (
             <>
               <XCircle size={48} className="mx-auto mb-3 text-red-400" />
-              <p className="text-lg font-bold text-red-400">Kunde inte checka in</p>
+              <p className="text-lg font-bold text-red-400">{t("checkInFailed")}</p>
               <p className="mt-2 text-sm text-[var(--usha-muted)]">
                 {checkInDone.error}
               </p>
@@ -563,7 +567,7 @@ export default function ScanPage() {
             onClick={resetScan}
             className="mt-6 rounded-xl border border-[var(--usha-border)] px-6 py-3 text-sm font-medium transition hover:bg-[var(--usha-card)]"
           >
-            Skanna nästa biljett
+            {t("scanNextTicket")}
           </button>
         </div>
       )}
