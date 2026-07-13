@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import QRCode from "qrcode";
 import { Calendar, Clock, MapPin, CheckCircle2, XCircle } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ShareEventButton } from "@/components/share-event-button";
 import { appleWalletConfigured, googleWalletConfigured } from "@/lib/tickets/wallet";
@@ -31,6 +32,7 @@ export default async function GuestTicketPage({
   const { id } = await params;
   if (!isUUID(id)) notFound();
 
+  const t = await getTranslations("ticketPage");
   const admin = createAdminClient();
   const { data: booking } = await admin
     .from("bookings")
@@ -86,7 +88,7 @@ export default async function GuestTicketPage({
       const url = `${appUrl}/api/tickets/verify?code=${code}&id=${booking.id}&att=${a.id}`;
       attendeeQrs.push({
         id: a.id,
-        label: a.name || `Gäst ${a.idx} av ${booking.guest_count}`,
+        label: a.name || t("guestLabel", { idx: a.idx, count: booking.guest_count ?? 1 }),
         checkedIn: !!a.checked_in_at,
         qr: await QRCode.toDataURL(url, qrOpts),
       });
@@ -122,7 +124,7 @@ export default async function GuestTicketPage({
             href={`/api/tickets/wallet?${q}&provider=apple`}
             className="flex items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] bg-black px-4 py-2.5 text-sm font-medium text-white transition hover:border-white/40"
           >
-             Lägg till i Apple Wallet
+            {t("walletApple")}
           </a>
         )}
         {googleOn && (
@@ -130,7 +132,7 @@ export default async function GuestTicketPage({
             href={`/api/tickets/wallet?${q}&provider=google`}
             className="flex items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-2.5 text-sm font-medium text-[var(--usha-white)] transition hover:border-[var(--usha-gold)]/40"
           >
-            Spara i Google Wallet
+            {t("walletGoogle")}
           </a>
         )}
       </div>
@@ -146,7 +148,7 @@ export default async function GuestTicketPage({
 
         <div className="space-y-4 p-6">
           <div className="text-center">
-            <h1 className="text-xl font-semibold">{listing?.title ?? "Event"}</h1>
+            <h1 className="text-xl font-semibold">{listing?.title ?? t("eventFallback")}</h1>
             {booking.ticket_type_name && (
               <p className="mt-1 inline-block rounded-full bg-[var(--usha-gold)]/10 px-2.5 py-0.5 text-xs font-medium text-[var(--usha-gold)]">
                 {booking.ticket_type_name}
@@ -161,25 +163,25 @@ export default async function GuestTicketPage({
           {canceled ? (
             <div className="flex flex-col items-center gap-2 rounded-xl bg-red-500/10 p-6 text-center">
               <XCircle className="h-8 w-8 text-red-400" />
-              <p className="text-sm font-medium text-red-400">Bokningen är avbokad</p>
+              <p className="text-sm font-medium text-red-400">{t("canceled")}</p>
             </div>
           ) : isMulti ? (
             <div className="flex flex-col items-center gap-5">
               <p className="text-xs text-[var(--usha-muted)]">
-                {booking.guest_count} biljetter — en QR per gäst
+                {t("multiHeader", { count: booking.guest_count ?? 1 })}
               </p>
               {attendeeQrs.map((a) => (
                 <div key={a.id} className="flex flex-col items-center gap-2">
                   <p className="text-sm font-medium">{a.label}</p>
                   {a.checkedIn && (
                     <div className="flex items-center gap-1.5 text-xs font-medium text-green-400">
-                      <CheckCircle2 className="h-3.5 w-3.5" /> Incheckad
+                      <CheckCircle2 className="h-3.5 w-3.5" /> {t("checkedIn")}
                     </div>
                   )}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={a.qr}
-                    alt={`QR-kod ${a.label}`}
+                    alt={a.label}
                     width={200}
                     height={200}
                     className={`rounded-xl bg-white p-3 ${a.checkedIn ? "opacity-40" : ""}`}
@@ -193,7 +195,7 @@ export default async function GuestTicketPage({
             <div className="flex flex-col items-center gap-3">
               {used && (
                 <div className="flex items-center gap-1.5 text-sm font-medium text-green-400">
-                  <CheckCircle2 className="h-4 w-4" /> Incheckad
+                  <CheckCircle2 className="h-4 w-4" /> {t("checkedIn")}
                 </div>
               )}
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -226,22 +228,22 @@ export default async function GuestTicketPage({
               </div>
             )}
             {creator?.full_name && (
-              <p className="pt-1 text-xs text-[var(--usha-muted)]">Arrangör: {creator.full_name}</p>
+              <p className="pt-1 text-xs text-[var(--usha-muted)]">{t("organizer", { name: creator.full_name })}</p>
             )}
           </div>
 
           {!canceled && !used && (
             <p className="text-center text-xs text-[var(--usha-muted)]">
-              Visa den här QR-koden vid entrén.
+              {t("showAtEntrance")}
             </p>
           )}
 
           {!canceled && (
             <ShareEventButton
               url={`${appUrl}/listing/${booking.listing_id}`}
-              title={listing?.title ?? "Event"}
-              text={`Jag ska på ${listing?.title ?? "detta event"} — häng med!`}
-              label="Bjud in vänner"
+              title={listing?.title ?? t("eventFallback")}
+              text={t("shareText", { title: listing?.title ?? t("shareTitleFallback") })}
+              label={t("shareLabel")}
               className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2.5 text-sm font-semibold text-black transition hover:opacity-90"
             />
           )}
