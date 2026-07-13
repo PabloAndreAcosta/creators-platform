@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdminById } from "@/lib/admin/check";
 import { canScanListing } from "@/lib/scan-access";
 
 export async function GET(request: NextRequest) {
+  const t = await getTranslations("scanApi");
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
   const id = searchParams.get("id");
@@ -12,7 +14,7 @@ export async function GET(request: NextRequest) {
 
   if (!code && !id) {
     return NextResponse.json(
-      { error: "Saknar kod eller id-parameter" },
+      { error: t("missingCodeOrId") },
       { status: 400 }
     );
   }
@@ -27,7 +29,7 @@ export async function GET(request: NextRequest) {
 
   if (authError || !user) {
     return NextResponse.json(
-      { error: "Du måste vara inloggad för att verifiera biljetter" },
+      { error: t("notLoggedInVerify") },
       { status: 401 }
     );
   }
@@ -45,7 +47,7 @@ export async function GET(request: NextRequest) {
         status: "not_found",
         ticket: {
           code: code || "",
-          title: "Okänd",
+          title: t("unknownTitle"),
           date: "",
           time: null,
           location: null,
@@ -90,7 +92,7 @@ export async function GET(request: NextRequest) {
       status: "not_found",
       ticket: {
         code: ticketCode,
-        title: "Okänd",
+        title: t("unknownTitle"),
         date: "",
         time: null,
         location: null,
@@ -107,7 +109,7 @@ export async function GET(request: NextRequest) {
     !(await canScanListing(admin, user.id, booking.listing_id))
   ) {
     return NextResponse.json(
-      { error: "Du har inte behörighet att verifiera biljetter för det här eventet" },
+      { error: t("noVerifyPermission") },
       { status: 403 }
     );
   }
@@ -147,7 +149,7 @@ export async function GET(request: NextRequest) {
   }
 
   const displayLocation = listing?.event_location || null;
-  const title = listing?.title || "Okänd bokning";
+  const title = listing?.title || t("unknownTitle");
 
   // Determine validity based on booking status
   let valid: boolean;
@@ -200,7 +202,7 @@ export async function GET(request: NextRequest) {
     }
 
     attendeeId = attendee.id;
-    attendeeLabel = attendee.name || `Gäst ${attendee.idx} av ${booking.guest_count}`;
+    attendeeLabel = attendee.name || t("guestLabel", { idx: attendee.idx, count: booking.guest_count ?? 1 });
     if (booking.status === "canceled") {
       valid = false;
       status = "canceled";
