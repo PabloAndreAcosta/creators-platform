@@ -61,7 +61,10 @@ export default async function RootLayout({
   const messages = await getMessages();
   const cookieStore = await cookies();
   const themeCookie = cookieStore.get("usha-theme")?.value;
-  const themeClass = themeCookie === "light" ? "" : "dark";
+  // Light by default (cookieless). Only an explicit "dark" choice renders dark
+  // server-side; the inline script below then follows the device's setting for
+  // visitors who haven't chosen, so a dark-mode device still gets dark.
+  const themeClass = themeCookie === "dark" ? "dark" : "";
 
   return (
     <html lang={locale} className={themeClass} suppressHydrationWarning>
@@ -85,14 +88,16 @@ export default async function RootLayout({
           (function(){
             try {
               var t = localStorage.getItem('usha-theme');
-              if (!t) t = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-              if (t === 'light') {
-                document.documentElement.classList.remove('dark');
-              } else {
+              // No explicit choice → follow the device; default to LIGHT unless
+              // the device is set to dark mode.
+              if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+              if (t === 'dark') {
                 document.documentElement.classList.add('dark');
+              } else {
+                document.documentElement.classList.remove('dark');
               }
             } catch(e) {
-              document.documentElement.classList.add('dark');
+              document.documentElement.classList.remove('dark');
             }
           })();
         `}} />

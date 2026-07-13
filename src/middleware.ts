@@ -1,13 +1,16 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
-import { defaultLocale, locales, LOCALE_COOKIE_NAME } from "@/i18n/config";
+import { locales, LOCALE_COOKIE_NAME, detectLocaleFromAcceptLanguage } from "@/i18n/config";
 
 export async function middleware(request: NextRequest) {
-  // 1. Ensure locale cookie exists
+  // 1. Ensure locale cookie exists. A cookieless visitor gets their device
+  //    language (sv/en/es) or English — never Swedish-by-default — and the same
+  //    resolution as i18n/request.ts, so persisting it here doesn't lock the
+  //    page to Swedish on the second load.
   const localeCookie = request.cookies.get(LOCALE_COOKIE_NAME)?.value;
   const locale = locales.includes(localeCookie as (typeof locales)[number])
     ? localeCookie!
-    : defaultLocale;
+    : detectLocaleFromAcceptLanguage(request.headers.get("accept-language"));
 
   let response: NextResponse;
   try {
