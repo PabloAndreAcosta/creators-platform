@@ -1,6 +1,6 @@
 import { getRequestConfig } from 'next-intl/server';
 import { cookies, headers } from 'next/headers';
-import { locales, LOCALE_COOKIE_NAME, detectLocaleFromAcceptLanguage, type Locale } from './config';
+import { locales, LOCALE_COOKIE_NAME, detectLocaleFromAcceptLanguage, isLikelyBot, type Locale } from './config';
 import { getMessageFallback, onIntlError } from './fallback';
 
 export default getRequestConfig(async ({ requestLocale }) => {
@@ -10,12 +10,16 @@ export default getRequestConfig(async ({ requestLocale }) => {
   const requested = await requestLocale;
   const cookieStore = await cookies();
   const cookieLocale = cookieStore.get(LOCALE_COOKIE_NAME)?.value;
+  const h = await headers();
+  // Crawlers with no supported language get Swedish (the .se site's canonical
+  // language, for indexing); real visitors get English.
+  const fallback: Locale = isLikelyBot(h.get('user-agent')) ? 'sv' : 'en';
 
   const locale: Locale = locales.includes(requested as Locale)
     ? (requested as Locale)
     : locales.includes(cookieLocale as Locale)
       ? (cookieLocale as Locale)
-      : detectLocaleFromAcceptLanguage((await headers()).get('accept-language'));
+      : detectLocaleFromAcceptLanguage(h.get('accept-language'), fallback);
 
   return {
     locale,
