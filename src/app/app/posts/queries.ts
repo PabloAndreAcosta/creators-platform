@@ -15,7 +15,7 @@ export async function getMyPosts(
       `
       *,
       profiles!posts_user_id_fkey(id, full_name, avatar_url, category, role),
-      listings(id, title, price, listing_type, event_date, event_location)
+      listings(id, title, price, listing_type, event_date, event_location, slug, ticket_types(id))
     `
     )
     .eq("user_id", userId)

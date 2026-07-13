@@ -9,6 +9,9 @@ interface QuickBuyButtonProps {
   listingType: string;
   price: number | null;
   isLoggedIn: boolean;
+  /** Event has ticket types (price tiers) — send the buyer to the event page to pick one. */
+  hasTicketTypes?: boolean;
+  eventSlug?: string | null;
 }
 
 export function QuickBuyButton({
@@ -16,6 +19,8 @@ export function QuickBuyButton({
   listingType,
   price,
   isLoggedIn,
+  hasTicketTypes = false,
+  eventSlug,
 }: QuickBuyButtonProps) {
   const [loading, setLoading] = useState(false);
   const [showEmailInput, setShowEmailInput] = useState(false);
@@ -78,6 +83,12 @@ export function QuickBuyButton({
   function handleClick(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
+
+    // Typed events: tier selection lives on the full event page.
+    if (hasTicketTypes && eventSlug) {
+      router.push(`/event/${eventSlug}`);
+      return;
+    }
 
     if (needsDetails) {
       router.push(`/listing/${listingId}`);
