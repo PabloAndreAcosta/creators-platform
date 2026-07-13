@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Check, Ticket, QrCode, Wallet, ArrowRight } from "lucide-react";
+import { Check, Ticket, QrCode, Layers, Users, BellRing, Receipt, ArrowRight } from "lucide-react";
 import { Nav } from "@/components/landing/nav";
 import { Footer } from "@/components/landing/footer";
 
@@ -22,8 +22,11 @@ export const metadata: Metadata = {
 
 const FEATURES = [
   { icon: Ticket, title: "Betald- och gratisbiljetter", body: "Sätt pris eller gör eventet gratis. Early bird, rabattkoder och åtkomstkoder ingår." },
+  { icon: Layers, title: "Biljett-typer", body: "Flera pris-nivåer per event – t.ex. Ordinarie, VIP och Student, var och en med egen kapacitet." },
+  { icon: Users, title: "Flerköp med QR per gäst", body: "Köp flera biljetter i ett köp – varje gäst får en egen skanningsbar QR och kan namnges." },
   { icon: QrCode, title: "QR-biljett direkt", body: "Köparen får sin QR-biljett på mejl och sida – ingen inloggning krävs. Skanna vid dörren." },
-  { icon: Wallet, title: "Utbetalning via Stripe", body: "Pengarna går direkt till ditt Stripe-konto. Full försäljningsstatistik och CSV-export." },
+  { icon: BellRing, title: "Väntelista som säljer", body: "Slutsålt? Frigörs en plats vid en avbokning mejlas nästa person i kön automatiskt." },
+  { icon: Receipt, title: "Utbetalning & avräkning", body: "Pengarna går direkt till ditt Stripe-konto, med per-event-avräkning och CSV-export." },
 ];
 
 const COMPARE = [

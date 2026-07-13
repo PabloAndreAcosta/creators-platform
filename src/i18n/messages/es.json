@@ -444,7 +444,8 @@
       "forCreators": "Creadores",
       "forVenues": "Espacios",
       "forAudience": "Descubrir",
-      "shop": "Tienda"
+      "shop": "Tienda",
+      "sellTickets": "Vender entradas"
     },
     "install": {
       "title": "Instala Usha Platform",
