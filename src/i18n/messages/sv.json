@@ -444,7 +444,8 @@
       "forCreators": "Kreatör",
       "forVenues": "Plats",
       "forAudience": "Upplev",
-      "shop": "Shop"
+      "shop": "Shop",
+      "sellTickets": "Sälj biljetter"
     },
     "install": {
       "title": "Installera Usha Platform",
