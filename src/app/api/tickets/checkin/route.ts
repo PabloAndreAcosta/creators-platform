@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdminById } from "@/lib/admin/check";
 import { canScanListing } from "@/lib/scan-access";
 
 export async function POST(request: NextRequest) {
+  const t = await getTranslations("scanApi");
   const supabase = await createClient();
 
   const {
@@ -13,7 +15,7 @@ export async function POST(request: NextRequest) {
 
   if (!user) {
     return NextResponse.json(
-      { error: "Du måste vara inloggad" },
+      { error: t("notLoggedIn") },
       { status: 401 }
     );
   }
@@ -23,7 +25,7 @@ export async function POST(request: NextRequest) {
     body = await request.json();
   } catch {
     return NextResponse.json(
-      { error: "Ogiltig begäran" },
+      { error: t("invalidRequest") },
       { status: 400 }
     );
   }
@@ -31,7 +33,7 @@ export async function POST(request: NextRequest) {
 
   if (!bookingId) {
     return NextResponse.json(
-      { error: "Boknings-ID saknas" },
+      { error: t("missingBookingId") },
       { status: 400 }
     );
   }
@@ -48,7 +50,7 @@ export async function POST(request: NextRequest) {
 
   if (bookingError || !booking) {
     return NextResponse.json(
-      { error: "Bokning hittades inte" },
+      { error: t("bookingNotFound") },
       { status: 404 }
     );
   }
@@ -62,12 +64,12 @@ export async function POST(request: NextRequest) {
     !(await canScanListing(admin, user.id, booking.listing_id))
   ) {
     return NextResponse.json(
-      { error: "Du har inte behörighet att registrera insläpp för det här eventet" },
+      { error: t("noCheckinPermission") },
       { status: 403 }
     );
   }
 
-  const title = (booking as any).listings?.title || "Bokning";
+  const title = (booking as any).listings?.title || t("bookingFallback");
   const isMulti = (booking.guest_count ?? 1) > 1;
 
   // Multi-ticket order: check in ONE attendee. The booking is only marked
@@ -76,11 +78,11 @@ export async function POST(request: NextRequest) {
     if (!attendeeId) {
       return NextResponse.json({
         success: false,
-        error: "Skanna en enskild gästbiljett",
+        error: t("scanIndividual"),
       });
     }
     if (booking.status === "canceled") {
-      return NextResponse.json({ success: false, error: "Bokningen är avbokad", status: "canceled" });
+      return NextResponse.json({ success: false, error: t("bookingCanceled"), status: "canceled" });
     }
 
     const { data: attendee } = await admin
@@ -91,9 +93,9 @@ export async function POST(request: NextRequest) {
       .maybeSingle();
 
     if (!attendee) {
-      return NextResponse.json({ error: "Biljetten hittades inte" }, { status: 404 });
+      return NextResponse.json({ error: t("ticketNotFound") }, { status: 404 });
     }
-    const label = attendee.name || `Gäst ${attendee.idx} av ${booking.guest_count}`;
+    const label = attendee.name || t("guestLabel", { idx: attendee.idx, count: booking.guest_count ?? 1 });
     if (attendee.checked_in_at) {
       return NextResponse.json({
         success: false,
@@ -137,7 +139,7 @@ export async function POST(request: NextRequest) {
       success: false,
       alreadyCheckedIn: true,
       checkedInAt: booking.checked_in_at,
-      title: (booking as any).listings?.title || "Bokning",
+      title: (booking as any).listings?.title || t("bookingFallback"),
     });
   }
 
@@ -146,10 +148,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: false,
       error: booking.status === "pending"
-        ? "Bokningen är inte bekräftad ännu"
+        ? t("notConfirmedYet")
         : booking.status === "canceled"
-          ? "Bokningen är avbokad"
-          : "Bokningen kan inte checkas in",
+          ? t("bookingCanceled")
+          : t("cannotCheckIn"),
       status: booking.status,
     });
   }
@@ -166,14 +168,14 @@ export async function POST(request: NextRequest) {
 
   if (updateError) {
     return NextResponse.json(
-      { error: "Kunde inte registrera insläpp" },
+      { error: t("couldNotCheckIn") },
       { status: 500 }
     );
   }
 
   return NextResponse.json({
     success: true,
-    title: (booking as any).listings?.title || "Bokning",
+    title: (booking as any).listings?.title || t("bookingFallback"),
     checkedInAt: new Date().toISOString(),
   });
 }

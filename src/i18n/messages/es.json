@@ -2089,5 +2089,24 @@
     "s9BodyPre": "För frågor om hur vi hanterar dina personuppgifter, kontakta oss på ",
     "s9Email": "privacy@usha.se",
     "s9BodyPost": "Du har även rätt att lämna klagomål till Integritetsskyddsmyndigheten (IMY)."
+  },
+  "scanApi": {
+    "notLoggedIn": "Debes iniciar sesión",
+    "invalidRequest": "Solicitud no válida",
+    "missingBookingId": "Falta el ID de la reserva",
+    "bookingNotFound": "Reserva no encontrada",
+    "noCheckinPermission": "No tienes permiso para registrar accesos en este evento",
+    "scanIndividual": "Escanea una entrada de invitado individual",
+    "bookingCanceled": "La reserva ha sido cancelada",
+    "ticketNotFound": "Entrada no encontrada",
+    "notConfirmedYet": "La reserva aún no está confirmada",
+    "cannotCheckIn": "Esta reserva no se puede registrar",
+    "couldNotCheckIn": "No se pudo registrar el acceso",
+    "missingCodeOrId": "Falta el parámetro de código o id",
+    "notLoggedInVerify": "Debes iniciar sesión para verificar entradas",
+    "noVerifyPermission": "No tienes permiso para verificar entradas de este evento",
+    "guestLabel": "Invitado {idx} de {count}",
+    "bookingFallback": "Reserva",
+    "unknownTitle": "Desconocido"
   }
 }
