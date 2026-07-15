@@ -1899,7 +1899,11 @@
     "confirmBody": "Tack för att du anmälde dig till {title}. Vi mejlar dig så fort biljetterna släpps.",
     "saveTheDate": "Spara datumet: {date}",
     "confirmUnsub": "Avregistrera dig",
-    "confirmFooter": "Du får detta mejl för att du anmälde dig till väntelistan på Usha Platform."
+    "confirmFooter": "Du får detta mejl för att du anmälde dig till väntelistan på Usha Platform.",
+    "releaseSubject": "Biljetterna är släppta – {title}",
+    "releaseHeading": "Biljetterna är släppta! 🎟️",
+    "releaseBody": "Goda nyheter — biljetterna till {title} är nu till salu. Passa på innan de tar slut.",
+    "releaseCta": "Boka din biljett"
   },
   "security": {
     "title": "Login & säkerhet",

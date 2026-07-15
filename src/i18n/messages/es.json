@@ -1899,7 +1899,11 @@
     "confirmBody": "Gracias por apuntarte a {title}. Te enviaremos un email en cuanto salgan las entradas.",
     "saveTheDate": "Reserva la fecha: {date}",
     "confirmUnsub": "Darse de baja",
-    "confirmFooter": "Recibes este mensaje porque te apuntaste a la lista de espera en Usha Platform."
+    "confirmFooter": "Recibes este mensaje porque te apuntaste a la lista de espera en Usha Platform.",
+    "releaseSubject": "Las entradas ya están disponibles – {title}",
+    "releaseHeading": "¡Las entradas ya están a la venta! 🎟️",
+    "releaseBody": "Buenas noticias: las entradas para {title} ya están a la venta. Consigue la tuya antes de que se agoten.",
+    "releaseCta": "Reserva tu entrada"
   },
   "security": {
     "title": "Inicio de sesión y seguridad",

@@ -1899,7 +1899,11 @@
     "confirmBody": "Thanks for signing up for {title}. We’ll email you the moment tickets are released.",
     "saveTheDate": "Save the date: {date}",
     "confirmUnsub": "Unsubscribe",
-    "confirmFooter": "You’re receiving this because you joined the waitlist on Usha Platform."
+    "confirmFooter": "You’re receiving this because you joined the waitlist on Usha Platform.",
+    "releaseSubject": "Tickets are now available – {title}",
+    "releaseHeading": "Tickets are live! 🎟️",
+    "releaseBody": "Good news — tickets for {title} are now on sale. Grab yours before they’re gone.",
+    "releaseCta": "Book your ticket"
   },
   "security": {
     "title": "Login & security",

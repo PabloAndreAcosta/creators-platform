@@ -30,3 +30,8 @@ jobs:
           curl -fsS -X GET \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             https://usha.se/api/cron/event-reminders
+      - name: Email waitlist when tickets are released
+        run: |
+          curl -fsS -X GET \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            https://usha.se/api/cron/waitlist-release
