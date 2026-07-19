@@ -251,40 +251,63 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    // Reserve the seat(s) NOW, before payment, so concurrent buyers can't
+    // oversell. The free path already reserves up front; the paid path used to
+    // only count in the webhook, which let two buyers pass the capacity check
+    // and both pay. The webhook SKIPS its increment when metadata.reserved is
+    // 'true'; an abandoned checkout is released by the checkout.session.expired
+    // handler (sessions expire after 30 min).
+    const { data: paidReserved } = await supabase.rpc('reserve_ticket', {
+      p_listing: listing.id, p_ticket_type: ticketType?.id ?? undefined, p_n: qty,
+    });
+    if (!paidReserved) {
+      const te = await getTranslations('eventErrors');
+      return NextResponse.json({ error: te('soldOut') }, { status: 403 });
+    }
+
     // Create Stripe Checkout session with Connect split
     const stripeLocale = await getStripeLocale();
-    const session = await stripe.checkout.sessions.create({
-      locale: stripeLocale,
-      customer_email: user.email,
-      line_items: lineItems,
-      mode: 'payment',
-      payment_intent_data: {
-        application_fee_amount: applicationFee * qty + serviceFee,
-        transfer_data: {
-          destination: creator.stripe_account_id,
+    let session: Stripe.Checkout.Session;
+    try {
+      session = await stripe.checkout.sessions.create({
+        locale: stripeLocale,
+        customer_email: user.email,
+        line_items: lineItems,
+        mode: 'payment',
+        expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
+        payment_intent_data: {
+          application_fee_amount: applicationFee * qty + serviceFee,
+          transfer_data: {
+            destination: creator.stripe_account_id,
+          },
         },
-      },
-      automatic_tax: { enabled: true },
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/app/tickets?success=true`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/creators/${listing.user_id}`,
-      metadata: {
-        type: 'ticket',
-        listingId: listing.id,
-        userId: user.id,
-        creatorId: listing.user_id,
-        originalPrice: String(originalPrice),
-        discountedPrice: String(discountedPrice),
-        serviceFeeOre: String(serviceFee),
-        serviceFeeMode: feeMode,
-        platformFeeOre: String(applicationFee * qty + serviceFee),
-        ticketTypeId: ticketType?.id ?? '',
-        ticketTypeName: ticketType?.name ?? '',
-        quantity: String(qty),
-        attendeeNames: attendeeNamesToMeta(attendeeNames, qty),
-        eventDate: listing.event_date || '',
-        eventTime: listing.event_time || '',
-      },
-    });
+        automatic_tax: { enabled: true },
+        success_url: `${process.env.NEXT_PUBLIC_APP_URL}/app/tickets?success=true`,
+        cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/creators/${listing.user_id}`,
+        metadata: {
+          type: 'ticket',
+          listingId: listing.id,
+          userId: user.id,
+          creatorId: listing.user_id,
+          originalPrice: String(originalPrice),
+          discountedPrice: String(discountedPrice),
+          serviceFeeOre: String(serviceFee),
+          serviceFeeMode: feeMode,
+          platformFeeOre: String(applicationFee * qty + serviceFee),
+          ticketTypeId: ticketType?.id ?? '',
+          ticketTypeName: ticketType?.name ?? '',
+          quantity: String(qty),
+          attendeeNames: attendeeNamesToMeta(attendeeNames, qty),
+          reserved: 'true',
+          eventDate: listing.event_date || '',
+          eventTime: listing.event_time || '',
+        },
+      });
+    } catch (e) {
+      // Release the seats we reserved if Stripe couldn't create the session.
+      await supabase.rpc('increment_tickets_sold', { p_listing: listing.id, p_n: -qty, p_ticket_type: ticketType?.id ?? undefined });
+      throw e;
+    }
 
     return NextResponse.json({ sessionId: session.id, url: session.url });
   } catch (error: any) {

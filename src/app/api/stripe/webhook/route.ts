@@ -186,8 +186,12 @@ export async function POST(req: NextRequest) {
           // One scannable attendee per seat (only for multi-ticket orders).
           if (guestBooking?.id) await createTicketAttendees(getSupabaseAdmin(), guestBooking.id, guestQty, attendeeNamesFromMeta(session.metadata?.attendeeNames));
 
-          // Timed automation: count the sold tickets (atomic) for capacity.
-          await getSupabaseAdmin().rpc("increment_tickets_sold", { p_listing: listingId, p_n: guestQty, p_ticket_type: session.metadata?.ticketTypeId || undefined });
+          // Count the sold tickets for capacity — UNLESS the checkout already
+          // reserved them up front (reserved='true'), in which case the seats
+          // are already counted and re-incrementing would over-count.
+          if (session.metadata?.reserved !== "true") {
+            await getSupabaseAdmin().rpc("increment_tickets_sold", { p_listing: listingId, p_n: guestQty, p_ticket_type: session.metadata?.ticketTypeId || undefined });
+          }
 
           // Discount access code: consume one use now that payment succeeded.
           if (session.metadata?.accessCodeId) {
@@ -371,8 +375,11 @@ export async function POST(req: NextRequest) {
           // One scannable attendee per seat (only for multi-ticket orders).
           if (acctBooking?.id) await createTicketAttendees(getSupabaseAdmin(), acctBooking.id, ticketQty, attendeeNamesFromMeta(session.metadata?.attendeeNames));
 
-          // Timed automation: count the sold tickets (atomic) for capacity.
-          await getSupabaseAdmin().rpc("increment_tickets_sold", { p_listing: listingId, p_n: ticketQty, p_ticket_type: session.metadata?.ticketTypeId || undefined });
+          // Count the sold tickets for capacity — UNLESS reserved up front at
+          // checkout (reserved='true'), which already counted them.
+          if (session.metadata?.reserved !== "true") {
+            await getSupabaseAdmin().rpc("increment_tickets_sold", { p_listing: listingId, p_n: ticketQty, p_ticket_type: session.metadata?.ticketTypeId || undefined });
+          }
 
           // Discount access code: consume one use now that payment succeeded.
           if (session.metadata?.accessCodeId) {
@@ -783,6 +790,27 @@ export async function POST(req: NextRequest) {
             message: `Your payout of ${failedPayout.amount_net} SEK failed. Please check your Stripe account settings.`,
             link: "/dashboard/payouts",
           }).catch(() => {});
+        }
+        break;
+      }
+
+      // A ticket checkout that reserved seats up front was abandoned (expired)
+      // or its async payment failed → release the reserved seats so they go
+      // back on sale. Sessions that complete are counted at reserve time and
+      // skip the increment, so releasing here can't double-count.
+      case "checkout.session.expired":
+      case "checkout.session.async_payment_failed": {
+        const s = event.data.object as Stripe.Checkout.Session;
+        const type = s.metadata?.type;
+        if (s.metadata?.reserved === "true" && (type === "ticket" || type === "guest_ticket") && s.metadata?.listingId) {
+          const qty = clampQuantity(s.metadata?.quantity);
+          await getSupabaseAdmin()
+            .rpc("increment_tickets_sold", {
+              p_listing: s.metadata.listingId,
+              p_n: -qty,
+              p_ticket_type: s.metadata?.ticketTypeId || undefined,
+            })
+            .then(({ error }: { error: unknown }) => error && console.error("release reserved seats failed:", error));
         }
         break;
       }
