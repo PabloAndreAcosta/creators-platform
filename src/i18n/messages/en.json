@@ -179,8 +179,9 @@
     "outLogin": "You are blocked from logging in",
     "outBankid": "BankID and email link is released so you can start over",
     "retentionNote": "Payment and accounting records are retained for as long as the law requires.",
-    "confirmWord": "Type RADERA to confirm",
-    "confirmWordPlaceholder": "RADERA"
+    "confirmWord": "Type DELETE to confirm",
+    "confirmWordPlaceholder": "DELETE",
+    "confirmWordValue": "DELETE"
   },
   "help": {
     "title": "Help & Support",

@@ -179,8 +179,9 @@
     "outLogin": "Se te bloquea el inicio de sesión",
     "outBankid": "El vínculo con BankID y correo electrónico se libera para que puedas empezar de nuevo",
     "retentionNote": "Los registros de pagos y contabilidad se conservan durante el tiempo que exige la ley.",
-    "confirmWord": "Escribe RADERA para confirmar",
-    "confirmWordPlaceholder": "RADERA"
+    "confirmWord": "Escribe ELIMINAR para confirmar",
+    "confirmWordPlaceholder": "ELIMINAR",
+    "confirmWordValue": "ELIMINAR"
   },
   "help": {
     "title": "Ayuda y soporte",

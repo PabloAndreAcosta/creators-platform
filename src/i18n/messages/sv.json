@@ -180,7 +180,8 @@
     "outBankid": "BankID- och e-postkoppling släpps så du kan börja om",
     "retentionNote": "Betalnings- och bokföringsunderlag sparas i den tid lagen kräver.",
     "confirmWord": "Skriv RADERA för att bekräfta",
-    "confirmWordPlaceholder": "RADERA"
+    "confirmWordPlaceholder": "RADERA",
+    "confirmWordValue": "RADERA"
   },
   "help": {
     "title": "Hjälp & Support",
