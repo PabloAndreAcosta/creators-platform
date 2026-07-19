@@ -89,7 +89,7 @@ export function Nav() {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <a
           href={isLoggedIn ? "/app" : "/"}
-          aria-label="Usha Platform – hem"
+          aria-label={t("nav.homeAriaLabel")}
           className="flex items-center gap-2 outline-none transition-opacity duration-150 focus:outline-none focus-visible:outline-none active:opacity-50"
         >
           <UschjaLogo size={40} />

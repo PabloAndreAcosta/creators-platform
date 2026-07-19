@@ -40,7 +40,9 @@
     "create": "Create",
     "new": "New",
     "image": "Image",
-    "noResults": "No results"
+    "noResults": "No results",
+    "switchToLight": "Switch to light mode",
+    "switchToDark": "Switch to dark mode"
   },
   "nav": {
     "home": "Home",
@@ -445,7 +447,8 @@
       "forVenues": "Venues",
       "forAudience": "Discover",
       "shop": "Shop",
-      "sellTickets": "Sell tickets"
+      "sellTickets": "Sell tickets",
+      "homeAriaLabel": "Usha Platform – home"
     },
     "install": {
       "title": "Install Usha Platform",

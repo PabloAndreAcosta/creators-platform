@@ -40,7 +40,9 @@
     "create": "Skapa",
     "new": "Ny",
     "image": "Bild",
-    "noResults": "Inga resultat"
+    "noResults": "Inga resultat",
+    "switchToLight": "Byt till ljust läge",
+    "switchToDark": "Byt till mörkt läge"
   },
   "nav": {
     "home": "Hem",
@@ -445,7 +447,8 @@
       "forVenues": "Plats",
       "forAudience": "Upplev",
       "shop": "Shop",
-      "sellTickets": "Sälj biljetter"
+      "sellTickets": "Sälj biljetter",
+      "homeAriaLabel": "Usha Platform – hem"
     },
     "install": {
       "title": "Installera Usha Platform",
