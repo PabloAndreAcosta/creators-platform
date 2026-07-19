@@ -63,7 +63,8 @@ export async function POST(req: NextRequest) {
       }
       ticketType = tt as { id: string; name: string; price: number; capacity: number | null; tickets_sold: number };
       if (ticketType!.capacity != null && ticketType!.tickets_sold >= ticketType!.capacity) {
-        return NextResponse.json({ error: "Slutsålt." }, { status: 403 });
+        const te = await getTranslations("eventErrors");
+        return NextResponse.json({ error: te("soldOut") }, { status: 403 });
       }
     }
 
@@ -115,7 +116,7 @@ export async function POST(req: NextRequest) {
       // the booking, so concurrent guests can't oversell.
       const { data: reserved } = await admin.rpc("reserve_ticket", { p_listing: listing.id, p_ticket_type: ticketType?.id ?? undefined, p_n: qty });
       if (!reserved) {
-        return NextResponse.json({ error: "Slutsålt." }, { status: 403 });
+        return NextResponse.json({ error: (await getTranslations("eventErrors"))("soldOut") }, { status: 403 });
       }
 
       const { data: booking, error: bookingError } = await admin

@@ -15,10 +15,10 @@ export default function AccountSettingsPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Method-agnostic confirmation: type the word RADERA. No password field — the
-  // user is already authenticated, and a password check locked out Google/BankID
-  // (passwordless) users entirely.
-  const CONFIRM_WORD = "RADERA";
+  // Method-agnostic confirmation: type the confirm word (localized per language).
+  // No password field — the user is already authenticated, and a password check
+  // locked out Google/BankID (passwordless) users entirely.
+  const CONFIRM_WORD = t("confirmWordValue").toUpperCase();
   const canDelete = confirmed && confirmText.trim().toUpperCase() === CONFIRM_WORD;
 
   const handleDelete = async () => {
