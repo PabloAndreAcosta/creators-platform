@@ -81,10 +81,12 @@ export default function LoginPage() {
 
     try {
       // Clear any existing session first so logging in with a *different* account
-      // always switches cleanly. Without this, a stale/chunked auth cookie from a
-      // previously logged-in account could survive and the SSR would keep serving
-      // that account instead of the one you just signed in as.
-      await supabase.auth.signOut();
+      // always switches cleanly, AND so a stale/revoked token isn't being auto-
+      // refreshed in the background (which holds the auth-token Web Lock and made
+      // signInWithPassword fail with "another request stole it"). Use scope:
+      // "local" — it purges local storage WITHOUT a network call, so it can't hit
+      // the auth rate limit, and swallow any lock error so it never aborts login.
+      await supabase.auth.signOut({ scope: "local" }).catch(() => {});
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
       if (error) {
@@ -121,6 +123,9 @@ export default function LoginPage() {
   }
 
   async function handleGoogleLogin() {
+    // Purge any stale/revoked session first (see handleLogin) so its background
+    // token refresh doesn't hold the auth lock and block the OAuth redirect.
+    await supabase.auth.signOut({ scope: "local" }).catch(() => {});
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -131,6 +136,7 @@ export default function LoginPage() {
   }
 
   async function handleFacebookLogin() {
+    await supabase.auth.signOut({ scope: "local" }).catch(() => {});
     await supabase.auth.signInWithOAuth({
       provider: "facebook",
       options: { redirectTo: `${window.location.origin}/callback` },
