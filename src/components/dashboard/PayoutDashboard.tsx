@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { createBrowserClient } from '@supabase/ssr';
+import { createClient } from '@/lib/supabase/client';
 
 interface PayoutRecord {
   id: string;
@@ -78,10 +78,9 @@ export default function PayoutDashboard({ creatorId }: PayoutDashboardProps) {
   const instantFee = instantCount >= 1;
 
   const fetchData = useCallback(async () => {
-    const supabase = createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+    // Use the shared singleton — a second createBrowserClient() spawns another
+    // GoTrue instance that fights the singleton for the auth-token Web Lock.
+    const supabase = createClient();
 
     // Get creator tier
     const { data: profile } = await supabase
