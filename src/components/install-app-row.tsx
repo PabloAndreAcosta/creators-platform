@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Download, ChevronDown } from "lucide-react";
+import { Download, ChevronDown, Check } from "lucide-react";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -51,7 +51,18 @@ export function InstallAppRow() {
     };
   }, []);
 
-  if (isInstalled) return null;
+  // Already running as an installed app → show a confirmation row rather than
+  // hiding entirely, so the profile always has a visible app entry.
+  if (isInstalled) {
+    return (
+      <div className="flex w-full items-center gap-3 px-4 py-3.5 text-left">
+        <Check size={18} className="text-green-500" />
+        <span className="flex-1 text-sm font-medium text-[var(--usha-muted)]">
+          {t("installed")}
+        </span>
+      </div>
+    );
+  }
 
   const handleClick = async () => {
     if (installPrompt) {
