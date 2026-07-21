@@ -375,6 +375,8 @@
     "or": "eller",
     "email": "Email",
     "password": "Lösenord",
+    "showPassword": "Visa lösenord",
+    "hidePassword": "Dölj lösenord",
     "name": "Namn",
     "emailRequired": "E-postadress krävs",
     "emailInvalid": "Ogiltig e-postadress",

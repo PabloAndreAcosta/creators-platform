@@ -375,6 +375,8 @@
     "or": "o",
     "email": "Correo electrónico",
     "password": "Contraseña",
+    "showPassword": "Mostrar contraseña",
+    "hidePassword": "Ocultar contraseña",
     "name": "Nombre",
     "emailRequired": "El correo electrónico es obligatorio",
     "emailInvalid": "Dirección de correo electrónico no válida",
