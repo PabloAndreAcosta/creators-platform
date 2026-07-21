@@ -375,6 +375,8 @@
     "or": "or",
     "email": "Email",
     "password": "Password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
     "name": "Name",
     "emailRequired": "Email is required",
     "emailInvalid": "Invalid email address",
