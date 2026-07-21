@@ -107,7 +107,7 @@ export async function uploadViaSignedUrl(file: File, bucket: UploadBucket): Prom
   const res = await fetch("/api/storage/signed-upload", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ bucket, ext }),
+    body: JSON.stringify({ bucket, ext, size: file.size }),
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {

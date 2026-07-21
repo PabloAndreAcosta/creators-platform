@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { checkStorageQuota, bytesToMb, STORAGE_QUOTA_BYTES } from "@/lib/storage/quota";
 
 export const runtime = "nodejs";
 
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Inte inloggad" }, { status: 401 });
   }
 
-  const { bucket, ext } = await request.json().catch(() => ({}));
+  const { bucket, ext, size } = await request.json().catch(() => ({}));
   if (typeof bucket !== "string" || !BUCKETS.has(bucket)) {
     return NextResponse.json({ error: "Okänd bucket" }, { status: 400 });
   }
@@ -38,6 +39,19 @@ export async function POST(request: NextRequest) {
   const path = `${user.id}/${crypto.randomUUID()}.${safeExt}`;
 
   const admin = createAdminClient();
+
+  // Per-account total storage quota (2 GB). The client declares the file size;
+  // the bucket's own hard size limit still backstops the actual PUT.
+  const declaredBytes = typeof size === "number" && size > 0 ? size : 0;
+  const quota = await checkStorageQuota(admin, user.id, declaredBytes);
+  if (!quota.ok) {
+    return NextResponse.json(
+      {
+        error: `Lagringsutrymmet är fullt (max ${bytesToMb(STORAGE_QUOTA_BYTES) / 1024} GB). ${bytesToMb(quota.remaining)} MB kvar — ta bort material för att frigöra utrymme.`,
+      },
+      { status: 413 },
+    );
+  }
   const { data, error } = await admin.storage.from(bucket).createSignedUploadUrl(path);
   if (error || !data) {
     return NextResponse.json(
