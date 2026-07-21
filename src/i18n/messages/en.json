@@ -461,6 +461,7 @@
       "close": "Close",
       "openInBrowser": "Open in browser",
       "appCta": "Install the Usha Platform app",
+      "downloadApp": "Download the app",
       "iosHelp": "iPhone (Safari): tap the Share icon → \"Add to Home Screen\".",
       "otherHelp": "Open your browser menu (⋮) → \"Install app\" / \"Add to Home screen\"."
     },
