@@ -8,7 +8,7 @@ import {
   User,
   MessageCircle,
   ScanLine,
-  CalendarDays,
+  Ticket,
   LayoutGrid,
 } from "lucide-react";
 import { useRole } from "./role-context";
@@ -24,7 +24,7 @@ export function BottomNav() {
     role === "customer"
       ? [
           { href: "/app", label: t("home"), icon: Home },
-          { href: "/app/calendar", label: t("calendar"), icon: CalendarDays },
+          { href: "/app/tickets", label: t("tickets"), icon: Ticket },
           { href: "/app/messages", label: t("messages"), icon: MessageCircle },
           { href: "/app/tools", label: t("more"), icon: LayoutGrid },
           { href: "/app/profile", label: t("profile"), icon: User },

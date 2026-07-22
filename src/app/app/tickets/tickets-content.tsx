@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { Calendar, MapPin, Clock, QrCode, X, Ticket, User, Star } from "lucide-react";
+import { Calendar, MapPin, Clock, QrCode, X, Ticket, User, CheckCircle2, Maximize2 } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
 import { useSubscription } from "@/lib/subscription/context";
 import { trackEvent } from "@/lib/analytics";
@@ -28,6 +28,9 @@ interface TicketData {
   /** Confirmed but unpaid priced booking the customer can still pay in-app. */
   payable: boolean;
   price: number | null;
+  /** Ticket has been scanned/checked in at the door. */
+  checkedIn: boolean;
+  checkedInAt: string | null;
 }
 
 interface BookingData {
@@ -41,6 +44,8 @@ interface BookingData {
   is_free?: boolean | null;
   booking_type: string | null;
   ticket_type_name?: string | null;
+  checked_in_at?: string | null;
+  guest_count?: number | null;
   listings: {
     title: string;
     category: string;
@@ -60,6 +65,44 @@ interface BookingData {
 
 interface TicketsContentProps {
   bookings: BookingData[];
+  appleWallet?: boolean;
+  googleWallet?: boolean;
+}
+
+/** Shared QR renderer — used both inline on the card and large in the modal. */
+function TicketQR({ ticket, size }: { ticket: TicketData; size: number }) {
+  const [dataUrl, setDataUrl] = useState<string | null>(null);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    const url = `${window.location.origin}/api/tickets/verify?code=${ticket.code}&id=${ticket.id}`;
+    QRCode.toDataURL(url, {
+      width: size * 2, // 2× for crisp rendering when scaled up on-screen
+      margin: 2,
+      color: { dark: "#000000", light: "#ffffff" },
+      errorCorrectionLevel: "Q", // survives glare/angle better than M at the door
+    })
+      .then(setDataUrl)
+      .catch(() => setFailed(true));
+  }, [ticket.code, ticket.id, size]);
+
+  if (failed) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-2 text-center" style={{ width: size, height: size }}>
+        <QrCode size={Math.min(48, size / 4)} className="text-gray-400" />
+        <p className="text-xs text-gray-500">{ticket.code}</p>
+      </div>
+    );
+  }
+  if (!dataUrl) {
+    return (
+      <div className="flex items-center justify-center" style={{ width: size, height: size }}>
+        <QrCode size={Math.min(48, size / 4)} className="animate-pulse text-gray-300" />
+      </div>
+    );
+  }
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src={dataUrl} alt={`QR ${ticket.code}`} width={size} height={size} />;
 }
 
 function bookingToTicket(booking: BookingData): TicketData {
@@ -125,6 +168,8 @@ function bookingToTicket(booking: BookingData): TicketData {
     code: `USH-${booking.id.slice(0, 8).toUpperCase()}`,
     payable,
     price,
+    checkedIn: !!booking.checked_in_at,
+    checkedInAt: booking.checked_in_at ?? null,
     title: listing?.title
       ? booking.ticket_type_name
         ? `${listing.title} · ${booking.ticket_type_name}`
@@ -143,10 +188,16 @@ function bookingToTicket(booking: BookingData): TicketData {
   };
 }
 
-export function TicketsContent({ bookings }: TicketsContentProps) {
+export function TicketsContent({ bookings, appleWallet, googleWallet }: TicketsContentProps) {
   const [selectedTicket, setSelectedTicket] = useState<TicketData | null>(null);
   const searchParams = useSearchParams();
   const { toast } = useToast();
+
+  const tickets = bookings.map(bookingToTicket);
+  const activeTickets = tickets.filter(
+    (t) => t.status === "active" || t.status === "upcoming"
+  );
+  const usedTickets = tickets.filter((t) => t.status === "used");
 
   useEffect(() => {
     if (searchParams.get("success") === "true") {
@@ -154,13 +205,15 @@ export function TicketsContent({ bookings }: TicketsContentProps) {
       trackEvent("booking_complete", { source: "ticket-checkout" });
       window.history.replaceState({}, "", "/app/tickets");
     }
+    // Deep-link straight to a ticket's QR (e.g. after purchase): /app/tickets?show=<id>
+    const show = searchParams.get("show");
+    if (show) {
+      const t = tickets.find((x) => x.id === show);
+      if (t) setSelectedTicket(t);
+      window.history.replaceState({}, "", "/app/tickets");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, toast]);
-
-  const tickets = bookings.map(bookingToTicket);
-  const activeTickets = tickets.filter(
-    (t) => t.status === "active" || t.status === "upcoming"
-  );
-  const usedTickets = tickets.filter((t) => t.status === "used");
 
   if (tickets.length === 0) {
     return (
@@ -205,6 +258,7 @@ export function TicketsContent({ bookings }: TicketsContentProps) {
               <TicketCard
                 key={ticket.id}
                 ticket={ticket}
+                inlineQr={!ticket.checkedIn}
                 onShowQR={() => setSelectedTicket(ticket)}
               />
             ))}
@@ -235,6 +289,8 @@ export function TicketsContent({ bookings }: TicketsContentProps) {
       {selectedTicket && (
         <QRModal
           ticket={selectedTicket}
+          appleWallet={appleWallet}
+          googleWallet={googleWallet}
           onClose={() => setSelectedTicket(null)}
         />
       )}
@@ -246,10 +302,12 @@ function TicketCard({
   ticket,
   onShowQR,
   used = false,
+  inlineQr = false,
 }: {
   ticket: TicketData;
   onShowQR?: () => void;
   used?: boolean;
+  inlineQr?: boolean;
 }) {
   const { tier } = useSubscription();
   const { toast } = useToast();
@@ -375,6 +433,14 @@ function TicketCard({
           )}
         </div>
 
+        {/* Check-in status — makes door control obvious at a glance */}
+        {ticket.checkedIn && (
+          <div className="mt-3 flex items-center gap-1.5 rounded-lg bg-green-500/10 px-3 py-2 text-xs font-semibold text-green-500">
+            <CheckCircle2 size={14} />
+            Incheckad{ticket.checkedInAt ? ` · ${new Date(ticket.checkedInAt).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}` : ""}
+          </div>
+        )}
+
         {/* Unpaid, confirmed booking → pay directly here */}
         {ticket.payable && (
           <div className="mt-4">
@@ -400,126 +466,166 @@ function TicketCard({
       </div>
 
       {/* Ticket bottom */}
-      <div className="flex items-center justify-between p-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <p className="font-mono text-xs text-[var(--usha-muted)]">
-              {ticket.code}
-            </p>
-            {tierBadge && !used && (
-              <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold ${tierBadge.className}`}>
-                {tierBadge.label}
-              </span>
+      {inlineQr && onShowQR ? (
+        /* Active ticket: show the scannable QR right on the card — tap to enlarge
+           to a bright full-screen view for the door. Zero extra taps to see it. */
+        <button
+          onClick={onShowQR}
+          className="flex w-full flex-col items-center gap-2 p-4 transition-opacity hover:opacity-90"
+          aria-label="Förstora QR-kod"
+        >
+          <div className="rounded-xl border-2 border-[var(--usha-gold)]/30 bg-white p-3">
+            <TicketQR ticket={ticket} size={150} />
+          </div>
+          <span className="flex items-center gap-1.5 text-xs font-medium text-[var(--usha-gold)]">
+            <Maximize2 size={13} /> Tryck för att förstora
+          </span>
+          <p className="font-mono text-[11px] text-[var(--usha-muted)]">{ticket.code}</p>
+        </button>
+      ) : (
+        <div className="flex items-center justify-between p-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <p className="font-mono text-xs text-[var(--usha-muted)]">
+                {ticket.code}
+              </p>
+              {tierBadge && !used && (
+                <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold ${tierBadge.className}`}>
+                  {tierBadge.label}
+                </span>
+              )}
+            </div>
+            {ticket.amountPaid != null && ticket.bookingType === "ticket" && (
+              <p className="mt-0.5 text-xs font-semibold text-[var(--usha-gold)]">
+                Betalt: {(ticket.amountPaid / 100).toFixed(0)} kr
+              </p>
             )}
           </div>
-          {ticket.amountPaid != null && ticket.bookingType === "ticket" && (
-            <p className="mt-0.5 text-xs font-semibold text-[var(--usha-gold)]">
-              Betalt: {(ticket.amountPaid / 100).toFixed(0)} kr
-            </p>
+          {onShowQR && (
+            <button
+              onClick={onShowQR}
+              className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-3 py-2 text-xs font-semibold text-black transition-opacity hover:opacity-90"
+            >
+              <QrCode size={14} />
+              Visa QR-kod
+            </button>
           )}
         </div>
-        {onShowQR && (
-          <button
-            onClick={onShowQR}
-            className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-3 py-2 text-xs font-semibold text-black transition-opacity hover:opacity-90"
-          >
-            <QrCode size={14} />
-            Visa QR-kod
-          </button>
-        )}
-      </div>
+      )}
     </div>
   );
 }
 
 function QRModal({
   ticket,
+  appleWallet,
+  googleWallet,
   onClose,
 }: {
   ticket: TicketData;
+  appleWallet?: boolean;
+  googleWallet?: boolean;
   onClose: () => void;
 }) {
-  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
-  const [qrError, setQrError] = useState(false);
-
+  // Keep the screen awake (and thus at the user's brightness) while the QR is up
+  // at the door — a screen that dims mid-scan is the classic e-ticket frustration.
   useEffect(() => {
-    const verificationUrl = `${window.location.origin}/api/tickets/verify?code=${ticket.code}&id=${ticket.id}`;
-    QRCode.toDataURL(verificationUrl, {
-      width: 200,
-      margin: 2,
-      color: { dark: "#000000", light: "#ffffff" },
-      errorCorrectionLevel: "M",
-    }).then(setQrDataUrl).catch(() => {
-      setQrDataUrl(null);
-      setQrError(true);
-    });
-  }, [ticket.code, ticket.id]);
+    let lock: { release: () => Promise<void> } | null = null;
+    const nav = navigator as Navigator & {
+      wakeLock?: { request: (t: "screen") => Promise<{ release: () => Promise<void> }> };
+    };
+    nav.wakeLock?.request("screen").then((l) => { lock = l; }).catch(() => {});
+    return () => { lock?.release().catch(() => {}); };
+  }, []);
 
+  const checkedIn = ticket.checkedIn;
+  const walletQ = `id=${ticket.id}`;
+
+  // Bright, near-white full-screen surface: maximises reflected light so the QR
+  // scans fast even on a dim phone. NOTE: no backdrop click-to-close — at the
+  // door an accidental tap must not dismiss the ticket; only the X closes it.
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm" onClick={onClose}>
-      <div className="mx-4 w-full max-w-sm rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6" onClick={(e) => e.stopPropagation()}>
-        {/* Header */}
-        <div className="mb-6 flex items-center justify-between">
-          <h3 className="text-lg font-bold">Din Biljett</h3>
-          <button
-            onClick={onClose}
-            className="rounded-lg p-1.5 hover:bg-[var(--usha-card-hover)]"
-          >
-            <X size={18} className="text-[var(--usha-muted)]" />
-          </button>
-        </div>
+    <div className="fixed inset-0 z-[100] flex flex-col items-center overflow-y-auto bg-white px-5 py-6 text-gray-900">
+      <div className="flex w-full max-w-sm items-center justify-between">
+        <h3 className="text-base font-bold text-gray-900">Din biljett</h3>
+        <button
+          onClick={onClose}
+          className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
+          aria-label="Stäng"
+        >
+          <X size={20} />
+        </button>
+      </div>
 
-        {/* QR Code */}
-        <div className="mb-6 flex items-center justify-center">
-          <div className="rounded-2xl border-2 border-[var(--usha-gold)]/30 bg-white p-4">
-            {qrDataUrl ? (
-              <img src={qrDataUrl} alt={`QR-kod för ${ticket.code}`} width={200} height={200} />
-            ) : qrError ? (
-              <div className="flex h-[200px] w-[200px] flex-col items-center justify-center gap-2 text-center">
-                <QrCode size={48} className="text-gray-400" />
-                <p className="text-xs text-gray-500">Kunde inte generera QR-kod. Visa biljettkoden nedan.</p>
-              </div>
-            ) : (
-              <div className="flex h-[200px] w-[200px] items-center justify-center">
-                <QrCode size={48} className="animate-pulse text-gray-300" />
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Ticket info */}
-        <div className="text-center">
-          <h4 className="text-base font-bold">{ticket.title}</h4>
-          {ticket.creatorName && (
-            <p className="mt-0.5 text-sm text-[var(--usha-muted)]">
-              av {ticket.creatorName}
-            </p>
-          )}
-          <p className="mt-1 text-sm text-[var(--usha-muted)]">
-            {ticket.date} · {ticket.time}
-          </p>
-          {ticket.location !== "-" && (
-            <p className="mt-0.5 text-sm text-[var(--usha-muted)]">
-              {ticket.location}
-            </p>
-          )}
-          <p className="mt-3 font-mono text-xs text-[var(--usha-gold)]">
-            {ticket.code}
-          </p>
-        </div>
-
-        {ticket.listingId && (
-          <div className="mt-5">
-            <ShareEventButton
-              url={`${typeof window !== "undefined" ? window.location.origin : "https://usha.se"}/listing/${ticket.listingId}`}
-              title={ticket.title}
-              text={`Jag ska på ${ticket.title} — häng med!`}
-              label="Bjud in vänner"
-              className="flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] px-4 py-2.5 text-sm font-medium transition hover:border-[var(--usha-gold)]/40"
-            />
-          </div>
+      {/* Status banner — instant read for door control */}
+      <div
+        className={`mt-4 flex w-full max-w-sm items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold ${
+          checkedIn ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-800"
+        }`}
+      >
+        {checkedIn ? (
+          <>
+            <CheckCircle2 size={16} />
+            Incheckad{ticket.checkedInAt ? ` · ${new Date(ticket.checkedInAt).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}` : ""}
+          </>
+        ) : (
+          <>Giltig · visa vid entré</>
         )}
       </div>
+
+      {/* Big QR */}
+      <div className="mt-6 rounded-2xl border-2 border-gray-200 bg-white p-4">
+        <div className={checkedIn ? "opacity-30" : ""}>
+          <TicketQR ticket={ticket} size={280} />
+        </div>
+      </div>
+
+      {/* Ticket info */}
+      <div className="mt-5 w-full max-w-sm text-center">
+        <h4 className="text-lg font-bold text-gray-900">{ticket.title}</h4>
+        {ticket.creatorName && (
+          <p className="mt-0.5 text-sm text-gray-500">av {ticket.creatorName}</p>
+        )}
+        <p className="mt-1 text-sm text-gray-600">{ticket.date} · {ticket.time}</p>
+        {ticket.location !== "-" && (
+          <p className="mt-0.5 text-sm text-gray-600">{ticket.location}</p>
+        )}
+        <p className="mt-3 font-mono text-xs tracking-wider text-gray-400">{ticket.code}</p>
+      </div>
+
+      {/* Wallet passes — skip once checked in (no longer needed at the door) */}
+      {!checkedIn && (appleWallet || googleWallet) && (
+        <div className="mt-5 flex w-full max-w-sm flex-col gap-2">
+          {appleWallet && (
+            <a
+              href={`/api/tickets/wallet?${walletQ}&provider=apple`}
+              className="flex items-center justify-center gap-2 rounded-xl bg-black px-4 py-2.5 text-sm font-medium text-white transition hover:opacity-90"
+            >
+              Lägg till i Apple Wallet
+            </a>
+          )}
+          {googleWallet && (
+            <a
+              href={`/api/tickets/wallet?${walletQ}&provider=google`}
+              className="flex items-center justify-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-900 transition hover:bg-gray-50"
+            >
+              Spara i Google Wallet
+            </a>
+          )}
+        </div>
+      )}
+
+      {ticket.listingId && (
+        <div className="mt-4 w-full max-w-sm">
+          <ShareEventButton
+            url={`${typeof window !== "undefined" ? window.location.origin : "https://usha.se"}/listing/${ticket.listingId}`}
+            title={ticket.title}
+            text={`Jag ska på ${ticket.title} — häng med!`}
+            label="Bjud in vänner"
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+          />
+        </div>
+      )}
     </div>
   );
 }
