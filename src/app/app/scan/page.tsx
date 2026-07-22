@@ -34,7 +34,7 @@ interface CheckInResult {
 
 export default function ScanPage() {
   const { role } = useRole();
-  const { tier } = useSubscription();
+  const { tier, hasActiveSubscription } = useSubscription();
   const t = useTranslations("scanPage");
 
   const [code, setCode] = useState("");
@@ -77,9 +77,10 @@ export default function ScanPage() {
   // Scanning is for: venues (any tier), creators on Gold/Premium (scanning is a
   // paid creator feature), and crew the host delegated scanning to (can_scan —
   // volunteers/team). Not attendees.
-  // Scanning requires a paid account (Gold/Premium) for EVERYONE — creators,
-  // venues AND delegated crew (volunteers/team). Free accounts cannot scan.
-  const paid = tier === "guld" || tier === "premium";
+  // Scanning requires a paid account for EVERYONE — creators, venues AND
+  // delegated crew (volunteers/team). During the free beta, hasActiveSubscription
+  // is true for all, so scanning is open to authorized users until beta ends.
+  const paid = tier === "guld" || tier === "premium" || hasActiveSubscription;
   const authorized = role === "creator" || role === "venue" || delegated === true;
   const hasAccess = paid && authorized;
 
