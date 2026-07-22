@@ -29,11 +29,15 @@ export function BuyTicketButton({
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
+  // The event page hosts the tier picker AND guest checkout, and resolves a raw
+  // listing id as well as a slug — so it's a safe target even without a slug.
+  const eventHref = `/event/${eventSlug || listingId}`;
+
   // Typed events: tier selection lives on the full event page.
-  if (hasTicketTypes && eventSlug) {
+  if (hasTicketTypes) {
     return (
       <a
-        href={`/event/${eventSlug}`}
+        href={eventHref}
         className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-xs font-bold text-black transition hover:opacity-90"
       >
         <Ticket size={13} />
@@ -42,14 +46,17 @@ export function BuyTicketButton({
     );
   }
 
+  // Logged-out: no login wall. Send them to the event page's guest checkout —
+  // they buy with just an email, no account required.
   if (!isLoggedIn) {
     return (
       <a
-        href="/login"
+        href={eventHref}
         className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-xs font-bold text-black transition hover:opacity-90"
       >
         <Ticket size={13} />
-        {t("buyTicket.loginToBuy")}
+        {t("buyTicket.buy")}
+        <span className="ml-1">{t("buyTicket.priceSek", { price: originalPrice })}</span>
       </a>
     );
   }
