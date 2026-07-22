@@ -17,22 +17,25 @@ export default async function TicketsPage() {
     } = await supabase.auth.getUser();
 
     if (user) {
-      // Hosts (creator/venue) — and crew members with delegated scanning
-      // (can_scan = volunteers/team) — get the "Scan tickets" option here.
-      // Scanning moved off the bottom nav and into the Tickets page.
+      // Scanning is a paid feature (Gold/Premium) for EVERYONE — creators,
+      // venues AND delegated crew (volunteers/team). Free accounts don't get
+      // the option. (Scanning moved off the bottom nav into the Tickets page.)
       const { data: prof } = await supabase.from("profiles").select("role, tier").eq("id", user.id).maybeSingle();
       const paid = prof?.tier === "guld" || prof?.tier === "premium";
-      canScan = prof?.role === "venue" || (prof?.role === "creator" && paid);
-      if (!canScan) {
-        const { data: deleg } = await supabase
-          .from("listing_collaborators")
-          .select("id")
-          .eq("user_id", user.id)
-          .eq("status", "accepted")
-          .eq("can_scan", true)
-          .limit(1)
-          .maybeSingle();
-        canScan = !!deleg;
+      if (paid) {
+        const isHost = prof?.role === "creator" || prof?.role === "venue";
+        canScan = isHost;
+        if (!canScan) {
+          const { data: deleg } = await supabase
+            .from("listing_collaborators")
+            .select("id")
+            .eq("user_id", user.id)
+            .eq("status", "accepted")
+            .eq("can_scan", true)
+            .limit(1)
+            .maybeSingle();
+          canScan = !!deleg;
+        }
       }
 
       // Own bookings (RLS-scoped to this user).
