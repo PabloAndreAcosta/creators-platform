@@ -18,8 +18,12 @@ export function setLogoLage(lage: LogoLage) {
 function arMork(lage: LogoLage): boolean {
   if (lage === "mork") return true;
   if (lage === "ljus") return false;
-  if (typeof window === "undefined") return false;
-  return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  // "system": always use the dark branded tile. It's the recognizable Usha mark
+  // (same as the app icon and login) and stays visible on BOTH app backgrounds.
+  // The previous behaviour followed the device colour scheme, which rendered a
+  // near-white tile on the light app background (the default) — so the logo
+  // blended into the page and looked like an empty square.
+  return true;
 }
 
 function Monogram({ dag }: { dag: boolean }) {
@@ -47,9 +51,10 @@ function Monogram({ dag }: { dag: boolean }) {
 
 /** Usha Platform-logga som följer inställningen uschja-logo-lage. */
 export default function UschjaLogo({ size = 64 }: { size?: number }) {
-  // Deterministic initial value for SSR/first paint; the real setting is read
-  // on mount (localStorage/matchMedia are client-only).
-  const [mork, setMork] = useState(false);
+  // Deterministic initial value for SSR/first paint = the dark branded tile,
+  // which is the default ("system") result; the real setting is read on mount
+  // (localStorage is client-only). Starting dark avoids a light→dark flash.
+  const [mork, setMork] = useState(true);
 
   useEffect(() => {
     const uppdatera = () => setMork(arMork(getLogoLage()));
