@@ -1781,6 +1781,8 @@
     "onboardSave": "Gå med i poolen",
     "onboardSaving": "Sparar…",
     "needStyle": "Välj minst en dansstil",
+    "adult18": "Jag är 18 år eller äldre och förstår att jag träffar andra på egen risk.",
+    "needAdult": "Du måste bekräfta att du är 18 år eller äldre.",
     "saveError": "Något gick fel. Försök igen.",
     "cancel": "Avbryt",
     "editProfile": "Redigera profil",

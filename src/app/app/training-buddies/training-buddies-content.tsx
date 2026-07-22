@@ -386,6 +386,7 @@ function BuddyForm({
   const [lon, setLon] = useState<number | null>(initial?.lon ?? null);
   const [radius, setRadius] = useState<number>(initial?.radius_km ?? 25);
   const [bio, setBio] = useState<string>(initial?.bio ?? "");
+  const [agreed, setAgreed] = useState<boolean>(!!initial?.is_active);
   const [saving, setSaving] = useState(false);
 
   const toggle = (arr: string[], set: (v: string[]) => void, v: string) =>
@@ -393,6 +394,7 @@ function BuddyForm({
 
   async function save() {
     if (styles.length === 0) { toast.error(t("needStyle")); return; }
+    if (!agreed) { toast.error(t("needAdult")); return; }
     setSaving(true);
     try {
       const res = await fetch("/api/training-buddies/profile", {
@@ -401,6 +403,7 @@ function BuddyForm({
         body: JSON.stringify({
           dance_styles: styles, style_levels: levels, buddy_role: role,
           availability: { days, windows }, city, lat, lon, radius_km: radius, bio,
+          agreed_adult: agreed,
         }),
       });
       if (!res.ok) { toast.error(t("saveError")); setSaving(false); return; }
@@ -477,6 +480,11 @@ function BuddyForm({
         <textarea value={bio} maxLength={500} onChange={(e) => setBio(e.target.value)} rows={3}
           className="w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-3 py-2 text-sm outline-none focus:border-[var(--usha-gold)]/50" />
       </div>
+
+      <label className="flex cursor-pointer items-start gap-2.5 text-sm text-[var(--usha-muted)]">
+        <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="mt-0.5 h-4 w-4 accent-[var(--usha-gold)]" />
+        <span>{t("adult18")}</span>
+      </label>
 
       <div className="flex gap-2">
         {onCancel && (

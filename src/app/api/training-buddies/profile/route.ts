@@ -71,6 +71,11 @@ export async function PUT(req: NextRequest) {
   }
 
   const body = await req.json().catch(() => ({}));
+
+  // 18+ self-attestation (required to join a meet-in-person pool).
+  if (body.agreed_adult !== true) {
+    return NextResponse.json({ error: "adult_required" }, { status: 400 });
+  }
   const dance_styles: string[] = Array.isArray(body.dance_styles)
     ? body.dance_styles.map((s: unknown) => norm(String(s))).filter(Boolean).slice(0, 20)
     : [];
@@ -95,6 +100,7 @@ export async function PUT(req: NextRequest) {
     {
       profile_id: user.id,
       is_active: true,
+      agreed_adult: true,
       dance_styles,
       style_levels,
       buddy_role,

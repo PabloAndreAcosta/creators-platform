@@ -1781,6 +1781,8 @@
     "onboardSave": "Join the pool",
     "onboardSaving": "Saving…",
     "needStyle": "Pick at least one dance style",
+    "adult18": "I am 18 or older and understand I meet others at my own risk.",
+    "needAdult": "You must confirm you are 18 or older.",
     "saveError": "Something went wrong. Try again.",
     "cancel": "Cancel",
     "editProfile": "Edit profile",

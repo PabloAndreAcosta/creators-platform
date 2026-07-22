@@ -1781,6 +1781,8 @@
     "onboardSave": "Unirme al grupo",
     "onboardSaving": "Guardando…",
     "needStyle": "Elige al menos un estilo de baile",
+    "adult18": "Tengo 18 años o más y entiendo que quedo con otras personas bajo mi propia responsabilidad.",
+    "needAdult": "Debes confirmar que tienes 18 años o más.",
     "saveError": "Algo salió mal. Inténtalo de nuevo.",
     "cancel": "Cancelar",
     "editProfile": "Editar perfil",
