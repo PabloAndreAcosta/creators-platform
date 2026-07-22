@@ -33,17 +33,19 @@ export function AppShell({ children, userName }: AppShellProps) {
           {/* Top bar */}
           <header className="sticky top-0 z-40 border-b border-[var(--usha-border)] bg-[var(--usha-black)]/95 backdrop-blur-lg">
             <div className="flex items-center gap-2 px-4 py-3">
-              {/* Logo – mobile only. min-w-0 + truncate so a narrow screen
-                  ellipsizes the wordmark instead of forcing the whole row
-                  wider than the viewport (which zooms/clips the page). */}
+              {/* Logo – mobile only. shrink-0 (just the icon on phones). The
+                  "Usha Platform" wordmark shows only from sm up, where there's
+                  room: on a narrow phone the action controls need the width, so
+                  hiding the wordmark keeps the header clean instead of
+                  truncating it to "Us…". The dark logo tile carries the brand. */}
               <a
                 href="/app"
                 aria-label="Usha Platform – hem"
-                className="flex min-w-0 items-center gap-2 transition-opacity duration-150 active:opacity-50 md:hidden"
+                className="flex shrink-0 items-center gap-2 transition-opacity duration-150 active:opacity-50 md:hidden"
               >
                 <UschjaLogo size={32} />
                 {!mobileSearchOpen && (
-                  <span className="truncate text-lg font-bold tracking-tight">Usha Platform</span>
+                  <span className="hidden text-lg font-bold tracking-tight sm:inline">Usha Platform</span>
                 )}
               </a>
 
