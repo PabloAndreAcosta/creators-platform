@@ -5,8 +5,6 @@ import { useTranslations } from "next-intl";
 import { Camera, CameraOff, CheckCircle, XCircle, Search, AlertCircle, UserCheck, Loader2, Lock, ImagePlus } from "lucide-react";
 import { vibrate } from "@/lib/haptics";
 import { useRole } from "@/components/mobile/role-context";
-import { useSubscription } from "@/lib/subscription/context";
-import { GatedAction } from "@/components/subscription/GatedAction";
 
 interface TicketResult {
   valid: boolean;
@@ -35,7 +33,6 @@ interface CheckInResult {
 
 export default function ScanPage() {
   const { role } = useRole();
-  const { tier } = useSubscription();
   const t = useTranslations("scanPage");
 
   const [code, setCode] = useState("");
@@ -75,11 +72,13 @@ export default function ScanPage() {
     };
   }, []);
 
-  const tierAccess = role === "venue" || (role === "creator" && (tier === "guld" || tier === "premium"));
-  const hasAccess = tierAccess || delegated === true;
+  // Scanning is role-based: event hosts (creator/venue) and crew members the
+  // host delegated scanning to (can_scan — volunteers/team). Not attendees.
+  const roleAccess = role === "creator" || role === "venue";
+  const hasAccess = roleAccess || delegated === true;
 
-  // While the delegation check is in flight, don't flash the upgrade gate.
-  if (!tierAccess && delegated === null) {
+  // For non-hosts, wait for the delegation check before deciding.
+  if (!roleAccess && delegated === null) {
     return (
       <div className="flex items-center justify-center px-4 py-24 text-[var(--usha-muted)]">
         <Loader2 size={20} className="animate-spin" />
@@ -92,34 +91,12 @@ export default function ScanPage() {
       <div className="px-4 py-6">
         <div className="mb-6">
           <h1 className="text-xl font-bold">{t("title")}</h1>
-          <p className="mt-1 text-sm text-[var(--usha-muted)]">
-            {t("subtitle")}
-          </p>
+          <p className="mt-1 text-sm text-[var(--usha-muted)]">{t("subtitle")}</p>
         </div>
-        <GatedAction message={t("gateMessage")} showLock>
-          <div className="mb-4 overflow-hidden rounded-xl border border-[var(--usha-border)] bg-black">
-            <div className="flex w-full items-center justify-center gap-2 bg-[var(--usha-card)] py-12 text-sm text-[var(--usha-muted)]">
-              <Camera size={24} />
-              <span>{t("tapToStart")}</span>
-            </div>
-          </div>
-          <div className="mb-4 flex items-center gap-3">
-            <div className="flex-1 border-t border-[var(--usha-border)]" />
-            <span className="text-xs text-[var(--usha-muted)]">{t("orEnterCode")}</span>
-            <div className="flex-1 border-t border-[var(--usha-border)]" />
-          </div>
-          <div className="flex gap-2">
-            <div className="relative flex-1">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--usha-muted)]" />
-              <div className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] py-3 pl-10 pr-4 font-mono text-sm text-[var(--usha-muted)]">
-                USH-A1B2C3D4
-              </div>
-            </div>
-            <div className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-5 py-3 opacity-50">
-              <Search size={16} className="text-black" />
-            </div>
-          </div>
-        </GatedAction>
+        <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-8 text-center">
+          <Lock size={28} className="mx-auto mb-3 text-[var(--usha-muted)]" />
+          <p className="text-sm text-[var(--usha-muted)]">{t("gateRoleOnly")}</p>
+        </div>
       </div>
     );
   }
