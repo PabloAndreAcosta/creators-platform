@@ -7,7 +7,6 @@ import {
   Home,
   User,
   MessageCircle,
-  ScanLine,
   Ticket,
   LayoutGrid,
 } from "lucide-react";
@@ -31,7 +30,7 @@ export function BottomNav() {
         ]
       : [
           { href: "/app", label: t("home"), icon: Home },
-          { href: "/app/scan", label: t("scan"), icon: ScanLine },
+          { href: "/app/tickets", label: t("tickets"), icon: Ticket },
           { href: "/app/messages", label: t("messages"), icon: MessageCircle },
           { href: "/app/tools", label: t("more"), icon: LayoutGrid },
           { href: "/app/profile", label: t("profile"), icon: User },
