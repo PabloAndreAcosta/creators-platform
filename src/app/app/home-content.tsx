@@ -183,6 +183,8 @@ function PublikHome({
     slug: (listing as { slug?: string | null }).slug ?? null,
     image: (listing as { image_url?: string | null }).image_url ?? null,
     category: listing.category || "Övrigt",
+    hasTicketTypes:
+      ((listing as { ticket_types?: unknown[] }).ticket_types?.length ?? 0) > 0,
   }));
 
   const categoryIconMap: Record<string, LucideIcon> = {
@@ -385,6 +387,8 @@ function PublikHome({
                       listingId={event.id}
                       slug={event.slug}
                       price={event.priceNum}
+                      isLoggedIn={!!profile}
+                      hasTicketTypes={event.hasTicketTypes}
                       className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-3 py-2 text-xs font-semibold text-black transition hover:opacity-90"
                     />
                   </div>
