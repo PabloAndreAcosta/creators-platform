@@ -2057,6 +2057,7 @@
     "subtitle": "Skanna QR-koden eller ange biljettkoden manuellt.",
     "gateMessage": "Uppgradera till Guld eller Premium för att skanna biljetter.",
     "gateRoleOnly": "Skanning är för arrangörer (kreatör/venue) och crew med skann-behörighet — inte för deltagare.",
+    "upgradeCta": "Uppgradera",
     "startingCamera": "Startar kameran...",
     "tapToStart": "Tryck för att starta kameran",
     "cameraBlocked": "Kameran är blockerad",

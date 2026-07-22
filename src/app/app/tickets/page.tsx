@@ -20,8 +20,9 @@ export default async function TicketsPage() {
       // Hosts (creator/venue) — and crew members with delegated scanning
       // (can_scan = volunteers/team) — get the "Scan tickets" option here.
       // Scanning moved off the bottom nav and into the Tickets page.
-      const { data: prof } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
-      canScan = prof?.role === "creator" || prof?.role === "venue";
+      const { data: prof } = await supabase.from("profiles").select("role, tier").eq("id", user.id).maybeSingle();
+      const paid = prof?.tier === "guld" || prof?.tier === "premium";
+      canScan = prof?.role === "venue" || (prof?.role === "creator" && paid);
       if (!canScan) {
         const { data: deleg } = await supabase
           .from("listing_collaborators")
