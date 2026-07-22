@@ -6,7 +6,6 @@ import { useTranslations } from "next-intl";
 import {
   Home,
   User,
-  MessageCircle,
   Ticket,
   Building2,
   LayoutGrid,
@@ -25,7 +24,7 @@ export function BottomNav() {
       ? [
           { href: "/app", label: t("home"), icon: Home },
           { href: "/app/tickets", label: t("tickets"), icon: Ticket },
-          { href: "/app/messages", label: t("messages"), icon: MessageCircle },
+          { href: "/marketplace", label: t("events"), icon: Building2 },
           { href: "/app/tools", label: t("more"), icon: LayoutGrid },
           { href: "/app/profile", label: t("profile"), icon: User },
         ]
