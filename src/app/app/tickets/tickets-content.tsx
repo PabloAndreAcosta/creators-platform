@@ -244,7 +244,7 @@ export function TicketsContent({ bookings, appleWallet, googleWallet, canScan }:
             Boka ett evenemang för att få din första biljett
           </p>
           <a
-            href="/app"
+            href="/marketplace"
             className="mt-4 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-6 py-2.5 text-sm font-bold text-black transition hover:opacity-90"
           >
             Utforska upplevelser
