@@ -32,16 +32,18 @@ export function AppShell({ children, userName }: AppShellProps) {
         <div className="min-h-screen w-full md:flex-1">
           {/* Top bar */}
           <header className="sticky top-0 z-40 border-b border-[var(--usha-border)] bg-[var(--usha-black)]/95 backdrop-blur-lg">
-            <div className="flex items-center gap-3 px-4 py-3">
-              {/* Logo – mobile only */}
+            <div className="flex items-center gap-2 px-4 py-3">
+              {/* Logo – mobile only. min-w-0 + truncate so a narrow screen
+                  ellipsizes the wordmark instead of forcing the whole row
+                  wider than the viewport (which zooms/clips the page). */}
               <a
                 href="/app"
                 aria-label="Usha Platform – hem"
-                className="flex items-center gap-2 transition-opacity duration-150 active:opacity-50 md:hidden"
+                className="flex min-w-0 items-center gap-2 transition-opacity duration-150 active:opacity-50 md:hidden"
               >
                 <UschjaLogo size={32} />
                 {!mobileSearchOpen && (
-                  <span className="text-lg font-bold tracking-tight">Usha Platform</span>
+                  <span className="truncate text-lg font-bold tracking-tight">Usha Platform</span>
                 )}
               </a>
 
@@ -57,8 +59,9 @@ export function AppShell({ children, userName }: AppShellProps) {
                 </div>
               )}
 
-              {/* Actions */}
-              <div className="ml-auto flex items-center gap-2">
+              {/* Actions — shrink-0 so the controls always stay fully on-screen
+                  and the logo gives up space first. */}
+              <div className="ml-auto flex shrink-0 items-center gap-2">
                 {/* Mobile search toggle */}
                 <button
                   onClick={() => setMobileSearchOpen((v) => !v)}
