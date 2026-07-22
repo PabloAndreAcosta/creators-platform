@@ -58,7 +58,7 @@ export default async function AppHomePage() {
         supabase.from("profiles").select("*").eq("id", user.id).single(),
         supabase
           .from("listings")
-          .select("*, profiles(full_name, avatar_url)")
+          .select("*, profiles(full_name, avatar_url), ticket_types(id)")
           .eq("is_active", true)
           .eq("is_public", true)
           .order("created_at", { ascending: false })
