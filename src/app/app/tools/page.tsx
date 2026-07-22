@@ -53,6 +53,7 @@ const sharedGroups: Group[] = [
     title: "Utforska",
     items: [
       { href: "/app/search", label: "Sök", desc: "Hitta kreatörer", icon: Search },
+      { href: "/app/training-buddies", label: "Träningsvänner", desc: "Hitta träningspartner", icon: Users },
       { href: "/marketplace", label: "Marknadsplats", desc: "Bläddra", icon: Store },
       { href: "https://shop.usha.se", label: "Butik", desc: "Usha Shop", icon: ShoppingBag },
       { href: "/app/posts", label: "Flöde", desc: "Inlägg", icon: FileText },

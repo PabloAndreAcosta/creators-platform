@@ -172,6 +172,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Kan inte skicka meddelande till dig själv' }, { status: 400 });
     }
 
+    // Block gate (both directions): a blocked pair cannot start a conversation.
+    // Previously messaging ignored user_blocks entirely; this makes Block
+    // actually stop DMs — important now that the buddy pool surfaces profiles.
+    const { data: blocked } = await supabase
+      .from('user_blocks')
+      .select('blocker_id')
+      .or(`and(blocker_id.eq.${user.id},blocked_id.eq.${recipientId}),and(blocker_id.eq.${recipientId},blocked_id.eq.${user.id})`)
+      .maybeSingle();
+    if (blocked) {
+      return NextResponse.json({ error: 'Kan inte skicka meddelande.' }, { status: 403 });
+    }
+
     // Canonical ordering: smaller UUID first
     const [a, b] = user.id < recipientId
       ? [user.id, recipientId]
