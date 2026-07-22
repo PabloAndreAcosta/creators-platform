@@ -2056,6 +2056,7 @@
     "title": "Escanear entradas",
     "subtitle": "Escanea el código QR o introduce el código de la entrada manualmente.",
     "gateMessage": "Mejora a Gold o Premium para escanear entradas.",
+    "gateRoleOnly": "El escaneo es para organizadores (creador/venue) y equipo con permiso de escaneo — no para asistentes.",
     "startingCamera": "Iniciando la cámara...",
     "tapToStart": "Toca para iniciar la cámara",
     "cameraBlocked": "La cámara está bloqueada",

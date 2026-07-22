@@ -17,10 +17,22 @@ export default async function TicketsPage() {
     } = await supabase.auth.getUser();
 
     if (user) {
-      // Hosts (creator/venue) get the "Scan tickets" option here — scanning
-      // moved off the bottom nav and into the Tickets page.
+      // Hosts (creator/venue) — and crew members with delegated scanning
+      // (can_scan = volunteers/team) — get the "Scan tickets" option here.
+      // Scanning moved off the bottom nav and into the Tickets page.
       const { data: prof } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
       canScan = prof?.role === "creator" || prof?.role === "venue";
+      if (!canScan) {
+        const { data: deleg } = await supabase
+          .from("listing_collaborators")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("status", "accepted")
+          .eq("can_scan", true)
+          .limit(1)
+          .maybeSingle();
+        canScan = !!deleg;
+      }
 
       // Own bookings (RLS-scoped to this user).
       const { data: own } = await supabase
