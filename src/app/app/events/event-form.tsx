@@ -621,37 +621,41 @@ export default function EventForm({
                 {types.length > 0 && (
                   <div className="space-y-2">
                     {types.map((tt, i) => (
-                      <div key={i} className="flex items-center gap-2">
+                      // Stack on mobile (name on its own row, then price/capacity/
+                      // remove) so nothing overflows off-screen; single row on sm+.
+                      <div key={i} className="flex flex-col gap-2 sm:flex-row sm:items-center">
                         <input
                           value={tt.name}
                           onChange={(e) => updateType(i, "name", e.target.value)}
                           placeholder={t("ticketTypeNamePlaceholder")}
-                          className="min-w-0 flex-1 rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2 text-sm outline-none focus:border-[var(--usha-gold)]/40"
+                          className="w-full min-w-0 rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2 text-sm outline-none focus:border-[var(--usha-gold)]/40 sm:flex-1"
                         />
-                        <input
-                          value={tt.price}
-                          onChange={(e) => updateType(i, "price", e.target.value)}
-                          type="number"
-                          min={0}
-                          placeholder={t("ticketTypePricePlaceholder")}
-                          className="w-20 rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2 text-sm outline-none focus:border-[var(--usha-gold)]/40"
-                        />
-                        <input
-                          value={tt.capacity}
-                          onChange={(e) => updateType(i, "capacity", e.target.value)}
-                          type="number"
-                          min={1}
-                          placeholder={t("ticketTypeCapacityPlaceholder")}
-                          className="w-20 rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2 text-sm outline-none focus:border-[var(--usha-gold)]/40"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeType(i)}
-                          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--usha-border)] text-[var(--usha-muted)] hover:text-red-400"
-                          aria-label={t("ticketTypeRemove")}
-                        >
-                          <X size={14} />
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <input
+                            value={tt.price}
+                            onChange={(e) => updateType(i, "price", e.target.value)}
+                            type="number"
+                            min={0}
+                            placeholder={t("ticketTypePricePlaceholder")}
+                            className="min-w-0 flex-1 rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2 text-sm outline-none focus:border-[var(--usha-gold)]/40 sm:w-24 sm:flex-none"
+                          />
+                          <input
+                            value={tt.capacity}
+                            onChange={(e) => updateType(i, "capacity", e.target.value)}
+                            type="number"
+                            min={1}
+                            placeholder={t("ticketTypeCapacityPlaceholder")}
+                            className="min-w-0 flex-1 rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2 text-sm outline-none focus:border-[var(--usha-gold)]/40 sm:w-24 sm:flex-none"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeType(i)}
+                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[var(--usha-border)] text-[var(--usha-muted)] hover:text-red-400"
+                            aria-label={t("ticketTypeRemove")}
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
