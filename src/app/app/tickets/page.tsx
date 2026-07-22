@@ -1,9 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { appleWalletConfigured, googleWalletConfigured } from "@/lib/tickets/wallet";
 import { TicketsContent } from "./tickets-content";
 
 const BOOKING_SELECT =
-  "id, listing_id, scheduled_at, status, notes, amount_paid, stripe_payment_id, is_free, booking_type, creator_id, ticket_type_name, listings(title, category, price, listing_type, image_url, event_date, event_time, event_location)";
+  "id, listing_id, scheduled_at, status, notes, amount_paid, stripe_payment_id, is_free, booking_type, creator_id, ticket_type_name, checked_in_at, guest_count, listings(title, category, price, listing_type, image_url, event_date, event_time, event_location)";
 
 export default async function TicketsPage() {
   let bookings: any[] = [];
@@ -62,5 +63,11 @@ export default async function TicketsPage() {
     // Continue with empty data
   }
 
-  return <TicketsContent bookings={bookings} />;
+  return (
+    <TicketsContent
+      bookings={bookings}
+      appleWallet={appleWalletConfigured()}
+      googleWallet={googleWalletConfigured()}
+    />
+  );
 }
