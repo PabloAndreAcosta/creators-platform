@@ -8,6 +8,7 @@ import {
   User,
   MessageCircle,
   Ticket,
+  Building2,
   LayoutGrid,
 } from "lucide-react";
 import { useRole } from "./role-context";
@@ -31,7 +32,7 @@ export function BottomNav() {
       : [
           { href: "/app", label: t("home"), icon: Home },
           { href: "/app/tickets", label: t("tickets"), icon: Ticket },
-          { href: "/app/messages", label: t("messages"), icon: MessageCircle },
+          { href: "/app/events", label: t("events"), icon: Building2 },
           { href: "/app/tools", label: t("more"), icon: LayoutGrid },
           { href: "/app/profile", label: t("profile"), icon: User },
         ];
