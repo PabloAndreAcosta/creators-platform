@@ -77,11 +77,15 @@ export default function ScanPage() {
   // Scanning is for: venues (any tier), creators on Gold/Premium (scanning is a
   // paid creator feature), and crew the host delegated scanning to (can_scan —
   // volunteers/team). Not attendees.
-  const roleAccess = role === "venue" || (role === "creator" && (tier === "guld" || tier === "premium"));
-  const hasAccess = roleAccess || delegated === true;
+  // Scanning requires a paid account (Gold/Premium) for EVERYONE — creators,
+  // venues AND delegated crew (volunteers/team). Free accounts cannot scan.
+  const paid = tier === "guld" || tier === "premium";
+  const authorized = role === "creator" || role === "venue" || delegated === true;
+  const hasAccess = paid && authorized;
 
-  // For non-role-access users, wait for the delegation check before deciding.
-  if (!roleAccess && delegated === null) {
+  // Wait for the delegation check before deciding, for non-host roles.
+  const isHostRole = role === "creator" || role === "venue";
+  if (!isHostRole && delegated === null) {
     return (
       <div className="flex items-center justify-center px-4 py-24 text-[var(--usha-muted)]">
         <Loader2 size={20} className="animate-spin" />
@@ -90,9 +94,9 @@ export default function ScanPage() {
   }
 
   if (!hasAccess) {
-    // A creator without a paid tier can unlock scanning by upgrading; anyone
-    // else (attendee) can't scan by upgrading — show the role message.
-    const creatorNeedsUpgrade = role === "creator";
+    // Authorized (host/crew) but on a free account → can unlock by upgrading.
+    // Not authorized (attendee) → upgrading won't help; show the role message.
+    const needsUpgrade = authorized && !paid;
     return (
       <div className="px-4 py-6">
         <div className="mb-6">
@@ -102,9 +106,9 @@ export default function ScanPage() {
         <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-8 text-center">
           <Lock size={28} className="mx-auto mb-3 text-[var(--usha-muted)]" />
           <p className="text-sm text-[var(--usha-muted)]">
-            {creatorNeedsUpgrade ? t("gateMessage") : t("gateRoleOnly")}
+            {needsUpgrade ? t("gateMessage") : t("gateRoleOnly")}
           </p>
-          {creatorNeedsUpgrade && (
+          {needsUpgrade && (
             <a
               href="/dashboard/billing"
               className="mt-4 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-6 py-2.5 text-sm font-bold text-black transition hover:opacity-90"
