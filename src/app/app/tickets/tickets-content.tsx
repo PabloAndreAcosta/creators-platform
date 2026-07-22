@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { Calendar, MapPin, Clock, QrCode, X, Ticket, User, CheckCircle2, Maximize2 } from "lucide-react";
+import { Calendar, MapPin, Clock, QrCode, X, Ticket, User, CheckCircle2, Maximize2, ScanLine } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
 import { useSubscription } from "@/lib/subscription/context";
 import { trackEvent } from "@/lib/analytics";
@@ -67,6 +67,21 @@ interface TicketsContentProps {
   bookings: BookingData[];
   appleWallet?: boolean;
   googleWallet?: boolean;
+  /** Host (creator/venue) → show the "Scan tickets" entry point here. */
+  canScan?: boolean;
+}
+
+/** Host-only link into the door scanner, surfaced from the Tickets page. */
+function ScanTicketsButton() {
+  return (
+    <a
+      href="/app/scan"
+      className="flex items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm font-semibold transition hover:border-[var(--usha-gold)]/40"
+    >
+      <ScanLine size={16} className="text-[var(--usha-gold)]" />
+      Skanna biljetter
+    </a>
+  );
 }
 
 /** Shared QR renderer — used both inline on the card and large in the modal. */
@@ -188,7 +203,7 @@ function bookingToTicket(booking: BookingData): TicketData {
   };
 }
 
-export function TicketsContent({ bookings, appleWallet, googleWallet }: TicketsContentProps) {
+export function TicketsContent({ bookings, appleWallet, googleWallet, canScan }: TicketsContentProps) {
   const [selectedTicket, setSelectedTicket] = useState<TicketData | null>(null);
   const searchParams = useSearchParams();
   const { toast } = useToast();
@@ -219,6 +234,7 @@ export function TicketsContent({ bookings, appleWallet, googleWallet }: TicketsC
     return (
       <div className="px-4 py-6 space-y-8">
         <h1 className="text-2xl font-bold">Mina Biljetter</h1>
+        {canScan && <ScanTicketsButton />}
         <div className="flex flex-col items-center justify-center rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] py-16">
           <Ticket size={40} className="mb-4 text-[var(--usha-muted)]" />
           <p className="text-base font-medium text-[var(--usha-muted)]">
@@ -246,6 +262,8 @@ export function TicketsContent({ bookings, appleWallet, googleWallet }: TicketsC
           {tickets.length} {tickets.length === 1 ? "venue" : "upplevelser"}
         </span>
       </div>
+
+      {canScan && <ScanTicketsButton />}
 
       {/* Active Tickets */}
       {activeTickets.length > 0 && (

@@ -8,6 +8,7 @@ const BOOKING_SELECT =
 
 export default async function TicketsPage() {
   let bookings: any[] = [];
+  let canScan = false;
 
   try {
     const supabase = await createClient();
@@ -16,6 +17,11 @@ export default async function TicketsPage() {
     } = await supabase.auth.getUser();
 
     if (user) {
+      // Hosts (creator/venue) get the "Scan tickets" option here — scanning
+      // moved off the bottom nav and into the Tickets page.
+      const { data: prof } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
+      canScan = prof?.role === "creator" || prof?.role === "venue";
+
       // Own bookings (RLS-scoped to this user).
       const { data: own } = await supabase
         .from("bookings")
@@ -66,6 +72,7 @@ export default async function TicketsPage() {
   return (
     <TicketsContent
       bookings={bookings}
+      canScan={canScan}
       appleWallet={appleWalletConfigured()}
       googleWallet={googleWalletConfigured()}
     />
