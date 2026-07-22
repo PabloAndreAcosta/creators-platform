@@ -21,7 +21,23 @@ export default async function TicketsPage() {
       // venues AND delegated crew (volunteers/team). Free accounts don't get
       // the option. (Scanning moved off the bottom nav into the Tickets page.)
       const { data: prof } = await supabase.from("profiles").select("role, tier").eq("id", user.id).maybeSingle();
-      const paid = prof?.tier === "guld" || prof?.tier === "premium";
+      // "Paid" = Gold/Premium tier, an active/trialing subscription, or — during
+      // the free beta — everyone (mirrors hasActiveSubscription on the scan page).
+      let paid = prof?.tier === "guld" || prof?.tier === "premium";
+      if (!paid) {
+        const { BETA_MODE } = await import("@/lib/beta");
+        if (BETA_MODE) {
+          paid = true;
+        } else {
+          const { data: sub } = await supabase
+            .from("subscriptions")
+            .select("status")
+            .eq("user_id", user.id)
+            .in("status", ["active", "trialing"])
+            .maybeSingle();
+          paid = !!sub;
+        }
+      }
       if (paid) {
         const isHost = prof?.role === "creator" || prof?.role === "venue";
         canScan = isHost;
