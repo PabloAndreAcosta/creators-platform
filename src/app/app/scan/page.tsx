@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Camera, CameraOff, CheckCircle, XCircle, Search, AlertCircle, UserCheck, Loader2, Lock, ImagePlus } from "lucide-react";
 import { vibrate } from "@/lib/haptics";
 import { useRole } from "@/components/mobile/role-context";
+import { useSubscription } from "@/lib/subscription/context";
 
 interface TicketResult {
   valid: boolean;
@@ -33,6 +34,7 @@ interface CheckInResult {
 
 export default function ScanPage() {
   const { role } = useRole();
+  const { tier } = useSubscription();
   const t = useTranslations("scanPage");
 
   const [code, setCode] = useState("");
@@ -72,12 +74,13 @@ export default function ScanPage() {
     };
   }, []);
 
-  // Scanning is role-based: event hosts (creator/venue) and crew members the
-  // host delegated scanning to (can_scan — volunteers/team). Not attendees.
-  const roleAccess = role === "creator" || role === "venue";
+  // Scanning is for: venues (any tier), creators on Gold/Premium (scanning is a
+  // paid creator feature), and crew the host delegated scanning to (can_scan —
+  // volunteers/team). Not attendees.
+  const roleAccess = role === "venue" || (role === "creator" && (tier === "guld" || tier === "premium"));
   const hasAccess = roleAccess || delegated === true;
 
-  // For non-hosts, wait for the delegation check before deciding.
+  // For non-role-access users, wait for the delegation check before deciding.
   if (!roleAccess && delegated === null) {
     return (
       <div className="flex items-center justify-center px-4 py-24 text-[var(--usha-muted)]">
@@ -87,6 +90,9 @@ export default function ScanPage() {
   }
 
   if (!hasAccess) {
+    // A creator without a paid tier can unlock scanning by upgrading; anyone
+    // else (attendee) can't scan by upgrading — show the role message.
+    const creatorNeedsUpgrade = role === "creator";
     return (
       <div className="px-4 py-6">
         <div className="mb-6">
@@ -95,7 +101,17 @@ export default function ScanPage() {
         </div>
         <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-8 text-center">
           <Lock size={28} className="mx-auto mb-3 text-[var(--usha-muted)]" />
-          <p className="text-sm text-[var(--usha-muted)]">{t("gateRoleOnly")}</p>
+          <p className="text-sm text-[var(--usha-muted)]">
+            {creatorNeedsUpgrade ? t("gateMessage") : t("gateRoleOnly")}
+          </p>
+          {creatorNeedsUpgrade && (
+            <a
+              href="/dashboard/billing"
+              className="mt-4 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-6 py-2.5 text-sm font-bold text-black transition hover:opacity-90"
+            >
+              {t("upgradeCta")}
+            </a>
+          )}
         </div>
       </div>
     );

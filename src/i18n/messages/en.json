@@ -2057,6 +2057,7 @@
     "subtitle": "Scan the QR code or enter the ticket code manually.",
     "gateMessage": "Upgrade to Gold or Premium to scan tickets.",
     "gateRoleOnly": "Scanning is for hosts (creator/venue) and crew with scan permission — not attendees.",
+    "upgradeCta": "Upgrade",
     "startingCamera": "Starting the camera...",
     "tapToStart": "Tap to start the camera",
     "cameraBlocked": "The camera is blocked",
