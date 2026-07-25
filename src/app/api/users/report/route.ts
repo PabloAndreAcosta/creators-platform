@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,7 +20,7 @@ export async function POST(req: NextRequest) {
 
     const { userId, reason, type } = await req.json();
 
-    if (!userId || !type || (type !== "block" && type !== "report")) {
+    if (!userId || !UUID_RE.test(userId) || !type || (type !== "block" && type !== "report")) {
       return NextResponse.json(
         { error: "Ogiltig förfrågan. Ange användar-ID och typ (block/report)." },
         { status: 400 }
@@ -50,6 +53,19 @@ export async function POST(req: NextRequest) {
         );
 
         if (error) throw error;
+
+        // Sever any buddy relationship so the blocked person disappears from the
+        // Matches tab and can't be contacted. buddy_matches uses canonical
+        // user_a < user_b; buddy_likes are directional (delete both ways).
+        // Needs the service-role client (buddy_matches/likes have no user delete
+        // policy, and RLS would hide the counterpart's rows).
+        const admin = createAdminClient();
+        const [x, y] = user.id < userId ? [user.id, userId] : [userId, user.id];
+        await admin.from("buddy_matches").delete().eq("user_a", x).eq("user_b", y);
+        await admin
+          .from("buddy_likes")
+          .delete()
+          .or(`and(from_user.eq.${user.id},to_user.eq.${userId}),and(from_user.eq.${userId},to_user.eq.${user.id})`);
       } catch {
         return NextResponse.json(
           {
