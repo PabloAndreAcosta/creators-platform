@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Check, Plus, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
 import { joinOpenEvent, leaveOpenEvent } from "./actions";
@@ -13,6 +14,7 @@ export function JoinEventButton({
   listingId: string;
   initialJoined: boolean;
 }) {
+  const t = useTranslations("joinEvent");
   const { toast } = useToast();
   const router = useRouter();
   const [joined, setJoined] = useState(initialJoined);
@@ -22,25 +24,25 @@ export function JoinEventButton({
     startTransition(async () => {
       const result = await joinOpenEvent(listingId);
       if (result?.error) {
-        toast.error("Kunde inte gå med", result.error);
+        toast.error(t("joinErrorTitle"), result.error);
         return;
       }
       setJoined(true);
-      toast.success("Du är med!", "Deltagare kan nu köpa minuter av dig på eventet.");
+      toast.success(t("joinSuccessTitle"), t("joinSuccessBody"));
       router.refresh();
     });
   }
 
   function handleLeave() {
-    if (!confirm("Lämna eventet? Redan sålda minuter gäller fortfarande och kan lösas in.")) return;
+    if (!confirm(t("leaveConfirm"))) return;
     startTransition(async () => {
       const result = await leaveOpenEvent(listingId);
       if (result?.error) {
-        toast.error("Kunde inte lämna", result.error);
+        toast.error(t("leaveErrorTitle"), result.error);
         return;
       }
       setJoined(false);
-      toast.success("Du har lämnat eventet", "Inga nya köp kan göras.");
+      toast.success(t("leaveSuccessTitle"), t("leaveSuccessBody"));
       router.refresh();
     });
   }
@@ -53,7 +55,7 @@ export function JoinEventButton({
         className="inline-flex items-center gap-1.5 rounded-lg border border-green-500/40 bg-green-500/10 px-3 py-2 text-sm font-medium text-green-400 transition hover:border-red-500/40 hover:bg-red-500/10 hover:text-red-400 disabled:opacity-50"
       >
         {isPending ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
-        Du är med · Lämna
+        {t("joinedLeaveLabel")}
       </button>
     );
   }
@@ -65,7 +67,7 @@ export function JoinEventButton({
       className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-3 py-2 text-sm font-semibold text-black transition hover:opacity-90 disabled:opacity-50"
     >
       {isPending ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
-      Erbjud mina tjänster
+      {t("offerServicesLabel")}
     </button>
   );
 }

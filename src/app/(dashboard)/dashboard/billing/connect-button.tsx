@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { ExternalLink, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 
 interface ConnectStatus {
@@ -11,6 +12,7 @@ interface ConnectStatus {
 }
 
 export default function ConnectButton() {
+  const t = useTranslations('billingConnect');
   const [status, setStatus] = useState<ConnectStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [connecting, setConnecting] = useState(false);
@@ -40,11 +42,11 @@ export default function ConnectButton() {
       if (data.url) {
         window.location.href = data.url;
       } else {
-        setError(data.error || "Kunde inte starta anslutningen. Försök igen.");
+        setError(data.error || t('errorCouldNotStart'));
         setConnecting(false);
       }
     } catch {
-      setError("Nätverksfel. Kontrollera din anslutning och försök igen.");
+      setError(t('errorNetwork'));
       setConnecting(false);
     }
   }
@@ -64,25 +66,25 @@ export default function ConnectButton() {
     <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h3 className="text-lg font-semibold mb-1">Bankkonto</h3>
+          <h3 className="text-lg font-semibold mb-1">{t('title')}</h3>
           <p className="text-sm text-[var(--usha-muted)]">
             {isFullyConnected
-              ? 'Ditt bankkonto är anslutet och redo för utbetalningar.'
+              ? t('descriptionConnected')
               : status?.connected && !status?.payoutsEnabled
-                ? 'Ditt Stripe-konto behöver fler uppgifter innan utbetalningar kan göras.'
-                : 'Anslut ditt bankkonto via Stripe för att ta emot utbetalningar.'}
+                ? t('descriptionIncomplete')
+                : t('descriptionNotConnected')}
           </p>
         </div>
         <div className="flex-shrink-0">
           {isFullyConnected ? (
             <div className="flex items-center gap-1.5 text-green-400">
               <CheckCircle size={16} />
-              <span className="text-sm font-medium">Ansluten</span>
+              <span className="text-sm font-medium">{t('statusConnected')}</span>
             </div>
           ) : status?.connected ? (
             <div className="flex items-center gap-1.5 text-yellow-400">
               <AlertCircle size={16} />
-              <span className="text-sm font-medium">Ofullständig</span>
+              <span className="text-sm font-medium">{t('statusIncomplete')}</span>
             </div>
           ) : null}
         </div>
@@ -93,9 +95,9 @@ export default function ConnectButton() {
           {/* Step-by-step guide */}
           <div className="mt-4 space-y-2">
             {[
-              { step: 1, label: 'Skapa Stripe-konto', done: !!status?.connected },
-              { step: 2, label: 'Verifiera identitet', done: !!status?.detailsSubmitted },
-              { step: 3, label: 'Aktivera utbetalningar', done: !!status?.payoutsEnabled },
+              { step: 1, label: t('stepCreateAccount'), done: !!status?.connected },
+              { step: 2, label: t('stepVerifyIdentity'), done: !!status?.detailsSubmitted },
+              { step: 3, label: t('stepEnablePayouts'), done: !!status?.payoutsEnabled },
             ].map((s) => (
               <div key={s.step} className="flex items-center gap-3">
                 <div className={`flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold ${
@@ -124,20 +126,20 @@ export default function ConnectButton() {
             {connecting ? (
               <>
                 <Loader2 size={14} className="animate-spin" />
-                Ansluter...
+                {t('connecting')}
               </>
             ) : (
               <>
                 <ExternalLink size={14} />
-                {status?.connected ? 'Slutför anslutning' : 'Anslut bankkonto'}
+                {status?.connected ? t('completeConnection') : t('connectBankAccount')}
               </>
             )}
           </button>
 
           <p className="mt-2 text-[10px] text-[var(--usha-muted)]">
-            Du omdirigeras till Stripe för att slutföra verifieringen. Det tar ca 5 minuter.
+            {t('helperRedirect')}
             <br />
-            Helt gratis — inga månadsavgifter eller dolda kostnader. Alla transaktionsavgifter ingår i Usha Platforms kommission.
+            {t('helperFree')}
           </p>
         </>
       )}
@@ -145,8 +147,7 @@ export default function ConnectButton() {
       {isFullyConnected && (
         <div className="mt-4 rounded-lg bg-green-500/5 border border-green-500/20 p-3">
           <p className="text-xs text-green-400">
-            Allt klart! Utbetalningar betalas ut automatiskt varje vecka, eller gör ett direkt uttag via utbetalningssidan.
-            Alla transaktionsavgifter ingår i din kommissionsnivå — du betalar aldrig extra.
+            {t('allSet')}
           </p>
         </div>
       )}
