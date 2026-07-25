@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { uploadViaSignedUrl } from "@/lib/storage/upload-client";
 import { createProduct, deleteProduct } from "./actions";
 import { duplicateListing } from "@/app/(dashboard)/dashboard/listings/actions";
@@ -70,22 +71,23 @@ const TYPE_ICONS: Record<string, typeof Video> = {
   other: Package,
 };
 
-const TYPE_LABELS: Record<string, string> = {
-  video: "Video",
-  course: "Kurs",
-  download: "Nedladdning",
-  other: "Övrigt",
+const TYPE_LABEL_KEYS: Record<string, string> = {
+  video: "typeLabelVideo",
+  course: "typeLabelCourse",
+  download: "typeLabelDownload",
+  other: "typeLabelOther",
 };
 
 // ─── Main Component ───
 
 export function ContentPageContent({ listings, digitalProducts }: ContentPageContentProps) {
+  const t = useTranslations("courses");
   const [tab, setTab] = useState<Tab>("online");
 
   return (
     <div className="px-4 py-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Mitt innehåll</h1>
+        <h1 className="text-2xl font-bold">{t("pageTitle")}</h1>
       </div>
 
       {/* Tabs */}
@@ -98,7 +100,7 @@ export function ContentPageContent({ listings, digitalProducts }: ContentPageCon
               : "text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
           }`}
         >
-          Onlinematerial
+          {t("tabOnline")}
           <span className="ml-1.5 text-xs opacity-70">({digitalProducts.length})</span>
         </button>
         <button
@@ -109,7 +111,7 @@ export function ContentPageContent({ listings, digitalProducts }: ContentPageCon
               : "text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
           }`}
         >
-          Tjänster
+          {t("tabServices")}
           <span className="ml-1.5 text-xs opacity-70">({listings.length})</span>
         </button>
       </div>
@@ -126,6 +128,7 @@ export function ContentPageContent({ listings, digitalProducts }: ContentPageCon
 // ─── Online Material Tab ───
 
 function OnlineMaterialTab({ products }: { products: DigitalProductData[] }) {
+  const t = useTranslations("courses");
   const [showForm, setShowForm] = useState(false);
 
   return (
@@ -133,9 +136,9 @@ function OnlineMaterialTab({ products }: { products: DigitalProductData[] }) {
       {products.length === 0 && !showForm && (
         <div className="flex flex-col items-center justify-center rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] py-16">
           <Video size={40} className="mb-4 text-[var(--usha-muted)]" />
-          <p className="text-base font-medium text-[var(--usha-muted)]">Inget onlinematerial ännu</p>
+          <p className="text-base font-medium text-[var(--usha-muted)]">{t("onlineEmptyTitle")}</p>
           <p className="mt-1 text-sm text-[var(--usha-muted)]">
-            Lägg upp kurser, workshops och videor som dina kunder kan köpa
+            {t("onlineEmptyDescription")}
           </p>
         </div>
       )}
@@ -152,7 +155,7 @@ function OnlineMaterialTab({ products }: { products: DigitalProductData[] }) {
           className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--usha-border)] bg-[var(--usha-card)] py-4 text-sm font-medium text-[var(--usha-muted)] transition-colors hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-gold)]"
         >
           <Plus size={18} />
-          Lägg till onlinematerial
+          {t("addOnlineMaterial")}
         </button>
       )}
     </div>
@@ -162,10 +165,12 @@ function OnlineMaterialTab({ products }: { products: DigitalProductData[] }) {
 // ─── Product Card ───
 
 function ProductCard({ product }: { product: DigitalProductData }) {
+  const t = useTranslations("courses");
   const [deleting, setDeleting] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const router = useRouter();
   const Icon = TYPE_ICONS[product.product_type] || Package;
+  const typeLabel = t(TYPE_LABEL_KEYS[product.product_type] || "typeLabelOther");
 
   async function handleDelete() {
     setDeleting(true);
@@ -183,10 +188,10 @@ function ProductCard({ product }: { product: DigitalProductData }) {
       <div className="min-w-0 flex-1">
         <h3 className="truncate font-semibold">{product.title}</h3>
         <div className="flex items-center gap-3 text-xs text-[var(--usha-muted)]">
-          <span>{TYPE_LABELS[product.product_type] || "Övrigt"}</span>
-          <span>{product.price > 0 ? `${product.price} kr` : "Gratis"}</span>
+          <span>{typeLabel}</span>
+          <span>{product.price > 0 ? t("priceKr", { price: product.price }) : t("free")}</span>
           <span className="flex items-center gap-1">
-            <Users size={10} /> {product.purchase_count} köp
+            <Users size={10} /> {t("purchaseCount", { count: product.purchase_count })}
           </span>
         </div>
       </div>
@@ -194,7 +199,7 @@ function ProductCard({ product }: { product: DigitalProductData }) {
         <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
           product.is_active ? "bg-green-500/10 text-green-400" : "bg-[var(--usha-border)] text-[var(--usha-muted)]"
         }`}>
-          {product.is_active ? "Aktiv" : "Inaktiv"}
+          {product.is_active ? t("active") : t("inactive")}
         </span>
         <button
           onClick={() => setShowConfirm(true)}
@@ -207,15 +212,15 @@ function ProductCard({ product }: { product: DigitalProductData }) {
       {showConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowConfirm(false)}>
           <div className="w-full max-w-sm rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6" onClick={(e) => e.stopPropagation()}>
-            <h3 className="mb-2 text-lg font-bold">Ta bort?</h3>
+            <h3 className="mb-2 text-lg font-bold">{t("deleteTitle")}</h3>
             <p className="mb-5 text-sm text-[var(--usha-muted)]">
-              Är du säker på att du vill ta bort &ldquo;{product.title}&rdquo;?
+              {t("deleteConfirm", { title: product.title })}
             </p>
             <div className="flex gap-3">
-              <button onClick={() => setShowConfirm(false)} className="flex-1 rounded-xl border border-[var(--usha-border)] py-2.5 text-sm font-medium">Avbryt</button>
+              <button onClick={() => setShowConfirm(false)} className="flex-1 rounded-xl border border-[var(--usha-border)] py-2.5 text-sm font-medium">{t("cancel")}</button>
               <button onClick={handleDelete} disabled={deleting} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-red-500 py-2.5 text-sm font-semibold text-white disabled:opacity-50">
                 {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
-                Ta bort
+                {t("delete")}
               </button>
             </div>
           </div>
@@ -228,6 +233,7 @@ function ProductCard({ product }: { product: DigitalProductData }) {
 // ─── Create Product Form ───
 
 function CreateProductForm({ onClose }: { onClose: () => void }) {
+  const t = useTranslations("courses");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
@@ -244,7 +250,7 @@ function CreateProductForm({ onClose }: { onClose: () => void }) {
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > 50 * 1024 * 1024) {
-      setError("Filen får vara max 50 MB");
+      setError(t("fileTooLarge"));
       return;
     }
 
@@ -253,7 +259,7 @@ function CreateProductForm({ onClose }: { onClose: () => void }) {
       const url = await uploadViaSignedUrl(file, "creator-media");
       setFileUrl(url);
     } catch {
-      setError("Kunde inte ladda upp filen");
+      setError(t("fileUploadFailed"));
     } finally {
       setUploading(false);
     }
@@ -261,7 +267,7 @@ function CreateProductForm({ onClose }: { onClose: () => void }) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!title.trim()) { setError("Titel krävs"); return; }
+    if (!title.trim()) { setError(t("titleRequired")); return; }
     setSubmitting(true);
     setError("");
 
@@ -284,51 +290,51 @@ function CreateProductForm({ onClose }: { onClose: () => void }) {
 
   return (
     <form onSubmit={handleSubmit} className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5 space-y-4">
-      <h3 className="font-semibold">Nytt onlinematerial</h3>
+      <h3 className="font-semibold">{t("formTitle")}</h3>
 
       <div>
-        <label className="mb-1 block text-xs text-[var(--usha-muted)]">Typ</label>
+        <label className="mb-1 block text-xs text-[var(--usha-muted)]">{t("labelType")}</label>
         <select
           value={productType}
           onChange={(e) => setProductType(e.target.value)}
           className="w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2 text-sm outline-none"
         >
-          <option value="course">Kurs</option>
-          <option value="video">Video / Workshop</option>
-          <option value="download">Nedladdning (PDF, fil)</option>
-          <option value="other">Övrigt</option>
+          <option value="course">{t("typeOptionCourse")}</option>
+          <option value="video">{t("typeOptionVideo")}</option>
+          <option value="download">{t("typeOptionDownload")}</option>
+          <option value="other">{t("typeOptionOther")}</option>
         </select>
       </div>
 
       <div>
-        <label className="mb-1 block text-xs text-[var(--usha-muted)]">Titel</label>
+        <label className="mb-1 block text-xs text-[var(--usha-muted)]">{t("labelTitle")}</label>
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="T.ex. Salsa för nybörjare"
+          placeholder={t("titlePlaceholder")}
           className="w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2 text-sm outline-none focus:border-[var(--usha-gold)]/40"
         />
       </div>
 
       <div>
-        <label className="mb-1 block text-xs text-[var(--usha-muted)]">Beskrivning</label>
+        <label className="mb-1 block text-xs text-[var(--usha-muted)]">{t("labelDescription")}</label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={3}
-          placeholder="Beskriv vad som ingår..."
+          placeholder={t("descriptionPlaceholder")}
           className="w-full resize-none rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2 text-sm outline-none focus:border-[var(--usha-gold)]/40"
         />
       </div>
 
       <div>
-        <label className="mb-1 block text-xs text-[var(--usha-muted)]">Pris (SEK)</label>
+        <label className="mb-1 block text-xs text-[var(--usha-muted)]">{t("labelPrice")}</label>
         <input
           type="number"
           value={price}
           onChange={(e) => setPrice(e.target.value)}
-          placeholder="0 = Gratis"
+          placeholder={t("pricePlaceholder")}
           min="0"
           className="w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2 text-sm outline-none focus:border-[var(--usha-gold)]/40"
         />
@@ -336,7 +342,7 @@ function CreateProductForm({ onClose }: { onClose: () => void }) {
 
       {(productType === "video" || productType === "course") && (
         <div>
-          <label className="mb-1 block text-xs text-[var(--usha-muted)]">Video-URL (YouTube, Vimeo, etc.)</label>
+          <label className="mb-1 block text-xs text-[var(--usha-muted)]">{t("labelVideoUrl")}</label>
           <input
             type="url"
             value={videoUrl}
@@ -349,7 +355,7 @@ function CreateProductForm({ onClose }: { onClose: () => void }) {
 
       {productType === "download" && (
         <div>
-          <label className="mb-1 block text-xs text-[var(--usha-muted)]">Ladda upp fil (max 50 MB)</label>
+          <label className="mb-1 block text-xs text-[var(--usha-muted)]">{t("labelUploadFile")}</label>
           <input ref={fileRef} type="file" className="hidden" onChange={handleFileUpload} />
           <button
             type="button"
@@ -358,7 +364,7 @@ function CreateProductForm({ onClose }: { onClose: () => void }) {
             className="flex items-center gap-2 rounded-lg border border-dashed border-[var(--usha-border)] px-4 py-2 text-xs text-[var(--usha-muted)] hover:border-[var(--usha-gold)]/30"
           >
             {uploading ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
-            {fileUrl ? "Fil uppladdad" : uploading ? "Laddar upp..." : "Välj fil"}
+            {fileUrl ? t("fileUploaded") : uploading ? t("uploading") : t("chooseFile")}
           </button>
         </div>
       )}
@@ -367,7 +373,7 @@ function CreateProductForm({ onClose }: { onClose: () => void }) {
 
       <div className="flex gap-3">
         <button type="button" onClick={onClose} className="flex-1 rounded-xl border border-[var(--usha-border)] py-2.5 text-sm font-medium text-[var(--usha-muted)]">
-          Avbryt
+          {t("cancel")}
         </button>
         <button
           type="submit"
@@ -375,7 +381,7 @@ function CreateProductForm({ onClose }: { onClose: () => void }) {
           className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] py-2.5 text-sm font-bold text-black disabled:opacity-50"
         >
           {submitting ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
-          Publicera
+          {t("publish")}
         </button>
       </div>
     </form>
@@ -392,20 +398,21 @@ const COURSE_IMAGES = [
 ];
 
 function ServicesTab({ listings }: { listings: ListingData[] }) {
+  const t = useTranslations("courses");
   if (listings.length === 0) {
     return (
       <div className="space-y-4">
         <div className="flex flex-col items-center justify-center rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] py-16">
           <BookOpen size={40} className="mb-4 text-[var(--usha-muted)]" />
-          <p className="text-base font-medium text-[var(--usha-muted)]">Inga tjänster ännu</p>
-          <p className="mt-1 text-sm text-[var(--usha-muted)]">Skapa din första tjänst för att komma igång</p>
+          <p className="text-base font-medium text-[var(--usha-muted)]">{t("servicesEmptyTitle")}</p>
+          <p className="mt-1 text-sm text-[var(--usha-muted)]">{t("servicesEmptyDescription")}</p>
         </div>
         <Link
           href="/dashboard/listings/new"
           className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--usha-border)] bg-[var(--usha-card)] py-4 text-sm font-medium text-[var(--usha-muted)] transition-colors hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-gold)]"
         >
           <Plus size={18} />
-          Lägg till tjänst
+          {t("addService")}
         </Link>
       </div>
     );
@@ -419,7 +426,7 @@ function ServicesTab({ listings }: { listings: ListingData[] }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <span className="text-sm text-[var(--usha-muted)]">{activeCount} aktiva tjänster</span>
+        <span className="text-sm text-[var(--usha-muted)]">{t("activeServices", { count: activeCount })}</span>
       </div>
 
       {/* Series — one collapsible card each */}
@@ -445,13 +452,14 @@ function ServicesTab({ listings }: { listings: ListingData[] }) {
         className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--usha-border)] bg-[var(--usha-card)] py-4 text-sm font-medium text-[var(--usha-muted)] transition-colors hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-gold)]"
       >
         <Plus size={18} />
-        Lägg till tjänst
+        {t("addService")}
       </Link>
     </div>
   );
 }
 
 function ServiceCard({ listing, index }: { listing: ListingData; index: number }) {
+  const t = useTranslations("courses");
   const [showMenu, setShowMenu] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -484,10 +492,10 @@ function ServiceCard({ listing, index }: { listing: ListingData; index: number }
         <img src={image} alt={listing.title} className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
         <span className={`absolute left-3 top-3 rounded-full px-2.5 py-1 text-[10px] font-semibold ${listing.is_active ? "bg-green-500/90 text-white" : "bg-[var(--usha-muted)]/80 text-white"}`}>
-          {listing.is_active ? "Aktiv" : "Inaktiv"}
+          {listing.is_active ? t("active") : t("inactive")}
         </span>
         <span className="absolute right-3 top-3 rounded-full bg-black/50 px-2.5 py-1 text-[10px] font-medium text-white backdrop-blur-sm">
-          {listing.category || "Övrigt"}
+          {listing.category || t("categoryOther")}
         </span>
         <div className="absolute bottom-0 left-0 right-0 p-3">
           <h3 className="text-base font-bold text-white">{listing.title}</h3>
@@ -496,13 +504,13 @@ function ServiceCard({ listing, index }: { listing: ListingData; index: number }
       <div className="p-4">
         <div className="mb-3 flex items-center gap-3 text-xs text-[var(--usha-muted)]">
           {listing.duration_minutes && (
-            <span className="flex items-center gap-1"><Clock size={12} />{listing.duration_minutes} min</span>
+            <span className="flex items-center gap-1"><Clock size={12} />{t("durationMinutes", { minutes: listing.duration_minutes })}</span>
           )}
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
             <DollarSign size={14} className="text-[var(--usha-gold)]" />
-            <span className="text-sm font-medium">{listing.price ? `${listing.price} kr` : "Gratis"}</span>
+            <span className="text-sm font-medium">{listing.price ? t("priceKr", { price: listing.price }) : t("free")}</span>
           </div>
           <div className="relative">
             <button onClick={() => setShowMenu(!showMenu)} className="rounded-lg p-2 text-[var(--usha-muted)] hover:bg-[var(--usha-card-hover)] hover:text-[var(--usha-white)]">
@@ -513,13 +521,13 @@ function ServiceCard({ listing, index }: { listing: ListingData; index: number }
                 <div className="fixed inset-0 z-10" onClick={() => setShowMenu(false)} />
                 <div className="absolute bottom-full right-0 z-20 mb-1 rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] py-1 shadow-xl">
                   <Link href={`/dashboard/listings/${listing.id}/edit`} className="flex w-full items-center gap-2 px-4 py-2 text-xs hover:bg-[var(--usha-card-hover)]" onClick={() => setShowMenu(false)}>
-                    <Edit2 size={12} /> Redigera
+                    <Edit2 size={12} /> {t("edit")}
                   </Link>
                   <button onClick={handleDuplicate} className="flex w-full items-center gap-2 px-4 py-2 text-xs hover:bg-[var(--usha-card-hover)]">
-                    <Copy size={12} /> Duplicera
+                    <Copy size={12} /> {t("duplicate")}
                   </button>
                   <button onClick={() => { setShowMenu(false); setShowConfirm(true); }} className="flex w-full items-center gap-2 px-4 py-2 text-xs text-red-400 hover:bg-[var(--usha-card-hover)]">
-                    <Trash2 size={12} /> Ta bort
+                    <Trash2 size={12} /> {t("delete")}
                   </button>
                 </div>
               </>
@@ -531,12 +539,12 @@ function ServiceCard({ listing, index }: { listing: ListingData; index: number }
       {showConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowConfirm(false)}>
           <div className="w-full max-w-sm rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6" onClick={(e) => e.stopPropagation()}>
-            <h3 className="mb-2 text-lg font-bold">Ta bort tjänst?</h3>
-            <p className="mb-5 text-sm text-[var(--usha-muted)]">Är du säker på att du vill ta bort &ldquo;{listing.title}&rdquo;?</p>
+            <h3 className="mb-2 text-lg font-bold">{t("deleteServiceTitle")}</h3>
+            <p className="mb-5 text-sm text-[var(--usha-muted)]">{t("deleteConfirm", { title: listing.title })}</p>
             <div className="flex gap-3">
-              <button onClick={() => setShowConfirm(false)} className="flex-1 rounded-xl border border-[var(--usha-border)] py-2.5 text-sm font-medium">Avbryt</button>
+              <button onClick={() => setShowConfirm(false)} className="flex-1 rounded-xl border border-[var(--usha-border)] py-2.5 text-sm font-medium">{t("cancel")}</button>
               <button onClick={handleDelete} disabled={deleting} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-red-500 py-2.5 text-sm font-semibold text-white disabled:opacity-50">
-                {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />} Ta bort
+                {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />} {t("delete")}
               </button>
             </div>
           </div>
@@ -547,6 +555,7 @@ function ServiceCard({ listing, index }: { listing: ListingData; index: number }
 }
 
 function ServiceSeriesCard({ occurrences }: { occurrences: ListingData[] }) {
+  const t = useTranslations("courses");
   const router = useRouter();
   const first = occurrences[0];
   const activeCount = occurrences.filter((o) => o.is_active).length;
@@ -556,7 +565,7 @@ function ServiceSeriesCard({ occurrences }: { occurrences: ListingData[] }) {
     if (r?.id) router.push(`/dashboard/listings/${r.id}/edit`);
   }
   async function remove(id: string) {
-    if (!confirm("Ta bort detta tillfälle?")) return;
+    if (!confirm(t("removeOccurrenceConfirm"))) return;
     const res = await fetch(`/api/listings/${id}`, { method: "DELETE" });
     if (res.ok) router.refresh();
   }
@@ -564,8 +573,8 @@ function ServiceSeriesCard({ occurrences }: { occurrences: ListingData[] }) {
   return (
     <SeriesCard
       title={first.title}
-      badge="Serie"
-      meta={<span>{occurrences.length} tillfällen · {activeCount} aktiva</span>}
+      badge={t("seriesBadge")}
+      meta={<span>{t("seriesMeta", { total: occurrences.length, active: activeCount })}</span>}
     >
       {occurrences.map((o) => (
         <div key={o.id} className="flex items-center justify-between gap-3 border-b border-[var(--usha-border)] px-4 py-3 last:border-b-0">
@@ -574,20 +583,20 @@ function ServiceSeriesCard({ occurrences }: { occurrences: ListingData[] }) {
             <span className="font-medium">
               {o.event_date
                 ? new Date(o.event_date + "T00:00").toLocaleDateString("sv-SE", { weekday: "short", day: "numeric", month: "short" })
-                : "Inget datum"}
+                : t("noDate")}
             </span>
             {o.event_time && <span className="text-[var(--usha-muted)]">{o.event_time.slice(0, 5)}</span>}
           </div>
           <div className="flex shrink-0 items-center gap-1">
-            <Link href={`/dashboard/listings/${o.id}/edit`} className="rounded-lg p-2 text-[var(--usha-muted)] hover:bg-[var(--usha-card-hover)] hover:text-[var(--usha-white)]" aria-label="Redigera"><Edit2 size={14} /></Link>
-            <button onClick={() => duplicate(o.id)} className="rounded-lg p-2 text-[var(--usha-muted)] hover:bg-[var(--usha-card-hover)] hover:text-[var(--usha-white)]" aria-label="Duplicera"><Copy size={14} /></button>
-            <button onClick={() => remove(o.id)} className="rounded-lg p-2 text-[var(--usha-muted)] hover:bg-red-500/10 hover:text-red-400" aria-label="Ta bort"><Trash2 size={14} /></button>
+            <Link href={`/dashboard/listings/${o.id}/edit`} className="rounded-lg p-2 text-[var(--usha-muted)] hover:bg-[var(--usha-card-hover)] hover:text-[var(--usha-white)]" aria-label={t("edit")}><Edit2 size={14} /></Link>
+            <button onClick={() => duplicate(o.id)} className="rounded-lg p-2 text-[var(--usha-muted)] hover:bg-[var(--usha-card-hover)] hover:text-[var(--usha-white)]" aria-label={t("duplicate")}><Copy size={14} /></button>
+            <button onClick={() => remove(o.id)} className="rounded-lg p-2 text-[var(--usha-muted)] hover:bg-red-500/10 hover:text-red-400" aria-label={t("delete")}><Trash2 size={14} /></button>
           </div>
         </div>
       ))}
       <div className="px-4 py-3">
         <button onClick={() => duplicate(first.id)} className="flex items-center gap-1.5 text-xs font-medium text-[var(--usha-gold)] hover:underline">
-          <Plus size={14} /> Lägg till tillfälle
+          <Plus size={14} /> {t("addOccurrence")}
         </button>
       </div>
     </SeriesCard>
