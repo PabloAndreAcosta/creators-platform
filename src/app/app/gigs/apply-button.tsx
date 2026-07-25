@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { applyToGig } from "@/app/(dashboard)/dashboard/gigs/actions";
 import { useToast } from "@/components/ui/toaster";
 import { Send, X } from "lucide-react";
 
 export function ApplyToGigButton({ gigId }: { gigId: string }) {
+  const t = useTranslations("gigsApply");
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [isPending, startTransition] = useTransition();
@@ -15,10 +17,10 @@ export function ApplyToGigButton({ gigId }: { gigId: string }) {
     startTransition(async () => {
       const result = await applyToGig(gigId, message);
       if ("error" in result) {
-        toast.error("Kunde inte skicka ansökan", result.error);
+        toast.error(t("errorTitle"), result.error);
         return;
       }
-      toast.success("Ansökan skickad", "Arrangören får meddelande och svarar inom kort.");
+      toast.success(t("successTitle"), t("successBody"));
       setOpen(false);
       setMessage("");
     });
@@ -32,7 +34,7 @@ export function ApplyToGigButton({ gigId }: { gigId: string }) {
         className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-3 py-1.5 text-xs font-bold text-black hover:opacity-90"
       >
         <Send size={12} />
-        Ansök
+        {t("applyButton")}
       </button>
 
       {open && (
@@ -47,16 +49,16 @@ export function ApplyToGigButton({ gigId }: { gigId: string }) {
               <X size={16} />
             </button>
 
-            <h3 className="mb-4 text-lg font-bold">Ansök till giget</h3>
+            <h3 className="mb-4 text-lg font-bold">{t("modalTitle")}</h3>
 
             <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-              Meddelande till arrangören <span className="text-xs">(valfritt)</span>
+              {t("messageLabel")} <span className="text-xs">{t("optional")}</span>
             </label>
             <textarea
               rows={4}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="Berätta kort om dig själv, dina stilar, eller varför du passar för det här eventet."
+              placeholder={t("messagePlaceholder")}
               className="w-full resize-none rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
             />
 
@@ -67,7 +69,7 @@ export function ApplyToGigButton({ gigId }: { gigId: string }) {
                 disabled={isPending}
                 className="rounded-xl border border-[var(--usha-border)] px-4 py-2 text-sm text-[var(--usha-muted)] hover:text-[var(--usha-white)] disabled:opacity-50"
               >
-                Avbryt
+                {t("cancel")}
               </button>
               <button
                 type="button"
@@ -75,7 +77,7 @@ export function ApplyToGigButton({ gigId }: { gigId: string }) {
                 disabled={isPending}
                 className="rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-5 py-2 text-sm font-bold text-black hover:opacity-90 disabled:opacity-50"
               >
-                {isPending ? "Skickar..." : "Skicka ansökan"}
+                {isPending ? t("submitting") : t("submit")}
               </button>
             </div>
           </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Loader2, ShieldCheck } from "lucide-react";
 import {
   currentStep,
@@ -13,27 +14,28 @@ import {
 import type { Track } from "@/lib/onboarding/types";
 import { verifyBankId, completeOnboarding, type OnboardingFields } from "./actions";
 
-const TRACK_LABEL: Record<Track, string> = {
-  C1: "C1 · Egenföretagare",
-  C2: "C2 · Egenanställd",
-  C3: "C3 · Volontär",
-  C4: "C4 · Ideell förening",
-  V1: "V1 · Företag",
-  V2: "V2 · Förening / kulturhus",
-  V3: "V3 · Offentlig aktör",
+const TRACK_LABEL_KEY: Record<Track, string> = {
+  C1: "trackLabel.C1",
+  C2: "trackLabel.C2",
+  C3: "trackLabel.C3",
+  C4: "trackLabel.C4",
+  V1: "trackLabel.V1",
+  V2: "trackLabel.V2",
+  V3: "trackLabel.V3",
 };
 
-const TRACK_DESC: Record<Track, string> = {
-  C1: "Du fakturerar i eget namn via Stripe. Usha tar bara provision och momsar bara den. Ansvaret är ditt.",
-  C2: "Du får lön per uppdrag via EOR-partnern. De är arbetsgivare och drar skatt och avgifter. Pengarna går aldrig via Usha.",
-  C3: "Du registreras som volontär. Endast utlägg mot kvitto kan betalas ut – aldrig ersättning.",
-  C4: "Föreningen fakturerar som säljare. Usha tar provision. Ansvaret är föreningens.",
-  V1: "Venue registrerad som B2B-köpare. Betalning via Stripe. Kan vara uppdragsgivare.",
-  V2: "Förening/kulturhus (ej momsreg.). Kreatören säljer i “annans namn” så moms tas på provisionen, inte hela gaget.",
-  V3: "Offentlig aktör. B2B-faktura med PO/referens. Beakta upphandlingsregler och ramavtal.",
+const TRACK_DESC_KEY: Record<Track, string> = {
+  C1: "trackDesc.C1",
+  C2: "trackDesc.C2",
+  C3: "trackDesc.C3",
+  C4: "trackDesc.C4",
+  V1: "trackDesc.V1",
+  V2: "trackDesc.V2",
+  V3: "trackDesc.V3",
 };
 
 export function OnboardingFlow({ isLoggedIn }: { isLoggedIn: boolean }) {
+  const t = useTranslations("signupOnboarding");
   const [answers, setAnswers] = useState<OnboardingAnswers>({});
   const [overrideStep, setOverrideStep] = useState<Step | null>(null);
   const [bankIdLoading, setBankIdLoading] = useState(false);
@@ -100,68 +102,69 @@ export function OnboardingFlow({ isLoggedIn }: { isLoggedIn: boolean }) {
       ? "bank_account"
       : "org_no"
     : null;
-  const identifierLabel = identifierKey === "bank_account" ? "Bankkonto (clearing + nr)" : "Organisationsnummer";
+  const identifierLabel =
+    identifierKey === "bank_account" ? t("identifier.bankAccount") : t("identifier.orgNo");
 
   return (
     <div className="mx-auto flex min-h-[560px] max-w-sm flex-col rounded-3xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5">
       <div className="mb-4 flex items-center justify-between text-xs text-[var(--usha-muted)]">
-        <span className="font-bold text-[var(--usha-white)]">Usha Platform</span>
-        <span className="rounded-full bg-[var(--usha-black)] px-2.5 py-1">Onboarding · demo</span>
+        <span className="font-bold text-[var(--usha-white)]">{t("appName")}</span>
+        <span className="rounded-full bg-[var(--usha-black)] px-2.5 py-1">{t("badgeDemo")}</span>
       </div>
 
       {step !== "S0_BANKID" && step !== "DONE" && (
         <button onClick={goBack} className="mb-2 self-start text-xs text-[var(--usha-muted)] hover:text-[var(--usha-white)]">
-          ← Tillbaka
+          {t("back")}
         </button>
       )}
 
       <div className="flex flex-1 flex-col">
         {/* S0 BankID — hard first gate (G1) */}
         {step === "S0_BANKID" && (
-          <Screen title="Välkommen" sub="Alla användare verifieras med BankID. Det är vår grund för trygghet.">
-            <Field label="BankID">Namn, personnummer och kontaktuppgifter hämtas säkert.</Field>
+          <Screen title={t("s0.title")} sub={t("s0.sub")}>
+            <Field label={t("s0.fieldLabel")}>{t("s0.fieldBody")}</Field>
             {!isLoggedIn && (
-              <Note tone="muted">Demo – logga in på usha.se för att spara din onboarding.</Note>
+              <Note tone="muted">{t("demoNotice")}</Note>
             )}
             {error && <Note tone="warn">{error}</Note>}
             <Spacer />
             <Primary onClick={handleBankId} disabled={bankIdLoading}>
-              {bankIdLoading ? <Loader2 size={16} className="mx-auto animate-spin" /> : "Logga in med BankID (mock)"}
+              {bankIdLoading ? <Loader2 size={16} className="mx-auto animate-spin" /> : t("s0.loginBankId")}
             </Primary>
           </Screen>
         )}
 
         {/* S1 role */}
         {step === "S1_ROLE" && (
-          <Screen title="Vad vill du göra?" sub="Du kan välja båda senare.">
-            <Choice title="Jag är kreatör" desc="DJ, artist, workshopledare, fotograf …" onClick={() => set({ role: "creator" })} />
-            <Choice title="Jag erbjuder en lokal (venue)" desc="Café, kulturhus, spa, eventlokal …" onClick={() => set({ role: "venue" })} />
+          <Screen title={t("s1.title")} sub={t("s1.sub")}>
+            <Choice title={t("s1.creatorTitle")} desc={t("s1.creatorDesc")} onClick={() => set({ role: "creator" })} />
+            <Choice title={t("s1.venueTitle")} desc={t("s1.venueDesc")} onClick={() => set({ role: "venue" })} />
           </Screen>
         )}
 
         {/* K1 */}
         {step === "K1_COMPANY" && (
-          <Screen title="Har du eget företag med F-skatt?" sub="Det avgör hur du får betalt och vem som sköter skatten.">
-            <Choice title="Ja, jag har företag (AB / enskild firma)" desc="Du fakturerar själv" onClick={() => set({ company: "company" })} />
-            <Choice title="Nej, jag har inget företag" desc="Vi löser betalningen åt dig" onClick={() => set({ company: "none" })} />
-            <Choice title="Jag representerar en ideell förening" desc="Föreningen fakturerar" onClick={() => set({ company: "nonprofit" })} />
+          <Screen title={t("k1.title")} sub={t("k1.sub")}>
+            <Choice title={t("k1.companyTitle")} desc={t("k1.companyDesc")} onClick={() => set({ company: "company" })} />
+            <Choice title={t("k1.noneTitle")} desc={t("k1.noneDesc")} onClick={() => set({ company: "none" })} />
+            <Choice title={t("k1.nonprofitTitle")} desc={t("k1.nonprofitDesc")} onClick={() => set({ company: "nonprofit" })} />
           </Screen>
         )}
 
         {/* K2 */}
         {step === "K2_PAYMENT" && (
-          <Screen title="Hur vill du få betalt?" sub="Utan eget företag finns två vägar.">
-            <Choice title="Som lön" desc="Vi (via partner) sköter skatt, avgifter och försäkring" onClick={() => set({ payment: "salary" })} />
-            <Choice title="Jag är volontär" desc="Ingen ersättning eller förmån – bara utlägg" onClick={() => set({ payment: "volunteer" })} />
+          <Screen title={t("k2.title")} sub={t("k2.sub")}>
+            <Choice title={t("k2.salaryTitle")} desc={t("k2.salaryDesc")} onClick={() => set({ payment: "salary" })} />
+            <Choice title={t("k2.volunteerTitle")} desc={t("k2.volunteerDesc")} onClick={() => set({ payment: "volunteer" })} />
           </Screen>
         )}
 
         {/* Track forms C1–C4 + venue form */}
         {["C1_FORM", "C2_FORM", "C3_FORM", "C4_FORM", "V_FORM"].includes(step) && track && (
-          <Screen title={`Spår ${TRACK_LABEL[track]}`} sub={track === "C3" ? undefined : undefined}>
+          <Screen title={t("form.trackHeading", { track: t(TRACK_LABEL_KEY[track]) })} sub={undefined}>
             {track === "C3" && (
               <p className="mb-2 text-[13px] leading-relaxed text-[var(--usha-muted)]">
-                Volontär = du hjälper till utan betalning. Du kan bara få ersättning för utlägg mot kvitto.
+                {t("form.c3Intro")}
               </p>
             )}
 
@@ -173,7 +176,7 @@ export function OnboardingFlow({ isLoggedIn }: { isLoggedIn: boolean }) {
                 <input
                   value={fields[identifierKey] ?? ""}
                   onChange={(e) => setFields((f) => ({ ...f, [identifierKey]: e.target.value }))}
-                  placeholder={identifierKey === "org_no" ? "ex. 5560000000" : "ex. 8327-9 1234567"}
+                  placeholder={identifierKey === "org_no" ? t("identifier.orgNoPlaceholder") : t("identifier.bankAccountPlaceholder")}
                   className="mt-1 w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-black)] px-3 py-2.5 text-sm text-[var(--usha-white)] outline-none focus:border-[var(--usha-gold)]/60"
                 />
               </label>
@@ -182,70 +185,67 @@ export function OnboardingFlow({ isLoggedIn }: { isLoggedIn: boolean }) {
             {fieldsForTrack(track)
               .filter((f) => f.key !== identifierKey)
               .map((f) => (
-                <Field key={f.key} label={`${f.label}${f.required ? " *" : ""}`}>
-                  {f.key === "fskatt_status" ? "Hämtas automatiskt från Skatteverket (mock)" : "samlas in"}
+                <Field key={f.key} label={`${t(`field.${f.key}`)}${f.required ? " *" : ""}`}>
+                  {f.key === "fskatt_status" ? t("form.fskattAuto") : t("form.collected")}
                 </Field>
               ))}
 
             {track === "C3" && (
               <Note tone="warn">
-                Får du betalt eller någon förmån – gage, gåvor, produkter, fri entré – är du inte volontär. Välj då lön (C2)
-                eller eget företag (C1).
+                {t("form.c3Warn")}
               </Note>
             )}
-            <Note tone="info">{TRACK_DESC[track]}</Note>
+            <Note tone="info">{t(TRACK_DESC_KEY[track])}</Note>
             {error && <Note tone="warn">{error}</Note>}
             <Spacer />
             <Primary onClick={handleFinish} disabled={saving}>
-              {saving ? <Loader2 size={16} className="mx-auto animate-spin" /> : "Slutför"}
+              {saving ? <Loader2 size={16} className="mx-auto animate-spin" /> : t("form.finish")}
             </Primary>
           </Screen>
         )}
 
         {/* V1 type */}
         {step === "V1_TYPE" && (
-          <Screen title="Vilken typ av aktör är ni?">
-            <Choice title="Företag" desc="Momsregistrerat (café, spa, eventbolag)" onClick={() => set({ venueType: "company" })} />
-            <Choice title="Förening / kulturhus" desc="Ej momsregistrerat" onClick={() => set({ venueType: "association" })} />
-            <Choice title="Offentlig aktör" desc="Kommun, kulturförvaltning" onClick={() => set({ venueType: "public" })} />
+          <Screen title={t("v1.title")}>
+            <Choice title={t("v1.companyTitle")} desc={t("v1.companyDesc")} onClick={() => set({ venueType: "company" })} />
+            <Choice title={t("v1.associationTitle")} desc={t("v1.associationDesc")} onClick={() => set({ venueType: "association" })} />
+            <Choice title={t("v1.publicTitle")} desc={t("v1.publicDesc")} onClick={() => set({ venueType: "public" })} />
           </Screen>
         )}
 
         {/* Done */}
         {step === "DONE" && (
-          <Screen title="Klart! ✓" sub="Du är BankID-verifierad och redo.">
+          <Screen title={t("done.title")} sub={t("done.sub")}>
             {track && (
               <>
                 <div className="mb-1 flex items-center gap-2 text-sm font-semibold">
-                  <ShieldCheck size={16} className="text-[var(--usha-gold)]" /> Spår: {TRACK_LABEL[track]}
+                  <ShieldCheck size={16} className="text-[var(--usha-gold)]" /> {t("done.trackPrefix", { track: t(TRACK_LABEL_KEY[track]) })}
                 </div>
-                <Note tone="info">{TRACK_DESC[track]}</Note>
+                <Note tone="info">{t(TRACK_DESC_KEY[track])}</Note>
               </>
             )}
             <Note tone={persisted ? "info" : "muted"}>
-              {persisted
-                ? "Sparat i ditt konto ✓"
-                : "Demo – logga in på usha.se för att spara din onboarding."}
+              {persisted ? t("done.saved") : t("demoNotice")}
             </Note>
-            <Note tone="muted">Kvartalsvis ersättning loggas automatiskt för DAC7-rapportering.</Note>
+            <Note tone="muted">{t("done.dac7")}</Note>
             <Spacer />
-            <Outline onClick={() => setOverrideStep("ESCROW_INFO")}>Se hur utbetalningen fungerar</Outline>
-            <Ghost onClick={reset}>Börja om</Ghost>
+            <Outline onClick={() => setOverrideStep("ESCROW_INFO")}>{t("done.seePayout")}</Outline>
+            <Ghost onClick={reset}>{t("done.restart")}</Ghost>
           </Screen>
         )}
 
         {/* Escrow explanation */}
         {step === "ESCROW_INFO" && (
-          <Screen title="Så går pengarna">
+          <Screen title={t("escrow.title")}>
             <ol className="space-y-2.5 text-[13px] text-[var(--usha-white)]">
-              <li>Venue betalar in via <b className="text-[var(--usha-gold)]">Stripe</b> – aldrig till Ushas konto.</li>
-              <li>Pengarna <b className="text-[var(--usha-gold)]">hålls säkert</b> hos PSP/EOR tills uppdraget markeras genomfört.</li>
-              <li>Skatt, avgifter och Ushas provision dras automatiskt.</li>
-              <li>Resten betalas ut till <b className="text-[var(--usha-gold)]">dig / din partner</b>.</li>
+              <li>{t.rich("escrow.step1", { b: (chunks) => <b className="text-[var(--usha-gold)]">{chunks}</b> })}</li>
+              <li>{t.rich("escrow.step2", { b: (chunks) => <b className="text-[var(--usha-gold)]">{chunks}</b> })}</li>
+              <li>{t("escrow.step3")}</li>
+              <li>{t.rich("escrow.step4", { b: (chunks) => <b className="text-[var(--usha-gold)]">{chunks}</b> })}</li>
             </ol>
-            <Note tone="info">Usha bokför bara provisionen. Bruttosumman passerar aldrig bolagskontot.</Note>
+            <Note tone="info">{t("escrow.note")}</Note>
             <Spacer />
-            <Ghost onClick={() => setOverrideStep("DONE")}>Klar</Ghost>
+            <Ghost onClick={() => setOverrideStep("DONE")}>{t("escrow.done")}</Ghost>
           </Screen>
         )}
       </div>

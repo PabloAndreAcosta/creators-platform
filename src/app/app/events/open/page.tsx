@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Calendar, MapPin, AlertCircle } from "lucide-react";
@@ -10,6 +11,7 @@ const INSTRUCTOR_TIERS = ["guld", "premium"];
 const INSTRUCTOR_ROLES = ["creator", "creator"];
 
 export default async function OpenEventsPage() {
+  const t = await getTranslations("openEvents");
   const supabase = await createClient();
   const {
     data: { user },
@@ -39,16 +41,16 @@ export default async function OpenEventsPage() {
   // Eligibility — what's blocking the user from offering services (if anything).
   const missing: { label: string; href: string }[] = [];
   if (!profile || !INSTRUCTOR_ROLES.includes(profile.role)) {
-    missing.push({ label: "Du måste vara registrerad som kreatör", href: "/dashboard/profile" });
+    missing.push({ label: t("missingCreator"), href: "/dashboard/profile" });
   }
   if (!profile || !INSTRUCTOR_TIERS.includes(profile.tier)) {
-    missing.push({ label: "Skaffa en Guld- eller Premium-prenumeration", href: "/dashboard/billing" });
+    missing.push({ label: t("missingSubscription"), href: "/dashboard/billing" });
   }
   if (!profile?.offers_coaching || !profile?.coaching_hourly_rate_sek) {
-    missing.push({ label: "Aktivera coaching och sätt ett timpris", href: "/dashboard/profile" });
+    missing.push({ label: t("missingCoaching"), href: "/dashboard/profile" });
   }
   if (!profile?.stripe_account_id) {
-    missing.push({ label: "Anslut Stripe för utbetalningar", href: "/dashboard/payouts" });
+    missing.push({ label: t("missingStripe"), href: "/dashboard/payouts" });
   }
   const eligible = missing.length === 0;
 
@@ -62,9 +64,9 @@ export default async function OpenEventsPage() {
           <ArrowLeft size={16} />
         </Link>
         <div>
-          <h1 className="text-xl font-bold">Öppna event</h1>
+          <h1 className="text-xl font-bold">{t("title")}</h1>
           <p className="text-sm text-[var(--usha-muted)]">
-            Gå med på andras öppna event och erbjud betalda minisessioner (15–60 min).
+            {t("subtitle")}
           </p>
         </div>
       </div>
@@ -73,7 +75,7 @@ export default async function OpenEventsPage() {
         <div className="rounded-xl border border-[var(--usha-gold)]/30 bg-[var(--usha-gold)]/5 p-4">
           <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-[var(--usha-gold)]">
             <AlertCircle size={16} />
-            Innan du kan erbjuda tjänster
+            {t("eligibilityHeading")}
           </div>
           <ul className="space-y-1.5 text-sm text-[var(--usha-muted)]">
             {missing.map((m) => (
@@ -89,7 +91,7 @@ export default async function OpenEventsPage() {
 
       {!events?.length ? (
         <p className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 text-center text-sm text-[var(--usha-muted)]">
-          Inga öppna event just nu. Håll utkik!
+          {t("emptyState")}
         </p>
       ) : (
         <div className="space-y-3">
@@ -122,11 +124,11 @@ export default async function OpenEventsPage() {
                 </div>
                 <div className="shrink-0">
                   {isOwn ? (
-                    <span className="text-xs text-[var(--usha-muted)]">Ditt event</span>
+                    <span className="text-xs text-[var(--usha-muted)]">{t("ownEvent")}</span>
                   ) : eligible ? (
                     <JoinEventButton listingId={e.id} initialJoined={joined.has(e.id)} />
                   ) : (
-                    <span className="text-xs text-[var(--usha-muted)]">Uppfyll kraven ovan</span>
+                    <span className="text-xs text-[var(--usha-muted)]">{t("meetRequirements")}</span>
                   )}
                 </div>
               </div>
