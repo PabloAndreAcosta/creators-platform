@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useToast } from "@/components/ui/toaster";
 import { deleteEvent, toggleEventActive, duplicateEvent } from "./actions";
 import { trackEvent } from "@/lib/analytics";
@@ -41,11 +42,11 @@ const EVENT_IMAGES = [
   "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&h=250&fit=crop",
 ];
 
-const FB_ERROR_MESSAGES: Record<string, string> = {
-  denied: "Du nekade åtkomst till Facebook.",
-  token: "Kunde inte hämta Facebook-token. Försök igen.",
-  pages: "Kunde inte hämta dina Facebook-sidor.",
-  no_pages: "Inga Facebook-sidor hittades. Du behöver administrera en sida för att kunna synka event.",
+const FB_ERROR_KEYS: Record<string, string> = {
+  denied: "fbErrorDenied",
+  token: "fbErrorToken",
+  pages: "fbErrorPages",
+  no_pages: "fbErrorNoPages",
 };
 
 interface ListingData {
@@ -83,38 +84,39 @@ export function EventsContent({
   fbError,
 }: EventsContentProps) {
   const { toast } = useToast();
+  const t = useTranslations("myEvents");
   const activeCount = listings.filter((l) => l.is_active).length;
 
   useEffect(() => {
     if (fbConnected) {
-      toast.success("Facebook-sida ansluten!", "Du kan nu synka evenemang med Facebook.");
+      toast.success(t("fbConnectedTitle"), t("fbConnectedBody"));
       trackEvent("fb_connect");
     }
-    if (fbError && FB_ERROR_MESSAGES[fbError]) {
-      toast.error("Facebook-anslutning misslyckades", FB_ERROR_MESSAGES[fbError]);
+    if (fbError && FB_ERROR_KEYS[fbError]) {
+      toast.error(t("fbConnectFailedTitle"), t(FB_ERROR_KEYS[fbError]));
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="px-4 py-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Mina Evenemang</h1>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
         <div className="flex items-center gap-3">
           <Link
             href="/app/events/insights"
             className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--usha-gold)] underline-offset-2 hover:underline"
           >
             <BarChart3 size={13} />
-            Statistik
+            {t("statistics")}
           </Link>
           <Link
             href="/app/events/open"
             className="text-xs font-medium text-[var(--usha-gold)] underline-offset-2 hover:underline"
           >
-            Öppna event →
+            {t("openEvents")}
           </Link>
           <span className="rounded-full bg-[var(--usha-gold)]/10 px-3 py-1 text-xs font-medium text-[var(--usha-gold)]">
-            {activeCount} aktiva
+            {t("activeCount", { count: activeCount })}
           </span>
         </div>
       </div>
@@ -125,9 +127,9 @@ export function EventsContent({
       {listings.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] py-16">
           <Calendar size={40} className="mb-4 text-[var(--usha-muted)]" />
-          <p className="text-base font-medium text-[var(--usha-muted)]">Inga evenemang ännu</p>
+          <p className="text-base font-medium text-[var(--usha-muted)]">{t("emptyTitle")}</p>
           <p className="mt-1 text-sm text-[var(--usha-muted)]">
-            Skapa ditt första evenemang för att komma igång
+            {t("emptyBody")}
           </p>
         </div>
       ) : (
@@ -137,12 +139,12 @@ export function EventsContent({
             <div className="rounded-xl border border-[var(--usha-gold)]/20 bg-gradient-to-br from-[var(--usha-gold)]/10 to-transparent p-4">
               <Ticket size={16} className="mb-1 text-[var(--usha-gold)]" />
               <p className="text-xl font-bold">{listings.length}</p>
-              <p className="text-[11px] text-[var(--usha-muted)]">Totalt evenemang</p>
+              <p className="text-[11px] text-[var(--usha-muted)]">{t("statTotal")}</p>
             </div>
             <div className="rounded-xl border border-[var(--usha-gold)]/20 bg-gradient-to-br from-[var(--usha-gold)]/10 to-transparent p-4">
               <TrendingUp size={16} className="mb-1 text-[var(--usha-gold)]" />
               <p className="text-xl font-bold">{activeCount}</p>
-              <p className="text-[11px] text-[var(--usha-muted)]">Aktiva</p>
+              <p className="text-[11px] text-[var(--usha-muted)]">{t("statActive")}</p>
             </div>
           </div>
 
@@ -166,7 +168,7 @@ export function EventsContent({
         className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--usha-border)] bg-[var(--usha-card)] py-4 text-sm font-medium text-[var(--usha-muted)] transition-colors hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-gold)]"
       >
         <Plus size={18} />
-        Skapa nytt evenemang
+        {t("createNew")}
       </Link>
     </div>
   );
@@ -186,11 +188,12 @@ function EventCard({
   const [isActive, setIsActive] = useState(listing.is_active);
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
+  const t = useTranslations("myEvents");
   const router = useRouter();
 
   const categoryLabel = EVENT_CATEGORY_LABELS[listing.category] ?? listing.category;
   const image = listing.image_url || EVENT_IMAGES[index % EVENT_IMAGES.length];
-  const price = listing.price ? `${listing.price} kr` : "Gratis";
+  const price = listing.price ? `${listing.price} kr` : t("free");
   const duration = listing.duration_minutes ? `${listing.duration_minutes} min` : null;
 
   function handleToggle() {
@@ -201,20 +204,20 @@ function EventCard({
       const result = await toggleEventActive(listing.id, newActive);
       if (result?.error) {
         setIsActive(!newActive);
-        toast.error("Fel", result.error);
+        toast.error(t("errorTitle"), result.error);
       }
     });
   }
 
   function handleDelete() {
     setShowMenu(false);
-    if (!confirm(`Ta bort "${listing.title}"? Det går inte att ångra.`)) return;
+    if (!confirm(t("deleteConfirm", { title: listing.title }))) return;
     startTransition(async () => {
       const result = await deleteEvent(listing.id);
       if (result?.error) {
-        toast.error("Fel", result.error);
+        toast.error(t("errorTitle"), result.error);
       } else {
-        toast.success("Evenemang borttaget");
+        toast.success(t("deleteSuccess"));
         router.refresh();
       }
     });
@@ -236,7 +239,7 @@ function EventCard({
             isActive ? "bg-green-500/90 text-white" : "bg-[var(--usha-muted)]/80 text-white"
           }`}
         >
-          {isActive ? "Aktiv" : "Utkast"}
+          {isActive ? t("statusActive") : t("statusDraft")}
         </span>
 
         <span className="absolute right-3 top-3 rounded-full bg-black/50 px-2.5 py-1 text-[10px] font-medium text-white backdrop-blur-sm">
@@ -288,12 +291,12 @@ function EventCard({
             listing.facebook_event_id ? (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-green-500/10 px-2.5 py-1 text-[11px] font-medium text-green-400">
                 <CheckCircle2 size={12} />
-                Inlägg publicerat på Facebook
+                {t("fbPostPublished")}
               </span>
             ) : (
               <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--usha-gold)]/10 px-2.5 py-1 text-[11px] font-medium text-[var(--usha-gold)]">
                 <CalendarClock size={12} />
-                Auto-publiceras ~3 dagar innan
+                {t("fbAutoPost")}
               </span>
             )
           )}
@@ -322,7 +325,7 @@ function EventCard({
                     onClick={() => setShowMenu(false)}
                   >
                     <ScanLine size={12} />
-                    Skanna biljetter
+                    {t("scanTickets")}
                   </Link>
                   <Link
                     href={`/app/events/${listing.id}/live`}
@@ -330,7 +333,7 @@ function EventCard({
                     onClick={() => setShowMenu(false)}
                   >
                     <Radio size={12} />
-                    Live Dashboard
+                    {t("liveDashboard")}
                   </Link>
                   <Link
                     href={`/app/events/${listing.id}/stats`}
@@ -338,7 +341,7 @@ function EventCard({
                     onClick={() => setShowMenu(false)}
                   >
                     <BarChart3 size={12} />
-                    Statistik
+                    {t("statistics")}
                   </Link>
                   <Link
                     href={`/app/events/${listing.id}/edit`}
@@ -346,7 +349,7 @@ function EventCard({
                     onClick={() => setShowMenu(false)}
                   >
                     <Edit2 size={12} />
-                    Redigera
+                    {t("edit")}
                   </Link>
                   <Link
                     href={`/app/events/${listing.id}/crew`}
@@ -354,7 +357,7 @@ function EventCard({
                     onClick={() => setShowMenu(false)}
                   >
                     <Users size={12} />
-                    Crew
+                    {t("crew")}
                   </Link>
                   <button
                     onClick={() => {
@@ -364,7 +367,7 @@ function EventCard({
                     className="flex w-full items-center gap-2 px-4 py-2 text-xs hover:bg-[var(--usha-card-hover)]"
                   >
                     <Copy size={12} />
-                    Duplicera med nytt datum
+                    {t("duplicateWithNewDate")}
                   </button>
                   <Link
                     href={`/app/events/new?from=${listing.id}`}
@@ -372,21 +375,21 @@ function EventCard({
                     onClick={() => setShowMenu(false)}
                   >
                     <Copy size={12} />
-                    Duplicera + redigera
+                    {t("duplicateAndEdit")}
                   </Link>
                   <button
                     onClick={handleToggle}
                     className="flex w-full items-center gap-2 px-4 py-2 text-xs hover:bg-[var(--usha-card-hover)]"
                   >
                     {isActive ? <ToggleLeft size={12} /> : <ToggleRight size={12} />}
-                    {isActive ? "Avaktivera" : "Aktivera"}
+                    {isActive ? t("deactivate") : t("activate")}
                   </button>
                   <button
                     onClick={handleDelete}
                     className="flex w-full items-center gap-2 px-4 py-2 text-xs text-red-400 hover:bg-[var(--usha-card-hover)]"
                   >
                     <Trash2 size={12} />
-                    Ta bort
+                    {t("delete")}
                   </button>
                 </div>
               </>
@@ -430,6 +433,7 @@ function CloneModal({
   onClose: () => void;
 }) {
   const { toast } = useToast();
+  const t = useTranslations("myEvents");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [newDate, setNewDate] = useState("");
@@ -439,7 +443,7 @@ function CloneModal({
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!newDate) {
-      toast.error("Datum krävs");
+      toast.error(t("dateRequired"));
       return;
     }
     startTransition(async () => {
@@ -450,9 +454,9 @@ function CloneModal({
         newEndTime || null
       );
       if (result?.error) {
-        toast.error("Kunde inte duplicera", result.error);
+        toast.error(t("duplicateFailedTitle"), result.error);
       } else {
-        toast.success("Duplicerat!", `"${listing.title}" är skapat med nytt datum.`);
+        toast.success(t("duplicateSuccessTitle"), t("duplicateSuccessBody", { title: listing.title }));
         onClose();
         router.refresh();
       }
@@ -466,7 +470,7 @@ function CloneModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-base font-bold">Duplicera evenemang</h3>
+          <h3 className="text-base font-bold">{t("cloneModalTitle")}</h3>
           <button
             onClick={onClose}
             className="rounded-lg p-1 text-[var(--usha-muted)] hover:bg-[var(--usha-card-hover)] hover:text-[var(--usha-white)]"
@@ -476,12 +480,12 @@ function CloneModal({
           </button>
         </div>
         <p className="mb-4 text-xs text-[var(--usha-muted)]">
-          Kopierar &ldquo;{listing.title}&rdquo; med all data utom datum/tid.
+          {t("cloneModalBody", { title: listing.title })}
         </p>
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
             <label className="mb-1 block text-xs text-[var(--usha-muted)]">
-              Nytt datum <span className="text-red-400">*</span>
+              {t("newDate")} <span className="text-red-400">*</span>
             </label>
             <input
               type="date"
@@ -493,7 +497,7 @@ function CloneModal({
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="mb-1 block text-xs text-[var(--usha-muted)]">Starttid</label>
+              <label className="mb-1 block text-xs text-[var(--usha-muted)]">{t("startTime")}</label>
               <input
                 type="time"
                 value={newTime}
@@ -502,7 +506,7 @@ function CloneModal({
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs text-[var(--usha-muted)]">Sluttid</label>
+              <label className="mb-1 block text-xs text-[var(--usha-muted)]">{t("endTime")}</label>
               <input
                 type="time"
                 value={newEndTime}
@@ -517,14 +521,14 @@ function CloneModal({
               onClick={onClose}
               className="flex-1 rounded-lg border border-[var(--usha-border)] py-2 text-sm hover:bg-[var(--usha-card-hover)]"
             >
-              Avbryt
+              {t("cancel")}
             </button>
             <button
               type="submit"
               disabled={isPending}
               className="flex-1 rounded-lg bg-[var(--usha-gold)] py-2 text-sm font-medium text-black disabled:opacity-50"
             >
-              {isPending ? "Duplicerar..." : "Duplicera"}
+              {isPending ? t("duplicating") : t("duplicate")}
             </button>
           </div>
         </form>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Calendar, MapPin, Clock, QrCode, X, Ticket, User, CheckCircle2, Maximize2, ScanLine } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
 import { useSubscription } from "@/lib/subscription/context";
@@ -73,13 +74,14 @@ interface TicketsContentProps {
 
 /** Host-only link into the door scanner, surfaced from the Tickets page. */
 function ScanTicketsButton() {
+  const t = useTranslations("myTickets");
   return (
     <a
       href="/app/scan"
       className="flex items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm font-semibold transition hover:border-[var(--usha-gold)]/40"
     >
       <ScanLine size={16} className="text-[var(--usha-gold)]" />
-      Skanna biljetter
+      {t("scanTickets")}
     </a>
   );
 }
@@ -120,7 +122,10 @@ function TicketQR({ ticket, size }: { ticket: TicketData; size: number }) {
   return <img src={dataUrl} alt={`QR ${ticket.code}`} width={size} height={size} />;
 }
 
-function bookingToTicket(booking: BookingData): TicketData {
+function bookingToTicket(
+  booking: BookingData,
+  fallbackLabel: string
+): TicketData {
   const scheduledDate = new Date(booking.scheduled_at);
   const now = new Date();
   const isPast = scheduledDate < now;
@@ -189,12 +194,12 @@ function bookingToTicket(booking: BookingData): TicketData {
       ? booking.ticket_type_name
         ? `${listing.title} · ${booking.ticket_type_name}`
         : listing.title
-      : "Bokning",
+      : fallbackLabel,
     date: displayDate,
     time: displayTime,
     location: displayLocation,
     status,
-    type: listing?.category || "Bokning",
+    type: listing?.category || fallbackLabel,
     amountPaid: booking.amount_paid,
     bookingType: booking.booking_type || "manual",
     imageUrl: listing?.image_url || null,
@@ -207,8 +212,9 @@ export function TicketsContent({ bookings, appleWallet, googleWallet, canScan }:
   const [selectedTicket, setSelectedTicket] = useState<TicketData | null>(null);
   const searchParams = useSearchParams();
   const { toast } = useToast();
+  const t = useTranslations("myTickets");
 
-  const tickets = bookings.map(bookingToTicket);
+  const tickets = bookings.map((b) => bookingToTicket(b, t("bookingFallback")));
   const activeTickets = tickets.filter(
     (t) => t.status === "active" || t.status === "upcoming"
   );
@@ -216,7 +222,7 @@ export function TicketsContent({ bookings, appleWallet, googleWallet, canScan }:
 
   useEffect(() => {
     if (searchParams.get("success") === "true") {
-      toast.success("Biljett köpt!", "Din biljett finns nu här nedanför.");
+      toast.success(t("toastPurchasedTitle"), t("toastPurchasedBody"));
       trackEvent("booking_complete", { source: "ticket-checkout" });
       window.history.replaceState({}, "", "/app/tickets");
     }
@@ -233,21 +239,21 @@ export function TicketsContent({ bookings, appleWallet, googleWallet, canScan }:
   if (tickets.length === 0) {
     return (
       <div className="px-4 py-6 space-y-8">
-        <h1 className="text-2xl font-bold">Mina Biljetter</h1>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
         {canScan && <ScanTicketsButton />}
         <div className="flex flex-col items-center justify-center rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] py-16">
           <Ticket size={40} className="mb-4 text-[var(--usha-muted)]" />
           <p className="text-base font-medium text-[var(--usha-muted)]">
-            Du har inga biljetter ännu
+            {t("emptyTitle")}
           </p>
           <p className="mt-1 text-sm text-[var(--usha-muted)]">
-            Boka ett evenemang för att få din första biljett
+            {t("emptyBody")}
           </p>
           <a
             href="/marketplace"
             className="mt-4 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-6 py-2.5 text-sm font-bold text-black transition hover:opacity-90"
           >
-            Utforska upplevelser
+            {t("exploreExperiences")}
           </a>
         </div>
       </div>
@@ -257,9 +263,11 @@ export function TicketsContent({ bookings, appleWallet, googleWallet, canScan }:
   return (
     <div className="px-4 py-6 space-y-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Mina Biljetter</h1>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
         <span className="rounded-full bg-[var(--usha-gold)]/10 px-3 py-1 text-xs font-medium text-[var(--usha-gold)]">
-          {tickets.length} {tickets.length === 1 ? "venue" : "upplevelser"}
+          {tickets.length === 1
+            ? t("countSingular", { count: tickets.length })
+            : t("countPlural", { count: tickets.length })}
         </span>
       </div>
 
@@ -269,7 +277,7 @@ export function TicketsContent({ bookings, appleWallet, googleWallet, canScan }:
       {activeTickets.length > 0 && (
         <section>
           <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-[var(--usha-muted)]">
-            Aktiva Biljetter
+            {t("activeTicketsHeading")}
           </h2>
           <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
             {activeTickets.map((ticket) => (
@@ -288,7 +296,7 @@ export function TicketsContent({ bookings, appleWallet, googleWallet, canScan }:
       {usedTickets.length > 0 && (
         <section>
           <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-[var(--usha-muted)]">
-            Använda Biljetter
+            {t("usedTicketsHeading")}
           </h2>
           <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
             {usedTickets.map((ticket) => (
@@ -329,9 +337,10 @@ function TicketCard({
 }) {
   const { tier } = useSubscription();
   const { toast } = useToast();
+  const t = useTranslations("myTickets");
   const [paying, setPaying] = useState(false);
-  const tierBadge = tier === "premium" ? { label: "VIP", className: "bg-purple-500/90 text-white" }
-    : tier === "guld" ? { label: "GULD", className: "bg-[var(--usha-gold)]/90 text-black" }
+  const tierBadge = tier === "premium" ? { label: t("tierVip"), className: "bg-purple-500/90 text-white" }
+    : tier === "guld" ? { label: t("tierGold"), className: "bg-[var(--usha-gold)]/90 text-black" }
     : null;
 
   async function handlePay() {
@@ -344,14 +353,14 @@ function TicketCard({
       });
       const data = await res.json();
       if (!res.ok) {
-        toast.error("Kunde inte betala", data.error);
+        toast.error(t("payErrorTitle"), data.error);
         setPaying(false);
         return;
       }
       if (data.url) window.location.href = data.url;
       else setPaying(false);
     } catch {
-      toast.error("Fel", "Kunde inte starta betalningen");
+      toast.error(t("errorTitle"), t("payStartError"));
       setPaying(false);
     }
   }
@@ -378,10 +387,10 @@ function TicketCard({
             }`}
           >
             {ticket.status === "active"
-              ? "Aktiv"
+              ? t("statusActive")
               : ticket.status === "upcoming"
-                ? "Kommande"
-                : "Använd"}
+                ? t("statusUpcoming")
+                : t("statusUsed")}
           </span>
         </div>
       )}
@@ -406,10 +415,10 @@ function TicketCard({
               }`}
             >
               {ticket.status === "active"
-                ? "Aktiv"
+                ? t("statusActive")
                 : ticket.status === "upcoming"
-                  ? "Kommande"
-                  : "Använd"}
+                  ? t("statusUpcoming")
+                  : t("statusUsed")}
             </span>
           )}
         </div>
@@ -455,7 +464,11 @@ function TicketCard({
         {ticket.checkedIn && (
           <div className="mt-3 flex items-center gap-1.5 rounded-lg bg-green-500/10 px-3 py-2 text-xs font-semibold text-green-500">
             <CheckCircle2 size={14} />
-            Incheckad{ticket.checkedInAt ? ` · ${new Date(ticket.checkedInAt).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}` : ""}
+            {ticket.checkedInAt
+              ? t("checkedInAt", {
+                  time: new Date(ticket.checkedInAt).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" }),
+                })
+              : t("checkedIn")}
           </div>
         )}
 
@@ -467,10 +480,10 @@ function TicketCard({
               disabled={paying}
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2.5 text-sm font-bold text-black transition hover:opacity-90 disabled:opacity-50"
             >
-              {paying ? "Öppnar betalning…" : `Betala ${ticket.price} kr`}
+              {paying ? t("openingPayment") : t("payPrice", { price: ticket.price ?? 0 })}
             </button>
             <p className="mt-1.5 text-center text-[11px] text-[var(--usha-muted)]">
-              Obetald – betalning sker säkert via Stripe.
+              {t("unpaidNotice")}
             </p>
           </div>
         )}
@@ -490,13 +503,13 @@ function TicketCard({
         <button
           onClick={onShowQR}
           className="flex w-full flex-col items-center gap-2 p-4 transition-opacity hover:opacity-90"
-          aria-label="Förstora QR-kod"
+          aria-label={t("enlargeQr")}
         >
           <div className="rounded-xl border-2 border-[var(--usha-gold)]/30 bg-white p-3">
             <TicketQR ticket={ticket} size={150} />
           </div>
           <span className="flex items-center gap-1.5 text-xs font-medium text-[var(--usha-gold)]">
-            <Maximize2 size={13} /> Tryck för att förstora
+            <Maximize2 size={13} /> {t("tapToEnlarge")}
           </span>
           <p className="font-mono text-[11px] text-[var(--usha-muted)]">{ticket.code}</p>
         </button>
@@ -515,7 +528,7 @@ function TicketCard({
             </div>
             {ticket.amountPaid != null && ticket.bookingType === "ticket" && (
               <p className="mt-0.5 text-xs font-semibold text-[var(--usha-gold)]">
-                Betalt: {(ticket.amountPaid / 100).toFixed(0)} kr
+                {t("paidAmount", { amount: (ticket.amountPaid / 100).toFixed(0) })}
               </p>
             )}
           </div>
@@ -525,7 +538,7 @@ function TicketCard({
               className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-3 py-2 text-xs font-semibold text-black transition-opacity hover:opacity-90"
             >
               <QrCode size={14} />
-              Visa QR-kod
+              {t("showQr")}
             </button>
           )}
         </div>
@@ -545,6 +558,7 @@ function QRModal({
   googleWallet?: boolean;
   onClose: () => void;
 }) {
+  const t = useTranslations("myTickets");
   // Keep the screen awake (and thus at the user's brightness) while the QR is up
   // at the door — a screen that dims mid-scan is the classic e-ticket frustration.
   useEffect(() => {
@@ -565,11 +579,11 @@ function QRModal({
   return (
     <div className="fixed inset-0 z-[100] flex flex-col items-center overflow-y-auto bg-white px-5 py-6 text-gray-900">
       <div className="flex w-full max-w-sm items-center justify-between">
-        <h3 className="text-base font-bold text-gray-900">Din biljett</h3>
+        <h3 className="text-base font-bold text-gray-900">{t("yourTicket")}</h3>
         <button
           onClick={onClose}
           className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
-          aria-label="Stäng"
+          aria-label={t("close")}
         >
           <X size={20} />
         </button>
@@ -584,10 +598,14 @@ function QRModal({
         {checkedIn ? (
           <>
             <CheckCircle2 size={16} />
-            Incheckad{ticket.checkedInAt ? ` · ${new Date(ticket.checkedInAt).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}` : ""}
+            {ticket.checkedInAt
+              ? t("checkedInAt", {
+                  time: new Date(ticket.checkedInAt).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" }),
+                })
+              : t("checkedIn")}
           </>
         ) : (
-          <>Giltig · visa vid entré</>
+          <>{t("validShowAtEntrance")}</>
         )}
       </div>
 
@@ -602,7 +620,7 @@ function QRModal({
       <div className="mt-5 w-full max-w-sm text-center">
         <h4 className="text-lg font-bold text-gray-900">{ticket.title}</h4>
         {ticket.creatorName && (
-          <p className="mt-0.5 text-sm text-gray-500">av {ticket.creatorName}</p>
+          <p className="mt-0.5 text-sm text-gray-500">{t("byCreator", { name: ticket.creatorName })}</p>
         )}
         <p className="mt-1 text-sm text-gray-600">{ticket.date} · {ticket.time}</p>
         {ticket.location !== "-" && (
@@ -619,7 +637,7 @@ function QRModal({
               href={`/api/tickets/wallet?${walletQ}&provider=apple`}
               className="flex items-center justify-center gap-2 rounded-xl bg-black px-4 py-2.5 text-sm font-medium text-white transition hover:opacity-90"
             >
-              Lägg till i Apple Wallet
+              {t("addToAppleWallet")}
             </a>
           )}
           {googleWallet && (
@@ -627,7 +645,7 @@ function QRModal({
               href={`/api/tickets/wallet?${walletQ}&provider=google`}
               className="flex items-center justify-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-900 transition hover:bg-gray-50"
             >
-              Spara i Google Wallet
+              {t("saveToGoogleWallet")}
             </a>
           )}
         </div>
@@ -638,8 +656,8 @@ function QRModal({
           <ShareEventButton
             url={`${typeof window !== "undefined" ? window.location.origin : "https://usha.se"}/listing/${ticket.listingId}`}
             title={ticket.title}
-            text={`Jag ska på ${ticket.title} — häng med!`}
-            label="Bjud in vänner"
+            text={t("shareText", { title: ticket.title })}
+            label={t("inviteFriends")}
             className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
           />
         </div>

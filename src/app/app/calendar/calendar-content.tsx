@@ -3,14 +3,9 @@
 import { useState, useTransition, useEffect } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, MapPin, Clock, Calendar, Check, Plus, Trash2, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useRole } from "@/components/mobile/role-context";
 import { toggleAvailability, getAvailability, addTimeSlot, removeTimeSlot } from "./actions";
-
-const DAYS = ["Mån", "Tis", "Ons", "Tor", "Fre", "Lör", "Sön"];
-const MONTHS = [
-  "Januari", "Februari", "Mars", "April", "Maj", "Juni",
-  "Juli", "Augusti", "September", "Oktober", "November", "December",
-];
 
 const EVENT_COLORS = [
   "border-l-[var(--usha-gold)]",
@@ -35,6 +30,14 @@ interface CalendarContentProps {
 }
 
 export function CalendarContent({ bookings, initialAvailableDates = [], isCreator = false }: CalendarContentProps) {
+  const t = useTranslations("calendarPage");
+  const DAYS = [
+    t("dayMon"), t("dayTue"), t("dayWed"), t("dayThu"), t("dayFri"), t("daySat"), t("daySun"),
+  ];
+  const MONTHS = [
+    t("monthJan"), t("monthFeb"), t("monthMar"), t("monthApr"), t("monthMay"), t("monthJun"),
+    t("monthJul"), t("monthAug"), t("monthSep"), t("monthOct"), t("monthNov"), t("monthDec"),
+  ];
   const { role } = useRole();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -78,9 +81,9 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
     const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
     const timeStr = date.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
     const event = {
-      title: booking.listings?.title || "Bokning",
+      title: booking.listings?.title || t("bookingFallbackTitle"),
       time: timeStr,
-      location: booking.status === "confirmed" ? "Bekräftad" : "Väntande",
+      location: booking.status === "confirmed" ? t("statusConfirmed") : t("statusPending"),
       color: EVENT_COLORS[i % EVENT_COLORS.length],
     };
     if (!eventsByDate[dateKey]) eventsByDate[dateKey] = [];
@@ -172,13 +175,13 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
           }`}
         >
           <Check size={16} />
-          {editMode ? "Klar med tillgänglighet" : "Markera tillgänglighet"}
+          {editMode ? t("availabilityDone") : t("availabilityMark")}
         </button>
       )}
 
       {editMode && (
         <p className="text-xs text-emerald-400/70">
-          Tryck på ett datum för att lägga till tidsluckor. Grönt = tillgänglig.
+          {t("availabilityHint")}
         </p>
       )}
 
@@ -260,11 +263,11 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
         {/* Legend */}
         <div className="mt-4 flex flex-wrap items-center gap-4 text-[10px] text-[var(--usha-muted)]">
           <span className="flex items-center gap-1">
-            <div className="h-2 w-2 rounded-full bg-[var(--usha-gold)]" /> Bokning
+            <div className="h-2 w-2 rounded-full bg-[var(--usha-gold)]" /> {t("legendBooking")}
           </span>
           {showCreatorTools && (
             <span className="flex items-center gap-1">
-              <div className="h-2 w-2 rounded-full bg-emerald-400" /> Tillgänglig
+              <div className="h-2 w-2 rounded-full bg-emerald-400" /> {t("legendAvailable")}
             </span>
           )}
         </div>
@@ -302,7 +305,7 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
 
       {/* Upcoming events */}
       <section>
-        <h2 className="mb-4 text-lg font-bold">Kommande bokningar</h2>
+        <h2 className="mb-4 text-lg font-bold">{t("upcomingBookings")}</h2>
         <div className="space-y-3 md:grid md:grid-cols-2 md:gap-3 md:space-y-0">
           {allUpcoming.length > 0 ? allUpcoming.map((event, i) => (
             <Link
@@ -332,7 +335,7 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
           )) : (
             <div className="col-span-full flex flex-col items-center justify-center rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] py-12">
               <Calendar size={32} className="mb-3 text-[var(--usha-muted)]" />
-              <p className="text-sm text-[var(--usha-muted)]">Inga kommande bokningar</p>
+              <p className="text-sm text-[var(--usha-muted)]">{t("noUpcomingBookings")}</p>
             </div>
           )}
         </div>
@@ -358,6 +361,7 @@ function TimeSlotEditor({
   onRemoveSlot: (slotId: string) => void;
   isAvailable: boolean;
 }) {
+  const t = useTranslations("calendarPage");
   const [newStart, setNewStart] = useState("09:00");
   const [newEnd, setNewEnd] = useState("17:00");
   const [adding, setAdding] = useState(false);
@@ -396,7 +400,7 @@ function TimeSlotEditor({
         }`}
       >
         <Check size={12} />
-        {isAllDay ? "Hela dagen (aktiv)" : !isAvailable ? "Markera hela dagen" : "Ta bort alla tider"}
+        {isAllDay ? t("allDayActive") : !isAvailable ? t("markAllDay") : t("removeAllTimes")}
       </button>
 
       {/* Existing slots */}
@@ -421,7 +425,7 @@ function TimeSlotEditor({
       {/* Add new slot */}
       <div className="flex items-end gap-2">
         <div className="flex-1">
-          <label className="mb-1 block text-[10px] text-[var(--usha-muted)]">Starttid</label>
+          <label className="mb-1 block text-[10px] text-[var(--usha-muted)]">{t("startTime")}</label>
           <input
             type="time"
             value={newStart}
@@ -430,7 +434,7 @@ function TimeSlotEditor({
           />
         </div>
         <div className="flex-1">
-          <label className="mb-1 block text-[10px] text-[var(--usha-muted)]">Sluttid</label>
+          <label className="mb-1 block text-[10px] text-[var(--usha-muted)]">{t("endTime")}</label>
           <input
             type="time"
             value={newEnd}
@@ -444,7 +448,7 @@ function TimeSlotEditor({
           className="flex items-center gap-1 rounded-lg bg-emerald-500/20 px-3 py-1.5 text-xs font-medium text-emerald-400 transition hover:bg-emerald-500/30 disabled:opacity-50"
         >
           {adding ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />}
-          Lägg till
+          {t("add")}
         </button>
       </div>
 
