@@ -18,7 +18,10 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
   const { toUserId, action } = await req.json().catch(() => ({}));
-  if (!toUserId || (action !== "like" && action !== "pass") || toUserId === user.id) {
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  // Validate the id shape before it flows into a PostgREST .or() filter below
+  // (prevents filter-structure injection / block bypass).
+  if (!toUserId || !UUID_RE.test(toUserId) || (action !== "like" && action !== "pass") || toUserId === user.id) {
     return NextResponse.json({ error: "bad_request" }, { status: 400 });
   }
 
