@@ -1,9 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
+import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Plus, Calendar, MapPin, Users } from "lucide-react";
 
 export default async function GigsDashboardPage() {
+  const t = await getTranslations("dashGigsPage");
   const supabase = await createClient();
   const {
     data: { user },
@@ -45,10 +47,10 @@ export default async function GigsDashboardPage() {
   });
 
   const STATUS_LABELS: Record<string, { text: string; className: string }> = {
-    open: { text: "Öppet", className: "bg-green-500/10 text-green-400" },
-    filled: { text: "Tillsatt", className: "bg-blue-500/10 text-blue-400" },
-    closed: { text: "Stängt", className: "bg-[var(--usha-border)] text-[var(--usha-muted)]" },
-    canceled: { text: "Avbokat", className: "bg-red-500/10 text-red-400" },
+    open: { text: t("statusOpen"), className: "bg-green-500/10 text-green-400" },
+    filled: { text: t("statusFilled"), className: "bg-blue-500/10 text-blue-400" },
+    closed: { text: t("statusClosed"), className: "bg-[var(--usha-border)] text-[var(--usha-muted)]" },
+    canceled: { text: t("statusCanceled"), className: "bg-red-500/10 text-red-400" },
   };
 
   return (
@@ -60,11 +62,11 @@ export default async function GigsDashboardPage() {
             className="mb-2 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]"
           >
             <ArrowLeft size={14} />
-            Tillbaka
+            {t("back")}
           </Link>
-          <h1 className="text-3xl font-bold">Gigs</h1>
+          <h1 className="text-3xl font-bold">{t("title")}</h1>
           <p className="mt-1 text-[var(--usha-muted)]">
-            Posta event och låt taxidansare ansöka.
+            {t("subtitle")}
           </p>
         </div>
         <Link
@@ -72,14 +74,14 @@ export default async function GigsDashboardPage() {
           className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-5 py-2.5 text-sm font-bold text-black transition hover:opacity-90"
         >
           <Plus size={14} />
-          Nytt gig
+          {t("newGig")}
         </Link>
       </div>
 
       {!gigs || gigs.length === 0 ? (
         <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-12 text-center">
           <p className="text-sm text-[var(--usha-muted)]">
-            Du har inga gigs än. Skapa ett första för att börja samla ansökningar från taxidansare.
+            {t("emptyState")}
           </p>
         </div>
       ) : (
@@ -103,7 +105,9 @@ export default async function GigsDashboardPage() {
                       {counts.pending > 0 && (
                         <span className="flex items-center gap-1 rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-xs font-medium text-[var(--usha-gold)]">
                           <Users size={10} />
-                          {counts.pending} {counts.pending === 1 ? "väntande ansökan" : "väntande ansökningar"}
+                          {counts.pending === 1
+                            ? t("pendingApplicationSingular", { count: counts.pending })
+                            : t("pendingApplicationPlural", { count: counts.pending })}
                         </span>
                       )}
                     </div>

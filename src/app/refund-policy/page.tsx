@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
 export const metadata = {
   title: "Återbetalningspolicy | Usha Platform",
   description: "Så fungerar avbokning och återbetalning på Usha Platform.",
 };
 
-export default function RefundPolicyPage() {
+export default async function RefundPolicyPage() {
+  const t = await getTranslations("refundPolicy");
   return (
     <div className="mx-auto max-w-3xl px-6 py-10">
       <Link
@@ -14,104 +16,88 @@ export default function RefundPolicyPage() {
         className="mb-6 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]"
       >
         <ArrowLeft size={14} />
-        Tillbaka
+        {t("back")}
       </Link>
 
-      <h1 className="text-3xl font-bold">Återbetalningspolicy</h1>
+      <h1 className="text-3xl font-bold">{t("heading")}</h1>
       <p className="mt-2 text-sm text-[var(--usha-muted)]">
-        Senast uppdaterad: 2026-05-01
+        {t("lastUpdated")}
       </p>
 
       <div className="mt-8 space-y-8 text-sm leading-relaxed text-[var(--usha-muted)]">
         <section>
-          <h2 className="mb-2 text-lg font-semibold text-[var(--usha-white)]">Översikt</h2>
-          <p>
-            Usha Platform förmedlar bokningar mellan kunder, kreatörer och arrangörer. När du avbokar
-            en betald bokning innan den är slutförd får du en full återbetalning till samma kort
-            som användes vid betalningen.
-          </p>
+          <h2 className="mb-2 text-lg font-semibold text-[var(--usha-white)]">{t("overviewTitle")}</h2>
+          <p>{t("overviewBody")}</p>
         </section>
 
         <section>
-          <h2 className="mb-2 text-lg font-semibold text-[var(--usha-white)]">Avbokning</h2>
+          <h2 className="mb-2 text-lg font-semibold text-[var(--usha-white)]">{t("cancellationTitle")}</h2>
           <ul className="ml-5 list-disc space-y-2">
             <li>
-              <strong className="text-[var(--usha-white)]">Pågående bokning (status: väntande):</strong>{" "}
-              Kund eller kreatör kan avboka när som helst. Eventuell betalning återbetalas i sin helhet.
+              <strong className="text-[var(--usha-white)]">{t("cancellationPendingLabel")}</strong>{" "}
+              {t("cancellationPendingBody")}
             </li>
             <li>
-              <strong className="text-[var(--usha-white)]">Bekräftad bokning (status: bekräftad):</strong>{" "}
-              Kund eller kreatör kan avboka. Eventuell betalning återbetalas i sin helhet.
+              <strong className="text-[var(--usha-white)]">{t("cancellationConfirmedLabel")}</strong>{" "}
+              {t("cancellationConfirmedBody")}
             </li>
             <li>
-              <strong className="text-[var(--usha-white)]">Slutförd bokning (status: slutförd):</strong>{" "}
-              Bokningen kan inte avbokas via plattformen. Kontakta motparten direkt eller{" "}
+              <strong className="text-[var(--usha-white)]">{t("cancellationCompletedLabel")}</strong>{" "}
+              {t("cancellationCompletedBody1")}{" "}
               <a
                 href="mailto:support@usha.se"
                 className="text-[var(--usha-gold)] hover:underline"
               >
                 support@usha.se
               </a>{" "}
-              för en manuell utredning.
+              {t("cancellationCompletedBody2")}
             </li>
           </ul>
         </section>
 
         <section>
           <h2 className="mb-2 text-lg font-semibold text-[var(--usha-white)]">
-            Specifikt för danspaket (taxidansare)
+            {t("danceTitle")}
           </h2>
           <p>
-            Ett danspaket är en förbetald produkt med ett specifikt antal danser som inlöses
-            successivt på event. När en eller flera danser har inlösts räknas paketet som delvis
-            konsumerat. Paketet kan endast återbetalas i sin helhet om{" "}
-            <strong className="text-[var(--usha-white)]">inga danser ännu är inlösta</strong>. Vid delvis
-            konsumtion, kontakta support för bedömning.
+            {t("danceBody1")}{" "}
+            <strong className="text-[var(--usha-white)]">{t("danceBodyStrong")}</strong>. {t("danceBody2")}
           </p>
         </section>
 
         <section>
           <h2 className="mb-2 text-lg font-semibold text-[var(--usha-white)]">
-            Specifikt för B2B-eventbokningar
+            {t("b2bTitle")}
           </h2>
+          <p>{t("b2bBody")}</p>
+        </section>
+
+        <section>
+          <h2 className="mb-2 text-lg font-semibold text-[var(--usha-white)]">{t("timelineTitle")}</h2>
           <p>
-            Förfrågan utan godkännande kan dras tillbaka utan kostnad. Efter taxidansaren
-            accepterat förfrågan och arrangören betalat, gäller standardpolicyn ovan: full
-            återbetalning vid avbokning innan eventet är slutfört.
+            {t("timelineBody1")}{" "}
+            <strong className="text-[var(--usha-white)]">{t("timelineBodyStrong")}</strong>{" "}
+            {t("timelineBody2")}
           </p>
         </section>
 
         <section>
-          <h2 className="mb-2 text-lg font-semibold text-[var(--usha-white)]">Tidslinje för återbetalning</h2>
+          <h2 className="mb-2 text-lg font-semibold text-[var(--usha-white)]">{t("disputesTitle")}</h2>
           <p>
-            Återbetalningar initieras direkt via Stripe när bokningen avbokas. Beloppet syns
-            normalt på ditt kort inom <strong className="text-[var(--usha-white)]">5–10 bankdagar</strong>{" "}
-            beroende på bank och kortutgivare.
-          </p>
-        </section>
-
-        <section>
-          <h2 className="mb-2 text-lg font-semibold text-[var(--usha-white)]">Tvister och support</h2>
-          <p>
-            Vid oenighet mellan kund och kreatör/arrangör, eller om en återbetalning inte
-            kommit fram efter 10 bankdagar, mejla{" "}
+            {t("disputesBody1")}{" "}
             <a
               href="mailto:support@usha.se"
               className="text-[var(--usha-gold)] hover:underline"
             >
               support@usha.se
             </a>{" "}
-            med boknings-ID och en kort beskrivning. Vi medlar och utreder.
+            {t("disputesBody2")}
           </p>
         </section>
 
         <section>
-          <h2 className="mb-2 text-lg font-semibold text-[var(--usha-white)]">Plattformsavgift</h2>
-          <p>
-            Vid återbetalning återbetalas hela beloppet till kunden. Den provision Usha Platform tagit
-            ut från kreatören återgår också, så ingen part bär kostnaden för en korrekt avbokning.
-            Fall där bedrägeri eller missbruk misstänks utreds separat.
-          </p>
+          <h2 className="mb-2 text-lg font-semibold text-[var(--usha-white)]">{t("platformFeeTitle")}</h2>
+          <p>{t("platformFeeBody")}</p>
         </section>
       </div>
     </div>

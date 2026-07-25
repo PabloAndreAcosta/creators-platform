@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Trash2, ToggleLeft, ToggleRight, Copy, Check } from "lucide-react";
 import { togglePromoCode, deletePromoCode } from "./actions";
 import { useToast } from "@/components/ui/toaster";
@@ -22,6 +23,7 @@ interface PromoCode {
 }
 
 export function PromoTable({ promoCodes }: { promoCodes: PromoCode[] }) {
+  const t = useTranslations("adminPromoTable");
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
@@ -36,17 +38,17 @@ export function PromoTable({ promoCodes }: { promoCodes: PromoCode[] }) {
     startTransition(async () => {
       const result = await togglePromoCode(id, !currentActive);
       if (result.error) {
-        toast.error("Fel", result.error);
+        toast.error(t("errorTitle"), result.error);
       }
     });
   }
 
   function handleDelete(id: string, code: string) {
-    if (!confirm(`Radera promokod "${code}"? Detta kan inte ångras.`)) return;
+    if (!confirm(t("deleteConfirm", { code }))) return;
     startTransition(async () => {
       const result = await deletePromoCode(id);
       if (result.error) {
-        toast.error("Fel", result.error);
+        toast.error(t("errorTitle"), result.error);
       }
     });
   }
@@ -54,7 +56,7 @@ export function PromoTable({ promoCodes }: { promoCodes: PromoCode[] }) {
   if (promoCodes.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] py-16">
-        <p className="text-sm text-[var(--usha-muted)]">Inga promokoder ännu.</p>
+        <p className="text-sm text-[var(--usha-muted)]">{t("empty")}</p>
       </div>
     );
   }
@@ -64,12 +66,12 @@ export function PromoTable({ promoCodes }: { promoCodes: PromoCode[] }) {
       <table className="w-full text-left text-sm">
         <thead className="border-b border-[var(--usha-border)] bg-[var(--usha-card)]">
           <tr>
-            <th className="px-4 py-3 font-medium text-[var(--usha-muted)]">Kod</th>
-            <th className="px-4 py-3 font-medium text-[var(--usha-muted)]">Rabatt</th>
-            <th className="px-4 py-3 font-medium text-[var(--usha-muted)]">Gäller för</th>
-            <th className="px-4 py-3 font-medium text-[var(--usha-muted)]">Användningar</th>
-            <th className="px-4 py-3 font-medium text-[var(--usha-muted)]">Giltig till</th>
-            <th className="px-4 py-3 font-medium text-[var(--usha-muted)]">Status</th>
+            <th className="px-4 py-3 font-medium text-[var(--usha-muted)]">{t("colCode")}</th>
+            <th className="px-4 py-3 font-medium text-[var(--usha-muted)]">{t("colDiscount")}</th>
+            <th className="px-4 py-3 font-medium text-[var(--usha-muted)]">{t("colScope")}</th>
+            <th className="px-4 py-3 font-medium text-[var(--usha-muted)]">{t("colUses")}</th>
+            <th className="px-4 py-3 font-medium text-[var(--usha-muted)]">{t("colValidUntil")}</th>
+            <th className="px-4 py-3 font-medium text-[var(--usha-muted)]">{t("colStatus")}</th>
             <th className="px-4 py-3 font-medium text-[var(--usha-muted)]"></th>
           </tr>
         </thead>
@@ -110,10 +112,10 @@ export function PromoTable({ promoCodes }: { promoCodes: PromoCode[] }) {
                 <td className="px-4 py-3">
                   <span className="rounded-full bg-[var(--usha-card)] px-2 py-0.5 text-xs">
                     {promo.scope === "both"
-                      ? "Allt"
+                      ? t("scopeAll")
                       : promo.scope === "subscription"
-                        ? "Prenumeration"
-                        : "Biljetter"}
+                        ? t("scopeSubscription")
+                        : t("scopeTickets")}
                   </span>
                 </td>
                 <td className="px-4 py-3 tabular-nums">
@@ -129,13 +131,13 @@ export function PromoTable({ promoCodes }: { promoCodes: PromoCode[] }) {
                 </td>
                 <td className="px-4 py-3">
                   {!promo.is_active ? (
-                    <span className="rounded-full bg-red-500/10 px-2 py-0.5 text-xs text-red-400">Inaktiv</span>
+                    <span className="rounded-full bg-red-500/10 px-2 py-0.5 text-xs text-red-400">{t("statusInactive")}</span>
                   ) : isExpired ? (
-                    <span className="rounded-full bg-orange-500/10 px-2 py-0.5 text-xs text-orange-400">Utgången</span>
+                    <span className="rounded-full bg-orange-500/10 px-2 py-0.5 text-xs text-orange-400">{t("statusExpired")}</span>
                   ) : isExhausted ? (
-                    <span className="rounded-full bg-orange-500/10 px-2 py-0.5 text-xs text-orange-400">Slut</span>
+                    <span className="rounded-full bg-orange-500/10 px-2 py-0.5 text-xs text-orange-400">{t("statusExhausted")}</span>
                   ) : (
-                    <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-400">Aktiv</span>
+                    <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-400">{t("statusActive")}</span>
                   )}
                 </td>
                 <td className="px-4 py-3">
@@ -144,7 +146,7 @@ export function PromoTable({ promoCodes }: { promoCodes: PromoCode[] }) {
                       onClick={() => handleToggle(promo.id, promo.is_active)}
                       disabled={isPending}
                       className="rounded p-1.5 text-[var(--usha-muted)] transition-colors hover:bg-[var(--usha-card)] hover:text-[var(--usha-white)] disabled:opacity-50"
-                      title={promo.is_active ? "Inaktivera" : "Aktivera"}
+                      title={promo.is_active ? t("actionDeactivate") : t("actionActivate")}
                     >
                       {promo.is_active ? <ToggleRight size={16} className="text-emerald-400" /> : <ToggleLeft size={16} />}
                     </button>
@@ -152,7 +154,7 @@ export function PromoTable({ promoCodes }: { promoCodes: PromoCode[] }) {
                       onClick={() => handleDelete(promo.id, promo.code)}
                       disabled={isPending}
                       className="rounded p-1.5 text-[var(--usha-muted)] transition-colors hover:bg-red-500/10 hover:text-red-400 disabled:opacity-50"
-                      title="Radera"
+                      title={t("actionDelete")}
                     >
                       <Trash2 size={14} />
                     </button>

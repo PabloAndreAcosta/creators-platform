@@ -1,18 +1,19 @@
 import { createClient } from "@/lib/supabase/server";
+import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Plus, Package, Film, BookOpen, Download } from "lucide-react";
 import { ProductForm } from "./product-form";
 import { DeleteProductButton } from "./delete-product-button";
 
-const TYPE_LABELS: Record<string, { label: string; icon: string }> = {
-  video: { label: "Video", icon: "film" },
-  course: { label: "Kurs", icon: "book" },
-  download: { label: "Nedladdning", icon: "download" },
-  other: { label: "Övrigt", icon: "package" },
-};
-
 export default async function ProductsPage() {
+  const t = await getTranslations("productsPage");
+  const TYPE_LABELS: Record<string, { label: string; icon: string }> = {
+    video: { label: t("typeVideo"), icon: "film" },
+    course: { label: t("typeCourse"), icon: "book" },
+    download: { label: t("typeDownload"), icon: "download" },
+    other: { label: t("typeOther"), icon: "package" },
+  };
   const supabase = await createClient();
   const {
     data: { user },
@@ -48,13 +49,13 @@ export default async function ProductsPage() {
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]"
         >
           <ArrowLeft size={14} />
-          Tillbaka
+          {t("back")}
         </Link>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Digitalt innehåll</h1>
+            <h1 className="text-3xl font-bold">{t("title")}</h1>
             <p className="mt-1 text-[var(--usha-muted)]">
-              Sätt upp videokurser, downloads och annat digitalt material till salu.
+              {t("subtitle")}
             </p>
           </div>
         </div>
@@ -62,7 +63,7 @@ export default async function ProductsPage() {
 
       {/* New product form */}
       <div className="mb-8 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
-        <h2 className="mb-4 text-lg font-bold">Lägg till produkt</h2>
+        <h2 className="mb-4 text-lg font-bold">{t("addProduct")}</h2>
         <ProductForm />
       </div>
 
@@ -71,7 +72,7 @@ export default async function ProductsPage() {
         {(!products || products.length === 0) ? (
           <div className="rounded-2xl border border-dashed border-[var(--usha-border)] py-16 text-center">
             <Package size={32} className="mx-auto mb-3 text-[var(--usha-muted)]" />
-            <p className="text-sm text-[var(--usha-muted)]">Inga digitala produkter ännu.</p>
+            <p className="text-sm text-[var(--usha-muted)]">{t("empty")}</p>
           </div>
         ) : (
           products.map((product) => (
@@ -93,16 +94,16 @@ export default async function ProductsPage() {
                   <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
                     product.is_active ? "bg-green-500/10 text-green-400" : "bg-red-500/10 text-red-400"
                   }`}>
-                    {product.is_active ? "Aktiv" : "Inaktiv"}
+                    {product.is_active ? t("statusActive") : t("statusInactive")}
                   </span>
                 </div>
                 {product.description && (
                   <p className="mt-0.5 truncate text-xs text-[var(--usha-muted)]">{product.description}</p>
                 )}
                 <div className="mt-1 flex items-center gap-3 text-xs text-[var(--usha-muted)]">
-                  <span className="font-semibold text-[var(--usha-gold)]">{product.price} SEK</span>
+                  <span className="font-semibold text-[var(--usha-gold)]">{t("price", { price: product.price })}</span>
                   <span>{TYPE_LABELS[product.product_type]?.label || product.product_type}</span>
-                  <span>{purchaseCounts[product.id] || 0} köp</span>
+                  <span>{t("purchaseCount", { count: purchaseCounts[product.id] || 0 })}</span>
                 </div>
               </div>
 

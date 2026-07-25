@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 export default function ForgotPasswordPage() {
+  const t = useTranslations("forgotPassword");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -37,36 +39,35 @@ export default function ForgotPasswordPage() {
           className="mb-6 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]"
         >
           <ArrowLeft size={14} />
-          Tillbaka till inloggning
+          {t("backToLogin")}
         </Link>
 
         <div className="mb-8">
-          <h1 className="text-2xl font-bold">Glömt lösenord</h1>
+          <h1 className="text-2xl font-bold">{t("heading")}</h1>
           <p className="mt-1 text-sm text-[var(--usha-muted)]">
-            Ange din e-postadress så skickar vi en återställningslänk.
+            {t("subheading")}
           </p>
         </div>
 
         {sent ? (
           <div className="rounded-xl border border-green-500/20 bg-green-500/10 p-6 text-center">
-            <p className="font-semibold text-green-400">Länk skickad!</p>
+            <p className="font-semibold text-green-400">{t("sentTitle")}</p>
             <p className="mt-2 text-sm text-[var(--usha-muted)]">
-              Kolla din inkorg ({email}) och klicka på länken för att
-              återställa ditt lösenord.
+              {t("sentBody", { email })}
             </p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-                E-postadress
+                {t("emailLabel")}
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                placeholder="din@email.com"
+                placeholder={t("emailPlaceholder")}
                 autoComplete="email"
                 className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
               />
@@ -83,7 +84,7 @@ export default function ForgotPasswordPage() {
               disabled={loading || !email}
               className="w-full rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] py-3 text-sm font-bold text-black transition hover:opacity-90 disabled:opacity-50"
             >
-              {loading ? "Skickar..." : "Skicka återställningslänk"}
+              {loading ? t("submitting") : t("submit")}
             </button>
           </form>
         )}

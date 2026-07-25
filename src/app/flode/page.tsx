@@ -3,19 +3,22 @@ import { getFeedPosts } from "@/app/app/feed/queries";
 import { Feed } from "@/components/feed/feed";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
-export const metadata: Metadata = {
-  title: "Flöde – Usha Platform",
-  description:
-    "Se vad kreatörer och upplevelser delar just nu. Boka och köp direkt från flödet.",
-  openGraph: {
-    title: "Flöde – Usha Platform",
-    description:
-      "Se vad kreatörer och upplevelser delar just nu. Boka och köp direkt från flödet.",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("flodePage");
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+    openGraph: {
+      title: t("metaTitle"),
+      description: t("metaDescription"),
+    },
+  };
+}
 
 export default async function FlodePage() {
+  const t = await getTranslations("flodePage");
   const supabase = await createClient();
   const {
     data: { user },
@@ -29,21 +32,21 @@ export default async function FlodePage() {
       <header className="sticky top-0 z-30 border-b border-[var(--usha-border)] bg-[var(--usha-black)]/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-lg items-center justify-between px-4 py-3">
           <Link href="/" className="text-lg font-bold text-gradient">
-            Usha Platform
+            {t("brand")}
           </Link>
           {user ? (
             <Link
               href="/app"
               className="rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-1.5 text-xs font-bold text-black transition hover:opacity-90"
             >
-              Min sida
+              {t("myPage")}
             </Link>
           ) : (
             <Link
               href="/signup"
               className="rounded-lg px-3 py-1.5 text-xs font-medium text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
             >
-              Skapa profil
+              {t("createProfile")}
             </Link>
           )}
         </div>
@@ -52,10 +55,8 @@ export default async function FlodePage() {
       {/* Feed */}
       <main className="mx-auto max-w-lg">
         <div className="px-4 pb-2 pt-4">
-          <h1 className="text-lg font-bold">Flöde</h1>
-          <p className="text-xs text-[var(--usha-muted)]">
-            Se vad kreatörer och upplevelser delar just nu
-          </p>
+          <h1 className="text-lg font-bold">{t("title")}</h1>
+          <p className="text-xs text-[var(--usha-muted)]">{t("subtitle")}</p>
         </div>
 
         <Feed

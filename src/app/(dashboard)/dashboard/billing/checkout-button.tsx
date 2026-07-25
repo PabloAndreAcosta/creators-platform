@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useToast } from "@/components/ui/toaster";
 import { PromoCodeInput, type DiscountInfo } from "@/components/promo-code-input";
 
@@ -20,6 +21,7 @@ export function CheckoutButton({
   const [discountInfo, setDiscountInfo] = useState<DiscountInfo | null>(null);
   const [showPromo, setShowPromo] = useState(false);
   const { toast } = useToast();
+  const t = useTranslations("checkoutButton");
 
   async function handleCheckout() {
     setLoading(true);
@@ -33,11 +35,11 @@ export function CheckoutButton({
       if (data.url) {
         window.location.href = data.url;
       } else {
-        toast.error("Kunde inte starta checkout", data.detail || data.error || "Försök igen.");
+        toast.error(t("checkoutFailedTitle"), data.detail || data.error || t("tryAgain"));
         setLoading(false);
       }
     } catch {
-      toast.error("Något gick fel", "Ingen anslutning. Försök igen.");
+      toast.error(t("somethingWentWrongTitle"), t("noConnection"));
       setLoading(false);
     }
   }
@@ -49,7 +51,7 @@ export function CheckoutButton({
           onClick={() => setShowPromo(true)}
           className="text-xs text-[var(--usha-muted)] hover:text-[var(--usha-gold)] transition-colors"
         >
-          Har du en promokod?
+          {t("havePromoCode")}
         </button>
       ) : (
         <PromoCodeInput
@@ -71,7 +73,7 @@ export function CheckoutButton({
             : "border border-[var(--usha-border)] text-[var(--usha-white)] hover:border-[var(--usha-gold)]/30"
         }`}
       >
-        {loading ? "Laddar..." : label}
+        {loading ? t("loading") : label}
       </button>
     </div>
   );
@@ -80,6 +82,7 @@ export function CheckoutButton({
 export function PortalButton() {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const t = useTranslations("checkoutButton");
 
   async function handlePortal() {
     setLoading(true);
@@ -89,11 +92,11 @@ export function PortalButton() {
       if (data.url) {
         window.location.href = data.url;
       } else {
-        toast.error("Kunde inte öppna portalen", data.error || "Försök igen.");
+        toast.error(t("portalFailedTitle"), data.error || t("tryAgain"));
         setLoading(false);
       }
     } catch {
-      toast.error("Något gick fel", "Ingen anslutning. Försök igen.");
+      toast.error(t("somethingWentWrongTitle"), t("noConnection"));
       setLoading(false);
     }
   }
@@ -104,7 +107,7 @@ export function PortalButton() {
       disabled={loading}
       className="rounded-xl border border-[var(--usha-border)] px-6 py-3 text-sm font-medium transition-colors hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-white)] disabled:opacity-50"
     >
-      {loading ? "Laddar..." : "Hantera prenumeration"}
+      {loading ? t("loading") : t("manageSubscription")}
     </button>
   );
 }
