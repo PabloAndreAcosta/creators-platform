@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Ticket, Loader2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -43,6 +43,26 @@ export function BuyTicketCta({
   const { toast } = useToast();
   const [sheet, setSheet] = useState(false);
   const [loading, setLoading] = useState(false);
+  const sheetRef = useRef<HTMLDivElement>(null);
+
+  const closeSheet = useCallback(() => {
+    if (!loading) setSheet(false);
+  }, [loading]);
+
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeSheet();
+    },
+    [closeSheet]
+  );
+
+  useEffect(() => {
+    if (sheet) {
+      document.addEventListener("keydown", handleKeyDown);
+      sheetRef.current?.focus();
+      return () => document.removeEventListener("keydown", handleKeyDown);
+    }
+  }, [sheet, handleKeyDown]);
 
   const isFree = !price || price <= 0;
   // The event page resolves a raw listing id as well as a slug.
@@ -99,11 +119,16 @@ export function BuyTicketCta({
           }}
         >
           <div
-            className="w-full max-w-sm rounded-t-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5 sm:rounded-2xl"
+            ref={sheetRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="quickbuy-title"
+            tabIndex={-1}
+            className="w-full max-w-sm rounded-t-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5 outline-none sm:rounded-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-base font-bold">{t("quickBuyTitle")}</h3>
+              <h3 id="quickbuy-title" className="text-base font-bold">{t("quickBuyTitle")}</h3>
               <button
                 type="button"
                 onClick={() => !loading && setSheet(false)}

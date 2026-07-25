@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -64,6 +64,20 @@ export function TrainingBuddiesContent() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [matches, setMatches] = useState<Match[]>([]);
   const [matchModal, setMatchModal] = useState<Candidate | null>(null);
+  const matchDialogRef = useRef<HTMLDivElement>(null);
+
+  const closeMatchModal = useCallback(() => setMatchModal(null), []);
+
+  useEffect(() => {
+    if (matchModal) {
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape") closeMatchModal();
+      };
+      document.addEventListener("keydown", handleKeyDown);
+      matchDialogRef.current?.focus();
+      return () => document.removeEventListener("keydown", handleKeyDown);
+    }
+  }, [matchModal, closeMatchModal]);
 
   const styleLabel = (s: string) => (STYLES.includes(s) ? t(`styles.${s.replace(/\s/g, "")}`) : s);
 
@@ -233,9 +247,17 @@ export function TrainingBuddiesContent() {
 
       {matchModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-6" onClick={() => setMatchModal(null)}>
-          <div className="w-full max-w-sm rounded-2xl border border-[var(--usha-gold)]/40 bg-[var(--usha-card)] p-6 text-center" onClick={(e) => e.stopPropagation()}>
+          <div
+            ref={matchDialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="match-modal-title"
+            tabIndex={-1}
+            className="w-full max-w-sm rounded-2xl border border-[var(--usha-gold)]/40 bg-[var(--usha-card)] p-6 text-center outline-none"
+            onClick={(e) => e.stopPropagation()}
+          >
             <Heart className="mx-auto mb-2 text-[var(--usha-accent)]" size={40} />
-            <h3 className="text-xl font-bold">{t("itsAMatch")}</h3>
+            <h3 id="match-modal-title" className="text-xl font-bold">{t("itsAMatch")}</h3>
             <p className="mt-1 text-sm text-[var(--usha-muted)]">{t("itsAMatchDesc", { name: matchModal.name || "" })}</p>
             <button
               onClick={() => router.push(`/app/messages?to=${matchModal.id}`)}

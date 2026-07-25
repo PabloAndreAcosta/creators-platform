@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import {
   Clock,
   Edit2,
@@ -170,8 +170,21 @@ function ProductCard({ product }: { product: DigitalProductData }) {
   const [deleting, setDeleting] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const router = useRouter();
+  const confirmRef = useRef<HTMLDivElement>(null);
   const Icon = TYPE_ICONS[product.product_type] || Package;
   const typeLabel = t(TYPE_LABEL_KEYS[product.product_type] || "typeLabelOther");
+
+  const handleConfirmKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.key === "Escape") setShowConfirm(false);
+  }, []);
+
+  useEffect(() => {
+    if (showConfirm) {
+      document.addEventListener("keydown", handleConfirmKeyDown);
+      confirmRef.current?.focus();
+      return () => document.removeEventListener("keydown", handleConfirmKeyDown);
+    }
+  }, [showConfirm, handleConfirmKeyDown]);
 
   async function handleDelete() {
     setDeleting(true);
@@ -213,8 +226,16 @@ function ProductCard({ product }: { product: DigitalProductData }) {
 
       {showConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowConfirm(false)}>
-          <div className="w-full max-w-sm rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6" onClick={(e) => e.stopPropagation()}>
-            <h3 className="mb-2 text-lg font-bold">{t("deleteTitle")}</h3>
+          <div
+            ref={confirmRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-product-title"
+            tabIndex={-1}
+            className="w-full max-w-sm rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 outline-none"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 id="delete-product-title" className="mb-2 text-lg font-bold">{t("deleteTitle")}</h3>
             <p className="mb-5 text-sm text-[var(--usha-muted)]">
               {t("deleteConfirm", { title: product.title })}
             </p>

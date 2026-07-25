@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Calendar, MapPin, Clock, QrCode, X, Ticket, User, CheckCircle2, Maximize2, ScanLine } from "lucide-react";
@@ -559,6 +559,15 @@ function QRModal({
   onClose: () => void;
 }) {
   const t = useTranslations("myTickets");
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  // Move focus into the dialog on open so keyboard/screen-reader users land
+  // inside it. QRModal only mounts when open, so mount-time focus is correct.
+  // The labeled X button remains the way out (no Escape/backdrop close — see below).
+  useEffect(() => {
+    panelRef.current?.focus();
+  }, []);
+
   // Keep the screen awake (and thus at the user's brightness) while the QR is up
   // at the door — a screen that dims mid-scan is the classic e-ticket frustration.
   useEffect(() => {
@@ -577,9 +586,16 @@ function QRModal({
   // scans fast even on a dim phone. NOTE: no backdrop click-to-close — at the
   // door an accidental tap must not dismiss the ticket; only the X closes it.
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col items-center overflow-y-auto bg-white px-5 py-6 text-gray-900">
+    <div
+      ref={panelRef}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="qr-modal-title"
+      tabIndex={-1}
+      className="fixed inset-0 z-[100] flex flex-col items-center overflow-y-auto bg-white px-5 py-6 text-gray-900 outline-none"
+    >
       <div className="flex w-full max-w-sm items-center justify-between">
-        <h3 className="text-base font-bold text-gray-900">{t("yourTicket")}</h3>
+        <h3 id="qr-modal-title" className="text-base font-bold text-gray-900">{t("yourTicket")}</h3>
         <button
           onClick={onClose}
           className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
