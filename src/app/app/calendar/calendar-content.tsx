@@ -31,6 +31,7 @@ interface CalendarContentProps {
 
 export function CalendarContent({ bookings, initialAvailableDates = [], isCreator = false }: CalendarContentProps) {
   const t = useTranslations("calendarPage");
+  const ta = useTranslations("a11y");
   const DAYS = [
     t("dayMon"), t("dayTue"), t("dayWed"), t("dayThu"), t("dayFri"), t("daySat"), t("daySun"),
   ];
@@ -188,13 +189,13 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
       {/* Calendar */}
       <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
         <div className="mb-4 flex items-center justify-between">
-          <button onClick={prevMonth} className="rounded-lg p-2 hover:bg-[var(--usha-card-hover)]">
+          <button onClick={prevMonth} aria-label={ta("prevMonth")} className="rounded-lg p-2 hover:bg-[var(--usha-card-hover)]">
             <ChevronLeft size={18} className="text-[var(--usha-muted)]" />
           </button>
           <h2 className="text-base font-semibold">
             {MONTHS[month]} {year}
           </h2>
-          <button onClick={nextMonth} className="rounded-lg p-2 hover:bg-[var(--usha-card-hover)]">
+          <button onClick={nextMonth} aria-label={ta("nextMonth")} className="rounded-lg p-2 hover:bg-[var(--usha-card-hover)]">
             <ChevronRight size={18} className="text-[var(--usha-muted)]" />
           </button>
         </div>
@@ -362,6 +363,7 @@ function TimeSlotEditor({
   isAvailable: boolean;
 }) {
   const t = useTranslations("calendarPage");
+  const ta = useTranslations("a11y");
   const [newStart, setNewStart] = useState("09:00");
   const [newEnd, setNewEnd] = useState("17:00");
   const [adding, setAdding] = useState(false);
@@ -413,6 +415,7 @@ function TimeSlotEditor({
               </span>
               <button
                 onClick={() => onRemoveSlot(slot.id)}
+                aria-label={ta("removeTimeSlot")}
                 className="rounded p-1 text-[var(--usha-muted)] hover:text-red-400"
               >
                 <Trash2 size={12} />

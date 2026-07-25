@@ -18,6 +18,7 @@ interface CarouselEvent {
 
 export function EventCarousel({ events }: { events: CarouselEvent[] }) {
   const t = useTranslations();
+  const ta = useTranslations("a11y");
   const [current, setCurrent] = useState(0);
 
   if (events.length === 0) return null;
@@ -93,12 +94,14 @@ export function EventCarousel({ events }: { events: CarouselEvent[] }) {
         <>
           <button
             onClick={(e) => { e.preventDefault(); prev(); }}
+            aria-label={ta("previous")}
             className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white backdrop-blur-sm transition hover:bg-black/60"
           >
             <ChevronLeft size={20} />
           </button>
           <button
             onClick={(e) => { e.preventDefault(); next(); }}
+            aria-label={ta("next")}
             className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white backdrop-blur-sm transition hover:bg-black/60"
           >
             <ChevronRight size={20} />

@@ -2,6 +2,7 @@
 
 import { useState, useTransition, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Check } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { toggleAvailability, getAvailability } from "@/app/app/calendar/actions";
 
 interface CalendarBooking {
@@ -33,6 +34,7 @@ const MONTHS = [
 ];
 
 export function BookingCalendar({ bookings, isCreator = false, initialAvailableDates = [] }: BookingCalendarProps) {
+  const ta = useTranslations("a11y");
   const [currentDate, setCurrentDate] = useState(new Date());
   const [availableSet, setAvailableSet] = useState<Set<string>>(new Set(initialAvailableDates));
   const [editMode, setEditMode] = useState(false);
@@ -144,6 +146,7 @@ export function BookingCalendar({ bookings, isCreator = false, initialAvailableD
       <div className="mb-4 flex items-center justify-between">
         <button
           onClick={prevMonth}
+          aria-label={ta("prevMonth")}
           className="flex h-8 w-8 items-center justify-center rounded-lg transition hover:bg-white/10"
         >
           <ChevronLeft size={16} />
@@ -153,6 +156,7 @@ export function BookingCalendar({ bookings, isCreator = false, initialAvailableD
         </h3>
         <button
           onClick={nextMonth}
+          aria-label={ta("nextMonth")}
           className="flex h-8 w-8 items-center justify-center rounded-lg transition hover:bg-white/10"
         >
           <ChevronRight size={16} />

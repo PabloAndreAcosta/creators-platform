@@ -3095,5 +3095,25 @@
     "disputesBody2": "with the booking ID and a brief description. We mediate and investigate.",
     "platformFeeTitle": "Platform fee",
     "platformFeeBody": "Upon a refund, the entire amount is refunded to the customer. The commission Usha Platform charged from the creator is also returned, so no party bears the cost of a proper cancellation. Cases where fraud or abuse is suspected are investigated separately."
+  },
+  "a11y": {
+    "close": "Close",
+    "back": "Back",
+    "prevMonth": "Previous month",
+    "nextMonth": "Next month",
+    "previous": "Previous",
+    "next": "Next",
+    "clearSearch": "Clear search",
+    "clear": "Clear",
+    "openMenu": "Open menu",
+    "options": "Show options",
+    "removeImage": "Remove image",
+    "removeMedia": "Remove media",
+    "removeTimeSlot": "Remove time slot",
+    "removeAttendee": "Remove attendee",
+    "removeLocation": "Remove location",
+    "removeWebsite": "Remove website",
+    "deleteProduct": "Delete product",
+    "delete": "Delete"
   }
 }
