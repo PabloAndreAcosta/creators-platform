@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Bell, Check, CheckCheck, ExternalLink, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 
 interface Notification {
@@ -24,6 +25,7 @@ const TYPE_ICONS: Record<string, string> = {
 };
 
 export default function NotificationsPage() {
+  const t = useTranslations("notificationsPage");
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -73,12 +75,12 @@ export default function NotificationsPage() {
   function timeAgo(dateStr: string) {
     const diff = Date.now() - new Date(dateStr).getTime();
     const mins = Math.floor(diff / 60000);
-    if (mins < 1) return "just nu";
-    if (mins < 60) return `${mins} min sedan`;
+    if (mins < 1) return t("timeJustNow");
+    if (mins < 60) return t("timeMinutesAgo", { count: mins });
     const hours = Math.floor(mins / 60);
-    if (hours < 24) return `${hours}h sedan`;
+    if (hours < 24) return t("timeHoursAgo", { count: hours });
     const days = Math.floor(hours / 24);
-    if (days < 7) return `${days}d sedan`;
+    if (days < 7) return t("timeDaysAgo", { count: days });
     return new Date(dateStr).toLocaleDateString("sv-SE");
   }
 
@@ -92,10 +94,10 @@ export default function NotificationsPage() {
         <div className="flex items-center gap-3">
           <Bell size={24} className="text-[var(--usha-gold)]" />
           <div>
-            <h1 className="text-2xl font-bold">Notifikationer</h1>
+            <h1 className="text-2xl font-bold">{t("title")}</h1>
             {unreadCount > 0 && (
               <p className="text-xs text-[var(--usha-muted)]">
-                {unreadCount} olästa
+                {t("unreadCount", { count: unreadCount })}
               </p>
             )}
           </div>
@@ -106,7 +108,7 @@ export default function NotificationsPage() {
             className="flex items-center gap-1.5 rounded-lg border border-[var(--usha-border)] px-3 py-1.5 text-xs font-medium text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
           >
             <CheckCheck size={14} />
-            Markera alla lästa
+            {t("markAllRead")}
           </button>
         )}
       </div>
@@ -123,7 +125,7 @@ export default function NotificationsPage() {
                 : "text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
             }`}
           >
-            {f === "all" ? "Alla" : "Olästa"}
+            {f === "all" ? t("filterAll") : t("filterUnread")}
           </button>
         ))}
       </div>
@@ -137,7 +139,7 @@ export default function NotificationsPage() {
         <div className="rounded-xl border border-dashed border-[var(--usha-border)] py-16 text-center">
           <Bell size={32} className="mx-auto mb-3 text-[var(--usha-muted)]" />
           <p className="text-sm text-[var(--usha-muted)]">
-            {filter === "unread" ? "Inga olästa notifikationer" : "Inga notifikationer ännu"}
+            {filter === "unread" ? t("emptyUnread") : t("emptyAll")}
           </p>
         </div>
       ) : (
@@ -171,7 +173,7 @@ export default function NotificationsPage() {
                         className="flex items-center gap-1 text-xs font-medium text-[var(--usha-gold)] hover:opacity-80"
                       >
                         <ExternalLink size={11} />
-                        Visa
+                        {t("view")}
                       </Link>
                     )}
                     {!n.is_read && (
@@ -180,7 +182,7 @@ export default function NotificationsPage() {
                         className="flex items-center gap-1 text-xs text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
                       >
                         <Check size={11} />
-                        Markera som läst
+                        {t("markRead")}
                       </button>
                     )}
                   </div>

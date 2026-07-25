@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Users, CheckCircle2, Repeat, UserPlus, Download, Radio, Percent, UserX, Banknote, Gauge } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useSubscription } from "@/lib/subscription/context";
 
 interface Attendee {
@@ -33,6 +34,7 @@ function csvEscape(v: string) {
 
 export default function EventStatsPage() {
   const { id } = useParams<{ id: string }>();
+  const t = useTranslations("eventStats");
   const { tier } = useSubscription();
   const [data, setData] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -42,17 +44,17 @@ export default function EventStatsPage() {
     try {
       const res = await fetch(`/api/events/${id}/stats`);
       if (!res.ok) {
-        setError("Kunde inte hämta statistik");
+        setError(t("errorFetch"));
         return;
       }
       setData(await res.json());
       setError(null);
     } catch {
-      setError("Anslutningsfel");
+      setError(t("errorConnection"));
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, t]);
 
   useEffect(() => {
     fetchData();
@@ -61,20 +63,20 @@ export default function EventStatsPage() {
   function exportCsv() {
     if (!data) return;
     const rows = [
-      ["Namn", "E-post", "Status", "Antal event", "Typ"],
+      [t("csvName"), t("csvEmail"), t("csvStatus"), t("csvEventsCount"), t("csvType")],
       ...data.list.map((a) => [
         a.name,
         a.email ?? "",
-        a.checkedIn ? "Kom" : "Bokad",
+        a.checkedIn ? t("csvStatusAttended") : t("csvStatusBooked"),
         String(a.eventsCount),
-        a.returning ? "Återkommande" : "Ny",
+        a.returning ? t("typeReturning") : t("typeNew"),
       ]),
     ];
     const csv = rows.map((r) => r.map((c) => csvEscape(c)).join(",")).join("\n");
     const url = URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" }));
     const a = document.createElement("a");
     a.href = url;
-    a.download = `deltagare-${(data.event.title || "event").replace(/[^\w-]+/g, "_")}.csv`;
+    a.download = `${t("csvFilePrefix")}-${(data.event.title || "event").replace(/[^\w-]+/g, "_")}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -83,9 +85,9 @@ export default function EventStatsPage() {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
         <Radio size={48} className="mb-4 text-[var(--usha-gold)]" />
-        <h2 className="mb-2 text-xl font-bold">Statistik är en Premium-funktion</h2>
+        <h2 className="mb-2 text-xl font-bold">{t("premiumFeatureTitle")}</h2>
         <Link href="/dashboard/billing" className="mt-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-6 py-3 text-sm font-bold text-black">
-          Uppgradera
+          {t("upgrade")}
         </Link>
       </div>
     );
@@ -100,22 +102,22 @@ export default function EventStatsPage() {
   if (error || !data) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
-        <p className="text-[var(--usha-muted)]">{error || "Hittades inte"}</p>
-        <Link href="/app/events" className="mt-4 text-sm text-[var(--usha-gold)]">Till evenemang</Link>
+        <p className="text-[var(--usha-muted)]">{error || t("notFound")}</p>
+        <Link href="/app/events" className="mt-4 text-sm text-[var(--usha-gold)]">{t("toEvents")}</Link>
       </div>
     );
   }
 
   const cards = [
-    { icon: Users, label: "Deltagare", value: String(data.attendees) },
-    { icon: CheckCircle2, label: "Kom (incheckade)", value: String(data.checkedIn) },
-    { icon: Percent, label: "Incheckningsgrad", value: `${data.checkInRate}%` },
-    { icon: UserX, label: "No-show", value: String(data.noShows) },
-    { icon: Repeat, label: "Återkommande", value: String(data.returning) },
-    { icon: UserPlus, label: "Nya", value: String(data.new) },
-    { icon: Banknote, label: "Intäkt", value: `${Math.round(data.revenue / 100).toLocaleString("sv-SE")} kr` },
+    { icon: Users, label: t("cardAttendees"), value: String(data.attendees) },
+    { icon: CheckCircle2, label: t("cardCheckedIn"), value: String(data.checkedIn) },
+    { icon: Percent, label: t("cardCheckInRate"), value: `${data.checkInRate}%` },
+    { icon: UserX, label: t("cardNoShow"), value: String(data.noShows) },
+    { icon: Repeat, label: t("cardReturning"), value: String(data.returning) },
+    { icon: UserPlus, label: t("cardNew"), value: String(data.new) },
+    { icon: Banknote, label: t("cardRevenue"), value: t("revenueValue", { amount: Math.round(data.revenue / 100).toLocaleString("sv-SE") }) },
     ...(data.fillRate != null
-      ? [{ icon: Gauge, label: "Fyllnadsgrad", value: `${data.fillRate}%` }]
+      ? [{ icon: Gauge, label: t("cardFillRate"), value: `${data.fillRate}%` }]
       : []),
   ];
 
@@ -123,9 +125,9 @@ export default function EventStatsPage() {
     <div className="mx-auto max-w-2xl px-4 py-6 space-y-6">
       <div>
         <Link href={`/app/events/${id}/edit`} className="mb-3 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]">
-          <ArrowLeft size={14} /> Tillbaka
+          <ArrowLeft size={14} /> {t("back")}
         </Link>
-        <h1 className="text-2xl font-bold">Statistik</h1>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
         <p className="mt-1 text-sm text-[var(--usha-muted)]">{data.event.title}</p>
       </div>
 
@@ -141,7 +143,7 @@ export default function EventStatsPage() {
 
       <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] overflow-hidden">
         <div className="flex items-center justify-between border-b border-[var(--usha-border)] px-4 py-3">
-          <h3 className="text-sm font-semibold">Deltagare ({data.list.length})</h3>
+          <h3 className="text-sm font-semibold">{t("attendeesHeader", { count: data.list.length })}</h3>
           {data.list.length > 0 && (
             <button onClick={exportCsv} className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--usha-border)] px-3 py-1.5 text-xs font-medium transition hover:border-[var(--usha-gold)]/50">
               <Download size={13} /> CSV
@@ -149,7 +151,7 @@ export default function EventStatsPage() {
           )}
         </div>
         {data.list.length === 0 ? (
-          <p className="px-4 py-8 text-center text-sm text-[var(--usha-muted)]">Inga deltagare ännu.</p>
+          <p className="px-4 py-8 text-center text-sm text-[var(--usha-muted)]">{t("emptyAttendees")}</p>
         ) : (
           <div className="divide-y divide-[var(--usha-border)]">
             {data.list.map((a, i) => (
@@ -162,7 +164,7 @@ export default function EventStatsPage() {
                   {a.email && <p className="truncate text-[11px] text-[var(--usha-muted)]">{a.email}</p>}
                 </div>
                 <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-medium ${a.returning ? "bg-[var(--usha-gold)]/15 text-[var(--usha-gold)]" : "bg-[var(--usha-border)] text-[var(--usha-muted)]"}`}>
-                  {a.returning ? `Återkommande · ${a.eventsCount} event` : "Ny"}
+                  {a.returning ? t("returningBadge", { count: a.eventsCount }) : t("typeNew")}
                 </span>
               </div>
             ))}
