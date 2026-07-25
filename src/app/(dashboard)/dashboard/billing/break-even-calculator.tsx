@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { TrendingUp } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface Props {
   userRole: "creator" | "venue";
@@ -28,6 +29,7 @@ function fmt(n: number) {
 }
 
 export function BreakEvenCalculator({ userRole }: Props) {
+  const t = useTranslations("breakEven");
   const [volume, setVolume] = useState(5000);
 
   const cost = useMemo(
@@ -53,7 +55,7 @@ export function BreakEvenCalculator({ userRole }: Props) {
         ? "guld"
         : "gratis";
 
-  const noun = userRole === "creator" ? "tjänster" : "events";
+  const noun = userRole === "creator" ? t("nounServices") : t("nounEvents");
 
   return (
     <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 sm:p-8">
@@ -62,10 +64,9 @@ export function BreakEvenCalculator({ userRole }: Props) {
           <TrendingUp size={20} className="text-[var(--usha-gold)]" />
         </div>
         <div className="flex-1">
-          <h2 className="text-lg font-semibold">Räkna ut vilken plan som lönar sig</h2>
+          <h2 className="text-lg font-semibold">{t("heading")}</h2>
           <p className="mt-1 text-sm text-[var(--usha-muted)]">
-            Hur mycket säljer du för i {noun} per månad? Vi visar vad du får
-            kvar efter Usha Platforms kommission och eventuellt abonnemang.
+            {t("intro", { noun })}
           </p>
         </div>
       </div>
@@ -73,7 +74,7 @@ export function BreakEvenCalculator({ userRole }: Props) {
       <div className="mt-6">
         <div className="flex items-baseline justify-between">
           <label htmlFor="volume" className="text-sm text-[var(--usha-muted)]">
-            Månadsvolym
+            {t("monthlyVolume")}
           </label>
           <span className="text-2xl font-bold">{fmt(volume)} kr</span>
         </div>
@@ -95,14 +96,14 @@ export function BreakEvenCalculator({ userRole }: Props) {
 
       <div className="mt-6 space-y-2">
         <TierRow
-          label="Gratis"
+          label={t("tierFree")}
           price={0}
           commission={15}
           net={net.gratis}
           best={bestTier === "gratis"}
         />
         <TierRow
-          label="Guld"
+          label={t("tierGold")}
           price={299}
           commission={8}
           net={net.guld}
@@ -110,7 +111,7 @@ export function BreakEvenCalculator({ userRole }: Props) {
           best={bestTier === "guld"}
         />
         <TierRow
-          label="Premium"
+          label={t("tierPremium")}
           price={599}
           commission={3}
           net={net.premium}
@@ -120,9 +121,7 @@ export function BreakEvenCalculator({ userRole }: Props) {
       </div>
 
       <p className="mt-4 text-xs text-[var(--usha-muted)]">
-        Räknat på en månads volym. Vid större volymer ökar besparingen
-        proportionellt. Break-even för Guld inträffar vid ca 4 270 kr/mån,
-        för Premium vid ca 4 990 kr/mån.
+        {t("footnote")}
       </p>
     </div>
   );
@@ -143,6 +142,7 @@ function TierRow({
   delta?: number;
   best?: boolean;
 }) {
+  const t = useTranslations("breakEven");
   return (
     <div
       className={`flex items-center justify-between rounded-xl px-4 py-3 ${
@@ -156,12 +156,13 @@ function TierRow({
           <span className="font-semibold">{label}</span>
           {best && (
             <span className="rounded-full bg-[var(--usha-gold)]/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[var(--usha-gold)]">
-              Bäst för dig
+              {t("bestForYou")}
             </span>
           )}
         </div>
         <div className="text-xs text-[var(--usha-muted)]">
-          {price === 0 ? "Gratis" : `${price} kr/mån`} · {commission}% kommission
+          {price === 0 ? t("tierFree") : t("pricePerMonth", { price })} ·{" "}
+          {t("commissionLine", { commission })}
         </div>
       </div>
       <div className="text-right">
@@ -171,7 +172,7 @@ function TierRow({
             className={`text-xs ${delta > 0 ? "text-green-400" : "text-red-400"}`}
           >
             {delta > 0 ? "+" : ""}
-            {fmt(delta)} kr vs gratis
+            {t("deltaVsFree", { amount: fmt(delta) })}
           </div>
         )}
       </div>

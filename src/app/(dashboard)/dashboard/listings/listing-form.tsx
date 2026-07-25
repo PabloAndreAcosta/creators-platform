@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition, useState, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { useToast } from "@/components/ui/toaster";
 import { CATEGORIES } from "@/lib/categories";
 import { uploadImage } from "@/lib/storage/upload-client";
@@ -35,6 +36,7 @@ export default function ListingForm({
   action: (formData: FormData) => Promise<{ error?: string } | void>;
   creatorSubcategory?: string | null;
 }) {
+  const t = useTranslations("listingForm");
   const isTaxiDancer = creatorSubcategory === "taxi_dancer";
   const [listingType, setListingType] = useState<string>(
     listing?.listing_type ?? (isTaxiDancer ? "dance_package" : "service")
@@ -54,7 +56,7 @@ export default function ListingForm({
       const url = await uploadImage(file, "listing-images");
       setImageUrl(url);
     } catch (err) {
-      toast.error("Uppladdning misslyckades", err instanceof Error ? err.message : String(err));
+      toast.error(t("uploadFailed"), err instanceof Error ? err.message : String(err));
     } finally {
       setUploading(false);
     }
@@ -68,9 +70,9 @@ export default function ListingForm({
     startTransition(async () => {
       const result = await action(formData);
       if (result && "error" in result) {
-        toast.error("Kunde inte spara tjänst", result.error);
+        toast.error(t("saveFailed"), result.error);
       } else {
-        toast.success(listing ? "Tjänst sparad" : "Tjänst skapad");
+        toast.success(listing ? t("savedToast") : t("createdToast"));
       }
     });
   }
@@ -79,7 +81,7 @@ export default function ListingForm({
     <form action={handleSubmit} className="space-y-6">
       {/* Image Upload */}
       <div>
-        <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">Bild</label>
+        <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">{t("imageLabel")}</label>
         <input
           ref={fileRef}
           type="file"
@@ -110,7 +112,7 @@ export default function ListingForm({
             ) : (
               <div className="flex flex-col items-center gap-1 text-[var(--usha-muted)]">
                 <ImagePlus size={20} />
-                <span className="text-xs">Ladda upp bild</span>
+                <span className="text-xs">{t("uploadImage")}</span>
               </div>
             )}
           </button>
@@ -120,7 +122,7 @@ export default function ListingForm({
       {/* Title */}
       <div>
         <label htmlFor="title" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-          Titel
+          {t("titleLabel")}
         </label>
         <input
           id="title"
@@ -128,7 +130,7 @@ export default function ListingForm({
           type="text"
           required
           defaultValue={listing?.title || ""}
-          placeholder="t.ex. Privat danslektion"
+          placeholder={t("titlePlaceholder")}
           className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
         />
       </div>
@@ -136,14 +138,14 @@ export default function ListingForm({
       {/* Description */}
       <div>
         <label htmlFor="description" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-          Beskrivning
+          {t("descriptionLabel")}
         </label>
         <textarea
           id="description"
           name="description"
           rows={4}
           defaultValue={listing?.description || ""}
-          placeholder="Beskriv vad som ingår i tjänsten..."
+          placeholder={t("descriptionPlaceholder")}
           className="w-full resize-none rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
         />
       </div>
@@ -152,7 +154,7 @@ export default function ListingForm({
       {isTaxiDancer && (
         <div>
           <label htmlFor="listing_type" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-            Typ av tjänst
+            {t("listingTypeLabel")}
           </label>
           <select
             id="listing_type"
@@ -160,19 +162,19 @@ export default function ListingForm({
             onChange={(e) => setListingType(e.target.value)}
             className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
           >
-            <option value="dance_package">Danspaket (förbetalt — inlöses på event)</option>
-            <option value="coaching_session">Coachning (privatlektion med tid)</option>
-            <option value="b2b_offering">B2B-event (arrangör bokar för kväll/event)</option>
-            <option value="service">Annan tjänst</option>
+            <option value="dance_package">{t("typeDancePackage")}</option>
+            <option value="coaching_session">{t("typeCoachingSession")}</option>
+            <option value="b2b_offering">{t("typeB2bOffering")}</option>
+            <option value="service">{t("typeService")}</option>
           </select>
           {listingType === "dance_package" && (
             <>
               <p className="mt-1.5 text-xs text-[var(--usha-muted)]">
-                Kunden betalar i förväg och inlöser danserna på ett event. Inget specifikt datum krävs vid bokning.
+                {t("dancePackageHint")}
               </p>
               <div className="mt-3">
                 <label htmlFor="dance_count" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-                  Antal danser i paketet
+                  {t("danceCountLabel")}
                 </label>
                 <input
                   id="dance_count"
@@ -182,7 +184,7 @@ export default function ListingForm({
                   step={1}
                   required
                   defaultValue={listing?.dance_count ?? 5}
-                  placeholder="t.ex. 5"
+                  placeholder={t("danceCountPlaceholder")}
                   className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
                 />
               </div>
@@ -190,12 +192,12 @@ export default function ListingForm({
           )}
           {listingType === "coaching_session" && (
             <p className="mt-1.5 text-xs text-[var(--usha-muted)]">
-              Kunden bokar en specifik tid utifrån din tillgänglighet i kalendern.
+              {t("coachingSessionHint")}
             </p>
           )}
           {listingType === "b2b_offering" && (
             <p className="mt-1.5 text-xs text-[var(--usha-muted)]">
-              Arrangörer (lokaler, danspalats, eventbolag) kan boka dig för en specifik kväll eller ett event. Pris du anger är ditt baspris — arrangören anger datum, tid och lokal vid bokning.
+              {t("b2bOfferingHint")}
             </p>
           )}
         </div>
@@ -205,7 +207,7 @@ export default function ListingForm({
       <div className="grid gap-6 sm:grid-cols-2">
         <div>
           <label htmlFor="category" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-            Kategori
+            {t("categoryLabel")}
           </label>
           <select
             id="category"
@@ -214,17 +216,17 @@ export default function ListingForm({
             defaultValue={listing?.category || ""}
             className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
           >
-            <option value="">Välj kategori...</option>
+            <option value="">{t("categoryPlaceholder")}</option>
             {CATEGORIES.map((c) => (
               <option key={c.value} value={c.value}>
-                {c.label}
+                {t(`category_${c.value}`)}
               </option>
             ))}
           </select>
         </div>
         <div>
           <label htmlFor="price" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-            Pris (SEK)
+            {t("priceLabel")}
           </label>
           <input
             id="price"
@@ -232,7 +234,7 @@ export default function ListingForm({
             type="number"
             min={0}
             defaultValue={listing?.price ?? ""}
-            placeholder="t.ex. 500"
+            placeholder={t("pricePlaceholder")}
             className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
           />
         </div>
@@ -241,7 +243,7 @@ export default function ListingForm({
       {/* Duration */}
       <div className="sm:w-1/2">
         <label htmlFor="duration_minutes" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-          Längd (minuter)
+          {t("durationLabel")}
         </label>
         <input
           id="duration_minutes"
@@ -250,7 +252,7 @@ export default function ListingForm({
           min={0}
           step={15}
           defaultValue={listing?.duration_minutes ?? ""}
-          placeholder="t.ex. 60"
+          placeholder={t("durationPlaceholder")}
           className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
         />
       </div>
@@ -258,7 +260,7 @@ export default function ListingForm({
       {/* Date */}
       <div>
         <label htmlFor="event_date" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-          Datum
+          {t("dateLabel")}
         </label>
         <input
           id="event_date"
@@ -273,7 +275,7 @@ export default function ListingForm({
       <div className="grid gap-6 sm:grid-cols-2">
         <div>
           <label htmlFor="event_time" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-            Starttid
+            {t("startTimeLabel")}
           </label>
           <input
             id="event_time"
@@ -285,7 +287,7 @@ export default function ListingForm({
         </div>
         <div>
           <label htmlFor="event_end_time" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-            Sluttid
+            {t("endTimeLabel")}
           </label>
           <input
             id="event_end_time"
@@ -312,7 +314,7 @@ export default function ListingForm({
           disabled={isPending}
           className="rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-8 py-3 text-sm font-bold text-black transition hover:opacity-90 disabled:opacity-50"
         >
-          {isPending ? "Sparar..." : listing ? "Spara ändringar" : "Skapa tjänst"}
+          {isPending ? t("saving") : listing ? t("saveChanges") : t("createListing")}
         </button>
       </div>
     </form>

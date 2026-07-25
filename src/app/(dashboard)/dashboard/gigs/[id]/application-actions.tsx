@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { acceptApplication, declineApplication } from "../actions";
 import { useToast } from "@/components/ui/toaster";
 import { Check, X } from "lucide-react";
@@ -8,27 +9,28 @@ import { Check, X } from "lucide-react";
 export function GigApplicationActions({ applicationId }: { applicationId: string }) {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
+  const t = useTranslations("gigApplicationActions");
 
   function handleAccept() {
-    if (!confirm("Acceptera denna ansökan? Andra ansökningar avböjs och en bokning skapas.")) return;
+    if (!confirm(t("confirmAccept"))) return;
     startTransition(async () => {
       const result = await acceptApplication(applicationId);
       if ("error" in result) {
-        toast.error("Kunde inte acceptera", result.error);
+        toast.error(t("acceptErrorTitle"), result.error);
       } else {
-        toast.success("Ansökan accepterad", "En bokning har skapats. Slutför betalningen i bokningar.");
+        toast.success(t("acceptSuccessTitle"), t("acceptSuccessMessage"));
       }
     });
   }
 
   function handleDecline() {
-    if (!confirm("Avböj denna ansökan?")) return;
+    if (!confirm(t("confirmDecline"))) return;
     startTransition(async () => {
       const result = await declineApplication(applicationId);
       if ("error" in result) {
-        toast.error("Kunde inte avböja", result.error);
+        toast.error(t("declineErrorTitle"), result.error);
       } else {
-        toast.success("Ansökan avböjd");
+        toast.success(t("declineSuccessTitle"));
       }
     });
   }
@@ -42,7 +44,7 @@ export function GigApplicationActions({ applicationId }: { applicationId: string
         className="flex items-center gap-1 rounded-lg bg-green-500/10 px-3 py-1.5 text-xs font-medium text-green-400 hover:bg-green-500/20 disabled:opacity-50"
       >
         <Check size={12} />
-        Acceptera
+        {t("acceptButton")}
       </button>
       <button
         type="button"
@@ -51,7 +53,7 @@ export function GigApplicationActions({ applicationId }: { applicationId: string
         className="flex items-center gap-1 rounded-lg border border-[var(--usha-border)] px-3 py-1.5 text-xs font-medium text-[var(--usha-muted)] hover:bg-red-500/10 hover:text-red-400 disabled:opacity-50"
       >
         <X size={12} />
-        Avböj
+        {t("declineButton")}
       </button>
     </div>
   );
