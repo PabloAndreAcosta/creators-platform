@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getStripeLocale } from "@/lib/i18n/stripe-locale";
 import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getCreatorCommissionRate } from "@/lib/stripe/commission";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
 
@@ -90,13 +91,12 @@ export async function POST(req: NextRequest) {
         creator_promo_id: creatorPromoId,
       });
 
-      // Increment promo usage
+      // Increment promo usage atomically (single guarded UPDATE via SECURITY
+      // DEFINER RPC) to avoid the read-modify-write race that could undercount
+      // uses and let a code be redeemed past its max_uses.
       if (promoCode && creatorPromoId) {
         try {
-          await supabase
-            .from("creator_promo_codes")
-            .update({ times_used: (await supabase.from("creator_promo_codes").select("times_used").eq("code", promoCode.toUpperCase()).single()).data?.times_used + 1 } as any)
-            .eq("code", promoCode.toUpperCase());
+          await createAdminClient().rpc("increment_creator_promo_uses", { p_code: promoCode.toUpperCase() } as any);
         } catch {}
       }
 

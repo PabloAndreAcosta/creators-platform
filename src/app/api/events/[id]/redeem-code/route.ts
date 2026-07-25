@@ -127,25 +127,30 @@ export async function POST(
     return NextResponse.json({ url: session.url });
   }
 
-  // ── FREE CODE → atomically consume one use, then book the free ticket ──
-  const { data: codeId, error: rpcErr } = await admin.rpc("redeem_access_code", {
-    p_listing: listingId,
-    p_code: code,
-  });
-  if (rpcErr || !codeId) {
-    return NextResponse.json({ error: te("invalidCode") }, { status: 400 });
-  }
-
+  // ── FREE CODE → reserve a seat FIRST, then consume a code use, then book. ──
+  // Order matters: if we consumed the code before checking capacity, a sold-out
+  // event would burn a valid single-use code without ever issuing a ticket.
   const scheduledAt = listing.event_date
     ? new Date(`${listing.event_date}T${listing.event_time || "00:00:00"}`).toISOString()
     : new Date().toISOString();
 
-  // Atomically reserve a seat (row-locked capacity check) before booking.
+  // 1. Atomically reserve a seat (row-locked capacity check). Nothing consumed yet.
   const { data: reserved } = await admin.rpc("reserve_ticket", { p_listing: listingId });
   if (!reserved) {
     return NextResponse.json({ error: te("soldOut") }, { status: 403 });
   }
 
+  // 2. Atomically consume one code use. On failure, release the seat we reserved.
+  const { data: codeId, error: rpcErr } = await admin.rpc("redeem_access_code", {
+    p_listing: listingId,
+    p_code: code,
+  });
+  if (rpcErr || !codeId) {
+    await admin.rpc("increment_tickets_sold", { p_listing: listingId, p_n: -1 });
+    return NextResponse.json({ error: te("invalidCode") }, { status: 400 });
+  }
+
+  // 3. Book. On failure, release BOTH the seat and (best-effort) the code use.
   const { data: codeBooking, error: bookErr } = await admin.from("bookings").insert({
     listing_id: listing.id,
     creator_id: listing.user_id,
@@ -157,8 +162,15 @@ export async function POST(
     ...(user ? { customer_id: user.id } : { guest_email: email, guest_name: name }),
   }).select("id").single();
   if (bookErr) {
-    // Release the reserved seat on failure.
     await admin.rpc("increment_tickets_sold", { p_listing: listingId, p_n: -1 });
+    const { data: cur } = await admin
+      .from("event_access_codes")
+      .select("used_count")
+      .eq("id", codeId)
+      .maybeSingle();
+    if (cur && (cur.used_count ?? 0) > 0) {
+      await admin.from("event_access_codes").update({ used_count: cur.used_count - 1 }).eq("id", codeId);
+    }
     console.error("access-code booking failed:", bookErr);
     return NextResponse.json({ error: te("generic") }, { status: 500 });
   }
