@@ -15,6 +15,7 @@ interface BeforeInstallPromptEvent extends Event {
 
 export function Nav() {
   const t = useTranslations("landing");
+  const ta = useTranslations("a11y");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showInstallModal, setShowInstallModal] = useState(false);
@@ -199,6 +200,7 @@ export function Nav() {
         <div className="relative w-full max-w-md rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-black)] p-8 shadow-2xl">
           <button
             onClick={() => setShowInstallModal(false)}
+            aria-label={ta("close")}
             className="absolute right-4 top-4 rounded p-1 text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
           >
             <X size={16} />

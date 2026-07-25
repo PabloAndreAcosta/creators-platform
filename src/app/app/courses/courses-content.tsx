@@ -166,6 +166,7 @@ function OnlineMaterialTab({ products }: { products: DigitalProductData[] }) {
 
 function ProductCard({ product }: { product: DigitalProductData }) {
   const t = useTranslations("courses");
+  const ta = useTranslations("a11y");
   const [deleting, setDeleting] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const router = useRouter();
@@ -204,6 +205,7 @@ function ProductCard({ product }: { product: DigitalProductData }) {
         <button
           onClick={() => setShowConfirm(true)}
           className="rounded-lg p-1.5 text-[var(--usha-muted)] hover:text-red-400"
+          aria-label={ta("deleteProduct")}
         >
           <Trash2 size={14} />
         </button>
@@ -460,6 +462,7 @@ function ServicesTab({ listings }: { listings: ListingData[] }) {
 
 function ServiceCard({ listing, index }: { listing: ListingData; index: number }) {
   const t = useTranslations("courses");
+  const ta = useTranslations("a11y");
   const [showMenu, setShowMenu] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -513,7 +516,7 @@ function ServiceCard({ listing, index }: { listing: ListingData; index: number }
             <span className="text-sm font-medium">{listing.price ? t("priceKr", { price: listing.price }) : t("free")}</span>
           </div>
           <div className="relative">
-            <button onClick={() => setShowMenu(!showMenu)} className="rounded-lg p-2 text-[var(--usha-muted)] hover:bg-[var(--usha-card-hover)] hover:text-[var(--usha-white)]">
+            <button onClick={() => setShowMenu(!showMenu)} className="rounded-lg p-2 text-[var(--usha-muted)] hover:bg-[var(--usha-card-hover)] hover:text-[var(--usha-white)]" aria-label={ta("openMenu")}>
               <MoreVertical size={16} />
             </button>
             {showMenu && (

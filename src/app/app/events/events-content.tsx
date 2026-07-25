@@ -189,6 +189,7 @@ function EventCard({
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
   const t = useTranslations("myEvents");
+  const ta = useTranslations("a11y");
   const router = useRouter();
 
   const categoryLabel = EVENT_CATEGORY_LABELS[listing.category] ?? listing.category;
@@ -310,6 +311,7 @@ function EventCard({
           <div className="relative">
             <button
               onClick={() => setShowMenu(!showMenu)}
+              aria-label={ta("openMenu")}
               className="rounded-lg p-2 text-[var(--usha-muted)] hover:bg-[var(--usha-card-hover)] hover:text-[var(--usha-white)]"
             >
               <MoreVertical size={16} />
@@ -434,6 +436,7 @@ function CloneModal({
 }) {
   const { toast } = useToast();
   const t = useTranslations("myEvents");
+  const ta = useTranslations("a11y");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [newDate, setNewDate] = useState("");
@@ -473,6 +476,7 @@ function CloneModal({
           <h3 className="text-base font-bold">{t("cloneModalTitle")}</h3>
           <button
             onClick={onClose}
+            aria-label={ta("close")}
             className="rounded-lg p-1 text-[var(--usha-muted)] hover:bg-[var(--usha-card-hover)] hover:text-[var(--usha-white)]"
             type="button"
           >

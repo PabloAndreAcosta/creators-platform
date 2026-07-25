@@ -3095,5 +3095,25 @@
     "disputesBody2": "con el ID de la reserva y una breve descripción. Mediamos e investigamos.",
     "platformFeeTitle": "Comisión de la plataforma",
     "platformFeeBody": "En caso de reembolso, se reembolsa el importe íntegro al cliente. La comisión que Usha Platform cobró al creador también se devuelve, de modo que ninguna parte asume el coste de una cancelación correcta. Los casos en los que se sospeche fraude o abuso se investigan por separado."
+  },
+  "a11y": {
+    "close": "Cerrar",
+    "back": "Atrás",
+    "prevMonth": "Mes anterior",
+    "nextMonth": "Mes siguiente",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "clearSearch": "Borrar búsqueda",
+    "clear": "Borrar",
+    "openMenu": "Abrir menú",
+    "options": "Mostrar opciones",
+    "removeImage": "Quitar imagen",
+    "removeMedia": "Quitar medio",
+    "removeTimeSlot": "Quitar franja horaria",
+    "removeAttendee": "Quitar asistente",
+    "removeLocation": "Quitar ubicación",
+    "removeWebsite": "Quitar sitio web",
+    "deleteProduct": "Eliminar producto",
+    "delete": "Eliminar"
   }
 }

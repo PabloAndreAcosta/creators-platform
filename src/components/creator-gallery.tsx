@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { X, Play, Instagram, Music } from "lucide-react";
 
 interface MediaItem {
@@ -15,6 +16,7 @@ interface MediaItem {
 }
 
 export function CreatorGallery({ media }: { media: MediaItem[] }) {
+  const ta = useTranslations("a11y");
   const [lightbox, setLightbox] = useState<MediaItem | null>(null);
 
   if (media.length === 0) return null;
@@ -212,6 +214,7 @@ export function CreatorGallery({ media }: { media: MediaItem[] }) {
         >
           <button
             onClick={() => setLightbox(null)}
+            aria-label={ta("close")}
             className="absolute right-4 top-4 rounded-full bg-white/10 p-2 transition hover:bg-white/20"
           >
             <X size={20} />

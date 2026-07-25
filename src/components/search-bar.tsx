@@ -31,6 +31,7 @@ interface SearchBarProps {
 export function SearchBar({ onSearch }: SearchBarProps) {
   const router = useRouter();
   const t = useTranslations("search");
+  const ta = useTranslations("a11y");
   const [query, setQuery] = useState("");
   const [listings, setListings] = useState<SearchListing[]>([]);
   const [creators, setCreators] = useState<SearchCreator[]>([]);
@@ -106,6 +107,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
         {query && (
           <button
             onClick={() => { setQuery(""); setOpen(false); }}
+            aria-label={ta("clearSearch")}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
           >
             <X size={16} />

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   Share2,
   Facebook,
@@ -37,6 +38,7 @@ export function SocialShareButton({
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
+  const ta = useTranslations("a11y");
 
   // Build share text
   const parts = [title];
@@ -169,6 +171,7 @@ export function SocialShareButton({
               </span>
               <button
                 onClick={() => setOpen(false)}
+                aria-label={ta("close")}
                 className="rounded p-0.5 text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
               >
                 <X size={12} />

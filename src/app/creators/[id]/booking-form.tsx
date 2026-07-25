@@ -41,6 +41,7 @@ function MiniCalendar({
   selectedDate: string | null;
 }) {
   const t = useTranslations("creatorProfile");
+  const ta = useTranslations("a11y");
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
@@ -74,11 +75,11 @@ function MiniCalendar({
   return (
     <div>
       <div className="mb-3 flex items-center justify-between">
-        <button type="button" onClick={prevMonth} className="rounded p-1 text-[var(--usha-muted)] hover:text-[var(--usha-white)]">
+        <button type="button" aria-label={ta("prevMonth")} onClick={prevMonth} className="rounded p-1 text-[var(--usha-muted)] hover:text-[var(--usha-white)]">
           <ChevronLeft size={16} />
         </button>
         <span className="text-sm font-semibold">{monthNames[month - 1]} {year}</span>
-        <button type="button" onClick={nextMonth} className="rounded p-1 text-[var(--usha-muted)] hover:text-[var(--usha-white)]">
+        <button type="button" aria-label={ta("nextMonth")} onClick={nextMonth} className="rounded p-1 text-[var(--usha-muted)] hover:text-[var(--usha-white)]">
           <ChevronRight size={16} />
         </button>
       </div>
@@ -239,6 +240,7 @@ export default function BookingForm({
   viewerRole?: string | null;
 }) {
   const t = useTranslations("creatorProfile");
+  const ta = useTranslations("a11y");
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [queueState, setQueueState] = useState<{
@@ -435,6 +437,7 @@ export default function BookingForm({
 
           <div className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-black)] p-6 shadow-2xl">
             <button
+              aria-label={ta("close")}
               onClick={() => setOpen(false)}
               className="absolute right-4 top-4 rounded p-1 text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]"
             >
@@ -732,7 +735,7 @@ export default function BookingForm({
                             className="w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2 text-xs outline-none"
                           />
                         </div>
-                        <button type="button" onClick={() => setAttendees(attendees.filter((_, j) => j !== i))} className="mt-1 rounded p-1 text-red-400 hover:text-red-300">
+                        <button type="button" aria-label={ta("removeAttendee")} onClick={() => setAttendees(attendees.filter((_, j) => j !== i))} className="mt-1 rounded p-1 text-red-400 hover:text-red-300">
                           <X size={14} />
                         </button>
                       </div>

@@ -37,6 +37,7 @@ export default function ListingForm({
   creatorSubcategory?: string | null;
 }) {
   const t = useTranslations("listingForm");
+  const ta = useTranslations("a11y");
   const isTaxiDancer = creatorSubcategory === "taxi_dancer";
   const [listingType, setListingType] = useState<string>(
     listing?.listing_type ?? (isTaxiDancer ? "dance_package" : "service")
@@ -95,6 +96,7 @@ export default function ListingForm({
             <button
               type="button"
               onClick={() => { setImageUrl(null); if (fileRef.current) fileRef.current.value = ""; }}
+              aria-label={ta("removeImage")}
               className="absolute right-2 top-2 rounded-full bg-black/60 p-1.5 text-white transition hover:bg-black/80"
             >
               <X size={14} />

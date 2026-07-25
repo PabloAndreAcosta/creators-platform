@@ -297,6 +297,7 @@ function CandidateCard({
   onBlock: (id: string) => void;
   onReport: (id: string) => void;
 }) {
+  const ta = useTranslations("a11y");
   const [menu, setMenu] = useState(false);
   return (
     <div className="overflow-hidden rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)]">
@@ -316,7 +317,7 @@ function CandidateCard({
           </p>
         </div>
         <div className="relative">
-          <button onClick={() => setMenu((v) => !v)} className="rounded-lg p-1.5 text-[var(--usha-muted)] hover:bg-[var(--usha-card-hover)]">
+          <button onClick={() => setMenu((v) => !v)} className="rounded-lg p-1.5 text-[var(--usha-muted)] hover:bg-[var(--usha-card-hover)]" aria-label={ta("options")}>
             <MoreVertical size={16} />
           </button>
           {menu && (

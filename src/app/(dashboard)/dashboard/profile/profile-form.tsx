@@ -52,6 +52,7 @@ const inputClass = "w-full min-h-[44px] rounded-xl border border-[var(--usha-bor
 
 export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer = false }: { profile: Profile; isPaidTier: boolean; isPremium: boolean; isCustomer?: boolean }) {
   const t = useTranslations("dashProfile.form");
+  const ta = useTranslations("a11y");
   const tc = useTranslations("categories");
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
@@ -393,6 +394,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
                 <button
                   type="button"
                   onClick={() => setLocations((prev) => prev.filter((l) => l !== loc))}
+                  aria-label={ta("removeLocation")}
                   className="ml-0.5 rounded-full p-0.5 transition hover:bg-[var(--usha-gold)]/20"
                 >
                   <X size={10} />
@@ -474,6 +476,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
                 <button
                   type="button"
                   onClick={() => setWebsites((prev) => prev.filter((w) => w !== url))}
+                  aria-label={ta("removeWebsite")}
                   className="ml-0.5 rounded-full p-0.5 transition hover:bg-[var(--usha-gold)]/20"
                 >
                   <X size={10} />

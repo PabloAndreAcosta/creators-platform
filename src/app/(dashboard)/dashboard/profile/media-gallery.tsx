@@ -80,6 +80,7 @@ function SortableMediaCard({
   isPending: boolean;
 }) {
   const t = useTranslations("dashProfile.gallery");
+  const ta = useTranslations("a11y");
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
 
   const style = {
@@ -167,6 +168,7 @@ function SortableMediaCard({
       <button
         type="button"
         onClick={() => onRemove(item.id)}
+        aria-label={ta("removeMedia")}
         className="absolute right-2 top-2 z-10 rounded-full bg-black/70 p-1.5 transition hover:bg-red-500/80"
       >
         <X size={14} />

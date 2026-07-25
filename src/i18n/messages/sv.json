@@ -3095,5 +3095,25 @@
     "disputesBody2": "med boknings-ID och en kort beskrivning. Vi medlar och utreder.",
     "platformFeeTitle": "Plattformsavgift",
     "platformFeeBody": "Vid återbetalning återbetalas hela beloppet till kunden. Den provision Usha Platform tagit ut från kreatören återgår också, så ingen part bär kostnaden för en korrekt avbokning. Fall där bedrägeri eller missbruk misstänks utreds separat."
+  },
+  "a11y": {
+    "close": "Stäng",
+    "back": "Tillbaka",
+    "prevMonth": "Föregående månad",
+    "nextMonth": "Nästa månad",
+    "previous": "Föregående",
+    "next": "Nästa",
+    "clearSearch": "Rensa sökning",
+    "clear": "Rensa",
+    "openMenu": "Öppna meny",
+    "options": "Visa alternativ",
+    "removeImage": "Ta bort bild",
+    "removeMedia": "Ta bort media",
+    "removeTimeSlot": "Ta bort tidslucka",
+    "removeAttendee": "Ta bort deltagare",
+    "removeLocation": "Ta bort plats",
+    "removeWebsite": "Ta bort webbplats",
+    "deleteProduct": "Ta bort produkt",
+    "delete": "Ta bort"
   }
 }

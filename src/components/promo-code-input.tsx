@@ -27,6 +27,7 @@ export function PromoCodeInput({
   onValidCode,
 }: PromoCodeInputProps) {
   const t = useTranslations("creatorProfile");
+  const ta = useTranslations("a11y");
   const [code, setCode] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "valid" | "invalid">("idle");
   const [error, setError] = useState("");
@@ -120,6 +121,7 @@ export function PromoCodeInput({
           {status === "valid" && (
             <button
               onClick={handleClear}
+              aria-label={ta("clear")}
               className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
             >
               <X size={14} />
