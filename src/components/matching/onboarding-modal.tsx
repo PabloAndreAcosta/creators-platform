@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { X, Check } from "lucide-react";
 
@@ -29,6 +29,14 @@ export function MatchingOnboardingModal({
   const [level, setLevel] = useState<string | null>(null);
   const [city, setCity] = useState("");
   const [saving, setSaving] = useState(false);
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    },
+    [onClose]
+  );
 
   useEffect(() => {
     if (open) {
@@ -37,6 +45,14 @@ export function MatchingOnboardingModal({
       setCity(initial?.city ?? "");
     }
   }, [open, initial]);
+
+  useEffect(() => {
+    if (open) {
+      document.addEventListener("keydown", handleKeyDown);
+      dialogRef.current?.focus();
+      return () => document.removeEventListener("keydown", handleKeyDown);
+    }
+  }, [open, handleKeyDown]);
 
   if (!open) return null;
 
@@ -65,7 +81,14 @@ export function MatchingOnboardingModal({
   return (
     <div className="fixed inset-0 z-[70] flex items-end justify-center p-0 sm:items-center sm:p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-md rounded-t-2xl border border-[var(--usha-border)] bg-[var(--usha-black)] p-6 shadow-2xl sm:rounded-2xl">
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="matching-onboarding-title"
+        tabIndex={-1}
+        className="relative w-full max-w-md rounded-t-2xl border border-[var(--usha-border)] bg-[var(--usha-black)] p-6 shadow-2xl outline-none sm:rounded-2xl"
+      >
         <button
           onClick={onClose}
           className="absolute right-4 top-4 rounded p-1 text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
@@ -74,7 +97,7 @@ export function MatchingOnboardingModal({
           <X size={16} />
         </button>
 
-        <h3 className="mb-1 text-lg font-bold text-[var(--usha-white)]">{t("title")}</h3>
+        <h3 id="matching-onboarding-title" className="mb-1 text-lg font-bold text-[var(--usha-white)]">{t("title")}</h3>
         <p className="mb-5 text-sm text-[var(--usha-muted)]">{t("subtitle")}</p>
 
         {/* 1. Styles */}

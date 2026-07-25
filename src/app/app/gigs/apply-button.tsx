@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect, useRef, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { applyToGig } from "@/app/(dashboard)/dashboard/gigs/actions";
 import { useToast } from "@/components/ui/toaster";
@@ -12,6 +12,19 @@ export function ApplyToGigButton({ gigId }: { gigId: string }) {
   const [message, setMessage] = useState("");
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.key === "Escape") setOpen(false);
+  }, []);
+
+  useEffect(() => {
+    if (open) {
+      document.addEventListener("keydown", handleKeyDown);
+      dialogRef.current?.focus();
+      return () => document.removeEventListener("keydown", handleKeyDown);
+    }
+  }, [open, handleKeyDown]);
 
   function handleSubmit() {
     startTransition(async () => {
@@ -41,7 +54,14 @@ export function ApplyToGigButton({ gigId }: { gigId: string }) {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setOpen(false)} />
 
-          <div className="relative w-full max-w-md rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-black)] p-6 shadow-2xl">
+          <div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="apply-gig-title"
+            tabIndex={-1}
+            className="relative w-full max-w-md rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-black)] p-6 shadow-2xl outline-none"
+          >
             <button
               onClick={() => setOpen(false)}
               className="absolute right-4 top-4 rounded p-1 text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]"
@@ -49,7 +69,7 @@ export function ApplyToGigButton({ gigId }: { gigId: string }) {
               <X size={16} />
             </button>
 
-            <h3 className="mb-4 text-lg font-bold">{t("modalTitle")}</h3>
+            <h3 id="apply-gig-title" className="mb-4 text-lg font-bold">{t("modalTitle")}</h3>
 
             <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">
               {t("messageLabel")} <span className="text-xs">{t("optional")}</span>

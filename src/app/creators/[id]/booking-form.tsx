@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
+import { useState, useTransition, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { createBooking, joinQueue } from "@/app/(dashboard)/dashboard/bookings/actions";
 import { getAvailability, getTimeSlotsForDate } from "@/app/app/calendar/actions";
@@ -267,6 +267,22 @@ export default function BookingForm({
     listing.price != null ? String(listing.price) : ""
   );
   const { toast } = useToast();
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  // Focus the modal panel when it opens (dialog a11y)
+  useEffect(() => {
+    if (open) modalRef.current?.focus();
+  }, [open]);
+
+  // Escape-to-close for the booking modal
+  useEffect(() => {
+    if (!open) return;
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [open]);
 
   const showGuestFields = listing.listing_type && ["table_reservation", "spa_treatment", "group_activity"].includes(listing.listing_type);
   const minGuests = listing.min_guests ?? 1;
@@ -435,7 +451,14 @@ export default function BookingForm({
             onClick={() => setOpen(false)}
           />
 
-          <div className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-black)] p-6 shadow-2xl">
+          <div
+            ref={modalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="booking-modal-title"
+            tabIndex={-1}
+            className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-black)] p-6 shadow-2xl outline-none"
+          >
             <button
               aria-label={ta("close")}
               onClick={() => setOpen(false)}
@@ -444,7 +467,7 @@ export default function BookingForm({
               <X size={16} />
             </button>
 
-            <h3 className="mb-1 text-lg font-bold">{t("booking.modalTitle", { title: listing.title })}</h3>
+            <h3 id="booking-modal-title" className="mb-1 text-lg font-bold">{t("booking.modalTitle", { title: listing.title })}</h3>
             <div className="mb-4 flex items-center gap-3 text-sm text-[var(--usha-muted)]">
               {listing.price != null && (
                 <span className="font-semibold text-[var(--usha-gold)]">

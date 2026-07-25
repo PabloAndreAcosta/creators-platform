@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
+import { useState, useTransition, useEffect, useRef } from "react";
 import {
   Clock,
   Edit2,
@@ -442,6 +442,19 @@ function CloneModal({
   const [newDate, setNewDate] = useState("");
   const [newTime, setNewTime] = useState(listing.event_time?.slice(0, 5) ?? "");
   const [newEndTime, setNewEndTime] = useState("");
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    panelRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", h);
+    return () => document.removeEventListener("keydown", h);
+  }, [onClose]);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -469,11 +482,16 @@ function CloneModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={onClose}>
       <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="clone-modal-title"
+        tabIndex={-1}
         className="w-full max-w-sm rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-base font-bold">{t("cloneModalTitle")}</h3>
+          <h3 id="clone-modal-title" className="text-base font-bold">{t("cloneModalTitle")}</h3>
           <button
             onClick={onClose}
             aria-label={ta("close")}
