@@ -236,7 +236,7 @@ export async function recordBuddyLike(
   fromUser: string,
   toUser: string,
   action: "like" | "pass"
-): Promise<{ matched: boolean; matchId?: string }> {
+): Promise<{ matched: boolean; isNew?: boolean; matchId?: string }> {
   const admin = createAdminClient();
 
   await admin
@@ -255,11 +255,26 @@ export async function recordBuddyLike(
   if (!recip) return { matched: false };
 
   const [a, b] = fromUser < toUser ? [fromUser, toUser] : [toUser, fromUser];
-  const { data: m } = await admin
+  // ignoreDuplicates → the insert returns a row ONLY when it actually created
+  // the match. Two simultaneous mutual likes both see the reciprocal like, but
+  // only one insert wins; the other returns null, so exactly one call reports
+  // isNew and the caller notifies both users once (no duplicate match pings).
+  const { data: created } = await admin
     .from("buddy_matches")
-    .upsert({ user_a: a, user_b: b }, { onConflict: "user_a,user_b" })
+    .upsert({ user_a: a, user_b: b }, { onConflict: "user_a,user_b", ignoreDuplicates: true })
     .select("id")
     .maybeSingle();
 
-  return { matched: true, matchId: (m as { id: string } | null)?.id };
+  if (created) {
+    return { matched: true, isNew: true, matchId: (created as { id: string }).id };
+  }
+
+  // Match already existed — report matched but not new (no notification).
+  const { data: existing } = await admin
+    .from("buddy_matches")
+    .select("id")
+    .eq("user_a", a)
+    .eq("user_b", b)
+    .maybeSingle();
+  return { matched: true, isNew: false, matchId: (existing as { id: string } | null)?.id };
 }

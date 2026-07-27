@@ -40,7 +40,9 @@ export async function POST(req: NextRequest) {
 
   const result = await recordBuddyLike(user.id, toUserId, action);
 
-  if (result.matched) {
+  // Only notify when THIS call created the match — avoids duplicate pings when
+  // both users like simultaneously (only one insert wins → one isNew).
+  if (result.matched && result.isNew) {
     // Notify both sides. Fetch names for a friendly message.
     const { data: names } = await admin.from("profiles").select("id, full_name").in("id", [user.id, toUserId]);
     const nameOf = (id: string) => names?.find((n: { id: string }) => n.id === id)?.full_name || "en dansare";

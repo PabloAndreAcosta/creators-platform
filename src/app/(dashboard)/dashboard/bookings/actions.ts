@@ -518,16 +518,26 @@ export async function redeemDance(bookingId: string) {
   const nextRedeemed = redeemed + 1;
   const reachedTotal = nextRedeemed >= total;
 
-  const { error: updateError } = await supabase
+  // Optimistic concurrency: only apply if dances_redeemed is still what we read
+  // and the booking is still confirmed. A concurrent redemption (double-tap /
+  // two devices) changes the value so the guard misses → 0 rows → we bail out
+  // instead of silently losing an update.
+  const { data: updatedRows, error: updateError } = await supabase
     .from("bookings")
     .update({
       dances_redeemed: nextRedeemed,
       ...(reachedTotal ? { status: "completed" } : {}),
     })
-    .eq("id", bookingId);
+    .eq("id", bookingId)
+    .eq("dances_redeemed", redeemed)
+    .eq("status", "confirmed")
+    .select("id");
 
   if (updateError) {
     return { error: "Kunde inte uppdatera bokningen." };
+  }
+  if (!updatedRows || updatedRows.length === 0) {
+    return { error: "Bokningen ändrades precis — ladda om och försök igen." };
   }
 
   revalidatePath("/dashboard/bookings");
@@ -574,16 +584,24 @@ export async function redeemMinutes(bookingId: string, amount = 15) {
   const nextRedeemed = redeemed + amount;
   const reachedTotal = nextRedeemed >= total;
 
-  const { error: updateError } = await supabase
+  // Optimistic concurrency: guard on the value we read + still-confirmed status,
+  // so two concurrent redemptions can't both write and lose a minute block.
+  const { data: updatedRows, error: updateError } = await supabase
     .from("bookings")
     .update({
       minutes_redeemed: nextRedeemed,
       ...(reachedTotal ? { status: "completed" } : {}),
     })
-    .eq("id", bookingId);
+    .eq("id", bookingId)
+    .eq("minutes_redeemed", redeemed)
+    .eq("status", "confirmed")
+    .select("id");
 
   if (updateError) {
     return { error: "Kunde inte uppdatera bokningen." };
+  }
+  if (!updatedRows || updatedRows.length === 0) {
+    return { error: "Bokningen ändrades precis — ladda om och försök igen." };
   }
 
   revalidatePath("/dashboard/bookings");
