@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { User, Clock, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
 import { MINUTE_OPTIONS, priceForMinutes, type MinuteOption } from "@/lib/coaching/minute-pricing";
@@ -27,6 +28,7 @@ export function InstructorMinutesCard({
   isLoggedIn,
   disabledReason,
 }: Props) {
+  const t = useTranslations("instructorMinutesCard");
   const { toast } = useToast();
   const [minutes, setMinutes] = useState<MinuteOption>(30);
   const [loading, setLoading] = useState(false);
@@ -41,12 +43,12 @@ export function InstructorMinutesCard({
       });
       const data = await res.json();
       if (!res.ok) {
-        toast.error(data.error || "Kunde inte starta köpet.");
+        toast.error(data.error || t("errorCheckout"));
         return;
       }
       if (data.url) window.location.href = data.url;
     } catch {
-      toast.error("Kunde inte starta köpet. Försök igen.");
+      toast.error(t("errorCheckoutRetry"));
     } finally {
       setLoading(false);
     }
@@ -84,7 +86,7 @@ export function InstructorMinutesCard({
                   : "border-[var(--usha-border)] hover:border-[var(--usha-gold)]/40"
               }`}
             >
-              <span className="text-sm font-semibold">{m} min</span>
+              <span className="text-sm font-semibold">{t("minutesShort", { minutes: m })}</span>
               <span className="text-[11px] text-[var(--usha-muted)]">{priceForMinutes(hourlyRate, m)} kr</span>
             </button>
           );
@@ -99,7 +101,7 @@ export function InstructorMinutesCard({
           className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2.5 text-sm font-bold text-black transition hover:opacity-90"
         >
           <Clock size={14} />
-          Logga in för att köpa
+          {t("loginToBuy")}
         </a>
       ) : (
         <button
@@ -108,7 +110,7 @@ export function InstructorMinutesCard({
           className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2.5 text-sm font-bold text-black transition hover:opacity-90 disabled:opacity-50"
         >
           {loading ? <Loader2 size={14} className="animate-spin" /> : <Clock size={14} />}
-          Köp {minutes} min · {priceForMinutes(hourlyRate, minutes)} kr
+          {t("buyMinutes", { minutes, price: priceForMinutes(hourlyRate, minutes) })}
         </button>
       )}
     </div>

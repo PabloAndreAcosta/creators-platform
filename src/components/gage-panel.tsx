@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Loader2, Banknote, Check, X } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
 import { gageKr, gageStatusLabel, GAGE_MIN_SEK, type GageStatus, type GageProposedBy } from "@/lib/gage";
@@ -27,6 +28,7 @@ export function GagePanel({
   agreement: GageView | null;
   payeeConnected?: boolean; // host view: does the crew member have Stripe?
 }) {
+  const t = useTranslations("gagePanel");
   const router = useRouter();
   const { toast } = useToast();
   const [amount, setAmount] = useState("");
@@ -48,12 +50,12 @@ export function GagePanel({
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        toast.error(data.error ?? "Något gick fel");
+        toast.error(data.error ?? t("errorGeneric"));
         return null;
       }
       return data;
     } catch {
-      toast.error("Nätverksfel");
+      toast.error(t("errorNetwork"));
       return null;
     } finally {
       setBusy(false);
@@ -63,14 +65,14 @@ export function GagePanel({
   async function propose() {
     const sek = Number(amount);
     if (!Number.isInteger(sek) || sek < GAGE_MIN_SEK) {
-      toast.error(`Ange ett belopp (minst ${GAGE_MIN_SEK} kr)`);
+      toast.error(t("errorAmount", { min: GAGE_MIN_SEK }));
       return;
     }
     const body: Record<string, unknown> = { amount_sek: sek };
     if (perspective === "host") body.collaborator_user_id = collaboratorUserId;
     const data = await call(`/api/listings/${listingId}/gage`, body);
     if (data) {
-      toast.success("Gage föreslaget");
+      toast.success(t("toastProposed"));
       setAmount("");
       router.refresh();
     }
@@ -78,13 +80,13 @@ export function GagePanel({
 
   async function accept() {
     if (await call(`/api/gage/${agreement!.id}/accept`)) {
-      toast.success("Accepterat");
+      toast.success(t("toastAccepted"));
       router.refresh();
     }
   }
   async function cancel() {
     if (await call(`/api/gage/${agreement!.id}/cancel`)) {
-      toast.success("Avbrutet");
+      toast.success(t("toastCanceled"));
       router.refresh();
     }
   }
@@ -96,7 +98,7 @@ export function GagePanel({
   // ---- render ----
   const label = (
     <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--usha-muted)]">
-      <Banknote size={13} /> Gage
+      <Banknote size={13} /> {t("label")}
     </span>
   );
 
@@ -122,7 +124,7 @@ export function GagePanel({
           min={GAGE_MIN_SEK}
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          placeholder="kr"
+          placeholder={t("amountPlaceholder")}
           className="w-20 rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-2 py-1.5 text-sm text-[var(--usha-white)] focus:border-[var(--usha-gold)] focus:outline-none"
         />
         <button
@@ -131,7 +133,7 @@ export function GagePanel({
           className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--usha-border)] px-3 py-1.5 text-xs font-medium text-[var(--usha-white)] transition hover:border-[var(--usha-gold)]/60 disabled:opacity-50"
         >
           {busy ? <Loader2 size={13} className="animate-spin" /> : null}
-          Föreslå
+          {t("propose")}
         </button>
       </div>
     );
@@ -147,15 +149,15 @@ export function GagePanel({
       <div className="ml-auto flex items-center gap-1.5">
         {agreement!.status === "proposed" && iProposed && (
           <button onClick={cancel} disabled={busy} className="rounded-lg px-2.5 py-1 text-xs text-[var(--usha-muted)] hover:text-red-400 disabled:opacity-50">
-            Avbryt
+            {t("cancel")}
           </button>
         )}
         {agreement!.status === "proposed" && !iProposed && (
           <>
             <button onClick={accept} disabled={busy} className="inline-flex items-center gap-1 rounded-lg bg-[var(--usha-gold)] px-3 py-1 text-xs font-bold text-black disabled:opacity-50">
-              {busy ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />} Acceptera
+              {busy ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />} {t("accept")}
             </button>
-            <button onClick={cancel} disabled={busy} className="rounded-lg p-1 text-[var(--usha-muted)] hover:text-red-400 disabled:opacity-50" aria-label="Avböj">
+            <button onClick={cancel} disabled={busy} className="rounded-lg p-1 text-[var(--usha-muted)] hover:text-red-400 disabled:opacity-50" aria-label={t("declineAria")}>
               <X size={14} />
             </button>
           </>
@@ -164,18 +166,18 @@ export function GagePanel({
           <button
             onClick={pay}
             disabled={busy || !payeeConnected}
-            title={payeeConnected ? undefined : "Mottagaren måste koppla Stripe först"}
+            title={payeeConnected ? undefined : t("payeeNotConnectedTooltip")}
             className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-3 py-1 text-xs font-bold text-black disabled:opacity-50"
           >
             {busy ? <Loader2 size={12} className="animate-spin" /> : <Banknote size={12} />}
-            Betala {gageKr(agreement!.amount_ore)}
+            {t("pay", { amount: gageKr(agreement!.amount_ore) })}
           </button>
         )}
         {agreement!.status === "agreed" && perspective === "crew" && (
-          <span className="text-[11px] text-[var(--usha-muted)]">väntar på betalning</span>
+          <span className="text-[11px] text-[var(--usha-muted)]">{t("awaitingPayment")}</span>
         )}
         {agreement!.status === "agreed" && perspective === "host" && !payeeConnected && (
-          <span className="text-[11px] text-amber-400">ej Stripe-kopplad</span>
+          <span className="text-[11px] text-amber-400">{t("notStripeConnected")}</span>
         )}
       </div>
     </div>
