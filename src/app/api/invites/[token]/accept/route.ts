@@ -52,6 +52,22 @@ export async function POST(
     }
   }
 
+  // Claim the invite ATOMICALLY first. The conditional `accepted_user_id IS NULL`
+  // makes it single-use even for an open (untargeted) token: two users racing the
+  // same link can't both pass, because only one UPDATE matches and returns a row.
+  // Claiming before adding the collaborator means a lost race adds nobody.
+  const { data: claimed } = await admin
+    .from("collaborator_invites")
+    .update({ accepted_user_id: user.id, accepted_at: new Date().toISOString() })
+    .eq("id", invite.id)
+    .is("accepted_user_id", null)
+    .select("id")
+    .maybeSingle();
+
+  if (!claimed) {
+    return NextResponse.json({ error: "Invite already accepted" }, { status: 409 });
+  }
+
   const { data: collaborator, error: collabErr } = await admin
     .from("listing_collaborators")
     .upsert(
@@ -69,13 +85,14 @@ export async function POST(
     .single();
 
   if (collabErr || !collaborator) {
+    // Release the claim so the invite can be retried rather than stuck consumed.
+    await admin
+      .from("collaborator_invites")
+      .update({ accepted_user_id: null, accepted_at: null })
+      .eq("id", invite.id)
+      .eq("accepted_user_id", user.id);
     return NextResponse.json({ error: "Could not save collaboration" }, { status: 500 });
   }
-
-  await admin
-    .from("collaborator_invites")
-    .update({ accepted_user_id: user.id, accepted_at: new Date().toISOString() })
-    .eq("id", invite.id);
 
   return NextResponse.json({ ok: true, collaborator_id: collaborator.id, listing_id: invite.listing_id });
 }

@@ -31,18 +31,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Profil hittades inte" }, { status: 404 });
   }
 
-  let updated = false;
-  const updates: Record<string, unknown> = {};
+  let generatedCode: string | null = null;
 
-  // Generate referral code if missing
+  // Generate referral code if missing (independent of referral attribution).
   if (!profile.referral_code) {
-    const code = generateCode();
-    updates.referral_code = code;
-    updated = true;
+    generatedCode = generateCode();
+    await supabase.from("profiles").update({ referral_code: generatedCode }).eq("id", user.id);
   }
 
-  // Process referral from signup metadata
+  // Process referral from signup metadata.
   const referredByCode = user.user_metadata?.referred_by_code;
+  let claimedReferredBy: string | null = null;
   if (referredByCode && !profile.referred_by) {
     // Look up the referrer
     const { data: referrer } = await supabase
@@ -52,30 +51,39 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (referrer && referrer.id !== user.id) {
-      updates.referred_by = referrer.id;
-      updated = true;
+      // Atomic claim: only the first call where referred_by IS NULL wins, so
+      // concurrent "process once after signup" calls can't double-attribute or
+      // mint duplicate welcome promos.
+      const { data: claimed } = await supabase
+        .from("profiles")
+        .update({ referred_by: referrer.id })
+        .eq("id", user.id)
+        .is("referred_by", null)
+        .select("id")
+        .maybeSingle();
 
-      // Create welcome promo code (50 kr) for the new user
-      await supabase.from("promo_codes").insert({
-        code: `VÄLKOMMEN-${generateCode()}`,
-        discount_type: "fixed",
-        discount_amount: 50,
-        scope: "ticket",
-        max_uses: 1,
-        times_used: 0,
-        is_active: true,
-        description: `Välkomstrabatt via inbjudan från ${referredByCode}`,
-      });
+      if (claimed) {
+        claimedReferredBy = referrer.id;
+
+        // Create welcome promo code (50 kr) for the new user — only on a fresh
+        // claim, so it happens exactly once per referral.
+        await supabase.from("promo_codes").insert({
+          code: `VÄLKOMMEN-${generateCode()}`,
+          discount_type: "fixed",
+          discount_amount: 50,
+          scope: "ticket",
+          max_uses: 1,
+          times_used: 0,
+          is_active: true,
+          description: `Välkomstrabatt via inbjudan från ${referredByCode}`,
+        });
+      }
     }
   }
 
-  if (updated) {
-    await supabase.from("profiles").update(updates).eq("id", user.id);
-  }
-
   return NextResponse.json({
-    referralCode: profile.referral_code || updates.referral_code,
-    referredBy: profile.referred_by || updates.referred_by || null,
+    referralCode: profile.referral_code || generatedCode,
+    referredBy: profile.referred_by || claimedReferredBy || null,
   });
 }
 
