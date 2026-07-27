@@ -21,6 +21,16 @@ export async function POST(
 ) {
   const { id: listingId } = await params;
   const te = await getTranslations("eventErrors");
+
+  // Rate limit: access codes are host-defined free text and this route is
+  // guest-reachable, so throttle to stop brute-force enumeration of codes
+  // (which could steal free inventory or a discounted checkout).
+  const { rateLimit, getRateLimitKey } = await import("@/lib/rate-limit");
+  const rl = rateLimit(getRateLimitKey(req, "redeem-code"), 10, 60_000);
+  if (!rl.allowed) {
+    return NextResponse.json({ error: te("generic") }, { status: 429 });
+  }
+
   const supabase = await createClient();
   const {
     data: { user },
