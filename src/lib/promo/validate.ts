@@ -84,8 +84,12 @@ export async function validatePromoCode(
     }
   }
 
-  // Atomically increment to prevent race conditions
-  await supabase.rpc("increment_promo_uses", { promo_id: promo.id } as any);
+  // NOTE: the global current_uses counter is incremented on PAYMENT SUCCESS in
+  // the Stripe webhook (service role), NOT here. Validation must be side-effect
+  // free — this function also runs from the /api/promo/validate preview endpoint
+  // and on every abandoned checkout, so incrementing here burned uses that were
+  // never redeemed. (It also silently failed anyway: increment_promo_uses is
+  // REVOKED from the authenticated role this function runs as.)
 
   return {
     valid: true,

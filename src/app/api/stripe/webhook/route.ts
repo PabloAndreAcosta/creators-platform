@@ -269,13 +269,22 @@ export async function POST(req: NextRequest) {
             ? parseFloat(session.metadata.promoDiscountAmount)
             : 0;
 
-          await getSupabaseAdmin().from("promo_code_uses").insert({
+          const { error: promoUseErr } = await getSupabaseAdmin().from("promo_code_uses").insert({
             promo_code_id: promoCodeId,
             user_id: userId,
             used_for: usedFor,
             reference_id: session.id,
             discount_amount: discountAmount,
           });
+          // Increment the global counter only on a FRESH insert. A Stripe retry
+          // hits the unique(promo_code_id,user_id,reference_id) constraint (23505)
+          // and must not double-count. This is where current_uses is actually
+          // consumed — validation no longer touches it.
+          if (!promoUseErr) {
+            await getSupabaseAdmin().rpc("increment_promo_uses", { promo_id: promoCodeId } as any);
+          } else if (promoUseErr.code !== "23505") {
+            console.error("promo_code_uses insert failed:", promoUseErr);
+          }
         }
 
         // Handle crew gage payments (host → crew member via Connect)

@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
           } else if (promo.discount_amount > 0) {
             discount = promo.discount_amount;
           }
-          creatorPromoId = promo.creator_id;
+          creatorPromoId = promo.id;
         }
       }
     }
