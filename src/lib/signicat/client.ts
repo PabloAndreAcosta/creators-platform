@@ -24,6 +24,8 @@ async function getAccessToken(): Promise<string> {
       "Content-Type": "application/x-www-form-urlencoded",
     },
     body: "grant_type=client_credentials&scope=signicat-api",
+    // Bound the call so a slow/hung Signicat can't stall signup indefinitely.
+    signal: AbortSignal.timeout(15000),
   });
 
   if (!res.ok) {
@@ -66,6 +68,7 @@ export async function createBankIdSession(
           error: `${callbackBaseUrl}/api/auth/bankid/callback?status=error`,
         },
       }),
+      signal: AbortSignal.timeout(15000),
     }
   );
 
@@ -84,6 +87,7 @@ export async function getBankIdSessionResult(
 
   const res = await fetch(`${API_BASE}/auth/rest/sessions/${sessionId}`, {
     headers: { Authorization: `Bearer ${token}` },
+    signal: AbortSignal.timeout(15000),
   });
 
   if (!res.ok) {
