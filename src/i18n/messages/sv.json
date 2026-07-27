@@ -231,7 +231,9 @@
     "copy": "Kopiera",
     "copied": "Kopierad",
     "share": "Dela",
-    "joinedCount": "{count, plural, one {# person har gått med via din länk} other {# personer har gått med via din länk}}"
+    "joinedCount": "{count, plural, one {# person har gått med via din länk} other {# personer har gått med via din länk}}",
+    "welcomeTitle": "Du fick {amount} kr i välkomstrabatt 🎁",
+    "welcomeSubtitle": "Använd koden i kassan på ditt första event."
   },
   "recommendations": {
     "title": "Rekommenderat för dig",

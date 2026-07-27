@@ -10,8 +10,11 @@ export function ReferralCard() {
     referralCode: string | null;
     referralCount: number;
     referralLink: string | null;
+    welcomeCode: string | null;
+    welcomeDiscount: number | null;
   } | null>(null);
   const [copied, setCopied] = useState(false);
+  const [copiedWelcome, setCopiedWelcome] = useState(false);
 
   useEffect(() => {
     // Init referral code if needed, then fetch
@@ -23,6 +26,13 @@ export function ReferralCard() {
   }, []);
 
   if (!data?.referralCode) return null;
+
+  async function handleCopyWelcome() {
+    if (!data?.welcomeCode) return;
+    await navigator.clipboard.writeText(data.welcomeCode);
+    setCopiedWelcome(true);
+    setTimeout(() => setCopiedWelcome(false), 2000);
+  }
 
   async function handleCopy() {
     if (!data?.referralLink) return;
@@ -79,6 +89,27 @@ export function ReferralCard() {
         <p className="mt-2 text-xs text-[var(--usha-muted)]">
           {t("joinedCount", { count: data.referralCount })}
         </p>
+      )}
+
+      {data.welcomeCode && (
+        <div className="mt-4 rounded-lg border border-[var(--usha-gold)]/30 bg-[var(--usha-gold)]/5 p-3">
+          <p className="text-xs font-semibold text-[var(--usha-gold)]">
+            {t("welcomeTitle", { amount: data.welcomeDiscount ?? 0 })}
+          </p>
+          <p className="mt-1 text-xs text-[var(--usha-muted)]">{t("welcomeSubtitle")}</p>
+          <div className="mt-2 flex items-center gap-2">
+            <div className="flex-1 rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-3 py-2 font-mono text-xs">
+              {data.welcomeCode}
+            </div>
+            <button
+              onClick={handleCopyWelcome}
+              className="flex items-center gap-1 rounded-lg border border-[var(--usha-border)] px-3 py-2 text-xs transition hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-gold)]"
+            >
+              {copiedWelcome ? <Check size={12} className="text-green-400" /> : <Copy size={12} />}
+              {copiedWelcome ? t("copied") : t("copy")}
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

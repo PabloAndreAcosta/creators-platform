@@ -231,7 +231,9 @@
     "copy": "Copiar",
     "copied": "Copiado",
     "share": "Compartir",
-    "joinedCount": "{count, plural, one {# persona se ha unido a través de tu enlace} other {# personas se han unido a través de tu enlace}}"
+    "joinedCount": "{count, plural, one {# persona se ha unido a través de tu enlace} other {# personas se han unido a través de tu enlace}}",
+    "welcomeTitle": "Recibiste {amount} kr de descuento de bienvenida 🎁",
+    "welcomeSubtitle": "Usa el código al pagar tu primer evento."
   },
   "recommendations": {
     "title": "Recomendado para ti",
