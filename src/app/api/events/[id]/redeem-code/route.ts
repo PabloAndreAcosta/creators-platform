@@ -8,6 +8,7 @@ import { getStripeLocale } from "@/lib/i18n/stripe-locale";
 import { stripe } from "@/lib/stripe/client";
 import { getCreatorCommissionRate } from "@/lib/stripe/commission";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
+import { stockholmLocalToUtcISO } from "@/lib/time";
 
 // Redeem an event access code for a ticket. Works for logged-in users and guests
 // (email required). Two kinds of code:
@@ -130,8 +131,10 @@ export async function POST(
   // ── FREE CODE → reserve a seat FIRST, then consume a code use, then book. ──
   // Order matters: if we consumed the code before checking capacity, a sold-out
   // event would burn a valid single-use code without ever issuing a ticket.
+  // event_date/event_time are Stockholm wall-clock; convert to UTC (DST-aware).
   const scheduledAt = listing.event_date
-    ? new Date(`${listing.event_date}T${listing.event_time || "00:00:00"}`).toISOString()
+    ? stockholmLocalToUtcISO(`${listing.event_date}T${listing.event_time || "00:00"}`) ??
+      new Date().toISOString()
     : new Date().toISOString();
 
   // 1. Atomically reserve a seat (row-locked capacity check). Nothing consumed yet.

@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { handleCapacityReached, autoPromoteFromQueue, addToQueue, getQueuePosition } from "@/lib/bookings/queue";
 import { requirePaidSubscription } from "@/lib/subscription/check";
 import { refundBookingCharge } from "@/lib/tickets/refund";
+import { stockholmLocalToUtcISO } from "@/lib/time";
 import { sendBookingConfirmationEmail, sendBookingCancellationEmail } from "@/lib/email/send-booking";
 import { shouldSendEmail } from "@/lib/email/check-preferences";
 import { isGoldExclusive } from "@/lib/listings/early-bird";
@@ -92,9 +93,9 @@ export async function createBooking(formData: FormData) {
   // parsed in the browser's timezone and drifts for non-Stockholm users.
   if (autoConfirm && listing.event_date) {
     const evListing = listing as { event_date?: string | null; event_time?: string | null };
-    scheduledDate = evListing.event_time
-      ? new Date(`${evListing.event_date}T${evListing.event_time}`)
-      : new Date(`${evListing.event_date}T00:00:00`);
+    // event_date/event_time are Stockholm wall-clock; convert to UTC (DST-aware).
+    const utc = stockholmLocalToUtcISO(`${evListing.event_date}T${evListing.event_time || "00:00"}`);
+    scheduledDate = utc ? new Date(utc) : new Date();
   }
 
   // B2B offerings can only be booked by experience-role users (arrangörer).
