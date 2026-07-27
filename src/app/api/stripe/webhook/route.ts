@@ -9,6 +9,7 @@ import { sendGoldWelcomeEmail } from "@/lib/email/send-welcome";
 import { sendTrialEndingEmail as sendTrialEndingEmailService } from "@/lib/email/send-trial-ending";
 import { createNotification } from "@/lib/notifications/create";
 import { clampQuantity, createTicketAttendees, attendeeNamesFromMeta } from "@/lib/tickets/attendees";
+import { stockholmLocalToUtcISO } from "@/lib/time";
 
 /** Reverse lookup: Stripe price ID → plan key */
 function planKeyFromPriceId(priceId: string): string | null {
@@ -158,9 +159,10 @@ export async function POST(req: NextRequest) {
           const eventTime = session.metadata.eventTime;
           let scheduledAt: string;
           if (eventDate) {
-            scheduledAt = eventTime
-              ? new Date(`${eventDate}T${eventTime}`).toISOString()
-              : new Date(`${eventDate}T00:00:00`).toISOString();
+            // eventDate/eventTime are Stockholm wall-clock; convert to UTC (DST-aware).
+            scheduledAt =
+              stockholmLocalToUtcISO(`${eventDate}T${eventTime || "00:00"}`) ??
+              new Date().toISOString();
           } else {
             scheduledAt = new Date().toISOString();
           }
@@ -348,9 +350,10 @@ export async function POST(req: NextRequest) {
           const eventTime = session.metadata.eventTime;
           let scheduledAt: string;
           if (eventDate) {
-            scheduledAt = eventTime
-              ? new Date(`${eventDate}T${eventTime}`).toISOString()
-              : new Date(`${eventDate}T00:00:00`).toISOString();
+            // eventDate/eventTime are Stockholm wall-clock; convert to UTC (DST-aware).
+            scheduledAt =
+              stockholmLocalToUtcISO(`${eventDate}T${eventTime || "00:00"}`) ??
+              new Date().toISOString();
           } else {
             scheduledAt = new Date().toISOString();
           }

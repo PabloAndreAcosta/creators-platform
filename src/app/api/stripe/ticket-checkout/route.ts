@@ -7,6 +7,7 @@ import { clampQuantity, createTicketAttendees, attendeeNamesToMeta } from '@/lib
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
 import { getSaleState } from '@/lib/listings/sale-state';
+import { stockholmLocalToUtcISO } from '@/lib/time';
 import { getTranslations } from 'next-intl/server';
 import {
   calculateDiscountedPrice,
@@ -153,9 +154,10 @@ export async function POST(req: NextRequest) {
 
       let scheduledAt: string;
       if (listing.event_date) {
-        scheduledAt = listing.event_time
-          ? new Date(`${listing.event_date}T${listing.event_time}`).toISOString()
-          : new Date(`${listing.event_date}T00:00:00`).toISOString();
+        // event_date/event_time are Stockholm wall-clock; convert to UTC (DST-aware).
+        scheduledAt =
+          stockholmLocalToUtcISO(`${listing.event_date}T${listing.event_time || "00:00"}`) ??
+          new Date().toISOString();
       } else {
         scheduledAt = new Date().toISOString();
       }
