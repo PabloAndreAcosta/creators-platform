@@ -231,7 +231,9 @@
     "copy": "Copy",
     "copied": "Copied",
     "share": "Share",
-    "joinedCount": "{count, plural, one {# person has joined via your link} other {# people have joined via your link}}"
+    "joinedCount": "{count, plural, one {# person has joined via your link} other {# people have joined via your link}}",
+    "welcomeTitle": "You got {amount} kr welcome credit 🎁",
+    "welcomeSubtitle": "Use the code at checkout for your first event."
   },
   "recommendations": {
     "title": "Recommended for you",
