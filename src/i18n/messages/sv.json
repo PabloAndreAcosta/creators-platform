@@ -3115,5 +3115,70 @@
     "removeWebsite": "Ta bort webbplats",
     "deleteProduct": "Ta bort produkt",
     "delete": "Ta bort"
+  },
+  "bookingCalendar": {
+    "dayMon": "mån",
+    "dayTue": "tis",
+    "dayWed": "ons",
+    "dayThu": "tor",
+    "dayFri": "fre",
+    "daySat": "lör",
+    "daySun": "sön",
+    "availabilityDone": "Klar med tillgänglighet",
+    "availabilityMark": "Markera tillgänglighet",
+    "instruction": "Tryck på datum för att markera dig som tillgänglig. Grönt = tillgänglig.",
+    "roleCustomer": "Kund",
+    "roleCreator": "Kreatör",
+    "statusPending": "Väntande",
+    "statusConfirmed": "Bekräftad",
+    "statusCompleted": "Slutförd",
+    "statusCanceled": "Avbokad",
+    "statusAvailable": "Tillgänglig"
+  },
+  "gagePanel": {
+    "label": "Gage",
+    "propose": "Föreslå",
+    "cancel": "Avbryt",
+    "accept": "Acceptera",
+    "declineAria": "Avböj",
+    "pay": "Betala {amount}",
+    "awaitingPayment": "väntar på betalning",
+    "notStripeConnected": "ej Stripe-kopplad",
+    "amountPlaceholder": "kr",
+    "payeeNotConnectedTooltip": "Mottagaren måste koppla Stripe först",
+    "toastProposed": "Gage föreslaget",
+    "toastAccepted": "Accepterat",
+    "toastCanceled": "Avbrutet",
+    "errorAmount": "Ange ett belopp (minst {min} kr)",
+    "errorGeneric": "Något gick fel",
+    "errorNetwork": "Nätverksfel"
+  },
+  "instructorMinutesCard": {
+    "errorCheckout": "Kunde inte starta köpet.",
+    "errorCheckoutRetry": "Kunde inte starta köpet. Försök igen.",
+    "minutesShort": "{minutes} min",
+    "loginToBuy": "Logga in för att köpa",
+    "buyMinutes": "Köp {minutes} min · {price} kr"
+  },
+  "myPosts": {
+    "title": "Mina inlägg",
+    "authorFallback": "Kreatör",
+    "empty": "Du har inga inlägg ännu. Dela din första uppdatering!",
+    "showMore": "Visa fler"
+  },
+  "quickBuy": {
+    "free": "Gratis",
+    "buyTicket": "Köp biljett",
+    "buy": "Köp",
+    "book": "Boka",
+    "emailPlaceholder": "din@email.se",
+    "loadingShort": "...",
+    "wait": "Vänta..."
+  },
+  "recommendationsPage": {
+    "title": "Rekommendationer",
+    "subtitle": "Anpassade förslag baserat på dina intressen",
+    "emptyState": "Inga rekommendationer ännu — boka eller favoritmarkera fler events!",
+    "free": "Gratis"
   }
 }

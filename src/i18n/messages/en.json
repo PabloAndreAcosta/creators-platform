@@ -3115,5 +3115,70 @@
     "removeWebsite": "Remove website",
     "deleteProduct": "Delete product",
     "delete": "Delete"
+  },
+  "bookingCalendar": {
+    "dayMon": "Mon",
+    "dayTue": "Tue",
+    "dayWed": "Wed",
+    "dayThu": "Thu",
+    "dayFri": "Fri",
+    "daySat": "Sat",
+    "daySun": "Sun",
+    "availabilityDone": "Done with availability",
+    "availabilityMark": "Mark availability",
+    "instruction": "Tap a date to mark yourself as available. Green = available.",
+    "roleCustomer": "Customer",
+    "roleCreator": "Creator",
+    "statusPending": "Pending",
+    "statusConfirmed": "Confirmed",
+    "statusCompleted": "Completed",
+    "statusCanceled": "Canceled",
+    "statusAvailable": "Available"
+  },
+  "gagePanel": {
+    "label": "Fee",
+    "propose": "Propose",
+    "cancel": "Cancel",
+    "accept": "Accept",
+    "declineAria": "Decline",
+    "pay": "Pay {amount}",
+    "awaitingPayment": "awaiting payment",
+    "notStripeConnected": "not connected to Stripe",
+    "amountPlaceholder": "kr",
+    "payeeNotConnectedTooltip": "The recipient must connect Stripe first",
+    "toastProposed": "Fee proposed",
+    "toastAccepted": "Accepted",
+    "toastCanceled": "Canceled",
+    "errorAmount": "Enter an amount (at least {min} kr)",
+    "errorGeneric": "Something went wrong",
+    "errorNetwork": "Network error"
+  },
+  "instructorMinutesCard": {
+    "errorCheckout": "Could not start the purchase.",
+    "errorCheckoutRetry": "Could not start the purchase. Please try again.",
+    "minutesShort": "{minutes} min",
+    "loginToBuy": "Log in to buy",
+    "buyMinutes": "Buy {minutes} min · {price} kr"
+  },
+  "myPosts": {
+    "title": "My posts",
+    "authorFallback": "Creator",
+    "empty": "You have no posts yet. Share your first update!",
+    "showMore": "Show more"
+  },
+  "quickBuy": {
+    "free": "Free",
+    "buyTicket": "Buy ticket",
+    "buy": "Buy",
+    "book": "Book",
+    "emailPlaceholder": "your@email.com",
+    "loadingShort": "...",
+    "wait": "Please wait..."
+  },
+  "recommendationsPage": {
+    "title": "Recommendations",
+    "subtitle": "Personalized suggestions based on your interests",
+    "emptyState": "No recommendations yet — book or favorite more events!",
+    "free": "Free"
   }
 }

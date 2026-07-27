@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { FileText, Loader2 } from "lucide-react";
 import { PostCard } from "@/components/feed/post-card";
 import { CreatePostForm } from "@/components/feed/create-post-form";
@@ -24,6 +25,7 @@ export function MyPostsContent({
   listings,
   initialPosts,
 }: MyPostsContentProps) {
+  const t = useTranslations("myPosts");
   const [posts, setPosts] = useState(initialPosts);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(initialPosts.length >= 20);
@@ -40,12 +42,12 @@ export function MyPostsContent({
 
   return (
     <div className="mx-auto max-w-xl px-4 py-6">
-      <h1 className="mb-6 text-xl font-bold">Mina inlägg</h1>
+      <h1 className="mb-6 text-xl font-bold">{t("title")}</h1>
 
       {/* Create new post */}
       <div className="mb-6">
         <CreatePostForm
-          authorName={profile.full_name || "Kreatör"}
+          authorName={profile.full_name || t("authorFallback")}
           authorAvatar={profile.avatar_url}
           listings={listings}
         />
@@ -58,7 +60,7 @@ export function MyPostsContent({
             <FileText size={24} className="text-[var(--usha-muted)]" />
           </div>
           <p className="text-sm text-[var(--usha-muted)]">
-            Du har inga inlägg ännu. Dela din första uppdatering!
+            {t("empty")}
           </p>
         </div>
       ) : (
@@ -81,7 +83,7 @@ export function MyPostsContent({
               {loading ? (
                 <Loader2 size={16} className="animate-spin" />
               ) : (
-                "Visa fler"
+                t("showMore")
               )}
             </button>
           )}

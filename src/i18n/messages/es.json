@@ -3115,5 +3115,70 @@
     "removeWebsite": "Quitar sitio web",
     "deleteProduct": "Eliminar producto",
     "delete": "Eliminar"
+  },
+  "bookingCalendar": {
+    "dayMon": "lun",
+    "dayTue": "mar",
+    "dayWed": "mié",
+    "dayThu": "jue",
+    "dayFri": "vie",
+    "daySat": "sáb",
+    "daySun": "dom",
+    "availabilityDone": "Disponibilidad lista",
+    "availabilityMark": "Marcar disponibilidad",
+    "instruction": "Toca una fecha para marcarte como disponible. Verde = disponible.",
+    "roleCustomer": "Cliente",
+    "roleCreator": "Creador",
+    "statusPending": "Pendiente",
+    "statusConfirmed": "Confirmada",
+    "statusCompleted": "Completada",
+    "statusCanceled": "Cancelada",
+    "statusAvailable": "Disponible"
+  },
+  "gagePanel": {
+    "label": "Caché",
+    "propose": "Proponer",
+    "cancel": "Cancelar",
+    "accept": "Aceptar",
+    "declineAria": "Rechazar",
+    "pay": "Pagar {amount}",
+    "awaitingPayment": "esperando el pago",
+    "notStripeConnected": "no conectado a Stripe",
+    "amountPlaceholder": "kr",
+    "payeeNotConnectedTooltip": "El destinatario debe conectar Stripe primero",
+    "toastProposed": "Caché propuesto",
+    "toastAccepted": "Aceptado",
+    "toastCanceled": "Cancelado",
+    "errorAmount": "Introduce un importe (mínimo {min} kr)",
+    "errorGeneric": "Algo salió mal",
+    "errorNetwork": "Error de red"
+  },
+  "instructorMinutesCard": {
+    "errorCheckout": "No se pudo iniciar la compra.",
+    "errorCheckoutRetry": "No se pudo iniciar la compra. Inténtalo de nuevo.",
+    "minutesShort": "{minutes} min",
+    "loginToBuy": "Inicia sesión para comprar",
+    "buyMinutes": "Comprar {minutes} min · {price} kr"
+  },
+  "myPosts": {
+    "title": "Mis publicaciones",
+    "authorFallback": "Creador",
+    "empty": "Aún no tienes publicaciones. ¡Comparte tu primera actualización!",
+    "showMore": "Mostrar más"
+  },
+  "quickBuy": {
+    "free": "Gratis",
+    "buyTicket": "Comprar entrada",
+    "buy": "Comprar",
+    "book": "Reservar",
+    "emailPlaceholder": "tu@email.com",
+    "loadingShort": "...",
+    "wait": "Espera..."
+  },
+  "recommendationsPage": {
+    "title": "Recomendaciones",
+    "subtitle": "Sugerencias personalizadas según tus intereses",
+    "emptyState": "Aún no hay recomendaciones — ¡reserva o marca como favoritos más eventos!",
+    "free": "Gratis"
   }
 }
