@@ -18,7 +18,7 @@ export const runtime = "nodejs";
  * bucket or folder, and no user session is needed on the upload itself.
  */
 
-const BUCKETS = new Set(["event-images", "listing-images", "avatars", "creator-media"]);
+const BUCKETS = new Set(["event-images", "listing-images", "avatars", "creator-media", "digital-content"]);
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();

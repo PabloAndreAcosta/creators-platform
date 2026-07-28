@@ -173,7 +173,7 @@ function PurchaseCard({ purchase }: { purchase: Purchase }) {
       <div className="mt-3 flex gap-2">
         {product.video_url && (
           <a
-            href={product.video_url}
+            href={`/api/digital-content/${product.id}?kind=video`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 rounded-lg bg-[var(--usha-gold)]/10 px-3 py-2 text-xs font-medium text-[var(--usha-gold)] transition hover:bg-[var(--usha-gold)]/20"
@@ -184,7 +184,7 @@ function PurchaseCard({ purchase }: { purchase: Purchase }) {
         )}
         {product.file_url && (
           <a
-            href={product.file_url}
+            href={`/api/digital-content/${product.id}?kind=file`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 rounded-lg bg-[var(--usha-gold)]/10 px-3 py-2 text-xs font-medium text-[var(--usha-gold)] transition hover:bg-[var(--usha-gold)]/20"

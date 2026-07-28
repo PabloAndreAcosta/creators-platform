@@ -3,7 +3,7 @@
 import { useTransition, useRef, useState } from "react";
 import { useToast } from "@/components/ui/toaster";
 import { createProduct } from "./actions";
-import { uploadViaSignedUrl } from "@/lib/storage/upload-client";
+import { uploadPrivateContent } from "@/lib/storage/upload-client";
 import { Loader2, Upload } from "lucide-react";
 
 const inputClass = "w-full min-h-[44px] rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-base sm:text-sm outline-none transition focus:border-[var(--usha-gold)]/40";
@@ -27,7 +27,7 @@ export function ProductForm() {
 
     setUploading(true);
     try {
-      const url = await uploadViaSignedUrl(file, "creator-media");
+      const url = await uploadPrivateContent(file);
       setVideoUrl(url);
       toast.success("Video uppladdad");
     } catch (err) {
