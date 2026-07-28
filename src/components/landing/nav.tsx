@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import UschjaLogo from "@/components/UschjaLogo";
 import { LanguageSwitcher } from "@/components/language-switcher";
@@ -15,17 +15,31 @@ interface BeforeInstallPromptEvent extends Event {
 
 export function Nav() {
   const t = useTranslations("landing");
+  const ta = useTranslations("a11y");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showInstallModal, setShowInstallModal] = useState(false);
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isIOS, setIsIOS] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
+  const installPanelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     createClient().auth.getUser().then(({ data: { user } }) => {
       setIsLoggedIn(!!user);
     });
+  }, []);
+
+  useEffect(() => {
+    if (showInstallModal) installPanelRef.current?.focus();
+  }, [showInstallModal]);
+
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setShowInstallModal(false);
+    };
+    document.addEventListener("keydown", h);
+    return () => document.removeEventListener("keydown", h);
   }, []);
 
   useEffect(() => {
@@ -89,7 +103,7 @@ export function Nav() {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <a
           href={isLoggedIn ? "/app" : "/"}
-          aria-label="Usha Platform – hem"
+          aria-label={t("nav.homeAriaLabel")}
           className="flex items-center gap-2 outline-none transition-opacity duration-150 focus:outline-none focus-visible:outline-none active:opacity-50"
         >
           <UschjaLogo size={40} />
@@ -196,9 +210,17 @@ export function Nav() {
     {showInstallModal && (
       <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowInstallModal(false)} />
-        <div className="relative w-full max-w-md rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-black)] p-8 shadow-2xl">
+        <div
+          ref={installPanelRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="install-modal-title"
+          tabIndex={-1}
+          className="relative w-full max-w-md rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-black)] p-8 shadow-2xl"
+        >
           <button
             onClick={() => setShowInstallModal(false)}
+            aria-label={ta("close")}
             className="absolute right-4 top-4 rounded p-1 text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
           >
             <X size={16} />
@@ -208,7 +230,7 @@ export function Nav() {
             <span className="text-xl font-bold text-black">U</span>
           </div>
 
-          <h3 className="mb-2 text-xl font-bold">{t("install.title")}</h3>
+          <h3 id="install-modal-title" className="mb-2 text-xl font-bold">{t("install.title")}</h3>
           <p className="mb-6 text-sm leading-relaxed text-[var(--usha-muted)]">
             {t("install.description")}
           </p>

@@ -2,10 +2,12 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Calendar, MapPin } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { GigApplicationActions } from "./application-actions";
 
 export default async function GigDetailPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
+  const t = await getTranslations("gigDetail");
   const supabase = await createClient();
   const {
     data: { user },
@@ -39,10 +41,10 @@ export default async function GigDetailPage(props: { params: Promise<{ id: strin
   const applicantMap = Object.fromEntries((applicants ?? []).map((p) => [p.id, p]));
 
   const STATUS_LABELS: Record<string, { text: string; className: string }> = {
-    pending: { text: "Väntande", className: "bg-yellow-500/10 text-yellow-400" },
-    accepted: { text: "Accepterad", className: "bg-green-500/10 text-green-400" },
-    declined: { text: "Avböjd", className: "bg-[var(--usha-border)] text-[var(--usha-muted)]" },
-    withdrawn: { text: "Tillbakadragen", className: "bg-[var(--usha-border)] text-[var(--usha-muted)]" },
+    pending: { text: t("statusPending"), className: "bg-yellow-500/10 text-yellow-400" },
+    accepted: { text: t("statusAccepted"), className: "bg-green-500/10 text-green-400" },
+    declined: { text: t("statusDeclined"), className: "bg-[var(--usha-border)] text-[var(--usha-muted)]" },
+    withdrawn: { text: t("statusWithdrawn"), className: "bg-[var(--usha-border)] text-[var(--usha-muted)]" },
   };
 
   return (
@@ -50,7 +52,7 @@ export default async function GigDetailPage(props: { params: Promise<{ id: strin
       <div className="mb-6">
         <Link href="/dashboard/gigs" className="mb-4 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]">
           <ArrowLeft size={14} />
-          Alla gigs
+          {t("backToGigs")}
         </Link>
         <h1 className="text-3xl font-bold">{gig.title}</h1>
         <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-[var(--usha-muted)]">
@@ -71,14 +73,14 @@ export default async function GigDetailPage(props: { params: Promise<{ id: strin
           <p className="mt-4 text-sm text-[var(--usha-muted)] whitespace-pre-line">{gig.description}</p>
         )}
         {gig.perks && (
-          <p className="mt-2 text-sm text-[var(--usha-accent)]">Förmåner: {gig.perks}</p>
+          <p className="mt-2 text-sm text-[var(--usha-accent)]">{t("perks", { perks: gig.perks })}</p>
         )}
       </div>
 
-      <h2 className="mb-4 text-lg font-bold">Ansökningar ({applications?.length ?? 0})</h2>
+      <h2 className="mb-4 text-lg font-bold">{t("applicationsCount", { count: applications?.length ?? 0 })}</h2>
       {!applications || applications.length === 0 ? (
         <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-8 text-center text-sm text-[var(--usha-muted)]">
-          Inga ansökningar än.
+          {t("noApplications")}
         </div>
       ) : (
         <div className="space-y-3">
@@ -96,7 +98,7 @@ export default async function GigDetailPage(props: { params: Promise<{ id: strin
                         href={`/creators/${applicant?.slug || a.applicant_id}`}
                         className="font-semibold hover:underline"
                       >
-                        {applicant?.full_name || "Anonym taxidansare"}
+                        {applicant?.full_name || t("anonymousDancer")}
                       </Link>
                       <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${status.className}`}>
                         {status.text}
@@ -105,7 +107,7 @@ export default async function GigDetailPage(props: { params: Promise<{ id: strin
                     {(styles.length > 0 || years != null) && (
                       <div className="mb-2 flex flex-wrap items-center gap-2 text-xs text-[var(--usha-muted)]">
                         {styles.length > 0 && <span>{styles.join(", ")}</span>}
-                        {years != null && <span>· {years} års erfarenhet</span>}
+                        {years != null && <span>· {t("yearsExperience", { years })}</span>}
                       </div>
                     )}
                     {a.message && (

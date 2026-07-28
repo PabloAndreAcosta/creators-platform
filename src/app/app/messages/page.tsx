@@ -39,6 +39,7 @@ const ROLE_LABELS: Record<string, string> = {
 export default function MessagesPage() {
   const t = useTranslations("messages");
   const tc = useTranslations("common");
+  const ta = useTranslations("a11y");
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeConvo, setActiveConvo] = useState<Conversation | null>(null);
@@ -258,6 +259,7 @@ export default function MessagesPage() {
               fetchConversations();
             }}
             className="rounded-lg p-1.5 text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
+            aria-label={ta("back")}
           >
             <ArrowLeft size={20} />
           </button>
@@ -350,6 +352,7 @@ export default function MessagesPage() {
               setContacts([]);
             }}
             className="rounded-lg p-1.5 text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
+            aria-label={ta("back")}
           >
             <ArrowLeft size={20} />
           </button>
@@ -370,6 +373,7 @@ export default function MessagesPage() {
             <button
               onClick={() => { setContactSearch(""); setContacts([]); }}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
+              aria-label={ta("clearSearch")}
             >
               <X size={16} />
             </button>

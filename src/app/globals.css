@@ -69,6 +69,15 @@ body {
 
 html { scroll-behavior: smooth; }
 
+/* Never let a too-wide element make the whole page render wider than the
+   screen (which reads as a permanent "zoomed-in" view on mobile, clipping the
+   header and bottom nav at the right edge). `clip` — not `hidden` — because
+   `hidden` turns body into a scroll container and breaks the sticky header. */
+html, body {
+  overflow-x: clip;
+  max-width: 100%;
+}
+
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }

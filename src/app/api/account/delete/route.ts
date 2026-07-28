@@ -33,10 +33,12 @@ export async function POST(request: Request) {
     const body = await request.json().catch(() => ({}));
     const { confirm } = body as { confirm?: string };
 
-    // Method-agnostic confirmation: the caller must type the word RADERA. Works
-    // for every auth method (password, Google, BankID, magic-link) because it
-    // relies on the authenticated session, not a password.
-    if (typeof confirm !== "string" || confirm.trim().toUpperCase() !== "RADERA") {
+    // Method-agnostic confirmation: the caller must type the confirm word in any
+    // supported language (RADERA / DELETE / ELIMINAR). Works for every auth method
+    // (password, Google, BankID, magic-link) because it relies on the
+    // authenticated session, not a password.
+    const CONFIRM_WORDS = ["RADERA", "DELETE", "ELIMINAR"];
+    if (typeof confirm !== "string" || !CONFIRM_WORDS.includes(confirm.trim().toUpperCase())) {
       return NextResponse.json(
         { error: "Bekräftelse saknas. Skriv RADERA för att bekräfta." },
         { status: 400 }

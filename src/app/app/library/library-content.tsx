@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import {
   BookOpen,
   Video,
@@ -43,14 +44,15 @@ const TYPE_ICONS: Record<string, typeof Video> = {
   other: Package,
 };
 
-const TYPE_LABELS: Record<string, string> = {
-  video: "Video",
-  course: "Kurs",
-  download: "Nedladdning",
-  other: "Övrigt",
+const TYPE_LABEL_KEYS: Record<string, string> = {
+  video: "typeVideo",
+  course: "typeCourse",
+  download: "typeDownload",
+  other: "typeOther",
 };
 
 export function LibraryContent({ purchases }: LibraryContentProps) {
+  const t = useTranslations("libraryPage");
   const [filter, setFilter] = useState<string>("all");
 
   const filtered = filter === "all"
@@ -65,22 +67,22 @@ export function LibraryContent({ purchases }: LibraryContentProps) {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6 space-y-6">
-      <h1 className="text-2xl font-bold">Mitt bibliotek</h1>
+      <h1 className="text-2xl font-bold">{t("title")}</h1>
 
       {purchases.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] py-16 text-center">
           <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--usha-card)]">
             <BookOpen size={24} className="text-[var(--usha-muted)]" />
           </div>
-          <p className="text-base font-medium">Inga köp ännu</p>
+          <p className="text-base font-medium">{t("emptyTitle")}</p>
           <p className="mt-1 text-sm text-[var(--usha-muted)]">
-            Utforska kreatörer och köp kurser, videos och annat material
+            {t("emptyDescription")}
           </p>
           <Link
             href="/marketplace"
             className="mt-4 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-6 py-2.5 text-sm font-bold text-black"
           >
-            Utforska marketplace
+            {t("exploreMarketplace")}
           </Link>
         </div>
       ) : (
@@ -95,7 +97,7 @@ export function LibraryContent({ purchases }: LibraryContentProps) {
                   : "bg-[var(--usha-card)] text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
               }`}
             >
-              Alla ({purchases.length})
+              {t("filterAll", { count: purchases.length })}
             </button>
             {Object.entries(typeCount).map(([type, count]) => (
               <button
@@ -107,7 +109,7 @@ export function LibraryContent({ purchases }: LibraryContentProps) {
                     : "bg-[var(--usha-card)] text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
                 }`}
               >
-                {TYPE_LABELS[type] || "Övrigt"} ({count})
+                {t(TYPE_LABEL_KEYS[type] || "typeOther")} ({count})
               </button>
             ))}
           </div>
@@ -125,6 +127,7 @@ export function LibraryContent({ purchases }: LibraryContentProps) {
 }
 
 function PurchaseCard({ purchase }: { purchase: Purchase }) {
+  const t = useTranslations("libraryPage");
   const product = purchase.digital_products;
   if (!product) return null;
 
@@ -145,7 +148,7 @@ function PurchaseCard({ purchase }: { purchase: Purchase }) {
             </p>
           )}
           <div className="mt-2 flex items-center gap-3 text-xs text-[var(--usha-muted)]">
-            <span>{TYPE_LABELS[product.product_type] || "Övrigt"}</span>
+            <span>{t(TYPE_LABEL_KEYS[product.product_type] || "typeOther")}</span>
             {creator?.full_name && (
               <Link
                 href={`/creators/${product.creator_id}`}
@@ -158,7 +161,9 @@ function PurchaseCard({ purchase }: { purchase: Purchase }) {
               </Link>
             )}
             <span>
-              {purchase.amount_paid > 0 ? `${purchase.amount_paid} kr` : "Gratis"}
+              {purchase.amount_paid > 0
+                ? t("pricePaid", { amount: purchase.amount_paid })
+                : t("priceFree")}
             </span>
           </div>
         </div>
@@ -168,24 +173,24 @@ function PurchaseCard({ purchase }: { purchase: Purchase }) {
       <div className="mt-3 flex gap-2">
         {product.video_url && (
           <a
-            href={product.video_url}
+            href={`/api/digital-content/${product.id}?kind=video`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 rounded-lg bg-[var(--usha-gold)]/10 px-3 py-2 text-xs font-medium text-[var(--usha-gold)] transition hover:bg-[var(--usha-gold)]/20"
           >
             <Play size={12} />
-            Titta
+            {t("watch")}
           </a>
         )}
         {product.file_url && (
           <a
-            href={product.file_url}
+            href={`/api/digital-content/${product.id}?kind=file`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 rounded-lg bg-[var(--usha-gold)]/10 px-3 py-2 text-xs font-medium text-[var(--usha-gold)] transition hover:bg-[var(--usha-gold)]/20"
           >
             <Download size={12} />
-            Ladda ner
+            {t("download")}
           </a>
         )}
         <Link
@@ -193,7 +198,7 @@ function PurchaseCard({ purchase }: { purchase: Purchase }) {
           className="flex items-center gap-1.5 rounded-lg bg-[var(--usha-card)] px-3 py-2 text-xs font-medium text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
         >
           <ExternalLink size={12} />
-          Kreatörens profil
+          {t("creatorProfile")}
         </Link>
       </div>
     </div>

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, Eye, EyeOff } from "lucide-react";
 import UschjaLogo from "@/components/UschjaLogo";
 
 function FieldError({ message }: { message: string }) {
@@ -23,6 +23,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [status, setStatus] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (prefilledEmail) setEmail(prefilledEmail);
@@ -34,6 +35,16 @@ export default function LoginPage() {
   const [passwordTouched, setPasswordTouched] = useState(false);
 
   const supabase = createClient();
+
+  // Self-heal a stuck session: if a stale/revoked token is being auto-refreshed
+  // in the background it hammers /token (→ per-IP rate limit) and holds the auth
+  // lock, locking the user out of login itself. Just landing on this page purges
+  // it — scope "local" clears storage WITHOUT a network call (so it can't hit the
+  // rate limit) and stops the auto-refresh ticker. Safe here: you're logging in.
+  useEffect(() => {
+    supabase.auth.signOut({ scope: "local" }).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function validateEmail(value: string) {
     if (!value) return t("emailRequired");
@@ -81,10 +92,12 @@ export default function LoginPage() {
 
     try {
       // Clear any existing session first so logging in with a *different* account
-      // always switches cleanly. Without this, a stale/chunked auth cookie from a
-      // previously logged-in account could survive and the SSR would keep serving
-      // that account instead of the one you just signed in as.
-      await supabase.auth.signOut();
+      // always switches cleanly, AND so a stale/revoked token isn't being auto-
+      // refreshed in the background (which holds the auth-token Web Lock and made
+      // signInWithPassword fail with "another request stole it"). Use scope:
+      // "local" — it purges local storage WITHOUT a network call, so it can't hit
+      // the auth rate limit, and swallow any lock error so it never aborts login.
+      await supabase.auth.signOut({ scope: "local" }).catch(() => {});
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
       if (error) {
@@ -121,6 +134,9 @@ export default function LoginPage() {
   }
 
   async function handleGoogleLogin() {
+    // Purge any stale/revoked session first (see handleLogin) so its background
+    // token refresh doesn't hold the auth lock and block the OAuth redirect.
+    await supabase.auth.signOut({ scope: "local" }).catch(() => {});
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -131,6 +147,7 @@ export default function LoginPage() {
   }
 
   async function handleFacebookLogin() {
+    await supabase.auth.signOut({ scope: "local" }).catch(() => {});
     await supabase.auth.signInWithOAuth({
       provider: "facebook",
       options: { redirectTo: `${window.location.origin}/callback` },
@@ -201,18 +218,28 @@ export default function LoginPage() {
 
           <div>
             <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">{t("password")}</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => handlePasswordChange(e.target.value)}
-              onBlur={() => {
-                setPasswordTouched(true);
-                setPasswordError(validatePassword(password));
-              }}
-              placeholder="••••••••"
-              autoComplete="current-password"
-              className={inputClass(passwordTouched, !!passwordError)}
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => handlePasswordChange(e.target.value)}
+                onBlur={() => {
+                  setPasswordTouched(true);
+                  setPasswordError(validatePassword(password));
+                }}
+                placeholder="••••••••"
+                autoComplete="current-password"
+                className={`${inputClass(passwordTouched, !!passwordError)} pr-12`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute inset-y-0 right-0 flex items-center px-3 text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
+                aria-label={showPassword ? t("hidePassword") : t("showPassword")}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
             {passwordTouched && passwordError && <FieldError message={passwordError} />}
           </div>
 

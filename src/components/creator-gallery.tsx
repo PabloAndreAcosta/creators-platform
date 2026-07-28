@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { X, Play, Instagram, Music } from "lucide-react";
 
 interface MediaItem {
@@ -15,7 +16,19 @@ interface MediaItem {
 }
 
 export function CreatorGallery({ media }: { media: MediaItem[] }) {
+  const ta = useTranslations("a11y");
   const [lightbox, setLightbox] = useState<MediaItem | null>(null);
+  const lightboxRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!lightbox) return;
+    lightboxRef.current?.focus();
+    const h = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setLightbox(null);
+    };
+    document.addEventListener("keydown", h);
+    return () => document.removeEventListener("keydown", h);
+  }, [lightbox]);
 
   if (media.length === 0) return null;
 
@@ -212,13 +225,20 @@ export function CreatorGallery({ media }: { media: MediaItem[] }) {
         >
           <button
             onClick={() => setLightbox(null)}
+            aria-label={ta("close")}
             className="absolute right-4 top-4 rounded-full bg-white/10 p-2 transition hover:bg-white/20"
           >
             <X size={20} />
           </button>
 
           <div
-            className="max-h-[90vh] max-w-[90vw] overflow-hidden rounded-xl"
+            ref={lightboxRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={lightbox.caption ? "gallery-lightbox-title" : undefined}
+            aria-label={lightbox.caption ? undefined : ta("close")}
+            tabIndex={-1}
+            className="max-h-[90vh] max-w-[90vw] overflow-hidden rounded-xl outline-none"
             onClick={(e) => e.stopPropagation()}
           >
             {lightbox.media_type === "image" && (
@@ -247,7 +267,7 @@ export function CreatorGallery({ media }: { media: MediaItem[] }) {
 
             {lightbox.caption && (
               <div className="bg-black/80 p-3">
-                <p className="text-sm text-white/80">{lightbox.caption}</p>
+                <p id="gallery-lightbox-title" className="text-sm text-white/80">{lightbox.caption}</p>
               </div>
             )}
           </div>

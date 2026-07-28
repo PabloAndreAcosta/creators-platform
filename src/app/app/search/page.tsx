@@ -3,6 +3,7 @@ import { CATEGORIES, CATEGORY_LABELS } from "@/lib/categories";
 import Link from "next/link";
 import { BuyTicketCta } from "@/components/buy-ticket-cta";
 import { MapPin, Search, Music } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
 interface SearchPageProps {
   searchParams: Promise<{ q?: string; category?: string; subcategory?: string }>;
@@ -10,6 +11,7 @@ interface SearchPageProps {
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = await searchParams;
+  const t = await getTranslations("searchPage");
   const query = params.q?.trim() ?? "";
   const categoryFilter = params.category ?? "";
   const subcategoryFilter = params.subcategory === "taxi_dancer" ? "taxi_dancer" : "";
@@ -42,8 +44,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     if (hasQuery && !sanitized) {
       return (
         <div className="px-4 py-6 md:max-w-3xl md:mx-auto">
-          <h1 className="text-2xl font-bold mb-6">Sök</h1>
-          <p className="text-sm text-[var(--usha-muted)]">Inga resultat</p>
+          <h1 className="text-2xl font-bold mb-6">{t("title")}</h1>
+          <p className="text-sm text-[var(--usha-muted)]">{t("noResults")}</p>
         </div>
       );
     }
@@ -110,17 +112,20 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-xl font-bold">
-          {subcategoryFilter === "taxi_dancer" && !query ? "Taxidansare" : "Sökresultat"}
+          {subcategoryFilter === "taxi_dancer" && !query
+            ? t("taxiDancersTitle")
+            : t("resultsTitle")}
         </h1>
         {query && (
           <p className="mt-1 text-sm text-[var(--usha-muted)]">
-            {totalResults} resultat för &ldquo;{query}&rdquo;
-            {subcategoryFilter === "taxi_dancer" && " bland taxidansare"}
+            {subcategoryFilter === "taxi_dancer"
+              ? t("resultsForAmongTaxiDancers", { count: totalResults, query })
+              : t("resultsFor", { count: totalResults, query })}
           </p>
         )}
         {!query && subcategoryFilter === "taxi_dancer" && (
           <p className="mt-1 text-sm text-[var(--usha-muted)]">
-            {totalResults} taxidansare på Usha Platform
+            {t("taxiDancersCount", { count: totalResults })}
           </p>
         )}
       </div>
@@ -141,7 +146,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               : "bg-[var(--usha-card)] text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
           }`}
         >
-          Alla kreatörer
+          {t("allCreators")}
         </Link>
         <Link
           href={
@@ -158,7 +163,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           }`}
         >
           <Music size={12} />
-          Taxidansare
+          {t("taxiDancersChip")}
         </Link>
       </div>
 
@@ -176,7 +181,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               : "bg-[var(--usha-card)] text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
           }`}
         >
-          Alla
+          {t("allCategories")}
         </Link>
         {CATEGORIES.map((cat) => (
           <Link
@@ -205,11 +210,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             className="mx-auto mb-4 text-[var(--usha-muted)]"
           />
           <p className="text-sm text-[var(--usha-muted)]">
-            Använd sökfältet ovan för att hitta kreatörer och evenemang
+            {t("emptyPrompt")}
           </p>
           <div className="mt-6">
             <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--usha-muted)]">
-              Populära kategorier
+              {t("popularCategories")}
             </p>
             <div className="flex flex-wrap justify-center gap-2">
               {CATEGORIES.filter((c) => c.value !== "other").map((cat) => (
@@ -231,12 +236,12 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         <div className="py-12 text-center">
           <p className="text-sm text-[var(--usha-muted)]">
             {subcategoryFilter === "taxi_dancer" && !query
-              ? "Inga taxidansare matchar än"
-              : `Inga resultat hittades för "${query}"`}
+              ? t("noTaxiDancersYet")
+              : t("noResultsFound", { query })}
           </p>
           <div className="mt-6">
             <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--usha-muted)]">
-              Prova att söka på
+              {t("trySearchingFor")}
             </p>
             <div className="flex flex-wrap justify-center gap-2">
               {CATEGORIES.filter((c) => c.value !== "other").map((cat) => (
@@ -257,7 +262,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       {creators.length > 0 && (
         <section className="mb-8">
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--usha-muted)]">
-            Kreatörer ({creators.length})
+            {t("creatorsHeading", { count: creators.length })}
           </h2>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {creators.map((c) => (
@@ -273,7 +278,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">
-                    {c.full_name || "Kreatör"}
+                    {c.full_name || t("creatorFallback")}
                   </p>
                   <div className="flex items-center gap-2 text-xs text-[var(--usha-muted)]">
                     {c.category && (
@@ -297,7 +302,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       {listings.length > 0 && (
         <section>
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--usha-muted)]">
-            Evenemang & Tjänster ({listings.length})
+            {t("listingsHeading", { count: listings.length })}
           </h2>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {listings.map((l) => {
@@ -313,7 +318,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{l.title}</p>
                     <p className="text-xs text-[var(--usha-muted)]">
-                      {creator?.full_name || "Kreatör"} &middot;{" "}
+                      {creator?.full_name || t("creatorFallback")} &middot;{" "}
                       {CATEGORY_LABELS[l.category] || l.category}
                     </p>
                   </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Loader2, MapPin, Calendar, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { FavoriteButton } from "@/components/favorite-button";
@@ -18,6 +19,7 @@ interface RecommendedEvent {
 }
 
 export default function RecommendationsPage() {
+  const t = useTranslations("recommendationsPage");
   const [events, setEvents] = useState<RecommendedEvent[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -34,9 +36,9 @@ export default function RecommendationsPage() {
       <div className="flex items-center gap-3">
         <Sparkles size={24} className="text-[var(--usha-gold)]" />
         <div>
-          <h1 className="text-2xl font-bold">Rekommendationer</h1>
+          <h1 className="text-2xl font-bold">{t("title")}</h1>
           <p className="text-xs text-[var(--usha-muted)]">
-            Anpassade förslag baserat på dina intressen
+            {t("subtitle")}
           </p>
         </div>
       </div>
@@ -49,7 +51,7 @@ export default function RecommendationsPage() {
         <div className="rounded-xl border border-dashed border-[var(--usha-border)] py-16 text-center">
           <Sparkles size={32} className="mx-auto mb-3 text-[var(--usha-muted)]" />
           <p className="text-sm text-[var(--usha-muted)]">
-            Inga rekommendationer ännu — boka eller favoritmarkera fler events!
+            {t("emptyState")}
           </p>
         </div>
       ) : (
@@ -94,7 +96,7 @@ export default function RecommendationsPage() {
                       {event.price} SEK
                     </span>
                   ) : (
-                    <span className="text-xs text-green-400">Gratis</span>
+                    <span className="text-xs text-green-400">{t("free")}</span>
                   )}
                   {event.event_location && (
                     <span className="flex items-center gap-0.5 text-[10px] text-[var(--usha-muted)]">

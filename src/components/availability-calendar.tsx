@@ -12,6 +12,7 @@ interface AvailabilityCalendarProps {
 
 export function AvailabilityCalendar({ creatorId, initialAvailableDates = [] }: AvailabilityCalendarProps) {
   const t = useTranslations("creatorProfile");
+  const ta = useTranslations("a11y");
   const WEEKDAYS = t("availability.weekdaysShort").split(",");
   const MONTHS = t("availability.months").split(",");
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -58,6 +59,7 @@ export function AvailabilityCalendar({ creatorId, initialAvailableDates = [] }: 
       {/* Month nav */}
       <div className="mb-3 flex items-center justify-between">
         <button
+          aria-label={ta("prevMonth")}
           onClick={() => setCurrentDate(new Date(year, month - 1, 1))}
           className="rounded-lg p-1.5 hover:bg-white/10"
         >
@@ -67,6 +69,7 @@ export function AvailabilityCalendar({ creatorId, initialAvailableDates = [] }: 
           {MONTHS[month]} {year}
         </span>
         <button
+          aria-label={ta("nextMonth")}
           onClick={() => setCurrentDate(new Date(year, month + 1, 1))}
           className="rounded-lg p-1.5 hover:bg-white/10"
         >

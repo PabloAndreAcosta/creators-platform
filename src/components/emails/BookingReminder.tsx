@@ -109,7 +109,7 @@ export default function BookingReminder({
                             <tr>
                               <td style={{ textAlign: "center" }}>
                                 <a
-                                  href={`${appUrl}/app/bookings`}
+                                  href={`${appUrl}/app/tickets`}
                                   style={{
                                     display: "inline-block",
                                     padding: "14px 36px",

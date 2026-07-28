@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { isPasswordPwned } from "@/lib/auth/password-strength";
 
 export default function ResetPasswordPage() {
+  const t = useTranslations("resetPassword");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
@@ -26,11 +28,11 @@ export default function ResetPasswordPage() {
     setError("");
 
     if (password.length < 8) {
-      setError("Lösenordet måste vara minst 8 tecken.");
+      setError(t("errorPasswordTooShort"));
       return;
     }
     if (password !== confirm) {
-      setError("Lösenorden matchar inte.");
+      setError(t("errorPasswordMismatch"));
       return;
     }
 
@@ -38,7 +40,7 @@ export default function ResetPasswordPage() {
 
     // Inline leaked-password check (HIBP k-anonymity). Fails open.
     if (await isPasswordPwned(password)) {
-      setError("Det här lösenordet förekommer i en känd dataläcka. Välj ett annat.");
+      setError(t("errorPasswordPwned"));
       setLoading(false);
       return;
     }
@@ -64,14 +66,14 @@ export default function ResetPasswordPage() {
         <div className="w-full max-w-sm text-center">
           <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-6">
             <p className="font-semibold text-red-400">
-              Ogiltig eller utgången länk. Begär en ny återställningslänk.
+              {t("invalidLink")}
             </p>
           </div>
           <a
             href="/forgot-password"
             className="mt-4 inline-block rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-6 py-3 text-sm font-bold text-black transition hover:opacity-90"
           >
-            Begär ny länk
+            {t("requestNewLink")}
           </a>
         </div>
       </div>
@@ -84,17 +86,17 @@ export default function ResetPasswordPage() {
         <div className="w-full max-w-sm text-center">
           <div className="rounded-xl border border-green-500/20 bg-green-500/10 p-6">
             <p className="font-semibold text-green-400">
-              Lösenordet har ändrats!
+              {t("successHeading")}
             </p>
             <p className="mt-2 text-sm text-[var(--usha-muted)]">
-              Du kan nu logga in med ditt nya lösenord.
+              {t("successBody")}
             </p>
           </div>
           <a
             href="/login"
             className="mt-4 inline-block rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-6 py-3 text-sm font-bold text-black transition hover:opacity-90"
           >
-            Gå till inloggning
+            {t("goToLogin")}
           </a>
         </div>
       </div>
@@ -105,16 +107,16 @@ export default function ResetPasswordPage() {
     <div className="flex min-h-screen items-center justify-center px-6">
       <div className="w-full max-w-sm">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold">Nytt lösenord</h1>
+          <h1 className="text-2xl font-bold">{t("heading")}</h1>
           <p className="mt-1 text-sm text-[var(--usha-muted)]">
-            Ange ditt nya lösenord nedan.
+            {t("subheading")}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-              Nytt lösenord
+              {t("newPasswordLabel")}
             </label>
             <input
               type="password"
@@ -122,7 +124,7 @@ export default function ResetPasswordPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={8}
-              placeholder="Minst 8 tecken"
+              placeholder={t("newPasswordPlaceholder")}
               autoComplete="new-password"
               className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
             />
@@ -130,14 +132,14 @@ export default function ResetPasswordPage() {
 
           <div>
             <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-              Bekräfta lösenord
+              {t("confirmPasswordLabel")}
             </label>
             <input
               type="password"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
               required
-              placeholder="Upprepa lösenordet"
+              placeholder={t("confirmPasswordPlaceholder")}
               autoComplete="new-password"
               className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
             />
@@ -154,7 +156,7 @@ export default function ResetPasswordPage() {
             disabled={loading}
             className="w-full rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] py-3 text-sm font-bold text-black transition hover:opacity-90 disabled:opacity-50"
           >
-            {loading ? "Sparar..." : "Spara nytt lösenord"}
+            {loading ? t("submitting") : t("submit")}
           </button>
         </form>
       </div>

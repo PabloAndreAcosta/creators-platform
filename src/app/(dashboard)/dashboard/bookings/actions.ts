@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { handleCapacityReached, autoPromoteFromQueue, addToQueue, getQueuePosition } from "@/lib/bookings/queue";
 import { requirePaidSubscription } from "@/lib/subscription/check";
 import { refundBookingCharge } from "@/lib/tickets/refund";
+import { stockholmLocalToUtcISO } from "@/lib/time";
 import { sendBookingConfirmationEmail, sendBookingCancellationEmail } from "@/lib/email/send-booking";
 import { shouldSendEmail } from "@/lib/email/check-preferences";
 import { isGoldExclusive } from "@/lib/listings/early-bird";
@@ -92,9 +93,9 @@ export async function createBooking(formData: FormData) {
   // parsed in the browser's timezone and drifts for non-Stockholm users.
   if (autoConfirm && listing.event_date) {
     const evListing = listing as { event_date?: string | null; event_time?: string | null };
-    scheduledDate = evListing.event_time
-      ? new Date(`${evListing.event_date}T${evListing.event_time}`)
-      : new Date(`${evListing.event_date}T00:00:00`);
+    // event_date/event_time are Stockholm wall-clock; convert to UTC (DST-aware).
+    const utc = stockholmLocalToUtcISO(`${evListing.event_date}T${evListing.event_time || "00:00"}`);
+    scheduledDate = utc ? new Date(utc) : new Date();
   }
 
   // B2B offerings can only be booked by experience-role users (arrangörer).
@@ -517,16 +518,26 @@ export async function redeemDance(bookingId: string) {
   const nextRedeemed = redeemed + 1;
   const reachedTotal = nextRedeemed >= total;
 
-  const { error: updateError } = await supabase
+  // Optimistic concurrency: only apply if dances_redeemed is still what we read
+  // and the booking is still confirmed. A concurrent redemption (double-tap /
+  // two devices) changes the value so the guard misses → 0 rows → we bail out
+  // instead of silently losing an update.
+  const { data: updatedRows, error: updateError } = await supabase
     .from("bookings")
     .update({
       dances_redeemed: nextRedeemed,
       ...(reachedTotal ? { status: "completed" } : {}),
     })
-    .eq("id", bookingId);
+    .eq("id", bookingId)
+    .eq("dances_redeemed", redeemed)
+    .eq("status", "confirmed")
+    .select("id");
 
   if (updateError) {
     return { error: "Kunde inte uppdatera bokningen." };
+  }
+  if (!updatedRows || updatedRows.length === 0) {
+    return { error: "Bokningen ändrades precis — ladda om och försök igen." };
   }
 
   revalidatePath("/dashboard/bookings");
@@ -573,16 +584,24 @@ export async function redeemMinutes(bookingId: string, amount = 15) {
   const nextRedeemed = redeemed + amount;
   const reachedTotal = nextRedeemed >= total;
 
-  const { error: updateError } = await supabase
+  // Optimistic concurrency: guard on the value we read + still-confirmed status,
+  // so two concurrent redemptions can't both write and lose a minute block.
+  const { data: updatedRows, error: updateError } = await supabase
     .from("bookings")
     .update({
       minutes_redeemed: nextRedeemed,
       ...(reachedTotal ? { status: "completed" } : {}),
     })
-    .eq("id", bookingId);
+    .eq("id", bookingId)
+    .eq("minutes_redeemed", redeemed)
+    .eq("status", "confirmed")
+    .select("id");
 
   if (updateError) {
     return { error: "Kunde inte uppdatera bokningen." };
+  }
+  if (!updatedRows || updatedRows.length === 0) {
+    return { error: "Bokningen ändrades precis — ladda om och försök igen." };
   }
 
   revalidatePath("/dashboard/bookings");

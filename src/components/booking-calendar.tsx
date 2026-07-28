@@ -2,6 +2,7 @@
 
 import { useState, useTransition, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Check } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { toggleAvailability, getAvailability } from "@/app/app/calendar/actions";
 
 interface CalendarBooking {
@@ -26,13 +27,24 @@ const STATUS_COLORS: Record<string, string> = {
   canceled: "bg-red-500/50",
 };
 
-const WEEKDAYS = ["mån", "tis", "ons", "tor", "fre", "lör", "sön"];
 const MONTHS = [
   "januari", "februari", "mars", "april", "maj", "juni",
   "juli", "augusti", "september", "oktober", "november", "december",
 ];
 
 export function BookingCalendar({ bookings, isCreator = false, initialAvailableDates = [] }: BookingCalendarProps) {
+  const ta = useTranslations("a11y");
+  const t = useTranslations("bookingCalendar");
+
+  const WEEKDAYS = [
+    t("dayMon"),
+    t("dayTue"),
+    t("dayWed"),
+    t("dayThu"),
+    t("dayFri"),
+    t("daySat"),
+    t("daySun"),
+  ];
   const [currentDate, setCurrentDate] = useState(new Date());
   const [availableSet, setAvailableSet] = useState<Set<string>>(new Set(initialAvailableDates));
   const [editMode, setEditMode] = useState(false);
@@ -129,13 +141,13 @@ export function BookingCalendar({ bookings, isCreator = false, initialAvailableD
           }`}
         >
           <Check size={16} />
-          {editMode ? "Klar med tillgänglighet" : "Markera tillgänglighet"}
+          {editMode ? t("availabilityDone") : t("availabilityMark")}
         </button>
       )}
 
       {editMode && (
         <p className="text-xs text-emerald-400/70">
-          Tryck på datum för att markera dig som tillgänglig. Grönt = tillgänglig.
+          {t("instruction")}
         </p>
       )}
 
@@ -144,6 +156,7 @@ export function BookingCalendar({ bookings, isCreator = false, initialAvailableD
       <div className="mb-4 flex items-center justify-between">
         <button
           onClick={prevMonth}
+          aria-label={ta("prevMonth")}
           className="flex h-8 w-8 items-center justify-center rounded-lg transition hover:bg-white/10"
         >
           <ChevronLeft size={16} />
@@ -153,6 +166,7 @@ export function BookingCalendar({ bookings, isCreator = false, initialAvailableD
         </h3>
         <button
           onClick={nextMonth}
+          aria-label={ta("nextMonth")}
           className="flex h-8 w-8 items-center justify-center rounded-lg transition hover:bg-white/10"
         >
           <ChevronRight size={16} />
@@ -232,7 +246,7 @@ export function BookingCalendar({ bookings, isCreator = false, initialAvailableD
                         <span className="truncate text-[10px] font-medium">{b.title}</span>
                       </div>
                       <p className="ml-3 text-[9px] text-[var(--usha-muted)]">
-                        {b.type === "incoming" ? "Kund" : "Kreatör"}: {b.personName}
+                        {b.type === "incoming" ? t("roleCustomer") : t("roleCreator")}: {b.personName}
                         {" — "}
                         {new Date(b.scheduledAt).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" })}
                       </p>
@@ -248,11 +262,11 @@ export function BookingCalendar({ bookings, isCreator = false, initialAvailableD
       {/* Legend */}
       <div className="mt-3 flex flex-wrap gap-3 border-t border-[var(--usha-border)] pt-3">
         {[
-          { label: "Väntande", color: "bg-yellow-500" },
-          { label: "Bekräftad", color: "bg-green-500" },
-          { label: "Slutförd", color: "bg-blue-500" },
-          { label: "Avbokad", color: "bg-red-500/50" },
-          ...(isCreator ? [{ label: "Tillgänglig", color: "bg-emerald-400" }] : []),
+          { label: t("statusPending"), color: "bg-yellow-500" },
+          { label: t("statusConfirmed"), color: "bg-green-500" },
+          { label: t("statusCompleted"), color: "bg-blue-500" },
+          { label: t("statusCanceled"), color: "bg-red-500/50" },
+          ...(isCreator ? [{ label: t("statusAvailable"), color: "bg-emerald-400" }] : []),
         ].map((s) => (
           <div key={s.label} className="flex items-center gap-1.5">
             <div className={`h-2 w-2 rounded-full ${s.color}`} />

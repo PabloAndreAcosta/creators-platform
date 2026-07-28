@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
+import { useState, useTransition, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { createBooking, joinQueue } from "@/app/(dashboard)/dashboard/bookings/actions";
 import { getAvailability, getTimeSlotsForDate } from "@/app/app/calendar/actions";
@@ -41,6 +41,7 @@ function MiniCalendar({
   selectedDate: string | null;
 }) {
   const t = useTranslations("creatorProfile");
+  const ta = useTranslations("a11y");
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
@@ -74,11 +75,11 @@ function MiniCalendar({
   return (
     <div>
       <div className="mb-3 flex items-center justify-between">
-        <button type="button" onClick={prevMonth} className="rounded p-1 text-[var(--usha-muted)] hover:text-[var(--usha-white)]">
+        <button type="button" aria-label={ta("prevMonth")} onClick={prevMonth} className="rounded p-1 text-[var(--usha-muted)] hover:text-[var(--usha-white)]">
           <ChevronLeft size={16} />
         </button>
         <span className="text-sm font-semibold">{monthNames[month - 1]} {year}</span>
-        <button type="button" onClick={nextMonth} className="rounded p-1 text-[var(--usha-muted)] hover:text-[var(--usha-white)]">
+        <button type="button" aria-label={ta("nextMonth")} onClick={nextMonth} className="rounded p-1 text-[var(--usha-muted)] hover:text-[var(--usha-white)]">
           <ChevronRight size={16} />
         </button>
       </div>
@@ -239,6 +240,7 @@ export default function BookingForm({
   viewerRole?: string | null;
 }) {
   const t = useTranslations("creatorProfile");
+  const ta = useTranslations("a11y");
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [queueState, setQueueState] = useState<{
@@ -265,6 +267,22 @@ export default function BookingForm({
     listing.price != null ? String(listing.price) : ""
   );
   const { toast } = useToast();
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  // Focus the modal panel when it opens (dialog a11y)
+  useEffect(() => {
+    if (open) modalRef.current?.focus();
+  }, [open]);
+
+  // Escape-to-close for the booking modal
+  useEffect(() => {
+    if (!open) return;
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [open]);
 
   const showGuestFields = listing.listing_type && ["table_reservation", "spa_treatment", "group_activity"].includes(listing.listing_type);
   const minGuests = listing.min_guests ?? 1;
@@ -433,15 +451,23 @@ export default function BookingForm({
             onClick={() => setOpen(false)}
           />
 
-          <div className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-black)] p-6 shadow-2xl">
+          <div
+            ref={modalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="booking-modal-title"
+            tabIndex={-1}
+            className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-black)] p-6 shadow-2xl outline-none"
+          >
             <button
+              aria-label={ta("close")}
               onClick={() => setOpen(false)}
               className="absolute right-4 top-4 rounded p-1 text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]"
             >
               <X size={16} />
             </button>
 
-            <h3 className="mb-1 text-lg font-bold">{t("booking.modalTitle", { title: listing.title })}</h3>
+            <h3 id="booking-modal-title" className="mb-1 text-lg font-bold">{t("booking.modalTitle", { title: listing.title })}</h3>
             <div className="mb-4 flex items-center gap-3 text-sm text-[var(--usha-muted)]">
               {listing.price != null && (
                 <span className="font-semibold text-[var(--usha-gold)]">
@@ -732,7 +758,7 @@ export default function BookingForm({
                             className="w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2 text-xs outline-none"
                           />
                         </div>
-                        <button type="button" onClick={() => setAttendees(attendees.filter((_, j) => j !== i))} className="mt-1 rounded p-1 text-red-400 hover:text-red-300">
+                        <button type="button" aria-label={ta("removeAttendee")} onClick={() => setAttendees(attendees.filter((_, j) => j !== i))} className="mt-1 rounded p-1 text-red-400 hover:text-red-300">
                           <X size={14} />
                         </button>
                       </div>

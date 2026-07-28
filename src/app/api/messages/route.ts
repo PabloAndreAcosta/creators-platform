@@ -1,6 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import type { SupabaseClient } from '@supabase/supabase-js';
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * True if either user has blocked the other. MUST use the service-role client:
+ * user_blocks RLS only exposes rows where auth.uid() = blocker_id, so the
+ * user-context client can't see "the other person blocked me" — the exact
+ * direction that must stop a message. IDs are validated UUIDs before this call.
+ */
+async function pairIsBlocked(a: string, b: string): Promise<boolean> {
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from('user_blocks')
+    .select('blocker_id')
+    .or(`and(blocker_id.eq.${a},blocked_id.eq.${b}),and(blocker_id.eq.${b},blocked_id.eq.${a})`)
+    .maybeSingle();
+  return !!data;
+}
 
 // GET — list conversations or messages for a conversation
 export async function GET(req: NextRequest) {
@@ -160,6 +179,12 @@ export async function POST(req: NextRequest) {
     if (!convo || (convo.participant_a !== user.id && convo.participant_b !== user.id)) {
       return NextResponse.json({ error: 'Ingen åtkomst till denna konversation' }, { status: 403 });
     }
+
+    // Block gate on existing threads too: a blocked pair can't keep messaging.
+    const other = convo.participant_a === user.id ? convo.participant_b : convo.participant_a;
+    if (await pairIsBlocked(user.id, other)) {
+      return NextResponse.json({ error: 'Kan inte skicka meddelande.' }, { status: 403 });
+    }
   }
 
   // If no conversationId, find or create conversation
@@ -170,6 +195,17 @@ export async function POST(req: NextRequest) {
 
     if (recipientId === user.id) {
       return NextResponse.json({ error: 'Kan inte skicka meddelande till dig själv' }, { status: 400 });
+    }
+
+    // Validate the id shape before it's ever used in a PostgREST .or() filter
+    // (prevents filter-structure injection) and as a conversation participant.
+    if (!UUID_RE.test(recipientId)) {
+      return NextResponse.json({ error: 'Ogiltig mottagare' }, { status: 400 });
+    }
+
+    // Block gate (both directions): a blocked pair cannot start a conversation.
+    if (await pairIsBlocked(user.id, recipientId)) {
+      return NextResponse.json({ error: 'Kan inte skicka meddelande.' }, { status: 403 });
     }
 
     // Canonical ordering: smaller UUID first

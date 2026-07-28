@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { createPromoCode } from "../actions";
 import { useToast } from "@/components/ui/toaster";
 
 export function PromoForm() {
+  const t = useTranslations("adminPromoForm");
   const [discountType, setDiscountType] = useState<"percent" | "fixed">("percent");
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
@@ -16,7 +18,7 @@ export function PromoForm() {
       const result = await createPromoCode(formData);
       if (result?.error) {
         setError(result.error);
-        toast.error("Kunde inte skapa", result.error);
+        toast.error(t("toastCreateFailed"), result.error);
       }
     });
   }
@@ -31,28 +33,28 @@ export function PromoForm() {
 
       {/* Code */}
       <div>
-        <label className="mb-1.5 block text-sm font-medium">Kod</label>
+        <label className="mb-1.5 block text-sm font-medium">{t("codeLabel")}</label>
         <input
           name="code"
           type="text"
           required
-          placeholder="T.ex. SOMMAR2026"
+          placeholder={t("codePlaceholder")}
           className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm font-mono uppercase tracking-wider outline-none transition focus:border-[var(--usha-gold)]/40 placeholder:normal-case placeholder:tracking-normal"
         />
         <p className="mt-1 text-xs text-[var(--usha-muted)]">
-          Koden konverteras automatiskt till versaler.
+          {t("codeHint")}
         </p>
       </div>
 
       {/* Description */}
       <div>
         <label className="mb-1.5 block text-sm font-medium">
-          Beskrivning <span className="text-xs text-[var(--usha-muted)]">(valfritt)</span>
+          {t("descriptionLabel")} <span className="text-xs text-[var(--usha-muted)]">{t("optional")}</span>
         </label>
         <input
           name="description"
           type="text"
-          placeholder="Intern beskrivning av kampanjen"
+          placeholder={t("descriptionPlaceholder")}
           className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
         />
       </div>
@@ -60,20 +62,20 @@ export function PromoForm() {
       {/* Discount type + value */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="mb-1.5 block text-sm font-medium">Rabattyp</label>
+          <label className="mb-1.5 block text-sm font-medium">{t("discountTypeLabel")}</label>
           <select
             name="discount_type"
             value={discountType}
             onChange={(e) => setDiscountType(e.target.value as "percent" | "fixed")}
             className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
           >
-            <option value="percent">Procent (%)</option>
-            <option value="fixed">Fast belopp (SEK)</option>
+            <option value="percent">{t("discountTypePercent")}</option>
+            <option value="fixed">{t("discountTypeFixed")}</option>
           </select>
         </div>
         <div>
           <label className="mb-1.5 block text-sm font-medium">
-            {discountType === "percent" ? "Rabatt (%)" : "Rabatt (SEK)"}
+            {discountType === "percent" ? t("discountValuePercent") : t("discountValueFixed")}
           </label>
           <input
             name="discount_value"
@@ -90,14 +92,14 @@ export function PromoForm() {
 
       {/* Scope */}
       <div>
-        <label className="mb-1.5 block text-sm font-medium">Gäller för</label>
+        <label className="mb-1.5 block text-sm font-medium">{t("scopeLabel")}</label>
         <select
           name="scope"
           className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
         >
-          <option value="both">Allt (prenumeration + biljetter)</option>
-          <option value="subscription">Bara prenumeration</option>
-          <option value="ticket">Bara biljetter</option>
+          <option value="both">{t("scopeBoth")}</option>
+          <option value="subscription">{t("scopeSubscription")}</option>
+          <option value="ticket">{t("scopeTicket")}</option>
         </select>
       </div>
 
@@ -105,19 +107,19 @@ export function PromoForm() {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="mb-1.5 block text-sm font-medium">
-            Max användningar totalt <span className="text-xs text-[var(--usha-muted)]">(valfritt)</span>
+            {t("maxUsesLabel")} <span className="text-xs text-[var(--usha-muted)]">{t("optional")}</span>
           </label>
           <input
             name="max_uses"
             type="number"
             min={1}
-            placeholder="Obegränsat"
+            placeholder={t("maxUsesPlaceholder")}
             className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
           />
         </div>
         <div>
           <label className="mb-1.5 block text-sm font-medium">
-            Max per användare
+            {t("maxUsesPerUserLabel")}
           </label>
           <input
             name="max_uses_per_user"
@@ -132,7 +134,7 @@ export function PromoForm() {
       {/* Valid until */}
       <div>
         <label className="mb-1.5 block text-sm font-medium">
-          Giltig till <span className="text-xs text-[var(--usha-muted)]">(valfritt)</span>
+          {t("validUntilLabel")} <span className="text-xs text-[var(--usha-muted)]">{t("optional")}</span>
         </label>
         <input
           name="valid_until"
@@ -140,7 +142,7 @@ export function PromoForm() {
           className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
         />
         <p className="mt-1 text-xs text-[var(--usha-muted)]">
-          Lämna tomt för ingen utgångsdatum.
+          {t("validUntilHint")}
         </p>
       </div>
 
@@ -150,7 +152,7 @@ export function PromoForm() {
         disabled={isPending}
         className="w-full rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] py-3 text-sm font-bold text-black transition hover:opacity-90 disabled:opacity-50"
       >
-        {isPending ? "Skapar..." : "Skapa promokod"}
+        {isPending ? t("submitPending") : t("submit")}
       </button>
     </form>
   );

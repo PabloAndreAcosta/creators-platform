@@ -64,6 +64,7 @@ export function PostCard({ post, isLoggedIn, currentUserId }: PostCardProps) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [shared, setShared] = useState(false);
   const tr = useTranslations("roles");
+  const ta = useTranslations("a11y");
   const tc = useTranslations("common");
   const tf = useTranslations("feed");
   const isOwner = currentUserId === post.user_id;
@@ -170,7 +171,7 @@ export function PostCard({ post, isLoggedIn, currentUserId }: PostCardProps) {
         </div>
         {isOwner && (
           <div className="relative">
-            <button onClick={() => setMenuOpen(!menuOpen)} className="rounded-lg p-1.5 text-[var(--usha-muted)] transition hover:bg-[var(--usha-card)] hover:text-[var(--usha-white)]">
+            <button onClick={() => setMenuOpen(!menuOpen)} aria-label={ta("openMenu")} className="rounded-lg p-1.5 text-[var(--usha-muted)] transition hover:bg-[var(--usha-card)] hover:text-[var(--usha-white)]">
               <MoreHorizontal size={18} />
             </button>
             {menuOpen && (
@@ -206,7 +207,7 @@ export function PostCard({ post, isLoggedIn, currentUserId }: PostCardProps) {
           {editImagePreview && (
             <div className="relative mt-2 overflow-hidden rounded-xl">
               <img src={editImagePreview} alt="" className="w-full max-h-[200px] object-cover" />
-              <button onClick={() => { setEditImageUrl(null); setEditImagePreview(null); }} className="absolute right-2 top-2 rounded-full bg-black/60 p-1">
+              <button onClick={() => { setEditImageUrl(null); setEditImagePreview(null); }} aria-label={ta("removeImage")} className="absolute right-2 top-2 rounded-full bg-black/60 p-1">
                 <X size={12} className="text-white" />
               </button>
             </div>

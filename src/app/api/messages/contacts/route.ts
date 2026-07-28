@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
   // service-role client here — it would expose creators who set is_public=false.
   const { data: profiles } = await supabase
     .from("profiles")
-    .select("id, full_name, avatar_url, role")
+    .select("id, full_name, avatar_url, role, category")
     .neq("id", user.id)
     .ilike("full_name", `%${safeQuery}%`)
     .limit(10);
@@ -43,6 +43,7 @@ export async function GET(req: NextRequest) {
       name: p.full_name || "User",
       avatar: p.avatar_url,
       role: p.role,
+      category: p.category,
     })),
   });
 }

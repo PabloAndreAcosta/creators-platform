@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { checkStorageQuota, bytesToMb, STORAGE_QUOTA_BYTES } from "@/lib/storage/quota";
 
 export const runtime = "nodejs";
 
@@ -69,6 +70,22 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const admin = createAdminClient();
+
+  // Per-account total storage quota (2 GB). Singleton buckets (avatar) overwrite
+  // in place, so they don't grow the footprint — skip the check for them.
+  if (!singleton) {
+    const quota = await checkStorageQuota(admin, user.id, file.size);
+    if (!quota.ok) {
+      return NextResponse.json(
+        {
+          error: `Lagringsutrymmet är fullt (max ${bytesToMb(STORAGE_QUOTA_BYTES) / 1024} GB). ${bytesToMb(quota.remaining)} MB kvar — ta bort material för att frigöra utrymme.`,
+        },
+        { status: 413 },
+      );
+    }
+  }
+
   // Folder = user id so the per-user storage RLS policies match. Singleton
   // buckets use a stable filename; others get a random one so history is kept.
   const ext = file.name.includes(".") ? file.name.split(".").pop() : "bin";
@@ -76,7 +93,6 @@ export async function POST(request: NextRequest) {
     ? `${user.id}/avatar.${ext}`
     : `${user.id}/${crypto.randomUUID()}.${ext}`;
 
-  const admin = createAdminClient();
   const { error: uploadError } = await admin.storage
     .from(bucket)
     .upload(path, file, { upsert: true, contentType: file.type });

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
 export const metadata: Metadata = {
   title: "Cookiepolicy – Usha Platform",
@@ -8,7 +9,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/cookies" },
 };
 
-export default function CookiesPage() {
+export default async function CookiesPage() {
+  const t = await getTranslations("cookiesPage");
   return (
     <main className="min-h-screen bg-[var(--usha-black)] text-[var(--usha-white)]">
       <div className="mx-auto max-w-3xl px-6 py-16">
@@ -17,79 +19,72 @@ export default function CookiesPage() {
           className="mb-8 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]"
         >
           <ArrowLeft size={14} />
-          Tillbaka
+          {t("back")}
         </Link>
 
-        <h1 className="mb-2 text-4xl font-bold">Cookiepolicy</h1>
+        <h1 className="mb-2 text-4xl font-bold">{t("heading")}</h1>
         <p className="mb-12 text-sm text-[var(--usha-muted)]">
-          Senast uppdaterad: 1 januari 2026
+          {t("lastUpdated")}
         </p>
 
         <div className="space-y-8 text-sm leading-relaxed text-[var(--usha-muted)]">
           <section>
-            <h2 className="mb-3 text-lg font-semibold text-[var(--usha-white)]">1. Vad är cookies?</h2>
+            <h2 className="mb-3 text-lg font-semibold text-[var(--usha-white)]">{t("whatHeading")}</h2>
             <p>
-              Cookies är små textfiler som lagras på din enhet när du besöker en webbplats.
-              De används för att webbplatsen ska fungera korrekt, komma ihåg dina inställningar
-              och förbättra din upplevelse.
+              {t("whatBody")}
             </p>
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-semibold text-[var(--usha-white)]">2. Vilka cookies vi använder</h2>
+            <h2 className="mb-3 text-lg font-semibold text-[var(--usha-white)]">{t("whichHeading")}</h2>
 
-            <h3 className="mt-4 mb-2 font-semibold text-[var(--usha-white)]">Nödvändiga cookies</h3>
+            <h3 className="mt-4 mb-2 font-semibold text-[var(--usha-white)]">{t("necessaryHeading")}</h3>
             <p>
-              Dessa cookies är nödvändiga för att Plattformen ska fungera. De hanterar
-              autentisering, sessionshantering och säkerhet. Dessa cookies kan inte stängas av.
+              {t("necessaryBody")}
             </p>
             <ul className="list-disc space-y-1 pl-6 mt-2">
-              <li>Supabase autentiseringscookies (inloggning, session)</li>
-              <li>CSRF-skydd</li>
+              <li>{t("necessaryItem1")}</li>
+              <li>{t("necessaryItem2")}</li>
             </ul>
 
-            <h3 className="mt-4 mb-2 font-semibold text-[var(--usha-white)]">Funktionella cookies</h3>
+            <h3 className="mt-4 mb-2 font-semibold text-[var(--usha-white)]">{t("functionalHeading")}</h3>
             <p>
-              Dessa cookies gör det möjligt att komma ihåg dina val, som språk och
-              roll-inställningar.
+              {t("functionalBody")}
             </p>
 
-            <h3 className="mt-4 mb-2 font-semibold text-[var(--usha-white)]">Analyscookies</h3>
+            <h3 className="mt-4 mb-2 font-semibold text-[var(--usha-white)]">{t("analyticsHeading")}</h3>
             <p>
-              Vi kan använda analyscookies för att förstå hur besökare använder Plattformen.
-              Dessa cookies samlar in anonym data.
+              {t("analyticsBody")}
             </p>
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-semibold text-[var(--usha-white)]">3. Tredjepartscookies</h2>
+            <h2 className="mb-3 text-lg font-semibold text-[var(--usha-white)]">{t("thirdPartyHeading")}</h2>
             <p>
-              Stripe kan placera cookies för att hantera betalningar säkert. Dessa cookies
-              regleras av Stripes egna integritetspolicy.
+              {t("thirdPartyBody")}
             </p>
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-semibold text-[var(--usha-white)]">4. Hantera cookies</h2>
+            <h2 className="mb-3 text-lg font-semibold text-[var(--usha-white)]">{t("manageHeading")}</h2>
             <p>
-              Du kan hantera och radera cookies via din webbläsares inställningar. Observera
-              att om du blockerar nödvändiga cookies kan delar av Plattformen sluta fungera.
+              {t("manageBody")}
             </p>
             <p className="mt-2">
-              De flesta webbläsare tillåter dig att:
+              {t("manageListIntro")}
             </p>
             <ul className="list-disc space-y-1 pl-6 mt-2">
-              <li>Se vilka cookies som är lagrade</li>
-              <li>Radera enskilda eller alla cookies</li>
-              <li>Blockera cookies från specifika webbplatser</li>
-              <li>Blockera alla cookies</li>
+              <li>{t("manageItem1")}</li>
+              <li>{t("manageItem2")}</li>
+              <li>{t("manageItem3")}</li>
+              <li>{t("manageItem4")}</li>
             </ul>
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-semibold text-[var(--usha-white)]">5. Kontakt</h2>
+            <h2 className="mb-3 text-lg font-semibold text-[var(--usha-white)]">{t("contactHeading")}</h2>
             <p>
-              Har du frågor om hur vi använder cookies? Kontakta oss på{" "}
+              {t("contactBody")}{" "}
               <a href="mailto:privacy@usha.se" className="text-[var(--usha-gold)] hover:underline">
                 privacy@usha.se
               </a>

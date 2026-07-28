@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Sun, Moon } from "lucide-react";
 
 const THEME_COOKIE = "usha-theme";
 
 export function ThemeToggle({ className }: { className?: string }) {
+  const t = useTranslations("common");
   const [isDark, setIsDark] = useState(true);
   const [mounted, setMounted] = useState(false);
 
@@ -37,7 +39,7 @@ export function ThemeToggle({ className }: { className?: string }) {
         className ??
         "flex items-center justify-center rounded-lg p-2 text-[var(--usha-muted)] transition-colors hover:bg-[var(--usha-card)] hover:text-[var(--usha-white)]"
       }
-      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      aria-label={isDark ? t("switchToLight") : t("switchToDark")}
     >
       {isDark ? <Sun size={16} /> : <Moon size={16} />}
     </button>

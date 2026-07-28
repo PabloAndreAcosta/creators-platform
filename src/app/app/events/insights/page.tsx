@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { ArrowLeft, Users, Repeat, UserPlus, CheckCircle2, Download, Radio, Banknote, Percent, CalendarDays } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useSubscription } from "@/lib/subscription/context";
 
 interface TopReturning {
@@ -34,11 +35,7 @@ interface Insights {
   perEvent: PerEvent[];
 }
 
-const MONTHS_SV = ["jan", "feb", "mar", "apr", "maj", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
-function monthLabel(ym: string) {
-  const m = parseInt(ym.slice(5, 7), 10);
-  return MONTHS_SV[m - 1] ?? ym;
-}
+const MONTH_KEYS = ["monthJan", "monthFeb", "monthMar", "monthApr", "monthMay", "monthJun", "monthJul", "monthAug", "monthSep", "monthOct", "monthNov", "monthDec"] as const;
 
 function csvEscape(v: string) {
   return /[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
@@ -50,6 +47,7 @@ function fmtDate(d: string | null) {
 }
 
 export default function InsightsPage() {
+  const t = useTranslations("eventInsights");
   const { tier } = useSubscription();
   const [data, setData] = useState<Insights | null>(null);
   const [loading, setLoading] = useState(true);
@@ -59,17 +57,23 @@ export default function InsightsPage() {
     try {
       const res = await fetch(`/api/events/insights`);
       if (!res.ok) {
-        setError("Kunde inte hämta statistik");
+        setError(t("errorFetch"));
         return;
       }
       setData(await res.json());
       setError(null);
     } catch {
-      setError("Anslutningsfel");
+      setError(t("errorConnection"));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
+
+  function monthLabel(ym: string) {
+    const m = parseInt(ym.slice(5, 7), 10);
+    const key = MONTH_KEYS[m - 1];
+    return key ? t(key) : ym;
+  }
 
   useEffect(() => {
     fetchData();
@@ -78,7 +82,7 @@ export default function InsightsPage() {
   function exportCsv() {
     if (!data) return;
     const rows = [
-      ["Namn", "E-post", "Antal event", "Senast"],
+      [t("csvName"), t("csvEmail"), t("csvEventCount"), t("csvLastSeen")],
       ...data.topReturning.map((a) => [a.name, a.email ?? "", String(a.eventsCount), fmtDate(a.lastSeen?.slice(0, 10) ?? null)]),
     ];
     const csv = rows.map((r) => r.map((c) => csvEscape(c)).join(",")).join("\n");
@@ -94,9 +98,9 @@ export default function InsightsPage() {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
         <Radio size={48} className="mb-4 text-[var(--usha-gold)]" />
-        <h2 className="mb-2 text-xl font-bold">Statistik är en Premium-funktion</h2>
+        <h2 className="mb-2 text-xl font-bold">{t("premiumFeatureTitle")}</h2>
         <Link href="/dashboard/billing" className="mt-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-6 py-3 text-sm font-bold text-black">
-          Uppgradera
+          {t("upgrade")}
         </Link>
       </div>
     );
@@ -111,30 +115,30 @@ export default function InsightsPage() {
   if (error || !data) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
-        <p className="text-[var(--usha-muted)]">{error || "Hittades inte"}</p>
-        <Link href="/app/events" className="mt-4 text-sm text-[var(--usha-gold)]">Till evenemang</Link>
+        <p className="text-[var(--usha-muted)]">{error || t("notFound")}</p>
+        <Link href="/app/events" className="mt-4 text-sm text-[var(--usha-gold)]">{t("toEvents")}</Link>
       </div>
     );
   }
 
   const cards = [
-    { icon: Users, label: "Unika deltagare", value: String(data.uniqueAttendees) },
-    { icon: Repeat, label: `Återkommande (${data.returningRate}%)`, value: String(data.returning) },
-    { icon: UserPlus, label: "Nya", value: String(data.new) },
-    { icon: CheckCircle2, label: "Incheckningar", value: String(data.totalCheckedIn) },
-    { icon: Percent, label: "Incheckningsgrad (snitt)", value: `${data.avgCheckInRate}%` },
-    { icon: CalendarDays, label: "Snitt deltagare/event", value: String(data.avgAttendeesPerEvent) },
-    { icon: Banknote, label: "Total intäkt", value: `${Math.round(data.totalRevenue / 100).toLocaleString("sv-SE")} kr` },
+    { icon: Users, label: t("cardUniqueAttendees"), value: String(data.uniqueAttendees) },
+    { icon: Repeat, label: t("cardReturning", { rate: data.returningRate }), value: String(data.returning) },
+    { icon: UserPlus, label: t("cardNew"), value: String(data.new) },
+    { icon: CheckCircle2, label: t("cardCheckIns"), value: String(data.totalCheckedIn) },
+    { icon: Percent, label: t("cardCheckInRate"), value: `${data.avgCheckInRate}%` },
+    { icon: CalendarDays, label: t("cardAvgAttendeesPerEvent"), value: String(data.avgAttendeesPerEvent) },
+    { icon: Banknote, label: t("cardTotalRevenue"), value: `${Math.round(data.totalRevenue / 100).toLocaleString("sv-SE")} kr` },
   ];
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6 space-y-6">
       <div>
         <Link href="/app/events" className="mb-3 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]">
-          <ArrowLeft size={14} /> Evenemang
+          <ArrowLeft size={14} /> {t("events")}
         </Link>
-        <h1 className="text-2xl font-bold">Statistik – översikt</h1>
-        <p className="mt-1 text-sm text-[var(--usha-muted)]">Över alla dina {data.eventCount} event</p>
+        <h1 className="text-2xl font-bold">{t("pageTitle")}</h1>
+        <p className="mt-1 text-sm text-[var(--usha-muted)]">{t("acrossAllEvents", { count: data.eventCount })}</p>
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -150,7 +154,7 @@ export default function InsightsPage() {
       {/* Monthly trend */}
       {data.monthlyTrend.some((m) => m.bookings > 0) && (
         <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
-          <h3 className="mb-4 text-sm font-semibold">Trend (senaste 6 mån)</h3>
+          <h3 className="mb-4 text-sm font-semibold">{t("trendTitle")}</h3>
           <div className="flex h-40 items-end gap-2">
             {data.monthlyTrend.map((m) => {
               const max = Math.max(...data.monthlyTrend.map((x) => x.checkedIn), 1);
@@ -161,7 +165,7 @@ export default function InsightsPage() {
                     <div
                       className="w-full rounded-t bg-gradient-to-t from-[var(--usha-gold)] to-[var(--usha-accent)] transition-all"
                       style={{ height: `${Math.max((m.checkedIn / max) * 100, 2)}%` }}
-                      title={`${m.checkedIn} incheckade · ${Math.round(m.revenue / 100).toLocaleString("sv-SE")} kr`}
+                      title={t("barTooltip", { checkedIn: m.checkedIn, revenue: Math.round(m.revenue / 100).toLocaleString("sv-SE") })}
                     />
                   </div>
                   <span className="text-[10px] text-[var(--usha-muted)]">{monthLabel(m.month)}</span>
@@ -170,14 +174,14 @@ export default function InsightsPage() {
               );
             })}
           </div>
-          <p className="mt-3 text-center text-[10px] text-[var(--usha-muted)]">Stapelhöjd = incheckade deltagare · belopp = intäkt</p>
+          <p className="mt-3 text-center text-[10px] text-[var(--usha-muted)]">{t("trendLegend")}</p>
         </div>
       )}
 
       {/* Top returning */}
       <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] overflow-hidden">
         <div className="flex items-center justify-between border-b border-[var(--usha-border)] px-4 py-3">
-          <h3 className="text-sm font-semibold">Återkommande deltagare</h3>
+          <h3 className="text-sm font-semibold">{t("returningTitle")}</h3>
           {data.topReturning.length > 0 && (
             <button onClick={exportCsv} className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--usha-border)] px-3 py-1.5 text-xs font-medium transition hover:border-[var(--usha-gold)]/50">
               <Download size={13} /> CSV
@@ -185,7 +189,7 @@ export default function InsightsPage() {
           )}
         </div>
         {data.topReturning.length === 0 ? (
-          <p className="px-4 py-8 text-center text-sm text-[var(--usha-muted)]">Inga återkommande deltagare ännu.</p>
+          <p className="px-4 py-8 text-center text-sm text-[var(--usha-muted)]">{t("noReturning")}</p>
         ) : (
           <div className="divide-y divide-[var(--usha-border)]">
             {data.topReturning.map((a, i) => (
@@ -197,7 +201,7 @@ export default function InsightsPage() {
                   <p className="truncate text-sm font-medium text-[var(--usha-white)]">{a.name}</p>
                   {a.email && <p className="truncate text-[11px] text-[var(--usha-muted)]">{a.email}</p>}
                 </div>
-                <span className="shrink-0 text-xs font-semibold text-[var(--usha-gold)]">{a.eventsCount} event</span>
+                <span className="shrink-0 text-xs font-semibold text-[var(--usha-gold)]">{t("eventsCount", { count: a.eventsCount })}</span>
               </div>
             ))}
           </div>
@@ -208,7 +212,7 @@ export default function InsightsPage() {
       {data.perEvent.length > 0 && (
         <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] overflow-hidden">
           <div className="border-b border-[var(--usha-border)] px-4 py-3">
-            <h3 className="text-sm font-semibold">Per event</h3>
+            <h3 className="text-sm font-semibold">{t("perEventTitle")}</h3>
           </div>
           <div className="divide-y divide-[var(--usha-border)]">
             {data.perEvent.map((e) => (

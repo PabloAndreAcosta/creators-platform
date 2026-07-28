@@ -5,6 +5,17 @@ import { sendPayoutConfirmationEmail } from '@/lib/email/send-payout';
 import { shouldSendEmail } from '@/lib/email/check-preferences';
 import { notifyPayout } from '@/lib/notifications/create';
 
+// ── Payout layer DISABLED by default ─────────────────────────────────────────
+// Checkouts use Stripe DESTINATION charges (transfer_data.destination +
+// application_fee_amount): the gross already lands on the creator's connected
+// account and Stripe auto-pays it to their bank on the account's payout schedule
+// (Express accounts default to AUTOMATIC). Calling stripe.payouts.create() below
+// paid the creator a SECOND time out of that same balance and re-deducted
+// commission — a double payout. This whole layer therefore stays OFF unless the
+// connected accounts are first switched to a MANUAL payout schedule AND this env
+// flag is explicitly set. Do not enable without making that Stripe change first.
+const PAYOUT_LAYER_ENABLED = process.env.PAYOUTS_MANUAL_ENABLED === 'true';
+
 interface BatchResult {
   processed: number;
   total: number;
@@ -43,6 +54,15 @@ async function getCreatorStripeAccount(creatorId: string): Promise<string> {
  * Individual creator errors do not fail the entire batch.
  */
 export async function weeklyPayoutBatch(): Promise<BatchResult> {
+  if (!PAYOUT_LAYER_ENABLED) {
+    console.warn(
+      '[payouts] weeklyPayoutBatch skipped — payout layer disabled. Destination ' +
+        'charges already settle creators automatically; running this would double-pay. ' +
+        'Set PAYOUTS_MANUAL_ENABLED=true only after switching Connect accounts to a manual schedule.'
+    );
+    return { processed: 0, total: 0, errors: ['payout_layer_disabled'] };
+  }
+
   const supabase = createAdminClient();
   const errors: string[] = [];
   let processed = 0;
@@ -165,6 +185,14 @@ export async function createInstantPayout(
   creatorId: string,
   amount: number
 ): Promise<InstantPayoutResult> {
+  if (!PAYOUT_LAYER_ENABLED) {
+    return {
+      success: false,
+      error:
+        'Utbetalningar sker automatiskt till ditt bankkonto via Stripe. Manuell utbetalning är inte aktiv.',
+    };
+  }
+
   const supabase = createAdminClient();
 
   try {

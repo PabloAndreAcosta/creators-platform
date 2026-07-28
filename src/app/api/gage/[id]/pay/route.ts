@@ -75,38 +75,49 @@ export async function POST(
   }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://usha.se";
-  const session = await stripe.checkout.sessions.create({
-    customer_email: host.email ?? undefined,
-    line_items: [
-      {
-        price_data: {
-          currency: "sek",
-          product_data: {
-            name: `Gage till ${payee.full_name ?? "crew"} – ${listing?.title ?? "event"}`,
+  // Wrap the Stripe session creation + DB write: a Stripe/network/DB error must
+  // surface as a clean Swedish message, not a raw 500 stack (matches the other
+  // Stripe routes).
+  try {
+    const session = await stripe.checkout.sessions.create({
+      customer_email: host.email ?? undefined,
+      line_items: [
+        {
+          price_data: {
+            currency: "sek",
+            product_data: {
+              name: `Gage till ${payee.full_name ?? "crew"} – ${listing?.title ?? "event"}`,
+            },
+            unit_amount: g.amount_ore,
           },
-          unit_amount: g.amount_ore,
+          quantity: 1,
         },
-        quantity: 1,
+      ],
+      mode: "payment",
+      payment_intent_data: {
+        // Full amount goes to the crew member; no platform fee on crew gage.
+        transfer_data: { destination: payee.stripe_account_id },
       },
-    ],
-    mode: "payment",
-    payment_intent_data: {
-      // Full amount goes to the crew member; no platform fee on crew gage.
-      transfer_data: { destination: payee.stripe_account_id },
-    },
-    success_url: `${appUrl}/app/events/${g.listing_id}/crew?gage=paid`,
-    cancel_url: `${appUrl}/app/events/${g.listing_id}/crew?gage=canceled`,
-    metadata: {
-      type: "crew_gage",
-      userId: g.host_id,
-      gageId: g.id,
-    },
-  });
+      success_url: `${appUrl}/app/events/${g.listing_id}/crew?gage=paid`,
+      cancel_url: `${appUrl}/app/events/${g.listing_id}/crew?gage=canceled`,
+      metadata: {
+        type: "crew_gage",
+        userId: g.host_id,
+        gageId: g.id,
+      },
+    });
 
-  await admin
-    .from("gage_agreements")
-    .update({ stripe_checkout_session_id: session.id })
-    .eq("id", g.id);
+    await admin
+      .from("gage_agreements")
+      .update({ stripe_checkout_session_id: session.id })
+      .eq("id", g.id);
 
-  return NextResponse.json({ sessionId: session.id, url: session.url });
+    return NextResponse.json({ sessionId: session.id, url: session.url });
+  } catch (err) {
+    console.error("gage pay: checkout session creation failed:", err);
+    return NextResponse.json(
+      { error: "Kunde inte starta betalningen. Försök igen." },
+      { status: 500 }
+    );
+  }
 }

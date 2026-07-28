@@ -14,6 +14,7 @@ export function ReportUserButton({
   userName: string;
 }) {
   const t = useTranslations("creatorProfile");
+  const ta = useTranslations("a11y");
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>("menu");
   const [reason, setReason] = useState("");
@@ -167,6 +168,7 @@ export function ReportUserButton({
                 </p>
                 <button
                   onClick={() => setStep("menu")}
+                  aria-label={ta("close")}
                   className="rounded p-1 transition-colors hover:bg-[var(--usha-muted)]"
                 >
                   <X size={14} />

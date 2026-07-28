@@ -12,7 +12,8 @@ export type UploadBucket =
   | "event-images"
   | "listing-images"
   | "avatars"
-  | "creator-media";
+  | "creator-media"
+  | "digital-content";
 
 export async function uploadFile(
   file: File | Blob,
@@ -107,7 +108,7 @@ export async function uploadViaSignedUrl(file: File, bucket: UploadBucket): Prom
   const res = await fetch("/api/storage/signed-upload", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ bucket, ext }),
+    body: JSON.stringify({ bucket, ext, size: file.size }),
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
@@ -127,4 +128,37 @@ export async function uploadViaSignedUrl(file: File, bucket: UploadBucket): Prom
     throw new Error(error.message);
   }
   return data.publicUrl as string;
+}
+
+/**
+ * Uploads PAID digital-product content to the PRIVATE `digital-content` bucket
+ * and returns the storage PATH (not a public URL). The path is stored in
+ * digital_product_content and later served via a short-lived signed URL from
+ * /api/digital-content/[productId] after a purchase check — so the file is never
+ * world-readable. Mirrors uploadViaSignedUrl but keeps the path private.
+ */
+export async function uploadPrivateContent(file: File): Promise<string> {
+  const ext = file.name.includes(".") ? file.name.split(".").pop() : "bin";
+
+  const res = await fetch("/api/storage/signed-upload", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ bucket: "digital-content", ext, size: file.size }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(data?.error || "Kunde inte förbereda uppladdning");
+  }
+
+  const { createClient } = await import("@/lib/supabase/client");
+  const supabase = createClient();
+  const { error } = await supabase.storage
+    .from("digital-content")
+    .uploadToSignedUrl(data.path, data.token, file, {
+      contentType: file.type || undefined,
+    });
+  if (error) {
+    throw new Error(error.message);
+  }
+  return data.path as string;
 }

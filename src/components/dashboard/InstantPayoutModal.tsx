@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 
 interface InstantPayoutModalProps {
@@ -25,6 +25,7 @@ export default function InstantPayoutModal({
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
 
   const hasFee = payoutsThisMonth >= 1;
   const fee = hasFee ? Math.round(availableAmount * 0.01) : 0;
@@ -57,11 +58,26 @@ export default function InstantPayoutModal({
     }
   }
 
-  function handleClose() {
+  const handleClose = useCallback(() => {
     setSuccess(false);
     setError(null);
     onClose();
-  }
+  }, [onClose]);
+
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === 'Escape') handleClose();
+    },
+    [handleClose]
+  );
+
+  useEffect(() => {
+    if (isOpen) {
+      document.addEventListener('keydown', handleKeyDown);
+      dialogRef.current?.focus();
+      return () => document.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [isOpen, handleKeyDown]);
 
   if (!isOpen) return null;
 
@@ -71,12 +87,17 @@ export default function InstantPayoutModal({
       onClick={handleClose}
     >
       <div
-        className="w-full max-w-md bg-[var(--usha-card)] border border-[var(--usha-border)] rounded-t-2xl sm:rounded-2xl p-6"
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="instant-payout-title"
+        tabIndex={-1}
+        className="w-full max-w-md bg-[var(--usha-card)] border border-[var(--usha-border)] rounded-t-2xl sm:rounded-2xl p-6 outline-none"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
-          <h3 className="text-lg font-bold text-[var(--usha-white)]">
+          <h3 id="instant-payout-title" className="text-lg font-bold text-[var(--usha-white)]">
             Snabbutbetalning
           </h3>
           <button

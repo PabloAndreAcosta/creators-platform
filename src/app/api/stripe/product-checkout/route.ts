@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getStripeLocale } from "@/lib/i18n/stripe-locale";
 import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getCreatorCommissionRate } from "@/lib/stripe/commission";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
 
@@ -73,7 +74,7 @@ export async function POST(req: NextRequest) {
           } else if (promo.discount_amount > 0) {
             discount = promo.discount_amount;
           }
-          creatorPromoId = promo.creator_id;
+          creatorPromoId = promo.id;
         }
       }
     }
@@ -82,21 +83,26 @@ export async function POST(req: NextRequest) {
 
     // If free after discount, record purchase directly
     if (finalPrice === 0) {
-      await supabase.from("digital_purchases").insert({
+      const { error: freeErr } = await supabase.from("digital_purchases").insert({
         product_id: productId,
         buyer_id: user.id,
         amount_paid: 0,
         promo_code: promoCode || null,
         creator_promo_id: creatorPromoId,
       });
+      // Don't send the buyer to their library claiming success if the row didn't
+      // land (a duplicate/23505 means they already own it — that's fine).
+      if (freeErr && freeErr.code !== "23505") {
+        console.error("free digital purchase insert failed:", freeErr);
+        return NextResponse.json({ error: "Kunde inte slutföra köpet. Försök igen." }, { status: 500 });
+      }
 
-      // Increment promo usage
+      // Increment promo usage atomically (single guarded UPDATE via SECURITY
+      // DEFINER RPC) to avoid the read-modify-write race that could undercount
+      // uses and let a code be redeemed past its max_uses.
       if (promoCode && creatorPromoId) {
         try {
-          await supabase
-            .from("creator_promo_codes")
-            .update({ times_used: (await supabase.from("creator_promo_codes").select("times_used").eq("code", promoCode.toUpperCase()).single()).data?.times_used + 1 } as any)
-            .eq("code", promoCode.toUpperCase());
+          await createAdminClient().rpc("increment_creator_promo_uses", { p_code: promoCode.toUpperCase() } as any);
         } catch {}
       }
 

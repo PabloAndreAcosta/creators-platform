@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Loader2, Trash2, Copy, Check, UserPlus, ShieldCheck, Search, ScanLine } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useToast } from "@/components/ui/toaster";
 import {
   COLLAB_ROLES,
   BANKID_GATED_ROLES,
-  collabRoleLabel,
   type CollabRole,
 } from "@/lib/collaborators";
 import { GagePanel, type GageView } from "@/components/gage-panel";
@@ -51,6 +51,17 @@ export function CrewManager({
   initialPendingInvites: PendingInvite[];
   canDelegateScan?: boolean;
 }) {
+  const t = useTranslations("eventCrew");
+
+  const ROLE_LABEL_KEYS: Record<string, string> = {
+    creator: "roleCreator",
+    taxi_dancer: "roleTaxiDancer",
+    volunteer: "roleVolunteer",
+    co_host: "roleCoHost",
+  };
+  const roleLabel = (r: string) =>
+    ROLE_LABEL_KEYS[r] ? t(ROLE_LABEL_KEYS[r]) : r;
+
   const { toast } = useToast();
   const [collaborators, setCollaborators] = useState(initialCollaborators);
   const [pending, setPending] = useState(initialPendingInvites);
@@ -102,7 +113,7 @@ export function CrewManager({
       });
       const data = await res.json();
       if (!res.ok) {
-        toast.error(data.error ?? "Kunde inte bjuda in");
+        toast.error(data.error ?? t("errorInvite"));
         return;
       }
       setPending((prev) => [
@@ -118,9 +129,9 @@ export function CrewManager({
         ...prev,
       ]);
       setInvitedIds((prev) => new Set(prev).add(creator.id));
-      toast.success(`${creator.full_name ?? "Personen"} inbjuden`);
+      toast.success(t("invitedName", { name: creator.full_name ?? t("thePerson") }));
     } catch {
-      toast.error("Nätverksfel");
+      toast.error(t("errorNetwork"));
     } finally {
       setInvitingId(null);
     }
@@ -143,15 +154,15 @@ export function CrewManager({
       );
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        toast.error(data.error ?? "Kunde inte uppdatera");
+        toast.error(data.error ?? t("errorUpdate"));
         setCollaborators((prev) =>
           prev.map((c) => (c.user_id === userId ? { ...c, can_scan: !next } : c))
         );
         return;
       }
-      toast.success(next ? "Kan skanna biljetter" : "Skann-rätt borttagen");
+      toast.success(next ? t("scanEnabled") : t("scanRemoved"));
     } catch {
-      toast.error("Nätverksfel");
+      toast.error(t("errorNetwork"));
       setCollaborators((prev) =>
         prev.map((c) => (c.user_id === userId ? { ...c, can_scan: !next } : c))
       );
@@ -166,7 +177,7 @@ export function CrewManager({
       setCopied(key);
       setTimeout(() => setCopied((c) => (c === key ? null : c)), 1500);
     } catch {
-      toast.error("Kunde inte kopiera");
+      toast.error(t("errorCopy"));
     }
   }
 
@@ -174,7 +185,7 @@ export function CrewManager({
     e.preventDefault();
     const value = contact.trim();
     if (!value) {
-      toast.error("Ange e-post eller telefonnummer");
+      toast.error(t("errorContactRequired"));
       return;
     }
     const isEmail = value.includes("@");
@@ -191,7 +202,7 @@ export function CrewManager({
       });
       const data = await res.json();
       if (!res.ok) {
-        toast.error(data.error ?? "Kunde inte skapa inbjudan");
+        toast.error(data.error ?? t("errorCreateInvite"));
         return;
       }
       setPending((prev) => [
@@ -206,10 +217,10 @@ export function CrewManager({
         ...prev,
       ]);
       setContact("");
-      toast.success("Inbjudan skapad");
+      toast.success(t("inviteCreated"));
       copy(data.invite_url, data.id);
     } catch {
-      toast.error("Nätverksfel");
+      toast.error(t("errorNetwork"));
     } finally {
       setSubmitting(false);
     }
@@ -224,13 +235,13 @@ export function CrewManager({
       );
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        toast.error(data.error ?? "Kunde inte ta bort");
+        toast.error(data.error ?? t("errorRemove"));
         return;
       }
       setCollaborators((prev) => prev.filter((c) => c.user_id !== userId));
-      toast.success("Borttagen från crew");
+      toast.success(t("removedFromCrew"));
     } catch {
-      toast.error("Nätverksfel");
+      toast.error(t("errorNetwork"));
     } finally {
       setRemoving(null);
     }
@@ -244,7 +255,7 @@ export function CrewManager({
       <section className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5">
         <div className="mb-4 flex items-center gap-2">
           <UserPlus size={18} className="text-[var(--usha-gold)]" />
-          <h2 className="text-base font-semibold">Bjud in</h2>
+          <h2 className="text-base font-semibold">{t("inviteHeading")}</h2>
         </div>
         <form onSubmit={handleInvite} className="space-y-3">
           <div className="flex flex-wrap gap-2">
@@ -259,7 +270,7 @@ export function CrewManager({
                     : "border border-[var(--usha-border)] text-[var(--usha-white)] hover:text-[var(--usha-white)]"
                 }`}
               >
-                {collabRoleLabel(r)}
+                {roleLabel(r)}
               </button>
             ))}
           </div>
@@ -267,14 +278,13 @@ export function CrewManager({
             type="text"
             value={contact}
             onChange={(e) => setContact(e.target.value)}
-            placeholder="E-post eller telefonnummer"
+            placeholder={t("contactPlaceholder")}
             className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-black)] px-4 py-3 text-sm text-[var(--usha-white)] placeholder:text-[var(--usha-muted)] focus:border-[var(--usha-gold)] focus:outline-none"
           />
           {gated && (
             <p className="flex items-start gap-1.5 text-[11px] text-amber-300/90">
               <ShieldCheck size={13} className="mt-0.5 shrink-0" />
-              {collabRoleLabel(role)} kräver att personen är BankID-verifierad innan
-              hen kan tacka ja.
+              {t("bankidGatedNotice", { role: roleLabel(role) })}
             </p>
           )}
           <button
@@ -283,14 +293,14 @@ export function CrewManager({
             className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-5 py-2.5 text-sm font-bold text-black transition hover:opacity-90 disabled:opacity-60"
           >
             {submitting ? <Loader2 size={16} className="animate-spin" /> : null}
-            Skapa inbjudningslänk
+            {t("createInviteLink")}
           </button>
         </form>
 
         {/* Or: invite an existing Usha Platform creator directly by profile */}
         <div className="my-4 flex items-center gap-3 text-[11px] uppercase tracking-wide text-[var(--usha-muted)]">
           <span className="h-px flex-1 bg-[var(--usha-border)]" />
-          eller sök på Usha Platform
+          {t("orSearchDivider")}
           <span className="h-px flex-1 bg-[var(--usha-border)]" />
         </div>
         <div className="relative">
@@ -302,7 +312,7 @@ export function CrewManager({
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Sök kreatör efter namn"
+            placeholder={t("searchPlaceholder")}
             className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-black)] py-3 pl-10 pr-4 text-sm text-[var(--usha-white)] placeholder:text-[var(--usha-muted)] focus:border-[var(--usha-gold)] focus:outline-none"
           />
           {searching && (
@@ -316,7 +326,7 @@ export function CrewManager({
           <div className="mt-2 space-y-1.5">
             {!searching && results.length === 0 && (
               <p className="px-1 py-2 text-xs text-[var(--usha-muted)]">
-                Inga kreatörer hittades. De måste ha en publik profil för att synas här.
+                {t("noCreatorsFound")}
               </p>
             )}
             {results.map((cr) => {
@@ -336,7 +346,7 @@ export function CrewManager({
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="line-clamp-1 text-sm font-medium text-[var(--usha-white)]">
-                      {cr.full_name ?? "Kreatör"}
+                      {cr.full_name ?? t("creatorFallback")}
                     </p>
                     {(cr.category || cr.location) && (
                       <p className="line-clamp-1 text-[11px] text-[var(--usha-muted)]">
@@ -357,7 +367,9 @@ export function CrewManager({
                     ) : (
                       <UserPlus size={13} />
                     )}
-                    {invited ? "Inbjuden" : `Bjud in som ${collabRoleLabel(role).toLowerCase()}`}
+                    {invited
+                      ? t("invitedBadge")
+                      : t("inviteAsRole", { role: roleLabel(role).toLowerCase() })}
                   </button>
                 </div>
               );
@@ -369,10 +381,10 @@ export function CrewManager({
       {/* Accepted crew */}
       <section>
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--usha-muted)]">
-          Crew ({collaborators.length})
+          {t("crewHeading", { count: collaborators.length })}
         </h2>
         {collaborators.length === 0 ? (
-          <p className="text-sm text-[var(--usha-muted)]">Ingen har tackat ja än.</p>
+          <p className="text-sm text-[var(--usha-muted)]">{t("crewEmpty")}</p>
         ) : (
           <div className="space-y-2">
             {collaborators.map((c) => (
@@ -391,10 +403,10 @@ export function CrewManager({
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="line-clamp-1 text-sm font-medium text-[var(--usha-white)]">
-                    {c.full_name ?? "Medverkande"}
+                    {c.full_name ?? t("memberFallback")}
                   </p>
                   <p className="text-[11px] text-[var(--usha-muted)]">
-                    {collabRoleLabel(c.role)}
+                    {roleLabel(c.role)}
                   </p>
                 </div>
                 {canDelegateScan && c.scan_eligible && (
@@ -402,7 +414,7 @@ export function CrewManager({
                     onClick={() => handleToggleScan(c.user_id, !c.can_scan)}
                     disabled={scanToggling === c.user_id}
                     aria-pressed={c.can_scan}
-                    title="Låt den här personen skanna biljetter för eventet"
+                    title={t("scanToggleTitle")}
                     className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-medium transition disabled:opacity-50 ${
                       c.can_scan
                         ? "bg-[var(--usha-gold)] text-black"
@@ -414,14 +426,14 @@ export function CrewManager({
                     ) : (
                       <ScanLine size={13} />
                     )}
-                    {c.can_scan ? "Kan skanna" : "Skanna"}
+                    {c.can_scan ? t("scanOn") : t("scanOff")}
                   </button>
                 )}
                 <button
                   onClick={() => handleRemove(c.user_id)}
                   disabled={removing === c.user_id}
                   className="rounded-lg p-2 text-[var(--usha-muted)] transition hover:bg-red-500/10 hover:text-red-400 disabled:opacity-50"
-                  aria-label="Ta bort"
+                  aria-label={t("removeAria")}
                 >
                   {removing === c.user_id ? (
                     <Loader2 size={16} className="animate-spin" />
@@ -447,7 +459,7 @@ export function CrewManager({
       {pending.length > 0 && (
         <section>
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--usha-muted)]">
-            Väntar på svar ({pending.length})
+            {t("pendingHeading", { count: pending.length })}
           </h2>
           <div className="space-y-2">
             {pending.map((inv) => {
@@ -459,11 +471,11 @@ export function CrewManager({
                 >
                   <div className="min-w-0 flex-1">
                     <p className="line-clamp-1 text-sm text-[var(--usha-white)]">
-                      {inv.invited_name ?? inv.invited_email ?? inv.invited_phone ?? "Inbjudan"}
+                      {inv.invited_name ?? inv.invited_email ?? inv.invited_phone ?? t("inviteFallback")}
                     </p>
                     <p className="text-[11px] text-[var(--usha-muted)]">
-                      {collabRoleLabel(inv.role)}
-                      {expired ? " · utgången" : ""}
+                      {roleLabel(inv.role)}
+                      {expired ? t("expiredSuffix") : ""}
                     </p>
                   </div>
                   <button
@@ -471,7 +483,7 @@ export function CrewManager({
                     className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--usha-border)] px-3 py-1.5 text-xs text-[var(--usha-white)] transition hover:text-[var(--usha-white)]"
                   >
                     {copied === inv.id ? <Check size={13} /> : <Copy size={13} />}
-                    {copied === inv.id ? "Kopierad" : "Kopiera länk"}
+                    {copied === inv.id ? t("copied") : t("copyLink")}
                   </button>
                 </div>
               );

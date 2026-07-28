@@ -6,9 +6,8 @@ import { useTranslations } from "next-intl";
 import {
   Home,
   User,
-  MessageCircle,
-  ScanLine,
-  CalendarDays,
+  Ticket,
+  Building2,
   LayoutGrid,
 } from "lucide-react";
 import { useRole } from "./role-context";
@@ -24,15 +23,15 @@ export function BottomNav() {
     role === "customer"
       ? [
           { href: "/app", label: t("home"), icon: Home },
-          { href: "/app/calendar", label: t("calendar"), icon: CalendarDays },
-          { href: "/app/messages", label: t("messages"), icon: MessageCircle },
+          { href: "/app/tickets", label: t("tickets"), icon: Ticket },
+          { href: "/marketplace", label: t("events"), icon: Building2 },
           { href: "/app/tools", label: t("more"), icon: LayoutGrid },
           { href: "/app/profile", label: t("profile"), icon: User },
         ]
       : [
           { href: "/app", label: t("home"), icon: Home },
-          { href: "/app/scan", label: t("scan"), icon: ScanLine },
-          { href: "/app/messages", label: t("messages"), icon: MessageCircle },
+          { href: "/app/tickets", label: t("tickets"), icon: Ticket },
+          { href: "/app/events", label: t("events"), icon: Building2 },
           { href: "/app/tools", label: t("more"), icon: LayoutGrid },
           { href: "/app/profile", label: t("profile"), icon: User },
         ];

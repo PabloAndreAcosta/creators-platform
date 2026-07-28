@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Loader2, ShoppingBag, Ticket, Calendar, Mail, X } from "lucide-react";
 
 interface QuickBuyButtonProps {
@@ -22,6 +23,7 @@ export function QuickBuyButton({
   hasTicketTypes = false,
   eventSlug,
 }: QuickBuyButtonProps) {
+  const t = useTranslations("quickBuy");
   const [loading, setLoading] = useState(false);
   const [showEmailInput, setShowEmailInput] = useState(false);
   const [email, setEmail] = useState("");
@@ -32,10 +34,10 @@ export function QuickBuyButton({
   const canGuestCheckout = listingType === "event" || !listingType;
 
   function getLabel() {
-    if (price === null || price === 0) return "Gratis";
-    if (listingType === "event") return "Köp biljett";
-    if (listingType === "digital_product") return "Köp";
-    return "Boka";
+    if (price === null || price === 0) return t("free");
+    if (listingType === "event") return t("buyTicket");
+    if (listingType === "digital_product") return t("buy");
+    return t("book");
   }
 
   function getIcon() {
@@ -133,7 +135,7 @@ export function QuickBuyButton({
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="din@email.se"
+            placeholder={t("emailPlaceholder")}
             required
             className="w-36 rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] py-1.5 pl-7 pr-2 text-[11px] outline-none focus:border-[var(--usha-gold)]/50 md:w-44"
           />
@@ -144,7 +146,7 @@ export function QuickBuyButton({
           className="flex items-center gap-1 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-2.5 py-1.5 text-[11px] font-bold text-black transition hover:opacity-90 disabled:opacity-60"
         >
           {loading ? <Loader2 size={12} className="animate-spin" /> : getIcon()}
-          {loading ? "..." : "Köp"}
+          {loading ? t("loadingShort") : t("buy")}
         </button>
         <button
           type="button"
@@ -168,7 +170,7 @@ export function QuickBuyButton({
       ) : (
         getIcon()
       )}
-      {loading ? "Vänta..." : getLabel()}
+      {loading ? t("wait") : getLabel()}
     </button>
   );
 }

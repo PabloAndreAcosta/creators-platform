@@ -1,10 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { Calendar, MapPin, Briefcase } from "lucide-react";
 import { ApplyToGigButton } from "./apply-button";
 
 export default async function GigsFeedPage() {
+  const t = await getTranslations("gigsPage");
   const supabase = await createClient();
   const {
     data: { user },
@@ -59,22 +61,22 @@ export default async function GigsFeedPage() {
       <div className="mb-6">
         <h1 className="flex items-center gap-2 text-2xl font-bold">
           <Briefcase size={22} className="text-[var(--usha-gold)]" />
-          Gigs
+          {t("title")}
         </h1>
         <p className="mt-1 text-sm text-[var(--usha-muted)]">
-          Eventförfrågningar från arrangörer som söker taxidansare. Ansök med ett kort meddelande.
+          {t("subtitle")}
         </p>
       </div>
 
       {!canApply && (
         <div className="mb-6 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 text-sm text-[var(--usha-muted)]">
-          Endast taxidansare kan ansöka till gigs. <Link href="/taxidansare" className="text-[var(--usha-gold)] hover:underline">Läs mer</Link>.
+          {t("onlyTaxiDancers")} <Link href="/taxidansare" className="text-[var(--usha-gold)] hover:underline">{t("readMore")}</Link>.
         </div>
       )}
 
       {!gigs || gigs.length === 0 ? (
         <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-12 text-center text-sm text-[var(--usha-muted)]">
-          Inga öppna gigs just nu. Kolla tillbaka snart.
+          {t("emptyState")}
         </div>
       ) : (
         <div className="space-y-3">
@@ -86,7 +88,7 @@ export default async function GigsFeedPage() {
                   <div className="min-w-0 flex-1">
                     <h2 className="text-lg font-semibold">{g.title}</h2>
                     <p className="mt-0.5 text-xs text-[var(--usha-muted)]">
-                      {arrangerMap[g.arranger_id] || "Arrangör"}
+                      {arrangerMap[g.arranger_id] || t("arranger")}
                     </p>
                     <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-[var(--usha-muted)]">
                       <span className="flex items-center gap-1">
@@ -100,20 +102,20 @@ export default async function GigsFeedPage() {
                           {g.venue}
                         </span>
                       )}
-                      <span className="font-semibold text-[var(--usha-gold)]">{g.proposed_price} SEK</span>
+                      <span className="font-semibold text-[var(--usha-gold)]">{t("price", { price: g.proposed_price })}</span>
                     </div>
                     {g.description && (
                       <p className="mt-3 text-sm text-[var(--usha-muted)] whitespace-pre-line">{g.description}</p>
                     )}
                     {g.perks && (
-                      <p className="mt-2 text-xs text-[var(--usha-accent)]">Förmåner: {g.perks}</p>
+                      <p className="mt-2 text-xs text-[var(--usha-accent)]">{t("perks", { perks: g.perks })}</p>
                     )}
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
                     {canApply && !alreadyApplied && <ApplyToGigButton gigId={g.id} />}
                     {canApply && alreadyApplied && (
                       <span className="rounded-lg bg-[var(--usha-gold)]/10 px-3 py-1.5 text-xs font-medium text-[var(--usha-gold)]">
-                        Ansökt
+                        {t("applied")}
                       </span>
                     )}
                   </div>

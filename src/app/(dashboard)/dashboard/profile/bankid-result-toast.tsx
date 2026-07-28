@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useToast } from "@/components/ui/toaster";
 
 /**
@@ -13,6 +14,7 @@ import { useToast } from "@/components/ui/toaster";
  */
 export function BankIdResultToast() {
   const { toast } = useToast();
+  const t = useTranslations("bankidToast");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -25,33 +27,30 @@ export function BankIdResultToast() {
 
     switch (status) {
       case "success":
-        toast.success("BankID verifierat", "Din identitet är bekräftad.");
+        toast.success(t("successTitle"), t("successMessage"));
         break;
       case "duplicate":
-        toast.error(
-          "Personnumret är redan registrerat",
-          "Det här personnumret är kopplat till ett annat konto. Ett personnummer kan bara verifiera ett konto."
-        );
+        toast.error(t("duplicateTitle"), t("duplicateMessage"));
         break;
       case "aborted":
-        toast.info("BankID avbröts", "Verifieringen avbröts. Försök igen när du vill.");
+        toast.info(t("abortedTitle"), t("abortedMessage"));
         break;
       case "age_restricted":
-        toast.error("Åldersgräns", "Du måste vara minst 18 år för den här rollen.");
+        toast.error(t("ageRestrictedTitle"), t("ageRestrictedMessage"));
         break;
       case "unauthenticated":
-        toast.error("Inte inloggad", "Logga in och försök igen.");
+        toast.error(t("unauthenticatedTitle"), t("unauthenticatedMessage"));
         break;
       case "failed":
       case "error":
       default:
-        toast.error("BankID misslyckades", "Något gick fel. Försök igen.");
+        toast.error(t("failedTitle"), t("failedMessage"));
         break;
     }
 
     // Strip the param so a refresh doesn't re-fire the toast.
     router.replace(pathname, { scroll: false });
-  }, [searchParams, toast, router, pathname]);
+  }, [searchParams, toast, router, pathname, t]);
 
   return null;
 }

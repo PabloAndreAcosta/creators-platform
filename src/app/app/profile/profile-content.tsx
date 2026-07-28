@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { ReferralCard } from "@/components/referral-card";
+import { InstallAppRow } from "@/components/install-app-row";
 
 interface Profile {
   id: string;
@@ -228,6 +229,7 @@ export function ProfileContent({
         <SettingsRow icon={Bell} label={t("notifications")} href="/app/settings/notifications" />
         <SettingsRow icon={Shield} label={t("privacySettings")} href="/app/settings/privacy" />
         <SettingsRow icon={HelpCircle} label={t("helpSupport")} href="/app/settings/help" />
+        <InstallAppRow />
         <form action="/api/auth/signout" method="POST">
           <button
             type="submit"

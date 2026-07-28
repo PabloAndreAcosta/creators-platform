@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import { notifyQueuePromoted } from '@/lib/notifications/create';
+import { stockholmLocalToUtcISO } from '@/lib/time';
 
 /**
  * Checks whether a listing has reached its booking capacity.
@@ -130,9 +131,10 @@ export async function autoPromoteFromQueue(listingId: string): Promise<void> {
   // Use the listing's event date/time, falling back to current time
   let scheduledAt: string;
   if (listing.event_date) {
-    scheduledAt = listing.event_time
-      ? new Date(`${listing.event_date}T${listing.event_time}`).toISOString()
-      : new Date(`${listing.event_date}T00:00:00`).toISOString();
+    // event_date/event_time are Stockholm wall-clock; convert to UTC (DST-aware).
+    scheduledAt =
+      stockholmLocalToUtcISO(`${listing.event_date}T${listing.event_time || "00:00"}`) ??
+      new Date().toISOString();
   } else {
     scheduledAt = new Date().toISOString();
   }

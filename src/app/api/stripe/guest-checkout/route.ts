@@ -6,6 +6,7 @@ import { computeServiceFeeOre, serviceFeeMode } from "@/lib/tickets/service-fee"
 import { clampQuantity, createTicketAttendees, attendeeNamesToMeta } from "@/lib/tickets/attendees";
 import { createClient } from "@/lib/supabase/server";
 import { getSaleState } from "@/lib/listings/sale-state";
+import { stockholmLocalToUtcISO } from "@/lib/time";
 import { getTranslations } from "next-intl/server";
 import {
   getCreatorCommissionRate,
@@ -63,7 +64,8 @@ export async function POST(req: NextRequest) {
       }
       ticketType = tt as { id: string; name: string; price: number; capacity: number | null; tickets_sold: number };
       if (ticketType!.capacity != null && ticketType!.tickets_sold >= ticketType!.capacity) {
-        return NextResponse.json({ error: "Slutsålt." }, { status: 403 });
+        const te = await getTranslations("eventErrors");
+        return NextResponse.json({ error: te("soldOut") }, { status: 403 });
       }
     }
 
@@ -88,9 +90,10 @@ export async function POST(req: NextRequest) {
 
       let scheduledAt: string;
       if (listing.event_date) {
-        scheduledAt = listing.event_time
-          ? new Date(`${listing.event_date}T${listing.event_time}`).toISOString()
-          : new Date(`${listing.event_date}T00:00:00`).toISOString();
+        // event_date/event_time are Stockholm wall-clock; convert to UTC (DST-aware).
+        scheduledAt =
+          stockholmLocalToUtcISO(`${listing.event_date}T${listing.event_time || "00:00"}`) ??
+          new Date().toISOString();
       } else {
         scheduledAt = new Date().toISOString();
       }
@@ -115,7 +118,7 @@ export async function POST(req: NextRequest) {
       // the booking, so concurrent guests can't oversell.
       const { data: reserved } = await admin.rpc("reserve_ticket", { p_listing: listing.id, p_ticket_type: ticketType?.id ?? undefined, p_n: qty });
       if (!reserved) {
-        return NextResponse.json({ error: "Slutsålt." }, { status: 403 });
+        return NextResponse.json({ error: (await getTranslations("eventErrors"))("soldOut") }, { status: 403 });
       }
 
       const { data: booking, error: bookingError } = await admin
@@ -220,38 +223,66 @@ export async function POST(req: NextRequest) {
 
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";
 
-    const stripeLocale = await getStripeLocale();
-    const session = await stripe.checkout.sessions.create({
-      locale: stripeLocale,
-      customer_email: email,
-      line_items: lineItems,
-      mode: "payment",
-      payment_intent_data: {
-        application_fee_amount: applicationFee * qty + serviceFee,
-        transfer_data: {
-          destination: creator.stripe_account_id,
-        },
-      },
-      automatic_tax: { enabled: true },
-      success_url: `${baseUrl}/flode?ticket=success`,
-      cancel_url: `${baseUrl}/flode`,
-      metadata: {
-        type: "guest_ticket",
-        listingId: listing.id,
-        creatorId: listing.user_id,
-        guestEmail: email,
-        guestName: name || "",
-        serviceFeeOre: String(serviceFee),
-        serviceFeeMode: feeMode,
-        platformFeeOre: String(applicationFee * qty + serviceFee),
-        ticketTypeId: ticketType?.id ?? "",
-        ticketTypeName: ticketType?.name ?? "",
-        quantity: String(qty),
-        attendeeNames: attendeeNamesToMeta(attendeeNames, qty),
-        eventDate: listing.event_date || "",
-        eventTime: listing.event_time || "",
-      },
+    // Service-role client for the atomic capacity RPCs (the free block's `admin`
+    // is block-scoped to that branch).
+    const { createClient: createAdminPaid } = await import("@supabase/supabase-js");
+    const admin = createAdminPaid(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+
+    // Reserve the seat(s) NOW, before payment, so concurrent guests can't
+    // oversell (the free path already does). The webhook skips its increment
+    // when metadata.reserved==='true'; an abandoned checkout is released by the
+    // checkout.session.expired handler (sessions expire after 30 min).
+    const { data: paidReserved } = await admin.rpc("reserve_ticket", {
+      p_listing: listing.id, p_ticket_type: ticketType?.id ?? undefined, p_n: qty,
     });
+    if (!paidReserved) {
+      const te = await getTranslations("eventErrors");
+      return NextResponse.json({ error: te("soldOut") }, { status: 403 });
+    }
+
+    const stripeLocale = await getStripeLocale();
+    let session: Stripe.Checkout.Session;
+    try {
+      session = await stripe.checkout.sessions.create({
+        locale: stripeLocale,
+        customer_email: email,
+        line_items: lineItems,
+        mode: "payment",
+        expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
+        payment_intent_data: {
+          application_fee_amount: applicationFee * qty + serviceFee,
+          transfer_data: {
+            destination: creator.stripe_account_id,
+          },
+        },
+        automatic_tax: { enabled: true },
+        success_url: `${baseUrl}/flode?ticket=success`,
+        cancel_url: `${baseUrl}/flode`,
+        metadata: {
+          type: "guest_ticket",
+          listingId: listing.id,
+          creatorId: listing.user_id,
+          guestEmail: email,
+          guestName: name || "",
+          serviceFeeOre: String(serviceFee),
+          serviceFeeMode: feeMode,
+          platformFeeOre: String(applicationFee * qty + serviceFee),
+          ticketTypeId: ticketType?.id ?? "",
+          ticketTypeName: ticketType?.name ?? "",
+          quantity: String(qty),
+          attendeeNames: attendeeNamesToMeta(attendeeNames, qty),
+          reserved: "true",
+          eventDate: listing.event_date || "",
+          eventTime: listing.event_time || "",
+        },
+      });
+    } catch (e) {
+      await admin.rpc("increment_tickets_sold", { p_listing: listing.id, p_n: -qty, p_ticket_type: ticketType?.id ?? undefined });
+      throw e;
+    }
 
     return NextResponse.json({ url: session.url });
   } catch (error: any) {

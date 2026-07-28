@@ -1,12 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { appleWalletConfigured, googleWalletConfigured } from "@/lib/tickets/wallet";
 import { TicketsContent } from "./tickets-content";
 
 const BOOKING_SELECT =
-  "id, listing_id, scheduled_at, status, notes, amount_paid, stripe_payment_id, is_free, booking_type, creator_id, ticket_type_name, listings(title, category, price, listing_type, image_url, event_date, event_time, event_location)";
+  "id, listing_id, scheduled_at, status, notes, amount_paid, stripe_payment_id, is_free, booking_type, creator_id, ticket_type_name, checked_in_at, guest_count, listings(title, category, price, listing_type, image_url, event_date, event_time, event_location)";
 
 export default async function TicketsPage() {
   let bookings: any[] = [];
+  let canScan = false;
 
   try {
     const supabase = await createClient();
@@ -15,6 +17,43 @@ export default async function TicketsPage() {
     } = await supabase.auth.getUser();
 
     if (user) {
+      // Scanning is a paid feature (Gold/Premium) for EVERYONE — creators,
+      // venues AND delegated crew (volunteers/team). Free accounts don't get
+      // the option. (Scanning moved off the bottom nav into the Tickets page.)
+      const { data: prof } = await supabase.from("profiles").select("role, tier").eq("id", user.id).maybeSingle();
+      // "Paid" = Gold/Premium tier, an active/trialing subscription, or — during
+      // the free beta — everyone (mirrors hasActiveSubscription on the scan page).
+      let paid = prof?.tier === "guld" || prof?.tier === "premium";
+      if (!paid) {
+        const { BETA_MODE } = await import("@/lib/beta");
+        if (BETA_MODE) {
+          paid = true;
+        } else {
+          const { data: sub } = await supabase
+            .from("subscriptions")
+            .select("status")
+            .eq("user_id", user.id)
+            .in("status", ["active", "trialing"])
+            .maybeSingle();
+          paid = !!sub;
+        }
+      }
+      if (paid) {
+        const isHost = prof?.role === "creator" || prof?.role === "venue";
+        canScan = isHost;
+        if (!canScan) {
+          const { data: deleg } = await supabase
+            .from("listing_collaborators")
+            .select("id")
+            .eq("user_id", user.id)
+            .eq("status", "accepted")
+            .eq("can_scan", true)
+            .limit(1)
+            .maybeSingle();
+          canScan = !!deleg;
+        }
+      }
+
       // Own bookings (RLS-scoped to this user).
       const { data: own } = await supabase
         .from("bookings")
@@ -62,5 +101,12 @@ export default async function TicketsPage() {
     // Continue with empty data
   }
 
-  return <TicketsContent bookings={bookings} />;
+  return (
+    <TicketsContent
+      bookings={bookings}
+      canScan={canScan}
+      appleWallet={appleWalletConfigured()}
+      googleWallet={googleWalletConfigured()}
+    />
+  );
 }

@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     .select("id")
     .eq("user_id", user.id)
     .eq("post_id", postId)
-    .single();
+    .maybeSingle();
 
   if (existing) {
     await supabase.from("post_likes").delete().eq("id", existing.id);
