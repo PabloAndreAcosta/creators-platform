@@ -598,9 +598,10 @@ export async function POST(req: NextRequest) {
             const { error: dpError } = await getSupabaseAdmin()
               .from("digital_purchases")
               .insert({
-                user_id: buyerId,
+                buyer_id: buyerId,
                 product_id: productId,
                 stripe_payment_id: paymentIntentId,
+                amount_paid: session.amount_total ?? 0,
               });
             if (dpError && dpError.code !== "23505") {
               console.error("digital_purchases insert failed", { paymentIntentId, productId, buyerId, dpError });
