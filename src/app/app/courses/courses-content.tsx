@@ -20,7 +20,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { uploadViaSignedUrl } from "@/lib/storage/upload-client";
+import { uploadPrivateContent } from "@/lib/storage/upload-client";
 import { createProduct, deleteProduct } from "./actions";
 import { duplicateListing } from "@/app/(dashboard)/dashboard/listings/actions";
 import { SeriesCard } from "@/components/listings/series-card";
@@ -279,7 +279,7 @@ function CreateProductForm({ onClose }: { onClose: () => void }) {
 
     setUploading(true);
     try {
-      const url = await uploadViaSignedUrl(file, "creator-media");
+      const url = await uploadPrivateContent(file);
       setFileUrl(url);
     } catch {
       setError(t("fileUploadFailed"));
