@@ -192,7 +192,9 @@ export async function POST(req: NextRequest) {
           // reserved them up front (reserved='true'), in which case the seats
           // are already counted and re-incrementing would over-count.
           if (session.metadata?.reserved !== "true") {
-            await getSupabaseAdmin().rpc("increment_tickets_sold", { p_listing: listingId, p_n: guestQty, p_ticket_type: session.metadata?.ticketTypeId || undefined });
+            await getSupabaseAdmin()
+              .rpc("increment_tickets_sold", { p_listing: listingId, p_n: guestQty, p_ticket_type: session.metadata?.ticketTypeId || undefined })
+              .then(({ error }) => error && console.error("increment_tickets_sold failed (guest_ticket):", { listingId, error }));
           }
 
           // Discount access code: consume one use now that payment succeeded.
@@ -390,7 +392,9 @@ export async function POST(req: NextRequest) {
           // Count the sold tickets for capacity — UNLESS reserved up front at
           // checkout (reserved='true'), which already counted them.
           if (session.metadata?.reserved !== "true") {
-            await getSupabaseAdmin().rpc("increment_tickets_sold", { p_listing: listingId, p_n: ticketQty, p_ticket_type: session.metadata?.ticketTypeId || undefined });
+            await getSupabaseAdmin()
+              .rpc("increment_tickets_sold", { p_listing: listingId, p_n: ticketQty, p_ticket_type: session.metadata?.ticketTypeId || undefined })
+              .then(({ error }) => error && console.error("increment_tickets_sold failed (ticket):", { listingId, error }));
           }
 
           // Discount access code: consume one use now that payment succeeded.
