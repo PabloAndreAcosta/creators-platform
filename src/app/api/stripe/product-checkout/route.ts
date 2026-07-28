@@ -83,13 +83,19 @@ export async function POST(req: NextRequest) {
 
     // If free after discount, record purchase directly
     if (finalPrice === 0) {
-      await supabase.from("digital_purchases").insert({
+      const { error: freeErr } = await supabase.from("digital_purchases").insert({
         product_id: productId,
         buyer_id: user.id,
         amount_paid: 0,
         promo_code: promoCode || null,
         creator_promo_id: creatorPromoId,
       });
+      // Don't send the buyer to their library claiming success if the row didn't
+      // land (a duplicate/23505 means they already own it — that's fine).
+      if (freeErr && freeErr.code !== "23505") {
+        console.error("free digital purchase insert failed:", freeErr);
+        return NextResponse.json({ error: "Kunde inte slutföra köpet. Försök igen." }, { status: 500 });
+      }
 
       // Increment promo usage atomically (single guarded UPDATE via SECURITY
       // DEFINER RPC) to avoid the read-modify-write race that could undercount
