@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { isRateLimitError } from "@/lib/auth/rate-limit-error";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
@@ -24,7 +25,7 @@ export default function ForgotPasswordPage() {
     });
 
     if (error) {
-      setError(error.message);
+      setError(isRateLimitError(error) ? t("tooManyAttempts") : error.message);
     } else {
       setSent(true);
     }

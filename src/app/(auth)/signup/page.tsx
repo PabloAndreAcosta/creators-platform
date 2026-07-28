@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { isPasswordPwned } from "@/lib/auth/password-strength";
+import { isRateLimitError } from "@/lib/auth/rate-limit-error";
 import { trackEvent } from "@/lib/analytics";
 import { Palette, Store, Search, ShieldCheck, Loader2, Music } from "lucide-react";
 
@@ -216,8 +217,9 @@ export default function SignupPage() {
         setLoading(false);
         return;
       }
-      const msg =
-        error.message === "User already registered"
+      const msg = isRateLimitError(error)
+        ? t("tooManyAttempts")
+        : error.message === "User already registered"
           ? t("accountExists")
           : error.message;
       setError(msg);

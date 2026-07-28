@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
+import { isRateLimitError } from "@/lib/auth/rate-limit-error";
 import { ShieldCheck, Eye, EyeOff } from "lucide-react";
 import UschjaLogo from "@/components/UschjaLogo";
 
@@ -24,10 +25,19 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [status, setStatus] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
 
   useEffect(() => {
     if (prefilledEmail) setEmail(prefilledEmail);
   }, [prefilledEmail]);
+
+  // After a rate-limit (429) we lock the submit button and count down, so a
+  // reflexive retry can't immediately hit the per-IP limit again and extend it.
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const id = setTimeout(() => setCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(id);
+  }, [cooldown]);
 
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
@@ -101,11 +111,18 @@ export default function LoginPage() {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
       if (error) {
-        const msg =
-          error.message === "Invalid login credentials"
-            ? t("wrongCredentials")
-            : error.message;
-        setError(msg);
+        if (isRateLimitError(error)) {
+          // Clear message + lock retries so the user doesn't keep hammering the
+          // per-IP limit (which is what locked them out in the first place).
+          setError(t("tooManyAttempts"));
+          setCooldown(30);
+        } else {
+          setError(
+            error.message === "Invalid login credentials"
+              ? t("wrongCredentials")
+              : error.message
+          );
+        }
         setStatus("");
         setLoading(false);
         return;
@@ -252,10 +269,14 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || cooldown > 0}
             className="w-full min-h-[44px] rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] py-3 text-sm font-bold text-black transition hover:opacity-90 disabled:opacity-50"
           >
-            {loading ? t("loggingIn") : t("logIn")}
+            {cooldown > 0
+              ? t("waitSeconds", { seconds: cooldown })
+              : loading
+                ? t("loggingIn")
+                : t("logIn")}
           </button>
         </form>
 
