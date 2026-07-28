@@ -36,6 +36,10 @@ export async function POST(req: NextRequest) {
 
     // Authenticate user
     const supabase = await createClient();
+    // Capacity RPCs (reserve_ticket / increment_tickets_sold) run via the
+    // service-role client: EXECUTE on them is revoked from anon/authenticated so
+    // the anon key can't call them directly to force events sold-out.
+    const admin = createAdminClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -146,7 +150,7 @@ export async function POST(req: NextRequest) {
     if (!effectivePrice || effectivePrice <= 0) {
       // Atomically reserve a seat (row-locked capacity check) so concurrent
       // free-ticket requests can't oversell the event (or the ticket type).
-      const { data: reserved } = await supabase.rpc('reserve_ticket', { p_listing: listing.id, p_ticket_type: ticketType?.id ?? undefined, p_n: qty });
+      const { data: reserved } = await admin.rpc('reserve_ticket', { p_listing: listing.id, p_ticket_type: ticketType?.id ?? undefined, p_n: qty });
       if (!reserved) {
         const te = await getTranslations('eventErrors');
         return NextResponse.json({ error: te('soldOut') }, { status: 403 });
@@ -177,7 +181,7 @@ export async function POST(req: NextRequest) {
 
       if (insertError) {
         // Release the seats we reserved, then find out why the insert failed.
-        await supabase.rpc('increment_tickets_sold', { p_listing: listing.id, p_n: -qty, p_ticket_type: ticketType?.id ?? undefined });
+        await admin.rpc('increment_tickets_sold', { p_listing: listing.id, p_n: -qty, p_ticket_type: ticketType?.id ?? undefined });
         const { count } = await supabase
           .from('bookings')
           .select('id', { count: 'exact', head: true })
@@ -259,7 +263,7 @@ export async function POST(req: NextRequest) {
     // and both pay. The webhook SKIPS its increment when metadata.reserved is
     // 'true'; an abandoned checkout is released by the checkout.session.expired
     // handler (sessions expire after 30 min).
-    const { data: paidReserved } = await supabase.rpc('reserve_ticket', {
+    const { data: paidReserved } = await admin.rpc('reserve_ticket', {
       p_listing: listing.id, p_ticket_type: ticketType?.id ?? undefined, p_n: qty,
     });
     if (!paidReserved) {
@@ -307,7 +311,7 @@ export async function POST(req: NextRequest) {
       });
     } catch (e) {
       // Release the seats we reserved if Stripe couldn't create the session.
-      await supabase.rpc('increment_tickets_sold', { p_listing: listing.id, p_n: -qty, p_ticket_type: ticketType?.id ?? undefined });
+      await admin.rpc('increment_tickets_sold', { p_listing: listing.id, p_n: -qty, p_ticket_type: ticketType?.id ?? undefined });
       throw e;
     }
 
