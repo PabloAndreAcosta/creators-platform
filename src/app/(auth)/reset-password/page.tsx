@@ -16,11 +16,28 @@ export default function ResetPasswordPage() {
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setHasSession(!!session);
+    // An expired or already-consumed recovery link (e.g. burned by an email
+    // link-scanner) redirects here with the error in the URL hash/query instead
+    // of a session. Detect that explicitly, and always clear `checking`, so we
+    // show the "request a new link" card instead of a permanent blank page.
+    const hashParams = new URLSearchParams(
+      typeof window !== "undefined" ? window.location.hash.replace(/^#/, "") : ""
+    );
+    const queryParams = new URLSearchParams(
+      typeof window !== "undefined" ? window.location.search : ""
+    );
+    if (hashParams.get("error") || queryParams.get("error")) {
+      setHasSession(false);
       setChecking(false);
-    });
+      return;
+    }
+
+    const supabase = createClient();
+    supabase.auth
+      .getSession()
+      .then(({ data: { session } }) => setHasSession(!!session))
+      .catch(() => setHasSession(false))
+      .finally(() => setChecking(false));
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
