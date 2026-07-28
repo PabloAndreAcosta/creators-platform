@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
   let url = `https://graph.instagram.com/v19.0/me/media?fields=${fields}&limit=25&access_token=${social.instagram_access_token}`;
   if (after) url += `&after=${after}`;
 
-  const res = await fetch(url);
+  const res = await fetch(url, { signal: AbortSignal.timeout(10000) });
   if (!res.ok) {
     const errText = await res.text();
     console.error("Instagram media fetch failed:", errText);
@@ -38,7 +38,8 @@ export async function GET(req: NextRequest) {
       // For carousel albums, fetch children
       if (item.media_type === "CAROUSEL_ALBUM") {
         const childRes = await fetch(
-          `https://graph.instagram.com/v19.0/${item.id}/children?fields=media_type,media_url,thumbnail_url&access_token=${social.instagram_access_token}`
+          `https://graph.instagram.com/v19.0/${item.id}/children?fields=media_type,media_url,thumbnail_url&access_token=${social.instagram_access_token}`,
+          { signal: AbortSignal.timeout(10000) }
         );
         if (childRes.ok) {
           const childData = await childRes.json();

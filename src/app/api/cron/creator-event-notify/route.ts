@@ -40,6 +40,18 @@ export async function GET(req: NextRequest) {
   let notified = 0;
 
   for (const listing of listings) {
+    // Claim the listing up front (mark BEFORE emailing) so a function timeout or
+    // an overlapping cron run can't re-scan it and email the whole follower list
+    // twice. Only the run that flips followers_notified_at from NULL proceeds.
+    const { data: claimed } = await admin
+      .from("listings")
+      .update({ followers_notified_at: new Date().toISOString() })
+      .eq("id", listing.id)
+      .is("followers_notified_at", null)
+      .select("id")
+      .maybeSingle();
+    if (!claimed) continue;
+
     const { data: creator } = await admin
       .from("profiles")
       .select("full_name")
@@ -76,11 +88,7 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // Mark as announced even if there were no followers, so it isn't rescanned.
-    await admin
-      .from("listings")
-      .update({ followers_notified_at: new Date().toISOString() })
-      .eq("id", listing.id);
+    // (Already marked notified up front — the claim above prevents re-scan.)
   }
 
   return NextResponse.json({ listings: listings.length, notified });
