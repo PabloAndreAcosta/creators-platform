@@ -1,7 +1,9 @@
 "use server";
 
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { canManageListing } from "@/lib/listings/manage-access";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { EVENT_CATEGORIES } from "./constants";
@@ -200,7 +202,7 @@ function parseTicketTypes(formData: FormData): ParsedTicketType[] {
  * Every write is scoped to listing_id so a spoofed id can't touch another event.
  */
 async function reconcileTicketTypes(
-  supabase: Awaited<ReturnType<typeof createClient>>,
+  supabase: SupabaseClient,
   listingId: string,
   types: ParsedTicketType[]
 ) {
@@ -452,6 +454,21 @@ export async function updateEvent(id: string, formData: FormData) {
     return { error: BANKID_REQUIRED_MSG };
   }
 
+  // Authorize: the owner OR an accepted co-organizer (can_manage). Co-organizers
+  // administer the event but never own it, so all writes below go through the
+  // service-role client after this check (RLS on listings is owner-only).
+  const admin = createAdminClient();
+  const { data: L } = await admin
+    .from("listings")
+    .select("user_id")
+    .eq("id", id)
+    .maybeSingle();
+  if (!L) return { error: "Evenemanget hittades inte." };
+  const isOwner = L.user_id === user.id;
+  if (!isOwner && !(await canManageListing(admin, user.id, id))) {
+    return { error: "Du har inte behörighet att redigera det här evenemanget." };
+  }
+
   const parsed = parseEventForm(formData);
   if ("error" in parsed) return { error: parsed.error };
 
@@ -464,13 +481,15 @@ export async function updateEvent(id: string, formData: FormData) {
   // that already has bookings — pulling the rug after guests have tickets is the
   // exact rug-pull the design forbids. Buyer checkout is never touched.
   // Count via admin so RLS can't hide a booking and make us wrongly gate it.
-  const { count: bookingCount } = await createAdminClient()
+  const { count: bookingCount } = await admin
     .from("bookings")
     .select("id", { count: "exact", head: true })
     .eq("listing_id", id)
     .in("status", ["confirmed", "completed"]);
 
-  if (!bookingCount) {
+  // The gate reflects the OWNER's event_pack unlock, so only run it for the
+  // owner. A co-organizer edits an event the owner already set up as ticketed.
+  if (isOwner && !bookingCount) {
     const locked = await ticketGateForListing(
       supabase,
       user.id,
@@ -486,11 +505,10 @@ export async function updateEvent(id: string, formData: FormData) {
   // occurrence with no bookings whose date changed: re-slug it so the date in
   // the slug matches (this is the duplicate→set-new-date flow; a copy inherits
   // the source date's slug, and gets corrected here once the real date is set).
-  const { data: current } = await supabase
+  const { data: current } = await admin
     .from("listings")
     .select("slug, event_date, series_id")
     .eq("id", id)
-    .eq("user_id", user.id)
     .single();
 
   const updateData: Record<string, unknown> = { ...parsed.data };
@@ -502,22 +520,21 @@ export async function updateEvent(id: string, formData: FormData) {
   const reslugSeriesOccurrence =
     !!current?.series_id && dateChanged && !bookingCount;
   if (current && (!current.slug || reslugSeriesOccurrence)) {
-    updateData.slug = await generateUniqueListingSlug(supabase, parsed.data.title, {
+    updateData.slug = await generateUniqueListingSlug(admin, parsed.data.title, {
       excludeId: id,
       dateSuffix: parsed.data.event_date ?? undefined,
     });
   }
 
-  const { error } = await supabase
+  const { error } = await admin
     .from("listings")
     .update(updateData)
-    .eq("id", id)
-    .eq("user_id", user.id);
+    .eq("id", id);
 
   if (error) return { error: "Kunde inte uppdatera evenemanget. Försök igen." };
 
   // Sync ticket types, preserving tickets_sold on surviving rows.
-  await reconcileTicketTypes(supabase, id, ticketTypes);
+  await reconcileTicketTypes(admin, id, ticketTypes);
 
   revalidatePath("/app/events");
   redirect("/app/events");

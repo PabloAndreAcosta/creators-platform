@@ -2479,7 +2479,12 @@
     "errorCreateInvite": "No se pudo crear la invitación",
     "inviteCreated": "Invitación creada",
     "errorRemove": "No se pudo quitar",
-    "removedFromCrew": "Eliminado del equipo"
+    "removedFromCrew": "Eliminado del equipo",
+    "manageOn": "Coorganizador",
+    "manageOff": "Hacer coorganizador",
+    "manageToggleTitle": "Permite que esta persona administre el evento (editar + enviar correos) sin poseerlo ni recibir pagos",
+    "manageEnabled": "Ahora es coorganizador",
+    "manageRemoved": "Acceso de coorganizador eliminado"
   },
   "eventInsights": {
     "errorFetch": "No se pudieron cargar las estadísticas",

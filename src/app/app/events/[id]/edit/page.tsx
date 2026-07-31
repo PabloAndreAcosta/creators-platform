@@ -1,4 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { canManageListing } from "@/lib/listings/manage-access";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { Users, Radio, ScanLine, BarChart3, Receipt } from "lucide-react";
@@ -14,14 +16,18 @@ export default async function EditEventPage(props: { params: Promise<{ id: strin
 
   if (!user) redirect("/login");
 
-  const { data: event } = await supabase
+  // Load via service role so a co-organizer (who doesn't own the row) can open
+  // the editor, then authorize as owner OR accepted can_manage collaborator.
+  const admin = createAdminClient();
+  const { data: event } = await admin
     .from("listings")
-    .select("id, title, description, category, price, duration_minutes, event_tier, image_url, event_date, event_time, event_end_time, event_location, event_lat, event_lng, event_place_id, event_city, event_venue, listing_type, open_to_instructors, is_public, content_language, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, min_guests, max_guests, experience_details")
+    .select("id, user_id, title, description, category, price, duration_minutes, event_tier, image_url, event_date, event_time, event_end_time, event_location, event_lat, event_lng, event_place_id, event_city, event_venue, listing_type, open_to_instructors, is_public, content_language, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, min_guests, max_guests, experience_details")
     .eq("id", params.id)
-    .eq("user_id", user.id)
     .single();
 
   if (!event) notFound();
+  const isOwner = event.user_id === user.id;
+  if (!isOwner && !(await canManageListing(admin, user.id, params.id))) notFound();
 
   // Existing ticket types (price tiers) so the editor can pre-fill them.
   const { data: ticketTypes } = await supabase

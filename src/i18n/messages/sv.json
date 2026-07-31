@@ -2479,7 +2479,12 @@
     "errorCreateInvite": "Kunde inte skapa inbjudan",
     "inviteCreated": "Inbjudan skapad",
     "errorRemove": "Kunde inte ta bort",
-    "removedFromCrew": "Borttagen från crew"
+    "removedFromCrew": "Borttagen från crew",
+    "manageOn": "Medarrangör",
+    "manageOff": "Gör till medarrangör",
+    "manageToggleTitle": "Låt den här personen administrera eventet (redigera + skicka mejl), utan att äga det eller få betalningar",
+    "manageEnabled": "Är nu medarrangör",
+    "manageRemoved": "Medarrangör-rätt borttagen"
   },
   "eventInsights": {
     "errorFetch": "Kunde inte hämta statistik",

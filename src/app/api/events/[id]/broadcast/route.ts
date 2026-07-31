@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendBroadcast, isValidCtaUrl, type BroadcastRecipient } from "@/lib/email/broadcast";
+import { canManageListing } from "@/lib/listings/manage-access";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";
 
@@ -53,7 +54,8 @@ export async function POST(
     .select("id, user_id")
     .eq("id", listingId)
     .maybeSingle();
-  if (!listing || listing.user_id !== user.id) {
+  // Owner or accepted co-organizer (can_manage) may broadcast.
+  if (!listing || (listing.user_id !== user.id && !(await canManageListing(admin, user.id, listingId)))) {
     return NextResponse.json({ error: te("eventNotFound") }, { status: 404 });
   }
 
