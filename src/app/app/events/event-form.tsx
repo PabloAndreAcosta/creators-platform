@@ -86,6 +86,7 @@ export default function EventForm({
   ];
 
   const [isPending, startTransition] = useTransition();
+  const [submitError, setSubmitError] = useState("");
   const [imageUrl, setImageUrl] = useState<string>(event?.image_url ?? "");
   const [uploading, setUploading] = useState(false);
   // Free-ticket option: an existing event with no/zero price is treated as free.
@@ -163,9 +164,14 @@ export default function EventForm({
   }
 
   function handleSubmit(formData: FormData) {
+    setSubmitError("");
     startTransition(async () => {
       const result = await action(formData);
       if (result && "error" in result && result.error) {
+        // Persistent inline error (in addition to the toast): a toast is easy to
+        // miss, and the page can scroll on submit, so a failed save otherwise
+        // looks like nothing happened. Keep it visible next to the button.
+        setSubmitError(result.error);
         toast.error(t("toastSaveFailedTitle"), result.error);
         return;
       }
@@ -792,6 +798,15 @@ export default function EventForm({
             className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
           />
         </div>
+
+        {submitError && (
+          <p
+            role="alert"
+            className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400"
+          >
+            {submitError}
+          </p>
+        )}
 
         {/* Actions */}
         <div className="flex gap-3 pt-2">

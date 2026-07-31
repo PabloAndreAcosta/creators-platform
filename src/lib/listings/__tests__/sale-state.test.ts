@@ -47,16 +47,16 @@ describe("getSaleState — Annas funnel", () => {
     expect(r).toMatchObject({ state: "early_bird", buyable: true });
   });
 
-  it("FAS 3 (exakt vid slut): slutsålt, ej köpbart, släpps-datum satt", () => {
+  it("FAS 3 (exakt vid slut): ej köpbart, släpps senare (before), släpps-datum satt", () => {
     const r = getSaleState(base, at(EB_END));
-    expect(r.state).toBe("sold_out");
+    expect(r.state).toBe("before");
     expect(r.buyable).toBe(false);
     expect(r.until?.toISOString()).toBe(PUB);
   });
 
-  it("FAS 3 (i gapet): slutsålt", () => {
+  it("FAS 3 (i gapet): inte slutsålt, utan 'släpps senare' (before)", () => {
     const r = getSaleState(base, at("2026-07-20T00:00:00Z"));
-    expect(r).toMatchObject({ state: "sold_out", buyable: false });
+    expect(r).toMatchObject({ state: "before", buyable: false });
   });
 
   it("FAS 4 (vid publikt släpp): köpbart ord. pris", () => {
