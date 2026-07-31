@@ -57,8 +57,10 @@ export function getSaleState(listing: SaleInput, now: Date): SaleResult {
     // Förköpet har stängt.
     if (pub) {
       if (now < pub) {
-        // Gapet mellan förköp och publikt släpp → slutsålt, släpps senare.
-        return { state: "sold_out", buyable: false, price, until: pub };
+        // Gapet mellan förköp och publikt släpp: inte köpbart, men INTE slutsålt
+        // — biljetterna släpps {pub}. "before" gör att event-sidan visar
+        // "kommer snart / släpps {datum}" istället för det missvisande "SLUTSÅLT".
+        return { state: "before", buyable: false, price, until: pub };
       }
       return { state: "on_sale", buyable: true, price, until: null };
     }
