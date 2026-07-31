@@ -391,6 +391,8 @@
     "loggingIn": "Logging in...",
     "logIn": "Log in",
     "wrongCredentials": "Wrong email or password",
+    "tooManyAttempts": "Too many attempts. Wait a moment and try again.",
+    "waitSeconds": "Wait {seconds}s…",
     "loggedInRedirecting": "Logged in! Redirecting...",
     "noSessionReturned": "No session returned. Check your email.",
     "unexpectedError": "Unexpected error: ",
@@ -2952,6 +2954,7 @@
     "subtitle": "See what creators and experiences are sharing right now"
   },
   "forgotPassword": {
+    "tooManyAttempts": "Too many attempts. Wait a moment and try again.",
     "backToLogin": "Back to login",
     "heading": "Forgot password",
     "subheading": "Enter your email address and we'll send you a reset link.",

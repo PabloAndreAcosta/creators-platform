@@ -391,6 +391,8 @@
     "loggingIn": "Loggar in...",
     "logIn": "Logga in",
     "wrongCredentials": "Fel e-postadress eller lösenord",
+    "tooManyAttempts": "För många försök. Vänta en stund och försök igen.",
+    "waitSeconds": "Vänta {seconds}s…",
     "loggedInRedirecting": "Inloggad! Omdirigerar...",
     "noSessionReturned": "Ingen session returnerades. Kontrollera din e-post.",
     "unexpectedError": "Oväntat fel: ",
@@ -2952,6 +2954,7 @@
     "subtitle": "Se vad kreatörer och upplevelser delar just nu"
   },
   "forgotPassword": {
+    "tooManyAttempts": "För många försök. Vänta en stund och försök igen.",
     "backToLogin": "Tillbaka till inloggning",
     "heading": "Glömt lösenord",
     "subheading": "Ange din e-postadress så skickar vi en återställningslänk.",

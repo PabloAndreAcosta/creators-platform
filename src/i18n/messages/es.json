@@ -391,6 +391,8 @@
     "loggingIn": "Iniciando sesión...",
     "logIn": "Iniciar sesión",
     "wrongCredentials": "Correo electrónico o contraseña incorrectos",
+    "tooManyAttempts": "Demasiados intentos. Espera un momento e inténtalo de nuevo.",
+    "waitSeconds": "Espera {seconds}s…",
     "loggedInRedirecting": "¡Sesión iniciada! Redirigiendo...",
     "noSessionReturned": "No se devolvió ninguna sesión. Revisa tu correo electrónico.",
     "unexpectedError": "Error inesperado: ",
@@ -2952,6 +2954,7 @@
     "subtitle": "Descubre lo que creadores y experiencias comparten ahora mismo"
   },
   "forgotPassword": {
+    "tooManyAttempts": "Demasiados intentos. Espera un momento e inténtalo de nuevo.",
     "backToLogin": "Volver al inicio de sesión",
     "heading": "Olvidé mi contraseña",
     "subheading": "Introduce tu dirección de correo electrónico y te enviaremos un enlace de restablecimiento.",
