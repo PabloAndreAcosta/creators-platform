@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { attendeeKey, attendeeName, bookingEmail, attachProfiles, type BookingLike } from "@/lib/attendees";
+import { canManageListing } from "@/lib/listings/manage-access";
 
 // Per-event attendee statistics: how many booked/came, who, and which of them
 // are returning (also attended another of the host's events).
@@ -18,24 +19,28 @@ export async function GET(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { data: listing } = await supabase
+  const admin = createAdminClient();
+  const { data: listing } = await admin
     .from("listings")
     .select("id, title, max_guests, user_id, event_date")
     .eq("id", eventId)
     .single();
-  if (!listing || listing.user_id !== user.id) {
+  // Owner or accepted co-organizer may view stats.
+  if (!listing || (listing.user_id !== user.id && !(await canManageListing(admin, user.id, eventId)))) {
     return NextResponse.json({ error: "Event not found" }, { status: 404 });
   }
 
-  // All of the host's attendee bookings (RLS: creator_id = me). Used both for
-  // this event's list and to detect repeat attendees across events.
-  const { data: all } = await supabase
+  // The OWNER's attendee bookings (read via service role, filtered by the owner's
+  // creator_id — not the caller's, so a co-organizer sees the same data). Used
+  // both for this event's list and to detect repeat attendees across the owner's
+  // events.
+  const { data: all } = await admin
     .from("bookings")
     .select("id, listing_id, customer_id, guest_name, guest_email, checked_in_at, created_at, status, amount_paid")
-    .eq("creator_id", user.id)
+    .eq("creator_id", listing.user_id)
     .in("status", ["confirmed", "completed"]);
 
-  const allBookings = await attachProfiles(createAdminClient(), (all ?? []) as unknown as BookingLike[]);
+  const allBookings = await attachProfiles(admin, (all ?? []) as unknown as BookingLike[]);
 
   // distinct events per attendee key across the host
   const eventsByKey = new Map<string, Set<string>>();

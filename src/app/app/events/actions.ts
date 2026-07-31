@@ -568,11 +568,19 @@ export async function toggleEventActive(id: string, isActive: boolean) {
 
   if (!user) return { error: "Ej inloggad" };
 
-  const { error } = await supabase
+  // Owner or accepted co-organizer may publish/unpublish. Mutate via service role
+  // after the check (listings RLS is owner-only; co-organizers don't own the row).
+  const admin = createAdminClient();
+  const { data: L } = await admin.from("listings").select("user_id").eq("id", id).maybeSingle();
+  if (!L) return { error: "Evenemanget hittades inte." };
+  if (L.user_id !== user.id && !(await canManageListing(admin, user.id, id))) {
+    return { error: "Du har inte behörighet att ändra det här evenemanget." };
+  }
+
+  const { error } = await admin
     .from("listings")
     .update({ is_active: isActive })
-    .eq("id", id)
-    .eq("user_id", user.id);
+    .eq("id", id);
 
   if (error) return { error: "Kunde inte ändra status." };
 

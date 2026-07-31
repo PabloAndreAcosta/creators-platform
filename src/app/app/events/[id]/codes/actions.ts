@@ -2,9 +2,12 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { canManageListing } from "@/lib/listings/manage-access";
 import { revalidatePath } from "next/cache";
 
-// Returns a service-role client ONLY if the current user owns the listing.
+// Returns a service-role client ONLY if the current user owns the listing OR is
+// an accepted co-organizer (can_manage). Access codes are admin, not money-out
+// (they discount the buyer's own checkout), so a co-organizer may manage them.
 async function ownerAdmin(listingId: string) {
   const supabase = await createClient();
   const {
@@ -17,7 +20,9 @@ async function ownerAdmin(listingId: string) {
     .select("user_id")
     .eq("id", listingId)
     .maybeSingle();
-  return listing && listing.user_id === user.id ? admin : null;
+  if (!listing) return null;
+  if (listing.user_id === user.id) return admin;
+  return (await canManageListing(admin, user.id, listingId)) ? admin : null;
 }
 
 export async function createAccessCode(listingId: string, formData: FormData) {

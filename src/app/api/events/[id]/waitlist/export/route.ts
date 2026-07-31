@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { waitlistToCsv, type WaitlistEntry } from "@/lib/waitlist";
+import { canManageListing } from "@/lib/listings/manage-access";
 
-// Owner-only: download the event's waitlist as CSV.
+// Owner or accepted co-organizer: download the event's waitlist as CSV.
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -21,7 +22,7 @@ export async function GET(
     .select("id, user_id, slug, title")
     .eq("id", listingId)
     .maybeSingle();
-  if (!listing || listing.user_id !== user.id) {
+  if (!listing || (listing.user_id !== user.id && !(await canManageListing(admin, user.id, listingId)))) {
     return NextResponse.json({ error: "Event not found" }, { status: 404 });
   }
 
