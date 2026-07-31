@@ -17,6 +17,7 @@ interface Collaborator {
   full_name: string | null;
   avatar_url: string | null;
   can_scan: boolean;
+  can_manage: boolean;
   scan_eligible: boolean;
   payee_connected: boolean;
   gage: GageView | null;
@@ -78,6 +79,7 @@ export function CrewManager({
   const [invitingId, setInvitingId] = useState<string | null>(null);
   const [invitedIds, setInvitedIds] = useState<Set<string>>(new Set());
   const [scanToggling, setScanToggling] = useState<string | null>(null);
+  const [manageToggling, setManageToggling] = useState<string | null>(null);
   const searchSeq = useRef(0);
 
   useEffect(() => {
@@ -168,6 +170,39 @@ export function CrewManager({
       );
     } finally {
       setScanToggling(null);
+    }
+  }
+
+  async function handleToggleManage(userId: string, next: boolean) {
+    setManageToggling(userId);
+    setCollaborators((prev) =>
+      prev.map((c) => (c.user_id === userId ? { ...c, can_manage: next } : c))
+    );
+    try {
+      const res = await fetch(
+        `/api/listings/${listingId}/collaborators/${userId}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ can_manage: next }),
+        }
+      );
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        toast.error(data.error ?? t("errorUpdate"));
+        setCollaborators((prev) =>
+          prev.map((c) => (c.user_id === userId ? { ...c, can_manage: !next } : c))
+        );
+        return;
+      }
+      toast.success(next ? t("manageEnabled") : t("manageRemoved"));
+    } catch {
+      toast.error(t("errorNetwork"));
+      setCollaborators((prev) =>
+        prev.map((c) => (c.user_id === userId ? { ...c, can_manage: !next } : c))
+      );
+    } finally {
+      setManageToggling(null);
     }
   }
 
@@ -427,6 +462,26 @@ export function CrewManager({
                       <ScanLine size={13} />
                     )}
                     {c.can_scan ? t("scanOn") : t("scanOff")}
+                  </button>
+                )}
+                {canDelegateScan && (
+                  <button
+                    onClick={() => handleToggleManage(c.user_id, !c.can_manage)}
+                    disabled={manageToggling === c.user_id}
+                    aria-pressed={c.can_manage}
+                    title={t("manageToggleTitle")}
+                    className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-medium transition disabled:opacity-50 ${
+                      c.can_manage
+                        ? "bg-[var(--usha-gold)] text-black"
+                        : "border border-[var(--usha-border)] text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
+                    }`}
+                  >
+                    {manageToggling === c.user_id ? (
+                      <Loader2 size={13} className="animate-spin" />
+                    ) : (
+                      <ShieldCheck size={13} />
+                    )}
+                    {c.can_manage ? t("manageOn") : t("manageOff")}
                   </button>
                 )}
                 <button

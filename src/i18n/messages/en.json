@@ -2479,7 +2479,12 @@
     "errorCreateInvite": "Couldn't create invite",
     "inviteCreated": "Invite created",
     "errorRemove": "Couldn't remove",
-    "removedFromCrew": "Removed from crew"
+    "removedFromCrew": "Removed from crew",
+    "manageOn": "Co-organizer",
+    "manageOff": "Make co-organizer",
+    "manageToggleTitle": "Let this person administer the event (edit + send emails) without owning it or receiving payments",
+    "manageEnabled": "Now a co-organizer",
+    "manageRemoved": "Co-organizer access removed"
   },
   "eventInsights": {
     "errorFetch": "Could not load stats",
