@@ -11,7 +11,7 @@ import {
 import PlacesAutocomplete from "@/components/places-autocomplete";
 import { useToast } from "@/components/ui/toaster";
 
-const STYLES = ["kizomba", "bachata", "salsa", "zouk", "urban kiz", "afrobeats", "tango"];
+const STYLES = ["kizomba", "bachata", "salsa", "zouk", "urban kiz", "afrobeats", "tango", "tarraxo", "compa"];
 const LEVELS = ["nyborjare", "medel", "avancerad"];
 const ROLES = ["leader", "follower", "both"] as const;
 const DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
