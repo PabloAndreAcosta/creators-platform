@@ -79,6 +79,7 @@ function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number): nu
 const STYLE_LABEL: Record<string, string> = {
   kizomba: "Kizomba", "urban kiz": "Urban Kiz", bachata: "Bachata",
   salsa: "Salsa", afrobeats: "Afrobeats", zouk: "Zouk", tango: "Tango",
+  tarraxo: "Tarraxo", compa: "Compa",
 };
 const pretty = (s: string) => STYLE_LABEL[norm(s)] ?? s.charAt(0).toUpperCase() + s.slice(1);
 
