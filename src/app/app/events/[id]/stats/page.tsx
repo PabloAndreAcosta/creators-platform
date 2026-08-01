@@ -21,8 +21,9 @@ interface Stats {
   checkedIn: number;
   returning: number;
   new: number;
-  noShows: number;
-  checkInRate: number;
+  eventEnded: boolean;
+  noShows: number | null;
+  checkInRate: number | null;
   revenue: number;
   fillRate: number | null;
   list: Attendee[];
@@ -111,8 +112,15 @@ export default function EventStatsPage() {
   const cards = [
     { icon: Users, label: t("cardAttendees"), value: String(data.attendees) },
     { icon: CheckCircle2, label: t("cardCheckedIn"), value: String(data.checkedIn) },
-    { icon: Percent, label: t("cardCheckInRate"), value: `${data.checkInRate}%` },
-    { icon: UserX, label: t("cardNoShow"), value: String(data.noShows) },
+    // Check-in-rate and no-show are only meaningful after the event has ended —
+    // before then they'd read "0%" / a full house of "no-shows" for buyers who
+    // simply haven't arrived yet.
+    ...(data.checkInRate != null
+      ? [{ icon: Percent, label: t("cardCheckInRate"), value: `${data.checkInRate}%` }]
+      : []),
+    ...(data.noShows != null
+      ? [{ icon: UserX, label: t("cardNoShow"), value: String(data.noShows) }]
+      : []),
     { icon: Repeat, label: t("cardReturning"), value: String(data.returning) },
     { icon: UserPlus, label: t("cardNew"), value: String(data.new) },
     { icon: Banknote, label: t("cardRevenue"), value: t("revenueValue", { amount: Math.round(data.revenue / 100).toLocaleString("sv-SE") }) },

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { attendeeKey, attendeeName, bookingEmail, attachProfiles, type BookingLike } from "@/lib/attendees";
 import { canManageListing } from "@/lib/listings/manage-access";
+import { stockholmLocalToUtcISO } from "@/lib/time";
 
 // Per-event attendee statistics: how many booked/came, who, and which of them
 // are returning (also attended another of the host's events).
@@ -22,7 +23,7 @@ export async function GET(
   const admin = createAdminClient();
   const { data: listing } = await admin
     .from("listings")
-    .select("id, title, max_guests, user_id, event_date")
+    .select("id, title, max_guests, user_id, event_date, event_end_time")
     .eq("id", eventId)
     .single();
   // Owner or accepted co-organizer may view stats.
@@ -83,6 +84,16 @@ export async function GET(
   const revenue = eventBookings.reduce((s, b) => s + (b.amount_paid || 0), 0);
   const capacity = listing.max_guests ?? null;
 
+  // "No-show" only means something once the event is over — before then, nobody
+  // has had the chance to check in, so every attendee would falsely count as a
+  // no-show. Derive the end instant (Stockholm end-time if set, else end of the
+  // event day) and only expose no-shows / check-in-rate after it has passed.
+  const endLocal = listing.event_date
+    ? `${listing.event_date}T${listing.event_end_time || "23:59"}`
+    : null;
+  const endIso = stockholmLocalToUtcISO(endLocal);
+  const eventEnded = endIso ? new Date(endIso).getTime() < Date.now() : false;
+
   return NextResponse.json({
     event: { id: listing.id, title: listing.title, capacity, eventDate: listing.event_date ?? null },
     bookings: eventBookings.length,
@@ -90,8 +101,9 @@ export async function GET(
     checkedIn,
     returning,
     new: attendees - returning,
-    noShows: attendees - checkedIn,
-    checkInRate: attendees > 0 ? Math.round((checkedIn / attendees) * 100) : 0,
+    eventEnded,
+    noShows: eventEnded ? attendees - checkedIn : null,
+    checkInRate: eventEnded && attendees > 0 ? Math.round((checkedIn / attendees) * 100) : null,
     revenue,
     fillRate: capacity ? Math.round((attendees / capacity) * 100) : null,
     list,
