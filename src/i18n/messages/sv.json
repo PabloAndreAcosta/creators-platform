@@ -1803,6 +1803,11 @@
     "sayHi": "Säg hej",
     "keepBrowsing": "Fortsätt bläddra",
     "emptySuggestions": "Inga fler förslag just nu. Kom tillbaka snart!",
+    "firstInPoolTitle": "Du är bland de första här! ✨",
+    "firstInPoolText": "Inga andra dansare har gått med än. Bjud in dina danskompisar så fylls poolen – de dyker upp här så fort de är med.",
+    "inviteFriends": "Bjud in vänner",
+    "inviteShare": "Hitta din dansträningspartner på Usha – gå med i Träningsvänner!",
+    "linkCopied": "Länk kopierad!",
     "emptyMatches": "Inga matchningar än. Gilla några för att komma igång.",
     "kmAway": "{km} km bort",
     "roles": {

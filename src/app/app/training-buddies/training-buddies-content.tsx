@@ -62,6 +62,7 @@ export function TrainingBuddiesContent() {
   const [editing, setEditing] = useState(false);
   const [tab, setTab] = useState<"suggestions" | "matches">("suggestions");
   const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [poolSize, setPoolSize] = useState<number | null>(null);
   const [matches, setMatches] = useState<Match[]>([]);
   const [matchModal, setMatchModal] = useState<Candidate | null>(null);
   const matchDialogRef = useRef<HTMLDivElement>(null);
@@ -105,8 +106,24 @@ export function TrainingBuddiesContent() {
       fetch("/api/training-buddies/matches").then((r) => (r.ok ? r.json() : { matches: [] })),
     ]);
     setCandidates(c.buddies ?? []);
+    setPoolSize(typeof c.poolSize === "number" ? c.poolSize : null);
     setMatches(m.matches ?? []);
   }, []);
+
+  // Invite dancers to the pool (Web Share where available, else copy the link).
+  const invite = useCallback(async () => {
+    const url = `${window.location.origin}/app/training-buddies`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "Usha Platform", text: t("inviteShare"), url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        toast.success(t("linkCopied"));
+      }
+    } catch {
+      /* user dismissed the share sheet — nothing to do */
+    }
+  }, [t, toast]);
 
   useEffect(() => { loadProfile(); }, [loadProfile]);
   useEffect(() => { if (profile?.is_active && !editing) loadFeed(); }, [profile?.is_active, editing, loadFeed]);
@@ -218,7 +235,24 @@ export function TrainingBuddiesContent() {
 
       {tab === "suggestions" ? (
         candidates.length === 0 ? (
-          <Empty icon={Sparkles} text={t("emptySuggestions")} />
+          poolSize === 0 ? (
+            // Nobody else has joined yet — invite instead of "check back".
+            <Empty
+              icon={Sparkles}
+              text={t("firstInPoolTitle")}
+              subtext={t("firstInPoolText")}
+              action={
+                <button
+                  onClick={invite}
+                  className="rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-sm font-bold text-black"
+                >
+                  {t("inviteFriends")}
+                </button>
+              }
+            />
+          ) : (
+            <Empty icon={Sparkles} text={t("emptySuggestions")} />
+          )
         ) : (
           <div className="space-y-4">
             {candidates.map((c) => (
@@ -290,11 +324,23 @@ function Shell({ t, children }: { t: ReturnType<typeof useTranslations>; childre
   );
 }
 
-function Empty({ icon: Icon, text }: { icon: typeof Users; text: string }) {
+function Empty({
+  icon: Icon,
+  text,
+  subtext,
+  action,
+}: {
+  icon: typeof Users;
+  text: string;
+  subtext?: string;
+  action?: React.ReactNode;
+}) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] py-16 text-center">
-      <Icon size={36} className="mb-3 text-[var(--usha-muted)]" />
-      <p className="text-sm text-[var(--usha-muted)]">{text}</p>
+    <div className="flex flex-col items-center justify-center rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-6 py-16 text-center">
+      <Icon size={36} className="mb-3 text-[var(--usha-gold)]" />
+      <p className="text-sm font-medium text-[var(--usha-white)]">{text}</p>
+      {subtext && <p className="mt-1.5 max-w-xs text-xs text-[var(--usha-muted)]">{subtext}</p>}
+      {action && <div className="mt-4">{action}</div>}
     </div>
   );
 }
