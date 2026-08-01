@@ -1803,6 +1803,11 @@
     "sayHi": "Saludar",
     "keepBrowsing": "Seguir viendo",
     "emptySuggestions": "No hay más sugerencias por ahora. ¡Vuelve pronto!",
+    "firstInPoolTitle": "¡Eres de los primeros aquí! ✨",
+    "firstInPoolText": "Todavía no se han unido otros bailarines. Invita a tus amigos de baile para llenar el grupo: aparecerán aquí en cuanto se unan.",
+    "inviteFriends": "Invitar amigos",
+    "inviteShare": "Encuentra tu pareja de práctica de baile en Usha: ¡únete a Compañeros de Entrenamiento!",
+    "linkCopied": "¡Enlace copiado!",
     "emptyMatches": "Aún no hay coincidencias. Dale a me gusta a algunas personas para empezar.",
     "kmAway": "a {km} km",
     "roles": {

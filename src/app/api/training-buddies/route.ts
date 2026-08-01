@@ -50,8 +50,16 @@ export async function GET(req: NextRequest) {
     });
     const buddies = candidates.map((c) => ({ ...c, score: Math.round(c.score) }));
 
+    // How many OTHER dancers are in the pool at all — lets the UI tell
+    // "you're the first one here" apart from "you've seen everyone".
+    const { count: poolSize } = await createAdminClient()
+      .from("training_buddy_profiles")
+      .select("profile_id", { count: "exact", head: true })
+      .eq("is_active", true)
+      .neq("profile_id", user.id);
+
     return NextResponse.json(
-      { buddies, access, launch: access === "open" },
+      { buddies, access, launch: access === "open", poolSize: poolSize ?? 0 },
       { headers: { "Cache-Control": "no-store" } }
     );
   } catch (error) {

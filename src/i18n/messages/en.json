@@ -1803,6 +1803,11 @@
     "sayHi": "Say hi",
     "keepBrowsing": "Keep browsing",
     "emptySuggestions": "No more suggestions right now. Check back soon!",
+    "firstInPoolTitle": "You're one of the first here! ✨",
+    "firstInPoolText": "No other dancers have joined yet. Invite your dance friends to fill the pool — they'll show up here as soon as they're in.",
+    "inviteFriends": "Invite friends",
+    "inviteShare": "Find your dance practice partner on Usha — join Training Buddies!",
+    "linkCopied": "Link copied!",
     "emptyMatches": "No matches yet. Like a few people to get started.",
     "kmAway": "{km} km away",
     "roles": {
