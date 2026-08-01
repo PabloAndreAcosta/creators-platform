@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { isValidEmail, normalizeEmail, cleanName } from "@/lib/waitlist";
 import { getResend, getFromEmail } from "@/lib/email/resend";
 import { escapeHtml } from "@/lib/email/broadcast";
+import { notifyOwnerWaitlistJoin } from "@/lib/notifications/event-owner";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";
 
@@ -88,7 +89,7 @@ export async function POST(
   // The event must exist and be active to accept signups.
   const { data: listing } = await admin
     .from("listings")
-    .select("id, title, event_date, event_time, content_language")
+    .select("id, user_id, title, event_date, event_time, content_language")
     .eq("id", listingId)
     .eq("is_active", true)
     .maybeSingle();
@@ -122,6 +123,16 @@ export async function POST(
       eventTime: listing.event_time,
       contentLanguage: listing.content_language,
     }).catch((e) => console.error("waitlist confirmation email failed:", e));
+
+    // Let the owner (+ co-organizers) know someone joined the waitlist.
+    if (listing.user_id) {
+      notifyOwnerWaitlistJoin(admin, {
+        listingId,
+        ownerId: listing.user_id,
+        title: listing.title,
+        name,
+      }).catch((e) => console.error("waitlist owner notify failed:", e));
+    }
   }
 
   return NextResponse.json({ ok: true, alreadyOn: error?.code === "23505" });

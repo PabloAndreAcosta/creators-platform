@@ -1,4 +1,4 @@
-const CACHE_NAME = 'usha-v5';
+const CACHE_NAME = 'usha-v6';
 
 const STATIC_ASSETS = [
   '/',
@@ -97,5 +97,44 @@ self.addEventListener('fetch', (event) => {
       .catch(() =>
         caches.match(request).then((cached) => cached || caches.match('/offline'))
       )
+  );
+});
+
+// Web Push: show a notification when the server pushes an update (new ticket
+// sale, cancellation, sold out, waitlist join, message, etc.).
+self.addEventListener('push', (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch (e) {
+    data = { title: 'Usha Platform', body: event.data ? event.data.text() : '' };
+  }
+  const title = data.title || 'Usha Platform';
+  const options = {
+    body: data.body || '',
+    icon: '/icon-192.png',
+    badge: '/icon-192.png',
+    tag: data.tag || undefined,
+    renotify: !!data.tag,
+    data: { url: data.url || '/app/notifications' },
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+// Tapping a push opens (or focuses) the linked page.
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const target = (event.notification.data && event.notification.data.url) || '/app/notifications';
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
+      for (const client of list) {
+        // Focus an existing tab and navigate it to the target.
+        if ('focus' in client) {
+          client.navigate(target).catch(() => {});
+          return client.focus();
+        }
+      }
+      if (self.clients.openWindow) return self.clients.openWindow(target);
+    })
   );
 });

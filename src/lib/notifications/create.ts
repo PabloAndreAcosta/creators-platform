@@ -1,17 +1,20 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getServerTranslation } from '@/lib/i18n/server';
+import { sendPushToUser } from '@/lib/push/send';
 import type { Locale } from '@/i18n/config';
 
 interface CreateNotificationParams {
   userId: string;
-  type: 'booking_new' | 'booking_confirmed' | 'booking_canceled' | 'payout' | 'review' | 'queue_promoted' | 'new_post' | 'new_message' | 'buddy_match';
+  type: 'booking_new' | 'booking_confirmed' | 'booking_canceled' | 'payout' | 'review' | 'queue_promoted' | 'new_post' | 'new_message' | 'buddy_match' | 'ticket_sold' | 'event_sold_out' | 'waitlist_join';
   title: string;
   message: string;
   link?: string;
 }
 
 /**
- * Creates an in-app notification for a user.
+ * Creates an in-app notification for a user, and mirrors it as a Web Push so
+ * they're updated without opening the app. Push is best-effort (no-op until
+ * VAPID keys are configured, or if the user hasn't enabled push).
  * Uses admin client so it can be called from server actions and API routes
  * without needing the user's session.
  */
@@ -29,6 +32,13 @@ export async function createNotification(params: CreateNotificationParams) {
   if (error) {
     console.error('Failed to create notification:', error);
   }
+
+  await sendPushToUser(params.userId, {
+    title: params.title,
+    body: params.message,
+    url: params.link,
+    tag: params.type,
+  });
 }
 
 // Helper to get user's preferred locale (defaults to 'sv')
