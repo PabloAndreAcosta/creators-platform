@@ -25,6 +25,7 @@ const TYPE_ICONS: Record<string, string> = {
   ticket_sold: "🎟️",
   event_sold_out: "🔥",
   waitlist_join: "⏳",
+  shop_sale: "🛍️",
   new_message: "💬",
   buddy_match: "🤝",
 };
