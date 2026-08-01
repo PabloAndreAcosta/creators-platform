@@ -62,7 +62,7 @@ export async function GET(req: NextRequest) {
 
     const { data: listing } = await admin
       .from("listings")
-      .select("title, event_location, duration_minutes")
+      .select("title, event_location, duration_minutes, organizer_name")
       .eq("id", b.listing_id)
       .single();
     const { data: creator } = await admin
@@ -77,7 +77,7 @@ export async function GET(req: NextRequest) {
         customerName,
         serviceName: listing?.title || "Din bokning",
         scheduledAt: new Date(b.scheduled_at),
-        creatorName: creator?.full_name || "Kreatör",
+        creatorName: listing?.organizer_name || creator?.full_name || "Arrangör",
         location: listing?.event_location || undefined,
         bookingId: b.id,
         durationMinutes: listing?.duration_minutes || undefined,

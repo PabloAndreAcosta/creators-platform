@@ -118,7 +118,9 @@ export async function POST(
         transfer_data: { destination: creator.stripe_account_id },
       },
       automatic_tax: { enabled: true },
-      success_url: `${baseUrl}/flode?ticket=success`,
+      // Land buyers on a clear confirmation instead of the feed: logged-in users
+      // see their tickets, guests get the login-free "thank you" page.
+      success_url: user ? `${baseUrl}/app/tickets?success=true` : `${baseUrl}/biljett/klar`,
       cancel_url: `${baseUrl}/flode`,
       metadata: {
         // Reuse the existing webhook ticket branches; accessCodeId consumes the

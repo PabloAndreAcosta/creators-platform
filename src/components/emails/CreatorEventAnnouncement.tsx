@@ -12,6 +12,7 @@ function formatDate(date: Date): string {
     weekday: "long",
     day: "numeric",
     month: "long",
+    timeZone: "Europe/Stockholm",
   }).format(date);
 }
 

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { groupAttendees, attachProfiles, type BookingLike } from "@/lib/attendees";
+import { stockholmLocalToUtcISO } from "@/lib/time";
 
 // Aggregate attendee insights across all of the host's events.
 export async function GET() {
@@ -38,12 +39,20 @@ export async function GET() {
   // Per-event summary
   const listingIds = Array.from(new Set(bookings.map((b) => b.listing_id)));
   const titleById = new Map<string, { title: string; event_date: string | null }>();
+  // Which events have already ended — check-in-rate only counts those, otherwise
+  // upcoming events (nobody checked in yet) would drag the rate toward 0%.
+  const endedById = new Map<string, boolean>();
   if (listingIds.length) {
     const { data: listings } = await supabase
       .from("listings")
-      .select("id, title, event_date")
+      .select("id, title, event_date, event_end_time")
       .in("id", listingIds);
-    for (const l of listings ?? []) titleById.set(l.id, { title: l.title, event_date: l.event_date });
+    for (const l of listings ?? []) {
+      titleById.set(l.id, { title: l.title, event_date: l.event_date });
+      const endLocal = l.event_date ? `${l.event_date}T${l.event_end_time || "23:59"}` : null;
+      const endIso = stockholmLocalToUtcISO(endLocal);
+      endedById.set(l.id, endIso ? new Date(endIso).getTime() < Date.now() : false);
+    }
   }
   const perEventMap = new Map<string, { bookings: number; checkedIn: number }>();
   for (const b of bookings) {
@@ -64,6 +73,15 @@ export async function GET() {
 
   const totalRevenue = bookings.reduce((s, b) => s + (b.amount_paid || 0), 0);
   const eventCount = listingIds.length;
+
+  // Check-in rate over ENDED events only (see endedById above).
+  let endedBookings = 0;
+  let endedCheckedIn = 0;
+  for (const b of bookings) {
+    if (!endedById.get(b.listing_id)) continue;
+    endedBookings += 1;
+    if (b.checked_in_at) endedCheckedIn += 1;
+  }
 
   // Monthly trend (last 6 months, by event date with booking-date fallback)
   const now = new Date();
@@ -92,7 +110,7 @@ export async function GET() {
     totalBookings: bookings.length,
     eventCount,
     totalRevenue,
-    avgCheckInRate: bookings.length > 0 ? Math.round((totalCheckedIn / bookings.length) * 100) : 0,
+    avgCheckInRate: endedBookings > 0 ? Math.round((endedCheckedIn / endedBookings) * 100) : 0,
     avgAttendeesPerEvent: eventCount > 0 ? Math.round(bookings.length / eventCount) : 0,
     monthlyTrend,
     topReturning: topReturning.slice(0, 50),

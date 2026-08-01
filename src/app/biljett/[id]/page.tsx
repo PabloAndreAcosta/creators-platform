@@ -95,6 +95,9 @@ export default async function GuestTicketPage({
     }
   }
 
+  // scheduled_at is UTC — always format in Europe/Stockholm so a 14:00 Swedish
+  // event doesn't render as 12:00. event_time (when set) is already Swedish
+  // wall-clock, so it's shown verbatim.
   const scheduled = new Date(booking.scheduled_at);
   const dateLabel = listing?.event_date
     ? new Date(listing.event_date + "T00:00").toLocaleDateString("sv-SE", {
@@ -102,11 +105,12 @@ export default async function GuestTicketPage({
         day: "numeric",
         month: "long",
         year: "numeric",
+        timeZone: "Europe/Stockholm",
       })
-    : scheduled.toLocaleDateString("sv-SE", { day: "numeric", month: "long", year: "numeric" });
+    : scheduled.toLocaleDateString("sv-SE", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Stockholm" });
   const timeLabel = listing?.event_time
     ? listing.event_time.slice(0, 5)
-    : scheduled.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
+    : scheduled.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Stockholm" });
 
   const canceled = booking.status === "canceled";
   const used = booking.status === "completed" || !!booking.checked_in_at;
