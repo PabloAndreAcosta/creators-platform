@@ -2,16 +2,23 @@ interface BookingConfirmationProps {
   customerName: string;
   serviceName: string;
   scheduledAt: Date;
+  /** Optional end time — shown as a range "14:00–17:00" when present. */
+  scheduledEndAt?: Date;
   creatorName: string;
   location?: string;
   bookingId?: string;
 }
+
+// scheduledAt is stored in UTC; format in Europe/Stockholm so a 14:00 Swedish
+// event doesn't display as 12:00 (the server/runtime is UTC).
+const TZ = "Europe/Stockholm";
 
 function formatDate(date: Date): string {
   return new Intl.DateTimeFormat("sv-SE", {
     day: "numeric",
     month: "long",
     year: "numeric",
+    timeZone: TZ,
   }).format(date);
 }
 
@@ -19,6 +26,7 @@ function formatTime(date: Date): string {
   return new Intl.DateTimeFormat("sv-SE", {
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: TZ,
   }).format(date);
 }
 
@@ -30,6 +38,7 @@ export default function BookingConfirmation({
   customerName,
   serviceName,
   scheduledAt,
+  scheduledEndAt,
   creatorName,
   location,
   bookingId,
@@ -84,10 +93,10 @@ export default function BookingConfirmation({
                                   Datum: {formatDate(scheduledAt)}
                                 </p>
                                 <p style={{ fontSize: 13, color: "#fafaf9", margin: "0 0 4px" }}>
-                                  Tid: {formatTime(scheduledAt)}
+                                  Tid: {formatTime(scheduledAt)}{scheduledEndAt ? `–${formatTime(scheduledEndAt)}` : ""}
                                 </p>
                                 <p style={{ fontSize: 13, color: "#fafaf9", margin: "0 0 4px" }}>
-                                  Kreatör: {creatorName}
+                                  Arrangör: {creatorName}
                                 </p>
                                 {location && (
                                   <p style={{ fontSize: 13, color: "#fafaf9", margin: 0 }}>

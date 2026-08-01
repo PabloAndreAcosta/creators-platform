@@ -10,6 +10,7 @@ interface SendBookingConfirmationParams {
   customerName: string;
   serviceName: string;
   scheduledAt: Date;
+  scheduledEndAt?: Date;
   creatorName: string;
   location?: string;
   bookingId?: string;
@@ -21,6 +22,7 @@ export async function sendBookingConfirmationEmail({
   customerName,
   serviceName,
   scheduledAt,
+  scheduledEndAt,
   creatorName,
   location,
   bookingId,
@@ -29,7 +31,7 @@ export async function sendBookingConfirmationEmail({
   try {
     const resend = getResend();
     const html = await renderEmailToHtml(
-      createElement(BookingConfirmation, { customerName, serviceName, scheduledAt, creatorName, location, bookingId })
+      createElement(BookingConfirmation, { customerName, serviceName, scheduledAt, scheduledEndAt, creatorName, location, bookingId })
     );
 
     const ics = buildBookingIcs({
