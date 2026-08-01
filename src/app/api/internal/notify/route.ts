@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createNotification } from "@/lib/notifications/create";
 
+// Reads INTERNAL_NOTIFY_SECRET at runtime; a deploy must post-date the env var.
 export const runtime = "nodejs";
 
 // Internal, secret-authenticated notification hook. Lets sibling apps that
