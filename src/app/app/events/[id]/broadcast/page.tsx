@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { canManageListing } from "@/lib/listings/manage-access";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
@@ -29,7 +30,8 @@ export default async function BroadcastPage(props: { params: Promise<{ id: strin
     .select("id, title, slug, user_id")
     .eq("id", id)
     .maybeSingle();
-  if (!listing || listing.user_id !== user.id) notFound();
+  // Owner or accepted co-organizer may open the broadcast form.
+  if (!listing || (listing.user_id !== user.id && !(await canManageListing(admin, user.id, id)))) notFound();
 
   const [{ count: activeCount }, { data: past }] = await Promise.all([
     admin

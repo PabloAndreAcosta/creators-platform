@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { canManageListing } from "@/lib/listings/manage-access";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, Download, Mail } from "lucide-react";
@@ -29,7 +30,8 @@ export default async function WaitlistPage(props: { params: Promise<{ id: string
     .select("id, title, slug, user_id")
     .eq("id", id)
     .maybeSingle();
-  if (!listing || listing.user_id !== user.id) notFound();
+  // Owner or accepted co-organizer (so a co-organizer can reach the broadcast form).
+  if (!listing || (listing.user_id !== user.id && !(await canManageListing(admin, user.id, id)))) notFound();
 
   const { data: rows } = await admin
     .from("event_waitlist")
