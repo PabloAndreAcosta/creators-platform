@@ -94,7 +94,7 @@ export default function BookingReminder({
                                   Tid: {formatTime(scheduledAt)}
                                 </p>
                                 <p style={{ fontSize: 13, color: "#fafaf9", margin: "0 0 4px" }}>
-                                  Kreatör: {creatorName}
+                                  Arrangör: {creatorName}
                                 </p>
                                 {location && (
                                   <p style={{ fontSize: 13, color: "#fafaf9", margin: 0 }}>

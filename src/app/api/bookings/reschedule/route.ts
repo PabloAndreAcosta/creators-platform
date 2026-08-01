@@ -103,6 +103,7 @@ export async function POST(req: NextRequest) {
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
+      timeZone: "Europe/Stockholm",
     });
 
     // Notify the other party
