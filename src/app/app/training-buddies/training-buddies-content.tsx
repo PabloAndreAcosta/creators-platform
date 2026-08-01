@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
   Users, Heart, X, MessageCircle, ShieldCheck, MapPin, Sparkles,
-  Loader2, MoreVertical, Flag, Ban, Check, SlidersHorizontal,
+  Loader2, MoreVertical, Flag, Ban, Check, SlidersHorizontal, Share2,
 } from "lucide-react";
 import PlacesAutocomplete from "@/components/places-autocomplete";
 import { useToast } from "@/components/ui/toaster";
@@ -223,6 +223,14 @@ export function TrainingBuddiesContent() {
           className={`flex-1 rounded-lg py-2 text-sm font-semibold transition ${tab === "matches" ? "bg-[var(--usha-gold)]/15 text-[var(--usha-gold)]" : "text-[var(--usha-muted)]"}`}
         >
           {t("tabMatches")}{matches.length ? ` (${matches.length})` : ""}
+        </button>
+        <button
+          onClick={invite}
+          className="rounded-lg p-2 text-[var(--usha-muted)] hover:text-[var(--usha-gold)]"
+          aria-label={t("inviteFriends")}
+          title={t("inviteFriends")}
+        >
+          <Share2 size={18} />
         </button>
         <button
           onClick={() => setEditing(true)}
