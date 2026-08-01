@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { ArrowLeft, Bell, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { PushToggle } from "@/components/push/push-toggle";
 
 interface NotifSetting {
   id: string;
@@ -83,6 +84,8 @@ export default function NotificationsPage() {
           {ts("chooseNotifications")}
         </p>
       </div>
+
+      <PushToggle />
 
       {loading ? (
         <div className="flex justify-center py-12">

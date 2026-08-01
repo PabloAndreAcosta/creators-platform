@@ -22,6 +22,11 @@ const TYPE_ICONS: Record<string, string> = {
   payout: "💰",
   review: "⭐",
   queue_promoted: "🎉",
+  ticket_sold: "🎟️",
+  event_sold_out: "🔥",
+  waitlist_join: "⏳",
+  new_message: "💬",
+  buddy_match: "🤝",
 };
 
 export default function NotificationsPage() {

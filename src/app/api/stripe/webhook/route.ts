@@ -8,6 +8,7 @@ import { sendBookingConfirmationEmail } from "@/lib/email/send-booking";
 import { sendGoldWelcomeEmail } from "@/lib/email/send-welcome";
 import { sendTrialEndingEmail as sendTrialEndingEmailService } from "@/lib/email/send-trial-ending";
 import { createNotification } from "@/lib/notifications/create";
+import { notifyOwnerTicketSold, notifyOwnerSoldOut } from "@/lib/notifications/event-owner";
 import { clampQuantity, createTicketAttendees, attendeeNamesFromMeta } from "@/lib/tickets/attendees";
 import { stockholmLocalToUtcISO } from "@/lib/time";
 
@@ -25,6 +26,44 @@ function getSupabaseAdmin() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
+}
+
+/**
+ * Notify the event owner (+ co-organizers) of a completed ticket sale, and of
+ * sold-out when this sale filled the last seats. Best-effort — never throws into
+ * the webhook. Reads the freshly-incremented counts to report totals.
+ */
+async function notifyEventSale(
+  listingId: string,
+  ownerId: string,
+  quantity: number,
+  amountOre: number | null
+): Promise<void> {
+  try {
+    const { data: L } = await getSupabaseAdmin()
+      .from("listings")
+      .select("title, capacity, max_guests, tickets_sold")
+      .eq("id", listingId)
+      .single();
+    if (!L) return;
+    const cap = (L.capacity ?? L.max_guests ?? null) as number | null;
+    const sold = (L.tickets_sold ?? null) as number | null;
+    await notifyOwnerTicketSold(getSupabaseAdmin(), {
+      listingId,
+      ownerId,
+      title: L.title as string,
+      quantity,
+      amountOre,
+      ticketsSold: sold,
+      capacity: cap,
+    });
+    // Fire sold-out once — only when this sale is the one that crossed capacity.
+    if (cap != null && sold != null && sold >= cap && sold - quantity < cap) {
+      await notifyOwnerSoldOut(getSupabaseAdmin(), { listingId, ownerId, title: L.title as string });
+    }
+  } catch (e) {
+    console.error("notifyEventSale failed:", e);
+  }
 }
 
 /**
@@ -234,6 +273,9 @@ export async function POST(req: NextRequest) {
             }).catch(err => console.error("Guest confirmation email failed:", err));
           }
 
+          // Notify the owner (+ co-organizers) of the sale / sold-out.
+          await notifyEventSale(listingId, creatorId, guestQty, amountPaid);
+
           break;
         }
 
@@ -426,6 +468,9 @@ export async function POST(req: NextRequest) {
           // Send ticket confirmation email (non-blocking)
           sendTicketConfirmationEmail(getSupabaseAdmin(), userId, creatorId!, listingId!, new Date(scheduledAt))
             .catch(err => console.error("Ticket confirmation email failed:", err));
+
+          // Notify the owner (+ co-organizers) of the sale / sold-out.
+          await notifyEventSale(listingId, creatorId, ticketQty, amountPaid);
 
           break;
         }
