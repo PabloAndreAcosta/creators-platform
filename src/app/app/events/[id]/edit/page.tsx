@@ -3,7 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { canManageListing } from "@/lib/listings/manage-access";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
-import { Users, Radio, ScanLine, BarChart3, Receipt } from "lucide-react";
+import { Users, Radio, ScanLine, BarChart3, Receipt, Mail } from "lucide-react";
 import EventForm from "../../event-form";
 import { updateEvent } from "../../actions";
 
@@ -61,6 +61,13 @@ export default async function EditEventPage(props: { params: Promise<{ id: strin
         >
           <Radio size={15} />
           Live Dashboard
+        </Link>
+        <Link
+          href={`/app/events/${event.id}/waitlist`}
+          className="inline-flex items-center gap-2 rounded-full border border-[var(--usha-border)] px-4 py-2 text-sm font-medium text-[var(--usha-white)] transition hover:border-[var(--usha-gold)]/60 hover:text-[var(--usha-gold)]"
+        >
+          <Mail size={15} />
+          Väntelista & mejl
         </Link>
         <Link
           href={`/app/events/${event.id}/stats`}
