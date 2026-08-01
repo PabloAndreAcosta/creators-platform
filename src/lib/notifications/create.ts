@@ -5,7 +5,7 @@ import type { Locale } from '@/i18n/config';
 
 interface CreateNotificationParams {
   userId: string;
-  type: 'booking_new' | 'booking_confirmed' | 'booking_canceled' | 'payout' | 'review' | 'queue_promoted' | 'new_post' | 'new_message' | 'buddy_match' | 'ticket_sold' | 'event_sold_out' | 'waitlist_join';
+  type: 'booking_new' | 'booking_confirmed' | 'booking_canceled' | 'payout' | 'review' | 'queue_promoted' | 'new_post' | 'new_message' | 'buddy_match' | 'ticket_sold' | 'event_sold_out' | 'waitlist_join' | 'shop_sale';
   title: string;
   message: string;
   link?: string;
