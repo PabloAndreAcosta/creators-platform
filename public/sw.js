@@ -1,4 +1,4 @@
-const CACHE_NAME = 'usha-v6';
+const CACHE_NAME = 'usha-v7';
 
 const STATIC_ASSETS = [
   '/',
@@ -113,7 +113,9 @@ self.addEventListener('push', (event) => {
   const options = {
     body: data.body || '',
     icon: '/icon-192.png',
-    badge: '/icon-192.png',
+    // Monochrome, transparent badge — Android tints it. A full-colour icon here
+    // renders as a solid white square in the status bar.
+    badge: '/badge-96.png',
     tag: data.tag || undefined,
     renotify: !!data.tag,
     data: { url: data.url || '/app/notifications' },
