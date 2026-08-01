@@ -259,7 +259,9 @@ export async function POST(req: NextRequest) {
           },
         },
         automatic_tax: { enabled: true },
-        success_url: `${baseUrl}/flode?ticket=success`,
+        // Clear confirmation screen for guests (no account) — the ticket QR is
+        // emailed; landing on the feed left buyers unsure the purchase worked.
+        success_url: `${baseUrl}/biljett/klar`,
         cancel_url: `${baseUrl}/flode`,
         metadata: {
           type: "guest_ticket",

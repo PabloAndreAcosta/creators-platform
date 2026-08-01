@@ -14,6 +14,7 @@ function formatDate(date: Date): string {
     weekday: "long",
     day: "numeric",
     month: "long",
+    timeZone: "Europe/Stockholm",
   }).format(date);
 }
 
@@ -21,6 +22,7 @@ function formatTime(date: Date): string {
   return new Intl.DateTimeFormat("sv-SE", {
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: "Europe/Stockholm",
   }).format(date);
 }
 

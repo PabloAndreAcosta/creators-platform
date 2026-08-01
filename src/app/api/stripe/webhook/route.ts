@@ -207,7 +207,7 @@ export async function POST(req: NextRequest) {
           // Send confirmation to guest email
           const listingRes = await getSupabaseAdmin()
             .from("listings")
-            .select("title, event_location")
+            .select("title, event_location, organizer_name, event_end_time")
             .eq("id", listingId)
             .single();
           const creatorRes = await getSupabaseAdmin()
@@ -217,12 +217,18 @@ export async function POST(req: NextRequest) {
             .single();
 
           if (guestEmail) {
+            // Prefer the event's own organizer name (e.g. "Joy Nation") over the
+            // owning account's personal name. End time → "14:00–17:00" range.
+            const endIso = eventDate && listingRes.data?.event_end_time
+              ? stockholmLocalToUtcISO(`${eventDate}T${listingRes.data.event_end_time}`)
+              : null;
             sendBookingConfirmationEmail({
               to: guestEmail,
               customerName: guestName || "Gäst",
               serviceName: listingRes.data?.title || "Event",
               scheduledAt: new Date(scheduledAt),
-              creatorName: creatorRes.data?.full_name || "Kreatör",
+              scheduledEndAt: endIso ? new Date(endIso) : undefined,
+              creatorName: listingRes.data?.organizer_name || creatorRes.data?.full_name || "Kreatör",
               location: listingRes.data?.event_location || undefined,
               bookingId: guestBooking?.id,
             }).catch(err => console.error("Guest confirmation email failed:", err));
@@ -987,18 +993,25 @@ async function sendTicketConfirmationEmail(
   const [customerRes, creatorRes, listingRes] = await Promise.all([
     admin.from("profiles").select("email, full_name").eq("id", customerId).single(),
     admin.from("profiles").select("full_name").eq("id", creatorId).single(),
-    admin.from("listings").select("title, event_location").eq("id", listingId).single(),
+    admin.from("listings").select("title, event_location, organizer_name, event_date, event_end_time").eq("id", listingId).single(),
   ]);
 
   const email = customerRes.data?.email;
   if (!email) return;
+
+  // Prefer the event's organizer name (e.g. "Joy Nation") over the account name,
+  // and pass the end time so the email shows a "14:00–17:00" range.
+  const endIso = listingRes.data?.event_date && listingRes.data?.event_end_time
+    ? stockholmLocalToUtcISO(`${listingRes.data.event_date}T${listingRes.data.event_end_time}`)
+    : null;
 
   await sendBookingConfirmationEmail({
     to: email,
     customerName: customerRes.data?.full_name || "Kund",
     serviceName: listingRes.data?.title || "Event",
     scheduledAt,
-    creatorName: creatorRes.data?.full_name || "Kreatör",
+    scheduledEndAt: endIso ? new Date(endIso) : undefined,
+    creatorName: listingRes.data?.organizer_name || creatorRes.data?.full_name || "Kreatör",
     location: listingRes.data?.event_location || undefined,
   });
 }
