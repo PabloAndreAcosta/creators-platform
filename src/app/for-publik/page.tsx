@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { Nav } from "@/components/landing/nav";
 import { PerspectiveHero } from "@/components/landing/perspective-hero";
 import { LoopSection } from "@/components/landing/loop-section";
+import { AudienceFeatures } from "@/components/landing/audience-features";
 import { PerspectiveLinks } from "@/components/landing/perspective-links";
 import { Trust } from "@/components/landing/trust";
 import { Footer } from "@/components/landing/footer";
@@ -29,6 +30,7 @@ export default function ForAudiencePage() {
           ticket wedge sits just beneath it as lighter-weight reassurance. */}
       <PerspectiveHero ns="forAudience" ctaHref="/upplevelser" wedge />
       <LoopSection ns="forAudience" />
+      <AudienceFeatures />
       <PerspectiveLinks exclude="audience" />
       <Trust />
       <Footer />

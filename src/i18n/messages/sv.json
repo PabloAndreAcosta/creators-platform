@@ -1637,6 +1637,18 @@
       "title": "Så snurrar kretsloppet för dig",
       "body": "Fler kreatörer och platser betyder mer för dig att uppleva – kuraterat och tryggt."
     },
+    "features": {
+      "title": "Allt du behöver för att",
+      "titleHighlight": "dansa mer",
+      "subtitle": "Från första biljetten till din nästa träningspartner.",
+      "newBadge": "Nytt",
+      "items": {
+        "buddies": { "title": "Träningsvänner", "desc": "Hitta din dansträningspartner – matcha, chatta och träna ihop. BankID-tryggt." },
+        "tickets": { "title": "Biljetter i mobilen", "desc": "Köp biljetter till kurser, socials och upplevelser – QR-koden ligger direkt i telefonen." },
+        "forYou": { "title": "För dig", "desc": "Personliga tips på event och upplevelser som passar just dig." },
+        "safe": { "title": "Tryggt & verifierat", "desc": "BankID-verifierade profiler och säkra betalningar via Stripe." }
+      }
+    },
     "wedge": "Köp biljetter direkt – inget konto krävs"
   },
   "perspectiveLinks": {
