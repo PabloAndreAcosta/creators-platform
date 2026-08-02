@@ -1637,6 +1637,18 @@
       "title": "How the cycle works for you",
       "body": "More creators and venues means more for you to experience – curated and safe."
     },
+    "features": {
+      "title": "Everything you need to",
+      "titleHighlight": "dance more",
+      "subtitle": "From your first ticket to your next practice partner.",
+      "newBadge": "New",
+      "items": {
+        "buddies": { "title": "Training buddies", "desc": "Find your dance practice partner – match, chat and train together. BankID-verified." },
+        "tickets": { "title": "Tickets on your phone", "desc": "Buy tickets to classes, socials and experiences – the QR lives right in your phone." },
+        "forYou": { "title": "For you", "desc": "Personal picks of events and experiences that fit you." },
+        "safe": { "title": "Safe & verified", "desc": "BankID-verified profiles and secure payments via Stripe." }
+      }
+    },
     "wedge": "Buy tickets directly – no account needed"
   },
   "perspectiveLinks": {

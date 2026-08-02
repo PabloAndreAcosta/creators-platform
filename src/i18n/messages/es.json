@@ -1637,6 +1637,18 @@
       "title": "Cómo funciona el ciclo para ti",
       "body": "Más creadores y locales significa más para que experimentes – seleccionado y seguro."
     },
+    "features": {
+      "title": "Todo lo que necesitas para",
+      "titleHighlight": "bailar más",
+      "subtitle": "Desde tu primera entrada hasta tu próxima pareja de práctica.",
+      "newBadge": "Nuevo",
+      "items": {
+        "buddies": { "title": "Compañeros de entrenamiento", "desc": "Encuentra tu pareja de práctica de baile: haz match, chatea y entrena. Verificado con BankID." },
+        "tickets": { "title": "Entradas en tu móvil", "desc": "Compra entradas para clases, socials y experiencias: el QR va directo en tu teléfono." },
+        "forYou": { "title": "Para ti", "desc": "Recomendaciones personales de eventos y experiencias que encajan contigo." },
+        "safe": { "title": "Seguro y verificado", "desc": "Perfiles verificados con BankID y pagos seguros vía Stripe." }
+      }
+    },
     "wedge": "Compra entradas directamente – sin necesidad de cuenta"
   },
   "perspectiveLinks": {
