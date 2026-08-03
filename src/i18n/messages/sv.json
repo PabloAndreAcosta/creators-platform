@@ -62,7 +62,7 @@
     "buddies": "Träningsvänner"
   },
   "roles": {
-    "customer": "Användare",
+    "customer": "Publik",
     "creator": "Kreatör",
     "venue": "Venue"
   },
@@ -453,7 +453,7 @@
       "login": "Logga in",
       "forCreators": "Kreatör",
       "forVenues": "Plats",
-      "forAudience": "Upplev",
+      "forAudience": "Publik",
       "shop": "Shop",
       "sellTickets": "Sälj biljetter",
       "homeAriaLabel": "Usha Platform – hem"
@@ -634,7 +634,7 @@
       "betaHighlight": "gratis under betaperioden",
       "betaSuffix": "— på obestämd tid.",
       "betaUntil": "— till och med {date}.",
-      "roleUser": "Användare",
+      "roleUser": "Publik",
       "roleCreator": "Kreatör",
       "roleExperience": "Venue",
       "mostPopular": "Populärast",
@@ -899,7 +899,7 @@
     "defaultName": "Användare",
     "roleCreator": "Kreatör",
     "roleExperience": "Venue",
-    "roleUser": "Användare",
+    "roleUser": "Publik",
     "memberSinceFallback": "nyligen",
     "points": "{points} poäng",
     "bankidVerifiedTitle": "Identitet verifierad med BankID",

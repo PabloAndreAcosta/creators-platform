@@ -62,7 +62,7 @@
     "buddies": "Compañeros"
   },
   "roles": {
-    "customer": "Usuario",
+    "customer": "Público",
     "creator": "Creador",
     "venue": "Espacio"
   },
@@ -453,7 +453,7 @@
       "login": "Iniciar sesión",
       "forCreators": "Creadores",
       "forVenues": "Espacios",
-      "forAudience": "Descubrir",
+      "forAudience": "Público",
       "shop": "Tienda",
       "sellTickets": "Vender entradas",
       "homeAriaLabel": "Usha Platform – inicio"
@@ -634,7 +634,7 @@
       "betaHighlight": "gratis durante el periodo beta",
       "betaSuffix": "— por tiempo indefinido.",
       "betaUntil": "— hasta el {date}.",
-      "roleUser": "Usuario",
+      "roleUser": "Público",
       "roleCreator": "Creador",
       "roleExperience": "Espacio",
       "mostPopular": "El más popular",
@@ -899,7 +899,7 @@
     "defaultName": "Usuario",
     "roleCreator": "Creador",
     "roleExperience": "Espacio",
-    "roleUser": "Usuario",
+    "roleUser": "Público",
     "memberSinceFallback": "hace poco",
     "points": "{points} puntos",
     "bankidVerifiedTitle": "Identidad verificada con BankID",
