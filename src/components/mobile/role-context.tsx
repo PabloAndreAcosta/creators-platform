@@ -18,7 +18,7 @@ const DB_TO_APP_ROLE: Record<string, UserRole> = {
 
 // Static fallback labels (used where useTranslations is not available)
 export const ROLE_LABELS: Record<UserRole, string> = {
-  customer: "Användare",
+  customer: "Publik",
   creator: "Kreatör",
   venue: "Venue",
 };

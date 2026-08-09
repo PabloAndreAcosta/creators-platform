@@ -62,7 +62,7 @@
     "buddies": "Training buddies"
   },
   "roles": {
-    "customer": "User",
+    "customer": "Audience",
     "creator": "Creator",
     "venue": "Venue"
   },
@@ -405,7 +405,7 @@
     "roleCreatorDesc": "I offer creative services",
     "roleExperience": "Venue",
     "roleExperienceDesc": "I run a business",
-    "roleCustomer": "Customer",
+    "roleCustomer": "Audience",
     "roleCustomerDesc": "I want to book experiences",
     "haveAccount": "Already have an account?",
     "verifyIdentity": "Verify your identity",
@@ -453,7 +453,7 @@
       "login": "Log in",
       "forCreators": "Creators",
       "forVenues": "Venues",
-      "forAudience": "Discover",
+      "forAudience": "Audience",
       "shop": "Shop",
       "sellTickets": "Sell tickets",
       "homeAriaLabel": "Usha Platform – home"
@@ -634,7 +634,7 @@
       "betaHighlight": "free during the beta period",
       "betaSuffix": "— indefinitely.",
       "betaUntil": "— until {date}.",
-      "roleUser": "User",
+      "roleUser": "Audience",
       "roleCreator": "Creator",
       "roleExperience": "Venue",
       "mostPopular": "Most popular",
@@ -899,7 +899,7 @@
     "defaultName": "User",
     "roleCreator": "Creator",
     "roleExperience": "Venue",
-    "roleUser": "User",
+    "roleUser": "Audience",
     "memberSinceFallback": "recently",
     "points": "{points} points",
     "bankidVerifiedTitle": "Identity verified with BankID",
