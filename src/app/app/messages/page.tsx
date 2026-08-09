@@ -33,7 +33,7 @@ interface Contact {
 const ROLE_LABELS: Record<string, string> = {
   creator: "Creator",
   venue: "Venue",
-  customer: "User",
+  customer: "Audience",
 };
 
 export default function MessagesPage() {
