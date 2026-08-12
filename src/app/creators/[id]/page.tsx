@@ -82,7 +82,7 @@ export default async function CreatorProfilePage(props: Props) {
     supabase
       .from("profiles")
       .select(
-        "id, full_name, avatar_url, bio, category, location, hourly_rate, website, stripe_account_id, company_verified_at, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3, bankid_verified_at, bankid_name"
+        "id, full_name, avatar_url, bio, category, location, hourly_rate, website, company_verified_at, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3, bankid_verified_at, bankid_name"
       )
       .eq(column, params.id)
       .eq("is_public", true)
@@ -166,7 +166,10 @@ export default async function CreatorProfilePage(props: Props) {
   const isLoggedIn = !!user;
   const isOwnProfile = user?.id === profile.id;
   const isFollowing = !!isFollowingData;
-  const hasConnect = !!profile.stripe_account_id;
+  // stripe_account_id är inte längre läsbart för anon (P0-lockdown); härled bara
+  // booleanet via SECURITY DEFINER-funktionen has_stripe_connect.
+  const { data: hasConnectData } = await supabase.rpc("has_stripe_connect", { p_id: profile.id });
+  const hasConnect = !!hasConnectData;
   const payeeCanReceive = canReceivePayments({
     id: profile.id,
     company_verified_at: (profile as { company_verified_at?: string | null }).company_verified_at ?? null,
