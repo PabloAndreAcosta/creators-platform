@@ -292,13 +292,20 @@ export async function POST(req: NextRequest) {
             .from("token_ledger")
             .select("id", { count: "exact", head: true })
             .eq("ref", ref);
-          if (count && count > 0) break; // idempotent
-          await getSupabaseAdmin().from("token_ledger").insert({
+          if (count && count > 0) break; // fast-path idempotency
+          // The unique index token_ledger_purchase_uq (ref where reason='purchase')
+          // is the real guarantee: a concurrent duplicate webhook that races past
+          // the check above fails here with 23505, which we swallow so the tokens
+          // are credited exactly once.
+          const { error: tokenErr } = await getSupabaseAdmin().from("token_ledger").insert({
             profile_id: userId,
             delta: tokens,
             reason: "purchase",
             ref,
           });
+          if (tokenErr && tokenErr.code !== "23505") {
+            console.error("token_ledger purchase insert failed:", { ref, error: tokenErr });
+          }
           break;
         }
 
