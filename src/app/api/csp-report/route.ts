@@ -31,6 +31,30 @@ type Row = {
 const num = (v: unknown): number | null =>
   typeof v === "number" ? v : null;
 
+// Bound what an unauthenticated caller can write via the service-role insert.
+const MAX_REPORT_BYTES = 16 * 1024; // whole request body
+const MAX_ROWS = 50; // reports per request (Reporting API batches)
+
+// Only accept reports that claim to come from our own site — a CSP report's
+// document_uri is the page that violated the policy, so a foreign origin means
+// the report is spoofed/irrelevant and shouldn't reach our table.
+const APP_ORIGIN = (() => {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_APP_URL || "https://usha.se").origin;
+  } catch {
+    return "https://usha.se";
+  }
+})();
+
+function isOwnOrigin(documentUri: string | null | undefined): boolean {
+  if (!documentUri) return true; // some reports omit it; don't over-filter
+  try {
+    return new URL(documentUri).origin === APP_ORIGIN;
+  } catch {
+    return false;
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { rateLimit, getRateLimitKey } = await import("@/lib/rate-limit");
@@ -44,7 +68,17 @@ export async function POST(req: NextRequest) {
     }
 
     const ua = req.headers.get("user-agent");
-    const body = await req.json().catch(() => null);
+    // Read as text first so we can bound the size before parsing / persisting.
+    const text = await req.text().catch(() => "");
+    if (!text || text.length > MAX_REPORT_BYTES) {
+      return new NextResponse(null, { status: 204 });
+    }
+    let body: any;
+    try {
+      body = JSON.parse(text);
+    } catch {
+      return new NextResponse(null, { status: 204 });
+    }
     if (!body) return new NextResponse(null, { status: 204 });
 
     const rows: Row[] = [];
@@ -88,9 +122,11 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    if (rows.length) {
+    // Drop spoofed/foreign-origin reports and cap the batch size.
+    const accepted = rows.filter((r) => isOwnOrigin(r.document_uri)).slice(0, MAX_ROWS);
+    if (accepted.length) {
       const admin = createAdminClient();
-      await admin.from("csp_reports").insert(rows);
+      await admin.from("csp_reports").insert(accepted);
     }
   } catch {
     // never surface report-collection errors
