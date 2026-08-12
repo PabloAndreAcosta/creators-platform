@@ -70,6 +70,16 @@ export async function POST(
   const { id: listingId } = await params;
   const te = await getTranslations("eventErrors");
 
+  // This endpoint is public and sends a Resend email per fresh signup. Throttle
+  // per IP to blunt scripted abuse. (In-memory best-effort; the per-listing/hour
+  // cap below is the durable backstop that bounds total email volume even across
+  // many IPs / cold starts.)
+  const { rateLimit, getRateLimitKey } = await import("@/lib/rate-limit");
+  const rl = rateLimit(getRateLimitKey(req, "waitlist-join"), 3, 60_000);
+  if (!rl.allowed) {
+    return NextResponse.json({ error: te("generic") }, { status: 429 });
+  }
+
   let body: { name?: unknown; email?: unknown; source?: unknown; consent?: unknown };
   try {
     body = await req.json();
@@ -95,6 +105,22 @@ export async function POST(
     .maybeSingle();
   if (!listing) {
     return NextResponse.json({ error: te("eventNotFound") }, { status: 404 });
+  }
+
+  // Durable per-event cap: bound how many confirmation emails a single event can
+  // trigger per hour, regardless of source IP (the in-memory per-IP limit above
+  // doesn't survive cold starts or multiple IPs). Only fresh signups create a row
+  // and send mail — duplicates are idempotent no-ops — so counting rows in the
+  // last hour directly bounds email volume.
+  const WAITLIST_MAX_PER_LISTING_PER_HOUR = 100;
+  const { count: recentJoins } = await admin
+    .from("event_waitlist")
+    .select("id", { count: "exact", head: true })
+    .eq("listing_id", listingId)
+    .gte("created_at", new Date(Date.now() - 60 * 60 * 1000).toISOString());
+  if ((recentJoins ?? 0) >= WAITLIST_MAX_PER_LISTING_PER_HOUR) {
+    console.warn("waitlist hourly cap hit for listing:", listingId);
+    return NextResponse.json({ error: te("generic") }, { status: 429 });
   }
 
   const email = normalizeEmail(body.email);
