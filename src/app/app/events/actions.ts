@@ -10,6 +10,7 @@ import { EVENT_CATEGORIES } from "./constants";
 import { getSubscriptionStatus } from "@/lib/subscription/check";
 import { checkListingLimit } from "@/lib/listings/limits";
 import { generateUniqueListingSlug, generateUniqueSeriesSlug } from "@/lib/listings/slug";
+import { isSeller } from "@/lib/roles";
 import { ticketGateForNewEvent, ticketGateForListing } from "@/lib/capabilities/gate";
 import { stockholmLocalToUtcISO } from "@/lib/time";
 
@@ -33,13 +34,20 @@ function parseAutomation(formData: FormData) {
 }
 
 const BANKID_REQUIRED_MSG =
-  "Du måste verifiera dig med BankID innan du kan publicera eller duplicera evenemang. Gör det under Profil.";
+  "För att skapa evenemang krävs ett kreatörs- eller platskonto som är verifierat med BankID. Byt roll och/eller verifiera dig under Profil.";
 
 /**
- * Mirrors the `is_bankid_cleared()` DB function that backs the RLS WITH CHECK on
- * `listings`. Writes by an un-cleared creator are blocked by RLS and would
- * otherwise surface as a generic "kunde inte"-fel — this lets us return a clear,
- * actionable message before we even attempt the write.
+ * Gate for creating/duplicating/editing listings. Creating an event goes through
+ * the service-role client (co-organizers never own the row), so this app-level
+ * check — not RLS — is the real gate. Requires BOTH:
+ *   1. a SELLER role (creator/venue) — a `customer`/audience account must never
+ *      create commercial listings, and
+ *   2. BankID clearance (verified or grandfathered).
+ *
+ * Note: the DB function `is_bankid_cleared()` returns TRUE for `role='customer'`,
+ * so relying on it alone (as this helper used to) let any audience account create
+ * and sell events without ever verifying identity. We therefore check the seller
+ * role explicitly here and mirror it in the listings RLS policy for defence in depth.
  */
 async function isBankidCleared(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -51,8 +59,8 @@ async function isBankidCleared(
     .eq("id", userId)
     .single();
   if (!data) return false;
+  if (!isSeller(data.role)) return false;
   return (
-    data.role === "customer" ||
     data.bankid_verified_at != null ||
     data.bankid_grandfathered_at != null
   );

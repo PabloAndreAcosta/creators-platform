@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/client';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { isSeller } from '@/lib/roles';
 
 export async function POST() {
   try {
@@ -18,9 +19,22 @@ export async function POST() {
     const adminSupabase = createAdminClient();
     const { data: profile } = await adminSupabase
       .from('profiles')
-      .select('stripe_account_id, full_name, email')
+      .select('stripe_account_id, full_name, email, role, bankid_verified_at, bankid_grandfathered_at')
       .eq('id', user.id)
       .single();
+
+    // Only BankID-cleared sellers may set up payouts. A customer/audience account
+    // must never be able to receive money — mirrors the listings creation gate.
+    const cleared =
+      !!profile &&
+      isSeller(profile.role) &&
+      (profile.bankid_verified_at != null || profile.bankid_grandfathered_at != null);
+    if (!cleared) {
+      return NextResponse.json(
+        { error: 'Endast BankID-verifierade kreatörer och platser kan koppla utbetalningar.' },
+        { status: 403 }
+      );
+    }
 
     let accountId = profile?.stripe_account_id;
 
