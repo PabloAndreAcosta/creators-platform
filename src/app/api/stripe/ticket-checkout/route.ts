@@ -209,7 +209,7 @@ export async function POST(req: NextRequest) {
     // Get creator profile (for Connect account and tier)
     const { data: creator } = await supabase
       .from('profiles')
-      .select('stripe_account_id, tier, company_verified_at')
+      .select('stripe_account_id, tier, creator_subcategory, company_verified_at')
       .eq('id', listing.user_id)
       .single();
 
@@ -228,7 +228,10 @@ export async function POST(req: NextRequest) {
     const originalPrice = effectivePrice;
     const discountedPrice = calculateDiscountedPrice(originalPrice, userTier);
     const amountInOre = Math.round(discountedPrice * 100);
-    const commissionRate = getCreatorCommissionRate(creator.tier ?? 'gratis');
+    const commissionRate = getCreatorCommissionRate(
+      creator.tier ?? 'gratis',
+      (creator as { creator_subcategory?: string | null }).creator_subcategory ?? null
+    );
     const applicationFee = Math.round(amountInOre * commissionRate);
 
     // Tickster-style service fee (gated off until the flag is set). In BOTH
