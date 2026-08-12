@@ -99,43 +99,67 @@ export async function POST(
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";
     const stripeLocale = await getStripeLocale();
 
-    const session = await stripe.checkout.sessions.create({
-      locale: stripeLocale,
-      customer_email: email,
-      line_items: [
-        {
-          price_data: {
-            currency: "sek",
-            product_data: { name: listing.title },
-            unit_amount: amountInOre,
-          },
-          quantity: 1,
-        },
-      ],
-      mode: "payment",
-      payment_intent_data: {
-        application_fee_amount: applicationFee,
-        transfer_data: { destination: creator.stripe_account_id },
-      },
-      automatic_tax: { enabled: true },
-      // Land buyers on a clear confirmation instead of the feed: logged-in users
-      // see their tickets, guests get the login-free "thank you" page.
-      success_url: user ? `${baseUrl}/app/tickets?success=true` : `${baseUrl}/biljett/klar`,
-      cancel_url: `${baseUrl}/flode`,
-      metadata: {
-        // Reuse the existing webhook ticket branches; accessCodeId consumes the
-        // use on payment success.
-        type: user ? "ticket" : "guest_ticket",
-        listingId: listing.id,
-        creatorId: listing.user_id,
-        accessCodeId: codeRow.id,
-        eventDate: listing.event_date || "",
-        eventTime: listing.event_time || "",
-        ...(user
-          ? { userId: user.id }
-          : { guestEmail: email, guestName: name || "" }),
-      },
+    // Reserve one code use ATOMICALLY now (used_count++ with the max_uses guard),
+    // before the checkout exists. Validate-only let N concurrent requests each pass
+    // the read check and create N discounted sessions on a single-use code, all
+    // consumed later at payment. The reservation is released on Stripe error below
+    // and by the checkout.session.expired / async_payment_failed webhook handler.
+    const { data: reservedCodeId } = await admin.rpc("redeem_access_code", {
+      p_listing: listingId,
+      p_code: code,
     });
+    if (!reservedCodeId) {
+      return NextResponse.json({ error: te("invalidCode") }, { status: 400 });
+    }
+
+    let session;
+    try {
+      session = await stripe.checkout.sessions.create({
+        locale: stripeLocale,
+        customer_email: email,
+        // Shorter hold so a griefer can't lock a single-use code for a full day
+        // by abandoning checkouts (mirrors the ticket checkout window).
+        expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
+        line_items: [
+          {
+            price_data: {
+              currency: "sek",
+              product_data: { name: listing.title },
+              unit_amount: amountInOre,
+            },
+            quantity: 1,
+          },
+        ],
+        mode: "payment",
+        payment_intent_data: {
+          application_fee_amount: applicationFee,
+          transfer_data: { destination: creator.stripe_account_id },
+        },
+        automatic_tax: { enabled: true },
+        // Land buyers on a clear confirmation instead of the feed: logged-in users
+        // see their tickets, guests get the login-free "thank you" page.
+        success_url: user ? `${baseUrl}/app/tickets?success=true` : `${baseUrl}/biljett/klar`,
+        cancel_url: `${baseUrl}/flode`,
+        metadata: {
+          // Reuse the existing webhook ticket branches. accessCodeReserved tells the
+          // webhook the use was ALREADY counted here, so it must not consume again.
+          type: user ? "ticket" : "guest_ticket",
+          listingId: listing.id,
+          creatorId: listing.user_id,
+          accessCodeId: reservedCodeId,
+          accessCodeReserved: "true",
+          eventDate: listing.event_date || "",
+          eventTime: listing.event_time || "",
+          ...(user
+            ? { userId: user.id }
+            : { guestEmail: email, guestName: name || "" }),
+        },
+      });
+    } catch (e) {
+      // Release the code use we reserved if Stripe couldn't create the session.
+      await admin.rpc("release_access_code", { p_id: reservedCodeId });
+      throw e;
+    }
 
     return NextResponse.json({ url: session.url });
   }

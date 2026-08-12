@@ -237,7 +237,9 @@ export async function POST(req: NextRequest) {
           }
 
           // Discount access code: consume one use now that payment succeeded.
-          if (session.metadata?.accessCodeId) {
+          if (session.metadata?.accessCodeId && session.metadata?.accessCodeReserved !== "true") {
+            // Reserved codes were already counted at checkout creation; only the
+            // legacy validate-only path (no accessCodeReserved) consumes here.
             await getSupabaseAdmin()
               .rpc("consume_access_code", { p_id: session.metadata.accessCodeId })
               .then(({ error }) => error && console.error("consume_access_code failed:", error));
@@ -453,7 +455,9 @@ export async function POST(req: NextRequest) {
           }
 
           // Discount access code: consume one use now that payment succeeded.
-          if (session.metadata?.accessCodeId) {
+          if (session.metadata?.accessCodeId && session.metadata?.accessCodeReserved !== "true") {
+            // Reserved codes were already counted at checkout creation; only the
+            // legacy validate-only path (no accessCodeReserved) consumes here.
             await getSupabaseAdmin()
               .rpc("consume_access_code", { p_id: session.metadata.accessCodeId })
               .then(({ error }) => error && console.error("consume_access_code failed:", error));
@@ -885,6 +889,13 @@ export async function POST(req: NextRequest) {
               p_ticket_type: s.metadata?.ticketTypeId || undefined,
             })
             .then(({ error }: { error: unknown }) => error && console.error("release reserved seats failed:", error));
+        }
+        // Release a discount-code use that was reserved at checkout creation but
+        // never paid (abandoned/expired or async payment failed).
+        if (s.metadata?.accessCodeReserved === "true" && s.metadata?.accessCodeId) {
+          await getSupabaseAdmin()
+            .rpc("release_access_code", { p_id: s.metadata.accessCodeId })
+            .then(({ error }: { error: unknown }) => error && console.error("release access code failed:", error));
         }
         break;
       }
