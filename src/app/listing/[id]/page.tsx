@@ -98,7 +98,7 @@ export default async function ListingDetailPage(props: Props) {
   // Fetch creator profile
   const { data: creator } = await supabase
     .from("profiles")
-    .select("id, full_name, avatar_url, category, stripe_account_id, company_verified_at, slug")
+    .select("id, full_name, avatar_url, category, company_verified_at, slug")
     .eq("id", listing.user_id)
     .single();
 
@@ -119,17 +119,22 @@ export default async function ListingDetailPage(props: Props) {
     avatar_url: string | null;
     coaching_specialties: string[] | null;
     coaching_hourly_rate_sek: number | null;
-    stripe_account_id: string | null;
   };
   let eventInstructors: EventInstructor[] = [];
   if (listing.open_to_instructors) {
     const { data: joined } = await supabase
       .from("event_instructors")
-      .select("profiles!event_instructors_instructor_id_fkey(id, full_name, avatar_url, coaching_specialties, coaching_hourly_rate_sek, stripe_account_id)")
+      .select("profiles!event_instructors_instructor_id_fkey(id, full_name, avatar_url, coaching_specialties, coaching_hourly_rate_sek)")
       .eq("listing_id", listing.id);
-    eventInstructors = ((joined ?? []) as unknown as { profiles: EventInstructor | null }[])
+    const candidates = ((joined ?? []) as unknown as { profiles: EventInstructor | null }[])
       .map((r) => r.profiles)
-      .filter((p): p is EventInstructor => !!p && !!p.coaching_hourly_rate_sek && p.coaching_hourly_rate_sek > 0 && !!p.stripe_account_id);
+      .filter((p): p is EventInstructor => !!p && !!p.coaching_hourly_rate_sek && p.coaching_hourly_rate_sek > 0);
+    // Bara instruktörer som kan ta betalt visas — Connect-status via RPC eftersom
+    // stripe_account_id inte är läsbart för anon/authenticated.
+    const connected = await Promise.all(
+      candidates.map((p) => supabase.rpc("has_stripe_connect", { p_id: p.id }))
+    );
+    eventInstructors = candidates.filter((_, i) => !!connected[i]?.data);
   }
 
   // Get visitor tier for discounts
@@ -145,7 +150,10 @@ export default async function ListingDetailPage(props: Props) {
 
   const isLoggedIn = !!user;
   const isOwner = user?.id === listing.user_id;
-  const hasConnect = !!creator.stripe_account_id;
+  // stripe_account_id är inte läsbart för anon/authenticated (kolumn-lockdown);
+  // härled bara booleanet via SECURITY DEFINER-funktionen has_stripe_connect.
+  const { data: hasConnectData } = await supabase.rpc("has_stripe_connect", { p_id: creator.id });
+  const hasConnect = !!hasConnectData;
   const payeeCanReceive = canReceivePayments({
     id: creator.id,
     company_verified_at: (creator as { company_verified_at?: string | null }).company_verified_at ?? null,

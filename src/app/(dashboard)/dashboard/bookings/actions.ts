@@ -368,8 +368,9 @@ interface EmailContext {
 
 async function fetchEmailData(ctx: EmailContext) {
   const [customerResult, creatorResult, listingResult] = await Promise.all([
-    ctx.supabase.from("profiles").select("email, full_name").eq("id", ctx.customerId).single(),
-    ctx.supabase.from("profiles").select("email, full_name").eq("id", ctx.creatorId).single(),
+    // email är inte läsbar för authenticated på motpartens rad — service-role.
+    createAdminClient().from("profiles").select("email, full_name").eq("id", ctx.customerId).single(),
+    createAdminClient().from("profiles").select("email, full_name").eq("id", ctx.creatorId).single(),
     ctx.supabase.from("listings").select("title, event_location").eq("id", ctx.listingId).single(),
   ]);
   return {

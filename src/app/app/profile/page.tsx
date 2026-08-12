@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { ProfileContent } from "./profile-content";
 
 export default async function ProfilePage() {
@@ -19,7 +20,8 @@ export default async function ProfilePage() {
     if (user) {
       email = user.email || "";
       const [profileRes, listingsRes, bookingsRes, favoritesRes] = await Promise.all([
-        supabase.from("profiles").select("*").eq("id", user.id).single(),
+        // Egen rad via service-role — se kommentar i src/app/app/page.tsx.
+        createAdminClient().from("profiles").select("*").eq("id", user.id).single(),
         supabase
           .from("listings")
           .select("*", { count: "exact", head: true })

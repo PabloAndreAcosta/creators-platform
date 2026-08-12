@@ -207,7 +207,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Get creator profile (for Connect account and tier)
-    const { data: creator } = await supabase
+    const { data: creator } = await createAdminClient()
       .from('profiles')
       .select('stripe_account_id, tier, creator_subcategory, company_verified_at')
       .eq('id', listing.user_id)

@@ -112,7 +112,7 @@ export async function POST(req: NextRequest) {
     // Paid digital product → destination charge to the creator's Connect account
     // so the gross goes to the creator and only the commission lands on Usha
     // (§1.1 / G4 — gross must never land on Usha's account).
-    const { data: creator } = await supabase
+    const { data: creator } = await createAdminClient()
       .from("profiles")
       .select("stripe_account_id, tier, creator_subcategory, company_verified_at")
       .eq("id", product.creator_id)
