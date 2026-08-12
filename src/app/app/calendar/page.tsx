@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { CalendarContent } from "./calendar-content";
 import { CalendarSync } from "./calendar-sync";
 import { FollowedEvents, type FollowedEvent } from "./followed-events";
@@ -22,6 +23,10 @@ export default async function CalendarPage() {
       const lastDayNum = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
       const endOfMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(lastDayNum).padStart(2, "0")}`;
 
+      // calendar_sync_token is no longer readable by the authenticated role
+      // (revoked so a logged-in user can't read other users' feed tokens); read
+      // the user's OWN row via service-role after the getUser() ownership check.
+      const admin = createAdminClient();
       const [{ data: bookingData }, { data: profile }, { data: availabilityData }] = await Promise.all([
         supabase
           .from("bookings")
@@ -29,7 +34,7 @@ export default async function CalendarPage() {
           .or(`creator_id.eq.${user.id},customer_id.eq.${user.id}`)
           .in("status", ["pending", "confirmed"])
           .order("scheduled_at", { ascending: true }),
-        supabase
+        admin
           .from("profiles")
           .select("calendar_sync_token, role")
           .eq("id", user.id)

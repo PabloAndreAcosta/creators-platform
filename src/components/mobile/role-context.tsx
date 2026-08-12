@@ -49,15 +49,17 @@ export function RoleProvider({ children }: { children: ReactNode }) {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) return;
+      // is_admin is not readable as a column (revoked from `authenticated`); read
+      // the boolean via the SECURITY DEFINER RPC so the flag never needs a column grant.
+      supabase.rpc("is_current_user_admin").then(({ data }) => {
+        if (data === true) setIsAdmin(true);
+      });
       supabase
         .from("profiles")
-        .select("role, is_admin")
+        .select("role")
         .eq("id", user.id)
         .single()
         .then(({ data }) => {
-          if (data?.is_admin === true) {
-            setIsAdmin(true);
-          }
           if (data?.role) {
             const appRole = DB_TO_APP_ROLE[data.role] ?? "customer";
             setDbRole(appRole);
