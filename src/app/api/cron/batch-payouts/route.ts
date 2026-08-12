@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { verifyCronAuth } from "@/lib/cron/auth";
 import { weeklyPayoutBatch } from "@/lib/stripe/payouts";
 
 /**
@@ -9,8 +10,7 @@ import { weeklyPayoutBatch } from "@/lib/stripe/payouts";
  * { "crons": [{ "path": "/api/cron/batch-payouts", "schedule": "0 6 * * 1" }] }
  */
 export async function GET(req: NextRequest) {
-  const authHeader = req.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!verifyCronAuth(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

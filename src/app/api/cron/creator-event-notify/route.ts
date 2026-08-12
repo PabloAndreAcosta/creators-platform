@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { verifyCronAuth } from "@/lib/cron/auth";
 import { createClient } from "@supabase/supabase-js";
 import { sendCreatorEventEmail } from "@/lib/email/send-creator-event";
 import { shouldSendEmail } from "@/lib/email/check-preferences";
@@ -18,8 +19,7 @@ function getSupabaseAdmin() {
  * Hobby caps crons at once/day).
  */
 export async function GET(req: NextRequest) {
-  const authHeader = req.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!verifyCronAuth(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
