@@ -22,7 +22,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Ej inloggad" }, { status: 401 });
   }
 
-  const { data: profile } = await supabase
+  const admin = createAdminClient();
+
+  const { data: profile } = await admin
     .from("profiles")
     .select("id, referral_code, referred_by")
     .eq("id", user.id)
@@ -37,7 +39,7 @@ export async function POST(req: NextRequest) {
   // Generate referral code if missing (independent of referral attribution).
   if (!profile.referral_code) {
     generatedCode = generateCode();
-    await supabase.from("profiles").update({ referral_code: generatedCode }).eq("id", user.id);
+    await admin.from("profiles").update({ referral_code: generatedCode }).eq("id", user.id);
   }
 
   // Process referral from signup metadata.
@@ -45,7 +47,7 @@ export async function POST(req: NextRequest) {
   let claimedReferredBy: string | null = null;
   if (referredByCode && !profile.referred_by) {
     // Look up the referrer
-    const { data: referrer } = await supabase
+    const { data: referrer } = await admin
       .from("profiles")
       .select("id")
       .eq("referral_code", referredByCode.toUpperCase())
@@ -55,7 +57,7 @@ export async function POST(req: NextRequest) {
       // Atomic claim: only the first call where referred_by IS NULL wins, so
       // concurrent "process once after signup" calls can't double-attribute or
       // mint duplicate welcome promos.
-      const { data: claimed } = await supabase
+      const { data: claimed } = await admin
         .from("profiles")
         .update({ referred_by: referrer.id })
         .eq("id", user.id)
@@ -114,14 +116,16 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Ej inloggad" }, { status: 401 });
   }
 
-  const { data: profile } = await supabase
+  const admin = createAdminClient();
+
+  const { data: profile } = await admin
     .from("profiles")
     .select("referral_code, referred_by")
     .eq("id", user.id)
     .single();
 
   // Count referrals
-  const { count } = await supabase
+  const { count } = await admin
     .from("profiles")
     .select("id", { count: "exact", head: true })
     .eq("referred_by", user.id);
