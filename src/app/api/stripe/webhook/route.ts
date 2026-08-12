@@ -762,21 +762,20 @@ export async function POST(req: NextRequest) {
           .single();
 
         if (sub) {
-          const tier = extractTierFromPlan(sub.plan);
-          if (subscription.status === "active" || subscription.status === "trialing") {
-            await getSupabaseAdmin()
-              .from("profiles")
-              .update({ tier })
-              .eq("id", sub.user_id);
-          } else if (
-            subscription.status === "canceled" ||
-            subscription.status === "unpaid"
-          ) {
-            await getSupabaseAdmin()
-              .from("profiles")
-              .update({ tier: "gratis" })
-              .eq("id", sub.user_id);
-          }
+          // Entitlement is binary: only active/trialing keep the paid tier.
+          // Any other status — past_due, unpaid, canceled, incomplete,
+          // incomplete_expired, paused — means the customer is not currently
+          // paying, so drop them to gratis (removes premium gating AND restores
+          // the standard 15%/8% commission instead of the 3% premium rate).
+          // When payment resumes Stripe fires subscription.updated with status
+          // "active", which restores the tier via the branch below.
+          const entitled =
+            subscription.status === "active" || subscription.status === "trialing";
+          const tier = entitled ? extractTierFromPlan(sub.plan) : "gratis";
+          await getSupabaseAdmin()
+            .from("profiles")
+            .update({ tier })
+            .eq("id", sub.user_id);
         }
         break;
       }
