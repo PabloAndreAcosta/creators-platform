@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { verifyCronAuth } from "@/lib/cron/auth";
 import { createClient } from "@supabase/supabase-js";
 import { notifyWaitlistReleased } from "@/lib/tickets/waitlist-release-notify";
 
@@ -26,8 +27,7 @@ const MAX_SENDS_PER_RUN = 2000;
  * Actions trigger is safe to double-fire.
  */
 export async function GET(req: NextRequest) {
-  const authHeader = req.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!verifyCronAuth(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

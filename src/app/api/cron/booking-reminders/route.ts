@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { verifyCronAuth } from "@/lib/cron/auth";
 import { createClient } from "@supabase/supabase-js";
 import { sendBookingReminderEmail } from "@/lib/email/send-booking-reminder";
 import { shouldSendEmail } from "@/lib/email/check-preferences";
@@ -15,8 +16,7 @@ function getSupabaseAdmin() {
  * Runs daily at 07:00 UTC (09:00 CEST). Idempotent via bookings.reminder_sent_at.
  */
 export async function GET(req: NextRequest) {
-  const authHeader = req.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!verifyCronAuth(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

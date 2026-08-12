@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { verifyCronAuth } from "@/lib/cron/auth";
 import { createClient } from "@supabase/supabase-js";
 import { sendTrialEndingEmail } from "@/lib/email/send-trial-ending";
 
@@ -15,8 +16,7 @@ function getSupabaseAdmin() {
  */
 export async function GET(req: NextRequest) {
   // Verify cron secret
-  const authHeader = req.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!verifyCronAuth(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
