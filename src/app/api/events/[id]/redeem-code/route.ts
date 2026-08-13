@@ -9,6 +9,7 @@ import { stripe } from "@/lib/stripe/client";
 import { getCreatorCommissionRate } from "@/lib/stripe/commission";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
 import { stockholmLocalToUtcISO } from "@/lib/time";
+import { getSaleState } from "@/lib/listings/sale-state";
 
 // Redeem an event access code for a ticket. Works for logged-in users and guests
 // (email required). Two kinds of code:
@@ -58,6 +59,11 @@ export async function POST(
     .eq("is_active", true)
     .maybeSingle();
   if (!listing) return NextResponse.json({ error: te("eventNotFound") }, { status: 404 });
+
+  // Ett passerat event ska inte gå att lösa in kod till i efterhand.
+  if (getSaleState({ price: null, event_date: listing.event_date }, new Date()).state === "past") {
+    return NextResponse.json({ error: te("past") }, { status: 403 });
+  }
 
   // Look up the code (validate-only) to decide free vs discount. Codes are stored
   // upper/trimmed, matching redeem_access_code's upper(btrim()).

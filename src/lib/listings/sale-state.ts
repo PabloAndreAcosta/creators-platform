@@ -1,10 +1,14 @@
 // Lucka 3 — tidsstyrd automatisering: härled biljettförsäljningens läge on-read.
 // Ren funktion (ingen I/O, ingen locale) så den kan testas exakt på minuten.
 
-export type SaleState = "on_sale" | "early_bird" | "before" | "sold_out";
+import { stockholmLocalToUtcISO } from "@/lib/time";
+
+export type SaleState = "on_sale" | "early_bird" | "before" | "sold_out" | "past";
 
 export interface SaleInput {
   price: number | null;
+  /** Eventdatum "YYYY-MM-DD". Sätts inte för tjänster utan datum. */
+  event_date?: string | null;
   early_bird_start?: string | Date | null;
   early_bird_end?: string | Date | null;
   early_bird_price?: number | null;
@@ -30,6 +34,13 @@ function asDate(v: string | Date | null | undefined): Date | null {
   return isNaN(d.getTime()) ? null : d;
 }
 
+/** Slutet av eventdagen i svensk tid (DST-korrekt). Null för datumlösa poster. */
+function endOfEventDay(event_date: string | null | undefined): Date | null {
+  if (!event_date) return null;
+  const iso = stockholmLocalToUtcISO(`${event_date}T23:59`);
+  return iso ? new Date(iso) : null;
+}
+
 export function getSaleState(listing: SaleInput, now: Date): SaleResult {
   const price = listing.price ?? 0;
   const ebStart = asDate(listing.early_bird_start);
@@ -38,6 +49,15 @@ export function getSaleState(listing: SaleInput, now: Date): SaleResult {
   const ebPrice = listing.early_bird_price ?? price;
   const capacity = listing.capacity ?? null;
   const sold = listing.tickets_sold ?? 0;
+
+  // 0. Eventet har redan varit → aldrig köpbart, oavsett förköp/kapacitet.
+  //    Passerade event ska ligga kvar och gå att bläddra i, men inte säljas.
+  //    Gränsen är midnatt efter eventdagen (svensk tid), så ett pågående event
+  //    aldrig stängs av i förtid. Tjänster utan event_date berörs inte.
+  const endsAt = endOfEventDay(listing.event_date);
+  if (endsAt && now > endsAt) {
+    return { state: "past", buyable: false, price, until: null };
+  }
 
   // 1. Kapacitetstak slår allt annat.
   if (capacity !== null && sold >= capacity) {

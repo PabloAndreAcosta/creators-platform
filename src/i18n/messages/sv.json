@@ -1873,6 +1873,8 @@
     "errorRetry": "Försök igen.",
     "badgeEarlyBird": "Förköp",
     "badgeSoldOut": "Slutsålt",
+    "badgePast": "Passerat",
+    "eventPast": "Det här eventet har varit",
     "badgeComingSoon": "Snart",
     "earlyBirdUntil": "Förköpspris t.o.m. {date}",
     "releasesAt": "Släpps {date}",
@@ -1931,6 +1933,7 @@
   "eventErrors": {
     "notReleased": "Biljetterna har inte släppts än.",
     "soldOut": "Eventet är slutsålt.",
+    "past": "Eventet har redan varit.",
     "invalidEmail": "Ange en giltig e-postadress.",
     "consentRequired": "Samtycke krävs.",
     "eventNotFound": "Eventet hittades inte.",

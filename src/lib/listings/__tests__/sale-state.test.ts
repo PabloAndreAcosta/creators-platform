@@ -97,3 +97,36 @@ describe("getSaleState — defensivt", () => {
     expect(r).toMatchObject({ state: "on_sale", buyable: true });
   });
 });
+
+describe("getSaleState — passerade event", () => {
+  it("är inte köpbart dagen efter eventet", () => {
+    const r = getSaleState({ price: 333, event_date: "2026-06-08" }, at("2026-06-09T08:00:00Z"));
+    expect(r.state).toBe("past");
+    expect(r.buyable).toBe(false);
+  });
+
+  it("är fortfarande köpbart under eventdagen, även sent på kvällen", () => {
+    // 21:30 UTC = 23:30 svensk sommartid, alltså före midnatt.
+    const r = getSaleState({ price: 333, event_date: "2026-06-08" }, at("2026-06-08T21:30:00Z"));
+    expect(r.state).toBe("on_sale");
+    expect(r.buyable).toBe(true);
+  });
+
+  it("stänger vid midnatt svensk tid, inte vid UTC-midnatt", () => {
+    // 22:30 UTC 8 juni = 00:30 svensk tid 9 juni → passerat.
+    const r = getSaleState({ price: 333, event_date: "2026-06-08" }, at("2026-06-08T22:30:00Z"));
+    expect(r.state).toBe("past");
+  });
+
+  it("slår förköpsfönstret — ett passerat event säljs aldrig", () => {
+    const r = getSaleState({ ...base, event_date: "2026-07-12" }, at("2026-07-13T09:00:00Z"));
+    expect(r.state).toBe("past");
+    expect(r.buyable).toBe(false);
+  });
+
+  it("rör inte tjänster utan datum", () => {
+    const r = getSaleState({ price: 333 }, at("2030-01-01T00:00:00Z"));
+    expect(r.state).toBe("on_sale");
+    expect(r.buyable).toBe(true);
+  });
+});
