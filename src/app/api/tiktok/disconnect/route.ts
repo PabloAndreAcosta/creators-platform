@@ -19,6 +19,7 @@ export async function POST() {
       tiktok_user_id: null,
       tiktok_username: null,
       tiktok_access_token: null,
+      tiktok_token_expires_at: null,
       tiktok_refresh_token: null,
     })
     .eq("user_id", user.id);

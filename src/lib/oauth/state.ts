@@ -77,14 +77,21 @@ const FB_PAGES_COOKIE = "fb_pages";
 export interface FbPagesPayload {
   pages: Array<{ id: string; name: string; token: string }>;
   fbUserId: string | null;
+  /**
+   * Utgångstid för sidtokens, bestämd i callbacken av om long-lived-växlingen
+   * lyckades. null = ingen utgång. Följer med hit så att select-page lagrar
+   * samma sanning som enkelsidesvägen.
+   */
+  pageTokenExpiresAt?: string | null;
 }
 
 export function setFbPagesCookie(
   response: NextResponse,
   pages: Array<{ id: string; name: string; token: string }>,
-  fbUserId: string | null = null
+  fbUserId: string | null = null,
+  pageTokenExpiresAt: string | null = null
 ): NextResponse {
-  const payload = JSON.stringify({ pages, fbUserId });
+  const payload = JSON.stringify({ pages, fbUserId, pageTokenExpiresAt });
   const signature = crypto.createHmac("sha256", SECRET).update(payload).digest("hex");
   const value = Buffer.from(payload).toString("base64") + "." + signature;
 

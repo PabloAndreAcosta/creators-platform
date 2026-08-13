@@ -140,7 +140,9 @@
       "system": "Follow system"
     },
     "security": "Login & security",
-    "securityDesc": "Login email, BankID, delete account"
+    "securityDesc": "Login email, BankID, delete account",
+    "connections": "Connections",
+    "connectionsDesc": "Instagram, Facebook and TikTok"
   },
   "notifSettings": {
     "newBookings": "New bookings",
@@ -1098,6 +1100,7 @@
   },
   "dashProfile": {
     "page": {
+      "manageConnections": "Manage connections",
       "back": "Back",
       "title": "Edit profile",
       "subtitleCreator": "Update your information and make your profile visible to customers.",
@@ -3326,5 +3329,25 @@
       "priceSek": "{price} SEK",
       "creator": "Creator",
       "viewProfile": "View profile"
-    }
+    },
+  "connections": {
+    "title": "Connections",
+    "subtitle": "Accounts you have connected to Usha, and their status.",
+    "creatorOnly": "Connections are for creator and venue accounts. Change your role on your profile to connect accounts.",
+    "instagramPurpose": "Pull photos and clips into your gallery.",
+    "facebookPurpose": "Pull media and sync events to your page.",
+    "tiktokPurpose": "Pull clips into your gallery.",
+    "statusConnected": "Connected",
+    "statusExpiringSoon": "Expiring soon",
+    "statusExpired": "Expired",
+    "statusDisconnected": "Not connected",
+    "expiredHint": "This connection has expired. Reconnect to import media again.",
+    "expiringHint": "This connection expires in {days} days. Reconnect whenever suits you.",
+    "connect": "Connect",
+    "reconnect": "Reconnect",
+    "disconnect": "Disconnect",
+    "disconnecting": "Disconnecting …",
+    "disconnectedToast": "Connection removed.",
+    "disconnectFailed": "Could not disconnect. Please try again."
+  }
 }
