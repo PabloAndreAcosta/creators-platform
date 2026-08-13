@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getStripeLocale } from "@/lib/i18n/stripe-locale";
 import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from '@/lib/supabase/admin';
 import { getCreatorCommissionRate } from "@/lib/stripe/commission";
 import { priceForMinutes, isMinuteOption, MIN_PRICE_SEK } from "@/lib/coaching/minute-pricing";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
@@ -66,7 +67,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Instructor profile: Connect account + rate + commission inputs
-    const { data: instructor } = await supabase
+    const { data: instructor } = await createAdminClient()
       .from("profiles")
       .select("full_name, stripe_account_id, tier, creator_subcategory, coaching_hourly_rate_sek, offers_coaching, company_verified_at")
       .eq("id", instructorId)

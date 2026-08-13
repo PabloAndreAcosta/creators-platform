@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Wallet } from "lucide-react";
@@ -15,7 +16,9 @@ export default async function PayoutsPage() {
   if (!user) redirect("/login");
 
   // Only creators/experience can view payouts
-  const { data: profile } = await supabase
+  // stripe_account_id är kolumn-låst för authenticated — läs egen rad via
+  // service-role efter getUser()-ägarkontrollen ovan.
+  const { data: profile } = await createAdminClient()
     .from("profiles")
     .select("role, stripe_account_id")
     .eq("id", user.id)

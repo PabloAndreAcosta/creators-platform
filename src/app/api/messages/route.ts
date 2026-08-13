@@ -302,7 +302,8 @@ async function sendMessageEmailNotification(
   // Get profiles
   const [senderResult, recipientResult] = await Promise.all([
     supabase.from('profiles').select('full_name').eq('id', senderId).single(),
-    supabase.from('profiles').select('full_name, email').eq('id', recipientId).single(),
+    // Mottagarens e-post är inte läsbar för authenticated (andras rad) — service-role.
+    createAdminClient().from('profiles').select('full_name, email').eq('id', recipientId).single(),
   ]);
 
   const recipientEmail = recipientResult.data?.email;

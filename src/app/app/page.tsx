@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { HomeContent } from "./home-content";
 import { getFeedPosts } from "./feed/queries";
 
@@ -55,7 +56,9 @@ export default async function AppHomePage() {
 
     if (user) {
       const [profileRes, listingsRes, bookingsRes, ownServicesRes] = await Promise.all([
-        supabase.from("profiles").select("*").eq("id", user.id).single(),
+        // Egen rad via service-role: känsliga kolumner (bl.a. stripe_account_id)
+        // är kolumn-låsta för authenticated, så select("*") skulle nekas.
+        createAdminClient().from("profiles").select("*").eq("id", user.id).single(),
         supabase
           .from("listings")
           .select("*, profiles(full_name, avatar_url), ticket_types(id)")

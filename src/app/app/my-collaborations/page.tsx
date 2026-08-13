@@ -98,7 +98,7 @@ export default async function MyCollaborationsPage() {
   }
 
   // My Stripe Connect status (needed to receive gage payments).
-  const { data: me } = await supabase
+  const { data: me } = await admin
     .from("profiles")
     .select("stripe_account_id")
     .eq("id", user.id)

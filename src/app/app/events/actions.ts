@@ -53,7 +53,8 @@ async function isBankidCleared(
   supabase: Awaited<ReturnType<typeof createClient>>,
   userId: string
 ): Promise<boolean> {
-  const { data } = await supabase
+  // bankid_grandfathered_at är kolumn-låst för authenticated — läs via service-role.
+  const { data } = await createAdminClient()
     .from("profiles")
     .select("role, bankid_verified_at, bankid_grandfathered_at")
     .eq("id", userId)
@@ -617,7 +618,8 @@ export async function joinOpenEvent(listingId: string) {
     return { error: BANKID_REQUIRED_MSG };
   }
 
-  const { data: profile } = await supabase
+  // stripe_account_id är kolumn-låst för authenticated — egen rad via service-role.
+  const { data: profile } = await createAdminClient()
     .from("profiles")
     .select("role, tier, offers_coaching, coaching_hourly_rate_sek, stripe_account_id")
     .eq("id", user.id)

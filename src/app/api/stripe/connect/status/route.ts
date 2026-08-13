@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/client';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 /**
  * GET /api/stripe/connect/status
@@ -17,7 +18,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { data: profile } = await supabase
+    // stripe_account_id är kolumn-låst för authenticated — egen rad via service-role.
+    const { data: profile } = await createAdminClient()
       .from('profiles')
       .select('stripe_account_id')
       .eq('id', user.id)

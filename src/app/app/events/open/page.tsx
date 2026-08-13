@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
@@ -21,7 +22,8 @@ export default async function OpenEventsPage() {
   const today = new Date().toISOString().slice(0, 10);
 
   const [{ data: profile }, { data: events }, { data: joinedRows }] = await Promise.all([
-    supabase
+    // stripe_account_id är kolumn-låst för authenticated — egen rad via service-role.
+    createAdminClient()
       .from("profiles")
       .select("role, tier, offers_coaching, coaching_hourly_rate_sek, stripe_account_id")
       .eq("id", user.id)

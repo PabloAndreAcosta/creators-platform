@@ -5,6 +5,7 @@ import { stripe } from "@/lib/stripe/client";
 import { computeServiceFeeOre, serviceFeeMode } from "@/lib/tickets/service-fee";
 import { clampQuantity, createTicketAttendees, attendeeNamesToMeta } from "@/lib/tickets/attendees";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from '@/lib/supabase/admin';
 import { getSaleState } from "@/lib/listings/sale-state";
 import { stockholmLocalToUtcISO } from "@/lib/time";
 import { getTranslations } from "next-intl/server";
@@ -175,7 +176,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Get creator for Connect account
-    const { data: creator } = await supabase
+    const { data: creator } = await createAdminClient()
       .from("profiles")
       .select("stripe_account_id, tier, creator_subcategory, company_verified_at")
       .eq("id", listing.user_id)

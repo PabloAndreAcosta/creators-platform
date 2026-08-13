@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getStripeLocale } from "@/lib/i18n/stripe-locale";
 import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from '@/lib/supabase/admin';
 import {
   calculateDiscountedPrice,
   getCreatorCommissionRate,
@@ -113,7 +114,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Get creator's Stripe Connect account
-    const { data: creator } = await supabase
+    const { data: creator } = await createAdminClient()
       .from("profiles")
       .select("stripe_account_id, tier, creator_subcategory, company_verified_at")
       .eq("id", listing.user_id)

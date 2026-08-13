@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ExternalLink } from "lucide-react";
@@ -28,7 +29,8 @@ export default async function ProfilePage() {
   }
 
   const [{ data: profile }, { data: socialConn }, { data: media }] = await Promise.all([
-    supabase
+    // org_number är kolumn-låst för authenticated — egen rad via service-role.
+    createAdminClient()
       .from("profiles")
       .select("id, full_name, slug, avatar_url, bio, website, category, location, hourly_rate, is_public, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, role, tier, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3, creator_subcategory, dance_styles, dance_languages, dance_experience_years, offers_coaching, coaching_hourly_rate_sek, coaching_specialties, coaching_bio, bankid_verified_at, bankid_name, org_number, company_name, company_verified_at")
       .eq("id", user.id)
