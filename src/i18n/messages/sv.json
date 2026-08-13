@@ -140,7 +140,9 @@
       "system": "Följ systemet"
     },
     "security": "Login & säkerhet",
-    "securityDesc": "Inloggnings-e-post, BankID, radera konto"
+    "securityDesc": "Inloggnings-e-post, BankID, radera konto",
+    "connections": "Kopplingar",
+    "connectionsDesc": "Instagram, Facebook och TikTok"
   },
   "notifSettings": {
     "newBookings": "Nya bokningar",
@@ -1098,6 +1100,7 @@
   },
   "dashProfile": {
     "page": {
+      "manageConnections": "Hantera kopplingar",
       "back": "Tillbaka",
       "title": "Redigera profil",
       "subtitleCreator": "Uppdatera din information och gör din profil synlig för kunder.",
@@ -3326,5 +3329,25 @@
       "priceSek": "{price} SEK",
       "creator": "Kreatör",
       "viewProfile": "Visa profil"
-    }
+    },
+  "connections": {
+    "title": "Kopplingar",
+    "subtitle": "Konton du kopplat till Usha, och deras status.",
+    "creatorOnly": "Kopplingar är till för kreatörs- och platskonton. Byt roll på din profil för att koppla konton.",
+    "instagramPurpose": "Hämta bilder och klipp till ditt galleri.",
+    "facebookPurpose": "Hämta media och synka event till din sida.",
+    "tiktokPurpose": "Hämta klipp till ditt galleri.",
+    "statusConnected": "Ansluten",
+    "statusExpiringSoon": "Går ut snart",
+    "statusExpired": "Utgången",
+    "statusDisconnected": "Ej ansluten",
+    "expiredHint": "Kopplingen har slutat gälla. Koppla om för att hämta media igen.",
+    "expiringHint": "Kopplingen slutar gälla om {days} dagar. Koppla om när det passar.",
+    "connect": "Anslut",
+    "reconnect": "Koppla om",
+    "disconnect": "Koppla från",
+    "disconnecting": "Kopplar från …",
+    "disconnectedToast": "Kopplingen togs bort.",
+    "disconnectFailed": "Kunde inte koppla från. Försök igen."
+  }
 }

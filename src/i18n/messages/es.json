@@ -140,7 +140,9 @@
       "system": "Seguir el sistema"
     },
     "security": "Inicio de sesión y seguridad",
-    "securityDesc": "Correo de inicio de sesión, BankID, eliminar cuenta"
+    "securityDesc": "Correo de inicio de sesión, BankID, eliminar cuenta",
+    "connections": "Conexiones",
+    "connectionsDesc": "Instagram, Facebook y TikTok"
   },
   "notifSettings": {
     "newBookings": "Nuevas reservas",
@@ -1098,6 +1100,7 @@
   },
   "dashProfile": {
     "page": {
+      "manageConnections": "Gestionar conexiones",
       "back": "Atrás",
       "title": "Editar perfil",
       "subtitleCreator": "Actualiza tu información y haz que tu perfil sea visible para los clientes.",
@@ -3326,5 +3329,25 @@
       "priceSek": "{price} SEK",
       "creator": "Creador",
       "viewProfile": "Ver perfil"
-    }
+    },
+  "connections": {
+    "title": "Conexiones",
+    "subtitle": "Cuentas que has conectado a Usha y su estado.",
+    "creatorOnly": "Las conexiones son para cuentas de creador y de espacio. Cambia tu rol en tu perfil para conectar cuentas.",
+    "instagramPurpose": "Importa fotos y clips a tu galería.",
+    "facebookPurpose": "Importa medios y sincroniza eventos con tu página.",
+    "tiktokPurpose": "Importa clips a tu galería.",
+    "statusConnected": "Conectada",
+    "statusExpiringSoon": "Caduca pronto",
+    "statusExpired": "Caducada",
+    "statusDisconnected": "Sin conectar",
+    "expiredHint": "Esta conexión ha caducado. Vuelve a conectarla para importar medios.",
+    "expiringHint": "Esta conexión caduca en {days} días. Vuelve a conectarla cuando te venga bien.",
+    "connect": "Conectar",
+    "reconnect": "Reconectar",
+    "disconnect": "Desconectar",
+    "disconnecting": "Desconectando …",
+    "disconnectedToast": "Conexión eliminada.",
+    "disconnectFailed": "No se pudo desconectar. Inténtalo de nuevo."
+  }
 }

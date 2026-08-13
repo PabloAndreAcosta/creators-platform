@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { getOAuthStateFromCookie, clearOAuthStateCookie } from "@/lib/oauth/state";
+import { expiryFromExpiresIn } from "@/lib/social/connection-state";
 
 const CLIENT_KEY = process.env.TIKTOK_CLIENT_KEY!;
 const CLIENT_SECRET = process.env.TIKTOK_CLIENT_SECRET!;
@@ -96,6 +97,10 @@ export async function GET(req: NextRequest) {
       tiktok_username: tiktokUsername,
       tiktok_access_token: accessToken,
       tiktok_refresh_token: refreshToken,
+      // TikToks access token lever ~24h. Refresh-tokenet finns lagrat men det
+      // finns ännu inget jobb som använder det, så kopplingen kommer att be om
+      // omkoppling dagen efter. Det är sant tills förnyelsen är på plats.
+      tiktok_token_expires_at: expiryFromExpiresIn(tokenData.expires_in),
     }, { onConflict: "user_id" });
 
   const response = NextResponse.redirect(`${APP_URL}/dashboard/profile?tiktok_connected=1`);

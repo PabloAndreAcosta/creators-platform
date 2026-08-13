@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { getOAuthStateFromCookie, clearOAuthStateCookie } from "@/lib/oauth/state";
+import { expiryFromExpiresIn } from "@/lib/social/connection-state";
 
 const IG_APP_ID = process.env.INSTAGRAM_APP_ID!;
 const IG_APP_SECRET = process.env.INSTAGRAM_APP_SECRET!;
@@ -77,9 +78,13 @@ export async function GET(req: NextRequest) {
   );
 
   let accessToken = shortLivedToken;
+  // Kortlivade tokens dör inom en timme. Får vi inget long-lived svar lämnar vi
+  // expiresAt som null hellre än att gissa — se getConnectionState.
+  let expiresAt: string | null = null;
   if (longLivedRes.ok) {
     const longLivedData = await longLivedRes.json();
     accessToken = longLivedData.access_token;
+    expiresAt = expiryFromExpiresIn(longLivedData.expires_in);
   }
 
   // Step 3: Get username
@@ -100,6 +105,7 @@ export async function GET(req: NextRequest) {
       instagram_user_id: igUserId,
       instagram_username: igUsername,
       instagram_access_token: accessToken,
+      instagram_token_expires_at: expiresAt,
     }, { onConflict: "user_id" });
 
   const response = NextResponse.redirect(`${APP_URL}/dashboard/profile?ig_connected=1`);

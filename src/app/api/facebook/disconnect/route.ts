@@ -17,6 +17,7 @@ export async function POST() {
       facebook_page_id: null,
       facebook_page_name: null,
       facebook_page_access_token: null,
+      facebook_token_expires_at: null,
     })
     .eq("user_id", user.id);
 

@@ -16,6 +16,16 @@ import { isVenueRole } from "@/lib/roles";
 import { BETA_MODE } from "@/lib/beta";
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
+import { getConnectionState } from "@/lib/social/connection-state";
+
+/** Finns tokenet OCH gäller det fortfarande? */
+function isLive(token: string | null | undefined, expiresAt: string | null | undefined): boolean {
+  const { status } = getConnectionState({
+    hasToken: !!token,
+    expiresAt: expiresAt ?? null,
+  });
+  return status === "connected" || status === "expiring_soon";
+}
 
 export default async function ProfilePage() {
   const t = await getTranslations("dashProfile.page");
@@ -37,7 +47,7 @@ export default async function ProfilePage() {
       .single(),
     supabase
       .from("social_connections")
-      .select("instagram_user_id, instagram_username, instagram_access_token, facebook_page_id, facebook_page_name, facebook_page_access_token, tiktok_user_id, tiktok_username, tiktok_access_token")
+      .select("instagram_user_id, instagram_username, instagram_access_token, instagram_token_expires_at, facebook_page_id, facebook_page_name, facebook_page_access_token, facebook_token_expires_at, tiktok_user_id, tiktok_username, tiktok_access_token, tiktok_token_expires_at")
       .eq("user_id", user.id)
       .single(),
     supabase
@@ -120,23 +130,37 @@ export default async function ProfilePage() {
               fullName={profile.full_name}
             />
           </div>
+          {/* Ett utgånget token såg tidigare exakt ut som ett färskt här, så
+              sidan visade grön badge för kopplingar som varit döda i veckor.
+              isLive är falskt även när tokenet finns men slutat gälla, vilket
+              gör att komponenten visar "anslut" i stället för att ljuga.
+              Status och omkoppling bor numera i /app/settings/connections. */}
           <div className="mt-8 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 sm:p-8">
             <InstagramConnect
-              isConnected={!!socialConn?.instagram_access_token}
+              isConnected={isLive(socialConn?.instagram_access_token, socialConn?.instagram_token_expires_at)}
               instagramUsername={socialConn?.instagram_username}
             />
           </div>
           <div className="mt-8 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 sm:p-8">
             <FacebookMediaConnect
-              isConnected={!!socialConn?.facebook_page_access_token}
+              isConnected={isLive(socialConn?.facebook_page_access_token, socialConn?.facebook_token_expires_at)}
               pageName={socialConn?.facebook_page_name}
             />
           </div>
           <div className="mt-8 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 sm:p-8">
             <TikTokConnect
-              isConnected={!!socialConn?.tiktok_access_token}
+              isConnected={isLive(socialConn?.tiktok_access_token, socialConn?.tiktok_token_expires_at)}
               tiktokUsername={socialConn?.tiktok_username}
             />
+          </div>
+          <div className="mt-4 text-center">
+            <Link
+              href="/app/settings/connections"
+              className="inline-flex items-center gap-1 text-sm text-[var(--usha-gold)] hover:underline"
+            >
+              {t("manageConnections")}
+              <ExternalLink size={14} />
+            </Link>
           </div>
           <div className="mt-8 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 sm:p-8">
             <MediaGallery userId={user.id} initialMedia={media || []} />

@@ -51,6 +51,7 @@ export async function POST(req: NextRequest) {
       facebook_page_name: pageName,
       facebook_page_access_token: pageToken,
       facebook_user_id: cookiePayload?.fbUserId ?? null,
+      facebook_token_expires_at: cookiePayload?.pageTokenExpiresAt ?? null,
     }, { onConflict: 'user_id' });
 
   if (error) {
