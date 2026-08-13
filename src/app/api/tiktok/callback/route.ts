@@ -97,10 +97,11 @@ export async function GET(req: NextRequest) {
       tiktok_username: tiktokUsername,
       tiktok_access_token: accessToken,
       tiktok_refresh_token: refreshToken,
-      // TikToks access token lever ~24h. Refresh-tokenet finns lagrat men det
-      // finns ännu inget jobb som använder det, så kopplingen kommer att be om
-      // omkoppling dagen efter. Det är sant tills förnyelsen är på plats.
+      // Access-tokenet lever ~24h och förnyas automatiskt med refresh-tokenet
+      // när media hämtas. Det är refresh-tokenets utgång (~365 dagar) som
+      // avgör om kopplingen lever, så båda lagras.
       tiktok_token_expires_at: expiryFromExpiresIn(tokenData.expires_in),
+      tiktok_refresh_token_expires_at: expiryFromExpiresIn(tokenData.refresh_expires_in),
     }, { onConflict: "user_id" });
 
   const response = NextResponse.redirect(`${APP_URL}/dashboard/profile?tiktok_connected=1`);

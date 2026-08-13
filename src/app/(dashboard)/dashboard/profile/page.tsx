@@ -47,7 +47,7 @@ export default async function ProfilePage() {
       .single(),
     supabase
       .from("social_connections")
-      .select("instagram_user_id, instagram_username, instagram_access_token, instagram_token_expires_at, facebook_page_id, facebook_page_name, facebook_page_access_token, facebook_token_expires_at, tiktok_user_id, tiktok_username, tiktok_access_token, tiktok_token_expires_at")
+      .select("instagram_user_id, instagram_username, instagram_access_token, instagram_token_expires_at, facebook_page_id, facebook_page_name, facebook_page_access_token, facebook_token_expires_at, tiktok_user_id, tiktok_username, tiktok_access_token, tiktok_token_expires_at, tiktok_refresh_token, tiktok_refresh_token_expires_at")
       .eq("user_id", user.id)
       .single(),
     supabase
@@ -149,7 +149,13 @@ export default async function ProfilePage() {
           </div>
           <div className="mt-8 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 sm:p-8">
             <TikTokConnect
-              isConnected={isLive(socialConn?.tiktok_access_token, socialConn?.tiktok_token_expires_at)}
+              isConnected={isLive(
+                socialConn?.tiktok_access_token,
+                // Access-tokenet förnyas automatiskt; refresh-tokenet avgör.
+                socialConn?.tiktok_refresh_token
+                  ? socialConn?.tiktok_refresh_token_expires_at
+                  : socialConn?.tiktok_token_expires_at
+              )}
               tiktokUsername={socialConn?.tiktok_username}
             />
           </div>

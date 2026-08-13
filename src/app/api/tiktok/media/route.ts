@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { getValidTikTokAccessToken } from "@/lib/social/tiktok-token";
 
 export async function GET(req: NextRequest) {
   const supabase = await createClient();
@@ -11,12 +12,28 @@ export async function GET(req: NextRequest) {
 
   const { data: social } = await supabase
     .from("social_connections")
-    .select("tiktok_access_token")
+    .select("tiktok_access_token, tiktok_refresh_token, tiktok_token_expires_at")
     .eq("user_id", user.id)
     .single();
 
-  if (!social?.tiktok_access_token) {
-    return NextResponse.json({ error: "TikTok ej kopplat" }, { status: 400 });
+  // Access-tokenet lever bara 24h. Förnya det här i stället för att låta
+  // användaren möta ett 401 och koppla om varje dygn.
+  const token = await getValidTikTokAccessToken(supabase, user.id, {
+    accessToken: social?.tiktok_access_token ?? null,
+    refreshToken: social?.tiktok_refresh_token ?? null,
+    expiresAt: social?.tiktok_token_expires_at ?? null,
+  });
+
+  if (!token.ok) {
+    return token.needsReconnect
+      ? NextResponse.json(
+          { error: "TikTok-kopplingen behöver förnyas. Koppla om under Inställningar → Kopplingar." },
+          { status: 400 }
+        )
+      : NextResponse.json(
+          { error: "Kunde inte nå TikTok just nu. Försök igen om en stund." },
+          { status: 503 }
+        );
   }
 
   const cursor = req.nextUrl.searchParams.get("cursor") || undefined;
@@ -29,7 +46,7 @@ export async function GET(req: NextRequest) {
     {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${social.tiktok_access_token}`,
+        Authorization: `Bearer ${token.accessToken}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(body),
