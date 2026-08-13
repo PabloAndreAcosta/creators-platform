@@ -48,6 +48,11 @@ jobs:
           RCLONE_CONFIG_R2_ENDPOINT: https://8565b50b1ae92c826fcd25ada1b15b14.r2.cloudflarestorage.com
           RCLONE_CONFIG_R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           RCLONE_CONFIG_R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          # Before its first upload to a bucket rclone calls CreateBucket to make
+          # sure the destination exists. The R2 token is scoped to Object Read &
+          # Write, which does not include bucket creation, so that call 403:ar and
+          # takes the whole sync with it. The bucket already exists — skip the check.
+          RCLONE_CONFIG_R2_NO_CHECK_BUCKET: "true"
         run: |
           DATE=$(date -u +%F)
           for b in avatars creator-media event-images listing-images; do
