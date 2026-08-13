@@ -4,16 +4,33 @@ import { createClient } from "@/lib/supabase/server";
 import { CATEGORIES } from "@/lib/categories";
 import { SELLER_ROLE_VALUES } from "@/lib/roles";
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import Image from "next/image";
 import { MapPin, Clock, SlidersHorizontal, X, Star, ShieldCheck, Sparkles, Building2 } from "lucide-react";
 
+const OG_LOCALE: Record<string, string> = { sv: "sv_SE", en: "en_US", es: "es_ES" };
+
 export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
   const t = await getTranslations();
+  const title = t("marketplace.metaTitle");
+  const description = t("marketplace.metaDescription");
   return {
-    title: t("marketplace.metaTitle"),
-    description: t("marketplace.metaDescription"),
+    title,
+    description,
+    alternates: { canonical: "/marketplace" },
+    // Own openGraph block: without it this page inherits the root layout's and
+    // would report og:url = the start page.
+    openGraph: {
+      title,
+      description,
+      url: "https://usha.se/marketplace",
+      type: "website",
+      locale: OG_LOCALE[locale] ?? "sv_SE",
+      siteName: "Usha Platform",
+    },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import {
   Share2,
   Facebook,
@@ -11,6 +11,9 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
+
+// UI-locale → BCP 47-tagg för datumformatering i delningstexten.
+const DATE_LOCALES: Record<string, string> = { sv: "sv-SE", en: "en-GB", es: "es-ES" };
 
 interface SocialShareButtonProps {
   /** Listing/event title */
@@ -39,19 +42,22 @@ export function SocialShareButton({
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
   const ta = useTranslations("a11y");
+  const t = useTranslations("common");
+  const tc = useTranslations("listingCard");
+  const dateLocale = DATE_LOCALES[useLocale()] ?? "en-GB";
 
   // Build share text
   const parts = [title];
   if (eventDate) {
     parts.push(
-      new Date(eventDate + "T00:00").toLocaleDateString("sv-SE", {
+      new Date(eventDate + "T00:00").toLocaleDateString(dateLocale, {
         day: "numeric",
         month: "long",
       })
     );
   }
   if (eventLocation) parts.push(eventLocation);
-  if (price != null) parts.push(price > 0 ? `${price} kr` : "Gratis");
+  if (price != null) parts.push(price > 0 ? `${price} kr` : tc("free"));
   const shareText = parts.join(" — ");
 
   const encodedUrl = encodeURIComponent(url);
@@ -77,10 +83,10 @@ export function SocialShareButton({
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
-      toast.success("Länk kopierad!");
+      toast.success(t("linkCopied"));
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error("Kunde inte kopiera länken");
+      toast.error(t("couldNotCopy"));
     }
   }
 
@@ -155,7 +161,7 @@ export function SocialShareButton({
         className="flex items-center gap-1.5 rounded-lg border border-[var(--usha-border)] px-3 py-1.5 text-xs font-medium text-[var(--usha-muted)] transition-colors hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-gold)]"
       >
         <Share2 size={12} />
-        Dela
+        {t("share")}
       </button>
 
       {open && (
@@ -167,7 +173,7 @@ export function SocialShareButton({
           <div className="absolute bottom-full right-0 z-20 mb-2 w-56 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-2 shadow-xl">
             <div className="mb-2 flex items-center justify-between px-2">
               <span className="text-xs font-medium text-[var(--usha-muted)]">
-                Dela till
+                {t("shareTo")}
               </span>
               <button
                 onClick={() => setOpen(false)}
@@ -202,7 +208,7 @@ export function SocialShareButton({
               ) : (
                 <Copy size={16} className="text-[var(--usha-muted)]" />
               )}
-              {copied ? "Kopierad!" : "Kopiera länk"}
+              {copied ? t("copied") : t("copyLink")}
             </button>
           </div>
         </>

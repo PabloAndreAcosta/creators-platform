@@ -1,17 +1,26 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { MapPin, Calendar, Search } from "lucide-react";
+import { Nav } from "@/components/landing/nav";
 import { SeoFooter } from "@/components/seo-footer";
 
-export const metadata: Metadata = {
-  title: "Platser – Usha Platform",
-  description: "Utforska lokaler, studior, klubbar och platser där kreativa upplevelser händer.",
-  openGraph: {
-    title: "Platser – Usha Platform",
-    description: "Lokaler och platser för kreativa upplevelser.",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("platserPage");
+  return {
+    title: t("meta.title"),
+    description: t("meta.description"),
+    alternates: { canonical: "/platser" },
+    openGraph: {
+      title: t("meta.ogTitle"),
+      description: t("meta.ogDescription"),
+      url: "https://usha.se/platser",
+      type: "website",
+      siteName: "Usha Platform",
+    },
+  };
+}
 
 interface SearchParams {
   q?: string;
@@ -24,6 +33,7 @@ export default async function PlatserPage(
 ) {
   const searchParams = await props.searchParams;
   const supabase = await createClient();
+  const t = await getTranslations("platserPage");
   const { q } = searchParams;
 
   // Fetch venues
@@ -43,7 +53,7 @@ export default async function PlatserPage(
 
   // Count events per venue (via place_id match)
   const placeIds = (venues || []).map((v) => v.place_id).filter(Boolean);
-  let eventCounts: Record<string, number> = {};
+  const eventCounts: Record<string, number> = {};
 
   if (placeIds.length > 0) {
     const { data: listings } = await supabase
@@ -64,21 +74,12 @@ export default async function PlatserPage(
 
   return (
     <div className="min-h-screen bg-[var(--usha-black)]">
-      <header className="sticky top-0 z-30 border-b border-[var(--usha-border)] bg-[var(--usha-black)]/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-          <Link href="/" className="text-lg font-bold text-gradient">Usha Platform</Link>
-          <nav className="flex items-center gap-4">
-            <Link href="/flode" className="text-sm text-[var(--usha-muted)] hover:text-[var(--usha-white)]">Flöde</Link>
-            <Link href="/upplevelser" className="text-sm text-[var(--usha-muted)] hover:text-[var(--usha-white)]">Upplevelser</Link>
-            <Link href="/marketplace" className="text-sm text-[var(--usha-muted)] hover:text-[var(--usha-white)]">Marketplace</Link>
-          </nav>
-        </div>
-      </header>
+      <Nav />
 
-      <main className="mx-auto max-w-5xl px-4 py-8">
-        <h1 className="text-2xl font-bold md:text-3xl">Platser</h1>
+      <main className="mx-auto max-w-5xl px-4 pb-8 pt-24">
+        <h1 className="text-2xl font-bold md:text-3xl">{t("title")}</h1>
         <p className="mt-1 text-sm text-[var(--usha-muted)]">
-          Lokaler, studior och platser där upplevelser händer
+          {t("subtitle")}
         </p>
 
         {/* Search */}
@@ -89,7 +90,8 @@ export default async function PlatserPage(
               name="q"
               type="text"
               defaultValue={q || ""}
-              placeholder="Sök plats eller stad..."
+              placeholder={t("searchPlaceholder")}
+              aria-label={t("searchPlaceholder")}
               className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-[var(--usha-gold)]/40 sm:max-w-md"
             />
           </div>
@@ -122,7 +124,7 @@ export default async function PlatserPage(
                     )}
                     {count > 0 && (
                       <p className="mt-1 flex items-center gap-0.5 text-xs text-[var(--usha-gold)]">
-                        <Calendar size={10} /> {count} upplevelse{count > 1 ? "r" : ""}
+                        <Calendar size={10} /> {t("eventCount", { count })}
                       </p>
                     )}
                   </div>
@@ -133,7 +135,7 @@ export default async function PlatserPage(
         ) : (
           <div className="mt-12 text-center">
             <p className="text-sm text-[var(--usha-muted)]">
-              {q ? "Inga platser hittade." : "Inga platser ännu."}
+              {q ? t("emptySearch") : t("empty")}
             </p>
           </div>
         )}

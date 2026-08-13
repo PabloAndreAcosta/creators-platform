@@ -8,6 +8,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { MapPin, Clock, Calendar, ArrowLeft, User, ChevronRight } from "lucide-react";
 import { CATEGORY_LABELS } from "@/lib/categories";
+import { getTranslations, getLocale } from "next-intl/server";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -28,6 +29,7 @@ type Occurrence = {
   event_lng: number | null;
   image_url: string | null;
   user_id: string;
+  content_language: string | null;
 };
 
 async function fetchSeries(slug: string): Promise<Occurrence[]> {
@@ -35,7 +37,7 @@ async function fetchSeries(slug: string): Promise<Occurrence[]> {
   const { data } = await supabase
     .from("listings")
     .select(
-      "id, slug, title, description, category, price, event_date, event_time, event_end_time, event_location, event_lat, event_lng, image_url, user_id"
+      "id, slug, title, description, category, price, event_date, event_time, event_end_time, event_location, event_lat, event_lng, image_url, user_id, content_language"
     )
     .eq("series_slug", slug)
     .eq("is_active", true)
@@ -44,30 +46,59 @@ async function fetchSeries(slug: string): Promise<Occurrence[]> {
   return (data as Occurrence[] | null) ?? [];
 }
 
+// Per-series language: if the host pinned a language on the series, the page
+// renders in it for every visitor; otherwise we follow the visitor's locale.
+// Same rule as the single event page.
+async function resolveLocale(series?: Occurrence): Promise<string> {
+  return series?.content_language ?? (await getLocale());
+}
+
+function appUrl() {
+  return process.env.NEXT_PUBLIC_APP_URL ?? "https://usha.se";
+}
+
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params;
   const occurrences = await fetchSeries(params.slug);
-  if (occurrences.length === 0) return { title: "Serie – Usha Platform" };
+  const locale = await resolveLocale(occurrences[0]);
+  const t = await getTranslations({ locale, namespace: "seriesPage" });
+
+  if (occurrences.length === 0) return { title: t("metaTitleFallback") };
 
   const s = occurrences[0];
-  const description = s.description?.slice(0, 160) || `${s.title} – återkommande tillfällen på Usha Platform`;
-  const url = `https://usha.se/series/${params.slug}`;
+  const title = t("metaTitle", { title: s.title });
+  const description = s.description?.slice(0, 160) || t("metaDescription", { title: s.title });
+  const url = `${appUrl()}/series/${params.slug}`;
 
   return {
-    title: `${s.title} – Usha Platform`,
+    title,
     description,
+    alternates: { canonical: url },
     openGraph: {
-      title: `${s.title} – Usha Platform`,
+      title,
       description,
       url,
       type: "website",
       ...(s.image_url ? { images: [{ url: s.image_url, width: 1200, height: 630, alt: s.title }] } : {}),
     },
+    twitter: {
+      card: s.image_url ? "summary_large_image" : "summary",
+      title,
+      description,
+      ...(s.image_url ? { images: [s.image_url] } : {}),
+    },
   };
 }
 
-function formatDate(date: string) {
-  return new Date(date + "T00:00").toLocaleDateString("sv-SE", {
+// Locale-aware date formatting. Kept local on purpose (no shared helper).
+const DATE_LOCALES: Record<string, string> = {
+  sv: "sv-SE",
+  en: "en-GB",
+  es: "es-ES",
+};
+
+function formatDate(date: string, locale: string) {
+  return new Date(date + "T00:00").toLocaleDateString(DATE_LOCALES[locale] ?? "en-GB", {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -75,7 +106,19 @@ function formatDate(date: string) {
   });
 }
 
-function OccurrenceRow({ o, past }: { o: Occurrence; past?: boolean }) {
+function OccurrenceRow({
+  o,
+  past,
+  locale,
+  priceLabel,
+  ctaLabel,
+}: {
+  o: Occurrence;
+  past?: boolean;
+  locale: string;
+  priceLabel: string | null;
+  ctaLabel: string;
+}) {
   const href = `/listing/${o.slug || o.id}`;
   return (
     <Link
@@ -87,7 +130,7 @@ function OccurrenceRow({ o, past }: { o: Occurrence; past?: boolean }) {
           {o.event_date && (
             <span className="flex items-center gap-1.5 font-medium">
               <Calendar size={14} className="text-[var(--usha-gold)]" />
-              {formatDate(o.event_date)}
+              {formatDate(o.event_date, locale)}
             </span>
           )}
           {o.event_time && (
@@ -100,13 +143,11 @@ function OccurrenceRow({ o, past }: { o: Occurrence; past?: boolean }) {
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-3">
-        {o.price != null && (
-          <span className="text-sm font-semibold text-[var(--usha-gold)]">
-            {o.price > 0 ? `${o.price} SEK` : "Gratis"}
-          </span>
+        {priceLabel && (
+          <span className="text-sm font-semibold text-[var(--usha-gold)]">{priceLabel}</span>
         )}
         <span className="flex items-center gap-1 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-3 py-1.5 text-xs font-semibold text-black">
-          {past ? "Visa" : "Boka"}
+          {ctaLabel}
           <ChevronRight size={14} />
         </span>
       </div>
@@ -127,6 +168,14 @@ export default async function SeriesPage(props: Props) {
 
   const series = occurrences[0];
 
+  const locale = await resolveLocale(series);
+  const t = await getTranslations({ locale, namespace: "seriesPage" });
+  const tCat = await getTranslations({ locale, namespace: "categories" });
+  const categoryLabel = (value: string | null) =>
+    !value ? "" : tCat.has(value) ? tCat(value) : CATEGORY_LABELS[value] ?? value;
+  const priceLabel = (price: number | null) =>
+    price == null ? null : price > 0 ? t("priceSek", { price }) : t("free");
+
   // Creator profile
   const { data: creator } = await supabase
     .from("profiles")
@@ -145,11 +194,17 @@ export default async function SeriesPage(props: Props) {
     "@context": "https://schema.org",
     "@type": "EventSeries",
     name: series.title,
-    url: `https://usha.se/series/${params.slug}`,
+    url: `${appUrl()}/series/${params.slug}`,
     ...(series.description ? { description: series.description.slice(0, 300) } : {}),
     ...(series.image_url ? { image: series.image_url } : {}),
     ...(creator
-      ? { organizer: { "@type": "Person", name: creator.full_name || "Creator", url: `https://usha.se${creatorUrl}` } }
+      ? {
+          organizer: {
+            "@type": "Person",
+            name: creator.full_name || t("creator"),
+            url: `${appUrl()}${creatorUrl}`,
+          },
+        }
       : {}),
     subEvent: occurrences
       .filter((o) => o.event_date)
@@ -157,7 +212,7 @@ export default async function SeriesPage(props: Props) {
         "@type": "Event",
         name: series.title,
         startDate: o.event_time ? `${o.event_date}T${o.event_time}` : o.event_date,
-        url: `https://usha.se/listing/${o.slug || o.id}`,
+        url: `${appUrl()}/listing/${o.slug || o.id}`,
         ...(o.event_location ? { location: { "@type": "Place", name: o.event_location } } : {}),
       })),
   };
@@ -179,7 +234,7 @@ export default async function SeriesPage(props: Props) {
             href={isLoggedIn ? "/app" : "/signup"}
             className="rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-sm font-semibold text-black transition hover:opacity-90"
           >
-            {isLoggedIn ? "Appen" : "Kom igång"}
+            {isLoggedIn ? t("theApp") : t("getStarted")}
           </Link>
         </div>
       </header>
@@ -190,7 +245,7 @@ export default async function SeriesPage(props: Props) {
           className="mb-6 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]"
         >
           <ArrowLeft size={14} />
-          Tillbaka till {creator?.full_name || "kreatören"}
+          {t("backTo", { name: creator?.full_name || t("theCreator") })}
         </Link>
 
         {/* Series header */}
@@ -206,10 +261,10 @@ export default async function SeriesPage(props: Props) {
 
         <div className="mb-2 flex flex-wrap items-center gap-2">
           <span className="rounded-full border border-[var(--usha-border)] px-3 py-0.5 text-xs text-[var(--usha-muted)]">
-            {CATEGORY_LABELS[series.category] || series.category}
+            {categoryLabel(series.category)}
           </span>
           <span className="rounded-full bg-[var(--usha-gold)]/10 px-3 py-0.5 text-xs font-semibold text-[var(--usha-gold)]">
-            Återkommande serie
+            {t("recurringSeries")}
           </span>
         </div>
         <h1 className="text-2xl font-bold sm:text-3xl">{series.title}</h1>
@@ -230,17 +285,23 @@ export default async function SeriesPage(props: Props) {
         {/* Upcoming */}
         <div className="mt-8">
           <h2 className="mb-3 text-lg font-semibold">
-            Kommande tillfällen {upcoming.length > 0 && <span className="text-[var(--usha-muted)]">({upcoming.length})</span>}
+            {t("upcomingHeading")} {upcoming.length > 0 && <span className="text-[var(--usha-muted)]">({upcoming.length})</span>}
           </h2>
           {upcoming.length > 0 ? (
             <div className="space-y-2.5">
               {upcoming.map((o) => (
-                <OccurrenceRow key={o.id} o={o} />
+                <OccurrenceRow
+                  key={o.id}
+                  o={o}
+                  locale={locale}
+                  priceLabel={priceLabel(o.price)}
+                  ctaLabel={t("book")}
+                />
               ))}
             </div>
           ) : (
             <p className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 text-sm text-[var(--usha-muted)]">
-              Inga kommande tillfällen just nu. Håll utkik!
+              {t("noUpcoming")}
             </p>
           )}
         </div>
@@ -249,11 +310,18 @@ export default async function SeriesPage(props: Props) {
         {past.length > 0 && (
           <div className="mt-8">
             <h2 className="mb-3 text-lg font-semibold">
-              Tidigare tillfällen <span className="text-[var(--usha-muted)]">({past.length})</span>
+              {t("pastHeading")} <span className="text-[var(--usha-muted)]">({past.length})</span>
             </h2>
             <div className="space-y-2.5">
               {past.map((o) => (
-                <OccurrenceRow key={o.id} o={o} past />
+                <OccurrenceRow
+                  key={o.id}
+                  o={o}
+                  past
+                  locale={locale}
+                  priceLabel={priceLabel(o.price)}
+                  ctaLabel={t("view")}
+                />
               ))}
             </div>
           </div>
@@ -279,9 +347,9 @@ export default async function SeriesPage(props: Props) {
               </div>
             )}
             <div>
-              <p className="font-semibold">{creator.full_name || "Kreatör"}</p>
+              <p className="font-semibold">{creator.full_name || t("creator")}</p>
               <p className="text-xs text-[var(--usha-muted)]">
-                {CATEGORY_LABELS[creator.category] || creator.category} · Visa profil
+                {categoryLabel(creator.category)} · {t("viewProfile")}
               </p>
             </div>
           </Link>

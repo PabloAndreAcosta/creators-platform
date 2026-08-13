@@ -161,12 +161,19 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   };
 }
 
+// UI-locale → BCP 47-tagg för datumformatering (annars blir månadsnamnen
+// svenska även på engelska/spanska sidor).
+const DATE_LOCALES: Record<string, string> = { sv: "sv-SE", en: "en-GB", es: "es-ES" };
+function dateLocaleFor(locale: string) {
+  return DATE_LOCALES[locale] ?? "en-GB";
+}
+
 function formatDate(dateStr: string | null, timeStr: string | null, locale = "sv") {
   if (!dateStr) return null;
   const time = timeStr ? (timeStr.length === 5 ? `${timeStr}:00` : timeStr.slice(0, 8)) : "12:00:00";
   const date = new Date(`${dateStr}T${time}+02:00`);
   if (isNaN(date.getTime())) return null;
-  return date.toLocaleDateString(locale === "en" ? "en-GB" : "sv-SE", {
+  return date.toLocaleDateString(dateLocaleFor(locale), {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -211,19 +218,25 @@ export default async function EventPage(props: Params) {
   // visitor's locale. Client children are wrapped in a matching provider below.
   const eventLocale = listing.content_language ?? (await getLocale());
   const t = await getTranslations({ locale: eventLocale, namespace: "eventPage" });
+  // Rot-översättare för delade nycklar (categories.*, common.*).
+  const tRoot = await getTranslations({ locale: eventLocale });
   const messages = await getMessages({ locale: eventLocale });
   const locale = eventLocale;
   const image = listing.image_url ?? FALLBACK_IMAGE;
+  // Kategorin är ett enum i databasen — översätt via eventPage.cat_* och annars
+  // via de delade categories.*-nycklarna innan råvärdet visas.
   const categoryLabel = t.has(`cat_${listing.category}`)
     ? t(`cat_${listing.category}`)
-    : EVENT_CATEGORY_LABELS[listing.category] ?? listing.category;
+    : tRoot.has(`categories.${listing.category}`)
+      ? tRoot(`categories.${listing.category}`)
+      : EVENT_CATEGORY_LABELS[listing.category] ?? listing.category;
   const dateLabel = formatDate(listing.event_date, listing.event_time, locale);
   const timeLabel = formatTime(listing.event_time, listing.event_end_time);
   // Timed automation: effective price + whether tickets are buyable right now.
   const sale = getSaleState(listing, new Date());
   const isFree = !sale.price || sale.price <= 0;
   const saleUntil = sale.until
-    ? new Intl.DateTimeFormat(locale === "en" ? "en-GB" : "sv-SE", {
+    ? new Intl.DateTimeFormat(dateLocaleFor(locale), {
         day: "numeric", month: "long", hour: "2-digit", minute: "2-digit",
         timeZone: "Europe/Stockholm",
       }).format(sale.until)
@@ -472,7 +485,7 @@ export default async function EventPage(props: Params) {
               )}
               {host.bankid_verified_at && (
                 <span className="ml-2 inline-flex items-center gap-1 text-[10px] text-green-400">
-                  · BankID-verifierad
+                  · {t("bankidVerified")}
                 </span>
               )}
             </div>
@@ -482,12 +495,12 @@ export default async function EventPage(props: Params) {
         {crew.length > 0 && (
           <div className="mt-8 border-t border-[var(--usha-border)] pt-8">
             <p className="mb-4 text-xs uppercase tracking-wide text-[var(--usha-muted)]">
-              Medverkande
+              {t("crewHeading")}
             </p>
             <div className="flex flex-wrap gap-x-6 gap-y-4">
               {crew.map((c) => {
                 const p = c.profile;
-                const name = p?.full_name ?? "Medverkande";
+                const name = p?.full_name ?? tRoot("eventCrew.memberFallback");
                 const inner = (
                   <>
                     {p?.avatar_url ? (
@@ -547,7 +560,7 @@ export default async function EventPage(props: Params) {
                 href="/marketplace"
                 className="inline-flex items-center gap-1 rounded-full border border-[var(--usha-border)] px-4 py-2 text-xs font-medium text-[var(--usha-white)] transition hover:border-[var(--usha-gold)]/60 hover:text-[var(--usha-gold)]"
               >
-                Se alla →
+                {tRoot("common.viewAll")} →
               </Link>
             </div>
 
@@ -578,16 +591,16 @@ export default async function EventPage(props: Params) {
                     <div className="mt-2 flex items-center justify-between text-[11px] text-[var(--usha-muted)]">
                       <span className="line-clamp-1">
                         {m.event_date
-                          ? new Date(`${m.event_date}T12:00:00+02:00`).toLocaleDateString("sv-SE", {
+                          ? new Date(`${m.event_date}T12:00:00+02:00`).toLocaleDateString(dateLocaleFor(locale), {
                               day: "numeric",
                               month: "short",
                               timeZone: "Europe/Stockholm",
                             })
-                          : "Datum kommer"}
+                          : t("dateComing")}
                         {m.event_location ? ` · ${m.event_location}` : ""}
                       </span>
                       <span className="font-semibold text-[var(--usha-gold)]">
-                        {m.price ? `${m.price} kr` : "Gratis"}
+                        {m.price ? t("priceLabel", { price: m.price }) : t("free")}
                       </span>
                     </div>
                   </div>

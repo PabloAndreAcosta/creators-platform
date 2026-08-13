@@ -1,45 +1,61 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { Music, ShieldCheck, Wallet, Calendar, GraduationCap, MapPin } from "lucide-react";
+import { Nav } from "@/components/landing/nav";
+import { Footer } from "@/components/landing/footer";
 
-export const metadata = {
-  title: "Taxidansare på Usha Platform — boka eller bli en",
-  description:
-    "Hitta professionella taxidansare för pardans (bugg, foxtrot, salsa, tango) eller bli betald danspartner via Usha Platform. BankID-verifierade dansare, säker betalning, paket och privatlektioner.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("taxidansarePage");
+  return {
+    title: t("meta.title"),
+    description: t("meta.description"),
+    alternates: { canonical: "/taxidansare" },
+    openGraph: {
+      title: t("meta.ogTitle"),
+      description: t("meta.ogDescription"),
+      url: "https://usha.se/taxidansare",
+      type: "website",
+      siteName: "Usha Platform",
+    },
+  };
+}
 
-export default function TaxiDancerLandingPage() {
+export default async function TaxiDancerLandingPage() {
+  const t = await getTranslations("taxidansarePage");
+
   return (
     <div className="min-h-screen bg-[var(--usha-black)]">
+      <Nav />
+
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-[var(--usha-border)]">
-        <div className="mx-auto max-w-5xl px-6 py-20 text-center sm:py-28">
+        <div className="mx-auto max-w-5xl px-6 pb-20 pt-28 text-center sm:pb-28 sm:pt-32">
           <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--usha-gold)]/20 to-[var(--usha-accent)]/20">
             <Music size={28} className="text-[var(--usha-gold)]" />
           </div>
           <h1 className="text-4xl font-bold leading-tight sm:text-5xl">
-            Taxidansare. <span className="text-gradient">Boka eller bli en.</span>
+            {t("hero.titleLead")} <span className="text-gradient">{t("hero.titleHighlight")}</span>
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-base text-[var(--usha-muted)] sm:text-lg">
-            Pardans på dina villkor — bugg, foxtrot, salsa, tango, lindy hop. Hitta
-            BankID-verifierade taxidansare för en kväll, ett event, eller privatlektioner.
-            Eller bli en själv och få betalt direkt via plattformen.
+            {t("hero.body")}
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
               href="/app/search?subcategory=taxi_dancer"
               className="flex min-h-[48px] items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-8 py-3 text-sm font-bold text-black transition hover:opacity-90"
             >
-              Hitta taxidansare
+              {t("hero.ctaFind")}
             </Link>
             <Link
               href="/signup"
               className="flex min-h-[48px] items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] px-8 py-3 text-sm font-medium text-[var(--usha-white)] transition hover:border-[var(--usha-gold)]/40"
             >
-              Bli taxidansare
+              {t("hero.ctaBecome")}
             </Link>
           </div>
           <p className="mt-4 text-xs text-[var(--usha-muted)]">
-            Som taxidansare behöver du verifiera dig med Mobilt BankID. Åldersgräns 18 år.
+            {t("hero.note")}
           </p>
         </div>
       </section>
@@ -47,23 +63,23 @@ export default function TaxiDancerLandingPage() {
       {/* Value props */}
       <section className="mx-auto max-w-5xl px-6 py-16">
         <h2 className="text-center text-2xl font-bold sm:text-3xl">
-          Varför Usha Platform för taxidans?
+          {t("value.heading")}
         </h2>
         <div className="mt-12 grid gap-6 sm:grid-cols-3">
           <ValueCard
             icon={<Wallet size={24} className="text-[var(--usha-gold)]" />}
-            title="Få betalt direkt"
-            description="Pengarna landar på ditt konto via Stripe Connect efter varje bokning. Sänkt provision för taxidansare — 8 % på gratis-tier (mot 15 % standard), 5 % på Guld."
+            title={t("value.paidTitle")}
+            description={t("value.paidBody")}
           />
           <ValueCard
             icon={<ShieldCheck size={24} className="text-[var(--usha-gold)]" />}
-            title="BankID-verifierat"
-            description="Alla taxidansare bekräftar identitet och ålder med Mobilt BankID. Bygger förtroende mellan kund, arrangör och dansare."
+            title={t("value.bankidTitle")}
+            description={t("value.bankidBody")}
           />
           <ValueCard
             icon={<GraduationCap size={24} className="text-[var(--usha-gold)]" />}
-            title="Paket + coachning"
-            description="Sälj förbetalda danspaket som inlöses successivt på event, eller erbjud privatlektioner med kalenderbokning. Båda flödena ingår."
+            title={t("value.packagesTitle")}
+            description={t("value.packagesBody")}
           />
         </div>
       </section>
@@ -71,54 +87,48 @@ export default function TaxiDancerLandingPage() {
       {/* Two paths */}
       <section className="border-t border-[var(--usha-border)] bg-[var(--usha-card)]/30">
         <div className="mx-auto max-w-5xl px-6 py-16">
-          <h2 className="text-center text-2xl font-bold sm:text-3xl">Hur det fungerar</h2>
+          <h2 className="text-center text-2xl font-bold sm:text-3xl">{t("how.heading")}</h2>
 
           <div className="mt-12 grid gap-8 lg:grid-cols-2">
             <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-8">
               <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[var(--usha-gold)]/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[var(--usha-gold)]">
-                För kunder
+                {t("how.customersBadge")}
               </div>
-              <h3 className="text-xl font-bold">Boka en taxidansare</h3>
+              <h3 className="text-xl font-bold">{t("how.customersTitle")}</h3>
               <ol className="mt-4 space-y-3 text-sm text-[var(--usha-muted)]">
                 <li>
-                  <span className="font-semibold text-[var(--usha-white)]">1.</span> Sök upp en taxidansare via
-                  filtret eller länken ovan.
+                  <span className="font-semibold text-[var(--usha-white)]">1.</span> {t("how.customersStep1")}
                 </li>
                 <li>
-                  <span className="font-semibold text-[var(--usha-white)]">2.</span> Välj <em>danspaket</em>{" "}
-                  (förbetalt, inlöses på event) eller <em>coachning</em> (specifik tid).
+                  <span className="font-semibold text-[var(--usha-white)]">2.</span>{" "}
+                  {t.rich("how.customersStep2", { em: (chunks) => <em>{chunks}</em> })}
                 </li>
                 <li>
-                  <span className="font-semibold text-[var(--usha-white)]">3.</span> Betala säkert via Stripe.
+                  <span className="font-semibold text-[var(--usha-white)]">3.</span> {t("how.customersStep3")}
                 </li>
                 <li>
-                  <span className="font-semibold text-[var(--usha-white)]">4.</span> Träffas på dansgolvet eller
-                  studion. Dansaren markerar varje dans inlöst i appen.
+                  <span className="font-semibold text-[var(--usha-white)]">4.</span> {t("how.customersStep4")}
                 </li>
               </ol>
             </div>
 
             <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-8">
               <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[var(--usha-accent)]/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[var(--usha-accent)]">
-                För arrangörer
+                {t("how.organizersBadge")}
               </div>
-              <h3 className="text-xl font-bold">Boka för event</h3>
+              <h3 className="text-xl font-bold">{t("how.organizersTitle")}</h3>
               <ol className="mt-4 space-y-3 text-sm text-[var(--usha-muted)]">
                 <li>
-                  <span className="font-semibold text-[var(--usha-white)]">1.</span> Skicka eventförfrågan från
-                  taxidansarens profil — datum, tid, lokal, ersättning.
+                  <span className="font-semibold text-[var(--usha-white)]">1.</span> {t("how.organizersStep1")}
                 </li>
                 <li>
-                  <span className="font-semibold text-[var(--usha-white)]">2.</span> Lägg till förmåner (entré,
-                  drinkar, hotell) som gör erbjudandet attraktivt.
+                  <span className="font-semibold text-[var(--usha-white)]">2.</span> {t("how.organizersStep2")}
                 </li>
                 <li>
-                  <span className="font-semibold text-[var(--usha-white)]">3.</span> Taxidansaren accepterar
-                  eller avböjer inom kort.
+                  <span className="font-semibold text-[var(--usha-white)]">3.</span> {t("how.organizersStep3")}
                 </li>
                 <li>
-                  <span className="font-semibold text-[var(--usha-white)]">4.</span> Betala via plattformen när
-                  förfrågan accepterats. Pengarna går direkt till dansaren.
+                  <span className="font-semibold text-[var(--usha-white)]">4.</span> {t("how.organizersStep4")}
                 </li>
               </ol>
             </div>
@@ -129,28 +139,27 @@ export default function TaxiDancerLandingPage() {
       {/* For dancers */}
       <section className="mx-auto max-w-5xl px-6 py-16">
         <h2 className="text-center text-2xl font-bold sm:text-3xl">
-          Är du erfaren danspartner?
+          {t("dancers.heading")}
         </h2>
         <p className="mx-auto mt-3 max-w-2xl text-center text-sm text-[var(--usha-muted)]">
-          Skapa en profil, beskriv dina stilar, sätt dina priser. Bjud även på
-          privatlektioner om du vill — många taxidansare på Usha Platform gör båda.
+          {t("dancers.body")}
         </p>
 
         <div className="mt-10 grid gap-4 sm:grid-cols-3">
           <FeatureRow
             icon={<Calendar size={18} />}
-            title="Egen kalender"
-            description="Bestäm själv när du är tillgänglig för bokningar."
+            title={t("dancers.calendarTitle")}
+            description={t("dancers.calendarBody")}
           />
           <FeatureRow
             icon={<MapPin size={18} />}
-            title="Egen QR-kod"
-            description="Dela din profil på affischer, visitkort, eller digitalt."
+            title={t("dancers.qrTitle")}
+            description={t("dancers.qrBody")}
           />
           <FeatureRow
             icon={<Wallet size={18} />}
-            title="Sänkt provision"
-            description="8 % på gratis-tier, 5 % på Guld, 3 % på Premium."
+            title={t("dancers.commissionTitle")}
+            description={t("dancers.commissionBody")}
           />
         </div>
 
@@ -159,7 +168,7 @@ export default function TaxiDancerLandingPage() {
             href="/signup"
             className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-8 py-3 text-sm font-bold text-black transition hover:opacity-90"
           >
-            Skapa taxidansar-profil
+            {t("dancers.cta")}
           </Link>
         </div>
       </section>
@@ -167,26 +176,22 @@ export default function TaxiDancerLandingPage() {
       {/* Positioning */}
       <section className="border-t border-[var(--usha-border)] bg-[var(--usha-card)]/30">
         <div className="mx-auto max-w-3xl px-6 py-12 text-sm text-[var(--usha-muted)]">
-          <h2 className="mb-3 text-base font-semibold text-[var(--usha-white)]">Vad taxidans är — och inte är</h2>
-          <p>
-            En taxidansare är en betald danspartner för pardans (bugg, foxtrot, salsa, tango,
-            lindy hop m.fl.) på offentliga eller privata danstillfällen, eller en
-            instruktör som ger privatlektioner. Tjänsten omfattar inte sexuell eller intim
-            kontakt. Användning utanför detta bryter mot Usha Platforms användarvillkor och leder till
-            avstängning.
-          </p>
+          <h2 className="mb-3 text-base font-semibold text-[var(--usha-white)]">{t("positioning.heading")}</h2>
+          <p>{t("positioning.body")}</p>
           <p className="mt-3">
-            Läs mer:{" "}
+            {t("positioning.readMore")}{" "}
             <Link href="/refund-policy" className="text-[var(--usha-gold)] hover:underline">
-              Återbetalningspolicy
+              {t("positioning.refundPolicy")}
             </Link>{" "}
             ·{" "}
             <Link href="/terms" className="text-[var(--usha-gold)] hover:underline">
-              Användarvillkor
+              {t("positioning.terms")}
             </Link>
           </p>
         </div>
       </section>
+
+      <Footer />
     </div>
   );
 }

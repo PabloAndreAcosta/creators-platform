@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { useTranslations } from "next-intl";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Ticket } from "lucide-react";
 import { safeJsonLd } from "@/lib/json-ld";
 import { LandingStats } from "@/components/landing-stats";
@@ -12,29 +13,37 @@ import { Footer } from "@/components/landing/footer";
 import { AudienceDoors } from "@/components/landing/audience-doors";
 import { RedirectIfAuthed } from "@/components/landing/redirect-if-authed";
 
+const OG_LOCALE: Record<string, string> = { sv: "sv_SE", en: "en_US", es: "es_ES" };
+
 // The home page leads with the ecosystem/cycle idea (not the event tooling,
-// which now lives on /for-kreatorer).
-export const metadata: Metadata = {
-  title: "Usha Platform — Där kreatörer, platser och publik möts",
-  description:
-    "Kretsloppet som får Sveriges kreativa liv att snurra – kreatörer hittar uppdrag, platser fyller sin kalender, publiken upptäcker upplevelser. Tryggt med BankID och Stripe.",
-  alternates: { canonical: "/" },
-  openGraph: {
-    title: "Usha Platform — Där kreatörer, platser och publik möts",
-    description:
-      "Kretsloppet där kreatörer, platser och publik förstärker varandra. Tryggt med BankID och Stripe.",
-    url: "https://usha.se",
-    type: "website",
-    locale: "sv_SE",
-    siteName: "Usha Platform",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Usha Platform — Där kreatörer, platser och publik möts",
-    description:
-      "Kretsloppet där kreatörer, platser och publik förstärker varandra. Tryggt med BankID och Stripe.",
-  },
-};
+// which now lives on /for-kreatorer). Title/description follow the visitor's
+// resolved locale — an English body must not ship a Swedish <title>.
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const t = await getTranslations("landing.meta");
+  const title = t("title");
+  const description = t("description");
+  const ogDescription = t("ogDescription");
+
+  return {
+    title,
+    description,
+    alternates: { canonical: "/" },
+    openGraph: {
+      title,
+      description: ogDescription,
+      url: "https://usha.se",
+      type: "website",
+      locale: OG_LOCALE[locale] ?? "sv_SE",
+      siteName: "Usha Platform",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: ogDescription,
+    },
+  };
+}
 
 // Organization structured data (company Usha AB, product Usha Platform).
 const ORGANIZATION_JSONLD = {
