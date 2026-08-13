@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
-import { getLocale, getMessages } from "next-intl/server";
+import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import { IntlProvider } from "@/components/intl-provider";
 import { ToastProvider } from "@/components/ui/toaster";
 import { ConnectionStatus } from "@/components/ConnectionStatus";
@@ -17,40 +17,52 @@ export const viewport: Viewport = {
   themeColor: "#D4AF37",
 };
 
-export const metadata: Metadata = {
-  metadataBase: new URL("https://usha.se"),
-  title: "Usha Platform — Skapa event, sälj biljetter, betala ditt crew",
-  description:
-    "Plattformen för kreatörer och upplevelser: skapa event på minuter, sälj biljetter, skanna vid dörren och betala ditt crew — tryggt med BankID och Stripe.",
-  // NOTE: manifest, apple-touch-icon and the apple/mobile web-app meta tags are
-  // declared manually in <head> (see RootLayout) because metadata-API tags
-  // render into <body> in production streaming, which breaks PWA installability
-  // (Chrome) and the iOS "Add to Home Screen" standalone experience (Safari).
-  // Do not re-add `manifest`, `appleWebApp` or `mobile-web-app-capable` here.
-  icons: {
-    icon: [
-      { url: "/icon-192.png" },
-      { url: "/icon-light-192.png", media: "(prefers-color-scheme: light)" },
-    ],
-    // apple-touch-icon is declared manually in <head> (see RootLayout) so it
-    // lands in <head> rather than <body> in production streaming.
-  },
-  openGraph: {
-    title: "Usha Platform — Skapa event, sälj biljetter, betala ditt crew",
-    description:
-      "Skapa event, sälj biljetter, skanna vid dörren och betala ditt crew — allt i en app.",
-    type: "website",
-    locale: "sv_SE",
-    url: "https://usha.se",
-    siteName: "Usha Platform",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Usha Platform — Skapa event, sälj biljetter, betala ditt crew",
-    description:
-      "Skapa event, sälj biljetter, skanna vid dörren och betala ditt crew — allt i en app.",
-  },
-};
+// og:locale wants a full language_TERRITORY tag, not the bare app locale.
+const OG_LOCALE: Record<string, string> = { sv: "sv_SE", en: "en_US", es: "es_ES" };
+
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const t = await getTranslations("meta");
+  const title = t("siteTitle");
+  const description = t("siteDescription");
+  const ogDescription = t("siteOgDescription");
+
+  return {
+    metadataBase: new URL("https://usha.se"),
+    title,
+    description,
+    // NOTE: manifest, apple-touch-icon and the apple/mobile web-app meta tags are
+    // declared manually in <head> (see RootLayout) because metadata-API tags
+    // render into <body> in production streaming, which breaks PWA installability
+    // (Chrome) and the iOS "Add to Home Screen" standalone experience (Safari).
+    // Do not re-add `manifest`, `appleWebApp` or `mobile-web-app-capable` here.
+    icons: {
+      icon: [
+        { url: "/icon-192.png" },
+        { url: "/icon-light-192.png", media: "(prefers-color-scheme: light)" },
+      ],
+      // apple-touch-icon is declared manually in <head> (see RootLayout) so it
+      // lands in <head> rather than <body> in production streaming.
+    },
+    openGraph: {
+      title,
+      description: ogDescription,
+      type: "website",
+      locale: OG_LOCALE[locale] ?? "sv_SE",
+      // Deliberately NO `url` here. Next.js overwrites (never merges) the
+      // openGraph object per segment, so a root-level url would silently become
+      // og:url on every page that doesn't declare its own openGraph block —
+      // telling crawlers that /marketplace, /login etc. are the start page.
+      // metadataBase + a per-page `url` is the correct pattern.
+      siteName: "Usha Platform",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: ogDescription,
+    },
+  };
+}
 
 export default async function RootLayout({
   children,

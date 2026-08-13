@@ -3,7 +3,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, MapPin, Calendar, Star } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+
+// UI-locale → BCP 47-tagg för datumformatering (annars blir månadsnamnen
+// svenska även på engelska/spanska sidor).
+const DATE_LOCALES: Record<string, string> = { sv: "sv-SE", en: "en-GB", es: "es-ES" };
 
 interface CarouselEvent {
   id: string;
@@ -19,6 +23,7 @@ interface CarouselEvent {
 export function EventCarousel({ events }: { events: CarouselEvent[] }) {
   const t = useTranslations();
   const ta = useTranslations("a11y");
+  const dateLocale = DATE_LOCALES[useLocale()] ?? "en-GB";
   const [current, setCurrent] = useState(0);
 
   if (events.length === 0) return null;
@@ -65,7 +70,7 @@ export function EventCarousel({ events }: { events: CarouselEvent[] }) {
               {event.event_date && (
                 <span className="flex items-center gap-1">
                   <Calendar size={14} />
-                  {new Date(event.event_date).toLocaleDateString("sv-SE", {
+                  {new Date(event.event_date).toLocaleDateString(dateLocale, {
                     weekday: "long",
                     day: "numeric",
                     month: "long",

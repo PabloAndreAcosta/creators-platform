@@ -1,8 +1,12 @@
 import Link from "next/link";
 import { MapPin, Calendar, Flame, Star } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 import { BuyTicketCta } from "@/components/buy-ticket-cta";
 import { getSaleState } from "@/lib/listings/sale-state";
+
+// UI-locale → BCP 47-tagg för datumformatering (annars blir månadsnamnen
+// svenska även på engelska/spanska sidor).
+const DATE_LOCALES: Record<string, string> = { sv: "sv-SE", en: "en-GB", es: "es-ES" };
 
 interface ListingCardProps {
   listing: {
@@ -23,6 +27,7 @@ interface ListingCardProps {
 
 export async function ListingCard({ listing, bookingCount = 0, isPromoted }: ListingCardProps) {
   const t = await getTranslations();
+  const dateLocale = DATE_LOCALES[await getLocale()] ?? "en-GB";
   // Passerade event ligger kvar som bläddringsbart bibliotek, men säljs inte.
   const isPast =
     getSaleState({ price: listing.price, event_date: listing.event_date }, new Date()).state === "past";
@@ -78,7 +83,7 @@ export async function ListingCard({ listing, bookingCount = 0, isPromoted }: Lis
           {listing.event_date && (
             <span className="flex items-center gap-0.5">
               <Calendar size={10} />
-              {new Date(listing.event_date).toLocaleDateString("sv-SE", { day: "numeric", month: "short" })}
+              {new Date(listing.event_date).toLocaleDateString(dateLocale, { day: "numeric", month: "short" })}
             </span>
           )}
           {(listing.event_venue || listing.event_city || listing.event_location) && (
