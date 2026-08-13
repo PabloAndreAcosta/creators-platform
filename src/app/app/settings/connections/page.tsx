@@ -30,7 +30,7 @@ export default async function ConnectionsSettingsPage() {
     .from("social_connections")
     // Måste vara en enda strängliteral — konkatenering gör att Supabase inte
     // kan härleda radtypen och allt faller tillbaka till GenericStringError.
-    .select("instagram_username, instagram_access_token, instagram_token_expires_at, facebook_page_name, facebook_page_access_token, facebook_token_expires_at, tiktok_username, tiktok_access_token, tiktok_token_expires_at")
+    .select("instagram_username, instagram_access_token, instagram_token_expires_at, facebook_page_name, facebook_page_access_token, facebook_token_expires_at, tiktok_username, tiktok_access_token, tiktok_token_expires_at, tiktok_refresh_token, tiktok_refresh_token_expires_at")
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -68,10 +68,17 @@ export default async function ConnectionsSettingsPage() {
       name: "TikTok",
       accountLabel: conn?.tiktok_username ? `@${conn.tiktok_username}` : null,
       purpose: t("tiktokPurpose"),
+      // TikToks access token lever bara 24h men förnyas automatiskt när media
+      // hämtas. Det är refresh-tokenet (~365 dagar) som avgör om kopplingen
+      // lever — dömde vi på access-tokenet skulle sidan visa "utgången" dagen
+      // efter varje anslutning trots att allt fungerar. Saknas refresh-token
+      // (kopplingar från före förnyelsen) är access-tokenet det enda vi har.
       ...getConnectionState(
         {
           hasToken: !!conn?.tiktok_access_token,
-          expiresAt: conn?.tiktok_token_expires_at ?? null,
+          expiresAt: conn?.tiktok_refresh_token
+            ? (conn.tiktok_refresh_token_expires_at ?? null)
+            : (conn?.tiktok_token_expires_at ?? null),
         },
         now
       ),
