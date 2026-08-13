@@ -7,6 +7,12 @@ export const metadata: Metadata = {
   title: "Cookiepolicy – Usha Platform",
   description: "Hur Usha Platform använder cookies.",
   alternates: { canonical: "/cookies" },
+  openGraph: {
+    title: "Cookiepolicy – Usha Platform",
+    description: "Hur Usha Platform använder cookies.",
+    url: `${process.env.NEXT_PUBLIC_APP_URL ?? "https://usha.se"}/cookies`,
+    type: "website",
+  },
 };
 
 export default async function CookiesPage() {

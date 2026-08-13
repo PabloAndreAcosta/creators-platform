@@ -18,6 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title: t("experiences.metaTitle"),
       description: t("experiences.ogDescription"),
+      url: `${process.env.NEXT_PUBLIC_APP_URL ?? "https://usha.se"}/upplevelser`,
     },
   };
 }

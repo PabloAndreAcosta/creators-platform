@@ -13,6 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title: t("metaTitle"),
       description: t("metaDescription"),
+      url: `${process.env.NEXT_PUBLIC_APP_URL ?? "https://usha.se"}/flode`,
     },
   };
 }

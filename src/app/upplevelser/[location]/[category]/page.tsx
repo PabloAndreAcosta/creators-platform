@@ -38,6 +38,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     openGraph: {
       title: `${categoryLabel} i ${city} – Usha Platform`,
       description: `${categoryLabel} events och upplevelser i ${city}.`,
+      url: `${process.env.NEXT_PUBLIC_APP_URL ?? "https://usha.se"}/upplevelser/${params.location}/${params.category}`,
     },
   };
 }
