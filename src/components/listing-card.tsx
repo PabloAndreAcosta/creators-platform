@@ -2,6 +2,7 @@ import Link from "next/link";
 import { MapPin, Calendar, Flame, Star } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { BuyTicketCta } from "@/components/buy-ticket-cta";
+import { getSaleState } from "@/lib/listings/sale-state";
 
 interface ListingCardProps {
   listing: {
@@ -22,6 +23,9 @@ interface ListingCardProps {
 
 export async function ListingCard({ listing, bookingCount = 0, isPromoted }: ListingCardProps) {
   const t = await getTranslations();
+  // Passerade event ligger kvar som bläddringsbart bibliotek, men säljs inte.
+  const isPast =
+    getSaleState({ price: listing.price, event_date: listing.event_date }, new Date()).state === "past";
   const isPopular = bookingCount >= 3;
   const isHot = bookingCount >= 8;
 
@@ -95,12 +99,18 @@ export async function ListingCard({ listing, bookingCount = 0, isPromoted }: Lis
             </span>
           )}
         </div>
-        <BuyTicketCta
-          listingId={listing.id}
-          slug={listing.slug}
-          price={listing.price}
-          className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-3 py-2 text-xs font-semibold text-black transition hover:opacity-90"
-        />
+        {isPast ? (
+          <div className="mt-2.5 w-full rounded-lg border border-[var(--usha-border)] px-3 py-2 text-center text-xs font-semibold text-[var(--usha-muted)]">
+            {t("eventPage.badgePast")}
+          </div>
+        ) : (
+          <BuyTicketCta
+            listingId={listing.id}
+            slug={listing.slug}
+            price={listing.price}
+            className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-3 py-2 text-xs font-semibold text-black transition hover:opacity-90"
+          />
+        )}
       </div>
     </Link>
   );

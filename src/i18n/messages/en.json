@@ -1873,6 +1873,8 @@
     "errorRetry": "Please try again.",
     "badgeEarlyBird": "Early bird",
     "badgeSoldOut": "Sold out",
+    "badgePast": "Past",
+    "eventPast": "This event has already taken place",
     "badgeComingSoon": "Coming soon",
     "earlyBirdUntil": "Early-bird price until {date}",
     "releasesAt": "Releases {date}",
@@ -1931,6 +1933,7 @@
   "eventErrors": {
     "notReleased": "Tickets have not been released yet.",
     "soldOut": "This event is sold out.",
+    "past": "This event has already taken place.",
     "invalidEmail": "Enter a valid email address.",
     "consentRequired": "Consent is required.",
     "eventNotFound": "Event not found.",

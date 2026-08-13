@@ -73,7 +73,9 @@ export async function POST(req: NextRequest) {
     const sale = getSaleState(listing, new Date());
     if (!sale.buyable) {
       const te = await getTranslations("eventErrors");
-      const msg = sale.state === "before" ? te("notReleased") : te("soldOut");
+      const msg =
+        sale.state === "past" ? te("past") :
+        sale.state === "before" ? te("notReleased") : te("soldOut");
       return NextResponse.json({ error: msg }, { status: 403 });
     }
 

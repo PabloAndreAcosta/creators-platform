@@ -1873,6 +1873,8 @@
     "errorRetry": "Inténtalo de nuevo.",
     "badgeEarlyBird": "Precio anticipado",
     "badgeSoldOut": "Agotado",
+    "badgePast": "Pasado",
+    "eventPast": "Este evento ya ha tenido lugar",
     "badgeComingSoon": "Próximamente",
     "earlyBirdUntil": "Precio anticipado hasta el {date}",
     "releasesAt": "Disponible el {date}",
@@ -1931,6 +1933,7 @@
   "eventErrors": {
     "notReleased": "Las entradas aún no están disponibles.",
     "soldOut": "Este evento está agotado.",
+    "past": "Este evento ya ha tenido lugar.",
     "invalidEmail": "Introduce una dirección de email válida.",
     "consentRequired": "Se requiere tu consentimiento.",
     "eventNotFound": "Evento no encontrado.",

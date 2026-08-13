@@ -230,9 +230,11 @@ export default async function EventPage(props: Params) {
     : null;
   const saleBadge =
     sale.state === "early_bird" ? t("badgeEarlyBird") :
+    sale.state === "past" ? t("badgePast") :
     sale.state === "sold_out" ? t("badgeSoldOut") :
     sale.state === "before" ? t("badgeComingSoon") : null;
   const saleNote =
+    sale.state === "past" ? t("eventPast") :
     sale.state === "early_bird" && saleUntil ? t("earlyBirdUntil", { date: saleUntil }) :
     sale.state === "before" && saleUntil ? t("releasesAt", { date: saleUntil }) :
     sale.state === "sold_out" && saleUntil ? t("releasesAt", { date: saleUntil }) : null;
@@ -402,7 +404,8 @@ export default async function EventPage(props: Params) {
                 />
               ) : (
                 <div className="w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-4 py-2.5 text-center text-sm font-semibold text-[var(--usha-muted)]">
-                  {sale.state === "sold_out" ? t("soldOut") : t("notReleased")}
+                  {sale.state === "past" ? t("badgePast") :
+                   sale.state === "sold_out" ? t("soldOut") : t("notReleased")}
                 </div>
               )}
               {sale.buyable && !user && (
@@ -413,11 +416,12 @@ export default async function EventPage(props: Params) {
             </div>
 
             {/* Väntelistan visas bara när biljetter INTE säljs (ännu ej släppt
-                eller slutsålt) — under aktiv försäljning köper man direkt. */}
-            {!sale.buyable && <WaitlistForm listingId={listing.id} />}
+                eller slutsålt) — under aktiv försäljning köper man direkt. Ett
+                passerat event har inget att vänta på. */}
+            {!sale.buyable && sale.state !== "past" && <WaitlistForm listingId={listing.id} />}
 
-            {/* Åtkomstkod (team/VIP) — alltid tillgänglig, ger gratis biljett. */}
-            <AccessCodeForm listingId={listing.id} isLoggedIn={!!user} />
+            {/* Åtkomstkod (team/VIP) ger gratis biljett — meningslös i efterhand. */}
+            {sale.state !== "past" && <AccessCodeForm listingId={listing.id} isLoggedIn={!!user} />}
 
             <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
               <p className="mb-2 text-[11px] uppercase tracking-wide text-[var(--usha-muted)]">
