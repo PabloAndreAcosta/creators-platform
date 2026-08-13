@@ -9,6 +9,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title: `${t("title")} – Usha Platform`,
     description: "Så behandlar Usha AB dina personuppgifter enligt GDPR.",
     alternates: { canonical: "/privacy" },
+    openGraph: {
+      title: `${t("title")} – Usha Platform`,
+      description: "Så behandlar Usha AB dina personuppgifter enligt GDPR.",
+      url: `${process.env.NEXT_PUBLIC_APP_URL ?? "https://usha.se"}/privacy`,
+      type: "website",
+    },
   };
 }
 

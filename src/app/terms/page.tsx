@@ -9,6 +9,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title: `${t("title")} – Usha Platform`,
     description: "Användarvillkor för Usha Platform (usha.se).",
     alternates: { canonical: "/terms" },
+    openGraph: {
+      title: `${t("title")} – Usha Platform`,
+      description: "Användarvillkor för Usha Platform (usha.se).",
+      url: `${process.env.NEXT_PUBLIC_APP_URL ?? "https://usha.se"}/terms`,
+      type: "website",
+    },
   };
 }
 
