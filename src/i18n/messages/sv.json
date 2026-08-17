@@ -2414,6 +2414,7 @@
     "fbAutoPost": "Auto-publiceras ~3 dagar innan",
     "scanTickets": "Skanna biljetter",
     "liveDashboard": "Live Dashboard",
+    "eventBookings": "Bokningar",
     "edit": "Redigera",
     "crew": "Crew",
     "duplicateWithNewDate": "Duplicera med nytt datum",
@@ -3351,5 +3352,21 @@
     "disconnecting": "Kopplar från …",
     "disconnectedToast": "Kopplingen togs bort.",
     "disconnectFailed": "Kunde inte koppla från. Försök igen."
+  },
+  "eventBookings": {
+    "title": "Bokningar",
+    "back": "Tillbaka till evenemang",
+    "empty": "Inga bokningar än.",
+    "totalLabel": "Bokningar",
+    "paidLabel": "Betalda",
+    "grossLabel": "Intäkt",
+    "unknownGuest": "Okänd gäst",
+    "freeLabel": "Gratis",
+    "guestCount": "{count} personer",
+    "statusConfirmed": "Bekräftad",
+    "statusPending": "Väntar",
+    "statusCanceled": "Avbokad",
+    "refunded": "Återbetald",
+    "refundedAmount": "Återbetald {amount} kr"
   }
 }

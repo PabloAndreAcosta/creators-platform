@@ -329,6 +329,17 @@ function EventCard({
                     <ScanLine size={12} />
                     {t("scanTickets")}
                   </Link>
+                  {/* Bokningar först: det är hit man går för att se vem som
+                      köpt och för att betala tillbaka. Återbetalning låg
+                      tidigare bara i live-vyn, där ingen letade efter den. */}
+                  <Link
+                    href={`/app/events/${listing.id}/bookings`}
+                    className="flex w-full items-center gap-2 px-4 py-2 text-xs hover:bg-[var(--usha-card-hover)]"
+                    onClick={() => setShowMenu(false)}
+                  >
+                    <Users size={12} />
+                    {t("eventBookings")}
+                  </Link>
                   <Link
                     href={`/app/events/${listing.id}/live`}
                     className="flex w-full items-center gap-2 px-4 py-2 text-xs text-green-400 hover:bg-[var(--usha-card-hover)]"
