@@ -2414,6 +2414,7 @@
     "fbAutoPost": "Se publica automáticamente ~3 días antes",
     "scanTickets": "Escanear entradas",
     "liveDashboard": "Panel en vivo",
+    "eventBookings": "Reservas",
     "edit": "Editar",
     "crew": "Equipo",
     "duplicateWithNewDate": "Duplicar con nueva fecha",
@@ -3351,5 +3352,21 @@
     "disconnecting": "Desconectando …",
     "disconnectedToast": "Conexión eliminada.",
     "disconnectFailed": "No se pudo desconectar. Inténtalo de nuevo."
+  },
+  "eventBookings": {
+    "title": "Reservas",
+    "back": "Volver a eventos",
+    "empty": "Aún no hay reservas.",
+    "totalLabel": "Reservas",
+    "paidLabel": "Pagadas",
+    "grossLabel": "Ingresos",
+    "unknownGuest": "Invitado desconocido",
+    "freeLabel": "Gratis",
+    "guestCount": "{count} personas",
+    "statusConfirmed": "Confirmada",
+    "statusPending": "Pendiente",
+    "statusCanceled": "Cancelada",
+    "refunded": "Reembolsada",
+    "refundedAmount": "Reembolsada {amount} kr"
   }
 }

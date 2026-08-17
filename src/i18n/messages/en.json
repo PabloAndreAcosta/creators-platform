@@ -2414,6 +2414,7 @@
     "fbAutoPost": "Auto-posts ~3 days before",
     "scanTickets": "Scan tickets",
     "liveDashboard": "Live Dashboard",
+    "eventBookings": "Bookings",
     "edit": "Edit",
     "crew": "Crew",
     "duplicateWithNewDate": "Duplicate with new date",
@@ -3351,5 +3352,21 @@
     "disconnecting": "Disconnecting …",
     "disconnectedToast": "Connection removed.",
     "disconnectFailed": "Could not disconnect. Please try again."
+  },
+  "eventBookings": {
+    "title": "Bookings",
+    "back": "Back to events",
+    "empty": "No bookings yet.",
+    "totalLabel": "Bookings",
+    "paidLabel": "Paid",
+    "grossLabel": "Revenue",
+    "unknownGuest": "Unknown guest",
+    "freeLabel": "Free",
+    "guestCount": "{count} people",
+    "statusConfirmed": "Confirmed",
+    "statusPending": "Pending",
+    "statusCanceled": "Canceled",
+    "refunded": "Refunded",
+    "refundedAmount": "Refunded {amount} kr"
   }
 }
