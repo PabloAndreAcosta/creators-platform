@@ -7,6 +7,8 @@ interface BookingConfirmationProps {
   creatorName: string;
   location?: string;
   bookingId?: string;
+  /** Legal seller for the receipt block (org.nr / name + VAT note). */
+  seller?: { name: string; orgNumber?: string; vatNote?: string };
 }
 
 // scheduledAt is stored in UTC; format in Europe/Stockholm so a 14:00 Swedish
@@ -42,6 +44,7 @@ export default function BookingConfirmation({
   creatorName,
   location,
   bookingId,
+  seller,
 }: BookingConfirmationProps) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";
   // Link to the public, login-free ticket page so guests (no account) can open
@@ -126,6 +129,33 @@ export default function BookingConfirmation({
                                   <p style={{ fontSize: 12, color: "#6b6b6b", margin: "10px 0 0" }}>
                                     Visa den här QR-koden vid entrén
                                   </p>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        )}
+
+                        {seller && (
+                          <table width="100%" cellPadding={0} cellSpacing={0} style={{ marginBottom: 24 }}>
+                            <tbody>
+                              <tr>
+                                <td style={{ padding: "12px 16px", borderRadius: 12, backgroundColor: "#0a0a0b" }}>
+                                  <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.05em", color: "#6b6b6b", margin: "0 0 6px" }}>
+                                    Kvitto
+                                  </p>
+                                  <p style={{ fontSize: 13, color: "#fafaf9", margin: "0 0 4px" }}>
+                                    Säljare: {seller.name}
+                                  </p>
+                                  {seller.orgNumber && (
+                                    <p style={{ fontSize: 13, color: "#fafaf9", margin: "0 0 4px" }}>
+                                      Org.nr: {seller.orgNumber}
+                                    </p>
+                                  )}
+                                  {seller.vatNote && (
+                                    <p style={{ fontSize: 12, color: "#6b6b6b", margin: 0 }}>
+                                      {seller.vatNote}
+                                    </p>
+                                  )}
                                 </td>
                               </tr>
                             </tbody>
