@@ -32,6 +32,8 @@ import {
   Crown,
   Trophy,
   Gift,
+  Link2,
+  Lock,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { ReferralCard } from "@/components/referral-card";
@@ -226,6 +228,13 @@ export function ProfileContent({
         <SettingsRow icon={Gift} label={t("rewards")} href="/app/rewards" />
         <SettingsRow icon={Edit2} label={t("editProfile")} href="/dashboard/profile" />
         <SettingsRow icon={Crown} label={t("myPlan")} href="/dashboard/billing" />
+        {/* Den här listan länkar direkt till varje settings-sida i stället för
+            till hubben /app/settings, som bara nås från en token-gate. Nya
+            settings-sidor måste därför läggas till HÄR också, annars blir de
+            oåtkomliga i appen — vilket hände både Kopplingar och Login &
+            säkerhet. */}
+        <SettingsRow icon={Link2} label={t("connections")} href="/app/settings/connections" />
+        <SettingsRow icon={Lock} label={t("loginSecurity")} href="/app/settings/security" />
         <SettingsRow icon={Bell} label={t("notifications")} href="/app/settings/notifications" />
         <SettingsRow icon={Shield} label={t("privacySettings")} href="/app/settings/privacy" />
         <SettingsRow icon={HelpCircle} label={t("helpSupport")} href="/app/settings/help" />
