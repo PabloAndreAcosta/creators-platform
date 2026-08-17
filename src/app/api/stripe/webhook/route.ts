@@ -990,6 +990,34 @@ export async function POST(req: NextRequest) {
         const disputeCharge = await stripe.charges.retrieve(dispute.charge as string);
         const disputePaymentIntent = disputeCharge.payment_intent as string | null;
 
+        // Auto-recover from the organizer: Stripe debits disputes from the PLATFORM
+        // account (with or without on_behalf_of), so for a destination charge we
+        // reverse the transfer to pull the disputed amount (+ proportional app fee)
+        // back from the connected account. Principal charges have no transfer →
+        // skipped (Usha bears its own sale's dispute). Domestic SE↔SE, so no
+        // cross-border wait applies. Idempotent on the dispute id.
+        const transferId =
+          typeof disputeCharge.transfer === "string"
+            ? disputeCharge.transfer
+            : disputeCharge.transfer?.id ?? null;
+        if (transferId) {
+          try {
+            await stripe.transfers.createReversal(
+              transferId,
+              {
+                amount: dispute.amount,
+                refund_application_fee: true,
+                description: `Auto-reversal for dispute ${dispute.id}`,
+                metadata: { dispute_id: dispute.id, reason: dispute.reason },
+              },
+              { idempotencyKey: `dispute-reversal-${dispute.id}` }
+            );
+            console.log("Reversed transfer for dispute:", dispute.id, transferId, dispute.amount);
+          } catch (e) {
+            console.error("Dispute transfer reversal failed:", dispute.id, (e as Error).message);
+          }
+        }
+
         if (disputePaymentIntent) {
           const { data: disputedBooking } = await getSupabaseAdmin()
             .from("bookings")
