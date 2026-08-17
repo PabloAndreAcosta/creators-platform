@@ -24,6 +24,12 @@ export default getRequestConfig(async ({ requestLocale }) => {
   return {
     locale,
     messages: (await import(`./messages/${locale}.json`)).default,
+    // Utan explicit tidszon formaterar servern datum i sin egen (UTC på Vercel)
+    // och webbläsaren i besökarens. Samma tidpunkt renderas då som olika text
+    // på de två sidorna, vilket ger hydreringsmismatch — next-intl varnar
+    // uttryckligen för det. Verksamheten är svensk och alla event anges i
+    // svensk tid, så Europe/Stockholm är rätt svar för både server och klient.
+    timeZone: "Europe/Stockholm",
     // Never render a raw "namespace.key" to users; humanize + warn instead.
     getMessageFallback,
     onError: onIntlError,
