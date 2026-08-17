@@ -23,6 +23,11 @@ export function paymentsOpenToAll(): boolean {
   return process.env.NEXT_PUBLIC_PAYMENTS_OPEN === "true";
 }
 
+/** True if this payee id is a platform-owner (Usha) account. */
+export function isOwnerPayee(id: string | null | undefined): boolean {
+  return !!id && OWNER_PAYEE_IDS.includes(id);
+}
+
 export interface PayeeEligibility {
   id: string;
   company_verified_at: string | null;
