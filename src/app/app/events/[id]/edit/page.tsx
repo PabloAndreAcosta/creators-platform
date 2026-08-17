@@ -3,12 +3,14 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { canManageListing } from "@/lib/listings/manage-access";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
-import { Users, Radio, ScanLine, BarChart3, Receipt, Mail } from "lucide-react";
+import { Users, Radio, ScanLine, BarChart3, Receipt, Mail, Ticket } from "lucide-react";
 import EventForm from "../../event-form";
 import { updateEvent } from "../../actions";
+import { getTranslations } from "next-intl/server";
 
 export default async function EditEventPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
+  const t = await getTranslations("myEvents");
   const supabase = await createClient();
   const {
     data: { user },
@@ -47,6 +49,17 @@ export default async function EditEventPage(props: { params: Promise<{ id: strin
         >
           <ScanLine size={15} />
           Skanna biljetter
+        </Link>
+        {/* Bokningar direkt efter skanning: det är här man ser vem som köpt och
+            betalar tillbaka en biljett. Den här knappraden är den yta arrangören
+            faktiskt använder — en länk som bara finns i trepunktsmenyn på
+            eventkortet hittas inte. */}
+        <Link
+          href={`/app/events/${event.id}/bookings`}
+          className="inline-flex items-center gap-2 rounded-full border border-[var(--usha-gold)]/60 px-4 py-2 text-sm font-medium text-[var(--usha-gold)] transition hover:bg-[var(--usha-gold)]/10"
+        >
+          <Ticket size={15} />
+          {t("eventBookings")}
         </Link>
         <Link
           href={`/app/events/${event.id}/crew`}
