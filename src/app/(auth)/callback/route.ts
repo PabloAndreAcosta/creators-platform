@@ -4,6 +4,23 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { verifyCookieValue } from "@/lib/signicat/crypto";
 import type { BankIdVerifiedData } from "@/types/bankid";
 
+/**
+ * Skapades kontot av det OAuth-flöde vi just kom tillbaka från?
+ *
+ * Fönstret matchar pending_role-cookiens max-age (600s) med marginal för
+ * långsamma OAuth-rundturer. Saknas eller är created_at oläsbar svarar vi nej
+ * — hellre en utebliven rollsättning vid signup än en rollhöjning.
+ */
+const SIGNUP_WINDOW_MS = 15 * 60 * 1000;
+
+function isFreshSignup(createdAt: string | undefined): boolean {
+  if (!createdAt) return false;
+  const created = new Date(createdAt).getTime();
+  if (Number.isNaN(created)) return false;
+  const age = Date.now() - created;
+  return age >= 0 && age <= SIGNUP_WINDOW_MS;
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams, origin } = new URL(req.url);
   const code = searchParams.get("code");
@@ -23,9 +40,17 @@ export async function GET(req: NextRequest) {
         // 1. Apply pending role from OAuth signup (if present).
         //    Uses admin client because the privileged-columns trigger blocks
         //    role/tier/is_admin/bankid_* changes from user-context updates.
+        //
+        //    Cookien sätts från webbläsaren (signup/page.tsx) och går alltså
+        //    inte att lita på — vem som helst kan sätta pending_role=venue och
+        //    logga in med Google. Att signera den hjälper inte: en angripare
+        //    kan be servern signera vilken roll som helst. Kontrollen som
+        //    faktiskt håller är att bara tillämpa den när OAuth-flödet nyss
+        //    SKAPADE kontot. Ett befintligt konto kan då inte höja sin roll;
+        //    den vägen går via BankID-cookien nedan, som är signerad.
         const pendingRole = req.cookies.get("pending_role")?.value;
         const validRoles = ["creator", "venue", "customer"];
-        if (pendingRole && validRoles.includes(pendingRole)) {
+        if (pendingRole && validRoles.includes(pendingRole) && isFreshSignup(user.created_at)) {
           await admin
             .from("profiles")
             .update({ role: pendingRole })

@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export interface PromoValidation {
   valid: boolean;
@@ -23,7 +23,16 @@ export async function validatePromoCode(
   scope: "subscription" | "ticket",
   planKey?: string
 ): Promise<PromoValidation> {
-  const supabase = await createClient();
+  // Service-role, inte användarens klient. Uppslaget skedde tidigare under RLS,
+  // vilket krävde en policy som gjorde ALLA aktiva koder läsbara för vem som
+  // helst med anon-nyckeln — den ligger i JS-bundlen, så varje kampanjkod var
+  // publik. Funktionen anropas bara från API-routes (aldrig från klient) och
+  // gör själv alla behörighetskontroller, så uppslaget hör hemma här.
+  //
+  // Bonus: per-användarräkningen nedan blir korrekt oavsett RLS på
+  // promo_code_uses, i stället för att kunna underrapportera och släppa
+  // igenom fler användningar än max_uses_per_user tillåter.
+  const supabase = createAdminClient();
   const normalizedCode = code.trim().toUpperCase();
 
   // Fetch the promo code
@@ -128,27 +137,8 @@ export function applyPromoDiscount(
   };
 }
 
-/**
- * Record promo code usage and increment counter.
- */
-export async function recordPromoUsage(
-  promoCodeId: string,
-  userId: string,
-  usedFor: "subscription" | "ticket",
-  referenceId: string,
-  discountAmount: number
-) {
-  const supabase = await createClient();
-
-  // Record usage
-  await supabase.from("promo_code_uses").insert({
-    promo_code_id: promoCodeId,
-    user_id: userId,
-    used_for: usedFor,
-    reference_id: referenceId,
-    discount_amount: discountAmount,
-  } as any);
-
-  // Increment counter
-  await supabase.rpc("increment_promo_uses", { promo_id: promoCodeId } as any);
-}
+// recordPromoUsage togs bort här. Den hade inga anropare och kunde inte
+// fungera: den byggde en användarklient och anropade increment_promo_uses,
+// som har EXECUTE återkallad från authenticated (20260515-migrationen), utan
+// att kolla felet. Bokföringen sker i Stripe-webhooken med service-role vid
+// betald order — se noten om current_uses ovan.

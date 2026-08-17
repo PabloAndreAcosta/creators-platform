@@ -51,6 +51,14 @@ export async function createAccessCode(listingId: string, formData: FormData) {
 export async function toggleAccessCode(listingId: string, codeId: string, active: boolean) {
   const admin = await ownerAdmin(listingId);
   if (!admin) return;
-  await admin.from("event_access_codes").update({ is_active: active }).eq("id", codeId);
+  // ownerAdmin auktoriserar listingId, men utan listing_id-filtret här gällde
+  // uppdateringen vilken kod som helst i tabellen. Den som äger ett eget event
+  // kunde då återaktivera eller stänga av en annan arrangörs koder — alltså
+  // gratisbiljetter på deras event, eller ren sabotage.
+  await admin
+    .from("event_access_codes")
+    .update({ is_active: active })
+    .eq("id", codeId)
+    .eq("listing_id", listingId);
   revalidatePath(`/app/events/${listingId}/codes`);
 }
