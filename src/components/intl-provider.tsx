@@ -11,6 +11,14 @@ import { getMessageFallback, onIntlError } from "@/i18n/fallback";
  * client module keeps client components covered by the same "never show a raw
  * key" fallback as Server Components.
  */
+/**
+ * Tidszonen måste anges explicit. Utan den formaterar servern datum i sin egen
+ * zon (UTC på Vercel) och webbläsaren i besökarens, så samma tidpunkt blir
+ * olika text på de två sidorna — hydreringsmismatch, som next-intl varnar för
+ * i loggen. Verksamheten är svensk och event anges i svensk tid.
+ */
+export const APP_TIME_ZONE = "Europe/Stockholm";
+
 export function IntlProvider({
   locale,
   messages,
@@ -24,6 +32,7 @@ export function IntlProvider({
     <NextIntlClientProvider
       locale={locale}
       messages={messages}
+      timeZone={APP_TIME_ZONE}
       getMessageFallback={getMessageFallback}
       onError={onIntlError}
     >

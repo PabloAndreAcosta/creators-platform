@@ -53,3 +53,9 @@ android/local.properties
 
 # generated marketing docs (reproducible via `npm run docs:pricing`)
 marketing/generated/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
