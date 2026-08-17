@@ -6,7 +6,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { getCreatorCommissionRate } from "@/lib/stripe/commission";
 import { priceForMinutes, isMinuteOption, MIN_PRICE_SEK } from "@/lib/coaching/minute-pricing";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
-import { resolvePayeeFlow, buildConnectPaymentIntentData, type PayeeContext } from "@/lib/stripe/checkout";
+import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, type PayeeContext } from "@/lib/stripe/checkout";
 
 /**
  * Creates a Stripe Checkout session for buying a block of instructor minutes
@@ -74,11 +74,29 @@ export async function POST(req: NextRequest) {
       .eq("id", instructorId)
       .single();
 
-    if (!instructor?.stripe_account_id) {
-      return NextResponse.json({ error: "Instruktören kan inte ta emot betalningar ännu." }, { status: 400 });
+    if (!instructor) {
+      return NextResponse.json({ error: "Instruktören hittades inte." }, { status: 404 });
     }
-    if (!canReceivePayments({ id: instructorId, company_verified_at: instructor.company_verified_at })) {
-      return NextResponse.json({ error: PAYMENTS_BETA_BLOCKED_MESSAGE }, { status: 403 });
+
+    // Resolve flow first — a Usha-owned payee (principal) needs no connected account.
+    const payee: PayeeContext = {
+      id: instructorId,
+      stripe_account_id: instructor.stripe_account_id,
+      card_payments_enabled: (instructor as { stripe_card_payments_enabled?: boolean }).stripe_card_payments_enabled ?? false,
+      is_usha_owned_seller: (instructor as { is_usha_owned_seller?: boolean }).is_usha_owned_seller ?? false,
+      company_name: (instructor as { company_name?: string | null }).company_name ?? null,
+      org_number: (instructor as { org_number?: string | null }).org_number ?? null,
+      full_name: instructor.full_name ?? null,
+    };
+    const flow = resolvePayeeFlow(payee);
+
+    if (flow === "third_party") {
+      if (!instructor.stripe_account_id) {
+        return NextResponse.json({ error: "Instruktören kan inte ta emot betalningar ännu." }, { status: 400 });
+      }
+      if (!canReceivePayments({ id: instructorId, company_verified_at: instructor.company_verified_at })) {
+        return NextResponse.json({ error: PAYMENTS_BETA_BLOCKED_MESSAGE }, { status: 403 });
+      }
     }
     if (!instructor.offers_coaching || !instructor.coaching_hourly_rate_sek || instructor.coaching_hourly_rate_sek <= 0) {
       return NextResponse.json({ error: "Instruktören har inget timpris satt." }, { status: 400 });
@@ -92,17 +110,12 @@ export async function POST(req: NextRequest) {
     const commissionRate = getCreatorCommissionRate(instructor.tier ?? "gratis", instructor.creator_subcategory ?? null);
     const applicationFee = Math.round(amountInOre * commissionRate);
 
-    const payee: PayeeContext = {
-      id: instructorId,
-      stripe_account_id: instructor.stripe_account_id,
-      card_payments_enabled: (instructor as { stripe_card_payments_enabled?: boolean }).stripe_card_payments_enabled ?? false,
-      is_usha_owned_seller: (instructor as { is_usha_owned_seller?: boolean }).is_usha_owned_seller ?? false,
-      company_name: (instructor as { company_name?: string | null }).company_name ?? null,
-      org_number: (instructor as { org_number?: string | null }).org_number ?? null,
-      full_name: instructor.full_name ?? null,
-    };
-    const flow = resolvePayeeFlow(payee);
-    const paymentIntentData = buildConnectPaymentIntentData({ flow, payee, applicationFeeOre: applicationFee });
+    const paymentIntentData = buildConnectPaymentIntentData({
+      flow,
+      payee,
+      applicationFeeOre: applicationFee,
+      metadata: buildPaymentMetadata({ flow, payee, eventId: listing.id }),
+    });
 
     const stripeLocale = await getStripeLocale();
     const session = await stripe.checkout.sessions.create({

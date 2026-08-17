@@ -3,6 +3,7 @@ import {
   resolvePayeeFlow,
   buildConnectPaymentIntentData,
   buildStatementDescriptorSuffix,
+  buildPaymentMetadata,
   receiptSeller,
   type PayeeContext,
 } from "../checkout";
@@ -35,10 +36,17 @@ describe("resolvePayeeFlow", () => {
 });
 
 describe("buildConnectPaymentIntentData", () => {
-  it("principal flow → undefined (no transfer/fee/on_behalf_of)", () => {
-    expect(
-      buildConnectPaymentIntentData({ flow: "usha_principal", payee: payee(), applicationFeeOre: 1000 })
-    ).toBeUndefined();
+  it("principal flow → no transfer/fee/on_behalf_of, but metadata stamped", () => {
+    const pid = buildConnectPaymentIntentData({
+      flow: "usha_principal",
+      payee: payee(),
+      applicationFeeOre: 1000,
+      metadata: { model: "principal" },
+    });
+    expect(pid.transfer_data).toBeUndefined();
+    expect(pid.application_fee_amount).toBeUndefined();
+    expect(pid.on_behalf_of).toBeUndefined();
+    expect(pid.metadata).toEqual({ model: "principal" });
   });
 
   it("third_party WITH card_payments → on_behalf_of + descriptor + transfer + fee", () => {
@@ -75,14 +83,64 @@ describe("buildConnectPaymentIntentData", () => {
     expect(pid.transfer_data?.destination).toBe("acct_123");
   });
 
-  it("missing stripe account → undefined", () => {
-    expect(
-      buildConnectPaymentIntentData({
-        flow: "third_party",
-        payee: payee({ stripe_account_id: null }),
-        applicationFeeOre: 100,
-      })
-    ).toBeUndefined();
+  it("missing stripe account → metadata only, no transfer", () => {
+    const pid = buildConnectPaymentIntentData({
+      flow: "third_party",
+      payee: payee({ stripe_account_id: null }),
+      applicationFeeOre: 100,
+      metadata: { model: "agent" },
+    });
+    expect(pid.transfer_data).toBeUndefined();
+    expect(pid.metadata).toEqual({ model: "agent" });
+  });
+});
+
+describe("buildPaymentMetadata", () => {
+  const OLD = process.env;
+  beforeEach(() => {
+    process.env = { ...OLD, USHA_LEGAL_NAME: "Usha AB", USHA_ORG_NUMBER: "5594018326" };
+  });
+  afterEach(() => {
+    process.env = OLD;
+  });
+
+  it("third_party company → model=agent + organizer org.nr + event fields", () => {
+    const meta = buildPaymentMetadata({
+      flow: "third_party",
+      payee: { company_name: "Joy Nation AB", org_number: "5560360793", full_name: "Anna" },
+      eventId: "evt_1",
+      eventDate: "2026-09-01",
+    });
+    expect(meta).toEqual({
+      model: "agent",
+      event_date: "2026-09-01",
+      organizer_org_nr: "556036-0793",
+      event_id: "evt_1",
+    });
+  });
+
+  it("principal → model=principal + Usha org.nr", () => {
+    const meta = buildPaymentMetadata({
+      flow: "usha_principal",
+      payee: { company_name: null, org_number: null, full_name: null },
+      eventId: "evt_2",
+      eventDate: "2026-07-03",
+    });
+    expect(meta.model).toBe("principal");
+    expect(meta.organizer_org_nr).toBe("5594018326");
+    expect(meta.event_id).toBe("evt_2");
+    expect(meta.event_date).toBe("2026-07-03");
+  });
+
+  it("third_party individual (no org.nr) → empty organizer_org_nr, empty event_date", () => {
+    const meta = buildPaymentMetadata({
+      flow: "third_party",
+      payee: { company_name: null, org_number: null, full_name: "Anna Andersson" },
+      eventId: "evt_3",
+    });
+    expect(meta.organizer_org_nr).toBe("");
+    expect(meta.event_date).toBe("");
+    expect(meta.model).toBe("agent");
   });
 });
 

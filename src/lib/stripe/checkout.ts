@@ -72,21 +72,50 @@ export function receiptSeller(
 }
 
 /**
- * Build the `payment_intent_data` for a Connect checkout, or undefined for the
- * principal flow (caller then omits payment_intent_data entirely).
+ * Bookkeeping metadata stamped on EVERY PaymentIntent (not just the Checkout
+ * Session — session metadata does not propagate to the charge that Fortnox /
+ * reconciliation reads). Four fields:
+ *  - model: "principal" (Usha's own event, gross) | "agent" (brokered, net)
+ *  - event_date: drives period accrual (periodisering)
+ *  - organizer_org_nr: DAC7 + reconciliation against the organizer
+ *  - event_id: traceability from the verifikat back to the event
+ */
+export function buildPaymentMetadata(args: {
+  flow: PayeeFlow;
+  payee: Pick<PayeeContext, "company_name" | "org_number" | "full_name">;
+  eventId?: string | null;
+  eventDate?: string | null;
+}): Record<string, string> {
+  const seller = receiptSeller(args.flow, args.payee);
+  return {
+    model: args.flow === "usha_principal" ? "principal" : "agent",
+    event_date: args.eventDate ?? "",
+    organizer_org_nr: seller.orgNumber ?? "",
+    event_id: args.eventId ?? "",
+  };
+}
+
+/**
+ * Build the `payment_intent_data` for a Connect checkout. Always returns an
+ * object carrying the bookkeeping `metadata` (so every payment is stamped). The
+ * transfer / application fee / on_behalf_of are added ONLY for the third-party
+ * flow — the principal flow keeps the charge on Usha's platform account.
  */
 export function buildConnectPaymentIntentData(args: {
   flow: PayeeFlow;
   payee: PayeeContext;
   applicationFeeOre: number; // 0 allowed (e.g. gage payments carry no fee)
-}): Stripe.Checkout.SessionCreateParams.PaymentIntentData | undefined {
-  const { flow, payee, applicationFeeOre } = args;
-  if (flow === "usha_principal") return undefined;
-  if (!payee.stripe_account_id) return undefined; // caller validates this separately
+  metadata?: Record<string, string>;
+}): Stripe.Checkout.SessionCreateParams.PaymentIntentData {
+  const { flow, payee, applicationFeeOre, metadata } = args;
+  const pid: Stripe.Checkout.SessionCreateParams.PaymentIntentData = {};
+  if (metadata) pid.metadata = metadata;
 
-  const pid: Stripe.Checkout.SessionCreateParams.PaymentIntentData = {
-    transfer_data: { destination: payee.stripe_account_id },
-  };
+  // Principal (Usha's own event): no transfer, no fee, no on_behalf_of — the
+  // gross stays on the platform account. Metadata still stamped above.
+  if (flow === "usha_principal" || !payee.stripe_account_id) return pid;
+
+  pid.transfer_data = { destination: payee.stripe_account_id };
   if (applicationFeeOre > 0) pid.application_fee_amount = applicationFeeOre;
 
   // Merchant-of-record shift — only when the organizer can actually take card

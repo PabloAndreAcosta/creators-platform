@@ -8,7 +8,7 @@ import {
   getCreatorCommissionRate,
 } from "@/lib/stripe/commission";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
-import { resolvePayeeFlow, buildConnectPaymentIntentData, type PayeeContext } from "@/lib/stripe/checkout";
+import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, type PayeeContext } from "@/lib/stripe/checkout";
 
 /**
  * Creates a Stripe Checkout session for a paid manual booking.
@@ -121,15 +121,32 @@ export async function POST(req: NextRequest) {
       .eq("id", listing.user_id)
       .single();
 
-    if (!creator?.stripe_account_id) {
-      return NextResponse.json(
-        { error: "Creator has not connected their Stripe account" },
-        { status: 400 }
-      );
+    if (!creator) {
+      return NextResponse.json({ error: "Event not found" }, { status: 404 });
     }
 
-    if (!canReceivePayments({ id: listing.user_id, company_verified_at: creator.company_verified_at })) {
-      return NextResponse.json({ error: PAYMENTS_BETA_BLOCKED_MESSAGE }, { status: 403 });
+    // Resolve flow first — Usha's own events (principal) need no connected account.
+    const payee: PayeeContext = {
+      id: listing.user_id,
+      stripe_account_id: creator.stripe_account_id,
+      card_payments_enabled: creator.stripe_card_payments_enabled ?? false,
+      is_usha_owned_seller: creator.is_usha_owned_seller ?? false,
+      company_name: creator.company_name ?? null,
+      org_number: creator.org_number ?? null,
+      full_name: creator.full_name ?? null,
+    };
+    const flow = resolvePayeeFlow(payee);
+
+    if (flow === "third_party") {
+      if (!creator.stripe_account_id) {
+        return NextResponse.json(
+          { error: "Creator has not connected their Stripe account" },
+          { status: 400 }
+        );
+      }
+      if (!canReceivePayments({ id: listing.user_id, company_verified_at: creator.company_verified_at })) {
+        return NextResponse.json({ error: PAYMENTS_BETA_BLOCKED_MESSAGE }, { status: 403 });
+      }
     }
 
     // Calculate pricing
@@ -164,18 +181,14 @@ export async function POST(req: NextRequest) {
       : amountInOre;
     const finalFee = Math.round(finalAmount * commissionRate);
 
-    // Resolve accounting flow + Connect payment_intent_data
-    const payee: PayeeContext = {
-      id: listing.user_id,
-      stripe_account_id: creator.stripe_account_id,
-      card_payments_enabled: creator.stripe_card_payments_enabled ?? false,
-      is_usha_owned_seller: creator.is_usha_owned_seller ?? false,
-      company_name: creator.company_name ?? null,
-      org_number: creator.org_number ?? null,
-      full_name: creator.full_name ?? null,
-    };
-    const flow = resolvePayeeFlow(payee);
-    const paymentIntentData = buildConnectPaymentIntentData({ flow, payee, applicationFeeOre: finalFee });
+    // Build the Connect payment_intent_data + bookkeeping metadata (the booking's
+    // scheduled time drives period accrual).
+    const paymentIntentData = buildConnectPaymentIntentData({
+      flow,
+      payee,
+      applicationFeeOre: finalFee,
+      metadata: buildPaymentMetadata({ flow, payee, eventId: listing.id, eventDate: scheduledAt }),
+    });
 
     // Create Stripe Checkout session
     const stripeLocale = await getStripeLocale();

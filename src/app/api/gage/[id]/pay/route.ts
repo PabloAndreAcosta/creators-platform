@@ -3,7 +3,7 @@ import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
-import { resolvePayeeFlow, buildConnectPaymentIntentData, type PayeeContext } from "@/lib/stripe/checkout";
+import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, type PayeeContext } from "@/lib/stripe/checkout";
 
 // Host pays an agreed gage: a destination charge transferring the full amount
 // to the crew member's Stripe Connect account. The webhook marks it paid.
@@ -89,7 +89,12 @@ export async function POST(
     full_name: payee.full_name ?? null,
   };
   const flow = resolvePayeeFlow(payeeCtx);
-  const paymentIntentData = buildConnectPaymentIntentData({ flow, payee: payeeCtx, applicationFeeOre: 0 });
+  const paymentIntentData = buildConnectPaymentIntentData({
+    flow,
+    payee: payeeCtx,
+    applicationFeeOre: 0,
+    metadata: buildPaymentMetadata({ flow, payee: payeeCtx, eventId: g.listing_id }),
+  });
 
   // Wrap the Stripe session creation + DB write: a Stripe/network/DB error must
   // surface as a clean Swedish message, not a raw 500 stack (matches the other

@@ -13,7 +13,7 @@ import {
   getCreatorCommissionRate,
 } from "@/lib/stripe/commission";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
-import { resolvePayeeFlow, buildConnectPaymentIntentData, type PayeeContext } from "@/lib/stripe/checkout";
+import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, type PayeeContext } from "@/lib/stripe/checkout";
 
 export async function POST(req: NextRequest) {
   // Rate limit: 5 guest checkouts per minute per IP
@@ -185,15 +185,32 @@ export async function POST(req: NextRequest) {
       .eq("id", listing.user_id)
       .single();
 
-    if (!creator?.stripe_account_id) {
-      return NextResponse.json(
-        { error: "Creator has not connected their Stripe account" },
-        { status: 400 }
-      );
+    if (!creator) {
+      return NextResponse.json({ error: "Event not found" }, { status: 404 });
     }
 
-    if (!canReceivePayments({ id: listing.user_id, company_verified_at: creator.company_verified_at })) {
-      return NextResponse.json({ error: PAYMENTS_BETA_BLOCKED_MESSAGE }, { status: 403 });
+    // Resolve flow first — Usha's own events (principal) need no connected account.
+    const payee: PayeeContext = {
+      id: listing.user_id,
+      stripe_account_id: creator.stripe_account_id,
+      card_payments_enabled: creator.stripe_card_payments_enabled ?? false,
+      is_usha_owned_seller: creator.is_usha_owned_seller ?? false,
+      company_name: creator.company_name ?? null,
+      org_number: creator.org_number ?? null,
+      full_name: creator.full_name ?? null,
+    };
+    const flow = resolvePayeeFlow(payee);
+
+    if (flow === "third_party") {
+      if (!creator.stripe_account_id) {
+        return NextResponse.json(
+          { error: "Creator has not connected their Stripe account" },
+          { status: 400 }
+        );
+      }
+      if (!canReceivePayments({ id: listing.user_id, company_verified_at: creator.company_verified_at })) {
+        return NextResponse.json({ error: PAYMENTS_BETA_BLOCKED_MESSAGE }, { status: 403 });
+      }
     }
 
     const amountInOre = Math.round(effectivePrice * 100);
@@ -250,20 +267,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: te("soldOut") }, { status: 403 });
     }
 
-    const payee: PayeeContext = {
-      id: listing.user_id,
-      stripe_account_id: creator.stripe_account_id,
-      card_payments_enabled: creator.stripe_card_payments_enabled ?? false,
-      is_usha_owned_seller: creator.is_usha_owned_seller ?? false,
-      company_name: creator.company_name ?? null,
-      org_number: creator.org_number ?? null,
-      full_name: creator.full_name ?? null,
-    };
-    const flow = resolvePayeeFlow(payee);
     const paymentIntentData = buildConnectPaymentIntentData({
       flow,
       payee,
       applicationFeeOre: applicationFee * qty + serviceFee,
+      metadata: buildPaymentMetadata({ flow, payee, eventId: listing.id, eventDate: listing.event_date }),
     });
 
     const stripeLocale = await getStripeLocale();

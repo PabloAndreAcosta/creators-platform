@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCreatorCommissionRate } from "@/lib/stripe/commission";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
-import { resolvePayeeFlow, buildConnectPaymentIntentData, type PayeeContext } from "@/lib/stripe/checkout";
+import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, type PayeeContext } from "@/lib/stripe/checkout";
 
 export async function POST(req: NextRequest) {
   const { rateLimit, getRateLimitKey } = await import('@/lib/rate-limit');
@@ -119,20 +119,11 @@ export async function POST(req: NextRequest) {
       .eq("id", product.creator_id)
       .single();
 
-    if (!creator?.stripe_account_id) {
-      return NextResponse.json({ error: "Kreatören har inte kopplat Stripe ännu." }, { status: 400 });
-    }
-    if (!canReceivePayments({ id: product.creator_id, company_verified_at: creator.company_verified_at })) {
-      return NextResponse.json({ error: PAYMENTS_BETA_BLOCKED_MESSAGE }, { status: 403 });
+    if (!creator) {
+      return NextResponse.json({ error: "Produkten hittades inte." }, { status: 404 });
     }
 
-    const commissionRate = getCreatorCommissionRate(
-      creator.tier ?? "gratis",
-      (creator as { creator_subcategory?: string | null }).creator_subcategory ?? null,
-    );
-    const amountOre = finalPrice * 100;
-    const applicationFee = Math.round(amountOre * commissionRate);
-
+    // Resolve flow first — Usha's own products (principal) need no connected account.
     const payee: PayeeContext = {
       id: product.creator_id,
       stripe_account_id: creator.stripe_account_id,
@@ -143,7 +134,29 @@ export async function POST(req: NextRequest) {
       full_name: creator.full_name ?? null,
     };
     const flow = resolvePayeeFlow(payee);
-    const paymentIntentData = buildConnectPaymentIntentData({ flow, payee, applicationFeeOre: applicationFee });
+
+    if (flow === "third_party") {
+      if (!creator.stripe_account_id) {
+        return NextResponse.json({ error: "Kreatören har inte kopplat Stripe ännu." }, { status: 400 });
+      }
+      if (!canReceivePayments({ id: product.creator_id, company_verified_at: creator.company_verified_at })) {
+        return NextResponse.json({ error: PAYMENTS_BETA_BLOCKED_MESSAGE }, { status: 403 });
+      }
+    }
+
+    const commissionRate = getCreatorCommissionRate(
+      creator.tier ?? "gratis",
+      (creator as { creator_subcategory?: string | null }).creator_subcategory ?? null,
+    );
+    const amountOre = finalPrice * 100;
+    const applicationFee = Math.round(amountOre * commissionRate);
+
+    const paymentIntentData = buildConnectPaymentIntentData({
+      flow,
+      payee,
+      applicationFeeOre: applicationFee,
+      metadata: buildPaymentMetadata({ flow, payee, eventId: productId }),
+    });
 
     // Create Stripe checkout session
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";
