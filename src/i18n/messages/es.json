@@ -45,7 +45,9 @@
     "switchToDark": "Cambiar a modo oscuro"
   },
   "nav": {
-    "home": "Inicio",
+        "tools": "Herramientas",
+    "favorites": "Favoritos",
+"home": "Inicio",
     "posts": "Publicaciones",
     "myPosts": "Mis publicaciones",
     "messages": "Mensajes",
@@ -2285,7 +2287,15 @@
     "inviteFriends": "Invitar a amigos"
   },
   "toolsPage": {
-    "heading": "Herramientas",
+        "homeLabel": "Inicio",
+    "toolsLabel": "Herramientas",
+    "openGigsLabel": "Trabajos abiertos",
+    "openGigsDesc": "Postúlate como bailarín",
+    "productsLabel": "Productos",
+    "productsDesc": "Digital y físico",
+    "recommendationsLabel": "Para ti",
+    "recommendationsDesc": "Sugerencias para ti",
+"heading": "Herramientas",
     "groupCreateSell": "Crear y vender",
     "groupFinance": "Finanzas",
     "groupExplore": "Explorar",

@@ -45,7 +45,9 @@
     "switchToDark": "Byt till mörkt läge"
   },
   "nav": {
-    "home": "Hem",
+        "tools": "Verktyg",
+    "favorites": "Favoriter",
+"home": "Hem",
     "posts": "Inlägg",
     "myPosts": "Mina inlägg",
     "messages": "Meddelanden",
@@ -2285,7 +2287,15 @@
     "inviteFriends": "Bjud in vänner"
   },
   "toolsPage": {
-    "heading": "Verktyg",
+        "homeLabel": "Hem",
+    "toolsLabel": "Verktyg",
+    "openGigsLabel": "Öppna uppdrag",
+    "openGigsDesc": "Sök gig som dansare",
+    "productsLabel": "Produkter",
+    "productsDesc": "Digitalt & fysiskt",
+    "recommendationsLabel": "För dig",
+    "recommendationsDesc": "Tips baserat på dig",
+"heading": "Verktyg",
     "groupCreateSell": "Skapa & sälj",
     "groupFinance": "Ekonomi",
     "groupExplore": "Utforska",

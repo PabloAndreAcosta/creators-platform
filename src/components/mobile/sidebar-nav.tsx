@@ -19,6 +19,7 @@ import {
   Users,
 } from "lucide-react";
 import { useRole } from "./role-context";
+import { destinationsFor, type NavRole } from "@/lib/navigation/registry";
 import { useSubscription } from "@/lib/subscription/context";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import UschjaLogo from "@/components/UschjaLogo";
@@ -29,47 +30,16 @@ export function SidebarNav() {
   const { tier } = useSubscription();
   const t = useTranslations("nav");
 
-  const tabs =
-    role === "customer"
-      ? [
-          { href: "/app", label: t("home"), icon: Home },
-          { href: "/app/posts", label: t("myPosts"), icon: FileText },
-          { href: "/app/library", label: t("library"), icon: BookMarked },
-          { href: "/app/messages", label: t("messages"), icon: MessageCircle },
-          { href: "/app/tickets", label: t("tickets"), icon: Ticket },
-          { href: "/app/leaderboard", label: t("leaderboard"), icon: Trophy },
-          { href: "/app/calendar", label: t("calendar"), icon: CalendarDays },
-          { href: "/app/training-buddies", label: t("buddies"), icon: Users },
-            { href: "/app/profile", label: t("profile"), icon: User },
-        ]
-      : role === "creator"
-        ? [
-            { href: "/app", label: t("home"), icon: Home },
-            { href: "/app/posts", label: t("myPosts"), icon: FileText },
-            { href: "/app/messages", label: t("messages"), icon: MessageCircle },
-            { href: "/app/tickets", label: t("tickets"), icon: Ticket },
-            { href: "/app/scan", label: t("scan"), icon: ScanLine },
-            { href: "/app/events", label: t("events"), icon: Building2 },
-            { href: "/app/courses", label: t("content"), icon: BookOpen },
-            { href: "/app/library", label: t("library"), icon: BookMarked },
-            { href: "/app/leaderboard", label: t("leaderboard"), icon: Trophy },
-            { href: "/app/calendar", label: t("calendar"), icon: CalendarDays },
-            { href: "/app/training-buddies", label: t("buddies"), icon: Users },
-            { href: "/app/profile", label: t("profile"), icon: User },
-          ]
-        : [
-            { href: "/app", label: t("home"), icon: Home },
-            { href: "/app/posts", label: t("myPosts"), icon: FileText },
-            { href: "/app/messages", label: t("messages"), icon: MessageCircle },
-            { href: "/app/tickets", label: t("tickets"), icon: Ticket },
-            { href: "/app/scan", label: t("scan"), icon: ScanLine },
-            { href: "/app/events", label: t("events"), icon: Building2 },
-            { href: "/app/library", label: t("library"), icon: BookMarked },
-            { href: "/app/leaderboard", label: t("leaderboard"), icon: Trophy },
-            { href: "/app/calendar", label: t("calendar"), icon: CalendarDays },
-            { href: "/app/training-buddies", label: t("buddies"), icon: Users },
-            { href: "/app/profile", label: t("profile"), icon: User },
-          ];
+  // Sidomenyn läser samma navigationsregister som Mer-griden. Tidigare hade
+  // båda egna hårdkodade listor som drivit isär, så vad man kunde nå berodde
+  // på skärmbredden — favoriter och analys fanns t.ex. bara på mobil.
+  const navRole: NavRole =
+    role === "creator" ? "creator" : role === "venue" ? "venue" : "customer";
+  const tabs = destinationsFor(navRole, "sidebar").map((d) => ({
+    href: d.path,
+    label: t(d.navLabelKey!),
+    icon: d.icon,
+  }));
 
   return (
     <aside className="hidden md:flex md:w-56 lg:w-64 flex-shrink-0 sticky top-0 h-screen flex-col justify-between border-r border-[var(--usha-border)] bg-[var(--usha-black)]">
