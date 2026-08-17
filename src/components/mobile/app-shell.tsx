@@ -3,7 +3,7 @@
 import { ReactNode, useState } from "react";
 import { Search, X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { RoleProvider } from "./role-context";
+import { RoleProvider, type UserRole } from "./role-context";
 import { BottomNav } from "./bottom-nav";
 import { SidebarNav } from "./sidebar-nav";
 import { RoleToggle } from "./role-toggle";
@@ -16,14 +16,16 @@ import { ThemeToggle } from "@/components/theme-toggle";
 interface AppShellProps {
   children: ReactNode;
   userName: string;
+  /** Rollen som layouten redan läst ur databasen — hindrar rollflimmer. */
+  initialRole?: UserRole;
 }
 
-export function AppShell({ children, userName }: AppShellProps) {
+export function AppShell({ children, userName, initialRole }: AppShellProps) {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const t = useTranslations("search");
 
   return (
-    <RoleProvider>
+    <RoleProvider initialRole={initialRole}>
       <div className="flex min-h-screen bg-[var(--usha-black)]">
         {/* Sidebar – desktop only */}
         <SidebarNav />

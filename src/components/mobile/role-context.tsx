@@ -2,19 +2,14 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { normalizeRole } from "@/lib/roles";
 
 export type UserRole = "customer" | "creator" | "venue";
 
-// Map DB roles to mobile app roles
-const DB_TO_APP_ROLE: Record<string, UserRole> = {
-  publik: "customer",
-  customer: "customer",
-  creator: "creator",
-  kreator: "creator",
-  venue: "venue",
-  experience: "venue",
-  upplevelse: "venue",
-};
+/** Lagrat rollvärde → approll, med legacy-stavningar hanterade i lib/roles. */
+function toAppRole(dbRole: string | null | undefined): UserRole {
+  return normalizeRole(dbRole) ?? "customer";
+}
 
 // Static fallback labels (used where useTranslations is not available)
 export const ROLE_LABELS: Record<UserRole, string> = {
@@ -37,15 +32,37 @@ const RoleContext = createContext<RoleContextType>({
   setRole: () => {},
 });
 
-export function RoleProvider({ children }: { children: ReactNode }) {
-  const [role, setRole] = useState<UserRole>("customer");
-  const [dbRole, setDbRole] = useState<UserRole>("customer");
+/**
+ * Rollen kommer färdig från servern.
+ *
+ * Tidigare startade providern alltid på "customer" och hämtade den riktiga
+ * rollen i en effekt. Serverrenderingen och första klientrenderingen visade
+ * därför kundens meny för alla, och bytte sedan under fingret — en tryckning
+ * som landade i glappet gick till fel sida. Att i stället läsa localStorage vid
+ * start hade gett hydreringsfel, eftersom servern inte kan se den.
+ *
+ * Layouten hämtar redan rollen ur databasen, så vi seedar med den. Server och
+ * klient renderar då samma meny direkt, utan flimmer och utan mismatch.
+ * Effekten nedan är kvar men stämmer numera bara av — den initierar ingenting.
+ */
+export function RoleProvider({
+  children,
+  initialRole = "customer",
+}: {
+  children: ReactNode;
+  initialRole?: UserRole;
+}) {
+  const [role, setRole] = useState<UserRole>(initialRole);
+  const [dbRole, setDbRole] = useState<UserRole>(initialRole);
+  // Admin-flaggan styr bara rollväxlaren, inte navigationen, och löses därför
+  // fortsatt via RPC efter mount — det slipper en service-role-fråga per
+  // sidladdning bara för att undvika att en knapp dyker upp en aning sent.
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    // Sync from database — this is the source of truth. Admin status comes from
-    // the protected profiles.is_admin column (not a client-side email list), so
-    // no admin identities need to be shipped in the public bundle.
+    // Stäm av mot databasen ifall rollen ändrats i en annan flik eller session.
+    // Admin-flaggan läses via RPC eftersom is_admin-kolumnen inte är läsbar för
+    // authenticated — ingen admin-identitet behöver ligga i klientbundlen.
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) return;
@@ -61,14 +78,15 @@ export function RoleProvider({ children }: { children: ReactNode }) {
         .single()
         .then(({ data }) => {
           if (data?.role) {
-            const appRole = DB_TO_APP_ROLE[data.role] ?? "customer";
+            const appRole = toAppRole(data.role);
             setDbRole(appRole);
-            setRole(appRole);
+            // Skriv inte över en admin som medvetet växlat roll via RoleToggle.
+            setRole((current) => (current === initialRole ? appRole : current));
             localStorage.setItem("usha-role", appRole);
           }
         });
     });
-  }, []);
+  }, [initialRole]);
 
   const handleSetRole = (newRole: UserRole) => {
     // Admins can switch to any role
