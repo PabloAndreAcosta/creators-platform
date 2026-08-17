@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/mobile/app-shell";
 import { SubscriptionProvider } from "@/lib/subscription/context";
 import type { MemberTier, MemberRole } from "@/types/database";
+import { normalizeRole } from "@/lib/roles";
+import type { UserRole } from "@/components/mobile/role-context";
 
 export const metadata = {
   title: "Usha Platform App",
@@ -31,6 +33,10 @@ export default async function MobileAppLayout({
   let role: MemberRole = "customer";
   let plan: string | null = null;
   let hasActiveSubscription = false;
+  // Rollen och admin-flaggan skickas in i AppShell så att menyerna renderas rätt
+  // redan i serverrenderingen. Utan det startade rollkontexten på "customer" och
+  // bytte meny under fingret efter hydrering.
+  let initialRole: UserRole = "customer";
 
   try {
     const { data: profile } = await supabase
@@ -41,6 +47,7 @@ export default async function MobileAppLayout({
     userName = profile?.full_name || user.email || "Användare";
     tier = (profile?.tier as MemberTier) ?? "gratis";
     role = (profile?.role as MemberRole) ?? "customer";
+    initialRole = normalizeRole(profile?.role) ?? "customer";
 
     const { data: sub } = await supabase
       .from("subscriptions")
@@ -65,7 +72,7 @@ export default async function MobileAppLayout({
 
   return (
     <SubscriptionProvider value={{ tier, role, hasActiveSubscription, plan }}>
-      <AppShell userName={userName}>
+      <AppShell userName={userName} initialRole={initialRole}>
         {children}
       </AppShell>
     </SubscriptionProvider>
