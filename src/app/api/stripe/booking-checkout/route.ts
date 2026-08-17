@@ -8,6 +8,7 @@ import {
   getCreatorCommissionRate,
 } from "@/lib/stripe/commission";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
+import { resolvePayeeFlow, buildConnectPaymentIntentData, type PayeeContext } from "@/lib/stripe/checkout";
 
 /**
  * Creates a Stripe Checkout session for a paid manual booking.
@@ -113,10 +114,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Get creator's Stripe Connect account
+    // Get creator's Stripe Connect account + seller identity
     const { data: creator } = await createAdminClient()
       .from("profiles")
-      .select("stripe_account_id, tier, creator_subcategory, company_verified_at")
+      .select("stripe_account_id, tier, creator_subcategory, company_verified_at, stripe_card_payments_enabled, is_usha_owned_seller, company_name, org_number, full_name")
       .eq("id", listing.user_id)
       .single();
 
@@ -163,6 +164,19 @@ export async function POST(req: NextRequest) {
       : amountInOre;
     const finalFee = Math.round(finalAmount * commissionRate);
 
+    // Resolve accounting flow + Connect payment_intent_data
+    const payee: PayeeContext = {
+      id: listing.user_id,
+      stripe_account_id: creator.stripe_account_id,
+      card_payments_enabled: creator.stripe_card_payments_enabled ?? false,
+      is_usha_owned_seller: creator.is_usha_owned_seller ?? false,
+      company_name: creator.company_name ?? null,
+      org_number: creator.org_number ?? null,
+      full_name: creator.full_name ?? null,
+    };
+    const flow = resolvePayeeFlow(payee);
+    const paymentIntentData = buildConnectPaymentIntentData({ flow, payee, applicationFeeOre: finalFee });
+
     // Create Stripe Checkout session
     const stripeLocale = await getStripeLocale();
     const session = await stripe.checkout.sessions.create({
@@ -182,17 +196,13 @@ export async function POST(req: NextRequest) {
         },
       ],
       mode: "payment",
-      payment_intent_data: {
-        application_fee_amount: finalFee,
-        transfer_data: {
-          destination: creator.stripe_account_id,
-        },
-      },
+      ...(paymentIntentData ? { payment_intent_data: paymentIntentData } : {}),
       automatic_tax: { enabled: true },
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/app/tickets?success=true`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/creators/${listing.user_id}`,
       metadata: {
         type: "paid_booking",
+        flow,
         listingId: listing.id,
         userId: user.id,
         creatorId: listing.user_id,

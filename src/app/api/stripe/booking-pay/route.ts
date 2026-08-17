@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from '@/lib/supabase/admin';
 import { calculateDiscountedPrice, getCreatorCommissionRate } from "@/lib/stripe/commission";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
+import { resolvePayeeFlow, buildConnectPaymentIntentData, type PayeeContext } from "@/lib/stripe/checkout";
 
 const PAYABLE_AFTER_CONFIRM = new Set(["b2b_offering", "service"]);
 
@@ -118,7 +119,7 @@ export async function POST(req: NextRequest) {
 
     const { data: creator } = await createAdminClient()
       .from("profiles")
-      .select("stripe_account_id, tier, creator_subcategory, company_verified_at")
+      .select("stripe_account_id, tier, creator_subcategory, company_verified_at, stripe_card_payments_enabled, is_usha_owned_seller, company_name, org_number, full_name")
       .eq("id", listing.user_id)
       .single();
 
@@ -138,6 +139,18 @@ export async function POST(req: NextRequest) {
     const commissionRate = getCreatorCommissionRate(creator.tier ?? "gratis", creatorSubcategory);
     const applicationFee = Math.round(amountInOre * commissionRate);
 
+    const payee: PayeeContext = {
+      id: listing.user_id,
+      stripe_account_id: creator.stripe_account_id,
+      card_payments_enabled: creator.stripe_card_payments_enabled ?? false,
+      is_usha_owned_seller: creator.is_usha_owned_seller ?? false,
+      company_name: creator.company_name ?? null,
+      org_number: creator.org_number ?? null,
+      full_name: creator.full_name ?? null,
+    };
+    const flow = resolvePayeeFlow(payee);
+    const paymentIntentData = buildConnectPaymentIntentData({ flow, payee, applicationFeeOre: applicationFee });
+
     const stripeLocale = await getStripeLocale();
     const session = await stripe.checkout.sessions.create({
       locale: stripeLocale,
@@ -155,17 +168,13 @@ export async function POST(req: NextRequest) {
         },
       ],
       mode: "payment",
-      payment_intent_data: {
-        application_fee_amount: applicationFee,
-        transfer_data: {
-          destination: creator.stripe_account_id,
-        },
-      },
+      ...(paymentIntentData ? { payment_intent_data: paymentIntentData } : {}),
       automatic_tax: { enabled: true },
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/app/tickets?success=true`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/app/tickets`,
       metadata: {
         type: "b2b_payment",
+        flow,
         bookingId: booking.id,
         userId: user.id,
         creatorId: listing.user_id,

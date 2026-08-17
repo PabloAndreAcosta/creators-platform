@@ -46,6 +46,8 @@ export async function POST() {
         email: profile?.email || user.email,
         capabilities: {
           transfers: { requested: true },
+          // card_payments enables on_behalf_of (organizer as merchant of record).
+          card_payments: { requested: true },
         },
         business_profile: {
           name: profile?.full_name || undefined,
@@ -59,6 +61,15 @@ export async function POST() {
         .from('profiles')
         .update({ stripe_account_id: accountId })
         .eq('id', user.id);
+    } else {
+      // Existing account — ensure card_payments is requested so re-onboarding
+      // collects the KYC needed for the merchant-of-record shift.
+      await stripe.accounts.update(accountId, {
+        capabilities: {
+          transfers: { requested: true },
+          card_payments: { requested: true },
+        },
+      });
     }
 
     // Create onboarding link

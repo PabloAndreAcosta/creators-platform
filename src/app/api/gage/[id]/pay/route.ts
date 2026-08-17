@@ -3,6 +3,7 @@ import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
+import { resolvePayeeFlow, buildConnectPaymentIntentData, type PayeeContext } from "@/lib/stripe/checkout";
 
 // Host pays an agreed gage: a destination charge transferring the full amount
 // to the crew member's Stripe Connect account. The webhook marks it paid.
@@ -38,7 +39,7 @@ export async function POST(
 
   const [{ data: host }, { data: payee }, { data: listing }] = await Promise.all([
     admin.from("profiles").select("email, stripe_account_id, full_name").eq("id", g.host_id).maybeSingle(),
-    admin.from("profiles").select("email, stripe_account_id, full_name, company_verified_at").eq("id", g.collaborator_user_id).maybeSingle(),
+    admin.from("profiles").select("email, stripe_account_id, full_name, company_verified_at, stripe_card_payments_enabled, is_usha_owned_seller, company_name, org_number").eq("id", g.collaborator_user_id).maybeSingle(),
     admin.from("listings").select("title, slug").eq("id", g.listing_id).maybeSingle(),
   ]);
 
@@ -75,6 +76,21 @@ export async function POST(
   }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://usha.se";
+  // Crew gage is a payee-to-payee transfer with no platform fee. Route it through
+  // the shared helper so on_behalf_of is applied consistently (only when the crew
+  // member's card_payments is active); otherwise the legacy destination charge.
+  const payeeCtx: PayeeContext = {
+    id: g.collaborator_user_id,
+    stripe_account_id: payee.stripe_account_id,
+    card_payments_enabled: (payee as { stripe_card_payments_enabled?: boolean }).stripe_card_payments_enabled ?? false,
+    is_usha_owned_seller: (payee as { is_usha_owned_seller?: boolean }).is_usha_owned_seller ?? false,
+    company_name: (payee as { company_name?: string | null }).company_name ?? null,
+    org_number: (payee as { org_number?: string | null }).org_number ?? null,
+    full_name: payee.full_name ?? null,
+  };
+  const flow = resolvePayeeFlow(payeeCtx);
+  const paymentIntentData = buildConnectPaymentIntentData({ flow, payee: payeeCtx, applicationFeeOre: 0 });
+
   // Wrap the Stripe session creation + DB write: a Stripe/network/DB error must
   // surface as a clean Swedish message, not a raw 500 stack (matches the other
   // Stripe routes).
@@ -94,14 +110,12 @@ export async function POST(
         },
       ],
       mode: "payment",
-      payment_intent_data: {
-        // Full amount goes to the crew member; no platform fee on crew gage.
-        transfer_data: { destination: payee.stripe_account_id },
-      },
+      ...(paymentIntentData ? { payment_intent_data: paymentIntentData } : {}),
       success_url: `${appUrl}/app/events/${g.listing_id}/crew?gage=paid`,
       cancel_url: `${appUrl}/app/events/${g.listing_id}/crew?gage=canceled`,
       metadata: {
         type: "crew_gage",
+        flow,
         userId: g.host_id,
         gageId: g.id,
       },

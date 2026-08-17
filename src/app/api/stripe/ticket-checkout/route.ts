@@ -15,6 +15,7 @@ import {
 } from '@/lib/stripe/commission';
 import { isGoldExclusive } from '@/lib/listings/early-bird';
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from '@/lib/payments/beta-gate';
+import { resolvePayeeFlow, buildConnectPaymentIntentData, type PayeeContext } from '@/lib/stripe/checkout';
 
 export async function POST(req: NextRequest) {
   const { rateLimit, getRateLimitKey } = await import('@/lib/rate-limit');
@@ -208,10 +209,10 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Get creator profile (for Connect account and tier)
+    // Get creator profile (for Connect account, tier, and seller identity)
     const { data: creator } = await createAdminClient()
       .from('profiles')
-      .select('stripe_account_id, tier, creator_subcategory, company_verified_at')
+      .select('stripe_account_id, tier, creator_subcategory, company_verified_at, stripe_card_payments_enabled, is_usha_owned_seller, company_name, org_number, full_name')
       .eq('id', listing.user_id)
       .single();
 
@@ -276,6 +277,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: te('soldOut') }, { status: 403 });
     }
 
+    // Resolve the accounting flow (third-party/net vs Usha-principal/gross) and
+    // build the Connect payment_intent_data accordingly.
+    const payee: PayeeContext = {
+      id: listing.user_id,
+      stripe_account_id: creator.stripe_account_id,
+      card_payments_enabled: creator.stripe_card_payments_enabled ?? false,
+      is_usha_owned_seller: creator.is_usha_owned_seller ?? false,
+      company_name: creator.company_name ?? null,
+      org_number: creator.org_number ?? null,
+      full_name: creator.full_name ?? null,
+    };
+    const flow = resolvePayeeFlow(payee);
+    const paymentIntentData = buildConnectPaymentIntentData({
+      flow,
+      payee,
+      applicationFeeOre: applicationFee * qty + serviceFee,
+    });
+
     // Create Stripe Checkout session with Connect split
     const stripeLocale = await getStripeLocale();
     let session: Stripe.Checkout.Session;
@@ -286,17 +305,13 @@ export async function POST(req: NextRequest) {
         line_items: lineItems,
         mode: 'payment',
         expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
-        payment_intent_data: {
-          application_fee_amount: applicationFee * qty + serviceFee,
-          transfer_data: {
-            destination: creator.stripe_account_id,
-          },
-        },
+        ...(paymentIntentData ? { payment_intent_data: paymentIntentData } : {}),
         automatic_tax: { enabled: true },
         success_url: `${process.env.NEXT_PUBLIC_APP_URL}/app/tickets?success=true`,
         cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/creators/${listing.user_id}`,
         metadata: {
           type: 'ticket',
+          flow,
           listingId: listing.id,
           userId: user.id,
           creatorId: listing.user_id,

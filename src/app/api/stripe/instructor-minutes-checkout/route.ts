@@ -6,6 +6,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { getCreatorCommissionRate } from "@/lib/stripe/commission";
 import { priceForMinutes, isMinuteOption, MIN_PRICE_SEK } from "@/lib/coaching/minute-pricing";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
+import { resolvePayeeFlow, buildConnectPaymentIntentData, type PayeeContext } from "@/lib/stripe/checkout";
 
 /**
  * Creates a Stripe Checkout session for buying a block of instructor minutes
@@ -69,7 +70,7 @@ export async function POST(req: NextRequest) {
     // Instructor profile: Connect account + rate + commission inputs
     const { data: instructor } = await createAdminClient()
       .from("profiles")
-      .select("full_name, stripe_account_id, tier, creator_subcategory, coaching_hourly_rate_sek, offers_coaching, company_verified_at")
+      .select("full_name, stripe_account_id, tier, creator_subcategory, coaching_hourly_rate_sek, offers_coaching, company_verified_at, stripe_card_payments_enabled, is_usha_owned_seller, company_name, org_number")
       .eq("id", instructorId)
       .single();
 
@@ -91,6 +92,18 @@ export async function POST(req: NextRequest) {
     const commissionRate = getCreatorCommissionRate(instructor.tier ?? "gratis", instructor.creator_subcategory ?? null);
     const applicationFee = Math.round(amountInOre * commissionRate);
 
+    const payee: PayeeContext = {
+      id: instructorId,
+      stripe_account_id: instructor.stripe_account_id,
+      card_payments_enabled: (instructor as { stripe_card_payments_enabled?: boolean }).stripe_card_payments_enabled ?? false,
+      is_usha_owned_seller: (instructor as { is_usha_owned_seller?: boolean }).is_usha_owned_seller ?? false,
+      company_name: (instructor as { company_name?: string | null }).company_name ?? null,
+      org_number: (instructor as { org_number?: string | null }).org_number ?? null,
+      full_name: instructor.full_name ?? null,
+    };
+    const flow = resolvePayeeFlow(payee);
+    const paymentIntentData = buildConnectPaymentIntentData({ flow, payee, applicationFeeOre: applicationFee });
+
     const stripeLocale = await getStripeLocale();
     const session = await stripe.checkout.sessions.create({
       locale: stripeLocale,
@@ -108,17 +121,13 @@ export async function POST(req: NextRequest) {
         },
       ],
       mode: "payment",
-      payment_intent_data: {
-        application_fee_amount: applicationFee,
-        transfer_data: {
-          destination: instructor.stripe_account_id,
-        },
-      },
+      ...(paymentIntentData ? { payment_intent_data: paymentIntentData } : {}),
       automatic_tax: { enabled: true },
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/app/tickets?success=true`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/listing/${listing.slug || listing.id}`,
       metadata: {
         type: "instructor_minutes",
+        flow,
         userId: user.id,
         instructorId,
         listingId: listing.id,
