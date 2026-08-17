@@ -45,7 +45,9 @@
     "switchToDark": "Switch to dark mode"
   },
   "nav": {
-    "home": "Home",
+        "tools": "Tools",
+    "favorites": "Favorites",
+"home": "Home",
     "posts": "Posts",
     "myPosts": "My Posts",
     "messages": "Messages",
@@ -2285,7 +2287,15 @@
     "inviteFriends": "Invite friends"
   },
   "toolsPage": {
-    "heading": "Tools",
+        "homeLabel": "Home",
+    "toolsLabel": "Tools",
+    "openGigsLabel": "Open gigs",
+    "openGigsDesc": "Apply as a dancer",
+    "productsLabel": "Products",
+    "productsDesc": "Digital & physical",
+    "recommendationsLabel": "For you",
+    "recommendationsDesc": "Picks based on you",
+"heading": "Tools",
     "groupCreateSell": "Create & sell",
     "groupFinance": "Finance",
     "groupExplore": "Explore",
