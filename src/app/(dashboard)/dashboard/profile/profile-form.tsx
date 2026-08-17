@@ -24,6 +24,7 @@ interface Profile {
   social_facebook: string | null;
   contact_email: string | null;
   contact_phone: string | null;
+  terms_url: string | null;
   is_public: boolean;
   whitelabel_enabled: boolean;
   whitelabel_brand_name: string | null;
@@ -584,6 +585,22 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
         <p className="mt-1 text-[10px] text-[var(--usha-muted)]">
           {t("contactHint")}
         </p>
+        <div className="mt-4">
+          <label htmlFor="terms_url" className="mb-1 block text-xs text-[var(--usha-muted)]">
+            Köpvillkor (länk)
+          </label>
+          <input
+            id="terms_url"
+            name="terms_url"
+            type="url"
+            defaultValue={profile.terms_url || ""}
+            placeholder="https://…/kopvillkor"
+            className={inputClass}
+          />
+          <p className="mt-1 text-[10px] text-[var(--usha-muted)]">
+            Visas i kassan för dina biljett-/produktköp. Kunden godkänner dina villkor vid köp.
+          </p>
+        </div>
       </div>}
 
       {/* White label - Premium only */}

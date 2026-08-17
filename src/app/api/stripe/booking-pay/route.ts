@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from '@/lib/supabase/admin';
 import { calculateDiscountedPrice, getCreatorCommissionRate } from "@/lib/stripe/commission";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
-import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, type PayeeContext } from "@/lib/stripe/checkout";
+import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, buildTermsCustomText, type PayeeContext } from "@/lib/stripe/checkout";
 
 const PAYABLE_AFTER_CONFIRM = new Set(["b2b_offering", "service"]);
 
@@ -119,7 +119,7 @@ export async function POST(req: NextRequest) {
 
     const { data: creator } = await createAdminClient()
       .from("profiles")
-      .select("stripe_account_id, tier, creator_subcategory, company_verified_at, stripe_card_payments_enabled, is_usha_owned_seller, company_name, org_number, full_name")
+      .select("stripe_account_id, tier, creator_subcategory, company_verified_at, stripe_card_payments_enabled, is_usha_owned_seller, company_name, org_number, full_name, terms_url")
       .eq("id", listing.user_id)
       .single();
 
@@ -156,11 +156,12 @@ export async function POST(req: NextRequest) {
     const commissionRate = getCreatorCommissionRate(creator.tier ?? "gratis", creatorSubcategory);
     const applicationFee = Math.round(amountInOre * commissionRate);
 
+    const customText = buildTermsCustomText(creator.terms_url);
     const paymentIntentData = buildConnectPaymentIntentData({
       flow,
       payee,
       applicationFeeOre: applicationFee,
-      metadata: buildPaymentMetadata({ flow, payee, eventId: listing.id }),
+      metadata: buildPaymentMetadata({ flow, payee, eventId: listing.id, termsUrl: creator.terms_url }),
     });
 
     const stripeLocale = await getStripeLocale();
@@ -181,6 +182,7 @@ export async function POST(req: NextRequest) {
       ],
       mode: "payment",
       ...(paymentIntentData ? { payment_intent_data: paymentIntentData } : {}),
+      ...(customText ? { custom_text: customText } : {}),
       automatic_tax: { enabled: true },
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/app/tickets?success=true`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/app/tickets`,

@@ -8,7 +8,7 @@ import {
   getCreatorCommissionRate,
 } from "@/lib/stripe/commission";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
-import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, type PayeeContext } from "@/lib/stripe/checkout";
+import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, buildTermsCustomText, type PayeeContext } from "@/lib/stripe/checkout";
 
 /**
  * Creates a Stripe Checkout session for a paid manual booking.
@@ -117,7 +117,7 @@ export async function POST(req: NextRequest) {
     // Get creator's Stripe Connect account + seller identity
     const { data: creator } = await createAdminClient()
       .from("profiles")
-      .select("stripe_account_id, tier, creator_subcategory, company_verified_at, stripe_card_payments_enabled, is_usha_owned_seller, company_name, org_number, full_name")
+      .select("stripe_account_id, tier, creator_subcategory, company_verified_at, stripe_card_payments_enabled, is_usha_owned_seller, company_name, org_number, full_name, terms_url")
       .eq("id", listing.user_id)
       .single();
 
@@ -183,11 +183,12 @@ export async function POST(req: NextRequest) {
 
     // Build the Connect payment_intent_data + bookkeeping metadata (the booking's
     // scheduled time drives period accrual).
+    const customText = buildTermsCustomText(creator.terms_url);
     const paymentIntentData = buildConnectPaymentIntentData({
       flow,
       payee,
       applicationFeeOre: finalFee,
-      metadata: buildPaymentMetadata({ flow, payee, eventId: listing.id, eventDate: scheduledAt }),
+      metadata: buildPaymentMetadata({ flow, payee, eventId: listing.id, eventDate: scheduledAt, termsUrl: creator.terms_url }),
     });
 
     // Create Stripe Checkout session
@@ -210,6 +211,7 @@ export async function POST(req: NextRequest) {
       ],
       mode: "payment",
       ...(paymentIntentData ? { payment_intent_data: paymentIntentData } : {}),
+      ...(customText ? { custom_text: customText } : {}),
       automatic_tax: { enabled: true },
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/app/tickets?success=true`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/creators/${listing.user_id}`,

@@ -73,6 +73,8 @@ export async function updateProfile(formData: FormData) {
   const social_facebook = (formData.get("social_facebook") as string)?.trim() || null;
   const contact_email = (formData.get("contact_email") as string)?.trim() || null;
   const contact_phone = (formData.get("contact_phone") as string)?.trim() || null;
+  // Organizer purchase terms (köpvillkor) — shown at checkout for their sales.
+  const terms_url = (formData.get("terms_url") as string)?.trim() || null;
 
   // White label fields (Premium only)
   const whitelabel_enabled = formData.get("whitelabel_enabled") === "on";
@@ -163,6 +165,7 @@ export async function updateProfile(formData: FormData) {
       social_facebook,
       contact_email,
       contact_phone,
+      terms_url,
       // White label (only saved if premium, otherwise reset)
       whitelabel_enabled,
       whitelabel_brand_name: whitelabel_enabled ? whitelabel_brand_name : null,

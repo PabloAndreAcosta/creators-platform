@@ -13,7 +13,7 @@ import {
   getCreatorCommissionRate,
 } from "@/lib/stripe/commission";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
-import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, type PayeeContext } from "@/lib/stripe/checkout";
+import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, buildTermsCustomText, type PayeeContext } from "@/lib/stripe/checkout";
 
 export async function POST(req: NextRequest) {
   // Rate limit: 5 guest checkouts per minute per IP
@@ -181,7 +181,7 @@ export async function POST(req: NextRequest) {
     // Get creator for Connect account + seller identity
     const { data: creator } = await createAdminClient()
       .from("profiles")
-      .select("stripe_account_id, tier, creator_subcategory, company_verified_at, stripe_card_payments_enabled, is_usha_owned_seller, company_name, org_number, full_name")
+      .select("stripe_account_id, tier, creator_subcategory, company_verified_at, stripe_card_payments_enabled, is_usha_owned_seller, company_name, org_number, full_name, terms_url")
       .eq("id", listing.user_id)
       .single();
 
@@ -267,11 +267,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: te("soldOut") }, { status: 403 });
     }
 
+    const customText = buildTermsCustomText(creator.terms_url);
     const paymentIntentData = buildConnectPaymentIntentData({
       flow,
       payee,
       applicationFeeOre: applicationFee * qty + serviceFee,
-      metadata: buildPaymentMetadata({ flow, payee, eventId: listing.id, eventDate: listing.event_date }),
+      metadata: buildPaymentMetadata({ flow, payee, eventId: listing.id, eventDate: listing.event_date, termsUrl: creator.terms_url }),
     });
 
     const stripeLocale = await getStripeLocale();
@@ -284,6 +285,7 @@ export async function POST(req: NextRequest) {
         mode: "payment",
         expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
         ...(paymentIntentData ? { payment_intent_data: paymentIntentData } : {}),
+        ...(customText ? { custom_text: customText } : {}),
         automatic_tax: { enabled: true },
         // Clear confirmation screen for guests (no account) — the ticket QR is
         // emailed; landing on the feed left buyers unsure the purchase worked.

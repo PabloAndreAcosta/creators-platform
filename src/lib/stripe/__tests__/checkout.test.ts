@@ -4,6 +4,7 @@ import {
   buildConnectPaymentIntentData,
   buildStatementDescriptorSuffix,
   buildPaymentMetadata,
+  buildTermsCustomText,
   receiptSeller,
   type PayeeContext,
 } from "../checkout";
@@ -116,7 +117,18 @@ describe("buildPaymentMetadata", () => {
       event_date: "2026-09-01",
       organizer_org_nr: "556036-0793",
       event_id: "evt_1",
+      terms_url: "",
     });
+  });
+
+  it("stamps terms_url when provided", () => {
+    const meta = buildPaymentMetadata({
+      flow: "third_party",
+      payee: { company_name: "Joy Nation AB", org_number: "5560360793", full_name: "Anna" },
+      eventId: "evt_1",
+      termsUrl: "https://joynation.se/villkor",
+    });
+    expect(meta.terms_url).toBe("https://joynation.se/villkor");
   });
 
   it("principal → model=principal + Usha org.nr", () => {
@@ -141,6 +153,22 @@ describe("buildPaymentMetadata", () => {
     expect(meta.organizer_org_nr).toBe("");
     expect(meta.event_date).toBe("");
     expect(meta.model).toBe("agent");
+    expect(meta.terms_url).toBe("");
+  });
+});
+
+describe("buildTermsCustomText", () => {
+  it("returns undefined when the organizer has no terms", () => {
+    expect(buildTermsCustomText(null)).toBeUndefined();
+    expect(buildTermsCustomText("")).toBeUndefined();
+  });
+
+  it("builds an after_submit message linking the organizer's terms", () => {
+    const ct = buildTermsCustomText("https://joynation.se/villkor")!;
+    const message = (ct.after_submit as { message: string }).message;
+    expect(message).toContain("https://joynation.se/villkor");
+    expect(message).toContain("köpvillkor");
+    expect(message.length).toBeLessThanOrEqual(1200);
   });
 });
 

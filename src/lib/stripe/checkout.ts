@@ -85,6 +85,7 @@ export function buildPaymentMetadata(args: {
   payee: Pick<PayeeContext, "company_name" | "org_number" | "full_name">;
   eventId?: string | null;
   eventDate?: string | null;
+  termsUrl?: string | null;
 }): Record<string, string> {
   const seller = receiptSeller(args.flow, args.payee);
   return {
@@ -92,6 +93,26 @@ export function buildPaymentMetadata(args: {
     event_date: args.eventDate ?? "",
     organizer_org_nr: seller.orgNumber ?? "",
     event_id: args.eventId ?? "",
+    // Consent record: which purchase terms the buyer accepted at checkout.
+    terms_url: args.termsUrl ?? "",
+  };
+}
+
+/**
+ * Checkout `custom_text` surfacing the organizer's purchase terms (and Usha's)
+ * near the pay button. Completing the purchase accepts them; the accepted URL is
+ * also stamped on the charge (buildPaymentMetadata.terms_url) as the audit record.
+ * Returns undefined when the organizer has no terms set.
+ */
+export function buildTermsCustomText(
+  termsUrl: string | null | undefined
+): Stripe.Checkout.SessionCreateParams.CustomText | undefined {
+  if (!termsUrl) return undefined;
+  const ushaTerms = `${process.env.NEXT_PUBLIC_APP_URL || "https://usha.se"}/terms`;
+  return {
+    after_submit: {
+      message: `Genom att slutföra köpet godkänner du arrangörens [köpvillkor](${termsUrl}) och Ushas [villkor](${ushaTerms}).`,
+    },
   };
 }
 

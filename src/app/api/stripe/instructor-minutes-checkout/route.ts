@@ -6,7 +6,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { getCreatorCommissionRate } from "@/lib/stripe/commission";
 import { priceForMinutes, isMinuteOption, MIN_PRICE_SEK } from "@/lib/coaching/minute-pricing";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
-import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, type PayeeContext } from "@/lib/stripe/checkout";
+import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, buildTermsCustomText, type PayeeContext } from "@/lib/stripe/checkout";
 
 /**
  * Creates a Stripe Checkout session for buying a block of instructor minutes
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
     // Instructor profile: Connect account + rate + commission inputs
     const { data: instructor } = await createAdminClient()
       .from("profiles")
-      .select("full_name, stripe_account_id, tier, creator_subcategory, coaching_hourly_rate_sek, offers_coaching, company_verified_at, stripe_card_payments_enabled, is_usha_owned_seller, company_name, org_number")
+      .select("full_name, stripe_account_id, tier, creator_subcategory, coaching_hourly_rate_sek, offers_coaching, company_verified_at, stripe_card_payments_enabled, is_usha_owned_seller, company_name, org_number, terms_url")
       .eq("id", instructorId)
       .single();
 
@@ -110,11 +110,13 @@ export async function POST(req: NextRequest) {
     const commissionRate = getCreatorCommissionRate(instructor.tier ?? "gratis", instructor.creator_subcategory ?? null);
     const applicationFee = Math.round(amountInOre * commissionRate);
 
+    const termsUrl = (instructor as { terms_url?: string | null }).terms_url ?? null;
+    const customText = buildTermsCustomText(termsUrl);
     const paymentIntentData = buildConnectPaymentIntentData({
       flow,
       payee,
       applicationFeeOre: applicationFee,
-      metadata: buildPaymentMetadata({ flow, payee, eventId: listing.id }),
+      metadata: buildPaymentMetadata({ flow, payee, eventId: listing.id, termsUrl }),
     });
 
     const stripeLocale = await getStripeLocale();
@@ -135,6 +137,7 @@ export async function POST(req: NextRequest) {
       ],
       mode: "payment",
       ...(paymentIntentData ? { payment_intent_data: paymentIntentData } : {}),
+      ...(customText ? { custom_text: customText } : {}),
       automatic_tax: { enabled: true },
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/app/tickets?success=true`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/listing/${listing.slug || listing.id}`,

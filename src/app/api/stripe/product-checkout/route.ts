@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCreatorCommissionRate } from "@/lib/stripe/commission";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
-import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, type PayeeContext } from "@/lib/stripe/checkout";
+import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, buildTermsCustomText, type PayeeContext } from "@/lib/stripe/checkout";
 
 export async function POST(req: NextRequest) {
   const { rateLimit, getRateLimitKey } = await import('@/lib/rate-limit');
@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
     // (§1.1 / G4 — gross must never land on Usha's account).
     const { data: creator } = await createAdminClient()
       .from("profiles")
-      .select("stripe_account_id, tier, creator_subcategory, company_verified_at, stripe_card_payments_enabled, is_usha_owned_seller, company_name, org_number, full_name")
+      .select("stripe_account_id, tier, creator_subcategory, company_verified_at, stripe_card_payments_enabled, is_usha_owned_seller, company_name, org_number, full_name, terms_url")
       .eq("id", product.creator_id)
       .single();
 
@@ -151,11 +151,12 @@ export async function POST(req: NextRequest) {
     const amountOre = finalPrice * 100;
     const applicationFee = Math.round(amountOre * commissionRate);
 
+    const customText = buildTermsCustomText(creator.terms_url);
     const paymentIntentData = buildConnectPaymentIntentData({
       flow,
       payee,
       applicationFeeOre: applicationFee,
-      metadata: buildPaymentMetadata({ flow, payee, eventId: productId }),
+      metadata: buildPaymentMetadata({ flow, payee, eventId: productId, termsUrl: creator.terms_url }),
     });
 
     // Create Stripe checkout session
@@ -167,6 +168,7 @@ export async function POST(req: NextRequest) {
       // Inga pinnade payment_method_types — Stripe visar de metoder som aktiverats
       // i Dashboard (kort, Swish, Klarna) för behöriga SE/SEK-kunder, som övriga flöden.
       ...(paymentIntentData ? { payment_intent_data: paymentIntentData } : {}),
+      ...(customText ? { custom_text: customText } : {}),
       line_items: [
         {
           price_data: {
