@@ -47,6 +47,7 @@ export default async function AppHomePage() {
   let averageRating: number | null = null;
   let feedPosts: any[] = [];
   let upcomingBookings: { id: string; title: string; scheduledAt: string; location: string | null }[] = [];
+  let hasPreferences = false;
 
   try {
     const supabase = await createClient();
@@ -82,6 +83,14 @@ export default async function AppHomePage() {
       listings = (listingsRes.data || []) as Listing[];
       ownServices = (ownServicesRes.data || []) as Listing[];
       bookingsCount = bookingsRes.count ?? 0;
+
+      // Customer onboarding: have they set matching preferences?
+      const { data: prefRow } = await supabase
+        .from("profile_preferences")
+        .select("onboarding_completed_at")
+        .eq("profile_id", user.id)
+        .maybeSingle();
+      hasPreferences = !!prefRow?.onboarding_completed_at;
 
       const startOfMonth = new Date();
       startOfMonth.setDate(1);
@@ -161,6 +170,7 @@ export default async function AppHomePage() {
       averageRating={averageRating}
       feedPosts={feedPosts}
       upcomingBookings={upcomingBookings}
+      hasPreferences={hasPreferences}
     />
   );
 }

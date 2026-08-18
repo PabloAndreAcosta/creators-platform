@@ -223,9 +223,17 @@
     "progress": "{done}/{total} completados",
     "completeProfile": "Completa tu perfil",
     "verifyBankid": "Verifícate con BankID",
+    "verifyBankidOptional": "Verifícate con BankID (opcional)",
+    "verifyCompany": "Verifica tu empresa (nº de org.)",
+    "addTerms": "Añade tus condiciones de compra",
     "createFirstService": "Crea tu primer servicio",
+    "createFirstEvent": "Crea tu primer evento",
     "connectStripe": "Conecta Stripe para recibir pagos",
-    "makeProfilePublic": "Haz tu perfil público"
+    "completeStripe": "Completa Stripe – activa pagos con tarjeta",
+    "makeProfilePublic": "Haz tu perfil público",
+    "customerCompleteProfile": "Añade tu nombre y ciudad",
+    "customerSetPreferences": "Configura tus preferencias de coincidencia",
+    "optional": "opcional"
   },
   "referral": {
     "title": "Invita a amigos",
@@ -448,7 +456,14 @@
     "subcategoryGeneralDesc": "Ofrezco servicios y experiencias creativas",
     "subcategoryTaxiDancer": "Bailarín de compañía",
     "subcategoryTaxiDancerDesc": "Soy pareja de baile remunerada para bailes en pareja, también puedo ofrecer clases",
-    "subcategoryNote": "Un bailarín de compañía es una pareja de baile remunerada para bailes en pareja (swing, foxtrot, salsa, etc.). El servicio no incluye contacto sexual ni íntimo. Edad mínima 18 años."
+    "subcategoryNote": "Un bailarín de compañía es una pareja de baile remunerada para bailes en pareja (swing, foxtrot, salsa, etc.). El servicio no incluye contacto sexual ni íntimo. Edad mínima 18 años.",
+    "back": "Atrás",
+    "chooseBusinessType": "¿Vendes como particular o como empresa?",
+    "businessIndividual": "Particular",
+    "businessIndividualDesc": "Vendo en mi propio nombre, sin número de organización",
+    "businessCompany": "Empresa",
+    "businessCompanyDesc": "Facturo a través de una empresa con número de organización",
+    "businessTypeNote": "Las empresas pueden verificar su nº de organización y aparecer como vendedor con el número en el recibo. Puedes cambiarlo más tarde."
   },
   "landing": {
       "meta": {

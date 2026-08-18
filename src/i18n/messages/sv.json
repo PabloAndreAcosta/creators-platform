@@ -223,9 +223,17 @@
     "progress": "{done}/{total} klart",
     "completeProfile": "Komplettera din profil",
     "verifyBankid": "Verifiera med BankID",
+    "verifyBankidOptional": "Verifiera med BankID (valfritt)",
+    "verifyCompany": "Verifiera ditt bolag (org.nr)",
+    "addTerms": "Lägg till dina köpvillkor",
     "createFirstService": "Skapa din första tjänst",
+    "createFirstEvent": "Skapa ditt första event",
     "connectStripe": "Anslut Stripe för utbetalningar",
-    "makeProfilePublic": "Gör din profil publik"
+    "completeStripe": "Slutför Stripe – aktivera kortbetalning",
+    "makeProfilePublic": "Gör din profil publik",
+    "customerCompleteProfile": "Fyll i namn och stad",
+    "customerSetPreferences": "Ställ in dina matchningspreferenser",
+    "optional": "valfritt"
   },
   "referral": {
     "title": "Bjud in vänner",
@@ -448,7 +456,14 @@
     "subcategoryGeneralDesc": "Jag erbjuder kreativa tjänster och upplevelser",
     "subcategoryTaxiDancer": "Taxidansare",
     "subcategoryTaxiDancerDesc": "Jag är betald danspartner för pardans, kan även erbjuda coachning",
-    "subcategoryNote": "Taxidansare är en betald danspartner för pardans (bugg, foxtrot, salsa m.m.). Tjänsten omfattar inte sexuell eller intim kontakt. Åldersgräns 18 år."
+    "subcategoryNote": "Taxidansare är en betald danspartner för pardans (bugg, foxtrot, salsa m.m.). Tjänsten omfattar inte sexuell eller intim kontakt. Åldersgräns 18 år.",
+    "back": "Tillbaka",
+    "chooseBusinessType": "Säljer du som privatperson eller företag?",
+    "businessIndividual": "Privatperson",
+    "businessIndividualDesc": "Jag säljer i eget namn, utan organisationsnummer",
+    "businessCompany": "Företag",
+    "businessCompanyDesc": "Jag fakturerar via ett företag med organisationsnummer",
+    "businessTypeNote": "Företag får verifiera org.nr och visas som säljare med organisationsnummer på kvittot. Du kan ändra detta senare."
   },
   "landing": {
       "meta": {

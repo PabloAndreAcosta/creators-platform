@@ -223,9 +223,17 @@
     "progress": "{done}/{total} done",
     "completeProfile": "Complete your profile",
     "verifyBankid": "Verify with BankID",
+    "verifyBankidOptional": "Verify with BankID (optional)",
+    "verifyCompany": "Verify your company (org. no.)",
+    "addTerms": "Add your purchase terms",
     "createFirstService": "Create your first service",
+    "createFirstEvent": "Create your first event",
     "connectStripe": "Connect Stripe for payouts",
-    "makeProfilePublic": "Make your profile public"
+    "completeStripe": "Finish Stripe – enable card payments",
+    "makeProfilePublic": "Make your profile public",
+    "customerCompleteProfile": "Add your name and city",
+    "customerSetPreferences": "Set your matching preferences",
+    "optional": "optional"
   },
   "referral": {
     "title": "Invite friends",
@@ -448,7 +456,14 @@
     "subcategoryGeneralDesc": "I offer creative services and experiences",
     "subcategoryTaxiDancer": "Taxi dancer",
     "subcategoryTaxiDancerDesc": "I am a paid dance partner for couples dancing, may also offer coaching",
-    "subcategoryNote": "A taxi dancer is a paid dance partner for couples dancing (swing, foxtrot, salsa, etc.). The service does not include sexual or intimate contact. Minimum age 18."
+    "subcategoryNote": "A taxi dancer is a paid dance partner for couples dancing (swing, foxtrot, salsa, etc.). The service does not include sexual or intimate contact. Minimum age 18.",
+    "back": "Back",
+    "chooseBusinessType": "Do you sell as an individual or a company?",
+    "businessIndividual": "Individual",
+    "businessIndividualDesc": "I sell in my own name, without a company registration number",
+    "businessCompany": "Company",
+    "businessCompanyDesc": "I invoice through a company with a registration number",
+    "businessTypeNote": "Companies can verify their org. number and appear as the seller with the org. number on the receipt. You can change this later."
   },
   "landing": {
       "meta": {
