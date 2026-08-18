@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { normalizeOrgNumber, formatOrgNumber, verifyViaVies } from "@/lib/org-number";
-import { isVenueRole } from "@/lib/roles";
+import { isVenueRole, isCreatorRole } from "@/lib/roles";
 
 export async function POST(req: NextRequest) {
   const { rateLimit, getRateLimitKey } = await import("@/lib/rate-limit");
@@ -19,14 +19,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Ej inloggad" }, { status: 401 });
   }
 
-  // Only venues verify a company.
+  // Venues, and creators who sell as a company, may verify a company.
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, is_company")
     .eq("id", user.id)
     .single();
-  if (!isVenueRole(profile?.role)) {
-    return NextResponse.json({ error: "Endast venues kan verifiera bolag." }, { status: 403 });
+  const mayVerifyCompany =
+    isVenueRole(profile?.role) || (isCreatorRole(profile?.role) && !!profile?.is_company);
+  if (!mayVerifyCompany) {
+    return NextResponse.json(
+      { error: "Endast venues och kreatörer med företag kan verifiera bolag." },
+      { status: 403 }
+    );
   }
 
   const body = await req.json().catch(() => ({}));
