@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
-import { CreatorOnboarding } from "./creator-onboarding";
+import { OnboardingChecklist } from "./creator-onboarding";
 import RecommendedEvents from "@/components/RecommendedEvents";
 import { FavoriteButton } from "@/components/favorite-button";
 import { BuyTicketCta } from "@/components/buy-ticket-cta";
@@ -51,6 +51,14 @@ interface Profile {
   stripe_account_id: string | null;
   created_at: string;
   updated_at: string;
+  // Onboarding/seller-state (present via profiles.select("*")).
+  role?: string | null;
+  bankid_verified_at?: string | null;
+  is_company?: boolean | null;
+  company_verified_at?: string | null;
+  terms_url?: string | null;
+  stripe_card_payments_enabled?: boolean | null;
+  customer_location?: string | null;
 }
 
 interface Listing {
@@ -87,6 +95,7 @@ interface HomeContentProps {
   averageRating?: number | null;
   feedPosts?: FeedPost[];
   upcomingBookings?: UpcomingBooking[];
+  hasPreferences?: boolean;
 }
 
 export function HomeContent({
@@ -99,6 +108,7 @@ export function HomeContent({
   averageRating = null,
   feedPosts = [],
   upcomingBookings = [],
+  hasPreferences = false,
 }: HomeContentProps) {
   const { role } = useRole();
 
@@ -111,6 +121,7 @@ export function HomeContent({
         tier={profile?.tier || "gratis"}
         feedPosts={feedPosts}
         upcomingBookings={upcomingBookings}
+        hasPreferences={hasPreferences}
       />
     );
   }
@@ -143,6 +154,7 @@ function PublikHome({
   tier = "gratis",
   feedPosts = [],
   upcomingBookings = [],
+  hasPreferences = false,
 }: {
   profile: Profile | null;
   listings: Listing[];
@@ -150,6 +162,7 @@ function PublikHome({
   tier?: string;
   feedPosts?: FeedPost[];
   upcomingBookings?: UpcomingBooking[];
+  hasPreferences?: boolean;
 }) {
   const t = useTranslations("home");
   const tc = useTranslations("common");
@@ -219,6 +232,11 @@ function PublikHome({
 
   return (
     <div className="space-y-8 pb-4">
+      <OnboardingChecklist
+        role={profile?.role ?? "customer"}
+        customerLocation={profile?.customer_location ?? null}
+        hasPreferences={hasPreferences}
+      />
       {/* Hero Section — full-bleed with glassmorphism */}
       {heroEvent ? (
         <div className="relative -mx-4 -mt-2 overflow-hidden md:-mx-0 md:rounded-2xl">
@@ -623,12 +641,17 @@ function KreatorHome({
   const userListings = ownServices.map((l) => ({ id: l.id, title: l.title }));
 
   const onboarding = (
-    <CreatorOnboarding
+    <OnboardingChecklist
+      role={profile?.role ?? "creator"}
+      isCompany={!!profile?.is_company}
       bio={profile?.bio}
       avatarUrl={profile?.avatar_url}
-      bankidVerifiedAt={(profile as { bankid_verified_at?: string | null } | null)?.bankid_verified_at ?? null}
+      bankidVerifiedAt={profile?.bankid_verified_at ?? null}
+      companyVerifiedAt={profile?.company_verified_at ?? null}
+      termsUrl={profile?.terms_url ?? null}
       servicesCount={ownServices.length}
       stripeAccountId={profile?.stripe_account_id}
+      stripeCardPaymentsEnabled={!!profile?.stripe_card_payments_enabled}
       isPublic={profile?.is_public}
     />
   );
@@ -1025,15 +1048,18 @@ function UpplevelseHome({
   const userListings = ownServices.map((l) => ({ id: l.id, title: l.title }));
 
   const onboarding = (
-    <CreatorOnboarding
+    <OnboardingChecklist
+      role={profile?.role ?? "venue"}
+      isCompany={!!profile?.is_company}
       bio={profile?.bio}
       avatarUrl={profile?.avatar_url}
-      bankidVerifiedAt={(profile as { bankid_verified_at?: string | null } | null)?.bankid_verified_at ?? null}
+      bankidVerifiedAt={profile?.bankid_verified_at ?? null}
+      companyVerifiedAt={profile?.company_verified_at ?? null}
+      termsUrl={profile?.terms_url ?? null}
       servicesCount={ownServices.length}
       stripeAccountId={profile?.stripe_account_id}
+      stripeCardPaymentsEnabled={!!profile?.stripe_card_payments_enabled}
       isPublic={profile?.is_public}
-      serviceLabel={t("createFirstEvent")}
-      serviceHref="/app/events/new"
     />
   );
 

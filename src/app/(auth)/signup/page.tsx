@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { isPasswordPwned } from "@/lib/auth/password-strength";
 import { isRateLimitError } from "@/lib/auth/rate-limit-error";
 import { trackEvent } from "@/lib/analytics";
-import { Palette, Store, Search, ShieldCheck, Loader2, Music } from "lucide-react";
+import { Palette, Store, Search, ShieldCheck, Loader2, Music, User, Building2 } from "lucide-react";
 
 type Role = "creator" | "venue" | "customer";
 type CreatorSubcategory = "general" | "taxi_dancer";
@@ -25,6 +25,8 @@ export default function SignupPage() {
   const searchParams = useSearchParams();
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<CreatorSubcategory | null>(null);
+  // Creator only: sells as a private individual vs a company (unlocks org.nr steps).
+  const [selectedIsCompany, setSelectedIsCompany] = useState<boolean | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -82,6 +84,10 @@ export default function SignupPage() {
           if (savedSubcategory && ["general", "taxi_dancer"].includes(savedSubcategory)) {
             setSelectedSubcategory(savedSubcategory as CreatorSubcategory);
           }
+          const savedIsCompany = localStorage.getItem("signup_is_company");
+          if (savedIsCompany === "true" || savedIsCompany === "false") {
+            setSelectedIsCompany(savedIsCompany === "true");
+          }
         })
         .catch(() => {
           setBankidError(t("bankidDataError"));
@@ -96,6 +102,10 @@ export default function SignupPage() {
       const savedSubcategory = localStorage.getItem("signup_subcategory");
       if (savedSubcategory && ["general", "taxi_dancer"].includes(savedSubcategory)) {
         setSelectedSubcategory(savedSubcategory as CreatorSubcategory);
+      }
+      const savedIsCompany = localStorage.getItem("signup_is_company");
+      if (savedIsCompany === "true" || savedIsCompany === "false") {
+        setSelectedIsCompany(savedIsCompany === "true");
       }
     }
   }, [searchParams]);
@@ -131,10 +141,13 @@ export default function SignupPage() {
     setBankidVerifying(true);
     setBankidError("");
 
-    // Save role + subcategory so we can restore them after redirect
+    // Save role + subcategory + company choice so we can restore them after redirect
     localStorage.setItem("signup_role", selectedRole);
     if (selectedSubcategory) {
       localStorage.setItem("signup_subcategory", selectedSubcategory);
+    }
+    if (selectedIsCompany !== null) {
+      localStorage.setItem("signup_is_company", String(selectedIsCompany));
     }
 
     try {
@@ -197,6 +210,9 @@ export default function SignupPage() {
       role: selectedRole!,
       ...(selectedRole === "creator" && selectedSubcategory
         ? { creator_subcategory: selectedSubcategory }
+        : {}),
+      ...(selectedRole === "creator" && selectedIsCompany
+        ? { is_company: "true" }
         : {}),
       ...(refCode ? { referred_by_code: refCode.toUpperCase() } : {}),
     };
@@ -384,6 +400,59 @@ export default function SignupPage() {
             className="mt-4 block w-full text-center text-sm text-[var(--usha-gold)] hover:underline"
           >
             {t("changeRole")}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Step 1.35: Creator business type — private individual vs company (unlocks org.nr steps)
+  if (selectedRole === "creator" && selectedSubcategory && selectedIsCompany === null && !bankidVerified) {
+    return (
+      <div className="flex min-h-screen items-center justify-center px-6">
+        <div className="w-full max-w-md">
+          <div className="mb-8 text-center">
+            <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
+              <span className="text-lg font-bold text-black">U</span>
+            </div>
+            <h1 className="text-2xl font-bold">{t("chooseBusinessType")}</h1>
+          </div>
+
+          <div className="space-y-3">
+            <button
+              onClick={() => setSelectedIsCompany(false)}
+              className="flex w-full items-center gap-4 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5 text-left transition hover:border-[var(--usha-gold)]/40"
+            >
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-[var(--usha-gold)]/10">
+                <User size={24} className="text-[var(--usha-gold)]" />
+              </div>
+              <div>
+                <h3 className="font-semibold">{t("businessIndividual")}</h3>
+                <p className="text-sm text-[var(--usha-muted)]">{t("businessIndividualDesc")}</p>
+              </div>
+            </button>
+
+            <button
+              onClick={() => setSelectedIsCompany(true)}
+              className="flex w-full items-center gap-4 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5 text-left transition hover:border-[var(--usha-gold)]/40"
+            >
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-[var(--usha-gold)]/10">
+                <Building2 size={24} className="text-[var(--usha-gold)]" />
+              </div>
+              <div>
+                <h3 className="font-semibold">{t("businessCompany")}</h3>
+                <p className="text-sm text-[var(--usha-muted)]">{t("businessCompanyDesc")}</p>
+              </div>
+            </button>
+          </div>
+
+          <p className="mt-6 text-xs text-[var(--usha-muted)]">{t("businessTypeNote")}</p>
+
+          <button
+            onClick={() => setSelectedSubcategory(null)}
+            className="mt-4 block w-full text-center text-sm text-[var(--usha-gold)] hover:underline"
+          >
+            {t("back")}
           </button>
         </div>
       </div>
