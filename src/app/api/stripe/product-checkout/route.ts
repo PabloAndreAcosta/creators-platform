@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCreatorCommissionRate } from "@/lib/stripe/commission";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
+import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, buildTermsCustomText, type PayeeContext } from "@/lib/stripe/checkout";
 
 export async function POST(req: NextRequest) {
   const { rateLimit, getRateLimitKey } = await import('@/lib/rate-limit');
@@ -114,15 +115,33 @@ export async function POST(req: NextRequest) {
     // (§1.1 / G4 — gross must never land on Usha's account).
     const { data: creator } = await createAdminClient()
       .from("profiles")
-      .select("stripe_account_id, tier, creator_subcategory, company_verified_at")
+      .select("stripe_account_id, tier, creator_subcategory, company_verified_at, stripe_card_payments_enabled, is_usha_owned_seller, company_name, org_number, full_name, terms_url")
       .eq("id", product.creator_id)
       .single();
 
-    if (!creator?.stripe_account_id) {
-      return NextResponse.json({ error: "Kreatören har inte kopplat Stripe ännu." }, { status: 400 });
+    if (!creator) {
+      return NextResponse.json({ error: "Produkten hittades inte." }, { status: 404 });
     }
-    if (!canReceivePayments({ id: product.creator_id, company_verified_at: creator.company_verified_at })) {
-      return NextResponse.json({ error: PAYMENTS_BETA_BLOCKED_MESSAGE }, { status: 403 });
+
+    // Resolve flow first — Usha's own products (principal) need no connected account.
+    const payee: PayeeContext = {
+      id: product.creator_id,
+      stripe_account_id: creator.stripe_account_id,
+      card_payments_enabled: creator.stripe_card_payments_enabled ?? false,
+      is_usha_owned_seller: creator.is_usha_owned_seller ?? false,
+      company_name: creator.company_name ?? null,
+      org_number: creator.org_number ?? null,
+      full_name: creator.full_name ?? null,
+    };
+    const flow = resolvePayeeFlow(payee);
+
+    if (flow === "third_party") {
+      if (!creator.stripe_account_id) {
+        return NextResponse.json({ error: "Kreatören har inte kopplat Stripe ännu." }, { status: 400 });
+      }
+      if (!canReceivePayments({ id: product.creator_id, company_verified_at: creator.company_verified_at })) {
+        return NextResponse.json({ error: PAYMENTS_BETA_BLOCKED_MESSAGE }, { status: 403 });
+      }
     }
 
     const commissionRate = getCreatorCommissionRate(
@@ -132,6 +151,14 @@ export async function POST(req: NextRequest) {
     const amountOre = finalPrice * 100;
     const applicationFee = Math.round(amountOre * commissionRate);
 
+    const customText = buildTermsCustomText(creator.terms_url);
+    const paymentIntentData = buildConnectPaymentIntentData({
+      flow,
+      payee,
+      applicationFeeOre: applicationFee,
+      metadata: buildPaymentMetadata({ flow, payee, eventId: productId, termsUrl: creator.terms_url }),
+    });
+
     // Create Stripe checkout session
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";
     const stripeLocale = await getStripeLocale();
@@ -140,10 +167,8 @@ export async function POST(req: NextRequest) {
       mode: "payment",
       // Inga pinnade payment_method_types — Stripe visar de metoder som aktiverats
       // i Dashboard (kort, Swish, Klarna) för behöriga SE/SEK-kunder, som övriga flöden.
-      payment_intent_data: {
-        application_fee_amount: applicationFee,
-        transfer_data: { destination: creator.stripe_account_id },
-      },
+      ...(paymentIntentData ? { payment_intent_data: paymentIntentData } : {}),
+      ...(customText ? { custom_text: customText } : {}),
       line_items: [
         {
           price_data: {
@@ -159,6 +184,7 @@ export async function POST(req: NextRequest) {
       ],
       metadata: {
         type: "digital_product",
+        flow,
         product_id: productId,
         buyer_id: user.id,
         creator_id: product.creator_id,

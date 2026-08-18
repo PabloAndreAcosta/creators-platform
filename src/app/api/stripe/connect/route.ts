@@ -27,7 +27,15 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (profile?.stripe_account_id) {
-      // Account exists — create new account link for re-onboarding
+      // Account exists — request card_payments (needed for on_behalf_of / merchant
+      // of record) so the re-onboarding link collects the extra KYC, then send the
+      // organizer through onboarding again.
+      await stripe.accounts.update(profile.stripe_account_id, {
+        capabilities: {
+          transfers: { requested: true },
+          card_payments: { requested: true },
+        },
+      });
       const accountLink = await stripe.accountLinks.create({
         account: profile.stripe_account_id,
         refresh_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/billing?connect=refresh`,
@@ -45,6 +53,9 @@ export async function POST(req: NextRequest) {
       email: user.email,
       capabilities: {
         transfers: { requested: true },
+        // card_payments is required to make the organizer merchant of record
+        // (on_behalf_of) for third-party ticket sales.
+        card_payments: { requested: true },
       },
       business_type: 'individual',
       metadata: {

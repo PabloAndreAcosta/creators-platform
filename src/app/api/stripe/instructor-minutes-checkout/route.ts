@@ -6,6 +6,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { getCreatorCommissionRate } from "@/lib/stripe/commission";
 import { priceForMinutes, isMinuteOption, MIN_PRICE_SEK } from "@/lib/coaching/minute-pricing";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
+import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, buildTermsCustomText, type PayeeContext } from "@/lib/stripe/checkout";
 
 /**
  * Creates a Stripe Checkout session for buying a block of instructor minutes
@@ -69,15 +70,33 @@ export async function POST(req: NextRequest) {
     // Instructor profile: Connect account + rate + commission inputs
     const { data: instructor } = await createAdminClient()
       .from("profiles")
-      .select("full_name, stripe_account_id, tier, creator_subcategory, coaching_hourly_rate_sek, offers_coaching, company_verified_at")
+      .select("full_name, stripe_account_id, tier, creator_subcategory, coaching_hourly_rate_sek, offers_coaching, company_verified_at, stripe_card_payments_enabled, is_usha_owned_seller, company_name, org_number, terms_url")
       .eq("id", instructorId)
       .single();
 
-    if (!instructor?.stripe_account_id) {
-      return NextResponse.json({ error: "Instruktören kan inte ta emot betalningar ännu." }, { status: 400 });
+    if (!instructor) {
+      return NextResponse.json({ error: "Instruktören hittades inte." }, { status: 404 });
     }
-    if (!canReceivePayments({ id: instructorId, company_verified_at: instructor.company_verified_at })) {
-      return NextResponse.json({ error: PAYMENTS_BETA_BLOCKED_MESSAGE }, { status: 403 });
+
+    // Resolve flow first — a Usha-owned payee (principal) needs no connected account.
+    const payee: PayeeContext = {
+      id: instructorId,
+      stripe_account_id: instructor.stripe_account_id,
+      card_payments_enabled: (instructor as { stripe_card_payments_enabled?: boolean }).stripe_card_payments_enabled ?? false,
+      is_usha_owned_seller: (instructor as { is_usha_owned_seller?: boolean }).is_usha_owned_seller ?? false,
+      company_name: (instructor as { company_name?: string | null }).company_name ?? null,
+      org_number: (instructor as { org_number?: string | null }).org_number ?? null,
+      full_name: instructor.full_name ?? null,
+    };
+    const flow = resolvePayeeFlow(payee);
+
+    if (flow === "third_party") {
+      if (!instructor.stripe_account_id) {
+        return NextResponse.json({ error: "Instruktören kan inte ta emot betalningar ännu." }, { status: 400 });
+      }
+      if (!canReceivePayments({ id: instructorId, company_verified_at: instructor.company_verified_at })) {
+        return NextResponse.json({ error: PAYMENTS_BETA_BLOCKED_MESSAGE }, { status: 403 });
+      }
     }
     if (!instructor.offers_coaching || !instructor.coaching_hourly_rate_sek || instructor.coaching_hourly_rate_sek <= 0) {
       return NextResponse.json({ error: "Instruktören har inget timpris satt." }, { status: 400 });
@@ -90,6 +109,15 @@ export async function POST(req: NextRequest) {
     const amountInOre = priceSek * 100;
     const commissionRate = getCreatorCommissionRate(instructor.tier ?? "gratis", instructor.creator_subcategory ?? null);
     const applicationFee = Math.round(amountInOre * commissionRate);
+
+    const termsUrl = (instructor as { terms_url?: string | null }).terms_url ?? null;
+    const customText = buildTermsCustomText(termsUrl);
+    const paymentIntentData = buildConnectPaymentIntentData({
+      flow,
+      payee,
+      applicationFeeOre: applicationFee,
+      metadata: buildPaymentMetadata({ flow, payee, eventId: listing.id, termsUrl }),
+    });
 
     const stripeLocale = await getStripeLocale();
     const session = await stripe.checkout.sessions.create({
@@ -108,17 +136,14 @@ export async function POST(req: NextRequest) {
         },
       ],
       mode: "payment",
-      payment_intent_data: {
-        application_fee_amount: applicationFee,
-        transfer_data: {
-          destination: instructor.stripe_account_id,
-        },
-      },
+      ...(paymentIntentData ? { payment_intent_data: paymentIntentData } : {}),
+      ...(customText ? { custom_text: customText } : {}),
       automatic_tax: { enabled: true },
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/app/tickets?success=true`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/listing/${listing.slug || listing.id}`,
       metadata: {
         type: "instructor_minutes",
+        flow,
         userId: user.id,
         instructorId,
         listingId: listing.id,

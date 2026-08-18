@@ -11,6 +11,7 @@ import { createNotification } from "@/lib/notifications/create";
 import { notifyOwnerTicketSold, notifyOwnerSoldOut } from "@/lib/notifications/event-owner";
 import { clampQuantity, createTicketAttendees, attendeeNamesFromMeta } from "@/lib/tickets/attendees";
 import { stockholmLocalToUtcISO } from "@/lib/time";
+import { resolvePayeeFlow, receiptSeller } from "@/lib/stripe/checkout";
 
 /** Reverse lookup: Stripe price ID → plan key */
 function planKeyFromPriceId(priceId: string): string | null {
@@ -253,7 +254,7 @@ export async function POST(req: NextRequest) {
             .single();
           const creatorRes = await getSupabaseAdmin()
             .from("profiles")
-            .select("full_name")
+            .select("full_name, company_name, org_number, is_usha_owned_seller")
             .eq("id", creatorId)
             .single();
 
@@ -272,6 +273,7 @@ export async function POST(req: NextRequest) {
               creatorName: listingRes.data?.organizer_name || creatorRes.data?.full_name || "Kreatör",
               location: listingRes.data?.event_location || undefined,
               bookingId: guestBooking?.id,
+              seller: buildSeller(creatorId, creatorRes.data),
             }).catch(err => console.error("Guest confirmation email failed:", err));
           }
 
@@ -988,6 +990,34 @@ export async function POST(req: NextRequest) {
         const disputeCharge = await stripe.charges.retrieve(dispute.charge as string);
         const disputePaymentIntent = disputeCharge.payment_intent as string | null;
 
+        // Auto-recover from the organizer: Stripe debits disputes from the PLATFORM
+        // account (with or without on_behalf_of), so for a destination charge we
+        // reverse the transfer to pull the disputed amount (+ proportional app fee)
+        // back from the connected account. Principal charges have no transfer →
+        // skipped (Usha bears its own sale's dispute). Domestic SE↔SE, so no
+        // cross-border wait applies. Idempotent on the dispute id.
+        const transferId =
+          typeof disputeCharge.transfer === "string"
+            ? disputeCharge.transfer
+            : disputeCharge.transfer?.id ?? null;
+        if (transferId) {
+          try {
+            await stripe.transfers.createReversal(
+              transferId,
+              {
+                amount: dispute.amount,
+                refund_application_fee: true,
+                description: `Auto-reversal for dispute ${dispute.id}`,
+                metadata: { dispute_id: dispute.id, reason: dispute.reason },
+              },
+              { idempotencyKey: `dispute-reversal-${dispute.id}` }
+            );
+            console.log("Reversed transfer for dispute:", dispute.id, transferId, dispute.amount);
+          } catch (e) {
+            console.error("Dispute transfer reversal failed:", dispute.id, (e as Error).message);
+          }
+        }
+
         if (disputePaymentIntent) {
           const { data: disputedBooking } = await getSupabaseAdmin()
             .from("bookings")
@@ -1027,7 +1057,20 @@ export async function POST(req: NextRequest) {
       case "account.updated": {
         const account = event.data.object as Stripe.Account;
         if (account.id) {
-          console.log("Connect account updated:", account.id, "Charges enabled:", account.charges_enabled, "Payouts enabled:", account.payouts_enabled);
+          // Sync capability status so checkout can gate on_behalf_of (merchant of
+          // record) on card_payments being active. Matched on stripe_account_id
+          // (set for both connect flows); service role bypasses the protect trigger.
+          const cardPayments = account.capabilities?.card_payments === "active";
+          const { error } = await getSupabaseAdmin()
+            .from("profiles")
+            .update({
+              stripe_card_payments_enabled: cardPayments,
+              stripe_charges_enabled: !!account.charges_enabled,
+              stripe_details_submitted: !!account.details_submitted,
+            })
+            .eq("stripe_account_id", account.id);
+          if (error) console.error("account.updated sync failed:", account.id, error.message);
+          else console.log("Connect account synced:", account.id, "card_payments:", cardPayments);
         }
         break;
       }
@@ -1054,7 +1097,7 @@ async function sendTicketConfirmationEmail(
 ) {
   const [customerRes, creatorRes, listingRes] = await Promise.all([
     admin.from("profiles").select("email, full_name").eq("id", customerId).single(),
-    admin.from("profiles").select("full_name").eq("id", creatorId).single(),
+    admin.from("profiles").select("full_name, company_name, org_number, is_usha_owned_seller").eq("id", creatorId).single(),
     admin.from("listings").select("title, event_location, organizer_name, event_date, event_end_time").eq("id", listingId).single(),
   ]);
 
@@ -1075,7 +1118,31 @@ async function sendTicketConfirmationEmail(
     scheduledEndAt: endIso ? new Date(endIso) : undefined,
     creatorName: listingRes.data?.organizer_name || creatorRes.data?.full_name || "Kreatör",
     location: listingRes.data?.event_location || undefined,
+    seller: buildSeller(creatorId, creatorRes.data),
   });
+}
+
+/** Receipt seller block for a payee profile (org.nr when a verified company). */
+function buildSeller(
+  creatorId: string,
+  creator: { full_name?: string | null; company_name?: string | null; org_number?: string | null; is_usha_owned_seller?: boolean | null } | null
+): { name: string; orgNumber?: string; vatNote?: string } {
+  const flow = resolvePayeeFlow({
+    id: creatorId,
+    stripe_account_id: null,
+    card_payments_enabled: false,
+    is_usha_owned_seller: creator?.is_usha_owned_seller ?? false,
+    company_name: creator?.company_name ?? null,
+    org_number: creator?.org_number ?? null,
+    full_name: creator?.full_name ?? null,
+  });
+  const seller = receiptSeller(flow, {
+    company_name: creator?.company_name ?? null,
+    org_number: creator?.org_number ?? null,
+    full_name: creator?.full_name ?? null,
+  });
+  // A registered org.nr means the seller is VAT-registered (VIES-verified).
+  return seller.orgNumber ? { ...seller, vatNote: "Moms ingår i priset." } : seller;
 }
 
 async function sendSubscriptionWelcomeEmail(

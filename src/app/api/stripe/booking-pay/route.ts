@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from '@/lib/supabase/admin';
 import { calculateDiscountedPrice, getCreatorCommissionRate } from "@/lib/stripe/commission";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
+import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, buildTermsCustomText, type PayeeContext } from "@/lib/stripe/checkout";
 
 const PAYABLE_AFTER_CONFIRM = new Set(["b2b_offering", "service"]);
 
@@ -118,25 +119,50 @@ export async function POST(req: NextRequest) {
 
     const { data: creator } = await createAdminClient()
       .from("profiles")
-      .select("stripe_account_id, tier, creator_subcategory, company_verified_at")
+      .select("stripe_account_id, tier, creator_subcategory, company_verified_at, stripe_card_payments_enabled, is_usha_owned_seller, company_name, org_number, full_name, terms_url")
       .eq("id", listing.user_id)
       .single();
 
-    if (!creator?.stripe_account_id) {
-      return NextResponse.json(
-        { error: "Creator has not connected their Stripe account" },
-        { status: 400 }
-      );
+    if (!creator) {
+      return NextResponse.json({ error: "Event not found" }, { status: 404 });
     }
 
-    if (!canReceivePayments({ id: listing.user_id, company_verified_at: creator.company_verified_at })) {
-      return NextResponse.json({ error: PAYMENTS_BETA_BLOCKED_MESSAGE }, { status: 403 });
+    // Resolve flow first — Usha's own events (principal) need no connected account.
+    const payee: PayeeContext = {
+      id: listing.user_id,
+      stripe_account_id: creator.stripe_account_id,
+      card_payments_enabled: creator.stripe_card_payments_enabled ?? false,
+      is_usha_owned_seller: creator.is_usha_owned_seller ?? false,
+      company_name: creator.company_name ?? null,
+      org_number: creator.org_number ?? null,
+      full_name: creator.full_name ?? null,
+    };
+    const flow = resolvePayeeFlow(payee);
+
+    if (flow === "third_party") {
+      if (!creator.stripe_account_id) {
+        return NextResponse.json(
+          { error: "Creator has not connected their Stripe account" },
+          { status: 400 }
+        );
+      }
+      if (!canReceivePayments({ id: listing.user_id, company_verified_at: creator.company_verified_at })) {
+        return NextResponse.json({ error: PAYMENTS_BETA_BLOCKED_MESSAGE }, { status: 403 });
+      }
     }
 
     const amountInOre = Math.round(effectivePrice * 100);
     const creatorSubcategory = (creator as { creator_subcategory?: string | null }).creator_subcategory ?? null;
     const commissionRate = getCreatorCommissionRate(creator.tier ?? "gratis", creatorSubcategory);
     const applicationFee = Math.round(amountInOre * commissionRate);
+
+    const customText = buildTermsCustomText(creator.terms_url);
+    const paymentIntentData = buildConnectPaymentIntentData({
+      flow,
+      payee,
+      applicationFeeOre: applicationFee,
+      metadata: buildPaymentMetadata({ flow, payee, eventId: listing.id, termsUrl: creator.terms_url }),
+    });
 
     const stripeLocale = await getStripeLocale();
     const session = await stripe.checkout.sessions.create({
@@ -155,17 +181,14 @@ export async function POST(req: NextRequest) {
         },
       ],
       mode: "payment",
-      payment_intent_data: {
-        application_fee_amount: applicationFee,
-        transfer_data: {
-          destination: creator.stripe_account_id,
-        },
-      },
+      ...(paymentIntentData ? { payment_intent_data: paymentIntentData } : {}),
+      ...(customText ? { custom_text: customText } : {}),
       automatic_tax: { enabled: true },
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/app/tickets?success=true`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/app/tickets`,
       metadata: {
         type: "b2b_payment",
+        flow,
         bookingId: booking.id,
         userId: user.id,
         creatorId: listing.user_id,

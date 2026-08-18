@@ -15,6 +15,8 @@ interface SendBookingConfirmationParams {
   location?: string;
   bookingId?: string;
   durationMinutes?: number;
+  /** Legal seller for the receipt (org.nr / name + VAT note). */
+  seller?: { name: string; orgNumber?: string; vatNote?: string };
 }
 
 export async function sendBookingConfirmationEmail({
@@ -27,11 +29,12 @@ export async function sendBookingConfirmationEmail({
   location,
   bookingId,
   durationMinutes,
+  seller,
 }: SendBookingConfirmationParams): Promise<void> {
   try {
     const resend = getResend();
     const html = await renderEmailToHtml(
-      createElement(BookingConfirmation, { customerName, serviceName, scheduledAt, scheduledEndAt, creatorName, location, bookingId })
+      createElement(BookingConfirmation, { customerName, serviceName, scheduledAt, scheduledEndAt, creatorName, location, bookingId, seller })
     );
 
     const ics = buildBookingIcs({
