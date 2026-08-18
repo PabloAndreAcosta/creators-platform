@@ -1,0 +1,26 @@
+name: i18n consistency
+
+# Fails a PR if the locale files (sv/en/es) drift apart — i.e. a key exists in one
+# language but is missing in another (which would render a raw i18n key to users).
+on:
+  pull_request:
+    paths:
+      - "src/i18n/**"
+  push:
+    branches: [main]
+    paths:
+      - "src/i18n/**"
+  workflow_dispatch: {}
+
+jobs:
+  i18n:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Check locale key parity
+        run: npx vitest run src/i18n
