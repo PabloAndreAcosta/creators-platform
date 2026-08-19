@@ -4,7 +4,8 @@ import { isAdminById } from "@/lib/admin/check";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isCreatorRole } from "@/lib/roles";
 import Link from "next/link";
-import { ArrowLeft, Search, Building2, User } from "lucide-react";
+import { AdminNav } from "@/components/admin/admin-nav";
+import { Search, Building2, User } from "lucide-react";
 import { setCreatorIsCompany } from "./actions";
 
 /**
@@ -42,14 +43,9 @@ export default async function AdminCreatorsPage({
 
   return (
     <>
+      <AdminNav />
+
       <div className="mb-8">
-        <Link
-          href="/dashboard"
-          className="mb-4 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]"
-        >
-          <ArrowLeft size={14} />
-          Tillbaka
-        </Link>
         <h1 className="text-3xl font-bold">Kreatörer — privatperson/företag</h1>
         <p className="mt-1 text-[var(--usha-muted)]">
           Sök upp en kreatör och ändra om de säljer som företag (org.nr-verifiering + org.nr på kvitto).

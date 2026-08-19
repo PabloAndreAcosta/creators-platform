@@ -17,18 +17,20 @@ import {
   CalendarDays,
   ShoppingBag,
   Users,
+  ShieldCheck,
 } from "lucide-react";
 import { useRole } from "./role-context";
-import { destinationsFor, type NavRole } from "@/lib/navigation/registry";
+import { destinationsFor, ADMIN_ROOT, type NavRole } from "@/lib/navigation/registry";
 import { useSubscription } from "@/lib/subscription/context";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import UschjaLogo from "@/components/UschjaLogo";
 
 export function SidebarNav() {
   const pathname = usePathname();
-  const { role } = useRole();
+  const { role, isAdmin } = useRole();
   const { tier } = useSubscription();
   const t = useTranslations("nav");
+  const tAdmin = useTranslations("adminPage");
 
   // Sidomenyn läser samma navigationsregister som Mer-griden. Tidigare hade
   // båda egna hårdkodade listor som drivit isär, så vad man kunde nå berodde
@@ -87,6 +89,24 @@ export function SidebarNav() {
             <ShoppingBag size={20} strokeWidth={1.5} />
             {t("shop")}
           </a>
+
+          {/* Admin sits outside the role model, so it hangs off the registry's
+              admin root rather than the role-filtered list above. The flag
+              arrives after mount (see role-context), so the entry appears a
+              beat late — the pages behind it check on the server regardless. */}
+          {isAdmin && (
+            <Link
+              href={ADMIN_ROOT}
+              className={`flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
+                pathname.startsWith(ADMIN_ROOT)
+                  ? "bg-[var(--usha-gold)]/10 text-[var(--usha-gold)]"
+                  : "text-[var(--usha-muted)] hover:bg-[var(--usha-card)] hover:text-[var(--usha-white)]"
+              }`}
+            >
+              <ShieldCheck size={20} strokeWidth={pathname.startsWith(ADMIN_ROOT) ? 2.5 : 1.5} />
+              {tAdmin("navLabel")}
+            </Link>
+          )}
         </nav>
       </div>
 

@@ -1,0 +1,71 @@
+import { describe, it, expect } from "vitest";
+import fs from "node:fs";
+import path from "node:path";
+import { ADMIN_DESTINATIONS, ADMIN_ROOT } from "../registry";
+
+const APP_DIR = path.join(process.cwd(), "src", "app");
+const ADMIN_DIR = path.join(APP_DIR, "(dashboard)", "dashboard", "admin");
+const LOCALES = ["sv", "en", "es"] as const;
+
+function pageFileFor(route: string): string {
+  // Route groups like (dashboard) don't appear in the URL.
+  return path.join(APP_DIR, "(dashboard)", `${route}`, "page.tsx");
+}
+
+function adminPages(dir = ADMIN_DIR, out: string[] = []): string[] {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) adminPages(full, out);
+    else if (entry.name === "page.tsx") out.push(full);
+  }
+  return out;
+}
+
+describe("adminmenyn pekar på sidor som finns", () => {
+  it("har ett nav att hänga verktygen under", () => {
+    expect(fs.existsSync(pageFileFor(ADMIN_ROOT))).toBe(true);
+  });
+
+  for (const dest of ADMIN_DESTINATIONS) {
+    it(`${dest.path} har en page.tsx`, () => {
+      expect(fs.existsSync(pageFileFor(dest.path))).toBe(true);
+    });
+  }
+
+  it("varje verktyg har etikett och beskrivning på alla språk", () => {
+    const missing: string[] = [];
+    for (const locale of LOCALES) {
+      const messages = JSON.parse(
+        fs.readFileSync(path.join(process.cwd(), `src/i18n/messages/${locale}.json`), "utf8")
+      );
+      const ns = messages.adminPage ?? {};
+      for (const dest of ADMIN_DESTINATIONS) {
+        for (const key of [dest.labelKey, dest.descKey]) {
+          if (ns[key] == null) missing.push(`${locale}: adminPage.${key}`);
+        }
+      }
+    }
+    expect(missing).toEqual([]);
+  });
+});
+
+describe("adminsidorna är skyddade", () => {
+  // The tools used to be reachable only by typing their URL, which quietly did
+  // some of the work. Now that a menu points at them, the server-side check is
+  // the only thing standing between a curious user and an admin tool — so a new
+  // page that forgets it fails the build rather than shipping open.
+  const pages = adminPages();
+
+  it("hittar adminsidorna överhuvudtaget (skyddar mot att testet tystnar)", () => {
+    expect(pages.length).toBeGreaterThanOrEqual(ADMIN_DESTINATIONS.length + 1);
+  });
+
+  for (const file of pages) {
+    const rel = file.slice(process.cwd().length + 1);
+    it(`${rel} kontrollerar is_admin på servern`, () => {
+      const src = fs.readFileSync(file, "utf8");
+      expect(src, `${rel} saknar isAdminById-kontroll`).toContain("isAdminById");
+      expect(src, `${rel} kontrollerar men släpper igenom`).toMatch(/redirect\(/);
+    });
+  }
+});

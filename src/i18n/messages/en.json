@@ -3538,5 +3538,16 @@
     "trialCta": "Upgrade now",
     "broadcastFooter": "You're getting this email because you joined the waitlist on Usha Platform.",
     "broadcastUnsubscribe": "Unsubscribe"
+  },
+  "adminPage": {
+    "heading": "Admin",
+    "subheading": "Tools only administrators see.",
+    "backToApp": "Back to the app",
+    "backToAdmin": "Back to Admin",
+    "creatorsLabel": "Creators",
+    "creatorsDesc": "Look up a creator and switch them between private person and company.",
+    "promoLabel": "Promo codes",
+    "promoDesc": "Create promo codes and follow how they're used.",
+    "navLabel": "Admin"
   }
 }

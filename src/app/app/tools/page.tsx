@@ -1,13 +1,15 @@
 import { createClient } from "@/lib/supabase/server";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
-import { LayoutGrid } from "lucide-react";
+import { LayoutGrid, ShieldCheck } from "lucide-react";
 import { isVenueRole } from "@/lib/roles";
 import {
   groupedDestinationsFor,
+  ADMIN_ROOT,
   type NavRole,
   type NavGroup,
 } from "@/lib/navigation/registry";
+import { isAdminById } from "@/lib/admin/check";
 
 export const dynamic = "force-dynamic";
 
@@ -23,11 +25,13 @@ const GROUP_TITLE_KEY: Record<NavGroup, string> = {
 
 export default async function ToolsPage() {
   const t = await getTranslations("toolsPage");
+  const tAdmin = await getTranslations("adminPage");
 
   // Listan kommer numera ur navigationsregistret i stället för en egen kopia
   // här. Sidomenyn på desktop läser samma register, så de kan inte längre
   // driva isär och göra en sida osynlig beroende på skärmbredd.
   let role: NavRole = "customer";
+  let showAdmin = false;
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -35,6 +39,7 @@ export default async function ToolsPage() {
       const { data } = await supabase.from("profiles").select("role").eq("id", user.id).single();
       const dbRole = (data?.role as string) ?? "customer";
       role = isVenueRole(dbRole) ? "venue" : dbRole === "creator" ? "creator" : "customer";
+      showAdmin = await isAdminById(user.id);
     }
   } catch {
     // Faller tillbaka på kundvyn — hellre färre verktyg än en trasig sida.
@@ -76,6 +81,28 @@ export default async function ToolsPage() {
             </div>
           </section>
         ))}
+
+        {/* Admin ligger utanför rollmodellen och därför utanför grupperna:
+            det är is_admin som styr, inte creator/venue/customer. */}
+        {showAdmin && (
+          <section>
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--usha-muted)]">
+              {tAdmin("heading")}
+            </h2>
+            <Link
+              href={ADMIN_ROOT}
+              className="flex flex-col gap-2 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 transition hover:border-[var(--usha-gold)]/50 sm:max-w-xs"
+            >
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--usha-gold)]/10 text-[var(--usha-gold)]">
+                <ShieldCheck size={20} />
+              </span>
+              <span className="font-semibold leading-tight text-[var(--usha-white)]">
+                {tAdmin("heading")}
+              </span>
+              <span className="text-xs text-[var(--usha-muted)]">{tAdmin("subheading")}</span>
+            </Link>
+          </section>
+        )}
       </div>
     </div>
   );
