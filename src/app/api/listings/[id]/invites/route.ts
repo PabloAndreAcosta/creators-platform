@@ -2,9 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
+import { createNotification } from "@/lib/notifications/create";
 
 const ROLES = ["creator", "taxi_dancer", "volunteer", "co_host"] as const;
 type CollabRole = (typeof ROLES)[number];
+
+// The role word sits inside the invite sentence, so it travels as a key rather
+// than as text — otherwise the invite is half in the writer's language.
+const ROLE_KEYS: Record<CollabRole, string> = {
+  creator: "collabRoleCreator",
+  taxi_dancer: "collabRoleTaxiDancer",
+  volunteer: "collabRoleVolunteer",
+  co_host: "collabRoleCohost",
+};
 
 function isCollabRole(r: unknown): r is CollabRole {
   return typeof r === "string" && (ROLES as readonly string[]).includes(r);
@@ -118,13 +128,13 @@ export async function POST(
 
   // Notify the invited user in-app so they can find and accept the invite.
   if (invitedUserId) {
-    await admin.from("notifications").insert({
-      user_id: invitedUserId,
+    await createNotification({
+      userId: invitedUserId,
       type: "collab_invite",
-      title: "Du har bjudits in till crew",
-      message: `Du är inbjuden som ${role === "creator" ? "kreatör" : role === "taxi_dancer" ? "taxidansare" : role === "volunteer" ? "volontär" : "medvärd"} till "${listing.title}".`,
+      titleKey: "collabInviteTitle",
+      bodyKey: "collabInviteMsg",
+      params: { role: { key: ROLE_KEYS[role] }, title: listing.title },
       link: inviteUrl,
-      is_read: false,
     });
   }
 

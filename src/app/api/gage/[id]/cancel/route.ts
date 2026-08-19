@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createNotification } from "@/lib/notifications/create";
 
 // Either party cancels a proposed/agreed (unpaid) gage.
 export async function POST(
@@ -43,13 +44,12 @@ export async function POST(
   }
 
   const other = user.id === g.host_id ? g.collaborator_user_id : g.host_id;
-  await admin.from("notifications").insert({
-    user_id: other,
+  await createNotification({
+    userId: other,
     type: "gage_canceled",
-    title: "Gage avbrutet",
-    message: "En gage-överenskommelse avbröts.",
+    titleKey: "gageCanceledTitle",
+    bodyKey: "gageCanceledMsg",
     link: user.id === g.host_id ? "/app/my-collaborations" : `/app/events/${g.listing_id}/crew`,
-    is_read: false,
   });
 
   return NextResponse.json({ ok: true });

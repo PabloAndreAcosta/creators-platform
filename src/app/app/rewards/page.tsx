@@ -4,12 +4,13 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { LevelBadge } from "@/components/level-badge";
 import {
-  LEVEL_NAMES,
   LEVEL_COLORS,
   LEVEL_BG_COLORS,
   getLevelProgress,
   getNextLevelThreshold,
+  MAX_LEVEL,
 } from "@/lib/points/constants";
+import { useLevelName } from "@/lib/points/level-name";
 import { cn } from "@/lib/utils";
 
 interface RewardData {
@@ -42,6 +43,7 @@ export default function RewardsPage() {
   });
   const [loading, setLoading] = useState(true);
   const t = useTranslations("rewards");
+  const levelNameOf = useLevelName();
   const tc = useTranslations("common");
 
   useEffect(() => {
@@ -62,8 +64,9 @@ export default function RewardsPage() {
     userPoints.current_level
   );
   const nextThreshold = getNextLevelThreshold(userPoints.current_level);
-  const levelName = LEVEL_NAMES[userPoints.current_level] || "Nybörjare";
-  const nextLevelName = LEVEL_NAMES[userPoints.current_level + 1];
+  const levelName = levelNameOf(userPoints.current_level);
+  const nextLevelName =
+    userPoints.current_level < MAX_LEVEL ? levelNameOf(userPoints.current_level + 1) : undefined;
 
   if (loading) {
     return (

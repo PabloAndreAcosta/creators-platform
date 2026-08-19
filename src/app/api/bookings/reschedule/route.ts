@@ -112,8 +112,9 @@ export async function POST(req: NextRequest) {
     createNotification({
       userId: recipientId,
       type: "booking_confirmed",
-      title: "Bokning ombokad",
-      message: `"${serviceName}" har ombokats till ${formattedDate}`,
+      titleKey: "bookingRescheduledTitle",
+      bodyKey: "bookingRescheduledMsg",
+      params: { service: serviceName, date: formattedDate },
       link: "/dashboard/bookings",
     }).catch((err) => console.error("Reschedule notification failed:", err));
 

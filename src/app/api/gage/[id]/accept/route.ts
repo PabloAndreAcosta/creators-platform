@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { gageKr } from "@/lib/gage";
+import { gageAmount } from "@/lib/gage";
+import { createNotification } from "@/lib/notifications/create";
 
 // The counterparty accepts a proposed gage → status 'agreed'.
 export async function POST(
@@ -53,13 +54,16 @@ export async function POST(
     .maybeSingle();
   // Notify the original proposer.
   const proposer = g.proposed_by === "host" ? g.host_id : g.collaborator_user_id;
-  await admin.from("notifications").insert({
-    user_id: proposer,
+  await createNotification({
+    userId: proposer,
     type: "gage_agreed",
-    title: "Gage överenskommet",
-    message: `${gageKr(g.amount_ore)} för "${listing?.title ?? "eventet"}" är överenskommet.`,
+    titleKey: "gageAgreedTitle",
+    bodyKey: "gageAgreedMsg",
+    params: {
+      amount: gageAmount(g.amount_ore),
+      title: listing?.title ?? { key: "fallbackEvent" },
+    },
     link: g.proposed_by === "host" ? `/app/events/${g.listing_id}/crew` : "/app/my-collaborations",
-    is_read: false,
   });
 
   return NextResponse.json({ ok: true });

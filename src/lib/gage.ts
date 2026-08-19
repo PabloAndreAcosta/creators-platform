@@ -18,8 +18,13 @@ export interface GageAgreement {
 export const GAGE_MIN_SEK = 10;
 export const GAGE_MAX_SEK = 100000;
 
+/** Just the number, for messages that supply their own currency word. */
+export function gageAmount(amountOre: number): string {
+  return Math.round(amountOre / 100).toLocaleString("sv-SE");
+}
+
 export function gageKr(amountOre: number): string {
-  return `${Math.round(amountOre / 100).toLocaleString("sv-SE")} kr`;
+  return `${gageAmount(amountOre)} kr`;
 }
 
 export function gageStatusLabel(status: GageStatus): string {

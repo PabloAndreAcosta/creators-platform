@@ -1,6 +1,7 @@
 "use client";
 
-import { LEVEL_COLORS, LEVEL_BG_COLORS, LEVEL_NAMES } from "@/lib/points/constants";
+import { LEVEL_COLORS, LEVEL_BG_COLORS } from "@/lib/points/constants";
+import { useLevelName } from "@/lib/points/level-name";
 import { cn } from "@/lib/utils";
 
 interface LevelBadgeProps {
@@ -24,7 +25,7 @@ export function LevelBadge({
 }: LevelBadgeProps) {
   const colorClass = LEVEL_COLORS[level] || LEVEL_COLORS[1];
   const bgClass = LEVEL_BG_COLORS[level] || LEVEL_BG_COLORS[1];
-  const name = LEVEL_NAMES[level] || `Nivå ${level}`;
+  const name = useLevelName()(level);
 
   return (
     <span className={cn("inline-flex items-center gap-1", className)}>

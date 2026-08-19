@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { GAGE_MIN_SEK, GAGE_MAX_SEK, gageKr } from "@/lib/gage";
+import { GAGE_MIN_SEK, GAGE_MAX_SEK, gageAmount } from "@/lib/gage";
+import { createNotification } from "@/lib/notifications/create";
 
 // Propose a gage to a crew member (host) or to the host (crew member).
 export async function POST(
@@ -106,14 +107,24 @@ export async function POST(
   // Notify the counterparty.
   const recipient = isHost ? collaboratorUserId : hostId;
   const proposerName = (await admin.from("profiles").select("full_name").eq("id", user.id).maybeSingle())
-    .data?.full_name ?? (isHost ? "Värden" : "En kreatör");
-  await admin.from("notifications").insert({
-    user_id: recipient,
+    .data?.full_name;
+  // Without a name the role stands in for it, and a role has to be translated —
+  // hence a separate key rather than an untranslatable "Värden" in the params.
+  await createNotification({
+    userId: recipient,
     type: "gage_proposed",
-    title: "Gage föreslaget",
-    message: `${proposerName} föreslog ${gageKr(amountOre)} för "${listing.title}".`,
+    titleKey: "gageProposedTitle",
+    bodyKey: proposerName
+      ? "gageProposedMsg"
+      : isHost
+        ? "gageProposedMsgHost"
+        : "gageProposedMsgCreator",
+    params: {
+      ...(proposerName ? { proposer: proposerName } : {}),
+      amount: gageAmount(amountOre),
+      title: listing.title,
+    },
     link: isHost ? "/app/my-collaborations" : `/app/events/${listingId}/crew`,
-    is_read: false,
   });
 
   return NextResponse.json({ agreement });

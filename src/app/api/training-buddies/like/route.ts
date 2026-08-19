@@ -45,23 +45,20 @@ export async function POST(req: NextRequest) {
   if (result.matched && result.isNew) {
     // Notify both sides. Fetch names for a friendly message.
     const { data: names } = await admin.from("profiles").select("id, full_name").in("id", [user.id, toUserId]);
-    const nameOf = (id: string) => names?.find((n: { id: string }) => n.id === id)?.full_name || "en dansare";
-    await Promise.all([
+    const nameOf = (id: string) =>
+      names?.find((n: { id: string }) => n.id === id)?.full_name as string | undefined;
+    // A nameless profile falls back to "another dancer" — a phrase, so it comes
+    // from a message of its own rather than being frozen into the params.
+    const match = (userId: string, otherId: string) =>
       createNotification({
-        userId: toUserId,
-        type: "buddy_match",
-        title: "Ny träningsvän-match! 🎉",
-        message: `Du och ${nameOf(user.id)} matchade. Säg hej!`,
+        userId,
+        type: "buddy_match" as const,
+        titleKey: "buddyMatchTitle",
+        bodyKey: nameOf(otherId) ? "buddyMatchMsg" : "buddyMatchMsgAnon",
+        params: nameOf(otherId) ? { name: nameOf(otherId)! } : undefined,
         link: "/app/training-buddies",
-      }),
-      createNotification({
-        userId: user.id,
-        type: "buddy_match",
-        title: "Ny träningsvän-match! 🎉",
-        message: `Du och ${nameOf(toUserId)} matchade. Säg hej!`,
-        link: "/app/training-buddies",
-      }),
-    ]);
+      });
+    await Promise.all([match(toUserId, user.id), match(user.id, toUserId)]);
   }
 
   return NextResponse.json({ matched: result.matched });
