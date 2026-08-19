@@ -147,6 +147,8 @@
     },
     "security": "Inicio de sesión y seguridad",
     "securityDesc": "Correo de inicio de sesión, BankID, eliminar cuenta",
+    "language": "Idioma",
+    "languageDesc": "Cambia el idioma de la app",
     "connections": "Conexiones",
     "connectionsDesc": "Instagram, Facebook y TikTok"
   },
@@ -272,6 +274,7 @@
   "profile": {
     "editProfile": "Editar perfil",
     "payouts": "Pagos",
+    "language": "Idioma",
     "myPlan": "Mi plan y facturación",
     "notifications": "Notificaciones",
     "privacySettings": "Configuración de privacidad",
@@ -3618,5 +3621,11 @@
     "noticeMadeFull": "La cuenta ya es administrador completo.",
     "noticeMadeLimited": "La cuenta ya es limitada. Elige qué herramientas debe tener.",
     "noticeNotYourself": "No puedes cambiar tu propio nivel: podrías bloquearte el acceso."
+  },
+  "languageSettings": {
+    "title": "Idioma",
+    "subtitle": "El idioma en el que se muestra la app.",
+    "back": "Volver al perfil",
+    "hint": "La elección se aplica a este dispositivo y también se usa para los correos que te enviamos."
   }
 }

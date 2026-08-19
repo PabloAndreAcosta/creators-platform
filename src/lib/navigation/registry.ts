@@ -18,7 +18,7 @@ import {
   Package, CalendarCheck, CalendarDays, ScanLine, Briefcase, BookOpen, Building2,
   Wallet, BarChart3, CreditCard, Tag, Search, Store, FileText, Heart, Trophy,
   ShoppingBag, Ticket, MessageCircle, BookMarked, Gift, Bell, User, Settings,
-  Users, Home, Sparkles, Box, LayoutGrid, KeyRound,
+  Users, Home, Sparkles, Box, LayoutGrid, KeyRound, Languages,
 } from "lucide-react";
 
 /** Kanoniska roller. Se roll-modellen: creator/venue säljer, customer köper. */
@@ -137,6 +137,8 @@ export const APP_DESTINATIONS: AppDestination[] = [
   // ligger i griden omöjligt att nå på desktop, eftersom flikraden är md:hidden.
   { path: "/app/tools", labelKey: "toolsLabel", navLabelKey: "tools", icon: LayoutGrid,
     group: "myAccount", roles: "all", surfaces: ["sidebar"] },
+  { path: "/app/settings/language", icon: Languages,
+    group: "myAccount", roles: "all", surfaces: ["settings"] },
   { path: "/app/settings/connections", icon: Settings,
     group: "myAccount", roles: "all", surfaces: ["settings", "profile"] },
   { path: "/app/settings/security", icon: Settings,

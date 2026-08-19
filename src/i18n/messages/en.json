@@ -147,6 +147,8 @@
     },
     "security": "Login & security",
     "securityDesc": "Login email, BankID, delete account",
+    "language": "Language",
+    "languageDesc": "Change the app's language",
     "connections": "Connections",
     "connectionsDesc": "Instagram, Facebook and TikTok"
   },
@@ -272,6 +274,7 @@
   "profile": {
     "editProfile": "Edit Profile",
     "payouts": "Payouts",
+    "language": "Language",
     "myPlan": "My plan & billing",
     "notifications": "Notifications",
     "privacySettings": "Privacy Settings",
@@ -3618,5 +3621,11 @@
     "noticeMadeFull": "The account is now a full admin.",
     "noticeMadeLimited": "The account is now limited. Choose which tools it should have.",
     "noticeNotYourself": "You can't change your own level — you could lock yourself out."
+  },
+  "languageSettings": {
+    "title": "Language",
+    "subtitle": "The language the app is shown in.",
+    "back": "Back to profile",
+    "hint": "The choice applies to this device and is also used for the emails we send you."
   }
 }

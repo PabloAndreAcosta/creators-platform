@@ -35,6 +35,7 @@ import {
   Link2,
   Lock,
   Wallet,
+  Languages,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { ReferralCard } from "@/components/referral-card";
@@ -240,6 +241,7 @@ export function ProfileContent({
             settings-sidor måste därför läggas till HÄR också, annars blir de
             oåtkomliga i appen — vilket hände både Kopplingar och Login &
             säkerhet. */}
+        <SettingsRow icon={Languages} label={t("language")} href="/app/settings/language" />
         <SettingsRow icon={Link2} label={t("connections")} href="/app/settings/connections" />
         <SettingsRow icon={Lock} label={t("loginSecurity")} href="/app/settings/security" />
         <SettingsRow icon={Bell} label={t("notifications")} href="/app/settings/notifications" />
