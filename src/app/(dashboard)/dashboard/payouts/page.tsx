@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowLeft, Wallet } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import PayoutDashboard from "@/components/dashboard/PayoutDashboard";
+import ConnectButton from "../billing/connect-button";
 
 export default async function PayoutsPage() {
   const t = await getTranslations("payouts");
@@ -51,23 +52,16 @@ export default async function PayoutsPage() {
         </div>
       </div>
 
-      {!profile?.stripe_account_id ? (
-        <div className="rounded-2xl border border-dashed border-[var(--usha-border)] bg-[var(--usha-card)] p-10 text-center">
-          <Wallet size={40} className="mx-auto mb-4 text-[var(--usha-muted)]" />
-          <h2 className="mb-2 text-lg font-semibold">{t("noStripeTitle")}</h2>
-          <p className="mb-6 text-sm text-[var(--usha-muted)]">
-            {t("noStripeDescription")}
-          </p>
-          <Link
-            href="/dashboard/billing"
-            className="inline-flex items-center gap-2 rounded-xl bg-[var(--usha-gold)] px-6 py-3 text-sm font-semibold text-black transition hover:opacity-90"
-          >
-            {t("connectStripe")}
-          </Link>
-        </div>
-      ) : (
-        <PayoutDashboard creatorId={user.id} />
-      )}
+      {/* Getting paid is set up here, on the page called Payouts.
+          It used to sit at the bottom of the subscription page, so the
+          onboarding step about payouts opened a page about plans — and the card
+          was several screens below the fold. The task and the page it lives on
+          now have the same subject. */}
+      <div id="stripe" className="mb-8 scroll-mt-20">
+        <ConnectButton />
+      </div>
+
+      {profile?.stripe_account_id && <PayoutDashboard creatorId={user.id} />}
     </>
   );
 }

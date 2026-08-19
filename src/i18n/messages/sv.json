@@ -271,6 +271,7 @@
   },
   "profile": {
     "editProfile": "Redigera Profil",
+    "payouts": "Utbetalningar",
     "myPlan": "Min plan & betalning",
     "notifications": "Notifikationer",
     "privacySettings": "Integritetsinställningar",
@@ -368,6 +369,7 @@
   },
   "billing": {
     "title": "Prenumeration",
+    "payoutsMovedHint": "Anslut bankkonto och se dina utbetalningar",
     "subtitle": "Hantera din plan och betalningar.",
     "paymentSuccess": "Betalningen lyckades! Din plan är nu aktiv.",
     "betaNotice": "Beta-period — alla funktioner är upplåsta gratis för alla användare.",

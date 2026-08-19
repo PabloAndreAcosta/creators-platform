@@ -271,6 +271,7 @@
   },
   "profile": {
     "editProfile": "Edit Profile",
+    "payouts": "Payouts",
     "myPlan": "My plan & billing",
     "notifications": "Notifications",
     "privacySettings": "Privacy Settings",
@@ -368,6 +369,7 @@
   },
   "billing": {
     "title": "Subscription",
+    "payoutsMovedHint": "Connect your bank account and see your payouts",
     "subtitle": "Manage your plan and payments.",
     "paymentSuccess": "Payment successful! Your plan is now active.",
     "betaNotice": "Beta period — all features are unlocked for free for all users.",

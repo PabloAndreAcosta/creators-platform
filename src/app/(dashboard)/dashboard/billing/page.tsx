@@ -3,12 +3,11 @@ import { redirect } from "next/navigation";
 import { getPlanList, getGratisPlan } from "@/lib/stripe/config";
 import { BreakEvenCalculator } from "./break-even-calculator";
 import Link from "next/link";
-import { ArrowLeft, Check } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { CheckoutButton, PortalButton } from "./checkout-button";
 import { isRealStripeCustomer } from "@/lib/stripe/customer";
 import type { MemberRole } from "@/types/database";
 import CreatorTierInfo from "@/components/dashboard/CreatorTierInfo";
-import ConnectButton from "./connect-button";
 import { BETA_MODE } from "@/lib/beta";
 import { getTranslations } from "next-intl/server";
 
@@ -291,14 +290,18 @@ export default async function BillingPage({
         })}
       </div>
 
-      {/* Stripe Connect for creators. The id is a link target: the onboarding
-          checklist sends people straight here, and without it they land at the
-          top of the plan grid with the thing they came for several screens
-          below — which reads as "there is nothing to do". */}
+      {/* Getting paid moved to the Payouts page, which is what it is about.
+          A pointer stays here because this is where people looked for it. */}
       {isCreatorRole && (
-        <div id="stripe" className="mt-10 scroll-mt-20">
+        <div className="mt-10">
           <h2 className="mb-4 text-xl font-bold">{t("payouts")}</h2>
-          <ConnectButton />
+          <Link
+            href="/dashboard/payouts"
+            className="flex items-center justify-between gap-4 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 transition hover:border-[var(--usha-gold)]/40"
+          >
+            <span className="text-sm text-[var(--usha-muted)]">{t("payoutsMovedHint")}</span>
+            <ArrowRight size={18} className="flex-shrink-0 text-[var(--usha-gold)]" />
+          </Link>
         </div>
       )}
 

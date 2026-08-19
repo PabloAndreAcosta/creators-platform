@@ -34,6 +34,7 @@ import {
   Gift,
   Link2,
   Lock,
+  Wallet,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { ReferralCard } from "@/components/referral-card";
@@ -229,6 +230,11 @@ export function ProfileContent({
         <SettingsRow icon={Gift} label={t("rewards")} href="/app/rewards" />
         <SettingsRow icon={Edit2} label={t("editProfile")} href="/dashboard/profile" />
         <SettingsRow icon={Crown} label={t("myPlan")} href="/dashboard/billing" />
+        {/* Säljarens väg till "hur får jag betalt". Låg tidigare bara under Mer,
+            som är dold på desktop, och i onboarding-steget — som pekade fel. */}
+        {role !== "customer" && (
+          <SettingsRow icon={Wallet} label={t("payouts")} href="/dashboard/payouts" />
+        )}
         {/* Den här listan länkar direkt till varje settings-sida i stället för
             till hubben /app/settings, som bara nås från en token-gate. Nya
             settings-sidor måste därför läggas till HÄR också, annars blir de
