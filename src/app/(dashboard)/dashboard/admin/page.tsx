@@ -9,7 +9,11 @@ import { AdminNav } from "@/components/admin/admin-nav";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Admin – Usha Platform" };
+// No `metadata` export on purpose. Next evaluates it before the page function
+// runs, so a static title is sent even to someone the guard below turns away —
+// verified against production: a non-admin got no page content but did get
+// "Admin – Usha Platform" in the tab. It leaks nothing but the route's
+// existence, and the sibling admin pages export none either.
 
 /**
  * The admin hub. The tools existed before this page did, reachable only by
