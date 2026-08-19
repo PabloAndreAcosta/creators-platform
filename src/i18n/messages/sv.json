@@ -3548,7 +3548,9 @@
     "creatorsDesc": "Slå upp en kreatör och växla mellan privatperson och företag.",
     "promoLabel": "Rabattkoder",
     "promoDesc": "Skapa och följ upp rabattkoder.",
-    "navLabel": "Admin"
+    "navLabel": "Admin",
+    "accessLabel": "Behörigheter",
+    "accessDesc": "Ge partners tillgång till enskilda adminverktyg."
   },
   "adminCreators": {
     "title": "Kreatörer — privatperson/företag",
@@ -3587,5 +3589,22 @@
     "errorCreate": "Kunde inte skapa promokod.",
     "errorToggle": "Kunde inte uppdatera status.",
     "errorDelete": "Kunde inte radera promokod."
+  },
+  "adminAccess": {
+    "title": "Behörigheter",
+    "intro": "Ge en partner en del av adminytan utan att lämna över resten.",
+    "searchPlaceholder": "personens e-post",
+    "searchButton": "Sök",
+    "noMatch": "Ingen profil hittades för “{query}”.",
+    "noName": "(namn saknas)",
+    "isFullAdmin": "Kontot är hel admin och har redan allt. Ta bort is_admin först om behörigheten ska begränsas.",
+    "grant": "Ge",
+    "revoke": "Ta bort",
+    "footnote": "Behörigheten gäller direkt. Att dela ut behörighet kan inte delegeras — bara hel admin ser den här sidan.",
+    "noticeGranted": "Behörigheten är given.",
+    "noticeRevoked": "Behörigheten är borttagen.",
+    "noticeAlreadyFull": "Kontot är hel admin och har redan allt.",
+    "noticeInvalid": "Okänd behörighet.",
+    "noticeError": "Det gick inte att spara. Försök igen."
   }
 }

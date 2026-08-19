@@ -3,7 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getTranslations } from "next-intl/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isAdminById } from "@/lib/admin/check";
+import { assertAdmin } from "@/lib/admin/guard";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -16,21 +16,17 @@ async function errors() {
   return getTranslations("adminPromo");
 }
 
-async function requireAdmin() {
+async function requireCaller() {
+  await assertAdmin("promo");
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  if (!user || !(await isAdminById(user.id))) {
-    throw new Error("Unauthorized");
-  }
-
-  return user;
+  return user!;
 }
 
 export async function createPromoCode(formData: FormData) {
-  const user = await requireAdmin();
+  const user = await requireCaller();
   const admin = createAdminClient();
 
   const code = (formData.get("code") as string)?.trim().toUpperCase();
@@ -88,7 +84,7 @@ export async function createPromoCode(formData: FormData) {
 }
 
 export async function togglePromoCode(id: string, active: boolean) {
-  await requireAdmin();
+  await assertAdmin("promo");
   const admin = createAdminClient();
 
   const { error } = await admin
@@ -105,7 +101,7 @@ export async function togglePromoCode(id: string, active: boolean) {
 }
 
 export async function deletePromoCode(id: string) {
-  await requireAdmin();
+  await assertAdmin("promo");
   const admin = createAdminClient();
 
   const { error } = await admin

@@ -12,8 +12,13 @@ import { ADMIN_DESTINATIONS, ADMIN_ROOT } from "@/lib/navigation/registry";
  * Before this, each tool was a dead end: you reached it by typing the URL and
  * the only way out was a back-link to /dashboard. Moving between two admin
  * tools meant leaving the admin area entirely.
+ *
+ * `paths` is what the caller may actually open — resolved on the server by the
+ * page that renders this, so a partner is never shown a door that will turn
+ * them away. Hiding is tidying; the guard on each page is the protection.
  */
-export function AdminNav() {
+export function AdminNav({ paths }: { paths: string[] }) {
+  const allowed = new Set(paths);
   const pathname = usePathname();
   const t = useTranslations("adminPage");
 
@@ -29,7 +34,7 @@ export function AdminNav() {
 
       <div className="flex flex-wrap gap-2">
         <ToolLink href={ADMIN_ROOT} active={pathname === ADMIN_ROOT} label={t("heading")} />
-        {ADMIN_DESTINATIONS.map((d) => (
+        {ADMIN_DESTINATIONS.filter((d) => allowed.has(d.path)).map((d) => (
           <ToolLink
             key={d.path}
             href={d.path}

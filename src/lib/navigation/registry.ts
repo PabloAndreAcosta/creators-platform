@@ -13,11 +13,12 @@
 // längre möjligt utan att bygget säger ifrån.
 
 import type { LucideIcon } from "lucide-react";
+import { hasCapability, type AdminAccess, type AdminRequirement } from "@/lib/admin/capabilities";
 import {
   Package, CalendarCheck, CalendarDays, ScanLine, Briefcase, BookOpen, Building2,
   Wallet, BarChart3, CreditCard, Tag, Search, Store, FileText, Heart, Trophy,
   ShoppingBag, Ticket, MessageCircle, BookMarked, Gift, Bell, User, Settings,
-  Users, Home, Sparkles, Box, LayoutGrid,
+  Users, Home, Sparkles, Box, LayoutGrid, KeyRound,
 } from "lucide-react";
 
 /** Kanoniska roller. Se roll-modellen: creator/venue säljer, customer köper. */
@@ -177,15 +178,33 @@ export interface AdminDestination {
   labelKey: string;
   descKey: string;
   icon: LucideIcon;
+  /**
+   * Vad som krävs för att öppna verktyget. En kapacitet går att delegera till
+   * en partner; "full" gör det inte — det betyder hel admin. Menyn och sidan
+   * läser samma fält, så ett verktyg kan inte synas för någon som ändå vänds
+   * bort av grinden.
+   */
+  requires: AdminRequirement;
 }
 
 /** Navet som adminverktygen hänger under. */
 export const ADMIN_ROOT = "/dashboard/admin";
 
 export const ADMIN_DESTINATIONS: AdminDestination[] = [
-  { path: "/dashboard/admin/creators", labelKey: "creatorsLabel", descKey: "creatorsDesc", icon: Users },
-  { path: "/dashboard/admin/promo", labelKey: "promoLabel", descKey: "promoDesc", icon: Tag },
+  { path: "/dashboard/admin/creators", labelKey: "creatorsLabel", descKey: "creatorsDesc", icon: Users,
+    requires: "creators" },
+  { path: "/dashboard/admin/promo", labelKey: "promoLabel", descKey: "promoDesc", icon: Tag,
+    requires: "promo" },
+  // Att dela ut behörighet går inte att delegera: en partner som kan bredda sin
+  // egen behörighet har i praktiken ingen begränsning.
+  { path: "/dashboard/admin/access", labelKey: "accessLabel", descKey: "accessDesc", icon: KeyRound,
+    requires: "full" },
 ];
+
+/** Verktygen den här personen faktiskt kan öppna, i registrets ordning. */
+export function adminDestinationsFor(access: AdminAccess): AdminDestination[] {
+  return ADMIN_DESTINATIONS.filter((d) => hasCapability(access, d.requires));
+}
 
 export const CONTEXTUAL_ROUTES: Record<string, string> = {
   "/dashboard": "Omdirigerar bara vidare till /app.",

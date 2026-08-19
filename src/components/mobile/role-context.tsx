@@ -21,7 +21,14 @@ export const ROLE_LABELS: Record<UserRole, string> = {
 interface RoleContextType {
   role: UserRole;
   dbRole: UserRole;
+  /** Full admin. Still what unlocks the role switcher and ticket check-in. */
   isAdmin: boolean;
+  /**
+   * Any admin access at all, including a partner holding a single capability.
+   * Decides whether the menus offer the admin area — not what's behind it,
+   * which each page checks on the server.
+   */
+  hasAdminAccess: boolean;
   setRole: (role: UserRole) => void;
 }
 
@@ -29,6 +36,7 @@ const RoleContext = createContext<RoleContextType>({
   role: "customer",
   dbRole: "customer",
   isAdmin: false,
+  hasAdminAccess: false,
   setRole: () => {},
 });
 
@@ -54,10 +62,13 @@ export function RoleProvider({
 }) {
   const [role, setRole] = useState<UserRole>(initialRole);
   const [dbRole, setDbRole] = useState<UserRole>(initialRole);
-  // Admin-flaggan styr bara rollväxlaren, inte navigationen, och löses därför
-  // fortsatt via RPC efter mount — det slipper en service-role-fråga per
-  // sidladdning bara för att undvika att en knapp dyker upp en aning sent.
-  const [isAdmin, setIsAdmin] = useState(false);
+  // Admin-behörigheten styr bara vilka menyval som syns, inte vad som går att
+  // öppna, och löses därför fortsatt via RPC efter mount — det slipper en
+  // service-role-fråga per sidladdning bara för att undvika att en knapp dyker
+  // upp en aning sent.
+  const [capabilities, setCapabilities] = useState<string[]>([]);
+  const isAdmin = capabilities.includes("*");
+  const hasAdminAccess = capabilities.length > 0;
 
   useEffect(() => {
     // Stäm av mot databasen ifall rollen ändrats i en annan flik eller session.
@@ -66,10 +77,12 @@ export function RoleProvider({
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) return;
-      // is_admin is not readable as a column (revoked from `authenticated`); read
-      // the boolean via the SECURITY DEFINER RPC so the flag never needs a column grant.
-      supabase.rpc("is_current_user_admin").then(({ data }) => {
-        if (data === true) setIsAdmin(true);
+      // is_admin is not readable as a column (revoked from `authenticated`), so
+      // the effective list comes from a SECURITY DEFINER RPC. A full admin gets
+      // ["*"], which keeps "can do everything" on the same code path as a
+      // partner holding one capability.
+      supabase.rpc("current_user_admin_capabilities").then(({ data }) => {
+        if (Array.isArray(data)) setCapabilities(data as string[]);
       });
       supabase
         .from("profiles")
@@ -96,7 +109,7 @@ export function RoleProvider({
   };
 
   return (
-    <RoleContext.Provider value={{ role, dbRole, isAdmin, setRole: handleSetRole }}>
+    <RoleContext.Provider value={{ role, dbRole, isAdmin, hasAdminAccess, setRole: handleSetRole }}>
       {children}
     </RoleContext.Provider>
   );

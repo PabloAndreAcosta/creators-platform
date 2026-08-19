@@ -3548,7 +3548,9 @@
     "creatorsDesc": "Look up a creator and switch them between private person and company.",
     "promoLabel": "Promo codes",
     "promoDesc": "Create promo codes and follow how they're used.",
-    "navLabel": "Admin"
+    "navLabel": "Admin",
+    "accessLabel": "Permissions",
+    "accessDesc": "Give partners access to individual admin tools."
   },
   "adminCreators": {
     "title": "Creators — private person/company",
@@ -3587,5 +3589,22 @@
     "errorCreate": "Could not create the promo code.",
     "errorToggle": "Could not update the status.",
     "errorDelete": "Could not delete the promo code."
+  },
+  "adminAccess": {
+    "title": "Permissions",
+    "intro": "Give a partner one part of the admin surface without handing over the rest.",
+    "searchPlaceholder": "the person's email",
+    "searchButton": "Search",
+    "noMatch": "No profile found for “{query}”.",
+    "noName": "(no name)",
+    "isFullAdmin": "This account is a full admin and already has everything. Remove is_admin first if the access should be limited.",
+    "grant": "Grant",
+    "revoke": "Revoke",
+    "footnote": "Changes take effect immediately. Granting permissions can't be delegated — only a full admin sees this page.",
+    "noticeGranted": "Permission granted.",
+    "noticeRevoked": "Permission revoked.",
+    "noticeAlreadyFull": "This account is a full admin and already has everything.",
+    "noticeInvalid": "Unknown permission.",
+    "noticeError": "Could not save. Try again."
   }
 }

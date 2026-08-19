@@ -1,10 +1,8 @@
-import { createClient } from "@/lib/supabase/server";
 import { getTranslations } from "next-intl/server";
-import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ShieldCheck } from "lucide-react";
-import { isAdminById } from "@/lib/admin/check";
-import { ADMIN_DESTINATIONS } from "@/lib/navigation/registry";
+import { requireAnyAdmin } from "@/lib/admin/guard";
+import { adminDestinationsFor } from "@/lib/navigation/registry";
 import { AdminNav } from "@/components/admin/admin-nav";
 
 export const dynamic = "force-dynamic";
@@ -22,19 +20,13 @@ export const dynamic = "force-dynamic";
  * shows up here the moment it is declared.
  */
 export default async function AdminHubPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user || !(await isAdminById(user.id))) {
-    redirect("/dashboard");
-  }
-
+  const access = await requireAnyAdmin();
+  const tools = adminDestinationsFor(access);
   const t = await getTranslations("adminPage");
 
   return (
     <div className="px-4 py-6 md:max-w-2xl md:mx-auto">
-      <AdminNav />
+      <AdminNav paths={tools.map((d) => d.path)} />
 
       <div className="mb-6 flex items-center gap-2">
         <ShieldCheck size={22} className="text-[var(--usha-gold)]" />
@@ -45,7 +37,7 @@ export default async function AdminHubPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        {ADMIN_DESTINATIONS.map((tool) => (
+        {tools.map((tool) => (
           <Link
             key={tool.path}
             href={tool.path}

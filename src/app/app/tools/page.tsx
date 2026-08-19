@@ -9,7 +9,7 @@ import {
   type NavRole,
   type NavGroup,
 } from "@/lib/navigation/registry";
-import { isAdminById } from "@/lib/admin/check";
+import { adminAccessFor, hasAnyAdminAccess } from "@/lib/admin/capabilities";
 
 export const dynamic = "force-dynamic";
 
@@ -39,7 +39,7 @@ export default async function ToolsPage() {
       const { data } = await supabase.from("profiles").select("role").eq("id", user.id).single();
       const dbRole = (data?.role as string) ?? "customer";
       role = isVenueRole(dbRole) ? "venue" : dbRole === "creator" ? "creator" : "customer";
-      showAdmin = await isAdminById(user.id);
+      showAdmin = hasAnyAdminAccess(await adminAccessFor(user.id));
     }
   } catch {
     // Faller tillbaka på kundvyn — hellre färre verktyg än en trasig sida.
