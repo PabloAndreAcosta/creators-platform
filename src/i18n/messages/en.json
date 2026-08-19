@@ -3597,7 +3597,6 @@
     "searchButton": "Search",
     "noMatch": "No profile found for “{query}”.",
     "noName": "(no name)",
-    "isFullAdmin": "This account is a full admin and already has everything. Remove is_admin first if the access should be limited.",
     "grant": "Grant",
     "revoke": "Revoke",
     "footnote": "Changes take effect immediately. Granting permissions can't be delegated — only a full admin sees this page.",
@@ -3605,6 +3604,15 @@
     "noticeRevoked": "Permission revoked.",
     "noticeAlreadyFull": "This account is a full admin and already has everything.",
     "noticeInvalid": "Unknown permission.",
-    "noticeError": "Could not save. Try again."
+    "noticeError": "Could not save. Try again.",
+    "levelFull": "Full admin — has everything, including ticket check-in and the role switcher.",
+    "levelLimited": "Limited admin — has only what's ticked below.",
+    "makeLimited": "Make limited",
+    "makeFull": "Make full admin",
+    "cannotChangeSelf": "You can't change your own level.",
+    "fullHasEverything": "A full admin has every tool. Make the account limited first if you want to pick tools one by one.",
+    "noticeMadeFull": "The account is now a full admin.",
+    "noticeMadeLimited": "The account is now limited. Choose which tools it should have.",
+    "noticeNotYourself": "You can't change your own level — you could lock yourself out."
   }
 }

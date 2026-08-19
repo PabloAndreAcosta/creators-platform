@@ -3597,7 +3597,6 @@
     "searchButton": "Buscar",
     "noMatch": "No se ha encontrado ningún perfil para “{query}”.",
     "noName": "(sin nombre)",
-    "isFullAdmin": "Esta cuenta es administrador completo y ya lo tiene todo. Quita is_admin primero si hay que limitar el acceso.",
     "grant": "Conceder",
     "revoke": "Retirar",
     "footnote": "Los cambios se aplican al instante. Conceder permisos no se puede delegar: solo un administrador completo ve esta página.",
@@ -3605,6 +3604,15 @@
     "noticeRevoked": "Permiso retirado.",
     "noticeAlreadyFull": "Esta cuenta es administrador completo y ya lo tiene todo.",
     "noticeInvalid": "Permiso desconocido.",
-    "noticeError": "No se ha podido guardar. Inténtalo de nuevo."
+    "noticeError": "No se ha podido guardar. Inténtalo de nuevo.",
+    "levelFull": "Administrador completo: lo tiene todo, incluido el control de entradas y el selector de rol.",
+    "levelLimited": "Administrador limitado: solo tiene lo marcado abajo.",
+    "makeLimited": "Hacer limitado",
+    "makeFull": "Hacer administrador completo",
+    "cannotChangeSelf": "No puedes cambiar tu propio nivel.",
+    "fullHasEverything": "Un administrador completo tiene todas las herramientas. Haz la cuenta limitada primero si quieres elegirlas una a una.",
+    "noticeMadeFull": "La cuenta ya es administrador completo.",
+    "noticeMadeLimited": "La cuenta ya es limitada. Elige qué herramientas debe tener.",
+    "noticeNotYourself": "No puedes cambiar tu propio nivel: podrías bloquearte el acceso."
   }
 }
