@@ -2,7 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { isAdminById } from "@/lib/admin/check";
 import Link from "next/link";
-import { ArrowLeft, Plus, Tag, Users, TrendingUp } from "lucide-react";
+import { AdminNav } from "@/components/admin/admin-nav";
+import { Plus, Tag, Users, TrendingUp } from "lucide-react";
 import { PromoTable } from "./promo-table";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -45,14 +46,9 @@ export default async function AdminPromoPage({
         </div>
       )}
 
+      <AdminNav />
+
       <div className="mb-8">
-        <Link
-          href="/dashboard"
-          className="mb-4 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]"
-        >
-          <ArrowLeft size={14} />
-          Tillbaka
-        </Link>
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Promokoder</h1>

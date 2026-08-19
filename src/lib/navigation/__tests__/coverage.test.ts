@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
-import { APP_DESTINATIONS, CONTEXTUAL_ROUTES } from "../registry";
+import { APP_DESTINATIONS, ADMIN_DESTINATIONS, ADMIN_ROOT, CONTEXTUAL_ROUTES } from "../registry";
 
 // Vakten mot föräldralösa sidor.
 //
@@ -11,9 +11,9 @@ import { APP_DESTINATIONS, CONTEXTUAL_ROUTES } from "../registry";
 // ett rött bygge i stället för en funktion ingen hittar.
 //
 // Lägger du till en sida måste du antingen sätta den i APP_DESTINATIONS (den
-// får en menyingång) eller i CONTEXTUAL_ROUTES med ett skäl (den nås från ett
-// objekt eller mitt i ett flöde). Båda är giltiga svar. Att inte svara är det
-// som failar.
+// får en menyingång), i ADMIN_DESTINATIONS (den hamnar i adminmenyn) eller i
+// CONTEXTUAL_ROUTES med ett skäl (den nås från ett objekt eller mitt i ett
+// flöde). Alla tre är giltiga svar. Att inte svara är det som failar.
 
 const APP_DIR = path.join(process.cwd(), "src", "app");
 
@@ -42,7 +42,11 @@ function loggedInPages(): string[] {
 
 describe("navigationsregistret täcker varje inloggad sida", () => {
   const routes = loggedInPages().map(routeFromFile).sort();
-  const declared = new Set(APP_DESTINATIONS.map((d) => d.path));
+  const declared = new Set([
+    ...APP_DESTINATIONS.map((d) => d.path),
+    ...ADMIN_DESTINATIONS.map((d) => d.path),
+    ADMIN_ROOT,
+  ]);
   const contextual = new Set(Object.keys(CONTEXTUAL_ROUTES));
 
   it("hittar sidorna överhuvudtaget (skyddar mot att testet tystnar)", () => {
@@ -57,8 +61,9 @@ describe("navigationsregistret täcker varje inloggad sida", () => {
       undeclared.length
         ? `Dessa sidor går inte att nå från någon meny:\n` +
             undeclared.map((r) => `  ${r}`).join("\n") +
-            `\n\nLägg till i APP_DESTINATIONS för en menyingång, eller i ` +
-            `CONTEXTUAL_ROUTES med skälet till att den nås från ett objekt/flöde.`
+            `\n\nLägg till i APP_DESTINATIONS för en menyingång, i ` +
+            `ADMIN_DESTINATIONS för adminmenyn, eller i CONTEXTUAL_ROUTES med ` +
+            `skälet till att den nås från ett objekt/flöde.`
         : undefined
     ).toEqual([]);
   });

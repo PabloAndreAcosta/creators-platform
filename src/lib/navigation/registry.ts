@@ -158,6 +158,35 @@ export const APP_DESTINATIONS: AppDestination[] = [
  * Står en sida här är den granskad och avsiktlig — inte bortglömd. Det är
  * skillnaden mot en föräldralös sida.
  */
+/**
+ * Adminverktygen står för sig själva.
+ *
+ * De kan inte ligga i APP_DESTINATIONS: en rad där måste tilldelas en roll, och
+ * rollerna är creator/venue/customer — så ingången skulle visas för varje
+ * säljare och sedan bara skicka dem till /dashboard av sidans egen grind. Här
+ * styr i stället is_admin, och menyerna renderar den här listan bara för den
+ * som faktiskt är admin.
+ *
+ * Sidorna bakom kräver ändå sin egen isAdminById-kontroll. Att utelämna en
+ * länk är att städa menyn, inte att skydda något.
+ */
+export interface AdminDestination {
+  /** Rutt som den ser ut i URL:en. Måste matcha en page.tsx. */
+  path: string;
+  /** Etikett + beskrivning, nycklar i adminPage-namespacet. */
+  labelKey: string;
+  descKey: string;
+  icon: LucideIcon;
+}
+
+/** Navet som adminverktygen hänger under. */
+export const ADMIN_ROOT = "/dashboard/admin";
+
+export const ADMIN_DESTINATIONS: AdminDestination[] = [
+  { path: "/dashboard/admin/creators", labelKey: "creatorsLabel", descKey: "creatorsDesc", icon: Users },
+  { path: "/dashboard/admin/promo", labelKey: "promoLabel", descKey: "promoDesc", icon: Tag },
+];
+
 export const CONTEXTUAL_ROUTES: Record<string, string> = {
   "/dashboard": "Omdirigerar bara vidare till /app.",
   "/app/events/[id]/bookings": "Nås från knappraden på eventsidan.",
@@ -177,14 +206,7 @@ export const CONTEXTUAL_ROUTES: Record<string, string> = {
   "/dashboard/listings/[id]/edit": "Nås genom att öppna en tjänst.",
   "/dashboard/gigs/new": "Nås från gig-listan.",
   "/dashboard/gigs/[id]": "Nås genom att öppna ett gig.",
-  // Adminsidorna når man genom att skriva in URL:en. De kan inte stå i
-  // APP_DESTINATIONS: registret känner bara rollerna creator/venue/customer, så
-  // en ingång skulle visas för alla säljare — som sedan bara skickas till
-  // /dashboard av sidans egen isAdminById-grind. Ingen ingång är bättre än en
-  // som leder till en omdirigering.
-  "/dashboard/admin/promo": "Adminverktyg, avsiktligt utan menyingång.",
-  "/dashboard/admin/promo/new": "Adminverktyg, avsiktligt utan menyingång.",
-  "/dashboard/admin/creators": "Adminverktyg, avsiktligt utan menyingång.",
+  "/dashboard/admin/promo/new": "Nås från Ny kod-knappen i rabattkodslistan.",
   "/dashboard/profile": "Redigera profil — nås från profilmenyn.",
 };
 

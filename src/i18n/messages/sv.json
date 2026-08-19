@@ -3538,5 +3538,16 @@
     "trialCta": "Uppgradera nu",
     "broadcastFooter": "Du får detta mejl för att du anmälde dig till väntelistan på Usha Platform.",
     "broadcastUnsubscribe": "Avregistrera dig"
+  },
+  "adminPage": {
+    "heading": "Admin",
+    "subheading": "Verktyg som bara administratörer ser.",
+    "backToApp": "Tillbaka till appen",
+    "backToAdmin": "Tillbaka till Admin",
+    "creatorsLabel": "Kreatörer",
+    "creatorsDesc": "Slå upp en kreatör och växla mellan privatperson och företag.",
+    "promoLabel": "Rabattkoder",
+    "promoDesc": "Skapa och följ upp rabattkoder.",
+    "navLabel": "Admin"
   }
 }

@@ -3538,5 +3538,16 @@
     "trialCta": "Mejorar ahora",
     "broadcastFooter": "Recibes este correo porque te apuntaste a la lista de espera en Usha Platform.",
     "broadcastUnsubscribe": "Darse de baja"
+  },
+  "adminPage": {
+    "heading": "Admin",
+    "subheading": "Herramientas que solo ven los administradores.",
+    "backToApp": "Volver a la app",
+    "backToAdmin": "Volver a Admin",
+    "creatorsLabel": "Creadores",
+    "creatorsDesc": "Busca a un creador y cámbialo entre particular y empresa.",
+    "promoLabel": "Códigos de descuento",
+    "promoDesc": "Crea códigos de descuento y sigue su uso.",
+    "navLabel": "Admin"
   }
 }
