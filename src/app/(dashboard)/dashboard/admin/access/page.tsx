@@ -1,11 +1,12 @@
 import { getTranslations } from "next-intl/server";
 import { KeyRound, Search, ShieldCheck, Check, X } from "lucide-react";
 import { requireAdmin } from "@/lib/admin/guard";
+import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ADMIN_CAPABILITIES, isAdminCapability, type AdminCapability } from "@/lib/admin/capabilities";
 import { ADMIN_DESTINATIONS, adminDestinationsFor } from "@/lib/navigation/registry";
 import { AdminNav } from "@/components/admin/admin-nav";
-import { setAdminCapability } from "./actions";
+import { setAdminCapability, setAdminFull } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +27,10 @@ export default async function AdminAccessPage({
 }) {
   const { email, status } = await searchParams;
   const access = await requireAdmin("full");
+  const supabase = await createClient();
+  const {
+    data: { user: viewer },
+  } = await supabase.auth.getUser();
 
   const t = await getTranslations("adminAccess");
   const tTools = await getTranslations("adminPage");
@@ -53,10 +58,15 @@ export default async function AdminAccessPage({
     }
   }
 
+  const isSelf = !!profile && profile.id === viewer?.id;
+
   const notices: Record<string, { text: string; tone: "ok" | "bad" }> = {
     granted: { text: t("noticeGranted"), tone: "ok" },
     revoked: { text: t("noticeRevoked"), tone: "ok" },
     already_full: { text: t("noticeAlreadyFull"), tone: "bad" },
+    made_full: { text: t("noticeMadeFull"), tone: "ok" },
+    made_limited: { text: t("noticeMadeLimited"), tone: "ok" },
+    not_yourself: { text: t("noticeNotYourself"), tone: "bad" },
     invalid: { text: t("noticeInvalid"), tone: "bad" },
     error: { text: t("noticeError"), tone: "bad" },
   };
@@ -114,11 +124,41 @@ export default async function AdminAccessPage({
             <p className="text-sm text-[var(--usha-muted)]">{profile.email}</p>
           </div>
 
+          {/* The level, and the control that changes it. Saying "this account is
+              a full admin" and stopping was a dead end: nothing in the app could
+              remove the flag, so limiting someone meant hand-written SQL. */}
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--usha-border)] px-4 py-3">
+            <span className="flex items-center gap-2 text-sm">
+              <ShieldCheck
+                size={16}
+                className={profile.is_admin ? "text-[var(--usha-gold)]" : "text-[var(--usha-muted)]"}
+              />
+              {profile.is_admin ? t("levelFull") : t("levelLimited")}
+            </span>
+
+            {isSelf ? (
+              <span className="text-xs text-[var(--usha-muted)]">{t("cannotChangeSelf")}</span>
+            ) : (
+              <form action={setAdminFull}>
+                <input type="hidden" name="userId" value={profile.id} />
+                <input type="hidden" name="email" value={profile.email} />
+                <input type="hidden" name="full" value={profile.is_admin ? "false" : "true"} />
+                <button
+                  type="submit"
+                  className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+                    profile.is_admin
+                      ? "border border-[var(--usha-border)] text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
+                      : "border border-[var(--usha-gold)]/40 text-[var(--usha-gold)] hover:bg-[var(--usha-gold)]/10"
+                  }`}
+                >
+                  {profile.is_admin ? t("makeLimited") : t("makeFull")}
+                </button>
+              </form>
+            )}
+          </div>
+
           {profile.is_admin ? (
-            <p className="flex items-center gap-2 text-sm text-[var(--usha-gold)]">
-              <ShieldCheck size={16} />
-              {t("isFullAdmin")}
-            </p>
+            <p className="text-sm text-[var(--usha-muted)]">{t("fullHasEverything")}</p>
           ) : (
             <div className="space-y-2">
               {ADMIN_CAPABILITIES.map((capability) => {

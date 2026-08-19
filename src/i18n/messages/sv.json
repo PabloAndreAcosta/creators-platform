@@ -3597,7 +3597,6 @@
     "searchButton": "Sök",
     "noMatch": "Ingen profil hittades för “{query}”.",
     "noName": "(namn saknas)",
-    "isFullAdmin": "Kontot är hel admin och har redan allt. Ta bort is_admin först om behörigheten ska begränsas.",
     "grant": "Ge",
     "revoke": "Ta bort",
     "footnote": "Behörigheten gäller direkt. Att dela ut behörighet kan inte delegeras — bara hel admin ser den här sidan.",
@@ -3605,6 +3604,15 @@
     "noticeRevoked": "Behörigheten är borttagen.",
     "noticeAlreadyFull": "Kontot är hel admin och har redan allt.",
     "noticeInvalid": "Okänd behörighet.",
-    "noticeError": "Det gick inte att spara. Försök igen."
+    "noticeError": "Det gick inte att spara. Försök igen.",
+    "levelFull": "Hel admin — har allt, inklusive biljettincheckning och rollväxlaren.",
+    "levelLimited": "Begränsad admin — har bara det som är ikryssat nedan.",
+    "makeLimited": "Gör till begränsad",
+    "makeFull": "Gör till hel admin",
+    "cannotChangeSelf": "Du kan inte ändra din egen nivå.",
+    "fullHasEverything": "Hel admin har alla verktyg. Gör kontot begränsat först om du vill välja verktyg ett och ett.",
+    "noticeMadeFull": "Kontot är nu hel admin.",
+    "noticeMadeLimited": "Kontot är nu begränsat. Välj vilka verktyg det ska ha.",
+    "noticeNotYourself": "Du kan inte ändra din egen nivå — då kan du låsa ute dig själv."
   }
 }

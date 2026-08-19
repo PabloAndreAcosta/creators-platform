@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
 import { ADMIN_DESTINATIONS, ADMIN_ROOT, adminDestinationsFor } from "../registry";
-import { ADMIN_CAPABILITIES, isAdminCapability } from "@/lib/admin/capabilities";
+import { ADMIN_CAPABILITIES, canChangeAdminLevel, isAdminCapability } from "@/lib/admin/capabilities";
 
 const APP_DIR = path.join(process.cwd(), "src", "app");
 const ADMIN_DIR = path.join(APP_DIR, "(dashboard)", "dashboard", "admin");
@@ -224,5 +224,23 @@ describe("adminytan är läsbar för en partner som inte kan svenska", () => {
       }
     }
     expect(problems).toEqual([]);
+  });
+});
+
+describe("nivåbytet kan inte låsa ute den som gör det", () => {
+  it("vägrar när någon ändrar sin egen nivå", () => {
+    // The last full admin demoting themselves leaves nobody who can grant
+    // anything, and the way back is a database console.
+    expect(canChangeAdminLevel("user-a", "user-a")).toBe(false);
+  });
+
+  it("tillåter när det är någon annan", () => {
+    expect(canChangeAdminLevel("user-a", "user-b")).toBe(true);
+  });
+
+  it("vägrar när endera saknas", () => {
+    expect(canChangeAdminLevel(null, "user-b")).toBe(false);
+    expect(canChangeAdminLevel("user-a", undefined)).toBe(false);
+    expect(canChangeAdminLevel(null, null)).toBe(false);
   });
 });

@@ -74,3 +74,18 @@ export function hasCapability(access: AdminAccess, required: AdminRequirement): 
 export function hasAnyAdminAccess(access: AdminAccess): boolean {
   return access.full || access.capabilities.length > 0;
 }
+
+/**
+ * Whether one admin may change another's level.
+ *
+ * The single rule is that you may not change your own. A full admin who demotes
+ * themselves may be the last one, and then nobody can grant anything again —
+ * the recovery is a database console, which is not where a mis-click belongs.
+ */
+export function canChangeAdminLevel(
+  actorId: string | null | undefined,
+  targetId: string | null | undefined
+): boolean {
+  if (!actorId || !targetId) return false;
+  return actorId !== targetId;
+}
