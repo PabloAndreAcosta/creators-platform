@@ -159,6 +159,7 @@ export async function weeklyPayoutBatch(): Promise<BatchResult> {
           grossAmount,
           type: 'batch',
           transactionDate: new Date(),
+          creatorId,
         }).catch(err => console.error(`Payout email failed for ${creatorId}:`, err));
       }
 
@@ -291,6 +292,7 @@ export async function createInstantPayout(
         grossAmount: payoutAmount,
         type: 'instant',
         transactionDate: new Date(),
+        creatorId,
       }).catch(err => console.error(`Instant payout email failed for ${creatorId}:`, err));
     }
 

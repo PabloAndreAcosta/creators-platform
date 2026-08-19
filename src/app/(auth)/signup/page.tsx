@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { isPasswordPwned } from "@/lib/auth/password-strength";
 import { isRateLimitError } from "@/lib/auth/rate-limit-error";
@@ -22,6 +22,7 @@ function FieldError({ message }: { message: string }) {
 
 export default function SignupPage() {
   const t = useTranslations("auth");
+  const locale = useLocale();
   const searchParams = useSearchParams();
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<CreatorSubcategory | null>(null);
@@ -215,6 +216,9 @@ export default function SignupPage() {
         ? { is_company: "true" }
         : {}),
       ...(refCode ? { referred_by_code: refCode.toUpperCase() } : {}),
+      // Seeds profiles.locale via handle_new_user, so the welcome mail and every
+      // later receipt arrive in the language this account was created in.
+      locale,
     };
 
     const { data, error } = await supabase.auth.signUp({

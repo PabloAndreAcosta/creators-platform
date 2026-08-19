@@ -3,6 +3,8 @@ import { getResend, getFromEmail } from "./resend";
 import { renderEmailToHtml } from "./render";
 import { buildBookingIcs } from "./ics";
 import BookingReminder, { getBookingReminderSubject } from "@/components/emails/BookingReminder";
+import { getEmailIntl } from "./i18n";
+import { resolveRecipientLocale } from "@/lib/i18n/recipient";
 
 interface SendBookingReminderParams {
   to: string;
@@ -14,6 +16,8 @@ interface SendBookingReminderParams {
   bookingId?: string;
   durationMinutes?: number;
   variant?: "day" | "soon";
+  /** Recipient's account when they have one; guests resolve by address. */
+  customerId?: string | null;
 }
 
 export async function sendBookingReminderEmail({
@@ -26,11 +30,13 @@ export async function sendBookingReminderEmail({
   bookingId,
   durationMinutes,
   variant = "day",
+  customerId,
 }: SendBookingReminderParams): Promise<void> {
   try {
     const resend = getResend();
+    const { t, locale } = await getEmailIntl(await resolveRecipientLocale({ userId: customerId, email: to }));
     const html = await renderEmailToHtml(
-      createElement(BookingReminder, { customerName, serviceName, scheduledAt, creatorName, location, variant })
+      createElement(BookingReminder, { customerName, serviceName, scheduledAt, creatorName, location, variant, t, locale })
     );
 
     const ics = buildBookingIcs({
@@ -39,13 +45,13 @@ export async function sendBookingReminderEmail({
       startsAt: scheduledAt,
       durationMinutes,
       location,
-      description: `Bokning hos ${creatorName} via Usha Platform`,
+      description: t("reminderIcsDescription", { creator: creatorName }),
     });
 
     const { error } = await resend.emails.send({
       from: getFromEmail(),
       to,
-      subject: getBookingReminderSubject(serviceName, variant),
+      subject: getBookingReminderSubject(t, serviceName, variant),
       html,
       attachments: [{ filename: "usha-bokning.ics", content: Buffer.from(ics) }],
     });

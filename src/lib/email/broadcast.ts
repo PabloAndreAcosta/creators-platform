@@ -1,4 +1,5 @@
 import { getResend, getFromEmail } from "./resend";
+import type { Translate } from "@/lib/i18n/server";
 
 // Lucka 2 — väntelista-utskick: HTML-bygge, validering och batch-sändning.
 
@@ -31,10 +32,16 @@ export interface BroadcastHtmlOpts {
   ctaLabel?: string | null;
   ctaUrl?: string | null;
   unsubscribeUrl: string;
+  /**
+   * Translator for the `emails` namespace. Only the footer and the unsubscribe
+   * link go through it — the body and the CTA are the host's own words, in
+   * whatever language they wrote them.
+   */
+  t: Translate;
 }
 
 /** Bygg en mottagares mejl-HTML. CTA visas bara om både text och giltig URL finns. */
-export function buildBroadcastHtml({ body, ctaLabel, ctaUrl, unsubscribeUrl }: BroadcastHtmlOpts): string {
+export function buildBroadcastHtml({ body, ctaLabel, ctaUrl, unsubscribeUrl, t }: BroadcastHtmlOpts): string {
   const cta =
     ctaLabel && ctaUrl && isValidCtaUrl(ctaUrl)
       ? `<p style="margin:28px 0;"><a href="${escapeHtml(ctaUrl)}" style="display:inline-block;padding:12px 28px;background:#c8a445;color:#000;text-decoration:none;border-radius:8px;font-weight:bold;">${escapeHtml(ctaLabel)}</a></p>`
@@ -45,8 +52,8 @@ export function buildBroadcastHtml({ body, ctaLabel, ctaUrl, unsubscribeUrl }: B
   ${cta}
   <hr style="border:none;border-top:1px solid #eee;margin:28px 0 12px;">
   <p style="color:#999;font-size:12px;line-height:1.5;">
-    Du får detta mejl för att du anmälde dig till väntelistan på Usha Platform.<br>
-    <a href="${escapeHtml(unsubscribeUrl)}" style="color:#999;">Avregistrera dig</a>
+    ${escapeHtml(t("broadcastFooter"))}<br>
+    <a href="${escapeHtml(unsubscribeUrl)}" style="color:#999;">${escapeHtml(t("broadcastUnsubscribe"))}</a>
   </p>
 </div>`;
 }
@@ -77,6 +84,8 @@ export async function sendBroadcast(params: {
   body: string;
   ctaLabel?: string | null;
   ctaUrl?: string | null;
+  /** Translator for the `emails` namespace — footer and unsubscribe link only. */
+  t: Translate;
 }): Promise<{ sent: number; failed: number }> {
   const resend = getResend();
   const from = getFromEmail();
@@ -93,6 +102,7 @@ export async function sendBroadcast(params: {
         ctaLabel: params.ctaLabel,
         ctaUrl: params.ctaUrl,
         unsubscribeUrl: r.unsubscribeUrl,
+        t: params.t,
       }),
     }));
 

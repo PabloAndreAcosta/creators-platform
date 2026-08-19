@@ -1,5 +1,8 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getResend, getFromEmail } from '@/lib/email/resend';
+import { escapeHtml } from '@/lib/email/broadcast';
+import { getServerTranslator } from '@/lib/i18n/server';
+import { resolveRecipientLocale } from '@/lib/i18n/recipient';
 
 /**
  * Sets the Gold-exclusive release date for a listing and notifies
@@ -29,12 +32,13 @@ export async function releaseEventToGoldMembers(
     .eq('id', listingId)
     .single();
 
-  const title = listing?.title ?? 'Nytt event';
+  // No title means nothing worth announcing; the email interpolates it raw.
+  const title = listing?.title ?? '';
 
   // Get all Gold and Platinum members
   const { data: goldMembers, error: membersError } = await supabase
     .from('profiles')
-    .select('id, email, full_name')
+    .select('id, email, full_name, locale')
     .in('tier', ['guld', 'premium']);
 
   if (membersError) {
@@ -51,24 +55,29 @@ export async function releaseEventToGoldMembers(
       const resend = getResend();
       const from = getFromEmail();
 
+      // Each member is written to in the language they read the app in, so one
+      // announcement doesn't go out in Swedish to everyone.
       await Promise.allSettled(
         goldMembers
           .filter((m) => m.email)
-          .map((member) =>
-            resend.emails.send({
+          .map(async (member) => {
+            const locale = await resolveRecipientLocale({ userId: member.id, email: member.email });
+            const t = await getServerTranslator('eventEmails', locale);
+            const name = member.full_name || t('earlyBirdFallbackName');
+            return resend.emails.send({
               from,
               to: member.email,
-              subject: 'Nytt event exklusivt för dig!',
+              subject: t('earlyBirdSubject'),
               html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px;">
-                <h2 style="color:#c8a445;">Exklusiv tidig tillgång</h2>
-                <p>Hej ${member.full_name || 'medlem'},</p>
-                <p><strong>${title}</strong> &mdash; tillgängligt för alla om 48 timmar.</p>
-                <p>Som Guld/Premium-medlem får du boka före alla andra.</p>
-                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://usha.se'}/app" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#c8a445;color:#000;text-decoration:none;border-radius:8px;font-weight:bold;">Boka nu</a>
+                <h2 style="color:#c8a445;">${escapeHtml(t('earlyBirdHeading'))}</h2>
+                <p>${escapeHtml(t('earlyBirdGreeting', { name }))}</p>
+                <p><strong>${escapeHtml(t('earlyBirdBody', { title }))}</strong></p>
+                <p>${escapeHtml(t('earlyBirdPerk'))}</p>
+                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://usha.se'}/app" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#c8a445;color:#000;text-decoration:none;border-radius:8px;font-weight:bold;">${escapeHtml(t('earlyBirdCta'))}</a>
                 <p style="margin-top:24px;color:#888;font-size:12px;">Usha Platform</p>
               </div>`,
-            })
-          )
+            });
+          })
       );
     } catch (e) {
       console.error('Failed to send early-bird emails:', e);

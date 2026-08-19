@@ -1,30 +1,37 @@
+import type { Locale } from '@/i18n/config';
+import type { Translate } from '@/lib/i18n/server';
+import { formatEmailDate } from '@/lib/email/i18n';
+
 interface GoldMemberWelcomeProps {
   memberName: string;
   expiryDate: Date;
+  /** Translator for the `emails` namespace, in the recipient's language. */
+  t: Translate;
+  locale: Locale;
 }
 
-function formatDate(date: Date): string {
-  return new Intl.DateTimeFormat('sv-SE', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  }).format(date);
-}
+const DATE_FORMAT: Intl.DateTimeFormatOptions = {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+};
 
-export function getGoldWelcomeSubject(): string {
-  return 'Välkommen till Usha Platform Guld!';
+export function getGoldWelcomeSubject(t: Translate): string {
+  return t('goldSubject');
 }
 
 const BENEFITS = [
-  { text: '10% rabatt på alla bokningar', icon: '💰' },
-  { text: '48 timmar tidig tillgång till nya event', icon: '⏰' },
-  { text: 'Prioritetskö', icon: '🎯' },
-  { text: 'Prioriterad support', icon: '🎓' },
+  { key: 'goldBenefitDiscount', icon: '💰' },
+  { key: 'goldBenefitEarlyAccess', icon: '⏰' },
+  { key: 'goldBenefitPriorityQueue', icon: '🎯' },
+  { key: 'goldBenefitPrioritySupport', icon: '🎓' },
 ];
 
 export default function GoldMemberWelcome({
   memberName,
   expiryDate,
+  t,
+  locale,
 }: GoldMemberWelcomeProps) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://usha.se';
 
@@ -80,7 +87,7 @@ export default function GoldMemberWelcome({
                                   color: '#c8a445',
                                   border: '1px solid rgba(200,164,69,0.2)',
                                 }}>
-                                  Guld Medlem
+                                  {t('goldBadge')}
                                 </span>
                               </td>
                             </tr>
@@ -89,16 +96,15 @@ export default function GoldMemberWelcome({
 
                         {/* Greeting */}
                         <p style={{ fontSize: 18, fontWeight: 600, color: '#fafaf9', margin: '0 0 8px', textAlign: 'center' }}>
-                          Hej {memberName}!
+                          {t('greetingExcited', { name: memberName })}
                         </p>
                         <p style={{ fontSize: 14, color: '#6b6b6b', margin: '0 0 28px', lineHeight: 1.6, textAlign: 'center' }}>
-                          Välkommen till Usha Platform Guld! Du har nu tillgång till exklusiva förmåner
-                          som gör din upplevelse ännu bättre.
+                          {t('goldIntro')}
                         </p>
 
                         {/* Benefits */}
                         <p style={{ fontSize: 13, fontWeight: 600, color: '#fafaf9', margin: '0 0 16px' }}>
-                          Dina Guld-förmåner
+                          {t('goldBenefitsHeading')}
                         </p>
                         <table width="100%" cellPadding={0} cellSpacing={0} style={{ marginBottom: 28 }}>
                           <tbody>
@@ -116,7 +122,7 @@ export default function GoldMemberWelcome({
                                           <span style={{ fontSize: 14 }}>{benefit.icon}</span>
                                         </td>
                                         <td style={{ fontSize: 13, color: '#fafaf9', lineHeight: 1.5 }}>
-                                          {benefit.text}
+                                          {t(benefit.key)}
                                         </td>
                                       </tr>
                                     </tbody>
@@ -138,10 +144,10 @@ export default function GoldMemberWelcome({
                                 textAlign: 'center',
                               }}>
                                 <p style={{ fontSize: 12, color: '#6b6b6b', margin: '0 0 2px' }}>
-                                  Ditt Guld-medlemskap gäller till
+                                  {t('goldValidUntil')}
                                 </p>
                                 <p style={{ fontSize: 15, fontWeight: 600, color: '#c8a445', margin: 0 }}>
-                                  {formatDate(expiryDate)}
+                                  {formatEmailDate(expiryDate, locale, DATE_FORMAT)}
                                 </p>
                               </td>
                             </tr>
@@ -150,7 +156,7 @@ export default function GoldMemberWelcome({
 
                         {/* Next Steps */}
                         <p style={{ fontSize: 14, color: '#6b6b6b', margin: '0 0 20px', textAlign: 'center', lineHeight: 1.6 }}>
-                          Börja utforska event och utnyttja dina nya rabatter direkt!
+                          {t('goldNextSteps')}
                         </p>
 
                         {/* CTA Button */}
@@ -171,7 +177,7 @@ export default function GoldMemberWelcome({
                                     textDecoration: 'none',
                                   }}
                                 >
-                                  Utforska events
+                                  {t('goldCta')}
                                 </a>
                               </td>
                             </tr>
@@ -184,7 +190,7 @@ export default function GoldMemberWelcome({
                     <tr>
                       <td style={{ padding: '24px 0', textAlign: 'center' }}>
                         <p style={{ fontSize: 12, color: '#6b6b6b', margin: '0 0 4px' }}>
-                          Frågor? Kontakta{' '}
+                          {t('questionsContact')}{' '}
                           <a href="mailto:support@usha.se" style={{ color: '#c8a445', textDecoration: 'none' }}>
                             support@usha.se
                           </a>

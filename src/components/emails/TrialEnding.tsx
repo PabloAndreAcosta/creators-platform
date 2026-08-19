@@ -1,26 +1,34 @@
+import type { Locale } from '@/i18n/config';
+import type { Translate } from '@/lib/i18n/server';
+import { formatEmailDate } from '@/lib/email/i18n';
+
 interface TrialEndingProps {
   memberName: string;
   trialEndDate: Date;
   daysLeft: number;
+  /** Translator for the `emails` namespace, in the recipient's language. */
+  t: Translate;
+  locale: Locale;
 }
 
-function formatDate(date: Date): string {
-  return new Intl.DateTimeFormat('sv-SE', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  }).format(date);
-}
+const DATE_FORMAT: Intl.DateTimeFormatOptions = {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+};
 
-export function getTrialEndingSubject(daysLeft: number): string {
-  if (daysLeft <= 1) return 'Din provperiod slutar imorgon';
-  return `Din provperiod slutar om ${daysLeft} dagar`;
+export function getTrialEndingSubject(t: Translate, daysLeft: number): string {
+  return daysLeft <= 1
+    ? t('trialSubjectTomorrow')
+    : t('trialSubjectDays', { days: daysLeft });
 }
 
 export default function TrialEnding({
   memberName,
   trialEndDate,
   daysLeft,
+  t,
+  locale,
 }: TrialEndingProps) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://usha.se';
   const isUrgent = daysLeft <= 2;
@@ -69,13 +77,13 @@ export default function TrialEnding({
                         </table>
 
                         <p style={{ fontSize: 18, fontWeight: 600, color: '#fafaf9', margin: '0 0 8px', textAlign: 'center' }}>
-                          Hej {memberName}!
+                          {t('greetingExcited', { name: memberName })}
                         </p>
                         <p style={{ fontSize: 14, color: '#6b6b6b', margin: '0 0 24px', lineHeight: 1.6, textAlign: 'center' }}>
                           {daysLeft <= 1
-                            ? 'Din gratis provperiod slutar imorgon.'
-                            : `Din gratis provperiod slutar om ${daysLeft} dagar.`}
-                          {' '}För att fortsätta använda alla Premium-funktioner behöver du uppgradera din plan.
+                            ? t('trialIntroTomorrow')
+                            : t('trialIntroDays', { days: daysLeft })}
+                          {' '}{t('trialIntroUpgrade')}
                         </p>
 
                         {/* Date box */}
@@ -89,7 +97,7 @@ export default function TrialEnding({
                                 textAlign: 'center',
                               }}>
                                 <p style={{ fontSize: 12, color: '#6b6b6b', margin: '0 0 2px' }}>
-                                  Provperioden slutar
+                                  {t('trialEndsLabel')}
                                 </p>
                                 <p style={{
                                   fontSize: 15,
@@ -97,7 +105,7 @@ export default function TrialEnding({
                                   color: isUrgent ? '#ef4444' : '#c8a445',
                                   margin: 0,
                                 }}>
-                                  {formatDate(trialEndDate)}
+                                  {formatEmailDate(trialEndDate, locale, DATE_FORMAT)}
                                 </p>
                               </td>
                             </tr>
@@ -105,8 +113,7 @@ export default function TrialEnding({
                         </table>
 
                         <p style={{ fontSize: 13, color: '#6b6b6b', margin: '0 0 20px', lineHeight: 1.6, textAlign: 'center' }}>
-                          Om du inte uppgraderar återgår ditt konto till gratisplanen och du förlorar
-                          tillgång till Premium-funktioner som lägre kommission, toppsynlighet och dedikerad support.
+                          {t('trialWarning')}
                         </p>
 
                         {/* CTA Button */}
@@ -127,7 +134,7 @@ export default function TrialEnding({
                                     textDecoration: 'none',
                                   }}
                                 >
-                                  Uppgradera nu
+                                  {t('trialCta')}
                                 </a>
                               </td>
                             </tr>
@@ -140,7 +147,7 @@ export default function TrialEnding({
                     <tr>
                       <td style={{ padding: '24px 0', textAlign: 'center' }}>
                         <p style={{ fontSize: 12, color: '#6b6b6b', margin: '0 0 4px' }}>
-                          Frågor? Kontakta{' '}
+                          {t('questionsContact')}{' '}
                           <a href="mailto:support@usha.se" style={{ color: '#c8a445', textDecoration: 'none' }}>
                             support@usha.se
                           </a>

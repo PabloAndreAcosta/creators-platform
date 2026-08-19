@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendBroadcast, isValidCtaUrl, type BroadcastRecipient } from "@/lib/email/broadcast";
 import { canManageListing } from "@/lib/listings/manage-access";
+import { getEmailIntl } from "@/lib/email/i18n";
+import { resolveRecipientLocale } from "@/lib/i18n/recipient";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";
 
@@ -51,13 +53,20 @@ export async function POST(
   const admin = createAdminClient();
   const { data: listing } = await admin
     .from("listings")
-    .select("id, user_id")
+    .select("id, user_id, content_language")
     .eq("id", listingId)
     .maybeSingle();
   // Owner or accepted co-organizer (can_manage) may broadcast.
   if (!listing || (listing.user_id !== user.id && !(await canManageListing(admin, user.id, listingId)))) {
     return NextResponse.json({ error: te("eventNotFound") }, { status: 404 });
   }
+
+  // Waitlist recipients are guests with no account, so there is no personal
+  // language to read. The event's own forced language decides — same rule the
+  // waitlist confirmation follows — and otherwise the sender's current locale.
+  const { t: tEmail } = await getEmailIntl(
+    await resolveRecipientLocale({ preferred: listing.content_language ?? (await getLocale()) })
+  );
 
   // Test mode: one email to the host, then done. Logged as 'test'.
   if (mode === "test") {
@@ -70,6 +79,7 @@ export async function POST(
       body,
       ctaLabel,
       ctaUrl,
+      t: tEmail,
     });
     await admin.from("email_broadcasts").insert({
       listing_id: listingId, sender_id: user.id, subject, body,
@@ -96,7 +106,7 @@ export async function POST(
     return NextResponse.json({ error: te("noRecipients") }, { status: 400 });
   }
 
-  const result = await sendBroadcast({ recipients, subject, body, ctaLabel, ctaUrl });
+  const result = await sendBroadcast({ recipients, subject, body, ctaLabel, ctaUrl, t: tEmail });
 
   await admin.from("email_broadcasts").insert({
     listing_id: listingId, sender_id: user.id, subject, body,

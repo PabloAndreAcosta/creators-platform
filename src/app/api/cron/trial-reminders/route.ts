@@ -58,6 +58,7 @@ export async function GET(req: NextRequest) {
           memberName: profile.full_name || "Medlem",
           trialEndDate: new Date(sub.current_period_end),
           daysLeft,
+          memberId: sub.user_id,
         });
         sent++;
       } catch (err) {

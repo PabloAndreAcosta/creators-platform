@@ -4,6 +4,8 @@ import { renderEmailToHtml } from "./render";
 import { buildBookingIcs } from "./ics";
 import BookingConfirmation, { getBookingConfirmationSubject } from "@/components/emails/BookingConfirmation";
 import BookingCancellation, { getBookingCancellationSubject } from "@/components/emails/BookingCancellation";
+import { getEmailIntl } from "./i18n";
+import { resolveRecipientLocale } from "@/lib/i18n/recipient";
 
 interface SendBookingConfirmationParams {
   to: string;
@@ -17,6 +19,11 @@ interface SendBookingConfirmationParams {
   durationMinutes?: number;
   /** Legal seller for the receipt (org.nr / name + VAT note). */
   seller?: { name: string; orgNumber?: string; vatNote?: string };
+  /**
+   * Buyer's account when they have one. Guests are booked by email alone and
+   * fall back to whatever the address resolves to, then English.
+   */
+  customerId?: string | null;
 }
 
 export async function sendBookingConfirmationEmail({
@@ -30,11 +37,13 @@ export async function sendBookingConfirmationEmail({
   bookingId,
   durationMinutes,
   seller,
+  customerId,
 }: SendBookingConfirmationParams): Promise<void> {
   try {
     const resend = getResend();
+    const { t, locale } = await getEmailIntl(await resolveRecipientLocale({ userId: customerId, email: to }));
     const html = await renderEmailToHtml(
-      createElement(BookingConfirmation, { customerName, serviceName, scheduledAt, scheduledEndAt, creatorName, location, bookingId, seller })
+      createElement(BookingConfirmation, { customerName, serviceName, scheduledAt, scheduledEndAt, creatorName, location, bookingId, seller, t, locale })
     );
 
     const ics = buildBookingIcs({
@@ -43,13 +52,13 @@ export async function sendBookingConfirmationEmail({
       startsAt: scheduledAt,
       durationMinutes,
       location,
-      description: `Bokning hos ${creatorName} via Usha Platform`,
+      description: t("reminderIcsDescription", { creator: creatorName }),
     });
 
     const { error } = await resend.emails.send({
       from: getFromEmail(),
       to,
-      subject: getBookingConfirmationSubject(serviceName),
+      subject: getBookingConfirmationSubject(t, serviceName),
       html,
       attachments: [{ filename: "usha-bokning.ics", content: Buffer.from(ics) }],
     });
@@ -69,6 +78,8 @@ interface SendBookingCancellationParams {
   recipientName: string;
   serviceName: string;
   scheduledAt: Date;
+  /** Recipient's account when they have one; guests resolve by address. */
+  recipientId?: string | null;
 }
 
 export async function sendBookingCancellationEmail({
@@ -76,17 +87,19 @@ export async function sendBookingCancellationEmail({
   recipientName,
   serviceName,
   scheduledAt,
+  recipientId,
 }: SendBookingCancellationParams): Promise<void> {
   try {
     const resend = getResend();
+    const { t, locale } = await getEmailIntl(await resolveRecipientLocale({ userId: recipientId, email: to }));
     const html = await renderEmailToHtml(
-      createElement(BookingCancellation, { recipientName, serviceName, scheduledAt })
+      createElement(BookingCancellation, { recipientName, serviceName, scheduledAt, t, locale })
     );
 
     const { error } = await resend.emails.send({
       from: getFromEmail(),
       to,
-      subject: getBookingCancellationSubject(serviceName),
+      subject: getBookingCancellationSubject(t, serviceName),
       html,
     });
 

@@ -235,6 +235,7 @@ export async function POST(
       creatorName: creator?.full_name || "Usha Platform",
       location: (listing as { event_location?: string }).event_location || undefined,
       bookingId: codeBooking?.id,
+      customerId: user?.id ?? null,
     }).catch((e) => console.error("access-code confirmation email failed:", e));
   }
 

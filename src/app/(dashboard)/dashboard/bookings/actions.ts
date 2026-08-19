@@ -395,6 +395,7 @@ async function sendBookingNotification(ctx: EmailContext) {
     scheduledAt: ctx.scheduledAt,
     creatorName: data.creatorName,
     location: data.location,
+    customerId: ctx.customerId,
   });
 }
 
@@ -410,6 +411,7 @@ async function sendConfirmNotification(ctx: EmailContext) {
     scheduledAt: ctx.scheduledAt,
     creatorName: data.creatorName,
     location: data.location,
+    customerId: ctx.customerId,
   });
 }
 
@@ -422,6 +424,7 @@ async function sendCancelNotification(ctx: EmailContext) {
       recipientName: data.customerName,
       serviceName: data.serviceName,
       scheduledAt: ctx.scheduledAt,
+      recipientId: ctx.customerId,
     }));
   }
   if (data.creatorEmail && await shouldSendEmail(ctx.creatorId, "notif_booking_canceled")) {
@@ -430,6 +433,7 @@ async function sendCancelNotification(ctx: EmailContext) {
       recipientName: data.creatorName,
       serviceName: data.serviceName,
       scheduledAt: ctx.scheduledAt,
+      recipientId: ctx.creatorId,
     }));
   }
   await Promise.all(sends);

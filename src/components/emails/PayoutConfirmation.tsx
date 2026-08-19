@@ -1,3 +1,7 @@
+import type { Locale } from '@/i18n/config';
+import type { Translate } from '@/lib/i18n/server';
+import { formatEmailDate, formatSek } from '@/lib/email/i18n';
+
 interface PayoutEvent {
   title: string;
   attendees: number;
@@ -12,24 +16,21 @@ interface PayoutConfirmationProps {
   type: 'batch' | 'instant';
   transactionDate: Date;
   events: PayoutEvent[];
+  /** Translator for the `emails` namespace, in the recipient's language. */
+  t: Translate;
+  locale: Locale;
 }
 
-function sek(amount: number): string {
-  return Math.round(amount).toLocaleString('sv-SE');
-}
+const DATE_FORMAT: Intl.DateTimeFormatOptions = {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+};
 
-function formatDate(date: Date): string {
-  return new Intl.DateTimeFormat('sv-SE', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  }).format(date);
-}
-
-export function getPayoutSubject(type: 'batch' | 'instant', amount: number): string {
-  return type === 'batch'
-    ? `Din veckoutbetalning: ${sek(amount)} SEK från Usha Platform`
-    : `Din instant payout: ${sek(amount)} SEK från Usha Platform`;
+export function getPayoutSubject(t: Translate, type: 'batch' | 'instant', amount: number): string {
+  return t(type === 'batch' ? 'payoutSubjectBatch' : 'payoutSubjectInstant', {
+    amount: formatSek(amount),
+  });
 }
 
 export default function PayoutConfirmation({
@@ -40,6 +41,8 @@ export default function PayoutConfirmation({
   type,
   transactionDate,
   events,
+  t,
+  locale,
 }: PayoutConfirmationProps) {
   const isBatch = type === 'batch';
 
@@ -84,7 +87,7 @@ export default function PayoutConfirmation({
                                   backgroundColor: isBatch ? 'rgba(200,164,69,0.1)' : 'rgba(168,85,247,0.1)',
                                   color: isBatch ? '#c8a445' : '#a855f7',
                                 }}>
-                                  {isBatch ? 'Veckoutbetalning' : 'Instant Payout'}
+                                  {t(isBatch ? 'payoutBadgeBatch' : 'payoutBadgeInstant')}
                                 </span>
                               </td>
                             </tr>
@@ -93,12 +96,12 @@ export default function PayoutConfirmation({
 
                         {/* Greeting */}
                         <p style={{ fontSize: 16, color: '#fafaf9', margin: '0 0 8px' }}>
-                          Hej {creatorName},
+                          {t('greeting', { name: creatorName })}
                         </p>
                         <p style={{ fontSize: 14, color: '#6b6b6b', margin: '0 0 24px', lineHeight: 1.6 }}>
-                          {isBatch
-                            ? `Din veckoutbetalning på ${sek(amount)} SEK är på väg till ditt konto.`
-                            : `Din instant payout på ${sek(amount)} SEK är under behandling.`}
+                          {t(isBatch ? 'payoutIntroBatch' : 'payoutIntroInstant', {
+                            amount: formatSek(amount),
+                          })}
                         </p>
 
                         {/* Amount */}
@@ -107,10 +110,10 @@ export default function PayoutConfirmation({
                             <tr>
                               <td style={{ textAlign: 'center', padding: '20px 0', borderRadius: 12, backgroundColor: '#0a0a0b' }}>
                                 <p style={{ fontSize: 36, fontWeight: 700, color: '#c8a445', margin: 0 }}>
-                                  {sek(amount)} SEK
+                                  {formatSek(amount)} SEK
                                 </p>
                                 <p style={{ fontSize: 12, color: '#6b6b6b', margin: '4px 0 0' }}>
-                                  {formatDate(transactionDate)}
+                                  {formatEmailDate(transactionDate, locale, DATE_FORMAT)}
                                 </p>
                               </td>
                             </tr>
@@ -121,19 +124,19 @@ export default function PayoutConfirmation({
                         {events.length > 0 && (
                           <>
                             <p style={{ fontSize: 13, fontWeight: 600, color: '#fafaf9', margin: '0 0 12px' }}>
-                              Eventsammanfattning
+                              {t('payoutEventSummary')}
                             </p>
                             <table width="100%" cellPadding={0} cellSpacing={0} style={{ marginBottom: 24, borderCollapse: 'collapse' }}>
                               <thead>
                                 <tr>
                                   <td style={{ fontSize: 11, color: '#6b6b6b', padding: '8px 0', borderBottom: '1px solid #1f1f23', textTransform: 'uppercase' as const }}>
-                                    Event
+                                    {t('payoutColEvent')}
                                   </td>
                                   <td style={{ fontSize: 11, color: '#6b6b6b', padding: '8px 0', borderBottom: '1px solid #1f1f23', textAlign: 'center', textTransform: 'uppercase' as const }}>
-                                    Deltagare
+                                    {t('payoutColAttendees')}
                                   </td>
                                   <td style={{ fontSize: 11, color: '#6b6b6b', padding: '8px 0', borderBottom: '1px solid #1f1f23', textAlign: 'right', textTransform: 'uppercase' as const }}>
-                                    Intäkt
+                                    {t('payoutColRevenue')}
                                   </td>
                                 </tr>
                               </thead>
@@ -147,7 +150,7 @@ export default function PayoutConfirmation({
                                       {event.attendees}
                                     </td>
                                     <td style={{ fontSize: 13, color: '#fafaf9', padding: '10px 0', borderBottom: '1px solid #1f1f23', textAlign: 'right' }}>
-                                      {sek(event.revenue)} SEK
+                                      {formatSek(event.revenue)} SEK
                                     </td>
                                   </tr>
                                 ))}
@@ -164,19 +167,19 @@ export default function PayoutConfirmation({
                                 <table width="100%" cellPadding={0} cellSpacing={0}>
                                   <tbody>
                                     <tr>
-                                      <td style={{ fontSize: 13, color: '#6b6b6b', padding: '4px 0' }}>Total intäkt</td>
-                                      <td style={{ fontSize: 13, color: '#fafaf9', padding: '4px 0', textAlign: 'right' }}>{sek(grossAmount)} SEK</td>
+                                      <td style={{ fontSize: 13, color: '#6b6b6b', padding: '4px 0' }}>{t('payoutTotalRevenue')}</td>
+                                      <td style={{ fontSize: 13, color: '#fafaf9', padding: '4px 0', textAlign: 'right' }}>{formatSek(grossAmount)} SEK</td>
                                     </tr>
                                     <tr>
-                                      <td style={{ fontSize: 13, color: '#6b6b6b', padding: '4px 0' }}>Provision</td>
-                                      <td style={{ fontSize: 13, color: '#ef4444', padding: '4px 0', textAlign: 'right' }}>-{sek(commission)} SEK</td>
+                                      <td style={{ fontSize: 13, color: '#6b6b6b', padding: '4px 0' }}>{t('payoutCommission')}</td>
+                                      <td style={{ fontSize: 13, color: '#ef4444', padding: '4px 0', textAlign: 'right' }}>-{formatSek(commission)} SEK</td>
                                     </tr>
                                     <tr>
                                       <td colSpan={2} style={{ borderBottom: '1px solid #1f1f23', padding: '8px 0 0' }} />
                                     </tr>
                                     <tr>
-                                      <td style={{ fontSize: 14, fontWeight: 600, color: '#fafaf9', padding: '8px 0 0' }}>Till ditt konto</td>
-                                      <td style={{ fontSize: 14, fontWeight: 700, color: '#c8a445', padding: '8px 0 0', textAlign: 'right' }}>{sek(amount)} SEK</td>
+                                      <td style={{ fontSize: 14, fontWeight: 600, color: '#fafaf9', padding: '8px 0 0' }}>{t('payoutToYourAccount')}</td>
+                                      <td style={{ fontSize: 14, fontWeight: 700, color: '#c8a445', padding: '8px 0 0', textAlign: 'right' }}>{formatSek(amount)} SEK</td>
                                     </tr>
                                   </tbody>
                                 </table>
@@ -196,9 +199,7 @@ export default function PayoutConfirmation({
                                 border: `1px solid ${isBatch ? 'rgba(200,164,69,0.15)' : 'rgba(168,85,247,0.15)'}`,
                               }}>
                                 <p style={{ fontSize: 13, color: isBatch ? '#c8a445' : '#a855f7', margin: 0, fontWeight: 500 }}>
-                                  {isBatch
-                                    ? 'Pengarna beräknas vara på ditt konto senast måndag morgon'
-                                    : 'Pengarna beräknas vara på ditt konto inom 5–10 minuter'}
+                                  {t(isBatch ? 'payoutTimelineBatch' : 'payoutTimelineInstant')}
                                 </p>
                               </td>
                             </tr>
@@ -211,7 +212,7 @@ export default function PayoutConfirmation({
                     <tr>
                       <td style={{ padding: '24px 0', textAlign: 'center' }}>
                         <p style={{ fontSize: 12, color: '#6b6b6b', margin: '0 0 4px' }}>
-                          Frågor? Kontakta{' '}
+                          {t('questionsContact')}{' '}
                           <a href="mailto:support@usha.se" style={{ color: '#c8a445', textDecoration: 'none' }}>
                             support@usha.se
                           </a>

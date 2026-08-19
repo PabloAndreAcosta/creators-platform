@@ -1,26 +1,32 @@
+import type { Locale } from "@/i18n/config";
+import type { Translate } from "@/lib/i18n/server";
+import { formatEmailDate } from "@/lib/email/i18n";
+
 interface BookingCancellationProps {
   recipientName: string;
   serviceName: string;
   scheduledAt: Date;
+  /** Translator for the `emails` namespace, in the recipient's language. */
+  t: Translate;
+  locale: Locale;
 }
 
-function formatDate(date: Date): string {
-  return new Intl.DateTimeFormat("sv-SE", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    timeZone: "Europe/Stockholm",
-  }).format(date);
-}
+const DATE_FORMAT: Intl.DateTimeFormatOptions = {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+};
 
-export function getBookingCancellationSubject(serviceName: string): string {
-  return `Bokning avbokad: ${serviceName}`;
+export function getBookingCancellationSubject(t: Translate, serviceName: string): string {
+  return t("bookingCanceledSubject", { service: serviceName });
 }
 
 export default function BookingCancellation({
   recipientName,
   serviceName,
   scheduledAt,
+  t,
+  locale,
 }: BookingCancellationProps) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";
 
@@ -52,10 +58,10 @@ export default function BookingCancellation({
                         padding: "32px 28px",
                       }}>
                         <p style={{ fontSize: 18, fontWeight: 600, color: "#fafaf9", margin: "0 0 8px" }}>
-                          Hej {recipientName},
+                          {t("greeting", { name: recipientName })}
                         </p>
                         <p style={{ fontSize: 14, color: "#6b6b6b", margin: "0 0 24px", lineHeight: 1.6 }}>
-                          En bokning har avbokats:
+                          {t("bookingCanceledIntro")}
                         </p>
 
                         <table width="100%" cellPadding={0} cellSpacing={0} style={{ marginBottom: 24 }}>
@@ -66,7 +72,7 @@ export default function BookingCancellation({
                                   {serviceName}
                                 </p>
                                 <p style={{ fontSize: 13, color: "#fafaf9", margin: 0 }}>
-                                  Datum: {formatDate(scheduledAt)}
+                                  {t("labelDate", { value: formatEmailDate(scheduledAt, locale, DATE_FORMAT) })}
                                 </p>
                               </td>
                             </tr>
@@ -74,7 +80,7 @@ export default function BookingCancellation({
                         </table>
 
                         <p style={{ fontSize: 14, color: "#6b6b6b", margin: "0 0 24px", lineHeight: 1.6 }}>
-                          Du kan boka en ny tid via plattformen.
+                          {t("bookingCanceledRebook")}
                         </p>
 
                         <table width="100%" cellPadding={0} cellSpacing={0}>
@@ -94,7 +100,7 @@ export default function BookingCancellation({
                                     textDecoration: "none",
                                   }}
                                 >
-                                  Utforska evenemang
+                                  {t("exploreEvents")}
                                 </a>
                               </td>
                             </tr>

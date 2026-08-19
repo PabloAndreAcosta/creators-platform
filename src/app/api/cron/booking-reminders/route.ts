@@ -84,6 +84,7 @@ export async function GET(req: NextRequest) {
         location: listing?.event_location || undefined,
         bookingId: b.id,
         durationMinutes: listing?.duration_minutes || undefined,
+        customerId: b.customer_id,
       });
       await admin
         .from("bookings")

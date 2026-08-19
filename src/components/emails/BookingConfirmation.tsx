@@ -1,3 +1,7 @@
+import type { Locale } from "@/i18n/config";
+import type { Translate } from "@/lib/i18n/server";
+import { formatEmailDate } from "@/lib/email/i18n";
+
 interface BookingConfirmationProps {
   customerName: string;
   serviceName: string;
@@ -9,31 +13,26 @@ interface BookingConfirmationProps {
   bookingId?: string;
   /** Legal seller for the receipt block (org.nr / name + VAT note). */
   seller?: { name: string; orgNumber?: string; vatNote?: string };
+  /** Translator for the `emails` namespace, in the recipient's language. */
+  t: Translate;
+  locale: Locale;
 }
 
-// scheduledAt is stored in UTC; format in Europe/Stockholm so a 14:00 Swedish
-// event doesn't display as 12:00 (the server/runtime is UTC).
-const TZ = "Europe/Stockholm";
+// scheduledAt is stored in UTC; formatEmailDate renders in Europe/Stockholm so
+// a 14:00 Swedish event doesn't display as 12:00 (the server/runtime is UTC).
+const DATE_FORMAT: Intl.DateTimeFormatOptions = {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+};
 
-function formatDate(date: Date): string {
-  return new Intl.DateTimeFormat("sv-SE", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    timeZone: TZ,
-  }).format(date);
-}
+const TIME_FORMAT: Intl.DateTimeFormatOptions = {
+  hour: "2-digit",
+  minute: "2-digit",
+};
 
-function formatTime(date: Date): string {
-  return new Intl.DateTimeFormat("sv-SE", {
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: TZ,
-  }).format(date);
-}
-
-export function getBookingConfirmationSubject(serviceName: string): string {
-  return `Bokningsbekräftelse: ${serviceName}`;
+export function getBookingConfirmationSubject(t: Translate, serviceName: string): string {
+  return t("bookingConfirmedSubject", { service: serviceName });
 }
 
 export default function BookingConfirmation({
@@ -45,6 +44,8 @@ export default function BookingConfirmation({
   location,
   bookingId,
   seller,
+  t,
+  locale,
 }: BookingConfirmationProps) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";
   // Link to the public, login-free ticket page so guests (no account) can open
@@ -79,10 +80,10 @@ export default function BookingConfirmation({
                         padding: "32px 28px",
                       }}>
                         <p style={{ fontSize: 18, fontWeight: 600, color: "#fafaf9", margin: "0 0 8px" }}>
-                          Hej {customerName}!
+                          {t("greetingExcited", { name: customerName })}
                         </p>
                         <p style={{ fontSize: 14, color: "#6b6b6b", margin: "0 0 24px", lineHeight: 1.6 }}>
-                          Din bokning har bekräftats. Här är detaljerna:
+                          {t("bookingConfirmedIntro")}
                         </p>
 
                         <table width="100%" cellPadding={0} cellSpacing={0} style={{ marginBottom: 24 }}>
@@ -93,17 +94,23 @@ export default function BookingConfirmation({
                                   {serviceName}
                                 </p>
                                 <p style={{ fontSize: 13, color: "#fafaf9", margin: "0 0 4px" }}>
-                                  Datum: {formatDate(scheduledAt)}
+                                  {t("labelDate", { value: formatEmailDate(scheduledAt, locale, DATE_FORMAT) })}
                                 </p>
                                 <p style={{ fontSize: 13, color: "#fafaf9", margin: "0 0 4px" }}>
-                                  Tid: {formatTime(scheduledAt)}{scheduledEndAt ? `–${formatTime(scheduledEndAt)}` : ""}
+                                  {t("labelTime", {
+                                    value:
+                                      formatEmailDate(scheduledAt, locale, TIME_FORMAT) +
+                                      (scheduledEndAt
+                                        ? `–${formatEmailDate(scheduledEndAt, locale, TIME_FORMAT)}`
+                                        : ""),
+                                  })}
                                 </p>
                                 <p style={{ fontSize: 13, color: "#fafaf9", margin: "0 0 4px" }}>
-                                  Arrangör: {creatorName}
+                                  {t("labelHost", { value: creatorName })}
                                 </p>
                                 {location && (
                                   <p style={{ fontSize: 13, color: "#fafaf9", margin: 0 }}>
-                                    Plats: {location}
+                                    {t("labelPlace", { value: location })}
                                   </p>
                                 )}
                               </td>
@@ -122,12 +129,12 @@ export default function BookingConfirmation({
                                       src={`${appUrl}/api/tickets/qr?id=${bookingId}`}
                                       width={200}
                                       height={200}
-                                      alt="Biljett QR-kod"
+                                      alt={t("bookingQrAlt")}
                                       style={{ display: "block" }}
                                     />
                                   </div>
                                   <p style={{ fontSize: 12, color: "#6b6b6b", margin: "10px 0 0" }}>
-                                    Visa den här QR-koden vid entrén
+                                    {t("bookingQrHint")}
                                   </p>
                                 </td>
                               </tr>
@@ -141,14 +148,14 @@ export default function BookingConfirmation({
                               <tr>
                                 <td style={{ padding: "12px 16px", borderRadius: 12, backgroundColor: "#0a0a0b" }}>
                                   <p style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.05em", color: "#6b6b6b", margin: "0 0 6px" }}>
-                                    Kvitto
+                                    {t("receiptHeading")}
                                   </p>
                                   <p style={{ fontSize: 13, color: "#fafaf9", margin: "0 0 4px" }}>
-                                    Säljare: {seller.name}
+                                    {t("receiptSeller", { name: seller.name })}
                                   </p>
                                   {seller.orgNumber && (
                                     <p style={{ fontSize: 13, color: "#fafaf9", margin: "0 0 4px" }}>
-                                      Org.nr: {seller.orgNumber}
+                                      {t("receiptOrgNumber", { number: seller.orgNumber })}
                                     </p>
                                   )}
                                   {seller.vatNote && (
@@ -179,7 +186,7 @@ export default function BookingConfirmation({
                                     textDecoration: "none",
                                   }}
                                 >
-                                  Visa din biljett
+                                  {t("bookingViewTicket")}
                                 </a>
                               </td>
                             </tr>

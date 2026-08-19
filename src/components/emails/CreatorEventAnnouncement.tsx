@@ -1,3 +1,7 @@
+import type { Locale } from "@/i18n/config";
+import type { Translate } from "@/lib/i18n/server";
+import { formatEmailDate } from "@/lib/email/i18n";
+
 interface CreatorEventAnnouncementProps {
   followerName: string;
   creatorName: string;
@@ -5,19 +9,23 @@ interface CreatorEventAnnouncementProps {
   eventDate?: Date;
   location?: string;
   eventUrl: string;
+  /** Translator for the `emails` namespace, in the recipient's language. */
+  t: Translate;
+  locale: Locale;
 }
 
-function formatDate(date: Date): string {
-  return new Intl.DateTimeFormat("sv-SE", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    timeZone: "Europe/Stockholm",
-  }).format(date);
-}
+const DATE_FORMAT: Intl.DateTimeFormatOptions = {
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+};
 
-export function getCreatorEventSubject(creatorName: string, eventTitle: string): string {
-  return `${creatorName} har lagt upp: ${eventTitle}`;
+export function getCreatorEventSubject(
+  t: Translate,
+  creatorName: string,
+  eventTitle: string
+): string {
+  return t("creatorEventSubject", { creator: creatorName, event: eventTitle });
 }
 
 export default function CreatorEventAnnouncement({
@@ -27,6 +35,8 @@ export default function CreatorEventAnnouncement({
   eventDate,
   location,
   eventUrl,
+  t,
+  locale,
 }: CreatorEventAnnouncementProps) {
   return (
     <html>
@@ -56,10 +66,10 @@ export default function CreatorEventAnnouncement({
                         padding: "32px 28px",
                       }}>
                         <p style={{ fontSize: 18, fontWeight: 600, color: "#fafaf9", margin: "0 0 8px" }}>
-                          Hej {followerName}!
+                          {t("greetingExcited", { name: followerName })}
                         </p>
                         <p style={{ fontSize: 14, color: "#6b6b6b", margin: "0 0 24px", lineHeight: 1.6 }}>
-                          {creatorName}, som du följer, har lagt upp ett nytt event:
+                          {t("creatorEventIntro", { creator: creatorName })}
                         </p>
 
                         <table width="100%" cellPadding={0} cellSpacing={0} style={{ marginBottom: 24 }}>
@@ -71,12 +81,12 @@ export default function CreatorEventAnnouncement({
                                 </p>
                                 {eventDate && (
                                   <p style={{ fontSize: 13, color: "#fafaf9", margin: "0 0 4px" }}>
-                                    Datum: {formatDate(eventDate)}
+                                    {t("labelDate", { value: formatEmailDate(eventDate, locale, DATE_FORMAT) })}
                                   </p>
                                 )}
                                 {location && (
                                   <p style={{ fontSize: 13, color: "#fafaf9", margin: 0 }}>
-                                    Plats: {location}
+                                    {t("labelPlace", { value: location })}
                                   </p>
                                 )}
                               </td>
@@ -101,7 +111,7 @@ export default function CreatorEventAnnouncement({
                                     textDecoration: "none",
                                   }}
                                 >
-                                  Se eventet
+                                  {t("creatorEventCta")}
                                 </a>
                               </td>
                             </tr>
@@ -112,7 +122,7 @@ export default function CreatorEventAnnouncement({
                     <tr>
                       <td style={{ padding: "24px 0", textAlign: "center" }}>
                         <p style={{ fontSize: 11, color: "#3f3f3f", margin: 0 }}>
-                          Du får detta för att du följer {creatorName} på Usha Platform.
+                          {t("creatorEventFooter", { creator: creatorName })}
                         </p>
                       </td>
                     </tr>

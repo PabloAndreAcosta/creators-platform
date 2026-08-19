@@ -320,6 +320,7 @@ async function sendMessageEmailNotification(
       recipientName,
       senderName,
       messagePreview: preview,
+      recipientId,
     });
   } catch (err) {
     console.error('Failed to send message email:', err);
