@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { isAdminById } from "@/lib/admin/check";
 import Link from "next/link";
@@ -15,6 +16,8 @@ export default async function NewPromoPage() {
     redirect("/dashboard");
   }
 
+  const t = await getTranslations("adminPromo");
+
   return (
     <>
       <div className="mb-8">
@@ -23,12 +26,10 @@ export default async function NewPromoPage() {
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]"
         >
           <ArrowLeft size={14} />
-          Tillbaka till promokoder
+          {t("backToList")}
         </Link>
-        <h1 className="text-3xl font-bold">Ny promokod</h1>
-        <p className="mt-1 text-[var(--usha-muted)]">
-          Skapa en rabattkod för prenumerationer eller biljetter.
-        </p>
+        <h1 className="text-3xl font-bold">{t("newTitle")}</h1>
+        <p className="mt-1 text-[var(--usha-muted)]">{t("newIntro")}</p>
       </div>
 
       <PromoForm />

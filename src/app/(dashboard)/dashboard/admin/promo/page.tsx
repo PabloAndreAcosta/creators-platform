@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { isAdminById } from "@/lib/admin/check";
 import Link from "next/link";
@@ -35,6 +36,7 @@ export default async function AdminPromoPage({
     .from("promo_code_uses")
     .select("id", { count: "exact", head: true });
 
+  const t = await getTranslations("adminPromo");
   const codes = promoCodes || [];
   const activeCount = codes.filter((c: any) => c.is_active).length;
 
@@ -42,7 +44,7 @@ export default async function AdminPromoPage({
     <>
       {created && (
         <div className="mb-6 rounded-xl border border-green-500/20 bg-green-500/10 px-4 py-3 text-sm font-medium text-green-400">
-          Promokod skapad!
+          {t("created")}
         </div>
       )}
 
@@ -51,17 +53,15 @@ export default async function AdminPromoPage({
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Promokoder</h1>
-            <p className="mt-1 text-[var(--usha-muted)]">
-              Skapa och hantera rabattkoder.
-            </p>
+            <h1 className="text-3xl font-bold">{t("title")}</h1>
+            <p className="mt-1 text-[var(--usha-muted)]">{t("intro")}</p>
           </div>
           <Link
             href="/dashboard/admin/promo/new"
             className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-5 py-2.5 text-sm font-semibold text-black transition hover:opacity-90"
           >
             <Plus size={16} />
-            Ny promokod
+            {t("newCode")}
           </Link>
         </div>
       </div>
@@ -71,21 +71,21 @@ export default async function AdminPromoPage({
         <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
           <div className="flex items-center gap-2 text-[var(--usha-muted)]">
             <Tag size={14} />
-            <span className="text-xs">Totalt</span>
+            <span className="text-xs">{t("statTotal")}</span>
           </div>
           <p className="mt-1 text-2xl font-bold">{codes.length}</p>
         </div>
         <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
           <div className="flex items-center gap-2 text-emerald-400">
             <TrendingUp size={14} />
-            <span className="text-xs">Aktiva</span>
+            <span className="text-xs">{t("statActive")}</span>
           </div>
           <p className="mt-1 text-2xl font-bold">{activeCount}</p>
         </div>
         <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
           <div className="flex items-center gap-2 text-[var(--usha-gold)]">
             <Users size={14} />
-            <span className="text-xs">Användningar</span>
+            <span className="text-xs">{t("statUses")}</span>
           </div>
           <p className="mt-1 text-2xl font-bold">{totalUses ?? 0}</p>
         </div>

@@ -3549,5 +3549,43 @@
     "promoLabel": "Códigos de descuento",
     "promoDesc": "Crea códigos de descuento y sigue su uso.",
     "navLabel": "Admin"
+  },
+  "adminCreators": {
+    "title": "Creadores: particular/empresa",
+    "intro": "Busca a un creador y cambia si vende como empresa (verificación del n.º de empresa + n.º en el recibo).",
+    "searchPlaceholder": "correo del creador",
+    "searchButton": "Buscar",
+    "updated": "Actualizado.",
+    "errorNotCreator": "Esta cuenta no es de creador: la marca solo se aplica a creadores.",
+    "onlyCreators": "La marca solo se aplica a creadores. Los espacios siempre son empresas; los clientes no la tienen.",
+    "noName": "(sin nombre)",
+    "statusNow": "Estado actual:",
+    "company": "Empresa",
+    "privatePerson": "Particular",
+    "companyVerified": "(empresa verificada)",
+    "setCompany": "Marcar como empresa",
+    "setPrivatePerson": "Marcar como particular",
+    "verifiedWarning": "Nota: esta cuenta tiene una empresa verificada. Si la vuelves a marcar como particular, los datos del n.º de empresa se mantienen hasta que se borren aparte.",
+    "noMatch": "No se ha encontrado ningún perfil para “{query}”.",
+    "roleLabel": "rol: {role}"
+  },
+  "adminPromo": {
+    "title": "Códigos de descuento",
+    "intro": "Crea y gestiona códigos de descuento.",
+    "created": "¡Código creado!",
+    "newCode": "Nuevo código",
+    "statTotal": "Total",
+    "statActive": "Activos",
+    "statUses": "Usos",
+    "newTitle": "Nuevo código de descuento",
+    "newIntro": "Crea un código de descuento para suscripciones o entradas.",
+    "backToList": "Volver a los códigos",
+    "errorRequiredFields": "Rellena todos los campos obligatorios.",
+    "errorPercentRange": "El descuento porcentual tiene que estar entre 1 y 100.",
+    "errorFixedMin": "El descuento fijo tiene que ser de al menos 1 SEK.",
+    "errorDuplicate": "El código \"{code}\" ya existe.",
+    "errorCreate": "No se ha podido crear el código.",
+    "errorToggle": "No se ha podido actualizar el estado.",
+    "errorDelete": "No se ha podido eliminar el código."
   }
 }
