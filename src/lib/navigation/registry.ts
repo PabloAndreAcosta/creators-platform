@@ -177,8 +177,14 @@ export const CONTEXTUAL_ROUTES: Record<string, string> = {
   "/dashboard/listings/[id]/edit": "Nås genom att öppna en tjänst.",
   "/dashboard/gigs/new": "Nås från gig-listan.",
   "/dashboard/gigs/[id]": "Nås genom att öppna ett gig.",
+  // Adminsidorna når man genom att skriva in URL:en. De kan inte stå i
+  // APP_DESTINATIONS: registret känner bara rollerna creator/venue/customer, så
+  // en ingång skulle visas för alla säljare — som sedan bara skickas till
+  // /dashboard av sidans egen isAdminById-grind. Ingen ingång är bättre än en
+  // som leder till en omdirigering.
   "/dashboard/admin/promo": "Adminverktyg, avsiktligt utan menyingång.",
   "/dashboard/admin/promo/new": "Adminverktyg, avsiktligt utan menyingång.",
+  "/dashboard/admin/creators": "Adminverktyg, avsiktligt utan menyingång.",
   "/dashboard/profile": "Redigera profil — nås från profilmenyn.",
 };
 
