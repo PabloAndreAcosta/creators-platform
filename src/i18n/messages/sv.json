@@ -2930,6 +2930,7 @@
     "stepCreateAccount": "Skapa Stripe-konto",
     "stepVerifyIdentity": "Verifiera identitet",
     "stepEnablePayouts": "Aktivera utbetalningar",
+    "stepEnableCardPayments": "Aktivera kortbetalning (så du står som säljare på kvittot)",
     "connecting": "Ansluter...",
     "completeConnection": "Slutför anslutning",
     "connectBankAccount": "Anslut bankkonto",

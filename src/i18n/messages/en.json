@@ -2930,6 +2930,7 @@
     "stepCreateAccount": "Create Stripe account",
     "stepVerifyIdentity": "Verify identity",
     "stepEnablePayouts": "Enable payouts",
+    "stepEnableCardPayments": "Enable card payments (so you're the seller on the receipt)",
     "connecting": "Connecting...",
     "completeConnection": "Complete connection",
     "connectBankAccount": "Connect bank account",

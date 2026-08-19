@@ -3,12 +3,15 @@
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { ExternalLink, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { isConnectComplete } from '@/lib/stripe/connect-status';
 
 interface ConnectStatus {
   connected: boolean;
   chargesEnabled: boolean;
   payoutsEnabled: boolean;
   detailsSubmitted?: boolean;
+  /** card_payments capability — what lets the organizer be merchant of record. */
+  cardPaymentsEnabled?: boolean;
 }
 
 export default function ConnectButton() {
@@ -60,7 +63,14 @@ export default function ConnectButton() {
     );
   }
 
-  const isFullyConnected = status?.connected && status?.payoutsEnabled;
+  // "Done" has to mean the same thing here as in the onboarding checklist.
+  //
+  // This used to stop at payouts_enabled, so an account that could receive money
+  // but had never been granted the card_payments capability showed "All set" —
+  // and, because the whole guide is hidden when fully connected, the button that
+  // requests that very capability disappeared with it. The checklist meanwhile
+  // kept asking for a step whose only control was no longer on the page.
+  const isFullyConnected = isConnectComplete(status);
 
   return (
     <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
@@ -98,6 +108,7 @@ export default function ConnectButton() {
               { step: 1, label: t('stepCreateAccount'), done: !!status?.connected },
               { step: 2, label: t('stepVerifyIdentity'), done: !!status?.detailsSubmitted },
               { step: 3, label: t('stepEnablePayouts'), done: !!status?.payoutsEnabled },
+              { step: 4, label: t('stepEnableCardPayments'), done: !!status?.cardPaymentsEnabled },
             ].map((s) => (
               <div key={s.step} className="flex items-center gap-3">
                 <div className={`flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold ${
