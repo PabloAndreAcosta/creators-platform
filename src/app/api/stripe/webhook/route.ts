@@ -381,23 +381,27 @@ export async function POST(req: NextRequest) {
             .maybeSingle();
           const amountKr = Math.round((gage.amount_ore as number) / 100).toLocaleString("sv-SE");
 
-          await getSupabaseAdmin().from("notifications").insert([
-            {
-              user_id: gage.collaborator_user_id,
+          const gageParams = {
+            amount: amountKr,
+            title: listing?.title ?? { key: "fallbackEvent" },
+          };
+          await Promise.all([
+            createNotification({
+              userId: gage.collaborator_user_id,
               type: "gage_paid",
-              title: "Gage betald",
-              message: `Du har fått ${amountKr} kr för "${listing?.title ?? "eventet"}".`,
+              titleKey: "gagePaidTitle",
+              bodyKey: "gagePaidCollaboratorMsg",
+              params: gageParams,
               link: "/app/my-collaborations",
-              is_read: false,
-            },
-            {
-              user_id: gage.host_id,
+            }),
+            createNotification({
+              userId: gage.host_id,
               type: "gage_paid",
-              title: "Gage betald",
-              message: `Betalningen på ${amountKr} kr för "${listing?.title ?? "eventet"}" är klar.`,
+              titleKey: "gagePaidTitle",
+              bodyKey: "gagePaidHostMsg",
+              params: gageParams,
               link: `/app/events/${gage.listing_id}/crew`,
-              is_read: false,
-            },
+            }),
           ]);
 
           break;
@@ -609,11 +613,12 @@ export async function POST(req: NextRequest) {
               .select("title")
               .eq("id", listingId)
               .single();
-            await getSupabaseAdmin().from("notifications").insert({
-              user_id: creatorId,
+            await createNotification({
+              userId: creatorId,
               type: "booking_confirmed",
-              title: "Ny betald bokning",
-              message: `En betald bokning för «${paidListing?.title ?? "din tjänst"}» är bekräftad.`,
+              titleKey: "paidBookingTitle",
+              bodyKey: "paidBookingMsg",
+              params: { service: paidListing?.title ?? { key: "fallbackService" } },
               link: "/dashboard/bookings",
             });
           }
@@ -866,8 +871,9 @@ export async function POST(req: NextRequest) {
           createNotification({
             userId: failedPayout.creator_id,
             type: "payout",
-            title: "Payout failed",
-            message: `Your payout of ${failedPayout.amount_net} SEK failed. Please check your Stripe account settings.`,
+            titleKey: "payoutFailedTitle",
+            bodyKey: "payoutFailedMsg",
+            params: { amount: failedPayout.amount_net },
             link: "/dashboard/payouts",
           }).catch(() => {});
         }
@@ -966,8 +972,9 @@ export async function POST(req: NextRequest) {
               createNotification({
                 userId: refundedBooking.customer_id,
                 type: "booking_canceled",
-                title: "Refund processed",
-                message: `Your booking for "${serviceName}" has been refunded.`,
+                titleKey: "refundProcessedTitle",
+                bodyKey: "refundProcessedMsg",
+                params: { service: serviceName },
                 link: "/app/tickets",
               }).catch(() => {});
             }
@@ -975,8 +982,9 @@ export async function POST(req: NextRequest) {
             createNotification({
               userId: refundedBooking.creator_id,
               type: "booking_canceled",
-              title: "Booking refunded",
-              message: `A booking for "${serviceName}" has been refunded.`,
+              titleKey: "bookingRefundedTitle",
+              bodyKey: "bookingRefundedMsg",
+              params: { service: serviceName },
               link: "/dashboard/bookings",
             }).catch(() => {});
           }
@@ -1035,8 +1043,12 @@ export async function POST(req: NextRequest) {
             createNotification({
               userId: disputedBooking.creator_id,
               type: "payout",
-              title: "Payment dispute opened",
-              message: `A customer has disputed a payment for "${listing?.title || "a booking"}". Amount: ${(dispute.amount / 100).toLocaleString("sv-SE")} SEK.`,
+              titleKey: "disputeOpenedTitle",
+              bodyKey: "disputeOpenedMsg",
+              params: {
+                service: listing?.title || { key: "fallbackBooking" },
+                amount: (dispute.amount / 100).toLocaleString("sv-SE"),
+              },
               link: "/dashboard/payouts",
             }).catch(() => {});
           }

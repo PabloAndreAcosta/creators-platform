@@ -26,17 +26,16 @@ export const LEVEL_THRESHOLDS = [
   { level: 9, points: 10000 },
 ] as const;
 
-export const LEVEL_NAMES: Record<number, string> = {
-  1: "Nybörjare",
-  2: "Utforskare",
-  3: "Engagerad",
-  4: "Aktiv",
-  5: "Dedikerad",
-  6: "Expert",
-  7: "Mästare",
-  8: "Legend",
-  9: "Ikon",
-};
+export const MAX_LEVEL = 9;
+
+/**
+ * Levels are shown to every reader in their own language, so the table holds
+ * message keys rather than words. Resolve them with `useLevelName()` in the
+ * browser, or through the `serverNotifications` namespace on the server.
+ */
+export const LEVEL_NAME_KEYS: Record<number, string> = Object.fromEntries(
+  Array.from({ length: MAX_LEVEL }, (_, i) => [i + 1, `levelName${i + 1}`])
+);
 
 export const LEVEL_COLORS: Record<number, string> = {
   1: "text-gray-400 border-gray-400",

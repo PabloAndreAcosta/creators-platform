@@ -41,20 +41,28 @@ export async function notifyOwnerTicketSold(
 ): Promise<void> {
   const recipients = await eventManagers(admin, opts.listingId, opts.ownerId);
   const qty = opts.quantity || 1;
-  const seats =
+  // How much we know about the house decides which sentence to use; the count
+  // pluralises inside the message so each language does it its own way.
+  const bodyKey =
     opts.capacity && opts.ticketsSold != null
-      ? ` (${opts.ticketsSold}/${opts.capacity} sålda)`
+      ? "ticketSoldMsgCapacity"
       : opts.ticketsSold != null
-        ? ` · ${opts.ticketsSold} sålda totalt`
-        : "";
-  const message = `${qty} biljett${qty > 1 ? "er" : ""} till "${opts.title}" – ${kr(opts.amountOre)} kr${seats}.`;
+        ? "ticketSoldMsgTotal"
+        : "ticketSoldMsg";
   await Promise.all(
     recipients.map((userId) =>
       createNotification({
         userId,
         type: "ticket_sold",
-        title: "Ny biljett såld 🎟️",
-        message,
+        titleKey: "ticketSoldTitle",
+        bodyKey,
+        params: {
+          count: qty,
+          title: opts.title,
+          amount: kr(opts.amountOre),
+          ...(opts.ticketsSold != null ? { sold: opts.ticketsSold } : {}),
+          ...(opts.capacity ? { capacity: opts.capacity } : {}),
+        },
         link: `/app/events/${opts.listingId}/live`,
       })
     )
@@ -72,8 +80,9 @@ export async function notifyOwnerSoldOut(
       createNotification({
         userId,
         type: "event_sold_out",
-        title: "Slutsålt! 🔥",
-        message: `"${opts.title}" är nu slutsålt.`,
+        titleKey: "soldOutTitle",
+        bodyKey: "soldOutMsg",
+        params: { title: opts.title },
         link: `/app/events/${opts.listingId}/live`,
       })
     )
@@ -86,14 +95,16 @@ export async function notifyOwnerWaitlistJoin(
   opts: { listingId: string; ownerId: string; title: string; name?: string | null }
 ): Promise<void> {
   const recipients = await eventManagers(admin, opts.listingId, opts.ownerId);
-  const who = opts.name ? `${opts.name} ` : "Någon ";
   await Promise.all(
     recipients.map((userId) =>
       createNotification({
         userId,
         type: "waitlist_join",
-        title: "Ny på väntelistan ⏳",
-        message: `${who}ställde sig i kö till "${opts.title}".`,
+        titleKey: "waitlistJoinTitle",
+        // No name means the sentence starts with "Someone" — a word, not a
+        // value, so it lives in a message of its own.
+        bodyKey: opts.name ? "waitlistJoinMsg" : "waitlistJoinMsgAnon",
+        params: { ...(opts.name ? { name: opts.name } : {}), title: opts.title },
         link: `/app/events/${opts.listingId}/waitlist`,
       })
     )

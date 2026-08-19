@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { locales, LOCALE_COOKIE_NAME, detectLocaleFromAcceptLanguage } from "@/i18n/config";
 
 // Register (or refresh) the current user's Web Push subscription for this
 // device. The browser hands us an endpoint + keys from pushManager.subscribe.
@@ -37,6 +38,10 @@ export async function POST(req: NextRequest) {
         p256dh,
         auth,
         user_agent: req.headers.get("user-agent")?.slice(0, 300) ?? null,
+        // Push text is composed on the server, long after this request, so
+        // record the language this device is reading the app in. Same
+        // resolution order as middleware.ts: explicit choice → device → English.
+        locale: deviceLocale(req),
       },
       { onConflict: "endpoint" }
     );
@@ -72,4 +77,14 @@ export async function DELETE(req: NextRequest) {
     .eq("user_id", user.id);
 
   return NextResponse.json({ ok: true });
+}
+
+/**
+ * The UI language this device is on, so pushes to it aren't stuck in whichever
+ * language the sending code was written in. Mirrors middleware.ts.
+ */
+function deviceLocale(req: NextRequest): string {
+  const cookie = req.cookies.get(LOCALE_COOKIE_NAME)?.value;
+  if (cookie && (locales as readonly string[]).includes(cookie)) return cookie;
+  return detectLocaleFromAcceptLanguage(req.headers.get("accept-language"), "en");
 }

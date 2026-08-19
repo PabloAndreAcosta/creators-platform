@@ -2,14 +2,23 @@
 
 import { useState, useEffect } from "react";
 import { Bell, Check, CheckCheck, ExternalLink, Loader2 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import {
+  NOTIFICATION_NS,
+  renderNotification,
+  type NotificationParams,
+} from "@/lib/notifications/text";
 import Link from "next/link";
 
 interface Notification {
   id: string;
   type: string;
+  /** Frozen text. Only shown for rows written without a message key. */
   title: string;
   message: string;
+  title_key: string | null;
+  body_key: string | null;
+  params: NotificationParams | null;
   link: string | null;
   is_read: boolean;
   created_at: string;
@@ -32,6 +41,10 @@ const TYPE_ICONS: Record<string, string> = {
 
 export default function NotificationsPage() {
   const t = useTranslations("notificationsPage");
+  // Notifications carry a message key, not a sentence, so the list reads in
+  // whatever language this session is in — including rows written years ago.
+  const tn = useTranslations(NOTIFICATION_NS);
+  const locale = useLocale();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -87,7 +100,7 @@ export default function NotificationsPage() {
     if (hours < 24) return t("timeHoursAgo", { count: hours });
     const days = Math.floor(hours / 24);
     if (days < 7) return t("timeDaysAgo", { count: days });
-    return new Date(dateStr).toLocaleDateString("sv-SE");
+    return new Date(dateStr).toLocaleDateString(locale);
   }
 
   const filtered = filter === "unread"
@@ -150,7 +163,9 @@ export default function NotificationsPage() {
         </div>
       ) : (
         <div className="space-y-2">
-          {filtered.map((n) => (
+          {filtered.map((n) => {
+            const text = renderNotification(n, tn);
+            return (
             <div
               key={n.id}
               className={`rounded-xl border p-4 transition ${
@@ -165,12 +180,12 @@ export default function NotificationsPage() {
                 </span>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2">
-                    <h3 className="text-sm font-semibold">{n.title}</h3>
+                    <h3 className="text-sm font-semibold">{text.title}</h3>
                     <span className="flex-shrink-0 text-[10px] text-[var(--usha-muted)]">
                       {timeAgo(n.created_at)}
                     </span>
                   </div>
-                  <p className="mt-0.5 text-xs text-[var(--usha-muted)]">{n.message}</p>
+                  <p className="mt-0.5 text-xs text-[var(--usha-muted)]">{text.message}</p>
                   <div className="mt-2 flex items-center gap-3">
                     {n.link && (
                       <Link
@@ -195,7 +210,8 @@ export default function NotificationsPage() {
                 </div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

@@ -75,7 +75,8 @@ async function notifyFollowers(supabase: Awaited<ReturnType<typeof createClient>
 
   if (!followers || followers.length === 0) return;
 
-  const creatorName = profile?.full_name || "En kreatör";
+  const creatorName = profile?.full_name;
+  // The post's own words are the body — nothing to translate there.
   const preview = postText.length > 60 ? postText.slice(0, 60) + "..." : postText;
 
   await Promise.all(
@@ -83,7 +84,8 @@ async function notifyFollowers(supabase: Awaited<ReturnType<typeof createClient>
       createNotification({
         userId: f.follower_id,
         type: "new_post",
-        title: `${creatorName} delade ett nytt inlägg`,
+        titleKey: creatorName ? "newPostTitle" : "newPostTitleAnon",
+        params: creatorName ? { creator: creatorName } : undefined,
         message: preview,
         link: "/flode",
       })

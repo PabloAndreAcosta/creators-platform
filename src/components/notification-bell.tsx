@@ -4,12 +4,21 @@ import { useState, useEffect, useRef } from "react";
 import { Bell, Check, CheckCheck, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import {
+  NOTIFICATION_NS,
+  renderNotification,
+  type NotificationParams,
+} from "@/lib/notifications/text";
 
 interface Notification {
   id: string;
   type: string;
+  /** Frozen text. Only shown for rows written without a message key. */
   title: string;
   message: string;
+  title_key: string | null;
+  body_key: string | null;
+  params: NotificationParams | null;
   link: string | null;
   is_read: boolean;
   created_at: string;
@@ -23,6 +32,9 @@ export function NotificationBell() {
   const ref = useRef<HTMLDivElement>(null);
   const t = useTranslations("notifications");
   const tc = useTranslations("common");
+  // Notifications carry a message key, not a sentence, so the list reads in
+  // whatever language this session is in — including rows written years ago.
+  const tn = useTranslations(NOTIFICATION_NS);
 
   // Fetch unread count on mount + poll every 30s
   useEffect(() => {
@@ -90,12 +102,12 @@ export function NotificationBell() {
   function timeAgo(dateStr: string) {
     const diff = Date.now() - new Date(dateStr).getTime();
     const mins = Math.floor(diff / 60000);
-    if (mins < 1) return "nu";
-    if (mins < 60) return `${mins}m`;
+    if (mins < 1) return t("timeJustNow");
+    if (mins < 60) return t("timeMinutesAgo", { count: mins });
     const hours = Math.floor(mins / 60);
-    if (hours < 24) return `${hours}h`;
+    if (hours < 24) return t("timeHoursAgo", { count: hours });
     const days = Math.floor(hours / 24);
-    return `${days}d`;
+    return t("timeDaysAgo", { count: days });
   }
 
   return (
@@ -140,7 +152,9 @@ export function NotificationBell() {
                 {t("empty")}
               </div>
             ) : (
-              notifications.map((n) => (
+              notifications.map((n) => {
+                const text = renderNotification(n, tn);
+                return (
                 <div
                   key={n.id}
                   className={`flex gap-3 border-b border-[var(--usha-border)] px-4 py-3 last:border-0 ${
@@ -158,13 +172,13 @@ export function NotificationBell() {
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
-                      <p className="text-xs font-semibold">{n.title}</p>
+                      <p className="text-xs font-semibold">{text.title}</p>
                       <span className="flex-shrink-0 text-[10px] text-[var(--usha-muted)]">
                         {timeAgo(n.created_at)}
                       </span>
                     </div>
                     <p className="mt-0.5 text-[11px] text-[var(--usha-muted)] line-clamp-2">
-                      {n.message}
+                      {text.message}
                     </p>
                     <div className="mt-1.5 flex items-center gap-2">
                       {n.link && (
@@ -192,7 +206,8 @@ export function NotificationBell() {
                     </div>
                   </div>
                 </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>

@@ -5,10 +5,10 @@ import { useRole } from "@/components/mobile/role-context";
 import { useTranslations } from "next-intl";
 import { LevelBadge } from "@/components/level-badge";
 import {
-  LEVEL_NAMES,
   getLevelProgress,
   getNextLevelThreshold,
 } from "@/lib/points/constants";
+import { useLevelName } from "@/lib/points/level-name";
 import {
   User,
   Edit2,
@@ -82,6 +82,7 @@ export function ProfileContent({
   const tc = useTranslations("common");
   const tp = useTranslations("appProfile");
   const tr = useTranslations("roles");
+  const levelNameOf = useLevelName();
   const [userPoints, setUserPoints] = useState<{
     total_points: number;
     current_level: number;
@@ -164,7 +165,7 @@ export function ProfileContent({
               />
             </div>
             <p className="mt-1 text-[10px] text-[var(--usha-muted)]">
-              {t("pointsToNext", { points: (nextThreshold - totalPoints).toLocaleString("sv-SE"), level: LEVEL_NAMES[currentLevel + 1] })}
+              {t("pointsToNext", { points: (nextThreshold - totalPoints).toLocaleString("sv-SE"), level: levelNameOf(currentLevel + 1) })}
             </p>
           </div>
         )}
