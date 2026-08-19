@@ -104,3 +104,26 @@ describe("onboardingProgress", () => {
     expect(p.done).toBe(2); // profile + bankid
   });
 });
+
+describe("stripe-steget leder dit uppgiften hör hemma", () => {
+  // This link has now been wrong twice. It pointed at the subscription page,
+  // where the Stripe card sat below the plan grid — so the step about getting
+  // paid opened a page about plans, with nothing visible to do. Landing on the
+  // wrong subject is indistinguishable from the step being impossible.
+  const stripeStepFor = (ctx: Partial<typeof base>) =>
+    buildOnboardingSteps({ ...base, ...ctx }).find((s) => s.key === "stripe")!;
+
+  const cases = [
+    { name: "utan konto", ctx: { stripeAccountId: null } },
+    { name: "konto utan kortbetalning", ctx: { stripeAccountId: "acct_1", stripeCardPaymentsEnabled: false } },
+    { name: "färdigt konto", ctx: { stripeAccountId: "acct_1", stripeCardPaymentsEnabled: true } },
+  ];
+
+  for (const { name, ctx } of cases) {
+    it(`${name}: pekar på utbetalningar, inte prenumerationssidan`, () => {
+      const step = stripeStepFor(ctx);
+      expect(step.href).toBe("/dashboard/payouts");
+      expect(step.href).not.toContain("/billing");
+    });
+  }
+});

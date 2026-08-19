@@ -271,6 +271,7 @@
   },
   "profile": {
     "editProfile": "Editar perfil",
+    "payouts": "Pagos",
     "myPlan": "Mi plan y facturación",
     "notifications": "Notificaciones",
     "privacySettings": "Configuración de privacidad",
@@ -368,6 +369,7 @@
   },
   "billing": {
     "title": "Suscripción",
+    "payoutsMovedHint": "Conecta tu cuenta bancaria y consulta tus pagos",
     "subtitle": "Gestiona tu plan y tus pagos.",
     "paymentSuccess": "¡Pago realizado! Tu plan ya está activo.",
     "betaNotice": "Periodo beta: todas las funciones están desbloqueadas gratis para todos los usuarios.",
