@@ -1,11 +1,10 @@
-import { createClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/admin/guard";
 import { getTranslations } from "next-intl/server";
-import { redirect } from "next/navigation";
-import { isAdminById } from "@/lib/admin/check";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isCreatorRole } from "@/lib/roles";
 import Link from "next/link";
 import { AdminNav } from "@/components/admin/admin-nav";
+import { adminDestinationsFor } from "@/lib/navigation/registry";
 import { Search, Building2, User } from "lucide-react";
 import { setCreatorIsCompany } from "./actions";
 
@@ -20,13 +19,7 @@ export default async function AdminCreatorsPage({
   searchParams: Promise<{ email?: string; updated?: string; error?: string }>;
 }) {
   const { email, updated, error } = await searchParams;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user || !(await isAdminById(user.id))) {
-    redirect("/dashboard");
-  }
+  const access = await requireAdmin("creators");
 
   const t = await getTranslations("adminCreators");
   const admin = createAdminClient();
@@ -45,7 +38,7 @@ export default async function AdminCreatorsPage({
 
   return (
     <>
-      <AdminNav />
+      <AdminNav paths={adminDestinationsFor(access).map((d) => d.path)} />
 
       <div className="mb-8">
         <h1 className="text-3xl font-bold">{t("title")}</h1>

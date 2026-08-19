@@ -1,9 +1,8 @@
-import { createClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/admin/guard";
 import { getTranslations } from "next-intl/server";
-import { redirect } from "next/navigation";
-import { isAdminById } from "@/lib/admin/check";
 import Link from "next/link";
 import { AdminNav } from "@/components/admin/admin-nav";
+import { adminDestinationsFor } from "@/lib/navigation/registry";
 import { Plus, Tag, Users, TrendingUp } from "lucide-react";
 import { PromoTable } from "./promo-table";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -14,14 +13,7 @@ export default async function AdminPromoPage({
   searchParams: Promise<{ created?: string }>;
 }) {
   const { created } = await searchParams;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user || !(await isAdminById(user.id))) {
-    redirect("/dashboard");
-  }
+  const access = await requireAdmin("promo");
 
   // Use admin client to bypass RLS for full access
   const admin = createAdminClient();
@@ -48,7 +40,7 @@ export default async function AdminPromoPage({
         </div>
       )}
 
-      <AdminNav />
+      <AdminNav paths={adminDestinationsFor(access).map((d) => d.path)} />
 
       <div className="mb-8">
         <div className="flex items-center justify-between">

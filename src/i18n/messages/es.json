@@ -3548,7 +3548,9 @@
     "creatorsDesc": "Busca a un creador y cámbialo entre particular y empresa.",
     "promoLabel": "Códigos de descuento",
     "promoDesc": "Crea códigos de descuento y sigue su uso.",
-    "navLabel": "Admin"
+    "navLabel": "Admin",
+    "accessLabel": "Permisos",
+    "accessDesc": "Da a los socios acceso a herramientas concretas."
   },
   "adminCreators": {
     "title": "Creadores: particular/empresa",
@@ -3587,5 +3589,22 @@
     "errorCreate": "No se ha podido crear el código.",
     "errorToggle": "No se ha podido actualizar el estado.",
     "errorDelete": "No se ha podido eliminar el código."
+  },
+  "adminAccess": {
+    "title": "Permisos",
+    "intro": "Dale a un socio una parte del área de administración sin entregarle el resto.",
+    "searchPlaceholder": "correo de la persona",
+    "searchButton": "Buscar",
+    "noMatch": "No se ha encontrado ningún perfil para “{query}”.",
+    "noName": "(sin nombre)",
+    "isFullAdmin": "Esta cuenta es administrador completo y ya lo tiene todo. Quita is_admin primero si hay que limitar el acceso.",
+    "grant": "Conceder",
+    "revoke": "Retirar",
+    "footnote": "Los cambios se aplican al instante. Conceder permisos no se puede delegar: solo un administrador completo ve esta página.",
+    "noticeGranted": "Permiso concedido.",
+    "noticeRevoked": "Permiso retirado.",
+    "noticeAlreadyFull": "Esta cuenta es administrador completo y ya lo tiene todo.",
+    "noticeInvalid": "Permiso desconocido.",
+    "noticeError": "No se ha podido guardar. Inténtalo de nuevo."
   }
 }

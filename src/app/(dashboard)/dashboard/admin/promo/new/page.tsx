@@ -1,20 +1,11 @@
-import { createClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/admin/guard";
 import { getTranslations } from "next-intl/server";
-import { redirect } from "next/navigation";
-import { isAdminById } from "@/lib/admin/check";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { PromoForm } from "./promo-form";
 
 export default async function NewPromoPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user || !(await isAdminById(user.id))) {
-    redirect("/dashboard");
-  }
+  await requireAdmin("promo");
 
   const t = await getTranslations("adminPromo");
 

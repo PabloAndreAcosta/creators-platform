@@ -2,21 +2,10 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isAdminById } from "@/lib/admin/check";
+import { assertAdmin } from "@/lib/admin/guard";
 import { isCreatorRole } from "@/lib/roles";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-
-async function requireAdmin() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user || !(await isAdminById(user.id))) {
-    throw new Error("Unauthorized");
-  }
-  return user;
-}
 
 /**
  * Admin: change a creator's is_company flag after signup (for those who chose the
@@ -25,7 +14,7 @@ async function requireAdmin() {
  * companies, customers N/A.
  */
 export async function setCreatorIsCompany(formData: FormData) {
-  await requireAdmin();
+  await assertAdmin("creators");
   const admin = createAdminClient();
 
   const userId = (formData.get("userId") as string)?.trim();

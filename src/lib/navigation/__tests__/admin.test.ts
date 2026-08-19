@@ -1,7 +1,8 @@
 import { describe, it, expect } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
-import { ADMIN_DESTINATIONS, ADMIN_ROOT } from "../registry";
+import { ADMIN_DESTINATIONS, ADMIN_ROOT, adminDestinationsFor } from "../registry";
+import { ADMIN_CAPABILITIES, isAdminCapability } from "@/lib/admin/capabilities";
 
 const APP_DIR = path.join(process.cwd(), "src", "app");
 const ADMIN_DIR = path.join(APP_DIR, "(dashboard)", "dashboard", "admin");
@@ -62,12 +63,84 @@ describe("adminsidorna är skyddade", () => {
 
   for (const file of pages) {
     const rel = file.slice(process.cwd().length + 1);
-    it(`${rel} kontrollerar is_admin på servern`, () => {
+    it(`${rel} går genom en behörighetsgrind`, () => {
       const src = fs.readFileSync(file, "utf8");
-      expect(src, `${rel} saknar isAdminById-kontroll`).toContain("isAdminById");
-      expect(src, `${rel} kontrollerar men släpper igenom`).toMatch(/redirect\(/);
+      expect(src, `${rel} saknar requireAdmin/requireAnyAdmin`).toMatch(
+        /\b(requireAdmin|requireAnyAdmin)\(/
+      );
     });
   }
+
+  // Server actions can't redirect their way out of a refusal, so they get their
+  // own gate — and every one of them needs it: an action reached directly is a
+  // page that was never opened.
+  const actionFiles = fs
+    .readdirSync(ADMIN_DIR, { recursive: true, encoding: "utf8" })
+    .map((f) => path.join(ADMIN_DIR, f))
+    .filter((f) => f.endsWith("actions.ts") && fs.statSync(f).isFile());
+
+  it("hittar action-filerna (skyddar mot att testet tystnar)", () => {
+    expect(actionFiles.length).toBeGreaterThan(0);
+  });
+
+  for (const file of actionFiles) {
+    const rel = file.slice(process.cwd().length + 1);
+    it(`${rel}: varje exporterad action kräver behörighet`, () => {
+      const src = fs.readFileSync(file, "utf8");
+      const exported = [...src.matchAll(/export async function (\w+)/g)].map((m) => m[1]);
+      expect(exported.length, `${rel} exporterar inga actions`).toBeGreaterThan(0);
+      // Either the action asserts directly, or through a local wrapper that does.
+      expect(src, `${rel} saknar assertAdmin`).toContain("assertAdmin(");
+      for (const name of exported) {
+        const body = src.slice(src.indexOf(`export async function ${name}`));
+        const upToNext = body.slice(0, body.indexOf("\nexport ", 1) + 1 || undefined);
+        expect(upToNext, `${rel}: ${name} kollar inte behörighet`).toMatch(
+          /assertAdmin\(|requireCaller\(/
+        );
+      }
+    });
+  }
+});
+
+describe("behörighetsmodellen hänger ihop", () => {
+  it("varje verktyg kräver antingen en känd kapacitet eller hel admin", () => {
+    for (const d of ADMIN_DESTINATIONS) {
+      expect(
+        d.requires === "full" || isAdminCapability(d.requires),
+        `${d.path} kräver "${d.requires}", som varken är "full" eller en känd kapacitet`
+      ).toBe(true);
+    }
+  });
+
+  it("varje kapacitet motsvarar ett verktyg som går att öppna", () => {
+    // A capability nobody can spend is a permission that only looks like one.
+    const spent = new Set(ADMIN_DESTINATIONS.map((d) => d.requires));
+    expect(ADMIN_CAPABILITIES.filter((c) => !spent.has(c))).toEqual([]);
+  });
+
+  it("att dela ut behörighet går inte att delegera", () => {
+    // The whole point: a partner who can widen their own grant isn't limited.
+    const access = ADMIN_DESTINATIONS.find((d) => d.path.endsWith("/access"));
+    expect(access, "behörighetsverktyget saknas i registret").toBeDefined();
+    expect(access!.requires).toBe("full");
+  });
+
+  it("en partner ser bara det den har", () => {
+    const partner = { full: false, capabilities: ["promo" as const] };
+    const paths = adminDestinationsFor(partner).map((d) => d.path);
+    expect(paths).toEqual(["/dashboard/admin/promo"]);
+  });
+
+  it("hel admin ser allt", () => {
+    const boss = { full: true, capabilities: [...ADMIN_CAPABILITIES] };
+    expect(adminDestinationsFor(boss).map((d) => d.path)).toEqual(
+      ADMIN_DESTINATIONS.map((d) => d.path)
+    );
+  });
+
+  it("utan behörighet syns ingenting", () => {
+    expect(adminDestinationsFor({ full: false, capabilities: [] })).toEqual([]);
+  });
 });
 
 describe("adminytan är läsbar för en partner som inte kan svenska", () => {
@@ -90,13 +163,18 @@ describe("adminytan är läsbar för en partner som inte kan svenska", () => {
   /** Attributes whose value the reader sees or hears. */
   const VISIBLE_ATTRS = /(?:placeholder|title|aria-label|alt)=("([^"]*)"|'([^']*)')/g;
 
+  // Latin letters including the accented ones the three languages use (å ä ö
+  // é ñ). Not \p{L}: the unicode property escape needs an ES2018 target and
+  // tsconfig is on ES2017, so it type-errors even though vitest runs it.
+  const HAS_WORDS = /[A-Za-zÀ-ÿ]{2,}/;
+
   function strip(src: string): string {
     return src
       .replace(/\/\*[\s\S]*?\*\//g, "")
       .replace(/^\s*\/\/.*$/gm, "")
       .replace(/\s\/\/[^\n"'`]*$/gm, "")
-      .replace(/className=(?:"[^"]*"|\{`[^`]*`\}|\{[^}]*\})/gs, "")
-      .replace(/style=\{\{[^}]*\}\}/gs, "");
+      .replace(/className=(?:"[^"]*"|\{`[^`]*`\}|\{[^}]*\})/g, "")
+      .replace(/style=\{\{[^}]*\}\}/g, "");
   }
 
   it("hittar filerna överhuvudtaget (skyddar mot att testet tystnar)", () => {
@@ -115,18 +193,20 @@ describe("adminytan är läsbar för en partner som inte kan svenska", () => {
       // whole block in as if it were prose.
       for (const m of code.matchAll(/>([^<>{}();=$[\]]+)</g)) {
         const text = m[1].trim();
-        if (/\p{L}{2,}/u.test(text)) offenders.push(`${rel}: >${text}<`);
+        if (HAS_WORDS.test(text)) offenders.push(`${rel}: >${text}<`);
       }
       for (const m of code.matchAll(VISIBLE_ATTRS)) {
         const value = (m[2] ?? m[3] ?? "").trim();
-        if (/\p{L}{2,}/u.test(value)) offenders.push(`${rel}: ${m[0]}`);
+        if (HAS_WORDS.test(value)) offenders.push(`${rel}: ${m[0]}`);
       }
     }
     expect(offenders).toEqual([]);
   });
 
   it("varje adminnamnrymd finns fylld på alla tre språk", () => {
-    const NAMESPACES = ["adminPage", "adminCreators", "adminPromo", "adminPromoForm", "adminPromoTable"];
+    const NAMESPACES = [
+      "adminPage", "adminAccess", "adminCreators", "adminPromo", "adminPromoForm", "adminPromoTable",
+    ];
     const problems: string[] = [];
     for (const locale of LOCALES) {
       const messages = JSON.parse(

@@ -27,7 +27,7 @@ import UschjaLogo from "@/components/UschjaLogo";
 
 export function SidebarNav() {
   const pathname = usePathname();
-  const { role, isAdmin } = useRole();
+  const { role, hasAdminAccess } = useRole();
   const { tier } = useSubscription();
   const t = useTranslations("nav");
   const tAdmin = useTranslations("adminPage");
@@ -91,10 +91,11 @@ export function SidebarNav() {
           </a>
 
           {/* Admin sits outside the role model, so it hangs off the registry's
-              admin root rather than the role-filtered list above. The flag
-              arrives after mount (see role-context), so the entry appears a
-              beat late — the pages behind it check on the server regardless. */}
-          {isAdmin && (
+              admin root rather than the role-filtered list above. Shown to
+              anyone with any admin access — the hub then lists only the tools
+              they hold. The flag arrives after mount (see role-context), so the
+              entry appears a beat late; the pages check on the server anyway. */}
+          {hasAdminAccess && (
             <Link
               href={ADMIN_ROOT}
               className={`flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
