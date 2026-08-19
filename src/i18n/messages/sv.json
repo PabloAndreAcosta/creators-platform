@@ -372,6 +372,7 @@
     "paymentSuccess": "Betalningen lyckades! Din plan är nu aktiv.",
     "betaNotice": "Beta-period — alla funktioner är upplåsta gratis för alla användare.",
     "currentPlan": "Nuvarande plan",
+    "compSubscription": "Fri tillgång — inget abonnemang att hantera.",
     "active": "Aktiv",
     "trialing": "Provperiod",
     "pastDue": "Förfallen",

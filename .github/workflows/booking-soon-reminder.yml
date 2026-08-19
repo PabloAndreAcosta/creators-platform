@@ -35,3 +35,12 @@ jobs:
           curl -fsS -X GET \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             https://usha.se/api/cron/waitlist-release
+      # Connect capabilities decide who is merchant of record at checkout, and
+      # the account.updated webhook only fires on change — an account that was
+      # already finished when the handler shipped never got one. This makes the
+      # columns eventually right regardless of webhook delivery.
+      - name: Re-sync Stripe Connect capabilities
+        run: |
+          curl -fsS -X GET \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            https://usha.se/api/cron/connect-sync

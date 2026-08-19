@@ -5,6 +5,7 @@ import { BreakEvenCalculator } from "./break-even-calculator";
 import Link from "next/link";
 import { ArrowLeft, Check } from "lucide-react";
 import { CheckoutButton, PortalButton } from "./checkout-button";
+import { isRealStripeCustomer } from "@/lib/stripe/customer";
 import type { MemberRole } from "@/types/database";
 import CreatorTierInfo from "@/components/dashboard/CreatorTierInfo";
 import ConnectButton from "./connect-button";
@@ -162,7 +163,16 @@ export default async function BillingPage({
                 )}
               </div>
             </div>
-            {subscription && <PortalButton />}
+            {/* A comp subscription has no Stripe customer to manage, so the
+                button would only ever produce an error. Say what it is instead. */}
+            {subscription &&
+              (isRealStripeCustomer(subscription.stripe_customer_id) ? (
+                <PortalButton />
+              ) : (
+                <p className="text-xs text-[var(--usha-muted)] sm:max-w-[16rem] sm:text-right">
+                  {t("compSubscription")}
+                </p>
+              ))}
           </div>
         </div>
       )}
@@ -281,9 +291,12 @@ export default async function BillingPage({
         })}
       </div>
 
-      {/* Stripe Connect for creators */}
+      {/* Stripe Connect for creators. The id is a link target: the onboarding
+          checklist sends people straight here, and without it they land at the
+          top of the plan grid with the thing they came for several screens
+          below — which reads as "there is nothing to do". */}
       {isCreatorRole && (
-        <div className="mt-10">
+        <div id="stripe" className="mt-10 scroll-mt-20">
           <h2 className="mb-4 text-xl font-bold">{t("payouts")}</h2>
           <ConnectButton />
         </div>
