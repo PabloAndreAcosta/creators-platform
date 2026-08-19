@@ -1,5 +1,23 @@
 import { describe, it, expect } from "vitest";
+import { readFileSync } from "fs";
+import { join } from "path";
+import { createTranslator } from "next-intl";
 import { escapeHtml, bodyToHtml, isValidCtaUrl, buildBroadcastHtml, chunk } from "../broadcast";
+import type { Translate } from "@/lib/i18n/server";
+
+/** The `emails` translator a real send would hand in. */
+function translatorFor(locale: "sv" | "en" | "es"): Translate {
+  const messages = JSON.parse(
+    readFileSync(join(process.cwd(), `src/i18n/messages/${locale}.json`), "utf8")
+  );
+  const t = createTranslator({ locale, messages, namespace: "emails", onError: () => {} });
+  const fn = ((key: string, params?: Record<string, string | number>) =>
+    t(key as never, params as never) as unknown as string) as Translate;
+  fn.has = (key: string) => messages.emails?.[key] != null;
+  return fn;
+}
+
+const sv = translatorFor("sv");
 
 describe("escapeHtml", () => {
   it("escapes HTML-significant characters", () => {
@@ -32,24 +50,35 @@ describe("isValidCtaUrl", () => {
 
 describe("buildBroadcastHtml", () => {
   it("always includes the unsubscribe link", () => {
-    const html = buildBroadcastHtml({ body: "Hej", unsubscribeUrl: "https://usha.se/waitlist/unsubscribe/abc" });
+    const html = buildBroadcastHtml({ body: "Hej", unsubscribeUrl: "https://usha.se/waitlist/unsubscribe/abc", t: sv });
     expect(html).toContain("https://usha.se/waitlist/unsubscribe/abc");
     expect(html).toContain("Avregistrera");
   });
   it("includes the CTA only with a valid url + label", () => {
-    const withCta = buildBroadcastHtml({ body: "x", ctaLabel: "Köp", ctaUrl: "https://usha.se/e", unsubscribeUrl: "u" });
+    const withCta = buildBroadcastHtml({ body: "x", ctaLabel: "Köp", ctaUrl: "https://usha.se/e", unsubscribeUrl: "u", t: sv });
     expect(withCta).toContain(">Köp<");
     expect(withCta).toContain("https://usha.se/e");
 
-    const badUrl = buildBroadcastHtml({ body: "x", ctaLabel: "Köp", ctaUrl: "javascript:alert(1)", unsubscribeUrl: "u" });
+    const badUrl = buildBroadcastHtml({ body: "x", ctaLabel: "Köp", ctaUrl: "javascript:alert(1)", unsubscribeUrl: "u", t: sv });
     expect(badUrl).not.toContain("alert(1)");
     expect(badUrl).not.toContain(">Köp<");
 
-    const noLabel = buildBroadcastHtml({ body: "x", ctaUrl: "https://usha.se/e", unsubscribeUrl: "u" });
+    const noLabel = buildBroadcastHtml({ body: "x", ctaUrl: "https://usha.se/e", unsubscribeUrl: "u", t: sv });
     expect(noLabel).not.toContain("https://usha.se/e");
   });
+  it("writes the footer in the reader's language but leaves the host's words alone", () => {
+    const opts = { body: "Vi ses på fredag!", unsubscribeUrl: "u" };
+    expect(buildBroadcastHtml({ ...opts, t: sv })).toContain("Avregistrera dig");
+    expect(buildBroadcastHtml({ ...opts, t: translatorFor("en") })).toContain("Unsubscribe");
+    expect(buildBroadcastHtml({ ...opts, t: translatorFor("es") })).toContain("Darse de baja");
+    // The body is the host's own writing — it is never translated.
+    for (const loc of ["sv", "en", "es"] as const) {
+      expect(buildBroadcastHtml({ ...opts, t: translatorFor(loc) })).toContain("Vi ses på fredag!");
+    }
+  });
+
   it("escapes injected body content", () => {
-    const html = buildBroadcastHtml({ body: "<img src=x onerror=alert(1)>", unsubscribeUrl: "u" });
+    const html = buildBroadcastHtml({ body: "<img src=x onerror=alert(1)>", unsubscribeUrl: "u", t: sv });
     expect(html).not.toContain("<img src=x");
     expect(html).toContain("&lt;img");
   });

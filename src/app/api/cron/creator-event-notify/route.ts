@@ -81,6 +81,7 @@ export async function GET(req: NextRequest) {
           eventDate: listing.event_date ? new Date(listing.event_date) : undefined,
           location: listing.event_location || undefined,
           eventUrl: `${appUrl}/listing/${listing.id}`,
+          followerId: f.follower_id,
         });
         notified++;
       } catch (err) {

@@ -15,6 +15,14 @@ export function LanguageSwitcher({ className }: { className?: string }) {
   function setLocale(next: Locale) {
     if (next === active) return;
     document.cookie = `${LOCALE_COOKIE_NAME}=${next};path=/;max-age=${60 * 60 * 24 * 365};samesite=lax`;
+    // The cookie switches the pages; the profile is what mail sent hours later
+    // from a cron or a webhook reads. Best-effort — a failed write must not
+    // stop the language from changing on screen.
+    void fetch("/api/settings/locale", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ locale: next }),
+    }).catch(() => {});
     router.refresh();
   }
 

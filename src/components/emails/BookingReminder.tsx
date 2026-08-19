@@ -1,3 +1,7 @@
+import type { Locale } from "@/i18n/config";
+import type { Translate } from "@/lib/i18n/server";
+import { formatEmailDate } from "@/lib/email/i18n";
+
 type ReminderVariant = "day" | "soon";
 
 interface BookingReminderProps {
@@ -7,29 +11,30 @@ interface BookingReminderProps {
   creatorName: string;
   location?: string;
   variant?: ReminderVariant;
+  /** Translator for the `emails` namespace, in the recipient's language. */
+  t: Translate;
+  locale: Locale;
 }
 
-function formatDate(date: Date): string {
-  return new Intl.DateTimeFormat("sv-SE", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    timeZone: "Europe/Stockholm",
-  }).format(date);
-}
+const DATE_FORMAT: Intl.DateTimeFormatOptions = {
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+};
 
-function formatTime(date: Date): string {
-  return new Intl.DateTimeFormat("sv-SE", {
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "Europe/Stockholm",
-  }).format(date);
-}
+const TIME_FORMAT: Intl.DateTimeFormatOptions = {
+  hour: "2-digit",
+  minute: "2-digit",
+};
 
-export function getBookingReminderSubject(serviceName: string, variant: ReminderVariant = "day"): string {
-  return variant === "soon"
-    ? `Snart dags: ${serviceName}`
-    : `Påminnelse: ${serviceName} imorgon`;
+export function getBookingReminderSubject(
+  t: Translate,
+  serviceName: string,
+  variant: ReminderVariant = "day"
+): string {
+  return t(variant === "soon" ? "reminderSubjectSoon" : "reminderSubjectDay", {
+    service: serviceName,
+  });
 }
 
 export default function BookingReminder({
@@ -39,12 +44,11 @@ export default function BookingReminder({
   creatorName,
   location,
   variant = "day",
+  t,
+  locale,
 }: BookingReminderProps) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";
-  const intro =
-    variant === "soon"
-      ? "Din bokning börjar snart:"
-      : "En vänlig påminnelse om din bokning imorgon:";
+  const intro = t(variant === "soon" ? "reminderIntroSoon" : "reminderIntroDay");
 
   return (
     <html>
@@ -74,7 +78,7 @@ export default function BookingReminder({
                         padding: "32px 28px",
                       }}>
                         <p style={{ fontSize: 18, fontWeight: 600, color: "#fafaf9", margin: "0 0 8px" }}>
-                          Hej {customerName}!
+                          {t("greetingExcited", { name: customerName })}
                         </p>
                         <p style={{ fontSize: 14, color: "#6b6b6b", margin: "0 0 24px", lineHeight: 1.6 }}>
                           {intro}
@@ -88,17 +92,17 @@ export default function BookingReminder({
                                   {serviceName}
                                 </p>
                                 <p style={{ fontSize: 13, color: "#fafaf9", margin: "0 0 4px" }}>
-                                  Datum: {formatDate(scheduledAt)}
+                                  {t("labelDate", { value: formatEmailDate(scheduledAt, locale, DATE_FORMAT) })}
                                 </p>
                                 <p style={{ fontSize: 13, color: "#fafaf9", margin: "0 0 4px" }}>
-                                  Tid: {formatTime(scheduledAt)}
+                                  {t("labelTime", { value: formatEmailDate(scheduledAt, locale, TIME_FORMAT) })}
                                 </p>
                                 <p style={{ fontSize: 13, color: "#fafaf9", margin: "0 0 4px" }}>
-                                  Arrangör: {creatorName}
+                                  {t("labelHost", { value: creatorName })}
                                 </p>
                                 {location && (
                                   <p style={{ fontSize: 13, color: "#fafaf9", margin: 0 }}>
-                                    Plats: {location}
+                                    {t("labelPlace", { value: location })}
                                   </p>
                                 )}
                               </td>
@@ -123,7 +127,7 @@ export default function BookingReminder({
                                     textDecoration: "none",
                                   }}
                                 >
-                                  Visa din bokning
+                                  {t("reminderViewBooking")}
                                 </a>
                               </td>
                             </tr>

@@ -82,6 +82,7 @@ export async function GET(req: NextRequest) {
         bookingId: b.id,
         durationMinutes: listing?.duration_minutes || undefined,
         variant: "soon",
+        customerId: b.customer_id,
       });
       await admin
         .from("bookings")

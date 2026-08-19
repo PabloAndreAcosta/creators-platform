@@ -2,6 +2,8 @@ import { createElement } from 'react';
 import { getResend, getFromEmail } from './resend';
 import { renderEmailToHtml } from './render';
 import PayoutConfirmation, { getPayoutSubject } from '@/components/emails/PayoutConfirmation';
+import { getEmailIntl } from './i18n';
+import { resolveRecipientLocale } from '@/lib/i18n/recipient';
 
 interface PayoutEvent {
   title: string;
@@ -18,6 +20,8 @@ interface SendPayoutParams {
   type: 'batch' | 'instant';
   transactionDate: Date;
   events?: PayoutEvent[];
+  /** Creator's account, so the receipt matches the language they read the app in. */
+  creatorId?: string | null;
 }
 
 /**
@@ -32,8 +36,10 @@ export async function sendPayoutConfirmationEmail({
   type,
   transactionDate,
   events = [],
+  creatorId,
 }: SendPayoutParams): Promise<void> {
   const resend = getResend();
+  const { t, locale } = await getEmailIntl(await resolveRecipientLocale({ userId: creatorId, email: to }));
 
   const html = await renderEmailToHtml(
     createElement(PayoutConfirmation, {
@@ -44,13 +50,15 @@ export async function sendPayoutConfirmationEmail({
       type,
       transactionDate,
       events,
+      t,
+      locale,
     })
   );
 
   const { error } = await resend.emails.send({
     from: getFromEmail(),
     to,
-    subject: getPayoutSubject(type, amount),
+    subject: getPayoutSubject(t, type, amount),
     html,
   });
 

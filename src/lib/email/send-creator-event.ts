@@ -2,6 +2,8 @@ import { createElement } from "react";
 import { getResend, getFromEmail } from "./resend";
 import { renderEmailToHtml } from "./render";
 import CreatorEventAnnouncement, { getCreatorEventSubject } from "@/components/emails/CreatorEventAnnouncement";
+import { getEmailIntl } from "./i18n";
+import { resolveRecipientLocale } from "@/lib/i18n/recipient";
 
 interface SendCreatorEventParams {
   to: string;
@@ -11,6 +13,8 @@ interface SendCreatorEventParams {
   eventDate?: Date;
   location?: string;
   eventUrl: string;
+  /** Follower's account, so the mail matches the language they read the app in. */
+  followerId?: string | null;
 }
 
 export async function sendCreatorEventEmail({
@@ -21,17 +25,19 @@ export async function sendCreatorEventEmail({
   eventDate,
   location,
   eventUrl,
+  followerId,
 }: SendCreatorEventParams): Promise<void> {
   try {
     const resend = getResend();
+    const { t, locale } = await getEmailIntl(await resolveRecipientLocale({ userId: followerId, email: to }));
     const html = await renderEmailToHtml(
-      createElement(CreatorEventAnnouncement, { followerName, creatorName, eventTitle, eventDate, location, eventUrl })
+      createElement(CreatorEventAnnouncement, { followerName, creatorName, eventTitle, eventDate, location, eventUrl, t, locale })
     );
 
     const { error } = await resend.emails.send({
       from: getFromEmail(),
       to,
-      subject: getCreatorEventSubject(creatorName, eventTitle),
+      subject: getCreatorEventSubject(t, creatorName, eventTitle),
       html,
     });
 

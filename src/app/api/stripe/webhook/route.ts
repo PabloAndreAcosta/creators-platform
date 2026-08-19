@@ -1131,6 +1131,7 @@ async function sendTicketConfirmationEmail(
     creatorName: listingRes.data?.organizer_name || creatorRes.data?.full_name || "Kreatör",
     location: listingRes.data?.event_location || undefined,
     seller: buildSeller(creatorId, creatorRes.data),
+    customerId,
   });
 }
 
@@ -1178,6 +1179,7 @@ async function sendSubscriptionWelcomeEmail(
         ? subscription.current_period_end * 1000
         : subscription.current_period_end
     ),
+    memberId: userId,
   });
 }
 
@@ -1200,5 +1202,6 @@ async function sendTrialEndingEmail(
     memberName: profile.full_name || "Medlem",
     trialEndDate,
     daysLeft,
+    memberId: userId,
   });
 }

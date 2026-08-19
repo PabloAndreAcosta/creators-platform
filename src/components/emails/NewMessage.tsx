@@ -1,17 +1,22 @@
+import type { Translate } from "@/lib/i18n/server";
+
 interface NewMessageProps {
   recipientName: string;
   senderName: string;
   messagePreview: string;
+  /** Translator for the `emails` namespace, in the recipient's language. */
+  t: Translate;
 }
 
-export function getNewMessageSubject(senderName: string): string {
-  return `Nytt meddelande från ${senderName} — Usha Platform`;
+export function getNewMessageSubject(t: Translate, senderName: string): string {
+  return t("newMessageSubject", { sender: senderName });
 }
 
 export default function NewMessage({
   recipientName,
   senderName,
   messagePreview,
+  t,
 }: NewMessageProps) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";
 
@@ -43,10 +48,10 @@ export default function NewMessage({
                         padding: "32px 28px",
                       }}>
                         <p style={{ fontSize: 18, fontWeight: 600, color: "#fafaf9", margin: "0 0 8px" }}>
-                          Hej {recipientName},
+                          {t("greeting", { name: recipientName })}
                         </p>
                         <p style={{ fontSize: 14, color: "#6b6b6b", margin: "0 0 24px", lineHeight: 1.6 }}>
-                          {senderName} har skickat dig ett meddelande:
+                          {t("newMessageIntro", { sender: senderName })}
                         </p>
 
                         <table width="100%" cellPadding={0} cellSpacing={0} style={{ marginBottom: 24 }}>
@@ -83,7 +88,7 @@ export default function NewMessage({
                                     textDecoration: "none",
                                   }}
                                 >
-                                  Svara på meddelandet
+                                  {t("newMessageCta")}
                                 </a>
                               </td>
                             </tr>
@@ -94,7 +99,7 @@ export default function NewMessage({
                     <tr>
                       <td style={{ padding: "24px 0", textAlign: "center" }}>
                         <p style={{ fontSize: 11, color: "#3f3f3f", margin: 0 }}>
-                          Detta mejl skickades automatiskt från Usha Platform.
+                          {t("autoSent")}
                         </p>
                       </td>
                     </tr>
