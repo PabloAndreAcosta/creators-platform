@@ -1,18 +1,27 @@
 name: i18n consistency
 
 # Fails a PR when a user could be shown the wrong language: the locale files
-# (sv/en/es) drifting apart, or a notification written with a message key that
-# some language is missing. Both would put a raw i18n key in front of a user.
+# (sv/en/es) drifting apart, a notification written with a message key that some
+# language is missing, or an email template carrying hardcoded prose instead of
+# a key. Each would put the wrong language — or a raw i18n key — in front of
+# someone.
 on:
+  # Listed twice rather than shared through a YAML anchor — GitHub Actions does
+  # not resolve anchors, and a silently-ignored trigger is how this job came to
+  # never run in the first place.
   pull_request:
     paths:
       - "src/i18n/**"
       - "src/lib/notifications/**"
+      - "src/lib/email/**"
+      - "src/components/emails/**"
   push:
     branches: [main]
     paths:
       - "src/i18n/**"
       - "src/lib/notifications/**"
+      - "src/lib/email/**"
+      - "src/components/emails/**"
   workflow_dispatch: {}
 
 jobs:
@@ -29,5 +38,5 @@ jobs:
       # own validation here — which is why this job never ran once since it was
       # added. Exact transitive binaries don't matter for a JSON key check.
       - run: npm install --no-audit --no-fund
-      - name: Check locale key parity and notification keys
-        run: npx vitest run src/i18n src/lib/notifications
+      - name: Check locale parity, notification keys and email templates
+        run: npx vitest run src/i18n src/lib/notifications src/lib/email
