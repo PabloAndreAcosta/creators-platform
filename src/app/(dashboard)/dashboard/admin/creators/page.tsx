@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { isAdminById } from "@/lib/admin/check";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -27,6 +28,7 @@ export default async function AdminCreatorsPage({
     redirect("/dashboard");
   }
 
+  const t = await getTranslations("adminCreators");
   const admin = createAdminClient();
   const query = (email ?? "").trim();
   let profile:
@@ -46,20 +48,18 @@ export default async function AdminCreatorsPage({
       <AdminNav />
 
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">Kreatörer — privatperson/företag</h1>
-        <p className="mt-1 text-[var(--usha-muted)]">
-          Sök upp en kreatör och ändra om de säljer som företag (org.nr-verifiering + org.nr på kvitto).
-        </p>
+        <h1 className="text-3xl font-bold">{t("title")}</h1>
+        <p className="mt-1 text-[var(--usha-muted)]">{t("intro")}</p>
       </div>
 
       {updated === "1" && (
         <div className="mb-6 rounded-xl border border-green-500/20 bg-green-500/10 px-4 py-3 text-sm font-medium text-green-400">
-          Uppdaterat.
+          {t("updated")}
         </div>
       )}
       {error === "not_creator" && (
         <div className="mb-6 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm font-medium text-red-400">
-          Kontot är inte en kreatör — flaggan gäller bara kreatörer.
+          {t("errorNotCreator")}
         </div>
       )}
 
@@ -69,7 +69,7 @@ export default async function AdminCreatorsPage({
           type="email"
           name="email"
           defaultValue={query}
-          placeholder="kreatörens e-post"
+          placeholder={t("searchPlaceholder")}
           className="w-full max-w-sm rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-2.5 text-sm outline-none focus:border-[var(--usha-gold)]/40"
         />
         <button
@@ -77,40 +77,38 @@ export default async function AdminCreatorsPage({
           className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-5 py-2.5 text-sm font-semibold text-black transition hover:opacity-90"
         >
           <Search size={16} />
-          Sök
+          {t("searchButton")}
         </button>
       </form>
 
       {query && !profile && (
-        <p className="text-sm text-[var(--usha-muted)]">Ingen profil hittades för “{query}”.</p>
+        <p className="text-sm text-[var(--usha-muted)]">{t("noMatch", { query })}</p>
       )}
 
       {profile && (
         <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
           <div className="mb-4">
-            <p className="font-semibold">{profile.full_name || "(namn saknas)"}</p>
-            <p className="text-sm text-[var(--usha-muted)]">{profile.email} · roll: {profile.role ?? "–"}</p>
+            <p className="font-semibold">{profile.full_name || t("noName")}</p>
+            <p className="text-sm text-[var(--usha-muted)]">{profile.email} · {t("roleLabel", { role: profile.role ?? "–" })}</p>
           </div>
 
           {!isCreatorRole(profile.role) ? (
-            <p className="text-sm text-[var(--usha-muted)]">
-              Flaggan gäller bara kreatörer. Venues är alltid företag; kunder saknar den.
-            </p>
+            <p className="text-sm text-[var(--usha-muted)]">{t("onlyCreators")}</p>
           ) : (
             <>
               <div className="mb-4 flex items-center gap-2 text-sm">
-                <span className="text-[var(--usha-muted)]">Status nu:</span>
+                <span className="text-[var(--usha-muted)]">{t("statusNow")}</span>
                 {profile.is_company ? (
                   <span className="inline-flex items-center gap-1.5 font-medium text-[var(--usha-gold)]">
-                    <Building2 size={14} /> Företag
+                    <Building2 size={14} /> {t("company")}
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1.5 font-medium">
-                    <User size={14} /> Privatperson
+                    <User size={14} /> {t("privatePerson")}
                   </span>
                 )}
                 {profile.company_verified_at && (
-                  <span className="text-xs text-[var(--usha-muted)]">(bolag verifierat)</span>
+                  <span className="text-xs text-[var(--usha-muted)]">{t("companyVerified")}</span>
                 )}
               </div>
 
@@ -123,7 +121,7 @@ export default async function AdminCreatorsPage({
                     disabled={!!profile.is_company}
                     className="rounded-lg bg-black px-4 py-2 text-sm font-semibold text-white disabled:opacity-40 dark:bg-white dark:text-black"
                   >
-                    Sätt som företag
+                    {t("setCompany")}
                   </button>
                 </form>
                 <form action={setCreatorIsCompany}>
@@ -134,14 +132,12 @@ export default async function AdminCreatorsPage({
                     disabled={!profile.is_company}
                     className="rounded-lg border border-[var(--usha-border)] px-4 py-2 text-sm font-semibold disabled:opacity-40"
                   >
-                    Sätt som privatperson
+                    {t("setPrivatePerson")}
                   </button>
                 </form>
               </div>
               {profile.is_company && profile.company_verified_at && (
-                <p className="mt-3 text-xs text-[var(--usha-muted)]">
-                  Obs: kontot har ett verifierat bolag. Om du sätter tillbaka till privatperson kvarstår org.nr-uppgifterna tills de rensas separat.
-                </p>
+                <p className="mt-3 text-xs text-[var(--usha-muted)]">{t("verifiedWarning")}</p>
               )}
             </>
           )}

@@ -3549,5 +3549,43 @@
     "promoLabel": "Rabattkoder",
     "promoDesc": "Skapa och följ upp rabattkoder.",
     "navLabel": "Admin"
+  },
+  "adminCreators": {
+    "title": "Kreatörer — privatperson/företag",
+    "intro": "Sök upp en kreatör och ändra om de säljer som företag (org.nr-verifiering + org.nr på kvitto).",
+    "searchPlaceholder": "kreatörens e-post",
+    "searchButton": "Sök",
+    "updated": "Uppdaterat.",
+    "errorNotCreator": "Kontot är inte en kreatör — flaggan gäller bara kreatörer.",
+    "onlyCreators": "Flaggan gäller bara kreatörer. Venues är alltid företag; kunder saknar den.",
+    "noName": "(namn saknas)",
+    "statusNow": "Status nu:",
+    "company": "Företag",
+    "privatePerson": "Privatperson",
+    "companyVerified": "(bolag verifierat)",
+    "setCompany": "Sätt som företag",
+    "setPrivatePerson": "Sätt som privatperson",
+    "verifiedWarning": "Obs: kontot har ett verifierat bolag. Om du sätter tillbaka till privatperson kvarstår org.nr-uppgifterna tills de rensas separat.",
+    "noMatch": "Ingen profil hittades för “{query}”.",
+    "roleLabel": "roll: {role}"
+  },
+  "adminPromo": {
+    "title": "Promokoder",
+    "intro": "Skapa och hantera rabattkoder.",
+    "created": "Promokod skapad!",
+    "newCode": "Ny promokod",
+    "statTotal": "Totalt",
+    "statActive": "Aktiva",
+    "statUses": "Användningar",
+    "newTitle": "Ny promokod",
+    "newIntro": "Skapa en rabattkod för prenumerationer eller biljetter.",
+    "backToList": "Tillbaka till promokoder",
+    "errorRequiredFields": "Fyll i alla obligatoriska fält.",
+    "errorPercentRange": "Procentrabatt måste vara mellan 1 och 100.",
+    "errorFixedMin": "Fast rabatt måste vara minst 1 SEK.",
+    "errorDuplicate": "Koden \"{code}\" finns redan.",
+    "errorCreate": "Kunde inte skapa promokod.",
+    "errorToggle": "Kunde inte uppdatera status.",
+    "errorDelete": "Kunde inte radera promokod."
   }
 }

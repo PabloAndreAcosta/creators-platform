@@ -69,3 +69,80 @@ describe("adminsidorna är skyddade", () => {
     });
   }
 });
+
+describe("adminytan är läsbar för en partner som inte kan svenska", () => {
+  // Admin used to be Pablo alone, so Swedish-only was fine. Partners are next,
+  // and they get the same pages — so the admin surface follows the same rule as
+  // the rest of the app: nothing hardcoded, everything through a key.
+  //
+  // The rule is "no literal visible text", not "no Swedish letters": plenty of
+  // Swedish carries no å/ä/ö ("Totalt", "Ny promokod"), and a diacritic hunt
+  // waves those straight through. Anything a reader can see has to arrive as an
+  // expression.
+  const ADMIN_SOURCES = [
+    ...fs
+      .readdirSync(ADMIN_DIR, { recursive: true, encoding: "utf8" })
+      .map((f) => path.join(ADMIN_DIR, f))
+      .filter((f) => /\.tsx?$/.test(f) && fs.statSync(f).isFile()),
+    path.join(process.cwd(), "src/components/admin/admin-nav.tsx"),
+  ];
+
+  /** Attributes whose value the reader sees or hears. */
+  const VISIBLE_ATTRS = /(?:placeholder|title|aria-label|alt)=("([^"]*)"|'([^']*)')/g;
+
+  function strip(src: string): string {
+    return src
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/^\s*\/\/.*$/gm, "")
+      .replace(/\s\/\/[^\n"'`]*$/gm, "")
+      .replace(/className=(?:"[^"]*"|\{`[^`]*`\}|\{[^}]*\})/gs, "")
+      .replace(/style=\{\{[^}]*\}\}/gs, "");
+  }
+
+  it("hittar filerna överhuvudtaget (skyddar mot att testet tystnar)", () => {
+    expect(ADMIN_SOURCES.length).toBeGreaterThan(5);
+  });
+
+  it("ingen synlig text är hårdkodad", () => {
+    const offenders: string[] = [];
+    for (const file of ADMIN_SOURCES) {
+      const rel = file.slice(process.cwd().length + 1);
+      const code = strip(fs.readFileSync(file, "utf8"));
+
+      // JSX text nodes: what sits between tags without being an expression.
+      // The character class excludes anything that can only be code — a plain
+      // `>` in a comparison would otherwise pair with a later `<` and drag a
+      // whole block in as if it were prose.
+      for (const m of code.matchAll(/>([^<>{}();=$[\]]+)</g)) {
+        const text = m[1].trim();
+        if (/\p{L}{2,}/u.test(text)) offenders.push(`${rel}: >${text}<`);
+      }
+      for (const m of code.matchAll(VISIBLE_ATTRS)) {
+        const value = (m[2] ?? m[3] ?? "").trim();
+        if (/\p{L}{2,}/u.test(value)) offenders.push(`${rel}: ${m[0]}`);
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  it("varje adminnamnrymd finns fylld på alla tre språk", () => {
+    const NAMESPACES = ["adminPage", "adminCreators", "adminPromo", "adminPromoForm", "adminPromoTable"];
+    const problems: string[] = [];
+    for (const locale of LOCALES) {
+      const messages = JSON.parse(
+        fs.readFileSync(path.join(process.cwd(), `src/i18n/messages/${locale}.json`), "utf8")
+      );
+      for (const ns of NAMESPACES) {
+        const block = messages[ns];
+        if (!block || Object.keys(block).length === 0) {
+          problems.push(`${locale}: ${ns} saknas eller är tom`);
+          continue;
+        }
+        for (const [key, value] of Object.entries(block)) {
+          if (typeof value !== "string" || !value.trim()) problems.push(`${locale}: ${ns}.${key} är tom`);
+        }
+      }
+    }
+    expect(problems).toEqual([]);
+  });
+});

@@ -1,10 +1,20 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { getTranslations } from "next-intl/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdminById } from "@/lib/admin/check";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+
+/**
+ * Errors from these actions are shown verbatim in a toast, so they are
+ * translated here rather than handed to the client as Swedish text. A server
+ * action still runs inside the request, so it can read the caller's locale.
+ */
+async function errors() {
+  return getTranslations("adminPromo");
+}
 
 async function requireAdmin() {
   const supabase = await createClient();
@@ -32,16 +42,18 @@ export async function createPromoCode(formData: FormData) {
   const max_uses_per_user = formData.get("max_uses_per_user") as string;
   const valid_until = formData.get("valid_until") as string;
 
+  const t = await errors();
+
   if (!code || !discount_type || !discount_value || !scope) {
-    return { error: "Fyll i alla obligatoriska fält." };
+    return { error: t("errorRequiredFields") };
   }
 
   if (discount_type === "percent" && (discount_value < 1 || discount_value > 100)) {
-    return { error: "Procentrabatt måste vara mellan 1 och 100." };
+    return { error: t("errorPercentRange") };
   }
 
   if (discount_type === "fixed" && discount_value < 1) {
-    return { error: "Fast rabatt måste vara minst 1 SEK." };
+    return { error: t("errorFixedMin") };
   }
 
   // Check for duplicate code
@@ -52,7 +64,7 @@ export async function createPromoCode(formData: FormData) {
     .single();
 
   if (existing) {
-    return { error: `Koden "${code}" finns redan.` };
+    return { error: t("errorDuplicate", { code }) };
   }
 
   const { error } = await admin.from("promo_codes").insert({
@@ -69,7 +81,7 @@ export async function createPromoCode(formData: FormData) {
 
   if (error) {
     console.error("Create promo error:", error);
-    return { error: "Kunde inte skapa promokod." };
+    return { error: t("errorCreate") };
   }
 
   redirect("/dashboard/admin/promo?created=true");
@@ -85,7 +97,7 @@ export async function togglePromoCode(id: string, active: boolean) {
     .eq("id", id);
 
   if (error) {
-    return { error: "Kunde inte uppdatera status." };
+    return { error: (await errors())("errorToggle") };
   }
 
   revalidatePath("/dashboard/admin/promo");
@@ -102,7 +114,7 @@ export async function deletePromoCode(id: string) {
     .eq("id", id);
 
   if (error) {
-    return { error: "Kunde inte radera promokod." };
+    return { error: (await errors())("errorDelete") };
   }
 
   revalidatePath("/dashboard/admin/promo");

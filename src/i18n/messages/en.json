@@ -3549,5 +3549,43 @@
     "promoLabel": "Promo codes",
     "promoDesc": "Create promo codes and follow how they're used.",
     "navLabel": "Admin"
+  },
+  "adminCreators": {
+    "title": "Creators — private person/company",
+    "intro": "Look up a creator and change whether they sell as a company (company reg. no verification + reg. no on the receipt).",
+    "searchPlaceholder": "the creator's email",
+    "searchButton": "Search",
+    "updated": "Updated.",
+    "errorNotCreator": "This account isn't a creator — the flag only applies to creators.",
+    "onlyCreators": "The flag only applies to creators. Venues are always companies; customers don't have it.",
+    "noName": "(no name)",
+    "statusNow": "Current status:",
+    "company": "Company",
+    "privatePerson": "Private person",
+    "companyVerified": "(company verified)",
+    "setCompany": "Set as company",
+    "setPrivatePerson": "Set as private person",
+    "verifiedWarning": "Note: this account has a verified company. Setting it back to private person leaves the company reg. no details in place until they are cleared separately.",
+    "noMatch": "No profile found for “{query}”.",
+    "roleLabel": "role: {role}"
+  },
+  "adminPromo": {
+    "title": "Promo codes",
+    "intro": "Create and manage discount codes.",
+    "created": "Promo code created!",
+    "newCode": "New promo code",
+    "statTotal": "Total",
+    "statActive": "Active",
+    "statUses": "Uses",
+    "newTitle": "New promo code",
+    "newIntro": "Create a discount code for subscriptions or tickets.",
+    "backToList": "Back to promo codes",
+    "errorRequiredFields": "Fill in every required field.",
+    "errorPercentRange": "A percentage discount must be between 1 and 100.",
+    "errorFixedMin": "A fixed discount must be at least 1 SEK.",
+    "errorDuplicate": "The code \"{code}\" already exists.",
+    "errorCreate": "Could not create the promo code.",
+    "errorToggle": "Could not update the status.",
+    "errorDelete": "Could not delete the promo code."
   }
 }
