@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@/lib/supabase/server";
+import { isRealStripeCustomer } from "@/lib/stripe/customer";
 
 export async function POST() {
   try {
@@ -22,9 +23,16 @@ export async function POST() {
       .single();
 
     if (!subscription?.stripe_customer_id) {
+      return NextResponse.json({ error: "No subscription found", reason: "none" }, { status: 404 });
+    }
+
+    // A comp subscription has no Stripe customer behind it, so there is nothing
+    // for the portal to manage. Say that plainly instead of forwarding the
+    // placeholder to Stripe and turning its rejection into a 500.
+    if (!isRealStripeCustomer(subscription.stripe_customer_id)) {
       return NextResponse.json(
-        { error: "No subscription found" },
-        { status: 404 }
+        { error: "This subscription is not billed through Stripe", reason: "comp" },
+        { status: 409 }
       );
     }
 

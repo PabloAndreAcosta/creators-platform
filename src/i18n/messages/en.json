@@ -372,6 +372,7 @@
     "paymentSuccess": "Payment successful! Your plan is now active.",
     "betaNotice": "Beta period — all features are unlocked for free for all users.",
     "currentPlan": "Current plan",
+    "compSubscription": "Complimentary access — no subscription to manage.",
     "active": "Active",
     "trialing": "Trial",
     "pastDue": "Past due",

@@ -372,6 +372,7 @@
     "paymentSuccess": "¡Pago realizado! Tu plan ya está activo.",
     "betaNotice": "Periodo beta: todas las funciones están desbloqueadas gratis para todos los usuarios.",
     "currentPlan": "Plan actual",
+    "compSubscription": "Acceso de cortesía: no hay suscripción que gestionar.",
     "active": "Activo",
     "trialing": "Prueba",
     "pastDue": "Pago vencido",

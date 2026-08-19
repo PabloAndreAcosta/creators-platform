@@ -37,17 +37,21 @@ export interface OnboardingStep {
 
 const PROFILE = "/dashboard/profile";
 const BILLING = "/dashboard/billing";
+// The Stripe card sits below the plan grid, so the step links to it directly.
+// Landing at the top of a page about subscriptions, when the task is about
+// payouts, is how a finishable step comes to look impossible.
+const BILLING_STRIPE = "/dashboard/billing#stripe";
 
 /** Steps for a seller's Stripe connection, reflecting the two-flow MoR model. */
 function stripeStep(ctx: OnboardingContext): OnboardingStep {
   if (!ctx.stripeAccountId) {
-    return { key: "stripe", labelKey: "connectStripe", done: false, href: BILLING, required: true };
+    return { key: "stripe", labelKey: "connectStripe", done: false, href: BILLING_STRIPE, required: true };
   }
   if (!ctx.stripeCardPaymentsEnabled) {
     // Connected but not yet merchant-of-record capable — must finish onboarding.
-    return { key: "stripe", labelKey: "completeStripe", done: false, href: BILLING, required: true };
+    return { key: "stripe", labelKey: "completeStripe", done: false, href: BILLING_STRIPE, required: true };
   }
-  return { key: "stripe", labelKey: "connectStripe", done: true, href: BILLING, required: true };
+  return { key: "stripe", labelKey: "connectStripe", done: true, href: BILLING_STRIPE, required: true };
 }
 
 /**
