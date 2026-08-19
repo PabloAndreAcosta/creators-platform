@@ -147,6 +147,8 @@
     },
     "security": "Login & säkerhet",
     "securityDesc": "Inloggnings-e-post, BankID, radera konto",
+    "language": "Språk",
+    "languageDesc": "Byt språk i appen",
     "connections": "Kopplingar",
     "connectionsDesc": "Instagram, Facebook och TikTok"
   },
@@ -272,6 +274,7 @@
   "profile": {
     "editProfile": "Redigera Profil",
     "payouts": "Utbetalningar",
+    "language": "Språk",
     "myPlan": "Min plan & betalning",
     "notifications": "Notifikationer",
     "privacySettings": "Integritetsinställningar",
@@ -3618,5 +3621,11 @@
     "noticeMadeFull": "Kontot är nu hel admin.",
     "noticeMadeLimited": "Kontot är nu begränsat. Välj vilka verktyg det ska ha.",
     "noticeNotYourself": "Du kan inte ändra din egen nivå — då kan du låsa ute dig själv."
+  },
+  "languageSettings": {
+    "title": "Språk",
+    "subtitle": "Vilket språk appen visas på.",
+    "back": "Tillbaka till profilen",
+    "hint": "Valet gäller den här enheten och används också för mejlen vi skickar dig."
   }
 }

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { locales, LOCALE_COOKIE_NAME } from "@/i18n/config";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { verifyCookieValue } from "@/lib/signicat/crypto";
@@ -92,6 +93,28 @@ export async function GET(req: NextRequest) {
         const response = NextResponse.redirect(`${origin}${redirectUrl}`);
         response.cookies.set("pending_role", "", { path: "/", maxAge: 0 });
         response.cookies.set("bankid_verified", "", { path: "/", maxAge: 0 });
+
+        // Carry the account's chosen language onto this browser.
+        //
+        // The locale cookie is set per browser from Accept-Language and then
+        // kept for a year, so each device decided on its own and could disagree
+        // with every other one — with no way to tell which had guessed wrong.
+        // A language chosen anywhere is a statement about the account, so a new
+        // session starts from it rather than from another guess.
+        const { data: prefs } = await admin
+          .from("profiles")
+          .select("locale")
+          .eq("id", user.id)
+          .maybeSingle();
+        const preferred = prefs?.locale;
+        if (preferred && (locales as readonly string[]).includes(preferred)) {
+          response.cookies.set(LOCALE_COOKIE_NAME, preferred, {
+            path: "/",
+            maxAge: 60 * 60 * 24 * 365,
+            sameSite: "lax",
+          });
+        }
+
         return response;
       }
 
