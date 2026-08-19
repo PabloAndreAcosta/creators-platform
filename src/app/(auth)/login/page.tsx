@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { isRateLimitError } from "@/lib/auth/rate-limit-error";
 import { ShieldCheck, Eye, EyeOff } from "lucide-react";
 import UschjaLogo from "@/components/UschjaLogo";
+import { GoogleIcon, FacebookIcon } from "@/components/brand-icons";
 
 function FieldError({ message }: { message: string }) {
   return <p className="mt-1 text-xs text-red-400">{message}</p>;
@@ -198,6 +199,7 @@ export default function LoginPage() {
           onClick={handleGoogleLogin}
           className="mb-2 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium transition hover:bg-[var(--usha-card)]"
         >
+          <GoogleIcon />
           {t("continueWithGoogle")}
         </button>
 
@@ -205,6 +207,7 @@ export default function LoginPage() {
           onClick={handleFacebookLogin}
           className="mb-4 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium transition hover:bg-[var(--usha-card)]"
         >
+          <FacebookIcon />
           {t("continueWithFacebook")}
         </button>
 
