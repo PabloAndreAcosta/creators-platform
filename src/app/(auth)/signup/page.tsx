@@ -8,6 +8,7 @@ import { isPasswordPwned } from "@/lib/auth/password-strength";
 import { isRateLimitError } from "@/lib/auth/rate-limit-error";
 import { trackEvent } from "@/lib/analytics";
 import { Palette, Store, Search, ShieldCheck, Loader2, Music, User, Building2 } from "lucide-react";
+import { GoogleIcon, FacebookIcon } from "@/components/brand-icons";
 
 type Role = "creator" | "venue" | "customer";
 type CreatorSubcategory = "general" | "taxi_dancer";
@@ -566,6 +567,7 @@ export default function SignupPage() {
               onClick={handleGoogleSignup}
               className="mb-2 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium transition hover:bg-[var(--usha-card)]"
             >
+              <GoogleIcon />
               {t("continueWithGoogle")}
             </button>
 
@@ -573,6 +575,7 @@ export default function SignupPage() {
               onClick={handleFacebookSignup}
               className="mb-4 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium transition hover:bg-[var(--usha-card)]"
             >
+              <FacebookIcon />
               {t("continueWithFacebook")}
             </button>
 
