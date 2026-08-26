@@ -6,12 +6,39 @@ import { generateCalendarSyncToken, revokeCalendarSyncToken } from "./actions";
 
 interface CalendarSyncProps {
   initialFeedUrl: string | null;
+  /** När flödet senast hämtades av en kalenderklient, om någonsin. */
+  lastFetchedAt: string | null;
+  /** Grov gissning av vilken klient som hämtade: google | apple | outlook | other. */
+  lastClient: string | null;
 }
 
-export function CalendarSync({ initialFeedUrl }: CalendarSyncProps) {
+const CLIENT_LABELS: Record<string, string> = {
+  google: "Google Calendar",
+  apple: "Apple Kalender",
+  outlook: "Outlook",
+  other: "en kalender",
+};
+
+function describeFetch(iso: string | null, client: string | null): string {
+  if (!iso) {
+    return "Ingen kalender har hämtat flödet ännu. Har du precis lagt till det kan det dröja innan din kalender hör av sig.";
+  }
+  const minutes = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
+  const when =
+    minutes < 60
+      ? `${minutes} min sedan`
+      : minutes < 60 * 48
+        ? `${Math.round(minutes / 60)} tim sedan`
+        : `${Math.round(minutes / (60 * 24))} dagar sedan`;
+  return `Hämtat av ${CLIENT_LABELS[client ?? "other"] ?? CLIENT_LABELS.other} — ${when}.`;
+}
+
+export function CalendarSync({ initialFeedUrl, lastFetchedAt, lastClient }: CalendarSyncProps) {
   const [feedUrl, setFeedUrl] = useState(initialFeedUrl);
   const [isPending, startTransition] = useTransition();
   const [added, setAdded] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [confirmingRotate, setConfirmingRotate] = useState(false);
 
   const handleGenerate = () => {
     startTransition(async () => {
@@ -45,8 +72,31 @@ export function CalendarSync({ initialFeedUrl }: CalendarSyncProps) {
   }
 
   function handleCalendarClick(type: string) {
+    // Vi vet inte om kalendern faktiskt lades till — knappen öppnar bara
+    // leverantörens sida. Kvittensen får därför beskriva vad vi gjorde, inte
+    // påstå ett resultat vi inte kan se.
     setAdded(type);
-    setTimeout(() => setAdded(null), 3000);
+    setTimeout(() => setAdded(null), 8000);
+  }
+
+  async function handleCopy() {
+    if (!feedUrl) return;
+    await navigator.clipboard.writeText(feedUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 3000);
+  }
+
+  // Att skapa en ny token gör den gamla adressen ogiltig, vilket tyst bryter
+  // varje kalender som redan prenumererar. Knappen hette "Ny URL" och gjorde
+  // det utan förvarning — nu krävs två klick och texten säger vad som händer.
+  function handleRotate() {
+    if (!confirmingRotate) {
+      setConfirmingRotate(true);
+      setTimeout(() => setConfirmingRotate(false), 5000);
+      return;
+    }
+    setConfirmingRotate(false);
+    handleGenerate();
   }
 
   return (
@@ -72,6 +122,48 @@ export function CalendarSync({ initialFeedUrl }: CalendarSyncProps) {
         </div>
       ) : (
         <div className="space-y-3">
+          {/* Adressen till flödet. Den här vägen är den enda som fungerar
+              överallt: knapparna nedan förlitar sig på att operativsystemet
+              hanterar webcal:// eller att leverantörens webbflöde stödjer
+              mobilen, och på Android gör varken det ena eller det andra det. */}
+          <div className="space-y-1.5">
+            <label className="block text-[10px] font-medium text-[var(--usha-muted)]">
+              Adress till kalenderflödet
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                readOnly
+                value={feedUrl ?? ""}
+                onFocus={(e) => e.currentTarget.select()}
+                className="min-w-0 flex-1 rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-2 py-1.5 font-mono text-[10px] text-[var(--usha-muted)] outline-none"
+              />
+              <button
+                onClick={handleCopy}
+                className={`shrink-0 rounded-lg px-3 py-1.5 text-[11px] font-medium transition ${
+                  copied
+                    ? "bg-green-500/20 text-green-400"
+                    : "bg-[var(--usha-card-hover)] text-[var(--usha-white)] hover:opacity-80"
+                }`}
+              >
+                {copied ? "Kopierad" : "Kopiera"}
+              </button>
+            </div>
+            <p
+              className={`flex items-center gap-1.5 text-[11px] ${
+                lastFetchedAt ? "text-green-400" : "text-[var(--usha-muted)]"
+              }`}
+            >
+              <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${lastFetchedAt ? "bg-green-400" : "bg-[var(--usha-muted)]"}`} />
+              {describeFetch(lastFetchedAt, lastClient)}
+            </p>
+            <p className="text-[10px] leading-relaxed text-[var(--usha-muted)]">
+              Klistra in adressen i din kalender för att prenumerera. I Google
+              Calendar går det bara från en dator: <span className="text-[var(--usha-white)]">Andra
+              kalendrar → Från webbadress</span>. Bokningarna dyker upp när
+              kalendern hämtat flödet, vilket kan ta upp till ett dygn.
+            </p>
+          </div>
+
           {/* One-click calendar buttons */}
           <div className="grid gap-2 sm:grid-cols-3">
             <a
@@ -113,8 +205,9 @@ export function CalendarSync({ initialFeedUrl }: CalendarSyncProps) {
           </div>
 
           {added && (
-            <p className="text-xs text-green-400 text-center">
-              Kalender tillagd! Det kan ta några minuter innan bokningar synkas.
+            <p className="text-center text-xs text-[var(--usha-muted)]">
+              Öppnade {added === "google" ? "Google Calendar" : added === "apple" ? "Apple Kalender" : "Outlook"}.
+              Fungerade det inte — vilket är vanligt på mobil — använd adressen ovan i stället.
             </p>
           )}
 
@@ -130,12 +223,16 @@ export function CalendarSync({ initialFeedUrl }: CalendarSyncProps) {
                 .ics
               </a>
               <button
-                onClick={handleGenerate}
+                onClick={handleRotate}
                 disabled={isPending}
-                className="flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] text-[var(--usha-muted)] hover:text-[var(--usha-white)] disabled:opacity-50"
+                className={`flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] disabled:opacity-50 ${
+                  confirmingRotate
+                    ? "bg-amber-500/15 text-amber-400"
+                    : "text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
+                }`}
               >
                 <RefreshCw size={10} />
-                Ny URL
+                {confirmingRotate ? "Bekräfta – bryter nuvarande" : "Ny adress"}
               </button>
             </div>
             <button

@@ -3,6 +3,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { generateIcalFeed } from "@/lib/calendar/ical";
 
 /**
+ * Grov gissning av vilken kalender som hämtar flödet, utifrån User-Agent.
+ * Klienterna identifierar sig inte formellt, så det här är en tolkning och inte
+ * ett faktum — därför presenteras den i gränssnittet som "hämtad av", inte
+ * "kopplad till".
+ */
+function guessCalendarClient(ua: string | null): string {
+  if (!ua) return "other";
+  const s = ua.toLowerCase();
+  if (s.includes("google")) return "google";
+  if (s.includes("outlook") || s.includes("microsoft")) return "outlook";
+  // Apples kalender hämtar via dataaccessd på macOS och iOS.
+  if (s.includes("dataaccessd") || s.includes("ios/") || s.includes("mac os x")) return "apple";
+  return "other";
+}
+
+
+/**
  * Public iCal feed endpoint. Authenticated via calendar_sync_token query param.
  * Subscribe to this URL from Google Calendar, Apple Calendar, Outlook, etc.
  *
@@ -34,6 +51,19 @@ export async function GET(request: NextRequest) {
   }
 
   const userId = profile.id;
+
+  // Notera vem som hämtade flödet. Det är den enda ärliga signalen på att
+  // synken faktiskt fungerar: appen kan inte veta vilken kalender som
+  // prenumererar, bara vem som hämtar. Körs utan await — en misslyckad
+  // notering får aldrig hindra att kalendern levereras.
+  void supabase
+    .from("profiles")
+    .update({
+      calendar_feed_last_fetched_at: new Date().toISOString(),
+      calendar_feed_last_client: guessCalendarClient(request.headers.get("user-agent")),
+    })
+    .eq("id", userId)
+    .then(() => {});
 
   // Fetch bookings with related data
   const { data: bookings } = await supabase

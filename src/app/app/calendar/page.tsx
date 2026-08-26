@@ -7,6 +7,8 @@ import { FollowedEvents, type FollowedEvent } from "./followed-events";
 export default async function CalendarPage() {
   let bookings: any[] = [];
   let feedUrl: string | null = null;
+  let lastFetchedAt: string | null = null;
+  let lastClient: string | null = null;
   let availableDates: string[] = [];
   let isCreator = false;
   let followedEvents: FollowedEvent[] = [];
@@ -36,7 +38,7 @@ export default async function CalendarPage() {
           .order("scheduled_at", { ascending: true }),
         admin
           .from("profiles")
-          .select("calendar_sync_token, role")
+          .select("calendar_sync_token, role, calendar_feed_last_fetched_at, calendar_feed_last_client")
           .eq("id", user.id)
           .single(),
         supabase
@@ -54,6 +56,8 @@ export default async function CalendarPage() {
       if ((profile as any)?.calendar_sync_token) {
         const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";
         feedUrl = `${baseUrl}/api/calendar/feed?token=${(profile as any).calendar_sync_token}`;
+        lastFetchedAt = (profile as any).calendar_feed_last_fetched_at ?? null;
+        lastClient = (profile as any).calendar_feed_last_client ?? null;
       }
 
       // Aggregated upcoming events from creators the user follows.
@@ -109,7 +113,7 @@ export default async function CalendarPage() {
   return (
     <div className="px-4 py-6 space-y-6">
       <h1 className="text-2xl font-bold">Kalender</h1>
-      <CalendarSync initialFeedUrl={feedUrl} />
+      <CalendarSync initialFeedUrl={feedUrl} lastFetchedAt={lastFetchedAt} lastClient={lastClient} />
       <CalendarContent bookings={bookings} initialAvailableDates={availableDates} isCreator={isCreator} />
       <FollowedEvents events={followedEvents} />
     </div>
