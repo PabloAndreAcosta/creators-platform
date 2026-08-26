@@ -45,9 +45,9 @@
     "switchToDark": "Switch to dark mode"
   },
   "nav": {
-        "tools": "Tools",
+    "tools": "Tools",
     "favorites": "Favorites",
-"home": "Home",
+    "home": "Home",
     "posts": "Posts",
     "myPosts": "My Posts",
     "messages": "Messages",
@@ -395,12 +395,12 @@
     "logout": "Log out"
   },
   "auth": {
-      "meta": {
-        "loginTitle": "Log in – Usha Platform",
-        "loginDescription": "Log in to your Usha account to manage events, tickets and bookings.",
-        "signupTitle": "Create account – Usha Platform",
-        "signupDescription": "Create an account as a creator, venue or visitor. Creators verify with BankID."
-      },
+    "meta": {
+      "loginTitle": "Log in – Usha Platform",
+      "loginDescription": "Log in to your Usha account to manage events, tickets and bookings.",
+      "signupTitle": "Create account – Usha Platform",
+      "signupDescription": "Create an account as a creator, venue or visitor. Creators verify with BankID."
+    },
     "welcomeBack": "Welcome back",
     "loginToAccount": "Log in to your account",
     "continueWithGoogle": "Continue with Google",
@@ -476,11 +476,11 @@
     "businessTypeNote": "Companies can verify their org. number and appear as the seller with the org. number on the receipt. You can change this later."
   },
   "landing": {
-      "meta": {
-        "title": "Usha Platform — Where creators, venues and audiences meet",
-        "description": "The cycle that keeps Sweden's creative life turning – creators find work, venues fill their calendar, audiences discover experiences. Safe with BankID and Stripe.",
-        "ogDescription": "The cycle where creators, venues and audiences reinforce each other. Safe with BankID and Stripe."
-      },
+    "meta": {
+      "title": "Usha Platform — Where creators, venues and audiences meet",
+      "description": "The cycle that keeps Sweden's creative life turning – creators find work, venues fill their calendar, audiences discover experiences. Safe with BankID and Stripe.",
+      "ogDescription": "The cycle where creators, venues and audiences reinforce each other. Safe with BankID and Stripe."
+    },
     "nav": {
       "ecosystem": "Ecosystem",
       "features": "Features",
@@ -1742,10 +1742,22 @@
       "subtitle": "From your first ticket to your next practice partner.",
       "newBadge": "New",
       "items": {
-        "buddies": { "title": "Training buddies", "desc": "Find your dance practice partner – match, chat and train together. BankID-verified." },
-        "tickets": { "title": "Tickets on your phone", "desc": "Buy tickets to classes, socials and experiences – the QR lives right in your phone." },
-        "forYou": { "title": "For you", "desc": "Personal picks of events and experiences that fit you." },
-        "safe": { "title": "Safe & verified", "desc": "BankID-verified profiles and secure payments via Stripe." }
+        "buddies": {
+          "title": "Training buddies",
+          "desc": "Find your dance practice partner – match, chat and train together. BankID-verified."
+        },
+        "tickets": {
+          "title": "Tickets on your phone",
+          "desc": "Buy tickets to classes, socials and experiences – the QR lives right in your phone."
+        },
+        "forYou": {
+          "title": "For you",
+          "desc": "Personal picks of events and experiences that fit you."
+        },
+        "safe": {
+          "title": "Safe & verified",
+          "desc": "BankID-verified profiles and secure payments via Stripe."
+        }
       }
     },
     "wedge": "Buy tickets directly – no account needed"
@@ -1959,9 +1971,9 @@
     }
   },
   "eventPage": {
-      "bankidVerified": "BankID-verified",
-      "crewHeading": "Line-up",
-      "dateComing": "Date to be announced",
+    "bankidVerified": "BankID-verified",
+    "crewHeading": "Line-up",
+    "dateComing": "Date to be announced",
     "ticket": "Ticket",
     "free": "Free",
     "freeTicket": "Get free ticket",
@@ -2382,7 +2394,7 @@
     "inviteFriends": "Invite friends"
   },
   "toolsPage": {
-        "homeLabel": "Home",
+    "homeLabel": "Home",
     "toolsLabel": "Tools",
     "openGigsLabel": "Open gigs",
     "openGigsDesc": "Apply as a dancer",
@@ -2390,7 +2402,7 @@
     "productsDesc": "Digital & physical",
     "recommendationsLabel": "For you",
     "recommendationsDesc": "Picks based on you",
-"heading": "Tools",
+    "heading": "Tools",
     "groupCreateSell": "Create & sell",
     "groupFinance": "Finance",
     "groupExplore": "Explore",
@@ -2585,7 +2597,11 @@
     "removeAllTimes": "Remove all times",
     "startTime": "Start time",
     "endTime": "End time",
-    "add": "Add"
+    "add": "Add",
+    "daysSelected": "{count} days selected",
+    "addToDays": "Add to {count} days",
+    "clearSelection": "Clear selection",
+    "availabilityHintMulti": "Tap several dates to add the same time to all of them."
   },
   "eventCrew": {
     "inviteHeading": "Invite",
@@ -3343,102 +3359,102 @@
     "emptyState": "No recommendations yet — book or favorite more events!",
     "free": "Free"
   },
+  "meta": {
+    "siteTitle": "Usha Platform — Create events, sell tickets, pay your crew",
+    "siteDescription": "The platform for creators and experiences: create events in minutes, sell tickets, scan at the door and pay your crew — secured with BankID and Stripe.",
+    "siteOgDescription": "Create events, sell tickets, scan at the door and pay your crew — all in one app."
+  },
+  "platserPage": {
     "meta": {
-      "siteTitle": "Usha Platform — Create events, sell tickets, pay your crew",
-      "siteDescription": "The platform for creators and experiences: create events in minutes, sell tickets, scan at the door and pay your crew — secured with BankID and Stripe.",
-      "siteOgDescription": "Create events, sell tickets, scan at the door and pay your crew — all in one app."
+      "title": "Venues – Usha Platform",
+      "description": "Explore venues, studios, clubs and places where creative experiences happen.",
+      "ogTitle": "Venues – Usha Platform",
+      "ogDescription": "Venues and places for creative experiences."
     },
-    "platserPage": {
-      "meta": {
-        "title": "Venues – Usha Platform",
-        "description": "Explore venues, studios, clubs and places where creative experiences happen.",
-        "ogTitle": "Venues – Usha Platform",
-        "ogDescription": "Venues and places for creative experiences."
-      },
-      "title": "Venues",
-      "subtitle": "Venues, studios and places where experiences happen",
-      "searchPlaceholder": "Search venue or city...",
-      "eventCount": "{count, plural, =1 {# experience} other {# experiences}}",
-      "emptySearch": "No venues found.",
-      "empty": "No venues yet."
+    "title": "Venues",
+    "subtitle": "Venues, studios and places where experiences happen",
+    "searchPlaceholder": "Search venue or city...",
+    "eventCount": "{count, plural, =1 {# experience} other {# experiences}}",
+    "emptySearch": "No venues found.",
+    "empty": "No venues yet."
+  },
+  "taxidansarePage": {
+    "meta": {
+      "title": "Taxi dancers on Usha Platform — book one or become one",
+      "description": "Find professional taxi dancers for partner dancing (bugg, foxtrot, salsa, tango) or become a paid dance partner through Usha Platform. BankID-verified dancers, secure payment, packages and private lessons.",
+      "ogTitle": "Taxi dancers on Usha Platform — book one or become one",
+      "ogDescription": "Find BankID-verified taxi dancers for partner dancing, or become a paid dance partner through Usha Platform."
     },
-    "taxidansarePage": {
-      "meta": {
-        "title": "Taxi dancers on Usha Platform — book one or become one",
-        "description": "Find professional taxi dancers for partner dancing (bugg, foxtrot, salsa, tango) or become a paid dance partner through Usha Platform. BankID-verified dancers, secure payment, packages and private lessons.",
-        "ogTitle": "Taxi dancers on Usha Platform — book one or become one",
-        "ogDescription": "Find BankID-verified taxi dancers for partner dancing, or become a paid dance partner through Usha Platform."
-      },
-      "hero": {
-        "titleLead": "Taxi dancers.",
-        "titleHighlight": "Book one or become one.",
-        "body": "Partner dancing on your terms — bugg, foxtrot, salsa, tango, lindy hop. Find BankID-verified taxi dancers for an evening, an event, or private lessons. Or become one yourself and get paid directly through the platform.",
-        "ctaFind": "Find taxi dancers",
-        "ctaBecome": "Become a taxi dancer",
-        "note": "As a taxi dancer you need to verify yourself with Mobile BankID. Minimum age 18."
-      },
-      "value": {
-        "heading": "Why Usha Platform for taxi dancing?",
-        "paidTitle": "Get paid directly",
-        "paidBody": "The money lands in your account via Stripe Connect after every booking. Reduced commission for taxi dancers — 8% on the free tier (compared with 15% standard), 5% on Gold.",
-        "bankidTitle": "BankID-verified",
-        "bankidBody": "Every taxi dancer confirms identity and age with Mobile BankID. It builds trust between customer, organiser and dancer.",
-        "packagesTitle": "Packages + coaching",
-        "packagesBody": "Sell prepaid dance packages that are redeemed gradually at events, or offer private lessons with calendar booking. Both flows are included."
-      },
-      "how": {
-        "heading": "How it works",
-        "customersBadge": "For customers",
-        "customersTitle": "Book a taxi dancer",
-        "customersStep1": "Search for a taxi dancer via the filter or the link above.",
-        "customersStep2": "Choose a <em>dance package</em> (prepaid, redeemed at events) or <em>coaching</em> (a specific time).",
-        "customersStep3": "Pay securely via Stripe.",
-        "customersStep4": "Meet on the dance floor or in the studio. The dancer marks each dance as redeemed in the app.",
-        "organizersBadge": "For organisers",
-        "organizersTitle": "Book for an event",
-        "organizersStep1": "Send an event request from the taxi dancer's profile — date, time, venue, compensation.",
-        "organizersStep2": "Add perks (entry, drinks, hotel) that make the offer attractive.",
-        "organizersStep3": "The taxi dancer accepts or declines shortly.",
-        "organizersStep4": "Pay via the platform once the request has been accepted. The money goes straight to the dancer."
-      },
-      "dancers": {
-        "heading": "Are you an experienced dance partner?",
-        "body": "Create a profile, describe your styles, set your prices. Offer private lessons too if you want — many taxi dancers on Usha Platform do both.",
-        "calendarTitle": "Your own calendar",
-        "calendarBody": "You decide when you are available for bookings.",
-        "qrTitle": "Your own QR code",
-        "qrBody": "Share your profile on posters, business cards, or digitally.",
-        "commissionTitle": "Reduced commission",
-        "commissionBody": "8% on the free tier, 5% on Gold, 3% on Premium.",
-        "cta": "Create a taxi dancer profile"
-      },
-      "positioning": {
-        "heading": "What taxi dancing is — and is not",
-        "body": "A taxi dancer is a paid dance partner for partner dancing (bugg, foxtrot, salsa, tango, lindy hop and others) at public or private dance occasions, or an instructor giving private lessons. The service does not include sexual or intimate contact. Use beyond this breaches Usha Platform's terms of service and leads to suspension.",
-        "readMore": "Read more:",
-        "refundPolicy": "Refund policy",
-        "terms": "Terms of service"
-      }
+    "hero": {
+      "titleLead": "Taxi dancers.",
+      "titleHighlight": "Book one or become one.",
+      "body": "Partner dancing on your terms — bugg, foxtrot, salsa, tango, lindy hop. Find BankID-verified taxi dancers for an evening, an event, or private lessons. Or become one yourself and get paid directly through the platform.",
+      "ctaFind": "Find taxi dancers",
+      "ctaBecome": "Become a taxi dancer",
+      "note": "As a taxi dancer you need to verify yourself with Mobile BankID. Minimum age 18."
     },
-    "seriesPage": {
-      "metaTitle": "{title} – Usha Platform",
-      "metaTitleFallback": "Series – Usha Platform",
-      "metaDescription": "{title} – recurring sessions on Usha Platform",
-      "theApp": "The app",
-      "getStarted": "Get started",
-      "backTo": "Back to {name}",
-      "theCreator": "the creator",
-      "recurringSeries": "Recurring series",
-      "upcomingHeading": "Upcoming sessions",
-      "noUpcoming": "No upcoming sessions right now. Stay tuned!",
-      "pastHeading": "Past sessions",
-      "book": "Book",
-      "view": "View",
-      "free": "Free",
-      "priceSek": "{price} SEK",
-      "creator": "Creator",
-      "viewProfile": "View profile"
+    "value": {
+      "heading": "Why Usha Platform for taxi dancing?",
+      "paidTitle": "Get paid directly",
+      "paidBody": "The money lands in your account via Stripe Connect after every booking. Reduced commission for taxi dancers — 8% on the free tier (compared with 15% standard), 5% on Gold.",
+      "bankidTitle": "BankID-verified",
+      "bankidBody": "Every taxi dancer confirms identity and age with Mobile BankID. It builds trust between customer, organiser and dancer.",
+      "packagesTitle": "Packages + coaching",
+      "packagesBody": "Sell prepaid dance packages that are redeemed gradually at events, or offer private lessons with calendar booking. Both flows are included."
     },
+    "how": {
+      "heading": "How it works",
+      "customersBadge": "For customers",
+      "customersTitle": "Book a taxi dancer",
+      "customersStep1": "Search for a taxi dancer via the filter or the link above.",
+      "customersStep2": "Choose a <em>dance package</em> (prepaid, redeemed at events) or <em>coaching</em> (a specific time).",
+      "customersStep3": "Pay securely via Stripe.",
+      "customersStep4": "Meet on the dance floor or in the studio. The dancer marks each dance as redeemed in the app.",
+      "organizersBadge": "For organisers",
+      "organizersTitle": "Book for an event",
+      "organizersStep1": "Send an event request from the taxi dancer's profile — date, time, venue, compensation.",
+      "organizersStep2": "Add perks (entry, drinks, hotel) that make the offer attractive.",
+      "organizersStep3": "The taxi dancer accepts or declines shortly.",
+      "organizersStep4": "Pay via the platform once the request has been accepted. The money goes straight to the dancer."
+    },
+    "dancers": {
+      "heading": "Are you an experienced dance partner?",
+      "body": "Create a profile, describe your styles, set your prices. Offer private lessons too if you want — many taxi dancers on Usha Platform do both.",
+      "calendarTitle": "Your own calendar",
+      "calendarBody": "You decide when you are available for bookings.",
+      "qrTitle": "Your own QR code",
+      "qrBody": "Share your profile on posters, business cards, or digitally.",
+      "commissionTitle": "Reduced commission",
+      "commissionBody": "8% on the free tier, 5% on Gold, 3% on Premium.",
+      "cta": "Create a taxi dancer profile"
+    },
+    "positioning": {
+      "heading": "What taxi dancing is — and is not",
+      "body": "A taxi dancer is a paid dance partner for partner dancing (bugg, foxtrot, salsa, tango, lindy hop and others) at public or private dance occasions, or an instructor giving private lessons. The service does not include sexual or intimate contact. Use beyond this breaches Usha Platform's terms of service and leads to suspension.",
+      "readMore": "Read more:",
+      "refundPolicy": "Refund policy",
+      "terms": "Terms of service"
+    }
+  },
+  "seriesPage": {
+    "metaTitle": "{title} – Usha Platform",
+    "metaTitleFallback": "Series – Usha Platform",
+    "metaDescription": "{title} – recurring sessions on Usha Platform",
+    "theApp": "The app",
+    "getStarted": "Get started",
+    "backTo": "Back to {name}",
+    "theCreator": "the creator",
+    "recurringSeries": "Recurring series",
+    "upcomingHeading": "Upcoming sessions",
+    "noUpcoming": "No upcoming sessions right now. Stay tuned!",
+    "pastHeading": "Past sessions",
+    "book": "Book",
+    "view": "View",
+    "free": "Free",
+    "priceSek": "{price} SEK",
+    "creator": "Creator",
+    "viewProfile": "View profile"
+  },
   "connections": {
     "title": "Connections",
     "subtitle": "Accounts you have connected to Usha, and their status.",

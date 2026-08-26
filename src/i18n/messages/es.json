@@ -45,9 +45,9 @@
     "switchToDark": "Cambiar a modo oscuro"
   },
   "nav": {
-        "tools": "Herramientas",
+    "tools": "Herramientas",
     "favorites": "Favoritos",
-"home": "Inicio",
+    "home": "Inicio",
     "posts": "Publicaciones",
     "myPosts": "Mis publicaciones",
     "messages": "Mensajes",
@@ -395,12 +395,12 @@
     "logout": "Cerrar sesión"
   },
   "auth": {
-      "meta": {
-        "loginTitle": "Iniciar sesión – Usha Platform",
-        "loginDescription": "Inicia sesión en tu cuenta de Usha para gestionar eventos, entradas y reservas.",
-        "signupTitle": "Crear cuenta – Usha Platform",
-        "signupDescription": "Crea una cuenta como creador, espacio o visitante. Los creadores se verifican con BankID."
-      },
+    "meta": {
+      "loginTitle": "Iniciar sesión – Usha Platform",
+      "loginDescription": "Inicia sesión en tu cuenta de Usha para gestionar eventos, entradas y reservas.",
+      "signupTitle": "Crear cuenta – Usha Platform",
+      "signupDescription": "Crea una cuenta como creador, espacio o visitante. Los creadores se verifican con BankID."
+    },
     "welcomeBack": "Te damos la bienvenida de nuevo",
     "loginToAccount": "Inicia sesión en tu cuenta",
     "continueWithGoogle": "Continuar con Google",
@@ -476,11 +476,11 @@
     "businessTypeNote": "Las empresas pueden verificar su nº de organización y aparecer como vendedor con el número en el recibo. Puedes cambiarlo más tarde."
   },
   "landing": {
-      "meta": {
-        "title": "Usha Platform — Donde se encuentran creadores, espacios y público",
-        "description": "El ciclo que mantiene en marcha la vida creativa de Suecia: los creadores encuentran trabajo, los espacios llenan su calendario y el público descubre experiencias. Con la seguridad de BankID y Stripe.",
-        "ogDescription": "El ciclo donde creadores, espacios y público se refuerzan mutuamente. Con la seguridad de BankID y Stripe."
-      },
+    "meta": {
+      "title": "Usha Platform — Donde se encuentran creadores, espacios y público",
+      "description": "El ciclo que mantiene en marcha la vida creativa de Suecia: los creadores encuentran trabajo, los espacios llenan su calendario y el público descubre experiencias. Con la seguridad de BankID y Stripe.",
+      "ogDescription": "El ciclo donde creadores, espacios y público se refuerzan mutuamente. Con la seguridad de BankID y Stripe."
+    },
     "nav": {
       "ecosystem": "Ecosistema",
       "features": "Funciones",
@@ -1742,10 +1742,22 @@
       "subtitle": "Desde tu primera entrada hasta tu próxima pareja de práctica.",
       "newBadge": "Nuevo",
       "items": {
-        "buddies": { "title": "Compañeros de entrenamiento", "desc": "Encuentra tu pareja de práctica de baile: haz match, chatea y entrena. Verificado con BankID." },
-        "tickets": { "title": "Entradas en tu móvil", "desc": "Compra entradas para clases, socials y experiencias: el QR va directo en tu teléfono." },
-        "forYou": { "title": "Para ti", "desc": "Recomendaciones personales de eventos y experiencias que encajan contigo." },
-        "safe": { "title": "Seguro y verificado", "desc": "Perfiles verificados con BankID y pagos seguros vía Stripe." }
+        "buddies": {
+          "title": "Compañeros de entrenamiento",
+          "desc": "Encuentra tu pareja de práctica de baile: haz match, chatea y entrena. Verificado con BankID."
+        },
+        "tickets": {
+          "title": "Entradas en tu móvil",
+          "desc": "Compra entradas para clases, socials y experiencias: el QR va directo en tu teléfono."
+        },
+        "forYou": {
+          "title": "Para ti",
+          "desc": "Recomendaciones personales de eventos y experiencias que encajan contigo."
+        },
+        "safe": {
+          "title": "Seguro y verificado",
+          "desc": "Perfiles verificados con BankID y pagos seguros vía Stripe."
+        }
       }
     },
     "wedge": "Compra entradas directamente – sin necesidad de cuenta"
@@ -1959,9 +1971,9 @@
     }
   },
   "eventPage": {
-      "bankidVerified": "Verificado con BankID",
-      "crewHeading": "Participantes",
-      "dateComing": "Fecha por confirmar",
+    "bankidVerified": "Verificado con BankID",
+    "crewHeading": "Participantes",
+    "dateComing": "Fecha por confirmar",
     "ticket": "Entrada",
     "free": "Gratis",
     "freeTicket": "Consigue entrada gratis",
@@ -2382,7 +2394,7 @@
     "inviteFriends": "Invitar a amigos"
   },
   "toolsPage": {
-        "homeLabel": "Inicio",
+    "homeLabel": "Inicio",
     "toolsLabel": "Herramientas",
     "openGigsLabel": "Trabajos abiertos",
     "openGigsDesc": "Postúlate como bailarín",
@@ -2390,7 +2402,7 @@
     "productsDesc": "Digital y físico",
     "recommendationsLabel": "Para ti",
     "recommendationsDesc": "Sugerencias para ti",
-"heading": "Herramientas",
+    "heading": "Herramientas",
     "groupCreateSell": "Crear y vender",
     "groupFinance": "Finanzas",
     "groupExplore": "Explorar",
@@ -2585,7 +2597,11 @@
     "removeAllTimes": "Quitar todas las horas",
     "startTime": "Hora de inicio",
     "endTime": "Hora de fin",
-    "add": "Añadir"
+    "add": "Añadir",
+    "daysSelected": "{count} días seleccionados",
+    "addToDays": "Añadir a {count} días",
+    "clearSelection": "Borrar selección",
+    "availabilityHintMulti": "Toca varias fechas para añadir la misma hora a todas."
   },
   "eventCrew": {
     "inviteHeading": "Invitar",
@@ -3343,102 +3359,102 @@
     "emptyState": "Aún no hay recomendaciones — ¡reserva o marca como favoritos más eventos!",
     "free": "Gratis"
   },
+  "meta": {
+    "siteTitle": "Usha Platform — Crea eventos, vende entradas, paga a tu equipo",
+    "siteDescription": "La plataforma para creadores y experiencias: crea eventos en minutos, vende entradas, escanea en la puerta y paga a tu equipo, con la seguridad de BankID y Stripe.",
+    "siteOgDescription": "Crea eventos, vende entradas, escanea en la puerta y paga a tu equipo, todo en una app."
+  },
+  "platserPage": {
     "meta": {
-      "siteTitle": "Usha Platform — Crea eventos, vende entradas, paga a tu equipo",
-      "siteDescription": "La plataforma para creadores y experiencias: crea eventos en minutos, vende entradas, escanea en la puerta y paga a tu equipo, con la seguridad de BankID y Stripe.",
-      "siteOgDescription": "Crea eventos, vende entradas, escanea en la puerta y paga a tu equipo, todo en una app."
+      "title": "Espacios – Usha Platform",
+      "description": "Explora locales, estudios, clubes y espacios donde suceden las experiencias creativas.",
+      "ogTitle": "Espacios – Usha Platform",
+      "ogDescription": "Locales y espacios para experiencias creativas."
     },
-    "platserPage": {
-      "meta": {
-        "title": "Espacios – Usha Platform",
-        "description": "Explora locales, estudios, clubes y espacios donde suceden las experiencias creativas.",
-        "ogTitle": "Espacios – Usha Platform",
-        "ogDescription": "Locales y espacios para experiencias creativas."
-      },
-      "title": "Espacios",
-      "subtitle": "Locales, estudios y espacios donde suceden las experiencias",
-      "searchPlaceholder": "Busca un espacio o una ciudad...",
-      "eventCount": "{count, plural, =1 {# experiencia} other {# experiencias}}",
-      "emptySearch": "No se encontraron espacios.",
-      "empty": "Todavía no hay espacios."
+    "title": "Espacios",
+    "subtitle": "Locales, estudios y espacios donde suceden las experiencias",
+    "searchPlaceholder": "Busca un espacio o una ciudad...",
+    "eventCount": "{count, plural, =1 {# experiencia} other {# experiencias}}",
+    "emptySearch": "No se encontraron espacios.",
+    "empty": "Todavía no hay espacios."
+  },
+  "taxidansarePage": {
+    "meta": {
+      "title": "Bailarines de alquiler en Usha Platform: contrata a uno o conviértete en uno",
+      "description": "Encuentra bailarines de alquiler profesionales para baile en pareja (bugg, foxtrot, salsa, tango) o conviértete en pareja de baile remunerada a través de Usha Platform. Bailarines verificados con BankID, pago seguro, paquetes y clases particulares.",
+      "ogTitle": "Bailarines de alquiler en Usha Platform: contrata a uno o conviértete en uno",
+      "ogDescription": "Encuentra bailarines de alquiler verificados con BankID para baile en pareja, o conviértete en pareja de baile remunerada a través de Usha Platform."
     },
-    "taxidansarePage": {
-      "meta": {
-        "title": "Bailarines de alquiler en Usha Platform: contrata a uno o conviértete en uno",
-        "description": "Encuentra bailarines de alquiler profesionales para baile en pareja (bugg, foxtrot, salsa, tango) o conviértete en pareja de baile remunerada a través de Usha Platform. Bailarines verificados con BankID, pago seguro, paquetes y clases particulares.",
-        "ogTitle": "Bailarines de alquiler en Usha Platform: contrata a uno o conviértete en uno",
-        "ogDescription": "Encuentra bailarines de alquiler verificados con BankID para baile en pareja, o conviértete en pareja de baile remunerada a través de Usha Platform."
-      },
-      "hero": {
-        "titleLead": "Bailarines de alquiler.",
-        "titleHighlight": "Contrata a uno o conviértete en uno.",
-        "body": "Baile en pareja en tus términos: bugg, foxtrot, salsa, tango, lindy hop. Encuentra bailarines de alquiler verificados con BankID para una noche, un evento o clases particulares. O conviértete en uno y cobra directamente a través de la plataforma.",
-        "ctaFind": "Encontrar bailarines de alquiler",
-        "ctaBecome": "Ser bailarín de alquiler",
-        "note": "Como bailarín de alquiler necesitas verificarte con BankID móvil. Edad mínima 18 años."
-      },
-      "value": {
-        "heading": "¿Por qué Usha Platform para el baile de alquiler?",
-        "paidTitle": "Cobra directamente",
-        "paidBody": "El dinero llega a tu cuenta mediante Stripe Connect después de cada reserva. Comisión reducida para bailarines de alquiler: 8 % en el nivel gratuito (frente al 15 % estándar), 5 % en Oro.",
-        "bankidTitle": "Verificado con BankID",
-        "bankidBody": "Todos los bailarines de alquiler confirman identidad y edad con BankID móvil. Genera confianza entre cliente, organizador y bailarín.",
-        "packagesTitle": "Paquetes + coaching",
-        "packagesBody": "Vende paquetes de baile prepagados que se canjean poco a poco en los eventos, u ofrece clases particulares con reserva por calendario. Ambos flujos están incluidos."
-      },
-      "how": {
-        "heading": "Cómo funciona",
-        "customersBadge": "Para clientes",
-        "customersTitle": "Reserva un bailarín de alquiler",
-        "customersStep1": "Busca un bailarín de alquiler con el filtro o el enlace de arriba.",
-        "customersStep2": "Elige <em>paquete de baile</em> (prepagado, se canjea en los eventos) o <em>coaching</em> (una hora concreta).",
-        "customersStep3": "Paga de forma segura con Stripe.",
-        "customersStep4": "Quedad en la pista o en el estudio. El bailarín marca cada baile como canjeado en la app.",
-        "organizersBadge": "Para organizadores",
-        "organizersTitle": "Reserva para un evento",
-        "organizersStep1": "Envía una solicitud de evento desde el perfil del bailarín de alquiler: fecha, hora, local, remuneración.",
-        "organizersStep2": "Añade ventajas (entrada, bebidas, hotel) que hagan atractiva la oferta.",
-        "organizersStep3": "El bailarín de alquiler acepta o rechaza en poco tiempo.",
-        "organizersStep4": "Paga a través de la plataforma cuando se haya aceptado la solicitud. El dinero va directamente al bailarín."
-      },
-      "dancers": {
-        "heading": "¿Eres una pareja de baile con experiencia?",
-        "body": "Crea un perfil, describe tus estilos, fija tus precios. Ofrece también clases particulares si quieres: muchos bailarines de alquiler en Usha Platform hacen ambas cosas.",
-        "calendarTitle": "Tu propio calendario",
-        "calendarBody": "Decide tú mismo cuándo estás disponible para reservas.",
-        "qrTitle": "Tu propio código QR",
-        "qrBody": "Comparte tu perfil en carteles, tarjetas de visita o digitalmente.",
-        "commissionTitle": "Comisión reducida",
-        "commissionBody": "8 % en el nivel gratuito, 5 % en Oro, 3 % en Premium.",
-        "cta": "Crear perfil de bailarín de alquiler"
-      },
-      "positioning": {
-        "heading": "Qué es el baile de alquiler y qué no es",
-        "body": "Un bailarín de alquiler es una pareja de baile remunerada para baile en pareja (bugg, foxtrot, salsa, tango, lindy hop, entre otros) en ocasiones de baile públicas o privadas, o un instructor que da clases particulares. El servicio no incluye contacto sexual ni íntimo. Un uso distinto infringe los términos de servicio de Usha Platform y conlleva la suspensión.",
-        "readMore": "Más información:",
-        "refundPolicy": "Política de reembolso",
-        "terms": "Términos de servicio"
-      }
+    "hero": {
+      "titleLead": "Bailarines de alquiler.",
+      "titleHighlight": "Contrata a uno o conviértete en uno.",
+      "body": "Baile en pareja en tus términos: bugg, foxtrot, salsa, tango, lindy hop. Encuentra bailarines de alquiler verificados con BankID para una noche, un evento o clases particulares. O conviértete en uno y cobra directamente a través de la plataforma.",
+      "ctaFind": "Encontrar bailarines de alquiler",
+      "ctaBecome": "Ser bailarín de alquiler",
+      "note": "Como bailarín de alquiler necesitas verificarte con BankID móvil. Edad mínima 18 años."
     },
-    "seriesPage": {
-      "metaTitle": "{title} – Usha Platform",
-      "metaTitleFallback": "Serie – Usha Platform",
-      "metaDescription": "{title} – sesiones recurrentes en Usha Platform",
-      "theApp": "La app",
-      "getStarted": "Empieza aquí",
-      "backTo": "Volver a {name}",
-      "theCreator": "el creador",
-      "recurringSeries": "Serie recurrente",
-      "upcomingHeading": "Próximas sesiones",
-      "noUpcoming": "No hay próximas sesiones por ahora. ¡Mantente atento!",
-      "pastHeading": "Sesiones anteriores",
-      "book": "Reservar",
-      "view": "Ver",
-      "free": "Gratis",
-      "priceSek": "{price} SEK",
-      "creator": "Creador",
-      "viewProfile": "Ver perfil"
+    "value": {
+      "heading": "¿Por qué Usha Platform para el baile de alquiler?",
+      "paidTitle": "Cobra directamente",
+      "paidBody": "El dinero llega a tu cuenta mediante Stripe Connect después de cada reserva. Comisión reducida para bailarines de alquiler: 8 % en el nivel gratuito (frente al 15 % estándar), 5 % en Oro.",
+      "bankidTitle": "Verificado con BankID",
+      "bankidBody": "Todos los bailarines de alquiler confirman identidad y edad con BankID móvil. Genera confianza entre cliente, organizador y bailarín.",
+      "packagesTitle": "Paquetes + coaching",
+      "packagesBody": "Vende paquetes de baile prepagados que se canjean poco a poco en los eventos, u ofrece clases particulares con reserva por calendario. Ambos flujos están incluidos."
     },
+    "how": {
+      "heading": "Cómo funciona",
+      "customersBadge": "Para clientes",
+      "customersTitle": "Reserva un bailarín de alquiler",
+      "customersStep1": "Busca un bailarín de alquiler con el filtro o el enlace de arriba.",
+      "customersStep2": "Elige <em>paquete de baile</em> (prepagado, se canjea en los eventos) o <em>coaching</em> (una hora concreta).",
+      "customersStep3": "Paga de forma segura con Stripe.",
+      "customersStep4": "Quedad en la pista o en el estudio. El bailarín marca cada baile como canjeado en la app.",
+      "organizersBadge": "Para organizadores",
+      "organizersTitle": "Reserva para un evento",
+      "organizersStep1": "Envía una solicitud de evento desde el perfil del bailarín de alquiler: fecha, hora, local, remuneración.",
+      "organizersStep2": "Añade ventajas (entrada, bebidas, hotel) que hagan atractiva la oferta.",
+      "organizersStep3": "El bailarín de alquiler acepta o rechaza en poco tiempo.",
+      "organizersStep4": "Paga a través de la plataforma cuando se haya aceptado la solicitud. El dinero va directamente al bailarín."
+    },
+    "dancers": {
+      "heading": "¿Eres una pareja de baile con experiencia?",
+      "body": "Crea un perfil, describe tus estilos, fija tus precios. Ofrece también clases particulares si quieres: muchos bailarines de alquiler en Usha Platform hacen ambas cosas.",
+      "calendarTitle": "Tu propio calendario",
+      "calendarBody": "Decide tú mismo cuándo estás disponible para reservas.",
+      "qrTitle": "Tu propio código QR",
+      "qrBody": "Comparte tu perfil en carteles, tarjetas de visita o digitalmente.",
+      "commissionTitle": "Comisión reducida",
+      "commissionBody": "8 % en el nivel gratuito, 5 % en Oro, 3 % en Premium.",
+      "cta": "Crear perfil de bailarín de alquiler"
+    },
+    "positioning": {
+      "heading": "Qué es el baile de alquiler y qué no es",
+      "body": "Un bailarín de alquiler es una pareja de baile remunerada para baile en pareja (bugg, foxtrot, salsa, tango, lindy hop, entre otros) en ocasiones de baile públicas o privadas, o un instructor que da clases particulares. El servicio no incluye contacto sexual ni íntimo. Un uso distinto infringe los términos de servicio de Usha Platform y conlleva la suspensión.",
+      "readMore": "Más información:",
+      "refundPolicy": "Política de reembolso",
+      "terms": "Términos de servicio"
+    }
+  },
+  "seriesPage": {
+    "metaTitle": "{title} – Usha Platform",
+    "metaTitleFallback": "Serie – Usha Platform",
+    "metaDescription": "{title} – sesiones recurrentes en Usha Platform",
+    "theApp": "La app",
+    "getStarted": "Empieza aquí",
+    "backTo": "Volver a {name}",
+    "theCreator": "el creador",
+    "recurringSeries": "Serie recurrente",
+    "upcomingHeading": "Próximas sesiones",
+    "noUpcoming": "No hay próximas sesiones por ahora. ¡Mantente atento!",
+    "pastHeading": "Sesiones anteriores",
+    "book": "Reservar",
+    "view": "Ver",
+    "free": "Gratis",
+    "priceSek": "{price} SEK",
+    "creator": "Creador",
+    "viewProfile": "Ver perfil"
+  },
   "connections": {
     "title": "Conexiones",
     "subtitle": "Cuentas que has conectado a Usha y su estado.",

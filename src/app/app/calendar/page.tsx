@@ -98,8 +98,12 @@ export default async function CalendarPage() {
         }
       }
     }
-  } catch {
-    // Continue with empty data
+  } catch (error) {
+    // Rendering with empty data beats a crashed page, but swallowing the reason
+    // silently made a real failure indistinguishable from "nothing configured":
+    // a calendar sync that IS active would show as disconnected with no trace to
+    // debug. Log it so the cause is visible in the platform logs.
+    console.error("[calendar] kunde inte ladda sidans data:", error);
   }
 
   return (

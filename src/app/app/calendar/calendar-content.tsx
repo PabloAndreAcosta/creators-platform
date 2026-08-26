@@ -45,7 +45,10 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
   const [availableSet, setAvailableSet] = useState<Set<string>>(new Set(initialAvailableDates));
   const [slotsMap, setSlotsMap] = useState<Record<string, { id: string; start_time: string | null; end_time: string | null }[]>>({});
   const [editMode, setEditMode] = useState(false);
-  const [editingDate, setEditingDate] = useState<string | null>(null);
+  // Flera datum kan redigeras samtidigt: att lägga samma tid på hela veckan
+  // var annars ett klick per dag. Ett ensamt valt datum beter sig exakt som
+  // förut, så den vanliga vägen blir inte krångligare av att flera är möjliga.
+  const [editingDates, setEditingDates] = useState<string[]>([]);
   const [isPending, startTransition] = useTransition();
 
   const showCreatorTools = isCreator || role === "creator" || role === "venue";
@@ -115,45 +118,58 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
     const dateKey = getDateKey(day);
 
     if (editMode && showCreatorTools && !isPast(day)) {
-      // Open slot editor for this date
-      setEditingDate(editingDate === dateKey ? null : dateKey);
+      // Toggle this date in the selection
+      setEditingDates((prev) =>
+        prev.includes(dateKey) ? prev.filter((d) => d !== dateKey) : [...prev, dateKey]
+      );
     } else {
       setSelectedDate(selectedDate === dateKey ? null : dateKey);
     }
   }
 
-  async function handleToggleAllDay(dateKey: string) {
-    const wasAvailable = availableSet.has(dateKey);
-    setAvailableSet((prev) => {
-      const next = new Set(prev);
-      if (wasAvailable) next.delete(dateKey);
-      else next.add(dateKey);
-      return next;
-    });
+  /**
+   * Toggle all-day availability across the selection. With several dates the
+   * per-date state may differ, so the first date decides the direction and the
+   * rest are brought into line — otherwise the button would flip some days on
+   * and others off, which reads as a bug.
+   */
+  async function handleToggleAllDay(dateKeys: string[]) {
+    if (!dateKeys.length) return;
+    const turningOn = !availableSet.has(dateKeys[0]);
 
-    const result = await toggleAvailability(dateKey);
-    if (result.error) {
-      setAvailableSet((prev) => {
-        const reverted = new Set(prev);
-        if (wasAvailable) reverted.add(dateKey);
-        else reverted.delete(dateKey);
-        return reverted;
-      });
-    } else {
-      // Refresh slots
-      const res = await getAvailability(year, month + 1);
-      setSlotsMap(res.slots || {});
-      setAvailableSet(new Set(res.dates));
+    for (const dateKey of dateKeys) {
+      // Already in the target state — toggling would undo it.
+      if (availableSet.has(dateKey) === turningOn) continue;
+      await toggleAvailability(dateKey);
     }
-  }
 
-  async function handleAddSlot(dateKey: string, startTime: string, endTime: string) {
-    const result = await addTimeSlot(dateKey, startTime, endTime);
-    if (result.error) return result.error;
     const res = await getAvailability(year, month + 1);
     setSlotsMap(res.slots || {});
     setAvailableSet(new Set(res.dates));
-    return null;
+  }
+
+  /**
+   * Add the same slot to every selected date. Runs sequentially rather than in
+   * parallel: addTimeSlot reads the day's existing slots to reject overlaps, and
+   * concurrent writes to the same day would race that check. The refresh happens
+   * once at the end instead of per date.
+   *
+   * A per-date failure (an overlap, say) is reported but does not abort the
+   * rest — one bad day should not silently drop the other nine.
+   */
+  async function handleAddSlot(dateKeys: string[], startTime: string, endTime: string) {
+    const failures: string[] = [];
+
+    for (const dateKey of dateKeys) {
+      const result = await addTimeSlot(dateKey, startTime, endTime);
+      if (result.error) failures.push(`${dateKey.slice(8)}/${dateKey.slice(5, 7)}: ${result.error}`);
+    }
+
+    const res = await getAvailability(year, month + 1);
+    setSlotsMap(res.slots || {});
+    setAvailableSet(new Set(res.dates));
+
+    return failures.length ? failures.join(" · ") : null;
   }
 
   async function handleRemoveSlot(slotId: string) {
@@ -182,7 +198,7 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
 
       {editMode && (
         <p className="text-xs text-emerald-400/70">
-          {t("availabilityHint")}
+          {t("availabilityHint")} {t("availabilityHintMulti")}
         </p>
       )}
 
@@ -219,6 +235,7 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
             const eventDay = hasEvents(day);
             const isAvailable = availableSet.has(dateKey);
             const past = isPast(day);
+            const isEditing = editMode && editingDates.includes(dateKey);
 
             return (
               <button
@@ -226,7 +243,9 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
                 onClick={() => handleDayClick(day)}
                 disabled={editMode && past}
                 className={`relative flex h-10 flex-col items-center justify-center rounded-lg text-sm transition-all ${
-                  isSelected && !editMode
+                  isEditing
+                    ? "bg-emerald-500/30 font-bold text-emerald-200 ring-2 ring-emerald-400"
+                    : isSelected && !editMode
                     ? "bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)] font-bold text-black"
                     : isAvailable && !isSelected
                       ? "bg-emerald-500/15 font-medium text-emerald-400 ring-1 ring-emerald-500/25"
@@ -250,14 +269,15 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
         </div>
 
         {/* Time Slot Editor */}
-        {editMode && editingDate && (
+        {editMode && editingDates.length > 0 && (
           <TimeSlotEditor
-            dateKey={editingDate}
-            slots={slotsMap[editingDate] || []}
-            onToggleAllDay={() => handleToggleAllDay(editingDate)}
-            onAddSlot={(s, e) => handleAddSlot(editingDate, s, e)}
+            dateKeys={editingDates}
+            slots={editingDates.length === 1 ? slotsMap[editingDates[0]] || [] : []}
+            onToggleAllDay={() => handleToggleAllDay(editingDates)}
+            onAddSlot={(s, e) => handleAddSlot(editingDates, s, e)}
             onRemoveSlot={handleRemoveSlot}
-            isAvailable={availableSet.has(editingDate)}
+            onClear={() => setEditingDates([])}
+            isAvailable={availableSet.has(editingDates[0])}
           />
         )}
 
@@ -348,18 +368,20 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
 // ─── Time Slot Editor ───
 
 function TimeSlotEditor({
-  dateKey,
+  dateKeys,
   slots,
   onToggleAllDay,
   onAddSlot,
   onRemoveSlot,
+  onClear,
   isAvailable,
 }: {
-  dateKey: string;
+  dateKeys: string[];
   slots: { id: string; start_time: string | null; end_time: string | null }[];
   onToggleAllDay: () => void;
   onAddSlot: (startTime: string, endTime: string) => Promise<string | null>;
   onRemoveSlot: (slotId: string) => void;
+  onClear: () => void;
   isAvailable: boolean;
 }) {
   const t = useTranslations("calendarPage");
@@ -369,11 +391,14 @@ function TimeSlotEditor({
   const [adding, setAdding] = useState(false);
   const [error, setError] = useState("");
 
-  const dateLabel = new Date(dateKey).toLocaleDateString("sv-SE", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-  });
+  const multi = dateKeys.length > 1;
+  const dateLabel = multi
+    ? t("daysSelected", { count: dateKeys.length })
+    : new Date(dateKeys[0]).toLocaleDateString("sv-SE", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+      });
 
   const isAllDay = slots.length === 1 && !slots[0].start_time && !slots[0].end_time;
   const hasSpecificSlots = slots.some((s) => s.start_time !== null);
@@ -388,7 +413,18 @@ function TimeSlotEditor({
 
   return (
     <div className="mt-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
-      <h4 className="mb-1 text-sm font-semibold capitalize">{dateLabel}</h4>
+      <div className="mb-1 flex items-center justify-between gap-2">
+        <h4 className={`text-sm font-semibold ${multi ? "" : "capitalize"}`}>{dateLabel}</h4>{/* capitalize finns för att versalisera veckodagen i ett datum;
+            på antalsetiketten gav den "3 Dagar Valda". */}
+        {multi && (
+          <button
+            onClick={onClear}
+            className="rounded px-2 py-0.5 text-[10px] font-medium text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
+          >
+            {t("clearSelection")}
+          </button>
+        )}
+      </div>
 
       {/* All-day toggle */}
       <button
@@ -406,7 +442,7 @@ function TimeSlotEditor({
       </button>
 
       {/* Existing slots */}
-      {hasSpecificSlots && (
+      {!multi && hasSpecificSlots && (
         <div className="mb-3 space-y-1.5">
           {slots.filter((s) => s.start_time).map((slot) => (
             <div key={slot.id} className="flex items-center justify-between rounded-lg bg-[var(--usha-card)] px-3 py-2">
@@ -451,7 +487,7 @@ function TimeSlotEditor({
           className="flex items-center gap-1 rounded-lg bg-emerald-500/20 px-3 py-1.5 text-xs font-medium text-emerald-400 transition hover:bg-emerald-500/30 disabled:opacity-50"
         >
           {adding ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />}
-          {t("add")}
+          {multi ? t("addToDays", { count: dateKeys.length }) : t("add")}
         </button>
       </div>
 
