@@ -22,6 +22,7 @@ export default async function CalendarPage() {
     if (user) {
       const now = new Date();
       const startOfMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
+      const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 6, 1).toISOString();
       const lastDayNum = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
       const endOfMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(lastDayNum).padStart(2, "0")}`;
 
@@ -30,12 +31,17 @@ export default async function CalendarPage() {
       // the user's OWN row via service-role after the getUser() ownership check.
       const admin = createAdminClient();
       const [{ data: bookingData }, { data: profile }, { data: availabilityData }] = await Promise.all([
+        // Hämtar ett halvår bakåt och framåt: kalenderrutnätet ska gå att
+        // bläddra i historiskt, så filtret på "kommande" hör hemma i listan och
+        // inte här. Utan någon gräns alls växer frågan obegränsat med tiden.
         supabase
           .from("bookings")
-          .select("id, scheduled_at, status, listings(title)")
+          .select("id, scheduled_at, status, guest_name, customer_id, listings(title)")
           .or(`creator_id.eq.${user.id},customer_id.eq.${user.id}`)
           .in("status", ["pending", "confirmed"])
-          .order("scheduled_at", { ascending: true }),
+          .gte("scheduled_at", sixMonthsAgo)
+          .order("scheduled_at", { ascending: true })
+          .limit(500),
         admin
           .from("profiles")
           .select("calendar_sync_token, role, calendar_feed_last_fetched_at, calendar_feed_last_client")
@@ -50,6 +56,26 @@ export default async function CalendarPage() {
       ]);
 
       bookings = bookingData || [];
+
+      // Tio identiska rader är tio olika kunder som bokat samma pass. Utan namn
+      // går de inte att skilja åt, vilket fick listan att se ut som dubbletter.
+      const customerIds = Array.from(
+        new Set((bookings as { customer_id?: string | null }[]).map((b) => b.customer_id).filter(Boolean))
+      ) as string[];
+
+      if (customerIds.length) {
+        const { data: customers } = await admin
+          .from("profiles")
+          .select("id, full_name")
+          .in("id", customerIds);
+        const nameById = new Map((customers || []).map((c) => [c.id, c.full_name]));
+        bookings = (bookings as any[]).map((b) => ({
+          ...b,
+          bookerName: b.guest_name || nameById.get(b.customer_id) || null,
+        }));
+      } else {
+        bookings = (bookings as any[]).map((b) => ({ ...b, bookerName: b.guest_name || null }));
+      }
       availableDates = (availabilityData || []).map((r) => r.available_date);
       isCreator = profile?.role === "creator" || profile?.role === "venue" || profile?.role === "creator" || profile?.role === "venue";
 

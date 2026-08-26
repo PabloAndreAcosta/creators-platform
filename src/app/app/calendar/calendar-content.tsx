@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useEffect } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, MapPin, Clock, Calendar, Check, Plus, Trash2, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, User, Clock, Calendar, Check, Plus, Trash2, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRole } from "@/components/mobile/role-context";
 import { toggleAvailability, getAvailability, addTimeSlot, removeTimeSlot } from "./actions";
@@ -20,6 +20,8 @@ interface CalendarBooking {
   id: string;
   scheduled_at: string;
   status: string;
+  /** Gästens namn, eller kundkontots namn. Null när bokningen saknar båda. */
+  bookerName?: string | null;
   listings: { title: string } | null;
 }
 
@@ -79,7 +81,12 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
     `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 
   // Transform bookings into date-keyed events
-  const eventsByDate: Record<string, { title: string; time: string; location: string; color: string }[]> = {};
+  // Fältet hette tidigare "location" men innehöll status, vilket ritade en
+  // kartnål bredvid ordet "Bekräftad".
+  const eventsByDate: Record<
+    string,
+    { title: string; time: string; status: string; booker: string | null; color: string }[]
+  > = {};
   bookings.forEach((booking, i) => {
     const date = new Date(booking.scheduled_at);
     const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
@@ -87,7 +94,8 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
     const event = {
       title: booking.listings?.title || t("bookingFallbackTitle"),
       time: timeStr,
-      location: booking.status === "confirmed" ? t("statusConfirmed") : t("statusPending"),
+      status: booking.status === "confirmed" ? t("statusConfirmed") : t("statusPending"),
+      booker: booking.bookerName ?? null,
       color: EVENT_COLORS[i % EVENT_COLORS.length],
     };
     if (!eventsByDate[dateKey]) eventsByDate[dateKey] = [];
@@ -98,10 +106,13 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
 
   const selectedEvents = selectedDate ? eventsByDate[selectedDate] || [] : [];
 
+  // Rubriken lovar "kommande", så listan visar bara framtiden. Passerade
+  // bokningar finns kvar i rutnätet ovan, som går att bläddra bakåt i.
+  const todayKey = new Date().toISOString().slice(0, 10);
+
   const allUpcoming = Object.entries(eventsByDate)
-    .flatMap(([date, events]) =>
-      events.map((e) => ({ ...e, date }))
-    )
+    .filter(([date]) => date >= todayKey)
+    .flatMap(([date, events]) => events.map((e) => ({ ...e, date })))
     .sort((a, b) => a.date.localeCompare(b.date));
 
   const today = new Date();
@@ -314,9 +325,15 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
                     {event.time}
                   </span>
                   <span className="flex items-center gap-1">
-                    <MapPin size={10} />
-                    {event.location}
+                    <Check size={10} />
+                    {event.status}
                   </span>
+                  {event.booker && (
+                    <span className="flex items-center gap-1 truncate">
+                      <User size={10} className="shrink-0" />
+                      {event.booker}
+                    </span>
+                  )}
                 </div>
               </Link>
             ))}
@@ -343,9 +360,15 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
                       {event.time}
                     </span>
                     <span className="flex items-center gap-1">
-                      <MapPin size={10} />
-                      {event.location}
+                      <Check size={10} />
+                      {event.status}
                     </span>
+                    {event.booker && (
+                      <span className="flex items-center gap-1 truncate">
+                        <User size={10} className="shrink-0" />
+                        {event.booker}
+                      </span>
+                    )}
                   </div>
                 </div>
                 <span className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-[10px] font-medium text-[var(--usha-gold)]">
