@@ -116,3 +116,20 @@ export function decidePayout(c: PayoutCandidate): PayoutDecision {
 
   return { listingId: c.listingId, split, blocked };
 }
+
+/**
+ * Är felet "pengarna finns inte på kontot ännu" snarare än ett riktigt fel?
+ *
+ * Kortbetalningar ligger i Stripes pending-saldo tills avräkningsperioden
+ * passerat, så intäkten från måndagens kväll är inte tillgänglig på tisdag
+ * morgon. En överföring dagen efter faller därför på balance_insufficient tills
+ * pengarna landat — eller tills det finns annat tillgängligt saldo som täcker.
+ *
+ * Det är inget fel, det är en väntan. Raden lämnas som "pending" och körningen
+ * försöker igen nästa morgon, i stället för att larma om något som löser sig
+ * själv. Bacchi får sina pengar så fort de fysiskt går att flytta.
+ */
+export function isDeferrable(error: unknown): boolean {
+  const code = (error as { code?: string } | null)?.code;
+  return code === "balance_insufficient";
+}

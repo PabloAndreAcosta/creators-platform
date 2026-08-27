@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   isPayoutDue,
   payoutBlockedReason,
+  isDeferrable,
   decidePayout,
   stockholmToday,
   type PartnerPayoutProfile,
@@ -150,5 +151,19 @@ describe("decidePayout", () => {
     const d = decidePayout(candidate({ partner: { ...okPartner, stripe_account_id: null } }));
     expect(d.blocked).toBeTruthy();
     expect(d.blocked!.length).toBeGreaterThan(10);
+  });
+});
+
+describe("isDeferrable", () => {
+  it("skjuter upp när pengarna inte blivit tillgängliga ännu", () => {
+    // Kortpengar ligger i pending tills avräkningen passerat. Det är en väntan,
+    // inte ett fel — och ska inte larma.
+    expect(isDeferrable({ code: "balance_insufficient" })).toBe(true);
+  });
+
+  it("skjuter inte upp riktiga fel", () => {
+    expect(isDeferrable({ code: "account_invalid" })).toBe(false);
+    expect(isDeferrable(new Error("nätverket dog"))).toBe(false);
+    expect(isDeferrable(null)).toBe(false);
   });
 });

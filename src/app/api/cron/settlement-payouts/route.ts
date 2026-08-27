@@ -23,10 +23,13 @@ export async function GET(req: NextRequest) {
     console.log(
       `[settlement-payouts] ${result.today} live=${result.live} ` +
         `betalda=${result.paid} torrkörda=${result.dryRun} ` +
-        `blockerade=${result.blocked.length} misslyckade=${result.failed.length} ` +
+        `blockerade=${result.blocked.length} uppskjutna=${result.deferred.length} ` +
+        `misslyckade=${result.failed.length} ` +
         `summa=${(result.totalOre / 100).toFixed(2)} kr`
     );
     for (const b of result.blocked) console.log(`[settlement-payouts] blockerad ${b.title}: ${b.reason}`);
+    for (const d of result.deferred)
+      console.log(`[settlement-payouts] uppskjuten ${d.title}: saldot räcker inte ännu, försöker igen i morgon`);
     for (const f of result.failed) console.error(`[settlement-payouts] MISSLYCKAD ${f.title}: ${f.error}`);
 
     return NextResponse.json(result);

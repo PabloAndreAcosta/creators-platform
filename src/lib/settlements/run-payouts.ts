@@ -10,6 +10,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getStripe } from "@/lib/stripe/client";
 import {
   decidePayout,
+  isDeferrable,
   isPayoutDue,
   payoutsEnabled,
   stockholmToday,
@@ -22,6 +23,8 @@ export interface PayoutRunResult {
   paid: number;
   dryRun: number;
   blocked: { listingId: string; title: string; reason: string }[];
+  /** Kvällar som väntar på att pengarna ska bli tillgängliga i Stripe. */
+  deferred: { listingId: string; title: string }[];
   failed: { listingId: string; title: string; error: string }[];
   totalOre: number;
 }
@@ -61,6 +64,7 @@ export async function runSettlementPayouts(now: Date = new Date()): Promise<Payo
     paid: 0,
     dryRun: 0,
     blocked: [],
+    deferred: [],
     failed: [],
     totalOre: 0,
   };
@@ -197,8 +201,21 @@ export async function runSettlementPayouts(now: Date = new Date()): Promise<Payo
       result.totalOre += s.partnerOre;
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e);
-      // Raden lämnas kvar som "failed" med orsaken. Nästa körning tar om den,
-      // och transfer_group-kontrollen ovan hindrar att en överföring som
+
+      if (isDeferrable(e)) {
+        // Pengarna har inte blivit tillgängliga ännu. Raden får ligga kvar som
+        // "pending" och tas om i morgon — inget larm för något som löser sig.
+        await db
+          .from("event_settlement_payouts")
+          .update({ error: message })
+          .eq("listing_id", listing.id);
+
+        result.deferred.push({ listingId: listing.id, title: candidate.listingTitle });
+        continue;
+      }
+
+      // Riktigt fel. Raden lämnas som "failed" med orsaken. Nästa körning tar om
+      // den, och transfer_group-kontrollen ovan hindrar att en överföring som
       // faktiskt gick igenom görs en andra gång.
       await db
         .from("event_settlement_payouts")
