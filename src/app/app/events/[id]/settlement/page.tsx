@@ -74,6 +74,16 @@ export default async function SettlementPage(props: { params: Promise<{ id: stri
         partnerPercent: share.partner_percent,
       })
     : null;
+  // Har utbetalningen gjorts? Underlaget är halva svaret; den andra halvan är
+  // om pengarna faktiskt lämnade kontot.
+  const { data: payout } = share
+    ? await supabase
+        .from("event_settlement_payouts")
+        .select("status, amount_ore, paid_at, error")
+        .eq("listing_id", listing.id)
+        .maybeSingle()
+    : { data: null };
+
   const partnerName = partner?.company_name || partner?.full_name || "Partner";
   // Utbetalning kräver både verifierat bolag och ett Stripe-konto som kan ta
   // emot. Saknas något går underlaget att visa, men inte att föra över.
@@ -176,7 +186,29 @@ export default async function SettlementPage(props: { params: Promise<{ id: stri
               ))}
             </div>
 
-            {!partnerCanReceive && (
+            {payout && (
+              <p
+                className={`mt-3 rounded-xl border px-4 py-3 text-xs leading-relaxed ${
+                  payout.status === "paid"
+                    ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-200"
+                    : payout.status === "failed"
+                      ? "border-red-500/30 bg-red-500/10 text-red-200"
+                      : "border-[var(--usha-border)] bg-[var(--usha-card)] text-[var(--usha-muted)]"
+                }`}
+              >
+                {payout.status === "paid"
+                  ? t("payoutPaid", {
+                      date: payout.paid_at ? new Date(payout.paid_at).toLocaleDateString("sv-SE") : "",
+                    })
+                  : payout.status === "failed"
+                    ? t("payoutFailed", { error: payout.error ?? "" })
+                    : payout.status === "dry_run"
+                      ? t("payoutDryRun", { amount: `${kr(payout.amount_ore)} kr` })
+                      : t("payoutPending")}
+              </p>
+            )}
+
+            {!payout && !partnerCanReceive && (
               <p className="mt-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-xs leading-relaxed text-amber-200">
                 {t("sharePending")}
               </p>
