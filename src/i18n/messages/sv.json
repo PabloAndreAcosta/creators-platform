@@ -2237,7 +2237,20 @@
     "refundedNone": "inga",
     "netLabel": "Netto till dig",
     "netSub": "före Stripes transaktionsavgift",
-    "footer": "Utbetalning sker till ditt anslutna Stripe-konto. Stripe drar sin transaktionsavgift direkt vid utbetalningen, så det utbetalda beloppet kan vara något lägre än nettot ovan. Gratisbiljetter räknas inte in."
+    "footer": "Utbetalning sker till ditt anslutna Stripe-konto. Stripe drar sin transaktionsavgift direkt vid utbetalningen, så det utbetalda beloppet kan vara något lägre än nettot ovan. Gratisbiljetter räknas inte in.",
+    "shareHeading": "Delning med {partner}",
+    "shareNetLabel": "Efter återbetalningar",
+    "shareNetSub": "inklusive moms",
+    "shareVatLabel": "Moms",
+    "shareVatSub": "{rate} %, räknad ur priset",
+    "shareBasisLabel": "Underlag för delning",
+    "shareBasisSub": "netto exklusive moms",
+    "sharePartnerLabel": "{partner}s andel",
+    "sharePartnerSub": "{percent} % av underlaget",
+    "shareOrganiserLabel": "Din andel",
+    "shareOrganiserSub": "{percent} % av underlaget",
+    "shareFooter": "Delningen räknas på biljettintäkten före Usha-avgiften, eftersom avgiften är plattformens egen intäkt och inte en kostnad partnern är med och bär. Inga pengar har förts över — den här sidan visar bara underlaget.",
+    "sharePending": "Partnern kan inte ta emot utbetalning ännu. Kontot måste vara verifierat med organisationsnummer och anslutet till Stripe."
   },
   "scanPage": {
     "title": "Skanna biljetter",

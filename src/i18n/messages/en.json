@@ -2237,7 +2237,20 @@
     "refundedNone": "none",
     "netLabel": "Net to you",
     "netSub": "before Stripe's processing fee",
-    "footer": "Payout goes to your connected Stripe account. Stripe deducts its processing fee directly at payout, so the paid-out amount may be slightly lower than the net above. Free tickets are not included."
+    "footer": "Payout goes to your connected Stripe account. Stripe deducts its processing fee directly at payout, so the paid-out amount may be slightly lower than the net above. Free tickets are not included.",
+    "shareHeading": "Split with {partner}",
+    "shareNetLabel": "After refunds",
+    "shareNetSub": "including VAT",
+    "shareVatLabel": "VAT",
+    "shareVatSub": "{rate} %, extracted from the price",
+    "shareBasisLabel": "Basis for the split",
+    "shareBasisSub": "net excluding VAT",
+    "sharePartnerLabel": "{partner}’s share",
+    "sharePartnerSub": "{percent} % of the basis",
+    "shareOrganiserLabel": "Your share",
+    "shareOrganiserSub": "{percent} % of the basis",
+    "shareFooter": "The split is calculated on ticket revenue before the Usha fee, because that fee is the platform’s own income and not a cost the partner helps carry. No money has been transferred — this page only shows the basis.",
+    "sharePending": "The partner cannot receive a payout yet. The account must be verified with a company registration number and connected to Stripe."
   },
   "scanPage": {
     "title": "Scan tickets",

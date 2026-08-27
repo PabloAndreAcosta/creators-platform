@@ -2237,7 +2237,20 @@
     "refundedNone": "ninguno",
     "netLabel": "Neto para ti",
     "netSub": "antes de la comisión de Stripe",
-    "footer": "El pago se realiza a tu cuenta de Stripe conectada. Stripe descuenta su comisión de procesamiento directamente en el pago, por lo que el importe abonado puede ser algo inferior al neto anterior. Las entradas gratuitas no se incluyen."
+    "footer": "El pago se realiza a tu cuenta de Stripe conectada. Stripe descuenta su comisión de procesamiento directamente en el pago, por lo que el importe abonado puede ser algo inferior al neto anterior. Las entradas gratuitas no se incluyen.",
+    "shareHeading": "Reparto con {partner}",
+    "shareNetLabel": "Después de reembolsos",
+    "shareNetSub": "IVA incluido",
+    "shareVatLabel": "IVA",
+    "shareVatSub": "{rate} %, extraído del precio",
+    "shareBasisLabel": "Base del reparto",
+    "shareBasisSub": "neto sin IVA",
+    "sharePartnerLabel": "Parte de {partner}",
+    "sharePartnerSub": "{percent} % de la base",
+    "shareOrganiserLabel": "Tu parte",
+    "shareOrganiserSub": "{percent} % de la base",
+    "shareFooter": "El reparto se calcula sobre los ingresos por entradas antes de la comisión de Usha, porque esa comisión es ingreso propio de la plataforma y no un coste que el socio comparta. No se ha transferido dinero — esta página solo muestra la base.",
+    "sharePending": "El socio aún no puede recibir pagos. La cuenta debe estar verificada con número de registro mercantil y conectada a Stripe."
   },
   "scanPage": {
     "title": "Escanear entradas",
