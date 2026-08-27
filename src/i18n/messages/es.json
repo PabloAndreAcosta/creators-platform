@@ -2250,7 +2250,11 @@
     "shareOrganiserLabel": "Tu parte",
     "shareOrganiserSub": "{percent} % de la base",
     "shareFooter": "El reparto se calcula sobre los ingresos por entradas antes de la comisión de Usha, porque esa comisión es ingreso propio de la plataforma y no un coste que el socio comparta. No se ha transferido dinero — esta página solo muestra la base.",
-    "sharePending": "El socio aún no puede recibir pagos. La cuenta debe estar verificada con número de registro mercantil y conectada a Stripe."
+    "sharePending": "El socio aún no puede recibir pagos. La cuenta debe estar verificada con número de registro mercantil y conectada a Stripe.",
+    "payoutPaid": "Pagado el {date}",
+    "payoutPending": "Pago iniciado",
+    "payoutFailed": "El pago no se completó: {error}",
+    "payoutDryRun": "Simulación — se habrían transferido {amount} si los pagos estuvieran activados"
   },
   "scanPage": {
     "title": "Escanear entradas",

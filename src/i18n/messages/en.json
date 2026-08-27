@@ -2250,7 +2250,11 @@
     "shareOrganiserLabel": "Your share",
     "shareOrganiserSub": "{percent} % of the basis",
     "shareFooter": "The split is calculated on ticket revenue before the Usha fee, because that fee is the platform’s own income and not a cost the partner helps carry. No money has been transferred — this page only shows the basis.",
-    "sharePending": "The partner cannot receive a payout yet. The account must be verified with a company registration number and connected to Stripe."
+    "sharePending": "The partner cannot receive a payout yet. The account must be verified with a company registration number and connected to Stripe.",
+    "payoutPaid": "Paid out {date}",
+    "payoutPending": "Payout started",
+    "payoutFailed": "The payout did not go through: {error}",
+    "payoutDryRun": "Dry run — {amount} would have been transferred if payouts were enabled"
   },
   "scanPage": {
     "title": "Scan tickets",

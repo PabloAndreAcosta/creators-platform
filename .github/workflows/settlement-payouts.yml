@@ -1,0 +1,27 @@
+name: Daily settlement payouts
+
+# Betalar ut partnerns andel för kvällar som varit. Vercel Hobby tar bara två
+# cronjobb och de är tagna, så schemat ligger här i stället.
+#
+# En gång per dygn, 05.00 UTC (07.00 svensk sommartid). Med
+# payout_delay_days = 1 innebär det att pengarna går morgonen efter
+# arrangemanget.
+#
+# Körningen är idempotent: UNIQUE(listing_id) i event_settlement_payouts gör att
+# en kväll kan betalas ut högst en gång, så en extra körning är ofarlig.
+on:
+  schedule:
+    - cron: "0 5 * * *"
+  workflow_dispatch: {} # manuell körning, t.ex. för att se torrkörningen
+
+jobs:
+  payout:
+    # Bara i produktionsrepot, inte i den privata spegeln.
+    if: github.repository == 'usha-ab/creators-platform'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Betala ut partnerandelar för kvällar som varit
+        run: |
+          curl -fsS -X GET \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            https://usha.se/api/cron/settlement-payouts

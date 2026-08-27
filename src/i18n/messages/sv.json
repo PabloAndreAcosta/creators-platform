@@ -2250,7 +2250,11 @@
     "shareOrganiserLabel": "Din andel",
     "shareOrganiserSub": "{percent} % av underlaget",
     "shareFooter": "Delningen räknas på biljettintäkten före Usha-avgiften, eftersom avgiften är plattformens egen intäkt och inte en kostnad partnern är med och bär. Inga pengar har förts över — den här sidan visar bara underlaget.",
-    "sharePending": "Partnern kan inte ta emot utbetalning ännu. Kontot måste vara verifierat med organisationsnummer och anslutet till Stripe."
+    "sharePending": "Partnern kan inte ta emot utbetalning ännu. Kontot måste vara verifierat med organisationsnummer och anslutet till Stripe.",
+    "payoutPaid": "Utbetald {date}",
+    "payoutPending": "Utbetalning påbörjad",
+    "payoutFailed": "Utbetalningen gick inte igenom: {error}",
+    "payoutDryRun": "Torrkörning — {amount} hade förts över om utbetalningar varit påslagna"
   },
   "scanPage": {
     "title": "Skanna biljetter",
