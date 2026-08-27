@@ -4,6 +4,8 @@ import Link from "next/link";
 import { ArrowLeft, Receipt } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { getCreatorCommissionRate } from "@/lib/stripe/commission";
+import { aggregateEventBookings } from "@/lib/settlements/aggregate";
+import { splitEventRevenue } from "@/lib/settlements/split";
 
 // Organizer settlement / payout report for one event. Read-only: it reconciles
 // gross ticket sales against Usha's fee and refunds to show the net the
@@ -38,26 +40,16 @@ export default async function SettlementPage(props: { params: Promise<{ id: stri
     .eq("listing_id", listing.id)
     .eq("booking_type", "ticket");
 
-  let ticketsSold = 0;
-  let grossOre = 0;
-  let platformFeeOre = 0;
-  let refundedOre = 0;
-  let refundedCount = 0;
+  const { ticketsSold, grossOre, platformFeeOre, refundedOre, refundedCount } =
+    aggregateEventBookings(bookings ?? [], commissionRate);
 
-  for (const b of bookings ?? []) {
-    const qty = b.guest_count ?? 1;
-    const paid = b.amount_paid ?? 0;
-    if (b.status === "confirmed" || b.status === "completed") {
-      ticketsSold += qty;
-      grossOre += paid;
-      // Prefer the persisted fee; fall back to a commission estimate for
-      // bookings created before it was recorded.
-      platformFeeOre += b.platform_fee_amount ?? Math.round(paid * commissionRate);
-    } else if (b.status === "canceled" && b.refund_amount) {
-      refundedOre += b.refund_amount;
-      refundedCount += 1;
-    }
-  }
+  // Avtalad delning med en samarbetspartner, om evenemanget har en. De allra
+  // flesta har ingen, och då ser sidan ut precis som förut.
+  const { data: share } = await supabase
+    .from("event_revenue_shares")
+    .select("partner_percent, vat_rate, partner:profiles!partner_profile_id(full_name, company_name, company_verified_at, stripe_charges_enabled)")
+    .eq("listing_id", listing.id)
+    .maybeSingle();
 
   const netOre = grossOre - platformFeeOre - refundedOre;
   const kr = (ore: number) => (ore / 100).toLocaleString("sv-SE", { maximumFractionDigits: 0 });
@@ -69,6 +61,47 @@ export default async function SettlementPage(props: { params: Promise<{ id: stri
     { label: t("refundedLabel"), value: `−${kr(refundedOre)} kr`, sub: refundedCount ? t("refundedSub", { count: refundedCount }) : t("refundedNone"), negative: true },
     { label: t("netLabel"), value: `${kr(netOre)} kr`, sub: t("netSub"), strong: true },
   ];
+
+  // Delningen räknas på biljettintäkten FÖRE Usha-avgiften. Avgiften är
+  // plattformens egen intäkt, inte en kostnad partnern är med och bär — hade
+  // den dragits av först hade partnern betalat halva Ushas provision till Usha.
+  const partner = Array.isArray(share?.partner) ? share.partner[0] : share?.partner;
+  const split = share
+    ? splitEventRevenue({
+        grossOre,
+        refundedOre,
+        vatRate: Number(share.vat_rate),
+        partnerPercent: share.partner_percent,
+      })
+    : null;
+  const partnerName = partner?.company_name || partner?.full_name || "Partner";
+  // Utbetalning kräver både verifierat bolag och ett Stripe-konto som kan ta
+  // emot. Saknas något går underlaget att visa, men inte att föra över.
+  const partnerCanReceive = !!partner?.company_verified_at && !!partner?.stripe_charges_enabled;
+
+  const shareRows = split
+    ? [
+        { label: t("shareNetLabel"), value: `${kr(split.netInclVatOre)} kr`, sub: t("shareNetSub") },
+        {
+          label: t("shareVatLabel"),
+          value: `−${kr(split.vatOre)} kr`,
+          sub: t("shareVatSub", { rate: Math.round(split.vatRate * 100) }),
+          negative: true,
+        },
+        { label: t("shareBasisLabel"), value: `${kr(split.basisOre)} kr`, sub: t("shareBasisSub") },
+        {
+          label: t("sharePartnerLabel", { partner: partnerName }),
+          value: `${kr(split.partnerOre)} kr`,
+          sub: t("sharePartnerSub", { partner: partnerName, percent: split.partnerPercent }),
+        },
+        {
+          label: t("shareOrganiserLabel"),
+          value: `${kr(split.organiserOre)} kr`,
+          sub: t("shareOrganiserSub", { percent: 100 - split.partnerPercent }),
+          strong: true,
+        },
+      ]
+    : [];
 
   return (
     <main className="min-h-screen bg-[var(--usha-black)] text-[var(--usha-white)]">
@@ -112,6 +145,46 @@ export default async function SettlementPage(props: { params: Promise<{ id: stri
         </div>
 
         <p className="mt-4 text-xs leading-relaxed text-[var(--usha-muted)]">{t("footer")}</p>
+
+        {split && (
+          <section className="mt-8">
+            <h2 className="mb-3 text-sm font-semibold text-[var(--usha-white)]">
+              {t("shareHeading", { partner: partnerName })}
+            </h2>
+
+            <div className="divide-y divide-[var(--usha-border)] overflow-hidden rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)]">
+              {shareRows.map((r) => (
+                <div key={r.label} className="flex items-center justify-between px-5 py-4">
+                  <div>
+                    <p className={`text-sm ${r.strong ? "font-semibold text-[var(--usha-white)]" : "text-[var(--usha-muted)]"}`}>
+                      {r.label}
+                    </p>
+                    {r.sub && <p className="text-xs text-[var(--usha-muted)]">{r.sub}</p>}
+                  </div>
+                  <p
+                    className={`text-sm tabular-nums ${
+                      r.strong
+                        ? "text-lg font-bold text-[var(--usha-gold)]"
+                        : r.negative
+                          ? "text-red-400"
+                          : "font-medium text-[var(--usha-white)]"
+                    }`}
+                  >
+                    {r.value}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {!partnerCanReceive && (
+              <p className="mt-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-xs leading-relaxed text-amber-200">
+                {t("sharePending")}
+              </p>
+            )}
+
+            <p className="mt-4 text-xs leading-relaxed text-[var(--usha-muted)]">{t("shareFooter")}</p>
+          </section>
+        )}
       </div>
     </main>
   );
