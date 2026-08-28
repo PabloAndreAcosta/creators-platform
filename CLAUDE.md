@@ -42,6 +42,12 @@ Six role-based pricing plans defined in `src/lib/stripe/config.ts`: Publik Guld 
 
 Schema in `supabase/migration.sql`. Tables: `profiles`, `subscriptions`, `payments`, `listings`, `bookings`. All tables have RLS enabled. A database trigger auto-creates a profile row on user signup. The `payments`, `listings`, and `bookings` tables exist in the schema but are not yet used in the application code.
 
+### Text-to-speech reader (`/app/lyssna`)
+
+A Speechify-style listening view. `src/lib/tts/` holds the pure parts: `segment.ts` splits text into speakable sentences carrying their character offsets in the original, `html-text.ts` extracts article text from HTML, `epub.ts` reads EPUB (a ZIP — unpacked with `DecompressionStream`, no dependency) and `pdf.ts` wraps `pdfjs-dist` (dynamically imported, and it must be the **minified legacy build** — the standard build breaks under Next's bundler). `url-guard.ts` is the SSRF gate. `use-speech.ts` drives `window.speechSynthesis` one sentence at a time (long utterances get cut off in Chrome, and sentence boundaries are what make skip and highlighting possible); `use-media-session.ts` adds lock-screen controls and loops a silent track so Android keeps the page alive with the screen off.
+
+The library lives in two places: `library.ts` is the localStorage copy (opens instantly, works offline) and `listen_documents` in Postgres is the shared truth, so a document added on the phone shows up on the desktop. `sync.ts` is the pure merge (last write wins per document, tombstones for deletes) and `client-sync.ts` runs it against `/api/tts/documents`. Texts are fetched per document on open — a library is not something you download in full on every page load. `POST /api/tts/extract` fetches an article server-side because CORS blocks the browser; it requires a logged-in user, rate limits per user and re-checks every redirect hop and DNS result against the guard.
+
 ### Styling
 
 Two styling systems coexist:
