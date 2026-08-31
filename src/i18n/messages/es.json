@@ -172,7 +172,15 @@
     "showReviews": "Mostrar reseñas",
     "showReviewsDesc": "Permite que tus reseñas se muestren públicamente",
     "bookingHistory": "Historial de reservas",
-    "bookingHistoryDesc": "Permite que los creadores vean tu historial de reservas"
+    "bookingHistoryDesc": "Permite que los creadores vean tu historial de reservas",
+    "venueConsents": {
+      "heading": "Locales de los que recibes información",
+      "intro": "Has aceptado recibir información de estos locales sobre próximos eventos. Usha envía en su nombre — los locales no tienen tus datos.",
+      "on": "Recibes información",
+      "off": "No recibes información",
+      "stop": "Parar",
+      "resume": "Reanudar"
+    }
   },
   "account": {
     "title": "Configuración de la cuenta",
@@ -2231,7 +2239,17 @@
     "eventFallback": "Evento",
     "shareText": "Voy a {title}, ¡únete!",
     "shareTitleFallback": "este evento",
-    "shareLabel": "Invitar a amigos"
+    "shareLabel": "Invitar a amigos",
+    "venueConsent": {
+      "question": "¿Quieres recibir información de {venue}?",
+      "explain": "Te avisarán de próximos eventos en su local. Usha envía en su nombre — {venue} no recibe tus datos. Puedes cambiar de opinión cuando quieras, aquí mismo.",
+      "yes": "Sí, gracias",
+      "no": "No, gracias",
+      "granted": "Recibirás información de {venue} sobre próximos eventos.",
+      "withdrawn": "No recibirás información de {venue}.",
+      "change": "Cambiar",
+      "failed": "No se pudo guardar la respuesta. Inténtalo de nuevo."
+    }
   },
   "settlement": {
     "back": "Atrás",

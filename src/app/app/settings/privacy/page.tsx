@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { ArrowLeft, Shield, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import VenueConsents from "./venue-consents";
 
 interface PrivacySetting {
   id: string;
@@ -117,6 +118,8 @@ export default function PrivacyPage() {
           ))}
         </div>
       )}
+
+      <VenueConsents />
 
       <div className="space-y-2 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
         <h3 className="text-sm font-semibold">{ts("legalInfo")}</h3>
