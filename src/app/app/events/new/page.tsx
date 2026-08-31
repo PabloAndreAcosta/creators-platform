@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import EventForm from "../event-form";
+import { listVenueOptions } from "@/lib/venues/list";
 import { createEvent } from "../actions";
 
 export default async function NewEventPage({
@@ -36,5 +37,7 @@ export default async function NewEventPage({
     }
   }
 
-  return <EventForm action={createEvent} userId={user.id} event={prefill} />;
+  const venues = await listVenueOptions(supabase);
+
+  return <EventForm action={createEvent} userId={user.id} event={prefill} venues={venues} />;
 }

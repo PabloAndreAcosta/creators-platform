@@ -1181,6 +1181,10 @@
       "apply": "Använd",
       "discountAdded": "{label} tillagd!",
       "newPrice": "— Nytt pris: {price} SEK"
+    },
+    "hosted": {
+      "heading": "Evenemang hos oss",
+      "by": "Arrangeras av {name}"
     }
   },
   "dashProfile": {
@@ -1888,7 +1892,11 @@
     "contentLanguageHelp": "Tvingar event-sidan till detta språk för alla besökare. Auto = följ besökarens språk.",
     "langAuto": "Auto (besökarens språk)",
     "langSv": "Svenska",
-    "langEn": "Engelska"
+    "langEn": "Engelska",
+    "venueProfile": "Lokal på Usha",
+    "venueProfileNone": "Ingen kopplad lokal",
+    "venueProfileHint": "Kopplar du evenemanget till en lokal får deras följare veta, och det syns på lokalens sida. Lokalen behöver godkänna kopplingen först.",
+    "venueProfilePending": "Väntar på att lokalen ska godkänna kopplingen. Tills dess syns evenemanget inte på deras sida."
   },
   "trainingBuddies": {
     "title": "Träningsvänner",
@@ -2473,7 +2481,9 @@
     "rewardsDesc": "Poäng",
     "notificationsLabel": "Notiser",
     "profileLabel": "Profil",
-    "settingsLabel": "Inställningar"
+    "settingsLabel": "Inställningar",
+    "venueRequestsLabel": "Förfrågningar",
+    "venueRequestsDesc": "Godkänn arrangörer som vill hålla evenemang hos er"
   },
   "courses": {
     "pageTitle": "Mitt innehåll",
@@ -3718,5 +3728,17 @@
     "errorEpubBroken": "EPUB-filen är skadad och gick inte att läsa.",
     "errorEpubCompression": "EPUB-filen använder en komprimering vi inte kan läsa.",
     "errorEpubNoText": "Hittade ingen läsbar text i boken."
+  },
+  "venueRequests": {
+    "heading": "Förfrågningar från arrangörer",
+    "intro": "Arrangörer som vill koppla sitt evenemang till er lokal. Godkänner ni visas evenemanget på er sida och era följare får veta att det händer något hos er.",
+    "empty": "Inga förfrågningar just nu.",
+    "pending": "Väntar på svar",
+    "confirmed": "Godkänd",
+    "approve": "Godkänn",
+    "decline": "Neka",
+    "withdraw": "Ta bort godkännande",
+    "by": "Arrangeras av {name}",
+    "failed": "Det gick inte att spara svaret. Försök igen."
   }
 }

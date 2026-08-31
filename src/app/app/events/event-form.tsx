@@ -30,6 +30,8 @@ interface EventData {
   event_place_id: string | null;
   event_city?: string | null;
   event_venue?: string | null;
+  venue_profile_id?: string | null;
+  venue_confirmed_at?: string | null;
   listing_type: ListingType | null;
   open_to_instructors: boolean | null;
   service_fee_mode?: string | null;
@@ -56,11 +58,19 @@ function suggestListingType(category: string): ListingType {
   }
 }
 
+export interface VenueOption {
+  id: string;
+  name: string;
+}
+
 export default function EventForm({
   event,
   action,
+  venues = [],
 }: {
   event?: EventData;
+  /** Lokaler på plattformen som evenemanget kan kopplas till. */
+  venues?: VenueOption[];
   action: (
     formData: FormData
   ) => Promise<{ error?: string; locked?: boolean; id?: string } | void>;
@@ -525,6 +535,36 @@ export default function EventForm({
           defaultCity={event?.event_city ?? null}
           defaultVenue={event?.event_venue ?? null}
         />
+
+        {/* Koppling till en lokal på plattformen. Skilt från adressen ovan:
+            adressen säger var, den här säger HOS VEM — och det är den som gör
+            att lokalens följare får veta, och att evenemanget syns på deras
+            sida. Döljs helt när det inte finns någon lokal att välja. */}
+        {venues.length > 0 && (
+          <div className="space-y-2">
+            <label htmlFor="venue_profile_id" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
+              {t("venueProfile")}
+            </label>
+            <select
+              id="venue_profile_id"
+              name="venue_profile_id"
+              defaultValue={event?.venue_profile_id ?? ""}
+              className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+            >
+              <option value="">{t("venueProfileNone")}</option>
+              {venues.map((v) => (
+                <option key={v.id} value={v.id}>
+                  {v.name}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-[var(--usha-muted)]">
+              {event?.venue_profile_id && !event?.venue_confirmed_at
+                ? t("venueProfilePending")
+                : t("venueProfileHint")}
+            </p>
+          </div>
+        )}
 
         {/* Category + Price */}
         <div className="grid gap-4 sm:grid-cols-2">

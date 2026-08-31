@@ -103,6 +103,8 @@ function parseEventForm(formData: FormData) {
   const eventPlaceId = (formData.get("event_place_id") as string)?.trim() || null;
   const eventCity = (formData.get("event_city") as string)?.trim() || null;
   const eventVenue = (formData.get("event_venue") as string)?.trim() || null;
+  // Lokalen som profil, skilt från event_venue som bara är ett namn från Places.
+  const venueProfileId = (formData.get("venue_profile_id") as string)?.trim() || null;
   const eventLat = eventLatRaw ? parseFloat(eventLatRaw) : null;
   const eventLng = eventLngRaw ? parseFloat(eventLngRaw) : null;
   const listingType = (formData.get("listing_type") as string) || "event";
@@ -164,6 +166,7 @@ function parseEventForm(formData: FormData) {
       event_location: eventLocation,
       event_city: eventCity,
       event_venue: eventVenue,
+      venue_profile_id: venueProfileId,
       event_lat: eventLat,
       event_lng: eventLng,
       event_place_id: eventPlaceId,
@@ -327,6 +330,12 @@ export async function createEvent(formData: FormData) {
       ...parsed.data,
       ...(priceOverride !== null ? { price: priceOverride } : {}),
       user_id: user.id,
+      // En lokal som lägger upp sitt eget arrangemang behöver inte bekräfta åt
+      // sig själv. Alla andra kopplingar väntar på lokalens ja.
+      venue_confirmed_at:
+        parsed.data.venue_profile_id && parsed.data.venue_profile_id === user.id
+          ? new Date().toISOString()
+          : null,
       event_date: d,
       is_active: !locked,
       is_public: isPublic,
@@ -516,11 +525,23 @@ export async function updateEvent(id: string, formData: FormData) {
   // the source date's slug, and gets corrected here once the real date is set).
   const { data: current } = await admin
     .from("listings")
-    .select("slug, event_date, series_id")
+    .select("slug, event_date, series_id, venue_profile_id")
     .eq("id", id)
     .single();
 
   const updateData: Record<string, unknown> = { ...parsed.data };
+
+  // Bekräftelsen hör ihop med EN bestämd lokal. Byter arrangören lokal måste
+  // den nya säga ja för sig — annars hade ett ja från Bacchi kunnat bäras över
+  // till en annan lokal och användas för att mejla dess följare. Är lokalen
+  // oförändrad rörs kolumnen inte alls, så en titeländring inte avbekräftar.
+  const venueChanged = (current?.venue_profile_id ?? null) !== (parsed.data.venue_profile_id ?? null);
+  if (venueChanged) {
+    updateData.venue_confirmed_at =
+      parsed.data.venue_profile_id && parsed.data.venue_profile_id === user.id
+        ? new Date().toISOString()
+        : null;
+  }
   if (priceOverride !== null) updateData.price = priceOverride;
   updateData.is_public = formData.get("unlisted") !== "on";
   Object.assign(updateData, parseAutomation(formData));

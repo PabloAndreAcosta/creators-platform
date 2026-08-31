@@ -1181,6 +1181,10 @@
       "apply": "Aplicar",
       "discountAdded": "¡{label} añadido!",
       "newPrice": "— Nuevo precio: {price} SEK"
+    },
+    "hosted": {
+      "heading": "Eventos en nuestro local",
+      "by": "Organizado por {name}"
     }
   },
   "dashProfile": {
@@ -1888,7 +1892,11 @@
     "contentLanguageHelp": "Fuerza la página del evento a este idioma para todos los visitantes. Automático = seguir el idioma del visitante.",
     "langAuto": "Automático (idioma del visitante)",
     "langSv": "Sueco",
-    "langEn": "Inglés"
+    "langEn": "Inglés",
+    "venueProfile": "Local en Usha",
+    "venueProfileNone": "Sin local vinculado",
+    "venueProfileHint": "Vincular el evento a un local avisa a sus seguidores y lo muestra en su página. El local debe aprobar el vínculo primero.",
+    "venueProfilePending": "Esperando que el local apruebe el vínculo. Hasta entonces el evento no aparece en su página."
   },
   "trainingBuddies": {
     "title": "Compañeros de entrenamiento",
@@ -2473,7 +2481,9 @@
     "rewardsDesc": "Puntos",
     "notificationsLabel": "Notificaciones",
     "profileLabel": "Perfil",
-    "settingsLabel": "Ajustes"
+    "settingsLabel": "Ajustes",
+    "venueRequestsLabel": "Solicitudes",
+    "venueRequestsDesc": "Aprueba a organizadores que quieren hacer eventos en vuestro local"
   },
   "courses": {
     "pageTitle": "Mi contenido",
@@ -3718,5 +3728,17 @@
     "errorEpubBroken": "El archivo EPUB está dañado y no se pudo leer.",
     "errorEpubCompression": "El archivo EPUB usa una compresión que no podemos leer.",
     "errorEpubNoText": "No se encontró texto legible en el libro."
+  },
+  "venueRequests": {
+    "heading": "Solicitudes de organizadores",
+    "intro": "Organizadores que quieren vincular su evento a vuestro local. Si lo aprobáis, el evento aparece en vuestra página y vuestros seguidores se enteran de que pasa algo en vuestro local.",
+    "empty": "No hay solicitudes ahora mismo.",
+    "pending": "Esperando respuesta",
+    "confirmed": "Aprobado",
+    "approve": "Aprobar",
+    "decline": "Rechazar",
+    "withdraw": "Retirar aprobación",
+    "by": "Organizado por {name}",
+    "failed": "No se pudo guardar la respuesta. Inténtalo de nuevo."
   }
 }

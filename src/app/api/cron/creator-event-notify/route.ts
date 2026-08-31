@@ -3,6 +3,7 @@ import { verifyCronAuth } from "@/lib/cron/auth";
 import { createClient } from "@supabase/supabase-js";
 import { sendCreatorEventEmail } from "@/lib/email/send-creator-event";
 import { shouldSendEmail } from "@/lib/email/check-preferences";
+import { buildNotifyAudience } from "@/lib/venues/audience";
 
 function getSupabaseAdmin() {
   return createClient(
@@ -29,7 +30,7 @@ export async function GET(req: NextRequest) {
 
   const { data: listings } = await admin
     .from("listings")
-    .select("id, user_id, title, event_date, event_location")
+    .select("id, user_id, title, event_date, event_location, venue_profile_id, venue_confirmed_at")
     .eq("listing_type", "event")
     .eq("is_active", true)
     .is("followers_notified_at", null)
@@ -63,12 +64,32 @@ export async function GET(req: NextRequest) {
       .select("follower_id")
       .eq("followed_id", listing.user_id);
 
-    for (const f of followers ?? []) {
-      if (!(await shouldSendEmail(f.follower_id, "notif_creator_events"))) continue;
+    // Lokalens följare får också veta — men bara om lokalen bekräftat
+    // kopplingen. Utan den spärren kan vem som helst tagga en populär lokal och
+    // skicka post i dess namn.
+    const venueId = listing.venue_confirmed_at ? listing.venue_profile_id : null;
+    let venueFollowers: string[] = [];
+    if (venueId) {
+      const { data: vf } = await admin
+        .from("follows")
+        .select("follower_id")
+        .eq("followed_id", venueId);
+      venueFollowers = (vf ?? []).map((f) => f.follower_id);
+    }
+
+    const audience = buildNotifyAudience({
+      creatorFollowers: (followers ?? []).map((f) => f.follower_id),
+      venueFollowers,
+      creatorId: listing.user_id,
+      venueId,
+    });
+
+    for (const followerId of audience) {
+      if (!(await shouldSendEmail(followerId, "notif_creator_events"))) continue;
       const { data: fp } = await admin
         .from("profiles")
         .select("email, full_name")
-        .eq("id", f.follower_id)
+        .eq("id", followerId)
         .single();
       if (!fp?.email) continue;
 
@@ -81,11 +102,11 @@ export async function GET(req: NextRequest) {
           eventDate: listing.event_date ? new Date(listing.event_date) : undefined,
           location: listing.event_location || undefined,
           eventUrl: `${appUrl}/listing/${listing.id}`,
-          followerId: f.follower_id,
+          followerId,
         });
         notified++;
       } catch (err) {
-        console.error(`Creator event notify failed for follower ${f.follower_id}:`, err);
+        console.error(`Creator event notify failed for follower ${followerId}:`, err);
       }
     }
 
