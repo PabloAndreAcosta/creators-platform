@@ -55,5 +55,14 @@ begin
 end;
 $$;
 
+-- Supabase ger som standard EXECUTE till anon OCH authenticated på nya
+-- funktioner i public. REVOKE ... FROM PUBLIC räcker inte: en direkt grant till
+-- anon ligger kvar, och kolumn-/funktionsgrants följer inte med när man
+-- återkallar från PUBLIC. anon måste därför återkallas uttryckligen.
+--
+-- Ingen faktisk lucka fanns även när den stod öppen: auth.uid() är NULL för
+-- anon, så villkoret matchar aldrig. Men en utloggad besökare ska inte kunna
+-- anropa funktionen alls.
 revoke all on function public.confirm_venue_listing(uuid, boolean) from public;
+revoke all on function public.confirm_venue_listing(uuid, boolean) from anon;
 grant execute on function public.confirm_venue_listing(uuid, boolean) to authenticated;
