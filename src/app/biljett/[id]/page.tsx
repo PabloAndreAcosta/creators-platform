@@ -3,6 +3,9 @@ import { notFound } from "next/navigation";
 import QRCode from "qrcode";
 import { Calendar, Clock, MapPin, CheckCircle2, XCircle } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import VenueConsentCard from "./venue-consent-card";
+import { consentIdentity, consentState, shouldAskConsent } from "@/lib/venues/consent";
+import { getLocale } from "next-intl/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ShareEventButton } from "@/components/share-event-button";
 import { appleWalletConfigured, googleWalletConfigured } from "@/lib/tickets/wallet";
@@ -36,7 +39,7 @@ export default async function GuestTicketPage({
   const admin = createAdminClient();
   const { data: booking } = await admin
     .from("bookings")
-    .select("id, status, scheduled_at, guest_name, customer_id, creator_id, listing_id, checked_in_at, ticket_type_name, guest_count")
+    .select("id, status, scheduled_at, guest_name, guest_email, customer_id, creator_id, listing_id, checked_in_at, ticket_type_name, guest_count")
     .eq("id", id)
     .maybeSingle();
   if (!booking) notFound();
@@ -44,7 +47,7 @@ export default async function GuestTicketPage({
   const [{ data: listing }, { data: creator }] = await Promise.all([
     admin
       .from("listings")
-      .select("title, event_date, event_time, event_location")
+      .select("title, event_date, event_time, event_location, venue_profile_id, venue_confirmed_at")
       .eq("id", booking.listing_id)
       .maybeSingle(),
     admin
@@ -64,6 +67,37 @@ export default async function GuestTicketPage({
     attendee = c?.full_name ?? null;
   }
 
+  // Frågan om deltagaren vill höra från lokalen. Den ställs här och inte i
+  // kassan: ett samtycke som samlas in efter köpet är otvetydigt frivilligt,
+  // eftersom ingenting i köpet berodde på svaret.
+  const identity = consentIdentity(booking);
+  const askVenue = shouldAskConsent({
+    venueProfileId: listing?.venue_profile_id,
+    venueConfirmedAt: listing?.venue_confirmed_at,
+    identity,
+  });
+
+  let venueName: string | null = null;
+  let venueConsent: "granted" | "withdrawn" | "unanswered" = "unanswered";
+  if (askVenue) {
+    const [{ data: venue }, { data: consentRow }] = await Promise.all([
+      admin
+        .from("profiles")
+        .select("company_name, full_name")
+        .eq("id", listing!.venue_profile_id!)
+        .maybeSingle(),
+      admin
+        .from("venue_marketing_consents")
+        .select("granted_at, withdrawn_at")
+        .eq("venue_profile_id", listing!.venue_profile_id!)
+        .eq(identity!.profileId ? "profile_id" : "email", identity!.profileId ?? identity!.email!)
+        .maybeSingle(),
+    ]);
+    venueName = (venue?.company_name || venue?.full_name || "").trim() || null;
+    venueConsent = consentState(consentRow);
+  }
+
+  const locale = await getLocale();
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";
   const code = `USH-${booking.id.slice(0, 8).toUpperCase()}`;
   const verifyUrl = `${appUrl}/api/tickets/verify?code=${code}&id=${booking.id}`;
@@ -240,6 +274,25 @@ export default async function GuestTicketPage({
             <p className="text-center text-xs text-[var(--usha-muted)]">
               {t("showAtEntrance")}
             </p>
+          )}
+
+          {askVenue && venueName && !canceled && (
+            <VenueConsentCard
+              bookingId={booking.id}
+              venueName={venueName}
+              locale={locale}
+              initialState={venueConsent}
+              labels={{
+                question: t("venueConsent.question", { venue: venueName }),
+                explain: t("venueConsent.explain", { venue: venueName }),
+                yes: t("venueConsent.yes"),
+                no: t("venueConsent.no"),
+                granted: t("venueConsent.granted", { venue: venueName }),
+                withdrawn: t("venueConsent.withdrawn", { venue: venueName }),
+                change: t("venueConsent.change"),
+                failed: t("venueConsent.failed"),
+              }}
+            />
           )}
 
           {!canceled && (

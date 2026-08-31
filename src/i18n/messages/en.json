@@ -172,7 +172,15 @@
     "showReviews": "Show reviews",
     "showReviewsDesc": "Allow your reviews to be shown publicly",
     "bookingHistory": "Booking history",
-    "bookingHistoryDesc": "Allow creators to see your booking history"
+    "bookingHistoryDesc": "Allow creators to see your booking history",
+    "venueConsents": {
+      "heading": "Venues you hear from",
+      "intro": "You have agreed to hear from these venues about upcoming events. Usha sends on their behalf — the venues do not have your details.",
+      "on": "You hear from them",
+      "off": "You do not hear from them",
+      "stop": "Stop",
+      "resume": "Resume"
+    }
   },
   "account": {
     "title": "Account Settings",
@@ -2231,7 +2239,17 @@
     "eventFallback": "Event",
     "shareText": "I'm going to {title} — join me!",
     "shareTitleFallback": "this event",
-    "shareLabel": "Invite friends"
+    "shareLabel": "Invite friends",
+    "venueConsent": {
+      "question": "Would you like to hear from {venue}?",
+      "explain": "They will let you know about upcoming events at their place. Usha sends on their behalf — {venue} does not get your details. You can change your mind any time, right here.",
+      "yes": "Yes please",
+      "no": "No thanks",
+      "granted": "You will hear from {venue} about upcoming events.",
+      "withdrawn": "You will not hear from {venue}.",
+      "change": "Change",
+      "failed": "The answer could not be saved. Please try again."
+    }
   },
   "settlement": {
     "back": "Back",

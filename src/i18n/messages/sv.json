@@ -172,7 +172,15 @@
     "showReviews": "Visa recensioner",
     "showReviewsDesc": "Tillåt att dina recensioner visas publikt",
     "bookingHistory": "Bokningshistorik",
-    "bookingHistoryDesc": "Tillåt kreatörer att se din bokningshistorik"
+    "bookingHistoryDesc": "Tillåt kreatörer att se din bokningshistorik",
+    "venueConsents": {
+      "heading": "Lokaler du hör från",
+      "intro": "Du har sagt ja till att höra från de här lokalerna om kommande arrangemang. Utskicken går via Usha — lokalerna har inte dina uppgifter.",
+      "on": "Du hör från dem",
+      "off": "Du hör inte från dem",
+      "stop": "Sluta",
+      "resume": "Börja igen"
+    }
   },
   "account": {
     "title": "Kontoinställningar",
@@ -2231,7 +2239,17 @@
     "eventFallback": "Event",
     "shareText": "Jag ska på {title} — häng med!",
     "shareTitleFallback": "detta event",
-    "shareLabel": "Bjud in vänner"
+    "shareLabel": "Bjud in vänner",
+    "venueConsent": {
+      "question": "Vill du höra från {venue}?",
+      "explain": "De hör av sig om kommande arrangemang hos dem. Usha skickar å deras vägnar — {venue} får inte dina uppgifter. Du kan ändra dig när du vill, här på samma sida.",
+      "yes": "Ja tack",
+      "no": "Nej tack",
+      "granted": "Du hör från {venue} om kommande arrangemang.",
+      "withdrawn": "Du hör inte från {venue}.",
+      "change": "Ändra",
+      "failed": "Det gick inte att spara svaret. Försök igen."
+    }
   },
   "settlement": {
     "back": "Tillbaka",
