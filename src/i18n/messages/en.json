@@ -1181,6 +1181,10 @@
       "apply": "Apply",
       "discountAdded": "{label} added!",
       "newPrice": "— New price: {price} SEK"
+    },
+    "hosted": {
+      "heading": "Events at our place",
+      "by": "Hosted by {name}"
     }
   },
   "dashProfile": {
@@ -1888,7 +1892,11 @@
     "contentLanguageHelp": "Forces the event page into this language for all visitors. Auto = follow the visitor’s language.",
     "langAuto": "Auto (visitor’s language)",
     "langSv": "Swedish",
-    "langEn": "English"
+    "langEn": "English",
+    "venueProfile": "Venue on Usha",
+    "venueProfileNone": "No linked venue",
+    "venueProfileHint": "Linking the event to a venue lets their followers know, and shows it on the venue's page. The venue has to approve the link first.",
+    "venueProfilePending": "Waiting for the venue to approve the link. Until then the event does not appear on their page."
   },
   "trainingBuddies": {
     "title": "Training buddies",
@@ -2473,7 +2481,9 @@
     "rewardsDesc": "Points",
     "notificationsLabel": "Notifications",
     "profileLabel": "Profile",
-    "settingsLabel": "Settings"
+    "settingsLabel": "Settings",
+    "venueRequestsLabel": "Requests",
+    "venueRequestsDesc": "Approve organisers who want to host events at your venue"
   },
   "courses": {
     "pageTitle": "My content",
@@ -3718,5 +3728,17 @@
     "errorEpubBroken": "The EPUB file is damaged and could not be read.",
     "errorEpubCompression": "The EPUB file uses a compression we cannot read.",
     "errorEpubNoText": "No readable text found in the book."
+  },
+  "venueRequests": {
+    "heading": "Requests from organisers",
+    "intro": "Organisers who want to link their event to your venue. Approve and the event appears on your page, and your followers hear that something is happening at your place.",
+    "empty": "No requests right now.",
+    "pending": "Awaiting reply",
+    "confirmed": "Approved",
+    "approve": "Approve",
+    "decline": "Decline",
+    "withdraw": "Withdraw approval",
+    "by": "Hosted by {name}",
+    "failed": "The reply could not be saved. Please try again."
   }
 }

@@ -87,6 +87,10 @@ export const APP_DESTINATIONS: AppDestination[] = [
     group: "createSell", roles: ["creator", "venue"], surfaces: ["more"] },
   { path: "/app/events/insights", labelKey: "statisticsLabel", descKey: "statisticsDesc", icon: BarChart3,
     group: "createSell", roles: ["creator", "venue"], surfaces: ["more"] },
+  // Bara lokaler: arrangörer som vill koppla sitt evenemang hit. Utan en yta att
+  // svara på blir kopplingen aldrig bekräftad, och då når den ingen.
+  { path: "/app/venue-requests", labelKey: "venueRequestsLabel", descKey: "venueRequestsDesc", icon: Building2,
+    group: "createSell", roles: ["venue"], surfaces: ["more"] },
 
   // ---- Ekonomi ------------------------------------------------------------
   { path: "/dashboard/payouts", labelKey: "payoutsLabel", descKey: "payoutsDesc", icon: Wallet,

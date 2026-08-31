@@ -100,6 +100,22 @@ export default async function CreatorProfilePage(props: Props) {
     .eq("is_public", true)
     .order("created_at", { ascending: false });
 
+  // Evenemang som ANDRA arrangerar hos den här lokalen. Det är den här sidan
+  // som gör att en lokal kan nå sin publik genom plattformen i stället för att
+  // få deltagarlistor utlämnade till sig.
+  //
+  // Bara bekräftade kopplingar visas: annars kunde vem som helst tagga en
+  // populär lokal och göra sitt evenemang synligt på dess sida.
+  const { data: hostedEvents } = await supabase
+    .from("listings")
+    .select("id, title, event_date, event_time, event_location, price, profiles!user_id(full_name)")
+    .eq("venue_profile_id", profile.id)
+    .not("venue_confirmed_at", "is", null)
+    .neq("user_id", profile.id)
+    .eq("is_active", true)
+    .eq("is_public", true)
+    .order("event_date", { ascending: true });
+
   // Get visitor's tier for discount calculation + early bird filtering, and role for B2B booking gating
   let visitorTier: string | null = null;
   let visitorRole: string | null = null;
@@ -398,6 +414,42 @@ export default async function CreatorProfilePage(props: Props) {
             )}
           </div>
         </div>
+
+        {/* Evenemang hos den här lokalen, arrangerade av andra */}
+        {hostedEvents && hostedEvents.length > 0 && (
+          <div className="mb-10">
+            <h2 className="mb-4 text-xl font-bold">{t("hosted.heading")}</h2>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {hostedEvents.map((ev) => {
+                const organiser = Array.isArray(ev.profiles) ? ev.profiles[0] : ev.profiles;
+                return (
+                  <Link
+                    key={ev.id}
+                    href={`/listing/${ev.id}`}
+                    className="block rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5 transition hover:border-[var(--usha-gold)]/30"
+                  >
+                    <div className="mb-2 flex items-start justify-between gap-3">
+                      <h3 className="font-semibold">{ev.title}</h3>
+                      {ev.price != null && (
+                        <span className="shrink-0 font-semibold text-[var(--usha-gold)]">
+                          {t("services.priceSek", { price: ev.price })}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-[var(--usha-muted)]">
+                      {[ev.event_date, ev.event_time?.slice(0, 5)].filter(Boolean).join(" · ")}
+                    </p>
+                    {organiser?.full_name && (
+                      <p className="mt-1 text-xs text-[var(--usha-muted)]">
+                        {t("hosted.by", { name: organiser.full_name })}
+                      </p>
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Listings */}
         <div>
