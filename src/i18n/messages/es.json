@@ -3791,7 +3791,7 @@
     "capabilities": {
       "events": {
         "label": "Eventos",
-        "hint": "Crear y editar los eventos del local"
+        "hint": "Crear y publicar eventos en nombre del local. La persona no necesita su propio BankID — el local figura como vendedor."
       },
       "bookings": {
         "label": "Reservas",

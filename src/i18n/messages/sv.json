@@ -3791,7 +3791,7 @@
     "capabilities": {
       "events": {
         "label": "Evenemang",
-        "hint": "Skapa och ändra lokalens evenemang"
+        "hint": "Skapa och publicera evenemang i lokalens namn. Personen behöver inte eget BankID — det är lokalen som står som säljare."
       },
       "bookings": {
         "label": "Bokningar",

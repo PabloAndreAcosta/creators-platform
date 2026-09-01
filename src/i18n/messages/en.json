@@ -3791,7 +3791,7 @@
     "capabilities": {
       "events": {
         "label": "Events",
-        "hint": "Create and edit the venue's events"
+        "hint": "Create and publish events in the venue's name. The person does not need their own BankID — the venue is the seller of record."
       },
       "bookings": {
         "label": "Bookings",
