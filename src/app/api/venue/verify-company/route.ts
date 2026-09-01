@@ -20,7 +20,19 @@ export async function POST(req: NextRequest) {
   }
 
   // Venues, and creators who sell as a company, may verify a company.
-  const { data: profile } = await supabase
+  //
+  // Läses via service-role, INTE via användarens klient. is_company är
+  // kolumn-låst för authenticated sedan profiles-läckan täpptes till, och
+  // PostgREST fäller HELA frågan när en enda kolumn saknar grant — inte bara
+  // den kolumnen. Resultatet blev att profile blev null och varje lokal fick
+  // 403 "Endast venues och kreatörer med företag kan verifiera bolag", trots
+  // att de var just det.
+  //
+  // Att i stället ge authenticated läsrätt på is_company vore att vidga vad
+  // varje inloggad kan läsa för att lösa en behörighetskontroll. Uppslaget
+  // sker på user.id från den verifierade sessionen, så service-role öppnar
+  // ingenting här.
+  const { data: profile } = await createAdminClient()
     .from("profiles")
     .select("role, is_company")
     .eq("id", user.id)
