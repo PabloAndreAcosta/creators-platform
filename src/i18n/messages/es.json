@@ -559,7 +559,8 @@
         "detail1": "Crea eventos y vende entradas con códigos QR",
         "detail2": "Escanea entradas y controla la asistencia en la entrada",
         "detail3": "Reserva creadores verificados con BankID para tus eventos",
-        "detail4": "Promociona eventos: tus seguidores reciben avisos automáticamente"
+        "detail4": "Promociona eventos: tus seguidores reciben avisos automáticamente",
+        "detail5": "Invita a tu personal y reparte partes del local — sin ceder las finanzas"
       },
       "customers": {
         "title": "Clientes",
@@ -644,6 +645,14 @@
         "rewards": {
           "title": "Puntos y recompensas",
           "desc": "Puntos de fidelidad, recompensas y una tabla de clasificación."
+        },
+        "venueTeam": {
+          "title": "Equipo del local",
+          "desc": "Reparte partes del local a tu personal — las finanzas se quedan siempre contigo."
+        },
+        "venuePage": {
+          "title": "Página propia del local",
+          "desc": "Los eventos en vuestro local aparecen en vuestra página y vuestros seguidores se enteran."
         }
       },
       "groups": {
@@ -757,7 +766,7 @@
       "q4": "¿Pueden los invitados comprar sin cuenta?",
       "a4": "Sí. Los invitados pueden comprar una entrada solo con un email y reciben un código QR para mostrar en la entrada, sin necesidad de cuenta.",
       "q5": "¿Puedo recibir ayuda de otras personas?",
-      "a5": "Sí. Invita a tu equipo (creadores, taxi dancers, voluntarios, coanfitriones), delega el escaneo de entradas y acuerda un caché que pagas directamente en la app."
+      "a5": "Sí, de dos maneras. Por evento invitas a tu equipo (creadores, taxi dancers, voluntarios, coanfitriones), delegas el escaneo de entradas y acordáis los honorarios. Si tienes un local, además puedes formar un equipo para todo el local y decidir qué puede hacer cada persona — las finanzas se quedan siempre contigo."
     },
     "cta": {
       "badge": "Totalmente gratis durante la beta",

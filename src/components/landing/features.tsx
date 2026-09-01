@@ -2,27 +2,32 @@ import { useTranslations } from "next-intl";
 import {
   Sparkles, Ticket, QrCode, Users, ScanLine, Banknote, Radio, BarChart3,
   Fingerprint, CreditCard, Store, Newspaper, CalendarCheck, BookOpen, Gift,
+  KeyRound, Building2,
   type LucideIcon,
 } from "lucide-react";
 
 // Creator tooling — grouped instead of one flat list of ~16. Four hero
-// features up top, the rest in three compact groups. "Nyhet" is reserved for
-// what is genuinely new (the crew-collaboration cluster).
+// features up top, the rest in three compact groups.
+//
+// "Nyhet" är reserverat för det som FAKTISKT är nytt. Crew och gage bar märket
+// sedan i juni; ett nyhetsmärke som aldrig går ut slutar betyda något, så det
+// sitter nu på lokalteam och lokalsidan i stället.
 type Item = { key: string; icon: LucideIcon; isNew?: boolean };
 
 const HERO: Item[] = [
   { key: "create", icon: Sparkles },
   { key: "tickets", icon: Ticket },
   { key: "scan", icon: QrCode },
-  { key: "gage", icon: Banknote, isNew: true },
+  { key: "gage", icon: Banknote },
 ];
 
 const GROUPS: { heading: string; items: Item[] }[] = [
   {
     heading: "doorTeam",
     items: [
-      { key: "crew", icon: Users, isNew: true },
-      { key: "delegateScan", icon: ScanLine, isNew: true },
+      { key: "venueTeam", icon: KeyRound, isNew: true },
+      { key: "crew", icon: Users },
+      { key: "delegateScan", icon: ScanLine },
       { key: "live", icon: Radio },
     ],
   },
@@ -37,6 +42,7 @@ const GROUPS: { heading: string; items: Item[] }[] = [
   {
     heading: "growReach",
     items: [
+      { key: "venuePage", icon: Building2, isNew: true },
       { key: "marketplace", icon: Store },
       { key: "feed", icon: Newspaper },
       { key: "calendar", icon: CalendarCheck },

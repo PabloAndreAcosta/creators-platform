@@ -15,6 +15,7 @@ import {
   CalendarCheck,
   CreditCard,
   ChevronDown,
+  KeyRound,
 } from "lucide-react";
 
 export function Ecosystem() {
@@ -44,6 +45,7 @@ export function Ecosystem() {
         { icon: Search, text: t("ecosystem.experiences.detail2") },
         { icon: Users, text: t("ecosystem.experiences.detail3") },
         { icon: Globe, text: t("ecosystem.experiences.detail4") },
+        { icon: KeyRound, text: t("ecosystem.experiences.detail5") },
       ],
     },
     {
