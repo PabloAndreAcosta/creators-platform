@@ -559,7 +559,8 @@
         "detail1": "Create events & sell tickets with QR codes",
         "detail2": "Scan tickets & track attendees at the door",
         "detail3": "Book BankID-verified creators for your events",
-        "detail4": "Promote events — your followers get notified automatically"
+        "detail4": "Promote events — your followers get notified automatically",
+        "detail5": "Invite staff and hand out parts of the venue — without giving away the finances"
       },
       "customers": {
         "title": "Customers",
@@ -644,6 +645,14 @@
         "rewards": {
           "title": "Points & rewards",
           "desc": "Loyalty points, rewards and a leaderboard."
+        },
+        "venueTeam": {
+          "title": "Venue teams",
+          "desc": "Hand out parts of the venue to your staff — the finances always stay with you."
+        },
+        "venuePage": {
+          "title": "Your own venue page",
+          "desc": "Events at your place show on your page, and your followers hear about them."
         }
       },
       "groups": {
@@ -757,7 +766,7 @@
       "q4": "Can guests buy without an account?",
       "a4": "Yes. Guests can buy a ticket with just an email and get a QR code to show at the door — no account needed.",
       "q5": "Can I get help from others?",
-      "a5": "Yes. Invite your crew (creators, taxi dancers, volunteers, co-hosts), delegate ticket scanning, and agree on a fee you pay right in the app."
+      "a5": "Yes, in two ways. Per event you invite your crew (creators, taxi dancers, volunteers, co-hosts), delegate ticket scanning and agree on fees. If you run a venue you can also build a team for the venue itself and decide what each person may do — the finances always stay with you."
     },
     "cta": {
       "badge": "Completely free during beta",

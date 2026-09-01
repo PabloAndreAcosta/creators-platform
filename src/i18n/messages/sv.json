@@ -559,7 +559,8 @@
         "detail1": "Skapa events & sälj biljetter med QR-kod",
         "detail2": "Skanna biljetter & ha koll på deltagare i dörren",
         "detail3": "Boka BankID-verifierade kreatörer till dina events",
-        "detail4": "Sprid events — dina följare notifieras automatiskt"
+        "detail4": "Sprid events — dina följare notifieras automatiskt",
+        "detail5": "Bjud in personal och dela ut delar av lokalen — utan att ge bort ekonomin"
       },
       "customers": {
         "title": "Kunder",
@@ -644,6 +645,14 @@
         "rewards": {
           "title": "Poäng & belöningar",
           "desc": "Lojalitetspoäng, belöningar och topplista."
+        },
+        "venueTeam": {
+          "title": "Lokalteam",
+          "desc": "Dela ut delar av lokalen till din personal — ekonomin stannar alltid hos dig."
+        },
+        "venuePage": {
+          "title": "Egen lokalsida",
+          "desc": "Arrangemang hos er syns på er sida, och era följare får veta."
         }
       },
       "groups": {
@@ -757,7 +766,7 @@
       "q4": "Kan gäster köpa utan konto?",
       "a4": "Ja. Gäster kan köpa en biljett med bara e-post och få en QR-kod att visa vid dörren — inget konto krävs.",
       "q5": "Kan jag ta hjälp av andra?",
-      "a5": "Ja. Bjud in ditt crew (kreatörer, taxidansare, volontärer, medvärdar), delegera biljettskanning och kom överens om gage som du betalar direkt i appen."
+      "a5": "Ja, på två sätt. Per evenemang bjuder du in ditt crew (kreatörer, taxidansare, volontärer, medvärdar), delegerar biljettskanning och kommer överens om gage. Har du en lokal kan du dessutom bygga ett team som gäller hela lokalen och själv välja vad var och en får göra — ekonomin stannar alltid hos dig."
     },
     "cta": {
       "badge": "Helt gratis under beta",
