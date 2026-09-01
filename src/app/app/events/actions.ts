@@ -4,6 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { canManageListing } from "@/lib/listings/manage-access";
+import { venuesUserCanCreateFor } from "@/lib/venues/members";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { EVENT_CATEGORIES } from "./constants";
@@ -258,13 +259,36 @@ export async function createEvent(formData: FormData) {
 
   if (!user) return { error: "Ej inloggad" };
 
-  if (!(await isBankidCleared(supabase, user.id))) {
+  // Skapas evenemanget i en lokals namn? Då är LOKALEN ägare av raden, eftersom
+  // det är den kopplingen pengarna följer — ett evenemang som ägs av medlemmen
+  // personligen skulle skicka intäkten fel och lämna delningsavtalet hängande.
+  //
+  // Valet valideras mot medlemskapet och inte mot det klienten påstår, så ett
+  // manipulerat formulär inte kan lägga ett evenemang i någon annans lokal.
+  const requestedVenue = (formData.get("create_as_venue") as string)?.trim() || null;
+  let ownerId = user.id;
+  let createdBy: string | null = null;
+
+  if (requestedVenue && requestedVenue !== user.id) {
+    const allowed = await venuesUserCanCreateFor(user.id);
+    if (!allowed.some((v) => v.id === requestedVenue)) {
+      return { error: "Du får inte skapa evenemang för den lokalen." };
+    }
+    ownerId = requestedVenue;
+    createdBy = user.id;
+  }
+
+  // BankID-grinden gäller den som PUBLICERAS, inte den som klickar. Annars
+  // skulle en lokal inte kunna delegera till sin personal utan att köra var och
+  // en genom BankID, vilket vore att bygga in det problem delegeringen ska lösa.
+  if (!(await isBankidCleared(supabase, ownerId))) {
     return { error: BANKID_REQUIRED_MSG };
   }
 
-  // Check listing limit for user's tier
-  const { tier } = await getSubscriptionStatus(user.id);
-  const limit = await checkListingLimit(user.id, tier);
+  // Check listing limit for user's tier — mot ägaren, eftersom det är dennes
+  // plan evenemanget belastar.
+  const { tier } = await getSubscriptionStatus(ownerId);
+  const limit = await checkListingLimit(ownerId, tier);
   if (!limit.allowed) {
     return { error: `Du har nått maxgränsen (${limit.max}) för din plan. Uppgradera för att skapa fler.` };
   }
@@ -329,11 +353,12 @@ export async function createEvent(formData: FormData) {
     rows.push({
       ...parsed.data,
       ...(priceOverride !== null ? { price: priceOverride } : {}),
-      user_id: user.id,
+      user_id: ownerId,
+      created_by: createdBy,
       // En lokal som lägger upp sitt eget arrangemang behöver inte bekräfta åt
       // sig själv. Alla andra kopplingar väntar på lokalens ja.
       venue_confirmed_at:
-        parsed.data.venue_profile_id && parsed.data.venue_profile_id === user.id
+        parsed.data.venue_profile_id && parsed.data.venue_profile_id === ownerId
           ? new Date().toISOString()
           : null,
       event_date: d,
