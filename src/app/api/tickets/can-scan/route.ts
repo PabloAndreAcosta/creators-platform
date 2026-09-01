@@ -24,5 +24,24 @@ export async function GET() {
     .limit(1)
     .maybeSingle();
 
-  return NextResponse.json({ allowed: !!data });
+  if (data) return NextResponse.json({ allowed: true });
+
+  // Dörrvärden i en lokals team har ingen rad per evenemang — behörigheten
+  // sitter på lokalen. Utan det här öppnas aldrig skannern för hen, och
+  // `scan`-behörigheten blir en kryssruta utan verkan.
+  //
+  // RLS på venue_members släpper igenom den egna raden, så användarens egen
+  // klient räcker.
+  const { data: member } = await supabase
+    .from("venue_members")
+    .select("capabilities")
+    .eq("user_id", user.id)
+    .not("accepted_at", "is", null)
+    .is("removed_at", null);
+
+  const kanSkanna = (member ?? []).some((m: { capabilities: string[] | null }) =>
+    (m.capabilities ?? []).includes("scan")
+  );
+
+  return NextResponse.json({ allowed: kanSkanna });
 }

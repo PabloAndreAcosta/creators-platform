@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { hasVenueCapabilityForListing } from "@/lib/venues/listing-access";
 
 const PAID_TIERS = new Set(["guld", "premium"]);
 // Account roles that count as creator/experience (both EN + SV spellings exist).
@@ -39,5 +40,7 @@ export async function canScanListing(
     .eq("status", "accepted")
     .eq("can_scan", true)
     .maybeSingle();
-  return !!data;
+  if (data) return true;
+
+  return hasVenueCapabilityForListing(admin, userId, listingId, "scan");
 }

@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { sanitizeCapabilities } from "@/lib/venues/members";
+import { hasVenueCapabilityForListing } from "@/lib/venues/listing-access";
 
 const PAID_TIERS = new Set(["guld", "premium"]);
 
@@ -31,45 +31,7 @@ export async function canManageListing(
     .maybeSingle();
   if (data) return true;
 
-  return canManageAsVenueMember(admin, userId, listingId);
-}
-
-/**
- * Får `userId` administrera evenemanget i egenskap av medlem i lokalens team?
- *
- * VIKTIG AVGRÄNSNING: behörigheten gäller evenemang lokalen ÄGER, inte evenemang
- * som bara äger rum där. Att Bacchi bekräftar att någon annans danskväll hålls i
- * deras källare är att upplåta lokal — inte att ta över arrangemanget. Därför
- * matchas `listings.user_id` mot lokalen, aldrig `venue_profile_id`.
- *
- * Den som vill släppa in lokalens folk i sitt eget evenemang gör det med den
- * medarrangörsinbjudan som redan finns, per evenemang.
- */
-async function canManageAsVenueMember(
-  admin: SupabaseClient,
-  userId: string,
-  listingId: string
-): Promise<boolean> {
-  const { data: listing } = await admin
-    .from("listings")
-    .select("user_id")
-    .eq("id", listingId)
-    .maybeSingle();
-  if (!listing?.user_id) return false;
-
-  // Ägaren av lokalen fångas redan av isOwnerOrManager. Här handlar det om
-  // någon annan som tillhör lokalens team.
-  if (listing.user_id === userId) return true;
-
-  const { data: member } = await admin
-    .from("venue_members")
-    .select("capabilities, accepted_at, removed_at")
-    .eq("venue_profile_id", listing.user_id)
-    .eq("user_id", userId)
-    .maybeSingle();
-
-  if (!member || !member.accepted_at || member.removed_at) return false;
-  return sanitizeCapabilities(member.capabilities).includes("events");
+  return hasVenueCapabilityForListing(admin, userId, listingId, "events");
 }
 
 /**

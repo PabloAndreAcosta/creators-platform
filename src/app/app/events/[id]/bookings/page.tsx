@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { canManageListing } from "@/lib/listings/manage-access";
+import { hasVenueCapabilityForListing } from "@/lib/venues/listing-access";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
@@ -42,7 +43,15 @@ export default async function EventBookingsPage(props: { params: Promise<{ id: s
     .maybeSingle();
 
   // Ägare eller accepterad medarrangör — samma grind som väntelistan.
-  if (!listing || (listing.user_id !== user.id && !(await canManageListing(admin, user.id, id)))) {
+  // Ägare, medarrangör, eller den som håller `bookings` i lokalens team.
+  // Dörrvärden behöver gästlistan men ska inte kunna redigera evenemanget, så
+  // `bookings` prövas separat från `events`.
+  const farSeGastlistan =
+    listing?.user_id === user.id ||
+    (await canManageListing(admin, user.id, id)) ||
+    (await hasVenueCapabilityForListing(admin, user.id, id, "bookings"));
+
+  if (!listing || !farSeGastlistan) {
     notFound();
   }
 
