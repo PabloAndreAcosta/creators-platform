@@ -2509,7 +2509,9 @@
     "profileLabel": "Profil",
     "settingsLabel": "Inställningar",
     "venueRequestsLabel": "Förfrågningar",
-    "venueRequestsDesc": "Godkänn arrangörer som vill hålla evenemang hos er"
+    "venueRequestsDesc": "Godkänn arrangörer som vill hålla evenemang hos er",
+    "venueTeamLabel": "Teamet",
+    "venueTeamDesc": "Bjud in personer som hjälper till med lokalen"
   },
   "courses": {
     "pageTitle": "Mitt innehåll",
@@ -3766,5 +3768,73 @@
     "withdraw": "Ta bort godkännande",
     "by": "Arrangeras av {name}",
     "failed": "Det gick inte att spara svaret. Försök igen."
+  },
+  "venueTeam": {
+    "heading": "Teamet",
+    "intro": "Bjud in personer som ska hjälpa till med lokalen. Du väljer själv vad var och en får göra.",
+    "ownerNote": "Du äger lokalen och har tillgång till allt. Ekonomin — utbetalningar, Stripe och bolagsuppgifter — går inte att dela ut, och stannar alltid hos dig.",
+    "empty": "Ingen är inbjuden ännu.",
+    "invite": "Bjud in någon",
+    "inviteEmail": "Mejladress",
+    "inviteSubmit": "Skicka inbjudan",
+    "pending": "Väntar på svar",
+    "copyLink": "Kopiera inbjudningslänk",
+    "copied": "Kopierad",
+    "remove": "Ta bort",
+    "save": "Spara",
+    "saved": "Sparat",
+    "failed": "Det gick inte. Försök igen.",
+    "customPreset": "Egen",
+    "capabilities": {
+      "events": {
+        "label": "Evenemang",
+        "hint": "Skapa och ändra lokalens evenemang"
+      },
+      "bookings": {
+        "label": "Bokningar",
+        "hint": "Se bokningar och gästlistor"
+      },
+      "scan": {
+        "label": "Incheckning",
+        "hint": "Checka in gäster i dörren"
+      },
+      "messages": {
+        "label": "Utskick",
+        "hint": "Skicka till följare och deltagare"
+      },
+      "stats": {
+        "label": "Statistik",
+        "hint": "Se statistik och exportera underlag"
+      },
+      "page": {
+        "label": "Lokalsidan",
+        "hint": "Redigera sidan och svara på förfrågningar"
+      }
+    },
+    "presets": {
+      "co_host": {
+        "label": "Medarrangör",
+        "hint": "Allt utom incheckning"
+      },
+      "door": {
+        "label": "Dörrvärd",
+        "hint": "Incheckning och gästlista"
+      },
+      "marketing": {
+        "label": "Marknadsföring",
+        "hint": "Utskick, sidan och statistik"
+      }
+    }
+  },
+  "venueJoin": {
+    "heading": "{venue} vill lägga till dig i sitt team",
+    "headingGeneric": "Du har bjudits in till ett lokalteam",
+    "intro": "Så här mycket får du göra om du tackar ja:",
+    "goneTitle": "Inbjudan gäller inte längre",
+    "goneBody": "Den kan ha använts, återkallats eller gått ut. Be om en ny.",
+    "accept": "Tacka ja",
+    "accepted": "Klart. Du är med i teamet.",
+    "failed": "Det gick inte. Kanske gäller inbjudan en annan mejladress.",
+    "nothing": "Inga behörigheter är valda ännu. Du kommer med i teamet, men ser inget förrän ägaren kryssar i något."
   }
 }
