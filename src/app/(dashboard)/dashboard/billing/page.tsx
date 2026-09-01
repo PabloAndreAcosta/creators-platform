@@ -88,6 +88,21 @@ export default async function BillingPage({
 
   // Get plans for user's role
   const rolePlans = getPlanList(userRole);
+
+  // Planer för de ANDRA rollerna.
+  //
+  // Rollen sätts vid registrering och ändras därefter bara genom att en plan för
+  // den nya rollen köps — webhooken läser role ur checkout-metadatan. Men den
+  // här sidan visade bara planer för den roll man REDAN hade, så vägen var
+  // stängd: rollväxlaren skickade hit med texten "Uppgradera för att byta roll",
+  // och här fanns ingenting att byta till.
+  //
+  // Det drabbade särskilt lokaler, som nästan alltid registrerar sig som
+  // besökare först och upptäcker rollen efteråt.
+  const otherRolePlans = (["customer", "creator", "venue"] as MemberRole[])
+    .filter((r) => r !== userRole)
+    .map((r) => ({ role: r, plans: getPlanList(r) }))
+    .filter((g) => g.plans.length > 0);
   const gratisPlan = getGratisPlan(userRole);
 
   // Plan name for display
@@ -289,6 +304,46 @@ export default async function BillingPage({
           );
         })}
       </div>
+
+      {/* Byt roll. Egen sektion, tydligt märkt, eftersom ett rollbyte ändrar
+          vad hela appen visar — det ska inte kunna ske av misstag genom att man
+          klickar fel i listan ovan. */}
+      {otherRolePlans.length > 0 && (
+        <div className="mt-12">
+          <h2 className="mb-1 text-xl font-bold">{t("switchRole")}</h2>
+          <p className="mb-5 text-sm text-[var(--usha-muted)]">{t("switchRoleHint")}</p>
+
+          <div className="space-y-6">
+            {otherRolePlans.map((group) => (
+              <div key={group.role}>
+                <h3 className="mb-3 text-sm font-semibold text-[var(--usha-muted)]">
+                  {t(`roleName.${group.role}`)}
+                </h3>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {group.plans.map((plan) => (
+                    <div
+                      key={plan.key}
+                      className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6"
+                    >
+                      <div className="mb-1 flex items-baseline justify-between gap-3">
+                        <h4 className="font-semibold">{plan.name}</h4>
+                        <span className="text-sm text-[var(--usha-muted)]">
+                          {BETA_MODE ? t("freeDuringBeta") : `${plan.price} SEK/${t("month")}`}
+                        </span>
+                      </div>
+                      <p className="mb-4 text-xs text-[var(--usha-muted)]">{plan.description}</p>
+                      <CheckoutButton
+                        planKey={plan.key}
+                        label={t("switchTo", { role: t(`roleName.${group.role}`) })}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Getting paid moved to the Payouts page, which is what it is about.
           A pointer stays here because this is where people looked for it. */}

@@ -70,7 +70,7 @@
   },
   "roleToggle": {
     "locked": "{role} är låst",
-    "lockedHint": "Gå till Profil > Uppgradera för att byta roll",
+    "lockedHint": "Gå till Prenumeration för att byta roll",
     "switchTo": "Byt till {role}-vy",
     "lockedLabel": "{role} – låst"
   },
@@ -394,10 +394,18 @@
     "perMonth": "SEK/mån",
     "freeDuringBeta": "Gratis under beta",
     "free": "Gratis",
-    "switchTo": "Byt till {plan}",
+    "switchTo": "Byt till {role}",
     "startPlan": "Starta {plan}",
     "payouts": "Utbetalningar",
-    "commissionLevel": "Din kommissionsnivå"
+    "commissionLevel": "Din kommissionsnivå",
+    "switchRole": "Byt roll",
+    "switchRoleHint": "Din roll bestämmer vad appen visar. Vill du sälja biljetter eller hyra ut en lokal väljer du rollen här — under betan kostar det ingenting.",
+    "month": "mån",
+    "roleName": {
+      "customer": "Besökare",
+      "creator": "Kreatör",
+      "venue": "Lokal"
+    }
   },
   "dashboard": {
     "logout": "Logga ut"

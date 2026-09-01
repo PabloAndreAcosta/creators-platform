@@ -70,7 +70,7 @@
   },
   "roleToggle": {
     "locked": "{role} está bloqueado",
-    "lockedHint": "Ve a Perfil > Mejorar para cambiar de rol",
+    "lockedHint": "Ve a Suscripción para cambiar de rol",
     "switchTo": "Cambiar a la vista de {role}",
     "lockedLabel": "{role} – bloqueado"
   },
@@ -394,10 +394,18 @@
     "perMonth": "SEK/mes",
     "freeDuringBeta": "Gratis durante la beta",
     "free": "Gratis",
-    "switchTo": "Cambiar a {plan}",
+    "switchTo": "Cambiar a {role}",
     "startPlan": "Empezar con {plan}",
     "payouts": "Pagos",
-    "commissionLevel": "Tu nivel de comisión"
+    "commissionLevel": "Tu nivel de comisión",
+    "switchRole": "Cambiar de rol",
+    "switchRoleHint": "Tu rol determina lo que muestra la app. Para vender entradas o publicar un local, elige ese rol aquí — durante la beta no cuesta nada.",
+    "month": "mes",
+    "roleName": {
+      "customer": "Visitante",
+      "creator": "Creador",
+      "venue": "Local"
+    }
   },
   "dashboard": {
     "logout": "Cerrar sesión"
