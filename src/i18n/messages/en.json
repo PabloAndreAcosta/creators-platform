@@ -1912,7 +1912,10 @@
     "venueProfile": "Venue on Usha",
     "venueProfileNone": "No linked venue",
     "venueProfileHint": "Linking the event to a venue lets their followers know, and shows it on the venue's page. The venue has to approve the link first.",
-    "venueProfilePending": "Waiting for the venue to approve the link. Until then the event does not appear on their page."
+    "venueProfilePending": "Waiting for the venue to approve the link. Until then the event does not appear on their page.",
+    "organiser": "Who is posting this event?",
+    "organiserSelf": "Myself",
+    "organiserHint": "Choosing a venue makes the venue the owner of the event and the recipient of the revenue. Your name is recorded as the one who created it."
   },
   "trainingBuddies": {
     "title": "Training buddies",
@@ -3788,7 +3791,7 @@
     "capabilities": {
       "events": {
         "label": "Events",
-        "hint": "Create and edit the venue's events"
+        "hint": "Create and publish events in the venue's name. The person does not need their own BankID — the venue is the seller of record."
       },
       "bookings": {
         "label": "Bookings",

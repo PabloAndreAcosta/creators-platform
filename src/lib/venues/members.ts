@@ -129,3 +129,35 @@ export async function venuesForUser(userId: string): Promise<string[]> {
 
   return (data ?? []).map((r: { venue_profile_id: string }) => r.venue_profile_id);
 }
+
+export interface CreatableVenue {
+  id: string;
+  name: string;
+}
+
+/**
+ * Lokaler personen får skapa evenemang i namnet på.
+ *
+ * Bara lokaler där hen accepterat medlemskap OCH håller `events`. Ägarens egen
+ * lokal ingår inte — den är hen redan, och "skapa som mig själv" är normalfallet
+ * som inte behöver väljas.
+ */
+export async function venuesUserCanCreateFor(userId: string): Promise<CreatableVenue[]> {
+  const admin = createAdminClient();
+
+  const { data } = await admin
+    .from("venue_members")
+    .select("venue_profile_id, capabilities, profiles!venue_profile_id(full_name, company_name)")
+    .eq("user_id", userId)
+    .not("accepted_at", "is", null)
+    .is("removed_at", null);
+
+  const out: CreatableVenue[] = [];
+  for (const row of data ?? []) {
+    if (!sanitizeCapabilities(row.capabilities).includes("events")) continue;
+    const p = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
+    const name = (p?.company_name || p?.full_name || "").trim();
+    if (name) out.push({ id: row.venue_profile_id, name });
+  }
+  return out.sort((a, b) => a.name.localeCompare(b.name, "sv"));
+}

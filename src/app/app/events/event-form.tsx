@@ -63,14 +63,25 @@ export interface VenueOption {
   name: string;
 }
 
+/** Lokaler den inloggade får skapa evenemang i namnet på. */
+export interface OrganiserOption {
+  id: string;
+  name: string;
+}
+
 export default function EventForm({
   event,
   action,
   venues = [],
+  organisers = [],
+  selfName = "",
 }: {
   event?: EventData;
   /** Lokaler på plattformen som evenemanget kan kopplas till. */
   venues?: VenueOption[];
+  /** Lokaler den inloggade kan skapa i namnet på (tomt = bara sig själv). */
+  organisers?: OrganiserOption[];
+  selfName?: string;
   action: (
     formData: FormData
   ) => Promise<{ error?: string; locked?: boolean; id?: string } | void>;
@@ -525,6 +536,34 @@ export default function EventForm({
             {t("openToInstructorsHint")}
           </p>
         </div>
+
+        {/* Vem evenemanget läggs upp i namnet på. Visas bara för den som
+            tillhör minst en lokal med rätt att skapa — för alla andra finns
+            inget val att göra, och en väljare med ett alternativ är brus.
+
+            Valet styr ÄGARSKAPET av raden, alltså vart pengarna går. Därför
+            ligger det överst och inte gömt bland detaljerna. */}
+        {organisers.length > 0 && !event && (
+          <div className="rounded-xl border border-[var(--usha-gold)]/25 bg-[var(--usha-gold)]/5 p-4">
+            <label htmlFor="create_as_venue" className="mb-1.5 block text-sm font-medium">
+              {t("organiser")}
+            </label>
+            <select
+              id="create_as_venue"
+              name="create_as_venue"
+              defaultValue=""
+              className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+            >
+              <option value="">{selfName || t("organiserSelf")}</option>
+              {organisers.map((o) => (
+                <option key={o.id} value={o.id}>
+                  {o.name}
+                </option>
+              ))}
+            </select>
+            <p className="mt-1.5 text-xs text-[var(--usha-muted)]">{t("organiserHint")}</p>
+          </div>
+        )}
 
         {/* Location with Google Places Autocomplete */}
         <PlacesAutocomplete

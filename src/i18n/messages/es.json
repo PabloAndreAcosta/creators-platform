@@ -1912,7 +1912,10 @@
     "venueProfile": "Local en Usha",
     "venueProfileNone": "Sin local vinculado",
     "venueProfileHint": "Vincular el evento a un local avisa a sus seguidores y lo muestra en su página. El local debe aprobar el vínculo primero.",
-    "venueProfilePending": "Esperando que el local apruebe el vínculo. Hasta entonces el evento no aparece en su página."
+    "venueProfilePending": "Esperando que el local apruebe el vínculo. Hasta entonces el evento no aparece en su página.",
+    "organiser": "¿Quién publica este evento?",
+    "organiserSelf": "Yo mismo",
+    "organiserHint": "Si eliges un local, el local será el propietario del evento y recibirá los ingresos. Tu nombre queda registrado como creador."
   },
   "trainingBuddies": {
     "title": "Compañeros de entrenamiento",
@@ -3788,7 +3791,7 @@
     "capabilities": {
       "events": {
         "label": "Eventos",
-        "hint": "Crear y editar los eventos del local"
+        "hint": "Crear y publicar eventos en nombre del local. La persona no necesita su propio BankID — el local figura como vendedor."
       },
       "bookings": {
         "label": "Reservas",

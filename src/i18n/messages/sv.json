@@ -1912,7 +1912,10 @@
     "venueProfile": "Lokal på Usha",
     "venueProfileNone": "Ingen kopplad lokal",
     "venueProfileHint": "Kopplar du evenemanget till en lokal får deras följare veta, och det syns på lokalens sida. Lokalen behöver godkänna kopplingen först.",
-    "venueProfilePending": "Väntar på att lokalen ska godkänna kopplingen. Tills dess syns evenemanget inte på deras sida."
+    "venueProfilePending": "Väntar på att lokalen ska godkänna kopplingen. Tills dess syns evenemanget inte på deras sida.",
+    "organiser": "Vem lägger upp evenemanget?",
+    "organiserSelf": "Jag själv",
+    "organiserHint": "Väljer du en lokal blir det lokalen som äger evenemanget och tar emot intäkten. Ditt namn sparas som den som skapade det."
   },
   "trainingBuddies": {
     "title": "Träningsvänner",
@@ -3788,7 +3791,7 @@
     "capabilities": {
       "events": {
         "label": "Evenemang",
-        "hint": "Skapa och ändra lokalens evenemang"
+        "hint": "Skapa och publicera evenemang i lokalens namn. Personen behöver inte eget BankID — det är lokalen som står som säljare."
       },
       "bookings": {
         "label": "Bokningar",
