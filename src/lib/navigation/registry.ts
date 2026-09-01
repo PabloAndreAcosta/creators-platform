@@ -18,8 +18,7 @@ import {
   Package, CalendarCheck, CalendarDays, ScanLine, Briefcase, BookOpen, Building2,
   Wallet, BarChart3, CreditCard, Tag, Search, Store, FileText, Heart, Trophy,
   ShoppingBag, Ticket, MessageCircle, BookMarked, Gift, Bell, User, Settings,
-  Users, Home, Sparkles, Box, LayoutGrid, KeyRound, Languages,
-} from "lucide-react";
+  Users, Home, Sparkles, Box, LayoutGrid, KeyRound, Languages } from "lucide-react";
 
 /** Kanoniska roller. Se roll-modellen: creator/venue säljer, customer köper. */
 export type NavRole = "customer" | "creator" | "venue";
@@ -90,6 +89,9 @@ export const APP_DESTINATIONS: AppDestination[] = [
   // Bara lokaler: arrangörer som vill koppla sitt evenemang hit. Utan en yta att
   // svara på blir kopplingen aldrig bekräftad, och då når den ingen.
   { path: "/app/venue-requests", labelKey: "venueRequestsLabel", descKey: "venueRequestsDesc", icon: Building2,
+    group: "createSell", roles: ["venue"], surfaces: ["more"] },
+  // Bara lokaler: teamet. Ägaren delar ut behörigheter härifrån.
+  { path: "/app/venue-team", labelKey: "venueTeamLabel", descKey: "venueTeamDesc", icon: Users,
     group: "createSell", roles: ["venue"], surfaces: ["more"] },
 
   // ---- Ekonomi ------------------------------------------------------------
@@ -214,6 +216,7 @@ export function adminDestinationsFor(access: AdminAccess): AdminDestination[] {
 
 export const CONTEXTUAL_ROUTES: Record<string, string> = {
   "/dashboard": "Omdirigerar bara vidare till /app.",
+  "/app/venue-team/join/[token]": "Nås enbart via inbjudningslänken från lokalens ägare. Ska INTE finnas i någon meny — den som hittar den utan inbjudan har ingen inbjudan att acceptera.",
   "/app/lyssna": "Privat verktyg under utbrytning till egen app. Nås via direktlänk och är grindad i sidan (se lib/tts/access.ts) — den ska inte synas i menyerna.",
   "/app/events/[id]/bookings": "Nås från knappraden på eventsidan.",
   "/app/events/[id]/edit": "Nås genom att öppna ett event i listan.",

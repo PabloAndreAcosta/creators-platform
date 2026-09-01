@@ -2509,7 +2509,9 @@
     "profileLabel": "Perfil",
     "settingsLabel": "Ajustes",
     "venueRequestsLabel": "Solicitudes",
-    "venueRequestsDesc": "Aprueba a organizadores que quieren hacer eventos en vuestro local"
+    "venueRequestsDesc": "Aprueba a organizadores que quieren hacer eventos en vuestro local",
+    "venueTeamLabel": "El equipo",
+    "venueTeamDesc": "Invita a quienes ayudan con el local"
   },
   "courses": {
     "pageTitle": "Mi contenido",
@@ -3766,5 +3768,73 @@
     "withdraw": "Retirar aprobación",
     "by": "Organizado por {name}",
     "failed": "No se pudo guardar la respuesta. Inténtalo de nuevo."
+  },
+  "venueTeam": {
+    "heading": "El equipo",
+    "intro": "Invita a las personas que ayudan con el local. Tú decides qué puede hacer cada una.",
+    "ownerNote": "Eres el propietario del local y tienes acceso a todo. Las finanzas — pagos, Stripe y datos de la empresa — no se pueden delegar y se quedan siempre contigo.",
+    "empty": "Aún no has invitado a nadie.",
+    "invite": "Invitar a alguien",
+    "inviteEmail": "Correo electrónico",
+    "inviteSubmit": "Enviar invitación",
+    "pending": "Esperando respuesta",
+    "copyLink": "Copiar enlace de invitación",
+    "copied": "Copiado",
+    "remove": "Quitar",
+    "save": "Guardar",
+    "saved": "Guardado",
+    "failed": "No ha funcionado. Inténtalo de nuevo.",
+    "customPreset": "Personalizado",
+    "capabilities": {
+      "events": {
+        "label": "Eventos",
+        "hint": "Crear y editar los eventos del local"
+      },
+      "bookings": {
+        "label": "Reservas",
+        "hint": "Ver reservas y listas de invitados"
+      },
+      "scan": {
+        "label": "Entrada",
+        "hint": "Registrar invitados en la puerta"
+      },
+      "messages": {
+        "label": "Envíos",
+        "hint": "Escribir a seguidores y asistentes"
+      },
+      "stats": {
+        "label": "Estadísticas",
+        "hint": "Ver estadísticas y exportar"
+      },
+      "page": {
+        "label": "Página del local",
+        "hint": "Editar la página y responder solicitudes"
+      }
+    },
+    "presets": {
+      "co_host": {
+        "label": "Coorganizador",
+        "hint": "Todo excepto la entrada"
+      },
+      "door": {
+        "label": "Personal de puerta",
+        "hint": "Entrada y lista de invitados"
+      },
+      "marketing": {
+        "label": "Marketing",
+        "hint": "Envíos, página y estadísticas"
+      }
+    }
+  },
+  "venueJoin": {
+    "heading": "{venue} quiere añadirte a su equipo",
+    "headingGeneric": "Te han invitado al equipo de un local",
+    "intro": "Esto es lo que podrás hacer si aceptas:",
+    "goneTitle": "Esta invitación ya no es válida",
+    "goneBody": "Puede que se haya usado, retirado o caducado. Pide una nueva.",
+    "accept": "Aceptar",
+    "accepted": "Listo. Ya formas parte del equipo.",
+    "failed": "No ha funcionado. Quizá la invitación es para otro correo.",
+    "nothing": "Aún no hay permisos seleccionados. Entrarás en el equipo, pero no verás nada hasta que el propietario marque algo."
   }
 }

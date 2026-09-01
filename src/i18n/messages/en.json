@@ -2509,7 +2509,9 @@
     "profileLabel": "Profile",
     "settingsLabel": "Settings",
     "venueRequestsLabel": "Requests",
-    "venueRequestsDesc": "Approve organisers who want to host events at your venue"
+    "venueRequestsDesc": "Approve organisers who want to host events at your venue",
+    "venueTeamLabel": "The team",
+    "venueTeamDesc": "Invite people who help run the venue"
   },
   "courses": {
     "pageTitle": "My content",
@@ -3766,5 +3768,73 @@
     "withdraw": "Withdraw approval",
     "by": "Hosted by {name}",
     "failed": "The reply could not be saved. Please try again."
+  },
+  "venueTeam": {
+    "heading": "The team",
+    "intro": "Invite people who help run the venue. You decide what each of them may do.",
+    "ownerNote": "You own the venue and have access to everything. The finances — payouts, Stripe and company details — cannot be delegated and always stay with you.",
+    "empty": "No one has been invited yet.",
+    "invite": "Invite someone",
+    "inviteEmail": "Email address",
+    "inviteSubmit": "Send invitation",
+    "pending": "Awaiting reply",
+    "copyLink": "Copy invitation link",
+    "copied": "Copied",
+    "remove": "Remove",
+    "save": "Save",
+    "saved": "Saved",
+    "failed": "That did not work. Please try again.",
+    "customPreset": "Custom",
+    "capabilities": {
+      "events": {
+        "label": "Events",
+        "hint": "Create and edit the venue's events"
+      },
+      "bookings": {
+        "label": "Bookings",
+        "hint": "See bookings and guest lists"
+      },
+      "scan": {
+        "label": "Check-in",
+        "hint": "Check guests in at the door"
+      },
+      "messages": {
+        "label": "Messages",
+        "hint": "Send to followers and attendees"
+      },
+      "stats": {
+        "label": "Statistics",
+        "hint": "See statistics and export"
+      },
+      "page": {
+        "label": "Venue page",
+        "hint": "Edit the page and answer requests"
+      }
+    },
+    "presets": {
+      "co_host": {
+        "label": "Co-organiser",
+        "hint": "Everything except check-in"
+      },
+      "door": {
+        "label": "Door staff",
+        "hint": "Check-in and guest list"
+      },
+      "marketing": {
+        "label": "Marketing",
+        "hint": "Messages, page and statistics"
+      }
+    }
+  },
+  "venueJoin": {
+    "heading": "{venue} wants to add you to their team",
+    "headingGeneric": "You have been invited to a venue team",
+    "intro": "This is what you may do if you accept:",
+    "goneTitle": "This invitation is no longer valid",
+    "goneBody": "It may have been used, withdrawn or expired. Ask for a new one.",
+    "accept": "Accept",
+    "accepted": "Done. You are on the team.",
+    "failed": "That did not work. The invitation may be for a different email address.",
+    "nothing": "No permissions are selected yet. You will join the team, but see nothing until the owner ticks something."
   }
 }
