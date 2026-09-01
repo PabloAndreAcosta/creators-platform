@@ -70,7 +70,7 @@
   },
   "roleToggle": {
     "locked": "{role} is locked",
-    "lockedHint": "Go to Profile > Upgrade to switch role",
+    "lockedHint": "Go to Subscription to change your role",
     "switchTo": "Switch to {role} view",
     "lockedLabel": "{role} – locked"
   },
@@ -394,10 +394,18 @@
     "perMonth": "SEK/month",
     "freeDuringBeta": "Free during beta",
     "free": "Free",
-    "switchTo": "Switch to {plan}",
+    "switchTo": "Switch to {role}",
     "startPlan": "Start {plan}",
     "payouts": "Payouts",
-    "commissionLevel": "Your commission level"
+    "commissionLevel": "Your commission level",
+    "switchRole": "Change role",
+    "switchRoleHint": "Your role decides what the app shows you. To sell tickets or list a venue, pick that role here — during the beta it costs nothing.",
+    "month": "mo",
+    "roleName": {
+      "customer": "Visitor",
+      "creator": "Creator",
+      "venue": "Venue"
+    }
   },
   "dashboard": {
     "logout": "Log out"
