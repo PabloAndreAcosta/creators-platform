@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { sortEventsForOwner, todayInStockholm } from "@/lib/events/sort";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { EventsContent } from "./events-content";
 
@@ -50,7 +51,12 @@ export default async function EventsPage(
       const own = listingsRes.data || [];
       const ownIds = new Set(own.map((l) => l.id));
       const co = (coRes.data || []).filter((l) => !ownIds.has(l.id)).map((l) => ({ ...l, co_organized: true }));
-      listings = [...own, ...co];
+
+      // Kronologiskt, inte efter skapandetid. En serie skapas i en klump med
+      // nästan identiska tidsstämplar, så åtta måndagar hamnade i praktiken i
+      // slumpmässig ordning. Nästa kväll ska ligga överst.
+      const today = todayInStockholm();
+      listings = [...sortEventsForOwner(own, today), ...sortEventsForOwner(co, today)];
       facebookPageId = profileRes.data?.facebook_page_id ?? null;
       facebookPageName = profileRes.data?.facebook_page_name ?? null;
     }

@@ -1,5 +1,6 @@
 "use client";
 
+import TimeSelect from "@/components/time-select";
 import { useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { useToast } from "@/components/ui/toaster";
@@ -44,7 +45,7 @@ export function GigForm({
         </div>
         <div>
           <label htmlFor="event_time" className="mb-1.5 block text-sm text-[var(--usha-muted)]">{t("timeLabel")}</label>
-          <input id="event_time" name="event_time" type="time" className={inputClass} />
+          <TimeSelect id="event_time" name="event_time" />
         </div>
       </div>
 

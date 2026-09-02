@@ -1,5 +1,6 @@
 "use client";
 
+import TimeSelect from "@/components/time-select";
 import { useTransition, useState, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { useToast } from "@/components/ui/toaster";
@@ -279,25 +280,13 @@ export default function ListingForm({
           <label htmlFor="event_time" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
             {t("startTimeLabel")}
           </label>
-          <input
-            id="event_time"
-            name="event_time"
-            type="time"
-            defaultValue={listing?.event_time ?? ""}
-            className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
-          />
+          <TimeSelect id="event_time" name="event_time" defaultValue={listing?.event_time ?? ""} />
         </div>
         <div>
           <label htmlFor="event_end_time" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
             {t("endTimeLabel")}
           </label>
-          <input
-            id="event_end_time"
-            name="event_end_time"
-            type="time"
-            defaultValue={listing?.event_end_time ?? ""}
-            className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
-          />
+          <TimeSelect id="event_end_time" name="event_end_time" defaultValue={listing?.event_end_time ?? ""} />
         </div>
       </div>
 

@@ -1,5 +1,6 @@
 "use client";
 
+import TimeSelect from "@/components/time-select";
 import { useState, useTransition, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { createBooking, joinQueue } from "@/app/(dashboard)/dashboard/bookings/actions";
@@ -177,14 +178,12 @@ function SlotPicker({
       {isAllDay && (
         <div>
           <p className="mb-2 text-xs text-green-400">{t("slotPicker.allDayAvailable")}</p>
-          <input
-            type="time"
+          <TimeSelect
             value={freeTime}
-            onChange={(e) => {
-              setFreeTime(e.target.value);
-              onSelectSlot(e.target.value);
+            onChange={(v) => {
+              setFreeTime(v);
+              onSelectSlot(v);
             }}
-            className="w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2 text-sm outline-none focus:border-[var(--usha-gold)]/40"
           />
         </div>
       )}
@@ -576,12 +575,9 @@ export default function BookingForm({
                       </div>
                       <div>
                         <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">{t("booking.startTimeLabel")}</label>
-                        <input
-                          type="time"
-                          required
+                        <TimeSelect
                           value={selectedTime ?? ""}
-                          onChange={(e) => setSelectedTime(e.target.value || null)}
-                          className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2.5 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+                          onChange={(v) => setSelectedTime(v || null)}
                         />
                       </div>
                     </div>

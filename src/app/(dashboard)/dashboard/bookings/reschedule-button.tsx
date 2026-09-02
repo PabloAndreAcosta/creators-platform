@@ -1,5 +1,6 @@
 "use client";
 
+import TimeSelect from "@/components/time-select";
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { Calendar } from "lucide-react";
@@ -120,12 +121,7 @@ export function RescheduleButton({
           onChange={(e) => setDate(e.target.value)}
           className="rounded-lg border border-[var(--usha-border)] bg-transparent px-2 py-1 text-xs"
         />
-        <input
-          type="time"
-          value={time}
-          onChange={(e) => setTime(e.target.value)}
-          className="rounded-lg border border-[var(--usha-border)] bg-transparent px-2 py-1 text-xs"
-        />
+        <TimeSelect compact value={time} onChange={setTime} />
       </div>
 
       {error && <p className="text-xs text-red-400">{error}</p>}

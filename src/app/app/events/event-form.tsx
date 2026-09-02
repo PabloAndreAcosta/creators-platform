@@ -8,6 +8,7 @@ import { ArrowLeft, ImagePlus, X, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
 import { uploadImage } from "@/lib/storage/upload-client";
 import { EVENT_CATEGORIES } from "./constants";
+import TimeSelect from "@/components/time-select";
 import PlacesAutocomplete from "@/components/places-autocomplete";
 
 import type { ListingType, ExperienceDetails } from "@/types/database";
@@ -334,25 +335,13 @@ export default function EventForm({
             <label htmlFor="event_time" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
               {t("startTime")}
             </label>
-            <input
-              id="event_time"
-              name="event_time"
-              type="time"
-              defaultValue={event?.event_time ?? ""}
-              className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
-            />
+            <TimeSelect id="event_time" name="event_time" defaultValue={event?.event_time ?? ""} />
           </div>
           <div>
             <label htmlFor="event_end_time" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
               {t("endTime")}
             </label>
-            <input
-              id="event_end_time"
-              name="event_end_time"
-              type="time"
-              defaultValue={event?.event_end_time ?? ""}
-              className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
-            />
+            <TimeSelect id="event_end_time" name="event_end_time" defaultValue={event?.event_end_time ?? ""} />
           </div>
         </div>
 
