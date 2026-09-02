@@ -35,7 +35,7 @@ export default async function EditEventPage(props: { params: Promise<{ id: strin
   // Existing ticket types (price tiers) so the editor can pre-fill them.
   const { data: ticketTypes } = await supabase
     .from("ticket_types")
-    .select("id, name, price, capacity, ticket_pools(name, capacity)")
+    .select("id, name, price, capacity, ticket_type_pools(ticket_pools(name, capacity))")
     .eq("listing_id", event.id)
     .order("sort_order", { ascending: true });
 
@@ -46,13 +46,22 @@ export default async function EditEventPage(props: { params: Promise<{ id: strin
   // som "ingen kapacitet" och radera potten — därför läses pottens tak tillbaka
   // in i fältet, precis som användaren skrev det.
   const ticketTypeRows = (ticketTypes ?? []).map((tt) => {
-    const pool = Array.isArray(tt.ticket_pools) ? tt.ticket_pools[0] : tt.ticket_pools;
+    // PostgREST typar nästlade embeds som arrayer även när relationen är
+    // till-en, så båda formerna hanteras.
+    type Pott = { name: string; capacity: number };
+    const kopplingar = (tt.ticket_type_pools ?? []) as unknown as { ticket_pools: Pott | Pott[] | null }[];
+    const potter = kopplingar
+      .map((k) => (Array.isArray(k.ticket_pools) ? k.ticket_pools[0] : k.ticket_pools))
+      .filter((p): p is Pott => !!p);
     return {
       id: tt.id,
       name: tt.name,
       price: tt.price,
-      capacity: tt.capacity ?? pool?.capacity ?? null,
-      pool: pool?.name ?? null,
+      // Taket sitter på potten, så radens egen capacity är null. Läs tillbaka
+      // pottens tak — men bara när raden tillhör EN pott, för då är talet
+      // entydigt. En kombinationsbiljett har inget eget tak att visa.
+      capacity: tt.capacity ?? (potter.length === 1 ? potter[0].capacity : null),
+      pools: potter.map((p) => p.name),
     };
   });
 

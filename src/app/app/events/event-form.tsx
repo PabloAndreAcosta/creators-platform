@@ -45,7 +45,7 @@ interface EventData {
   min_guests: number | null;
   max_guests: number | null;
   experience_details: ExperienceDetails | null;
-  ticketTypes?: { id: string; name: string; price: number; capacity: number | null; pool?: string | null }[];
+  ticketTypes?: { id: string; name: string; price: number; capacity: number | null; pools?: string[] }[];
 }
 
 // Auto-derive listing type from category
@@ -136,18 +136,18 @@ export default function EventForm({
     event?.service_fee_mode === "absorb" ? "absorb" : "buyer"
   );
   // Ticket types (price tiers). Empty = single-price event (unchanged behaviour).
-  const [types, setTypes] = useState<{ id?: string; name: string; price: string; capacity: string; pool: string }[]>(
+  const [types, setTypes] = useState<{ id?: string; name: string; price: string; capacity: string; pools: string }[]>(
     () =>
       (event?.ticketTypes ?? []).map((tt) => ({
         id: tt.id,
         name: tt.name,
         price: String(tt.price),
         capacity: tt.capacity != null ? String(tt.capacity) : "",
-        pool: tt.pool ?? "",
+        pools: (tt.pools ?? []).join(", "),
       }))
   );
-  const addType = () => setTypes((p) => [...p, { name: "", price: "", capacity: "", pool: "" }]);
-  const updateType = (i: number, field: "name" | "price" | "capacity" | "pool", val: string) =>
+  const addType = () => setTypes((p) => [...p, { name: "", price: "", capacity: "", pools: "" }]);
+  const updateType = (i: number, field: "name" | "price" | "capacity" | "pools", val: string) =>
     setTypes((p) => p.map((t, idx) => (idx === i ? { ...t, [field]: val } : t)));
   const removeType = (i: number) => setTypes((p) => p.filter((_, idx) => idx !== i));
   const typesJson = JSON.stringify(
@@ -158,7 +158,7 @@ export default function EventForm({
         name: t.name.trim(),
         price: parseInt(t.price || "0", 10) || 0,
         capacity: t.capacity.trim() === "" ? null : parseInt(t.capacity, 10) || null,
-        pool: t.pool.trim() || null,
+        pools: t.pools,
       }))
   );
   const hasTypes = types.some((t) => t.name.trim());
@@ -735,8 +735,8 @@ export default function EventForm({
                             className="min-w-0 flex-1 rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2 text-sm outline-none focus:border-[var(--usha-gold)]/40 sm:w-24 sm:flex-none"
                           />
                           <input
-                            value={tt.pool}
-                            onChange={(e) => updateType(i, "pool", e.target.value)}
+                            value={tt.pools}
+                            onChange={(e) => updateType(i, "pools", e.target.value)}
                             placeholder={t("ticketTypePoolPlaceholder")}
                             title={t("ticketTypePoolHint")}
                             className="min-w-0 flex-1 rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2 text-sm outline-none focus:border-[var(--usha-gold)]/40 sm:w-28 sm:flex-none"

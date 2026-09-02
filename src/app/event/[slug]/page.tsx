@@ -207,18 +207,33 @@ export default async function EventPage(props: Params) {
   // Ticket types (price tiers). Empty → single-price event (unchanged).
   const { data: ticketTypes } = await supabase
     .from("ticket_types")
-    .select("id, name, price, capacity, tickets_sold, pool_id, ticket_pools(capacity)")
+    .select("id, name, price, capacity, tickets_sold, ticket_type_pools(pool_id, ticket_pools(id, capacity))")
     .eq("listing_id", listing.id)
     .order("sort_order", { ascending: true });
 
   // Pottmedlemmar ärver pottens tak och pottens sålda antal, annars ser de
   // obegränsade ut för köparen och nekas först i kassan.
+  // Hur mycket varje pott tagit: summan av vad ALLA typer i potten sålt.
+  const pottSalda = new Map<string, number>();
+  for (const tt of ticketTypes ?? []) {
+    for (const k of (tt.ticket_type_pools ?? []) as { pool_id: string }[]) {
+      pottSalda.set(k.pool_id, (pottSalda.get(k.pool_id) ?? 0) + (tt.tickets_sold ?? 0));
+    }
+  }
+
   const ticketTypesForSale = applyPoolLimits(
-    (ticketTypes ?? []).map((tt) => {
-      const pool = Array.isArray(tt.ticket_pools) ? tt.ticket_pools[0] : tt.ticket_pools;
-      return { ...tt, pool_capacity: pool?.capacity ?? null };
-    })
+    (ticketTypes ?? []).map((tt) => ({
+      ...tt,
+      pools: ((tt.ticket_type_pools ?? []) as unknown as {
+        pool_id: string;
+        ticket_pools: { capacity: number | null } | { capacity: number | null }[] | null;
+      }[]).map((k) => {
+        const pott = Array.isArray(k.ticket_pools) ? k.ticket_pools[0] : k.ticket_pools;
+        return { id: k.pool_id, capacity: pott?.capacity ?? null, sold: pottSalda.get(k.pool_id) ?? 0 };
+      }),
+    }))
   );
+
   const {
     data: { user },
   } = await supabase.auth.getUser();

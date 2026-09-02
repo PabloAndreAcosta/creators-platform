@@ -1927,8 +1927,8 @@
     "organiser": "Vem lägger upp evenemanget?",
     "organiserSelf": "Jag själv",
     "organiserHint": "Väljer du en lokal blir det lokalen som äger evenemanget och tar emot intäkten. Ditt namn sparas som den som skapade det.",
-    "ticketTypePoolPlaceholder": "Delad pott",
-    "ticketTypePoolHint": "Ge två biljettyper samma pottnamn så delar de kapacitet. Exempel: både Workshop och Workshop + social får namnet Workshop och kapacitet 20 — tillsammans säljer de aldrig fler än 20.",
+    "ticketTypePoolPlaceholder": "Pass",
+    "ticketTypePoolHint": "Vilka pass biljetten ger tillträde till. Skriv passets namn, eller flera med komma för en kombinationsbiljett. Passets storlek skriver du i kapacitetsfältet på den biljett som bara gäller det passet.",
     "ticketTypesPoolHelp": "Ska två biljettyper dela på samma platser? Ge dem samma namn i fältet Delad pott och samma kapacitet."
   },
   "trainingBuddies": {
