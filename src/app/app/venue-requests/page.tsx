@@ -36,6 +36,12 @@ export default async function VenueRequestsPage() {
       eventTime: r.event_time ? String(r.event_time).slice(0, 5) : null,
       location: r.event_location,
       organiser: organiser?.full_name ?? null,
+      // Översätts HÄR, på servern. Att skicka en funktion som gör det åt
+      // klienten går inte: React kan inte serialisera funktioner över gränsen
+      // mellan server- och klientkomponent, och sidan svarade 500 på varje
+      // besök. Den var trasig från dag ett och syntes inte, eftersom ingen
+      // lokal hade någon förfrågan att visa.
+      byLabel: organiser?.full_name ? t("by", { name: organiser.full_name }) : null,
       confirmed: !!r.venue_confirmed_at,
     };
   });
@@ -52,7 +58,6 @@ export default async function VenueRequestsPage() {
         approve: t("approve"),
         decline: t("decline"),
         withdraw: t("withdraw"),
-        by: (name: string) => t("by", { name }),
         failed: t("failed"),
       }}
     />

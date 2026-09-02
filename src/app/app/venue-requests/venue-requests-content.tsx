@@ -11,6 +11,8 @@ interface Item {
   eventTime: string | null;
   location: string | null;
   organiser: string | null;
+  /** Färdigöversatt "Arrangeras av X" — översätts på servern, se page.tsx. */
+  byLabel: string | null;
   confirmed: boolean;
 }
 
@@ -23,7 +25,6 @@ interface Labels {
   approve: string;
   decline: string;
   withdraw: string;
-  by: (name: string) => string;
   failed: string;
 }
 
@@ -87,8 +88,8 @@ export default function VenueRequestsContent({ items, labels }: { items: Item[];
                 <p className="text-xs text-[var(--usha-muted)]">
                   {[r.eventDate, r.eventTime].filter(Boolean).join(" · ")}
                 </p>
-                {r.organiser && (
-                  <p className="mt-0.5 text-xs text-[var(--usha-muted)]">{labels.by(r.organiser)}</p>
+                {r.byLabel && (
+                  <p className="mt-0.5 text-xs text-[var(--usha-muted)]">{r.byLabel}</p>
                 )}
                 {r.location && (
                   <p className="mt-0.5 flex items-center gap-1 text-xs text-[var(--usha-muted)]">
