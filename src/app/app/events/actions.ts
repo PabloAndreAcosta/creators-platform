@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { canManageListing } from "@/lib/listings/manage-access";
 import { venuesUserCanCreateFor } from "@/lib/venues/members";
-import { resolvePools, ownCapacityFor, poolNameFor } from "@/lib/tickets/pools";
+import { resolvePools, ownCapacityFor, parsePoolNames } from "@/lib/tickets/pools";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { EVENT_CATEGORIES } from "./constants";
@@ -187,8 +187,8 @@ type ParsedTicketType = {
   name: string;
   price: number;
   capacity: number | null;
-  /** Pottnamn. Två typer med samma namn delar kapacitet. */
-  pool: string | null;
+  /** Potterna typen drar från. Flera för en kombinationsbiljett. */
+  pools: string[];
 };
 
 /** Parse the ticket-types editor (a JSON hidden field). Empty/invalid → []. */
@@ -208,7 +208,7 @@ function parseTicketTypes(formData: FormData): ParsedTicketType[] {
           name: String(t?.name ?? "").trim(),
           price: Math.max(0, parseInt(String(t?.price ?? "0"), 10) || 0),
           capacity: Number.isFinite(capNum) && capNum > 0 ? capNum : null,
-          pool: poolNameFor({ name: "", capacity: null, pool: String(t?.pool ?? "") }),
+          pools: parsePoolNames(t?.pools ?? t?.pool),
         };
       })
       .filter((t) => t.name.length > 0);
@@ -259,39 +259,50 @@ async function reconcileTicketTypes(
   for (const pool of pools) {
     const found = (existingPools ?? []).find((ep: { name: string }) => ep.name === pool.name);
     if (found) {
-      await supabase
-        .from("ticket_pools")
-        .update({ capacity: pool.capacity })
-        .eq("id", found.id)
-        .eq("listing_id", listingId);
+      await supabase.from("ticket_pools").update({ capacity: pool.capacity })
+        .eq("id", found.id).eq("listing_id", listingId);
       poolIds.set(pool.name, found.id);
     } else {
-      const { data: created } = await supabase
-        .from("ticket_pools")
+      const { data: created } = await supabase.from("ticket_pools")
         .insert({ listing_id: listingId, name: pool.name, capacity: pool.capacity })
-        .select("id")
-        .single();
+        .select("id").single();
       if (created) poolIds.set(pool.name, created.id);
     }
   }
 
   for (let i = 0; i < types.length; i++) {
     const t = types[i];
-    // Tillhör raden en pott sitter taket där, inte på raden. Två tak samtidigt
-    // gör att en typ kan ta slut medan potten har platser kvar.
-    const rad = { name: t.name, capacity: t.capacity, pool: t.pool };
+    const rad = { name: t.name, capacity: t.capacity, pools: t.pools };
     const fields = {
       name: t.name,
       price: t.price,
       capacity: ownCapacityFor(rad),
-      pool_id: t.pool ? poolIds.get(t.pool) ?? null : null,
       sort_order: i,
     };
 
-    if (t.id && existingIds.has(t.id)) {
-      await supabase.from("ticket_types").update(fields).eq("id", t.id).eq("listing_id", listingId);
+    let typeId = t.id && existingIds.has(t.id) ? t.id : null;
+    if (typeId) {
+      await supabase.from("ticket_types").update(fields).eq("id", typeId).eq("listing_id", listingId);
     } else {
-      await supabase.from("ticket_types").insert({ listing_id: listingId, ...fields });
+      const { data: created } = await supabase
+        .from("ticket_types")
+        .insert({ listing_id: listingId, ...fields })
+        .select("id")
+        .single();
+      typeId = created?.id ?? null;
+    }
+    if (!typeId) continue;
+
+    // Kopplingarna sätts om från grunden. Att räkna ut skillnaden mot vad som
+    // fanns vore fler rader kod för att spara två skrivningar, och kopplingarna
+    // bär ingen egen data som kan gå förlorad.
+    await supabase.from("ticket_type_pools").delete().eq("ticket_type_id", typeId);
+    const rader = t.pools
+      .map((namn) => poolIds.get(namn))
+      .filter((id): id is string => !!id)
+      .map((pool_id) => ({ ticket_type_id: typeId as string, pool_id }));
+    if (rader.length > 0) {
+      await supabase.from("ticket_type_pools").insert(rader);
     }
   }
 }

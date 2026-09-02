@@ -1927,8 +1927,8 @@
     "organiser": "¿Quién publica este evento?",
     "organiserSelf": "Yo mismo",
     "organiserHint": "Si eliges un local, el local será el propietario del evento y recibirá los ingresos. Tu nombre queda registrado como creador.",
-    "ticketTypePoolPlaceholder": "Grupo compartido",
-    "ticketTypePoolHint": "Da a dos tipos de entrada el mismo nombre de grupo y compartirán aforo. Ejemplo: tanto Taller como Taller + social reciben el nombre Taller y aforo 20 — juntos nunca venden más de 20.",
+    "ticketTypePoolPlaceholder": "Sesiones",
+    "ticketTypePoolHint": "A qué sesiones da acceso la entrada. Escribe el nombre de la sesión, o varias separadas por comas para una entrada combinada. El aforo de la sesión va en el campo de capacidad de la entrada que solo cubre esa sesión.",
     "ticketTypesPoolHelp": "¿Deben dos tipos de entrada compartir las mismas plazas? Dales el mismo nombre en el campo Grupo compartido y el mismo aforo."
   },
   "trainingBuddies": {

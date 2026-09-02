@@ -1927,8 +1927,8 @@
     "organiser": "Who is posting this event?",
     "organiserSelf": "Myself",
     "organiserHint": "Choosing a venue makes the venue the owner of the event and the recipient of the revenue. Your name is recorded as the one who created it.",
-    "ticketTypePoolPlaceholder": "Shared pool",
-    "ticketTypePoolHint": "Give two ticket types the same pool name and they share capacity. Example: both Workshop and Workshop + social get the name Workshop and capacity 20 — together they never sell more than 20.",
+    "ticketTypePoolPlaceholder": "Sessions",
+    "ticketTypePoolHint": "Which sessions the ticket admits to. Write the session name, or several separated by commas for a combined ticket. Put the session size in the capacity field on the ticket that only covers that session.",
     "ticketTypesPoolHelp": "Should two ticket types share the same seats? Give them the same name in the Shared pool field and the same capacity."
   },
   "trainingBuddies": {
