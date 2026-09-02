@@ -211,13 +211,15 @@
     "q1": "¿Cómo reservo un servicio?",
     "a1": "Ve al Marketplace, encuentra un creador y haz clic en 'Reservar'. Elige una fecha y hora, y envía tu solicitud.",
     "q2": "¿Cómo mejoro a Guld o Premium?",
-    "a2": "Ve a Perfil > Métodos de pago y elige el plan que más te convenga.",
+    "a2": "Ve a Suscripción y elige el plan que te convenga. Ahí también cambias de rol si te equivocaste al registrarte.",
     "q3": "¿Cómo recibo mis pagos?",
-    "a3": "Conecta tu cuenta de Stripe en Panel > Configuración. Los pagos se procesan automáticamente cada semana, o al instante mediante el pago rápido.",
+    "a3": "Conecta tu cuenta de Stripe en Pagos. El dinero llega allí automáticamente cuando esté disponible.",
     "q4": "¿Puedo cancelar una reserva?",
     "a4": "Sí, puedes cancelar en Mis reservas siempre que la reserva no se haya completado ya.",
     "q5": "¿Qué es el acceso anticipado / exclusivo de Guld?",
-    "a5": "Los miembros Guld y Premium tienen acceso a ciertos eventos antes que los demás. Cuando termina la cuenta atrás, el evento queda disponible para todos."
+    "a5": "Los miembros Guld y Premium tienen acceso a ciertos eventos antes que los demás. Cuando termina la cuenta atrás, el evento queda disponible para todos.",
+    "q6": "¿Dónde encuentro una guía?",
+    "a6": "Hay una guía de inicio para creadores y locales en usha.se/guide. Puedes imprimirla o guardarla como PDF."
   },
   "feed": {
     "empty": "No hay publicaciones que mostrar en este momento",
@@ -3848,5 +3850,84 @@
     "accepted": "Listo. Ya formas parte del equipo.",
     "failed": "No ha funcionado. Quizá la invitación es para otro correo.",
     "nothing": "Aún no hay permisos seleccionados. Entrarás en el equipo, pero no verás nada hasta que el propietario marque algo."
+  },
+  "guide": {
+    "meta": {
+      "title": "Empezar con Usha Platform",
+      "description": "Una guía para creadores y locales: crear cuenta, verificarte, publicar y cobrar."
+    },
+    "title": "Empezar con Usha Platform",
+    "intro": "Esta guía te lleva de una cuenta vacía a tu primera reserva. Lee las partes que te correspondan — creador, local, o ambas.",
+    "print": "Imprimir o guardar como PDF",
+    "updated": "Actualizado el {date}",
+    "s1": {
+      "title": "Crea una cuenta",
+      "p1": "Entra en usha.se y elige Empezar. Puedes registrarte con Google, Facebook o correo electrónico — tarda segundos.",
+      "roleTitle": "Elige bien el rol desde el principio",
+      "roleBody": "Al registrarte eliges un rol, y esa elección determina toda la app: lo que ves, lo que puedes crear y cómo cobras.",
+      "creator": "Creador — ofreces servicios: baile, fotografía, música, talleres.",
+      "venue": "Local — gestionas un espacio y quieres llenarlo de eventos.",
+      "customer": "Público — quieres reservar y asistir.",
+      "roleNote": "Si te equivocas puedes cambiarlo después en Suscripción → Cambiar de rol. Pero es más sencillo acertar desde el principio, y es el error más habitual que vemos.",
+      "companyTitle": "Particular o empresa",
+      "companyBody": "Si vendes algo, también indicas si lo haces como particular o a través de una empresa. Las empresas verifican su número de registro y aparecen con él en el recibo. Se puede cambiar después."
+    },
+    "s2": {
+      "title": "Verifícate",
+      "p1": "Todos los que venden en la plataforma verifican su identidad con el BankID móvil sueco. No es un trámite — es la razón por la que un desconocido se atreve a reservarte.",
+      "p2": "Lo encuentras en Perfil. Tarda menos de un minuto y solo hay que hacerlo una vez.",
+      "companyTitle": "Si tienes empresa",
+      "companyBody": "Introduce también el número de registro en Perfil y pulsa Verificar empresa. Lo comprobamos contra el registro mercantil de la UE y rellenamos el nombre automáticamente."
+    },
+    "creators": {
+      "title": "Si eres creador",
+      "profileTitle": "Completa tu perfil",
+      "profileBody": "Una foto, un texto breve sobre lo que haces y dónde estás. Tu perfil es lo que la gente ve antes de reservar, así que unos minutos aquí valen la pena.",
+      "servicesTitle": "Añade servicios",
+      "servicesBody": "Un servicio es algo que alguien puede reservar: una clase particular, una sesión de fotos, un set de DJ. Pon precio y duración. En el plan gratuito puedes tener tres.",
+      "calendarTitle": "Abre tu calendario",
+      "calendarBody": "Marca cuándo estás disponible y la gente podrá reservar esas horas directamente sin preguntar antes. Puedes suscribirte a tu calendario de Usha desde el móvil.",
+      "eventsTitle": "O crea eventos",
+      "eventsBody": "¿Vas a dar un curso o una noche? Crea un evento con entradas. Cada entrada lleva un código QR que escaneas en la puerta."
+    },
+    "venues": {
+      "title": "Si gestionas un local",
+      "pageTitle": "Vuestra página",
+      "pageBody": "Tenéis vuestra propia página donde se reúnen vuestros eventos. Los visitantes pueden seguiros y así se enteran cuando hay algo nuevo en vuestro local.",
+      "eventsTitle": "Publica vuestras noches",
+      "eventsBody": "Crea eventos, pon precios y vende directamente. Podéis tener varios tipos de entrada en la misma noche — por ejemplo taller, baile social, o ambos.",
+      "requestsTitle": "Aprueba eventos en vuestro local",
+      "requestsBody": "Cuando otra persona publica un evento y os indica como local, aparece en Solicitudes. No se muestra nada en vuestra página hasta que lo aprobéis. Una aprobación cubre ese evento — el organizador conserva su evento, vosotros ganáis visibilidad.",
+      "teamTitle": "Incorpora a tus compañeros",
+      "teamBody": "En El equipo invitas a personas y decides qué puede hacer cada una: crear eventos, ver reservas, escanear en la puerta, enviar mensajes, ver estadísticas o gestionar la página del local. Hay ajustes predefinidos si prefieres no marcar casillas.",
+      "teamNote": "Las finanzas nunca se pueden repartir. Los pagos, Stripe y los datos de la empresa pertenecen a la cuenta propietaria y no se pueden marcar para otra persona. Si otra persona debe llevar las finanzas, eso es un cambio de propietario, no un permiso."
+    },
+    "money": {
+      "title": "El dinero",
+      "stripeTitle": "Conecta los pagos",
+      "stripeBody": "Ve a Pagos y pulsa Conectar cuenta de Stripe. Stripe pide tus datos y tu cuenta bancaria y te verifica. Es su requisito según la normativa de blanqueo, y el único paso que nadie puede hacer por ti.",
+      "commissionTitle": "Lo que cobramos",
+      "commissionBody": "Cobramos una comisión sobre lo que vendes: 15 por ciento en el plan gratuito, 8 por ciento en Oro y 3 por ciento en Premium. Siempre ves tu parte antes de publicar.",
+      "betaNote": "Durante la beta todos los planes son gratuitos.",
+      "payoutTitle": "Cuándo llega el dinero",
+      "payoutBody": "El dinero pasa por Stripe hasta tu cuenta. Puedes retirarlo cuando esté disponible — los pagos con tarjeta no se liberan al instante, sino tras la liquidación de Stripe."
+    },
+    "faq": {
+      "title": "Preguntas frecuentes",
+      "q1": "¿Necesito BankID?",
+      "a1": "Sí, si vendes algo. Quien solo compra una entrada, no.",
+      "q2": "¿Pueden comprar los invitados sin cuenta?",
+      "a2": "Sí. Dan un correo y reciben un código QR para mostrar en la puerta.",
+      "q3": "Elegí el rol equivocado al registrarme",
+      "a3": "Ve a Suscripción y elige Cambiar de rol. Allí están los planes de los otros roles — durante la beta no cuestan nada.",
+      "q4": "¿Pueden varias personas gestionar la misma cuenta?",
+      "a4": "Los locales pueden formar un equipo y repartir permisos. Los creadores pueden invitar a coorganizadores y equipo por evento.",
+      "q5": "¿Y si tengo que cancelar?",
+      "a5": "Puedes reembolsar las entradas desde el evento. Los asistentes reciben aviso automáticamente."
+    },
+    "help": {
+      "title": "¿Te has atascado?",
+      "body": "Escríbenos a pablo.acosta@usha.se y te ayudamos. La plataforma es nueva y vuestros comentarios la moldean."
+    }
   }
 }
