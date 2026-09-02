@@ -35,9 +35,26 @@ export default async function EditEventPage(props: { params: Promise<{ id: strin
   // Existing ticket types (price tiers) so the editor can pre-fill them.
   const { data: ticketTypes } = await supabase
     .from("ticket_types")
-    .select("id, name, price, capacity")
+    .select("id, name, price, capacity, ticket_pools(name, capacity)")
     .eq("listing_id", event.id)
     .order("sort_order", { ascending: true });
+
+  // Platta ut potten till fälten redigeraren använder.
+  //
+  // Taket sitter på potten och inte på raden, så radens egen capacity är null
+  // för en pottmedlem. Skickas den tomma vidare skulle nästa sparning tolka det
+  // som "ingen kapacitet" och radera potten — därför läses pottens tak tillbaka
+  // in i fältet, precis som användaren skrev det.
+  const ticketTypeRows = (ticketTypes ?? []).map((tt) => {
+    const pool = Array.isArray(tt.ticket_pools) ? tt.ticket_pools[0] : tt.ticket_pools;
+    return {
+      id: tt.id,
+      name: tt.name,
+      price: tt.price,
+      capacity: tt.capacity ?? pool?.capacity ?? null,
+      pool: pool?.name ?? null,
+    };
+  });
 
   const venues = await listVenueOptions(supabase);
 
@@ -100,7 +117,7 @@ export default async function EditEventPage(props: { params: Promise<{ id: strin
           Avräkning
         </Link>
       </div>
-      <EventForm event={{ ...event, ticketTypes: ticketTypes ?? [] }} action={action} userId={user.id} venues={venues} />
+      <EventForm event={{ ...event, ticketTypes: ticketTypeRows }} action={action} userId={user.id} venues={venues} />
     </>
   );
 }

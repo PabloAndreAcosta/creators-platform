@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { canManageListing } from "@/lib/listings/manage-access";
 import { venuesUserCanCreateFor } from "@/lib/venues/members";
+import { resolvePools, ownCapacityFor, poolNameFor } from "@/lib/tickets/pools";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { EVENT_CATEGORIES } from "./constants";
@@ -181,7 +182,14 @@ function parseEventForm(formData: FormData) {
   } as const;
 }
 
-type ParsedTicketType = { id: string | null; name: string; price: number; capacity: number | null };
+type ParsedTicketType = {
+  id: string | null;
+  name: string;
+  price: number;
+  capacity: number | null;
+  /** Pottnamn. Två typer med samma namn delar kapacitet. */
+  pool: string | null;
+};
 
 /** Parse the ticket-types editor (a JSON hidden field). Empty/invalid → []. */
 function parseTicketTypes(formData: FormData): ParsedTicketType[] {
@@ -200,6 +208,7 @@ function parseTicketTypes(formData: FormData): ParsedTicketType[] {
           name: String(t?.name ?? "").trim(),
           price: Math.max(0, parseInt(String(t?.price ?? "0"), 10) || 0),
           capacity: Number.isFinite(capNum) && capNum > 0 ? capNum : null,
+          pool: poolNameFor({ name: "", capacity: null, pool: String(t?.pool ?? "") }),
         };
       })
       .filter((t) => t.name.length > 0);
@@ -231,22 +240,58 @@ async function reconcileTicketTypes(
     await supabase.from("ticket_types").delete().eq("listing_id", listingId).in("id", toDelete);
   }
 
+  // Potterna först, så typerna har något att peka på. Potter som inte längre
+  // används tas bort — en pott utan medlemmar är ett tak ingen räknar mot.
+  const pools = resolvePools(types);
+  const poolIds = new Map<string, string>();
+
+  const { data: existingPools } = await supabase
+    .from("ticket_pools")
+    .select("id, name")
+    .eq("listing_id", listingId);
+
+  for (const ep of existingPools ?? []) {
+    if (!pools.some((p) => p.name === ep.name)) {
+      await supabase.from("ticket_pools").delete().eq("id", ep.id).eq("listing_id", listingId);
+    }
+  }
+
+  for (const pool of pools) {
+    const found = (existingPools ?? []).find((ep: { name: string }) => ep.name === pool.name);
+    if (found) {
+      await supabase
+        .from("ticket_pools")
+        .update({ capacity: pool.capacity })
+        .eq("id", found.id)
+        .eq("listing_id", listingId);
+      poolIds.set(pool.name, found.id);
+    } else {
+      const { data: created } = await supabase
+        .from("ticket_pools")
+        .insert({ listing_id: listingId, name: pool.name, capacity: pool.capacity })
+        .select("id")
+        .single();
+      if (created) poolIds.set(pool.name, created.id);
+    }
+  }
+
   for (let i = 0; i < types.length; i++) {
     const t = types[i];
+    // Tillhör raden en pott sitter taket där, inte på raden. Två tak samtidigt
+    // gör att en typ kan ta slut medan potten har platser kvar.
+    const rad = { name: t.name, capacity: t.capacity, pool: t.pool };
+    const fields = {
+      name: t.name,
+      price: t.price,
+      capacity: ownCapacityFor(rad),
+      pool_id: t.pool ? poolIds.get(t.pool) ?? null : null,
+      sort_order: i,
+    };
+
     if (t.id && existingIds.has(t.id)) {
-      await supabase
-        .from("ticket_types")
-        .update({ name: t.name, price: t.price, capacity: t.capacity, sort_order: i })
-        .eq("id", t.id)
-        .eq("listing_id", listingId);
+      await supabase.from("ticket_types").update(fields).eq("id", t.id).eq("listing_id", listingId);
     } else {
-      await supabase.from("ticket_types").insert({
-        listing_id: listingId,
-        name: t.name,
-        price: t.price,
-        capacity: t.capacity,
-        sort_order: i,
-      });
+      await supabase.from("ticket_types").insert({ listing_id: listingId, ...fields });
     }
   }
 }

@@ -1926,7 +1926,10 @@
     "venueProfilePending": "Waiting for the venue to approve the link. Until then the event does not appear on their page.",
     "organiser": "Who is posting this event?",
     "organiserSelf": "Myself",
-    "organiserHint": "Choosing a venue makes the venue the owner of the event and the recipient of the revenue. Your name is recorded as the one who created it."
+    "organiserHint": "Choosing a venue makes the venue the owner of the event and the recipient of the revenue. Your name is recorded as the one who created it.",
+    "ticketTypePoolPlaceholder": "Shared pool",
+    "ticketTypePoolHint": "Give two ticket types the same pool name and they share capacity. Example: both Workshop and Workshop + social get the name Workshop and capacity 20 — together they never sell more than 20.",
+    "ticketTypesPoolHelp": "Should two ticket types share the same seats? Give them the same name in the Shared pool field and the same capacity."
   },
   "trainingBuddies": {
     "title": "Training buddies",
