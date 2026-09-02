@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Receipt } from "lucide-react";
@@ -45,7 +46,17 @@ export default async function SettlementPage(props: { params: Promise<{ id: stri
 
   // Avtalad delning med en samarbetspartner, om evenemanget har en. De allra
   // flesta har ingen, och då ser sidan ut precis som förut.
-  const { data: share } = await supabase
+  // Läses via service-role, INTE användarens klient.
+  //
+  // stripe_charges_enabled och stripe_account_id är kolumn-låsta för
+  // authenticated, och PostgREST fäller HELA frågan när en enda kolumn saknar
+  // grant — inte bara den kolumnen. Med användarklienten blev `share` därför
+  // alltid null, och delningssektionen renderades aldrig för någon. Det syntes
+  // först när ett test skapade ett riktigt delningsavtal.
+  //
+  // Behörigheten är redan avgjord: listing hämtades ovan med
+  // .eq("user_id", user.id), så bara ägaren kommer hit.
+  const { data: share } = await createAdminClient()
     .from("event_revenue_shares")
     .select("partner_percent, vat_rate, partner:profiles!partner_profile_id(full_name, company_name, company_verified_at, stripe_charges_enabled)")
     .eq("listing_id", listing.id)
