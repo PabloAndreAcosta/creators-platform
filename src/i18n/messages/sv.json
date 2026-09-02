@@ -211,13 +211,15 @@
     "q1": "Hur bokar jag en tjänst?",
     "a1": "Gå till Marketplace, hitta en kreatör och klicka på 'Boka'. Välj datum och tid, och skicka din förfrågan.",
     "q2": "Hur uppgraderar jag till Guld eller Premium?",
-    "a2": "Gå till Profil > Betalningsmetoder och välj den plan som passar dig.",
+    "a2": "Gå till Prenumeration och välj den plan som passar dig. Där byter du också roll om du valde fel vid registreringen.",
     "q3": "Hur får jag mina utbetalningar?",
-    "a3": "Koppla ditt Stripe-konto i Dashboard > Inställningar. Utbetalningar sker automatiskt varje vecka, eller direkt via snabbutbetalning.",
+    "a3": "Koppla ditt Stripe-konto under Utbetalningar. Pengarna går sedan dit automatiskt när de blivit tillgängliga.",
     "q4": "Kan jag avboka en bokning?",
     "a4": "Ja, du kan avboka under Mina Bokningar så länge bokningen inte redan är slutförd.",
     "q5": "Vad är Early Bird / Guld-exklusivt?",
-    "a5": "Guld- och Premium-medlemmar får tillgång till vissa event före alla andra. När klockan räknat ned släpps eventet för alla."
+    "a5": "Guld- och Premium-medlemmar får tillgång till vissa event före alla andra. När klockan räknat ned släpps eventet för alla.",
+    "q6": "Var hittar jag en guide?",
+    "a6": "Vi har en kom igång-guide för kreatörer och lokaler på usha.se/guide. Den går att skriva ut eller spara som PDF."
   },
   "feed": {
     "empty": "Inga inlägg att visa just nu",
@@ -3848,5 +3850,84 @@
     "accepted": "Klart. Du är med i teamet.",
     "failed": "Det gick inte. Kanske gäller inbjudan en annan mejladress.",
     "nothing": "Inga behörigheter är valda ännu. Du kommer med i teamet, men ser inget förrän ägaren kryssar i något."
+  },
+  "guide": {
+    "meta": {
+      "title": "Kom igång med Usha Platform",
+      "description": "En guide för kreatörer och lokaler: skapa konto, verifiera dig, publicera och få betalt."
+    },
+    "title": "Kom igång med Usha Platform",
+    "intro": "Den här guiden tar dig från tomt konto till första bokningen. Läs de delar som gäller dig — kreatör, lokal, eller båda.",
+    "print": "Skriv ut eller spara som PDF",
+    "updated": "Uppdaterad {date}",
+    "s1": {
+      "title": "Skapa konto",
+      "p1": "Gå till usha.se och välj Kom igång. Du kan registrera dig med Google, Facebook eller mejladress — det tar några sekunder.",
+      "roleTitle": "Välj rätt roll direkt",
+      "roleBody": "Vid registreringen väljer du roll, och valet styr hela appen: vad du ser, vad du kan skapa och hur du får betalt.",
+      "creator": "Kreatör — du erbjuder tjänster: dans, foto, musik, workshops.",
+      "venue": "Venue — du driver en plats och vill fylla den med arrangemang.",
+      "customer": "Publik — du vill boka och gå på saker.",
+      "roleNote": "Väljer du fel går det att ändra efteråt under Prenumeration → Byt roll. Men det är enklare att välja rätt från början, och det är det vanligaste misstaget vi ser.",
+      "companyTitle": "Privatperson eller företag",
+      "companyBody": "Säljer du något får du också ange om du gör det som privatperson eller via företag. Företag verifierar organisationsnummer och visas med det på kvittot. Det går att ändra senare."
+    },
+    "s2": {
+      "title": "Verifiera dig",
+      "p1": "Alla som säljer något på plattformen legitimerar sig med Mobilt BankID. Det är inte en formalitet — det är hela skälet till att en okänd person vågar boka dig.",
+      "p2": "Du hittar det under Profil. Det tar under en minut och behöver bara göras en gång.",
+      "companyTitle": "Har du företag",
+      "companyBody": "Fyll också i organisationsnumret under Profil och tryck Verifiera bolag. Vi kontrollerar det mot EU:s företagsregister och fyller i firmanamnet automatiskt."
+    },
+    "creators": {
+      "title": "Om du är kreatör",
+      "profileTitle": "Fyll din profil",
+      "profileBody": "Bild, en kort text om vad du gör, och var du håller till. Profilen är det folk ser innan de bokar, så några minuter här är väl använda.",
+      "servicesTitle": "Lägg upp tjänster",
+      "servicesBody": "En tjänst är något någon kan boka: en privatlektion, en fotografering, ett DJ-pass. Sätt pris och längd. På gratisplanen kan du ha tre stycken.",
+      "calendarTitle": "Öppna kalendern",
+      "calendarBody": "Markera när du är tillgänglig, så kan folk boka de tiderna direkt utan att fråga först. Du kan prenumerera på din Usha-kalender från telefonens kalenderapp.",
+      "eventsTitle": "Eller skapa evenemang",
+      "eventsBody": "Ska du hålla en kurs eller kväll skapar du ett evenemang med biljetter i stället. Varje biljett får en QR-kod som du skannar i dörren."
+    },
+    "venues": {
+      "title": "Om du driver en lokal",
+      "pageTitle": "Er sida",
+      "pageBody": "Ni får en egen sida där era arrangemang samlas. Besökare kan följa er och får då veta när något nytt är på gång hos er.",
+      "eventsTitle": "Lägg upp kvällar",
+      "eventsBody": "Skapa evenemang, sätt biljettpriser och sälj direkt. Ni kan ha flera biljettyper på samma kväll — till exempel workshop, socialdans, eller båda.",
+      "requestsTitle": "Godkänn arrangemang hos er",
+      "requestsBody": "När någon annan lägger upp ett arrangemang och anger er som lokal hamnar det under Förfrågningar. Ingenting syns på er sida förrän ni godkänt. Ett godkännande gäller det arrangemanget — arrangören behåller sitt evenemang, ni får synligheten.",
+      "teamTitle": "Ta in kollegor",
+      "teamBody": "Under Teamet bjuder ni in personer och väljer själva vad var och en får göra: skapa evenemang, se bokningar, skanna i dörren, skicka utskick, se statistik eller sköta lokalsidan. Det finns färdiga förval om ni inte vill kryssa själva.",
+      "teamNote": "Ekonomin går aldrig att dela ut. Utbetalningar, Stripe och bolagsuppgifter hör till ägarkontot och kan inte kryssas i åt någon annan. Ska någon annan sköta ekonomin är det ett ägarbyte, inte en behörighet."
+    },
+    "money": {
+      "title": "Pengarna",
+      "stripeTitle": "Koppla utbetalningar",
+      "stripeBody": "Gå till Utbetalningar och tryck Anslut Stripe-konto. Stripe frågar efter dina uppgifter och bankkonto och legitimerar dig. Det är deras krav enligt penningtvättsreglerna, och det enda steget ingen annan kan göra åt dig.",
+      "commissionTitle": "Vad vi tar",
+      "commissionBody": "Vi tar provision på det du säljer: 15 procent på gratisplanen, 8 procent på Guld och 3 procent på Premium. Du ser alltid din andel innan du publicerar.",
+      "betaNote": "Under betaperioden är alla planer gratis.",
+      "payoutTitle": "När pengarna kommer",
+      "payoutBody": "Pengarna går via Stripe till ditt konto. Du kan ta ut dem när de blivit tillgängliga — kortbetalningar frisläpps inte i samma sekund, utan efter Stripes avräkning."
+    },
+    "faq": {
+      "title": "Vanliga frågor",
+      "q1": "Måste jag ha BankID?",
+      "a1": "Ja, om du säljer något. Deltagare som bara köper biljett behöver det inte.",
+      "q2": "Kan gäster köpa utan konto?",
+      "a2": "Ja. De anger mejladress och får en QR-kod att visa i dörren.",
+      "q3": "Jag valde fel roll vid registreringen",
+      "a3": "Gå till Prenumeration och välj Byt roll. Där finns de andra rollernas planer — under betan kostar det ingenting.",
+      "q4": "Kan flera personer sköta samma konto?",
+      "a4": "Lokaler kan bygga ett team och dela ut behörigheter. Kreatörer kan bjuda in medarrangörer och crew per evenemang.",
+      "q5": "Vad händer om jag ställer in?",
+      "a5": "Du kan återbetala biljetterna från evenemanget. Deltagarna får besked automatiskt."
+    },
+    "help": {
+      "title": "Fastnar du?",
+      "body": "Skriv till oss på pablo.acosta@usha.se, så hjälper vi till. Plattformen är ny och er återkoppling formar den."
+    }
   }
 }

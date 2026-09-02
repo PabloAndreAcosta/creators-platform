@@ -211,13 +211,15 @@
     "q1": "How do I book a service?",
     "a1": "Go to Marketplace, find a creator and click 'Book'. Choose a date and time, and send your request.",
     "q2": "How do I upgrade to Gold or Premium?",
-    "a2": "Go to Profile > Payment methods and choose the plan that suits you.",
+    "a2": "Go to Subscription and pick the plan that suits you. That is also where you change role if you picked the wrong one when signing up.",
     "q3": "How do I get my payouts?",
-    "a3": "Connect your Stripe account in Dashboard > Settings. Payouts are processed automatically every week, or instantly via quick payout.",
+    "a3": "Connect your Stripe account under Payouts. The money then goes there automatically once it becomes available.",
     "q4": "Can I cancel a booking?",
     "a4": "Yes, you can cancel under My Bookings as long as the booking is not already completed.",
     "q5": "What is Early Bird / Gold-exclusive?",
-    "a5": "Gold and Premium members get access to certain events before everyone else. When the countdown ends, the event becomes available to all."
+    "a5": "Gold and Premium members get access to certain events before everyone else. When the countdown ends, the event becomes available to all.",
+    "q6": "Where do I find a guide?",
+    "a6": "There is a getting-started guide for creators and venues at usha.se/guide. You can print it or save it as a PDF."
   },
   "feed": {
     "empty": "No posts to show right now",
@@ -3848,5 +3850,84 @@
     "accepted": "Done. You are on the team.",
     "failed": "That did not work. The invitation may be for a different email address.",
     "nothing": "No permissions are selected yet. You will join the team, but see nothing until the owner ticks something."
+  },
+  "guide": {
+    "meta": {
+      "title": "Getting started with Usha Platform",
+      "description": "A guide for creators and venues: create an account, verify yourself, publish and get paid."
+    },
+    "title": "Getting started with Usha Platform",
+    "intro": "This guide takes you from an empty account to your first booking. Read the parts that apply to you — creator, venue, or both.",
+    "print": "Print or save as PDF",
+    "updated": "Updated {date}",
+    "s1": {
+      "title": "Create an account",
+      "p1": "Go to usha.se and choose Get started. You can sign up with Google, Facebook or an email address — it takes seconds.",
+      "roleTitle": "Pick the right role straight away",
+      "roleBody": "You choose a role when you sign up, and that choice drives the whole app: what you see, what you can create and how you get paid.",
+      "creator": "Creator — you offer services: dance, photography, music, workshops.",
+      "venue": "Venue — you run a place and want to fill it with events.",
+      "customer": "Audience — you want to book things and go to them.",
+      "roleNote": "If you pick the wrong one you can change it later under Subscription → Change role. But it is easier to get it right from the start, and this is the most common mistake we see.",
+      "companyTitle": "Individual or company",
+      "companyBody": "If you sell anything you also say whether you do it as an individual or through a company. Companies verify their registration number and appear with it on the receipt. You can change this later."
+    },
+    "s2": {
+      "title": "Verify yourself",
+      "p1": "Everyone who sells on the platform verifies their identity with Swedish Mobile BankID. It is not a formality — it is the whole reason a stranger dares to book you.",
+      "p2": "You will find it under Profile. It takes under a minute and only has to be done once.",
+      "companyTitle": "If you have a company",
+      "companyBody": "Also enter your registration number under Profile and press Verify company. We check it against the EU business register and fill in the legal name automatically."
+    },
+    "creators": {
+      "title": "If you are a creator",
+      "profileTitle": "Fill in your profile",
+      "profileBody": "A picture, a short text about what you do, and where you are based. Your profile is what people see before they book, so a few minutes here are well spent.",
+      "servicesTitle": "Add services",
+      "servicesBody": "A service is something someone can book: a private lesson, a photo session, a DJ set. Set a price and a length. On the free plan you can have three.",
+      "calendarTitle": "Open your calendar",
+      "calendarBody": "Mark when you are available and people can book those times directly without asking first. You can subscribe to your Usha calendar from your phone.",
+      "eventsTitle": "Or create events",
+      "eventsBody": "Running a course or an evening? Create an event with tickets instead. Every ticket gets a QR code you scan at the door."
+    },
+    "venues": {
+      "title": "If you run a venue",
+      "pageTitle": "Your page",
+      "pageBody": "You get your own page where your events are gathered. Visitors can follow you and then hear when something new is coming up at your place.",
+      "eventsTitle": "Post your evenings",
+      "eventsBody": "Create events, set ticket prices and sell directly. You can have several ticket types on the same evening — for example workshop, social dancing, or both.",
+      "requestsTitle": "Approve events at your place",
+      "requestsBody": "When someone else posts an event and names you as the venue it lands under Requests. Nothing shows on your page until you approve it. An approval covers that event — the organiser keeps their event, you get the visibility.",
+      "teamTitle": "Bring in colleagues",
+      "teamBody": "Under The team you invite people and decide what each of them may do: create events, see bookings, scan at the door, send messages, see statistics or manage the venue page. There are ready-made presets if you would rather not tick boxes.",
+      "teamNote": "The finances can never be handed out. Payouts, Stripe and company details belong to the owner account and cannot be ticked for anyone else. If someone else is to handle the finances that is a change of owner, not a permission."
+    },
+    "money": {
+      "title": "The money",
+      "stripeTitle": "Connect payouts",
+      "stripeBody": "Go to Payouts and press Connect Stripe account. Stripe asks for your details and bank account and verifies you. That is their requirement under money-laundering rules, and the one step nobody can do for you.",
+      "commissionTitle": "What we take",
+      "commissionBody": "We take a commission on what you sell: 15 per cent on the free plan, 8 per cent on Gold and 3 per cent on Premium. You always see your share before you publish.",
+      "betaNote": "During the beta all plans are free.",
+      "payoutTitle": "When the money arrives",
+      "payoutBody": "The money goes through Stripe to your account. You can withdraw once it becomes available — card payments are not released the same second, but after Stripe settles them."
+    },
+    "faq": {
+      "title": "Common questions",
+      "q1": "Do I need BankID?",
+      "a1": "Yes, if you sell something. People who only buy a ticket do not.",
+      "q2": "Can guests buy without an account?",
+      "a2": "Yes. They give an email address and get a QR code to show at the door.",
+      "q3": "I picked the wrong role when signing up",
+      "a3": "Go to Subscription and choose Change role. The other roles plans are there — during the beta they cost nothing.",
+      "q4": "Can several people manage the same account?",
+      "a4": "Venues can build a team and hand out permissions. Creators can invite co-organisers and crew per event.",
+      "q5": "What if I have to cancel?",
+      "a5": "You can refund the tickets from the event. Attendees are told automatically."
+    },
+    "help": {
+      "title": "Stuck?",
+      "body": "Write to us at pablo.acosta@usha.se and we will help. The platform is new and your feedback shapes it."
+    }
   }
 }
