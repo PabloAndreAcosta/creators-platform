@@ -1,5 +1,6 @@
 "use client";
 
+import TimeSelect from "@/components/time-select";
 import { useState, useTransition, useEffect } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, User, Clock, Calendar, Check, Plus, Trash2, Loader2 } from "lucide-react";
@@ -488,21 +489,11 @@ function TimeSlotEditor({
       <div className="flex items-end gap-2">
         <div className="flex-1">
           <label className="mb-1 block text-[10px] text-[var(--usha-muted)]">{t("startTime")}</label>
-          <input
-            type="time"
-            value={newStart}
-            onChange={(e) => setNewStart(e.target.value)}
-            className="w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-2 py-1.5 text-xs outline-none"
-          />
+          <TimeSelect compact value={newStart} onChange={setNewStart} />
         </div>
         <div className="flex-1">
           <label className="mb-1 block text-[10px] text-[var(--usha-muted)]">{t("endTime")}</label>
-          <input
-            type="time"
-            value={newEnd}
-            onChange={(e) => setNewEnd(e.target.value)}
-            className="w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-2 py-1.5 text-xs outline-none"
-          />
+          <TimeSelect compact value={newEnd} onChange={setNewEnd} />
         </div>
         <button
           onClick={handleAdd}
