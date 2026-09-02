@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { collabRoleLabel } from "@/lib/collaborators";
+import { applyPoolLimits } from "@/lib/tickets/pools";
 import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -206,9 +207,18 @@ export default async function EventPage(props: Params) {
   // Ticket types (price tiers). Empty → single-price event (unchanged).
   const { data: ticketTypes } = await supabase
     .from("ticket_types")
-    .select("id, name, price, capacity, tickets_sold")
+    .select("id, name, price, capacity, tickets_sold, pool_id, ticket_pools(capacity)")
     .eq("listing_id", listing.id)
     .order("sort_order", { ascending: true });
+
+  // Pottmedlemmar ärver pottens tak och pottens sålda antal, annars ser de
+  // obegränsade ut för köparen och nekas först i kassan.
+  const ticketTypesForSale = applyPoolLimits(
+    (ticketTypes ?? []).map((tt) => {
+      const pool = Array.isArray(tt.ticket_pools) ? tt.ticket_pools[0] : tt.ticket_pools;
+      return { ...tt, pool_capacity: pool?.capacity ?? null };
+    })
+  );
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -413,7 +423,7 @@ export default async function EventPage(props: Params) {
                   price={sale.price}
                   isLoggedIn={!!user}
                   returnPath={returnPath}
-                  ticketTypes={ticketTypes ?? []}
+                  ticketTypes={ticketTypesForSale}
                 />
               ) : (
                 <div className="w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-4 py-2.5 text-center text-sm font-semibold text-[var(--usha-muted)]">

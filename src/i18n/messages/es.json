@@ -1926,7 +1926,10 @@
     "venueProfilePending": "Esperando que el local apruebe el vínculo. Hasta entonces el evento no aparece en su página.",
     "organiser": "¿Quién publica este evento?",
     "organiserSelf": "Yo mismo",
-    "organiserHint": "Si eliges un local, el local será el propietario del evento y recibirá los ingresos. Tu nombre queda registrado como creador."
+    "organiserHint": "Si eliges un local, el local será el propietario del evento y recibirá los ingresos. Tu nombre queda registrado como creador.",
+    "ticketTypePoolPlaceholder": "Grupo compartido",
+    "ticketTypePoolHint": "Da a dos tipos de entrada el mismo nombre de grupo y compartirán aforo. Ejemplo: tanto Taller como Taller + social reciben el nombre Taller y aforo 20 — juntos nunca venden más de 20.",
+    "ticketTypesPoolHelp": "¿Deben dos tipos de entrada compartir las mismas plazas? Dales el mismo nombre en el campo Grupo compartido y el mismo aforo."
   },
   "trainingBuddies": {
     "title": "Compañeros de entrenamiento",
