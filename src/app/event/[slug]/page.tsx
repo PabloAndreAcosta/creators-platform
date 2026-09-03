@@ -30,6 +30,18 @@ function isUUID(str: string) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
 }
 
+/** Raden bakom ett litet evenemangskort längst ned på sidan. */
+interface EventCard {
+  id: string;
+  title: string;
+  slug: string | null;
+  image_url: string | null;
+  event_date: string | null;
+  event_location: string | null;
+  price: number | null;
+  series_slug: string | null;
+}
+
 // Resolve a series slug (e.g. from a Facebook ticket link like /event/the-kiz-lab)
 // to a concrete occurrence. Occurrences don't always carry their own `slug`
 // (recurring instances are often created with slug=null), so fall back to the
@@ -67,7 +79,7 @@ async function getListing(slug: string) {
   const { data: listing } = await supabase
     .from("listings")
     .select(
-      "id, user_id, title, description, category, price, duration_minutes, image_url, image_url_square, event_date, event_time, event_end_time, event_location, slug, is_active, content_language, organizer_name, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold"
+      "id, user_id, title, description, category, price, duration_minutes, image_url, image_url_square, event_date, event_time, event_end_time, event_location, slug, series_slug, is_active, content_language, organizer_name, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold"
     )
     .eq(isUUID(slug) ? "id" : "slug", slug)
     .eq("is_active", true)
@@ -82,17 +94,46 @@ async function getListing(slug: string) {
     .maybeSingle();
 
   const today = new Date().toISOString().slice(0, 10);
-  const { data: more } = await supabase
-    .from("listings")
-    .select("id, title, slug, image_url, event_date, event_location, price")
-    .eq("is_active", true)
-    .eq("is_public", true)
-    .neq("id", listing.id)
-    .or(`event_date.gte.${today},event_date.is.null`)
-    .order("event_date", { ascending: true, nullsFirst: false })
-    .limit(3);
+  const cardColumns = "id, title, slug, image_url, event_date, event_location, price, series_slug";
 
-  return { listing, host, more: more ?? [] };
+  // Seriens övriga kvällar är inte "upptäck mer" — de är samma kväll en annan
+  // vecka. Låg de i samma sektion blev "Fler produktioner" tre kopior av det
+  // besökaren redan tittade på. De hör hemma under en egen rubrik, där de gör
+  // nytta: kan du inte den 7:e finns den 14:e.
+  const seriesSlug = (listing as { series_slug?: string | null }).series_slug ?? null;
+
+  const [{ data: moreDatesRows }, { data: moreRows }] = await Promise.all([
+    seriesSlug
+      ? supabase
+          .from("listings")
+          .select(cardColumns)
+          .eq("is_active", true)
+          .eq("is_public", true)
+          .eq("series_slug", seriesSlug)
+          .neq("id", listing.id)
+          .gte("event_date", today)
+          .order("event_date", { ascending: true })
+          .limit(3)
+      : Promise.resolve({ data: [] as EventCard[] }),
+    // Hämta med marginal och sålla bort serien i JS — ett "inte den här serien"
+    // i frågan måste också släppa igenom rader där series_slug är NULL, och det
+    // blir lättare att läsa fel än att skriva rätt.
+    supabase
+      .from("listings")
+      .select(cardColumns)
+      .eq("is_active", true)
+      .eq("is_public", true)
+      .neq("id", listing.id)
+      .or(`event_date.gte.${today},event_date.is.null`)
+      .order("event_date", { ascending: true, nullsFirst: false })
+      .limit(12),
+  ]);
+
+  const more = ((moreRows ?? []) as EventCard[])
+    .filter((m) => !seriesSlug || m.series_slug !== seriesSlug)
+    .slice(0, 3);
+
+  return { listing, host, more, moreDates: (moreDatesRows ?? []) as EventCard[] };
 }
 
 async function getCrew(listingId: string) {
@@ -200,7 +241,7 @@ export default async function EventPage(props: Params) {
     notFound();
   }
 
-  const { listing, host, more } = data;
+  const { listing, host, more, moreDates } = data;
   const crew = await getCrew(listing.id);
   const supabase = await createClient();
 
@@ -278,6 +319,27 @@ export default async function EventPage(props: Params) {
     sale.state === "sold_out" && saleUntil ? t("releasesAt", { date: saleUntil }) : null;
   const isHost = !!user && user.id === listing.user_id;
   const returnPath = `/event/${slug}`;
+
+  const prepareCards = (items: EventCard[]): PreparedCard[] =>
+    items.map((m) => ({
+      id: m.id,
+      href: m.slug ? `/event/${m.slug}` : `/listing/${m.id}`,
+      title: m.title,
+      image: m.image_url,
+      meta: [
+        m.event_date
+          ? new Date(`${m.event_date}T12:00:00+02:00`).toLocaleDateString(dateLocaleFor(locale), {
+              day: "numeric",
+              month: "short",
+              timeZone: "Europe/Stockholm",
+            })
+          : t("dateComing"),
+        m.event_location,
+      ]
+        .filter(Boolean)
+        .join(" · "),
+      price: m.price ? t("priceLabel", { price: m.price }) : t("free"),
+    }));
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://usha.se";
 
   return (
@@ -293,16 +355,17 @@ export default async function EventPage(props: Params) {
           category: listing.category,
         }}
       />
-      <div className="relative aspect-square w-full overflow-hidden sm:aspect-[2/1]">
-        {/* Mobil: kvadratisk banner. Desktop: bred banner i sitt naturliga 2:1
-            så hela bilden syns (titel + publikens ansikten), ingen beskärning. */}
+      <div className="relative w-full overflow-hidden sm:aspect-[2/1]">
+        {/* Mobil: affischen i sina egna proportioner. En tvingad kvadrat åt upp
+            en fjärdedel av bredden på en 4:3-bild — på The Lab försvann hela
+            tidsschemat i högerkanten. Desktop behåller den breda bannern. */}
         <picture>
           <source media="(max-width: 639px)" srcSet={listing.image_url_square ?? image} />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={image}
             alt={listing.title}
-            className="absolute inset-0 h-full w-full object-cover object-center"
+            className="block h-auto w-full sm:absolute sm:inset-0 sm:h-full sm:object-cover sm:object-center"
           />
         </picture>
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/10 to-black" />
@@ -569,73 +632,106 @@ export default async function EventPage(props: Params) {
 
       </div>
 
-      {more.length > 0 && (
-        <section className="border-t border-[var(--usha-border)] bg-[var(--usha-card)]/30">
-          <div className="mx-auto max-w-5xl px-6 py-12 sm:px-10 sm:py-16">
-            <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <p className="text-xs uppercase tracking-wide text-[var(--usha-muted)]">
-                  {t("discoverMore")}
-                </p>
-                <h2 className="mt-1 text-2xl font-bold sm:text-3xl">
-                  {t("moreProductions")}
-                </h2>
-              </div>
-              <Link
-                href="/marketplace"
-                className="inline-flex items-center gap-1 rounded-full border border-[var(--usha-border)] px-4 py-2 text-xs font-medium text-[var(--usha-white)] transition hover:border-[var(--usha-gold)]/60 hover:text-[var(--usha-gold)]"
-              >
-                {tRoot("common.viewAll")} →
-              </Link>
-            </div>
+      {moreDates.length > 0 && (
+        <EventCardSection
+          eyebrow={t("sameSeries")}
+          heading={t("moreDates")}
+          viewAllHref={listing.series_slug ? `/series/${listing.series_slug}` : "/marketplace"}
+          viewAllLabel={tRoot("common.viewAll")}
+          cards={prepareCards(moreDates)}
+          fallbackLabel={t("production")}
+        />
+      )}
 
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {more.map((m) => (
-                <Link
-                  key={m.id}
-                  href={m.slug ? `/event/${m.slug}` : `/listing/${m.id}`}
-                  className="group overflow-hidden rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] transition hover:border-[var(--usha-gold)]/40"
-                >
-                  <div className="relative aspect-[1.91/1] bg-black">
-                    {m.image_url ? (
-                      <Image
-                        src={m.image_url}
-                        alt={m.title}
-                        fill
-                        sizes="(max-width: 640px) 100vw, 33vw"
-                        className="object-cover transition group-hover:scale-[1.02]"
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center text-xs text-[var(--usha-muted)]">
-                        {t("production")}
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <h3 className="line-clamp-1 text-sm font-semibold">{m.title}</h3>
-                    <div className="mt-2 flex items-center justify-between text-[11px] text-[var(--usha-muted)]">
-                      <span className="line-clamp-1">
-                        {m.event_date
-                          ? new Date(`${m.event_date}T12:00:00+02:00`).toLocaleDateString(dateLocaleFor(locale), {
-                              day: "numeric",
-                              month: "short",
-                              timeZone: "Europe/Stockholm",
-                            })
-                          : t("dateComing")}
-                        {m.event_location ? ` · ${m.event_location}` : ""}
-                      </span>
-                      <span className="font-semibold text-[var(--usha-gold)]">
-                        {m.price ? t("priceLabel", { price: m.price }) : t("free")}
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
+      {more.length > 0 && (
+        <EventCardSection
+          eyebrow={t("discoverMore")}
+          heading={t("moreProductions")}
+          viewAllHref="/marketplace"
+          viewAllLabel={tRoot("common.viewAll")}
+          cards={prepareCards(more)}
+          fallbackLabel={t("production")}
+        />
       )}
     </main>
     </NextIntlClientProvider>
+  );
+}
+
+/** Ett kort så som det visas: alla texter redan färdiga. */
+interface PreparedCard {
+  id: string;
+  href: string;
+  title: string;
+  image: string | null;
+  meta: string;
+  price: string;
+}
+
+function EventCardSection({
+  eyebrow,
+  heading,
+  viewAllHref,
+  viewAllLabel,
+  cards,
+  fallbackLabel,
+}: {
+  eyebrow: string;
+  heading: string;
+  viewAllHref: string;
+  viewAllLabel: string;
+  cards: PreparedCard[];
+  fallbackLabel: string;
+}) {
+  return (
+    <section className="border-t border-[var(--usha-border)] bg-[var(--usha-card)]/30">
+      <div className="mx-auto max-w-5xl px-6 py-12 sm:px-10 sm:py-16">
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="text-xs uppercase tracking-wide text-[var(--usha-muted)]">{eyebrow}</p>
+            <h2 className="mt-1 text-2xl font-bold sm:text-3xl">{heading}</h2>
+          </div>
+          <Link
+            href={viewAllHref}
+            className="inline-flex items-center gap-1 rounded-full border border-[var(--usha-border)] px-4 py-2 text-xs font-medium text-[var(--usha-white)] transition hover:border-[var(--usha-gold)]/60 hover:text-[var(--usha-gold)]"
+          >
+            {viewAllLabel} →
+          </Link>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {cards.map((c) => (
+            <Link
+              key={c.id}
+              href={c.href}
+              className="group overflow-hidden rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] transition hover:border-[var(--usha-gold)]/40"
+            >
+              <div className="relative aspect-[1.91/1] bg-black">
+                {c.image ? (
+                  <Image
+                    src={c.image}
+                    alt={c.title}
+                    fill
+                    sizes="(max-width: 640px) 100vw, 33vw"
+                    className="object-cover transition group-hover:scale-[1.02]"
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center text-xs text-[var(--usha-muted)]">
+                    {fallbackLabel}
+                  </div>
+                )}
+              </div>
+              <div className="p-4">
+                <h3 className="line-clamp-1 text-sm font-semibold">{c.title}</h3>
+                <div className="mt-2 flex items-center justify-between text-[11px] text-[var(--usha-muted)]">
+                  <span className="line-clamp-1">{c.meta}</span>
+                  <span className="font-semibold text-[var(--usha-gold)]">{c.price}</span>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
