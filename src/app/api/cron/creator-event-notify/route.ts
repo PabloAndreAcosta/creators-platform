@@ -64,24 +64,9 @@ export async function GET(req: NextRequest) {
       .select("follower_id")
       .eq("followed_id", listing.user_id);
 
-    // Lokalens följare får också veta — men bara om lokalen bekräftat
-    // kopplingen. Utan den spärren kan vem som helst tagga en populär lokal och
-    // skicka post i dess namn.
-    const venueId = listing.venue_confirmed_at ? listing.venue_profile_id : null;
-    let venueFollowers: string[] = [];
-    if (venueId) {
-      const { data: vf } = await admin
-        .from("follows")
-        .select("follower_id")
-        .eq("followed_id", venueId);
-      venueFollowers = (vf ?? []).map((f) => f.follower_id);
-    }
-
     const audience = buildNotifyAudience({
       creatorFollowers: (followers ?? []).map((f) => f.follower_id),
-      venueFollowers,
       creatorId: listing.user_id,
-      venueId,
     });
 
     for (const followerId of audience) {
@@ -113,5 +98,91 @@ export async function GET(req: NextRequest) {
     // (Already marked notified up front — the claim above prevents re-scan.)
   }
 
-  return NextResponse.json({ listings: listings.length, notified });
+  // ---- Andra omgången: lokalens följare ------------------------------------
+  //
+  // Egen omgång med egen stämpel, eftersom lokalens godkännande nästan alltid
+  // kommer EFTER att arrangörens följare redan fått besked. Slogs de ihop blev
+  // evenemanget stämplat vid första körningen och lokalens följare fick aldrig
+  // veta något — vilket var hela poängen med kopplingen.
+  const { data: venueListings } = await admin
+    .from("listings")
+    .select("id, user_id, title, event_date, event_location, venue_profile_id")
+    .eq("listing_type", "event")
+    .eq("is_active", true)
+    .not("venue_profile_id", "is", null)
+    .not("venue_confirmed_at", "is", null)
+    .is("venue_followers_notified_at", null);
+
+  let venueNotified = 0;
+
+  for (const listing of venueListings ?? []) {
+    // Claima före utskick, som ovan: en timeout eller överlappande körning ska
+    // inte kunna mejla samma följarlista två gånger.
+    const { data: claimed } = await admin
+      .from("listings")
+      .update({ venue_followers_notified_at: new Date().toISOString() })
+      .eq("id", listing.id)
+      .is("venue_followers_notified_at", null)
+      .select("id")
+      .maybeSingle();
+    if (!claimed) continue;
+
+    const [{ data: venue }, { data: creator }, { data: vf }] = await Promise.all([
+      admin.from("profiles").select("full_name, company_name").eq("id", listing.venue_profile_id).maybeSingle(),
+      admin.from("profiles").select("full_name").eq("id", listing.user_id).maybeSingle(),
+      admin.from("follows").select("follower_id").eq("followed_id", listing.venue_profile_id),
+    ]);
+
+    // Arrangörens egna följare fick redan besked i första omgången. Den som
+    // följer båda ska inte få två mejl om samma kväll.
+    const { data: cf } = await admin
+      .from("follows")
+      .select("follower_id")
+      .eq("followed_id", listing.user_id);
+    const redanNotifierade = new Set((cf ?? []).map((f) => f.follower_id));
+
+    const audience = buildNotifyAudience({
+      creatorFollowers: [],
+      venueFollowers: (vf ?? []).map((f) => f.follower_id).filter((id) => !redanNotifierade.has(id)),
+      creatorId: listing.user_id,
+      venueId: listing.venue_profile_id,
+    });
+
+    const venueName = (venue?.company_name || venue?.full_name || "").trim();
+
+    for (const followerId of audience) {
+      if (!(await shouldSendEmail(followerId, "notif_creator_events"))) continue;
+      const { data: fp } = await admin
+        .from("profiles")
+        .select("email, full_name")
+        .eq("id", followerId)
+        .single();
+      if (!fp?.email) continue;
+
+      try {
+        await sendCreatorEventEmail({
+          to: fp.email,
+          followerName: fp.full_name || "där",
+          // Mejlet kommer för att man följer LOKALEN, så det är lokalens namn
+          // mottagaren känner igen. Arrangören står i texten via titeln.
+          creatorName: venueName || creator?.full_name || "En lokal",
+          eventTitle: listing.title || "Nytt event",
+          eventDate: listing.event_date ? new Date(listing.event_date) : undefined,
+          location: listing.event_location || undefined,
+          eventUrl: `${appUrl}/listing/${listing.id}`,
+          followerId,
+        });
+        venueNotified++;
+      } catch (err) {
+        console.error(`Venue event notify failed for follower ${followerId}:`, err);
+      }
+    }
+  }
+
+  return NextResponse.json({
+    listings: listings.length,
+    notified,
+    venueListings: venueListings?.length ?? 0,
+    venueNotified,
+  });
 }

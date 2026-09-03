@@ -64,3 +64,32 @@ describe("buildNotifyAudience", () => {
     expect(buildNotifyAudience({ creatorFollowers: ["", "a"], creatorId: "x" })).toEqual(["a"]);
   });
 });
+
+describe("lokalens omgång skickar inte dubbelt", () => {
+  it("hoppar över den som redan fått mejl som arrangörens följare", () => {
+    // Notisen sker i två omgångar vid olika tillfällen. Den som följer båda
+    // fick sitt mejl i första omgången och ska inte få ett till när lokalen
+    // godkänner dagen efter.
+    const arrangorensFoljare = new Set(["a", "b"]);
+    const lokalensFoljare = ["b", "c"];
+    const kvar = lokalensFoljare.filter((id) => !arrangorensFoljare.has(id));
+
+    const a = buildNotifyAudience({
+      creatorFollowers: [],
+      venueFollowers: kvar,
+      creatorId: "pablo",
+      venueId: "bacchi",
+    });
+    expect(a).toEqual(["c"]);
+  });
+
+  it("mejlar inte lokalen om dess eget godkännande", () => {
+    const a = buildNotifyAudience({
+      creatorFollowers: [],
+      venueFollowers: ["bacchi", "c"],
+      creatorId: "pablo",
+      venueId: "bacchi",
+    });
+    expect(a).toEqual(["c"]);
+  });
+});
