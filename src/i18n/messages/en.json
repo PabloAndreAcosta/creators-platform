@@ -2305,7 +2305,18 @@
     "payoutPaid": "Paid out {date}",
     "payoutPending": "Payout started",
     "payoutFailed": "The payout did not go through: {error}",
-    "payoutDryRun": "Dry run — {amount} would have been transferred if payouts were enabled"
+    "payoutDryRun": "Dry run — {amount} would have been transferred if payouts were enabled",
+    "shareFormHeading": "Split with the venue",
+    "shareFormIntro": "How much of the evening’s ticket revenue goes to {venue}. The split is calculated on revenue after refunds, with VAT taken out, and before the Usha fee.",
+    "shareFormNoVenue": "Link the event to a venue first — the venue is who receives the share.",
+    "shareFormPercent": "Venue’s share (%)",
+    "shareFormVat": "VAT (%)",
+    "shareFormDelay": "Payout after (days)",
+    "shareFormDelayHint": "The money transfers automatically that many days after the evening, or as soon as it becomes available at Stripe.",
+    "shareFormSave": "Save agreement",
+    "shareFormSaved": "Saved",
+    "shareFormRemove": "Remove",
+    "shareFormLocked": "This evening has already sold tickets. The terms cannot be changed afterwards — it would change what is owed on purchases already made."
   },
   "scanPage": {
     "title": "Scan tickets",
