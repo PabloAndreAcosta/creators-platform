@@ -2305,7 +2305,18 @@
     "payoutPaid": "Utbetald {date}",
     "payoutPending": "Utbetalning påbörjad",
     "payoutFailed": "Utbetalningen gick inte igenom: {error}",
-    "payoutDryRun": "Torrkörning — {amount} hade förts över om utbetalningar varit påslagna"
+    "payoutDryRun": "Torrkörning — {amount} hade förts över om utbetalningar varit påslagna",
+    "shareFormHeading": "Delning med lokalen",
+    "shareFormIntro": "Så mycket av kvällens biljettintäkt går till {venue}. Delningen räknas på intäkten efter återbetalningar, med momsen borträknad, och före Usha-avgiften.",
+    "shareFormNoVenue": "Koppla evenemanget till en lokal först — det är lokalen som får andelen.",
+    "shareFormPercent": "Lokalens andel (%)",
+    "shareFormVat": "Moms (%)",
+    "shareFormDelay": "Utbetalning efter (dagar)",
+    "shareFormDelayHint": "Pengarna förs över automatiskt så många dagar efter kvällen, eller så snart de blivit tillgängliga hos Stripe.",
+    "shareFormSave": "Spara avtalet",
+    "shareFormSaved": "Sparat",
+    "shareFormRemove": "Ta bort",
+    "shareFormLocked": "Kvällen har redan sålt biljetter. Villkoren går inte att ändra i efterhand — det skulle ändra vad som är skyldigt på köp som redan skett."
   },
   "scanPage": {
     "title": "Skanna biljetter",

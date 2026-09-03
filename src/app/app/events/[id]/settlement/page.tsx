@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import ShareForm from "./share-form";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Receipt } from "lucide-react";
@@ -22,7 +23,7 @@ export default async function SettlementPage(props: { params: Promise<{ id: stri
 
   const { data: listing } = await supabase
     .from("listings")
-    .select("id, title, user_id")
+    .select("id, title, user_id, venue_profile_id")
     .eq("id", params.id)
     .eq("user_id", user.id)
     .single();
@@ -58,7 +59,7 @@ export default async function SettlementPage(props: { params: Promise<{ id: stri
   // .eq("user_id", user.id), så bara ägaren kommer hit.
   const { data: share } = await createAdminClient()
     .from("event_revenue_shares")
-    .select("partner_percent, vat_rate, partner:profiles!partner_profile_id(full_name, company_name, company_verified_at, stripe_charges_enabled)")
+    .select("partner_percent, vat_rate, payout_delay_days, partner:profiles!partner_profile_id(full_name, company_name, company_verified_at, stripe_charges_enabled)")
     .eq("listing_id", listing.id)
     .maybeSingle();
 
@@ -94,6 +95,20 @@ export default async function SettlementPage(props: { params: Promise<{ id: stri
         .eq("listing_id", listing.id)
         .maybeSingle()
     : { data: null };
+
+  // Lokalens namn behövs även när inget avtal finns ännu, för att kunna säga
+  // VEM andelen skulle gå till i formuläret.
+  const { data: kopplad } = listing.venue_profile_id
+    ? await createAdminClient()
+        .from("profiles")
+        .select("full_name, company_name")
+        .eq("id", listing.venue_profile_id)
+        .maybeSingle()
+    : { data: null };
+  const kopplatLokalnamn = (kopplad?.company_name || kopplad?.full_name || "").trim() || null;
+
+  // Sålda biljetter låser villkoren.
+  const harForsaljning = grossOre > 0;
 
   const partnerName = partner?.company_name || partner?.full_name || "Partner";
   // Utbetalning kräver både verifierat bolag och ett Stripe-konto som kan ta
@@ -228,6 +243,33 @@ export default async function SettlementPage(props: { params: Promise<{ id: stri
             <p className="mt-4 text-xs leading-relaxed text-[var(--usha-muted)]">{t("shareFooter")}</p>
           </section>
         )}
+        <ShareForm
+          listingId={listing.id}
+          venueName={kopplatLokalnamn}
+          hasSales={harForsaljning}
+          existing={
+            share
+              ? {
+                  partnerPercent: share.partner_percent,
+                  vatRate: Number(share.vat_rate),
+                  payoutDelayDays: share.payout_delay_days ?? 1,
+                }
+              : null
+          }
+          labels={{
+            heading: t("shareFormHeading"),
+            intro: t("shareFormIntro", { venue: "{venue}" }),
+            noVenue: t("shareFormNoVenue"),
+            percent: t("shareFormPercent"),
+            vat: t("shareFormVat"),
+            delay: t("shareFormDelay"),
+            delayHint: t("shareFormDelayHint"),
+            save: t("shareFormSave"),
+            saved: t("shareFormSaved"),
+            remove: t("shareFormRemove"),
+            locked: t("shareFormLocked"),
+          }}
+        />
       </div>
     </main>
   );

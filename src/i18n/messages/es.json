@@ -2305,7 +2305,18 @@
     "payoutPaid": "Pagado el {date}",
     "payoutPending": "Pago iniciado",
     "payoutFailed": "El pago no se completó: {error}",
-    "payoutDryRun": "Simulación — se habrían transferido {amount} si los pagos estuvieran activados"
+    "payoutDryRun": "Simulación — se habrían transferido {amount} si los pagos estuvieran activados",
+    "shareFormHeading": "Reparto con el local",
+    "shareFormIntro": "Cuánto de los ingresos por entradas de la noche va a {venue}. El reparto se calcula sobre los ingresos tras reembolsos, con el IVA descontado, y antes de la comisión de Usha.",
+    "shareFormNoVenue": "Vincula primero el evento a un local — es el local quien recibe la parte.",
+    "shareFormPercent": "Parte del local (%)",
+    "shareFormVat": "IVA (%)",
+    "shareFormDelay": "Pago tras (días)",
+    "shareFormDelayHint": "El dinero se transfiere automáticamente ese número de días después de la noche, o en cuanto esté disponible en Stripe.",
+    "shareFormSave": "Guardar acuerdo",
+    "shareFormSaved": "Guardado",
+    "shareFormRemove": "Quitar",
+    "shareFormLocked": "Esta noche ya ha vendido entradas. Las condiciones no se pueden cambiar después — cambiaría lo que se debe por compras ya realizadas."
   },
   "scanPage": {
     "title": "Escanear entradas",
