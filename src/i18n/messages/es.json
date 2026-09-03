@@ -79,6 +79,15 @@
       "action": "Ver"
     }
   },
+  "reachOut": {
+    "heading": "Date a conocer",
+    "intro": "Pon el código QR en un folleto, un cartel o el escaparate. Lleva a tu página en Usha.",
+    "download": "Descargar QR",
+    "copy": "Copiar la dirección",
+    "qrAlt": "Código QR a tu página",
+    "chooseAddress": "Elige una dirección más corta — usha.se/tunombre",
+    "brandIt": "Tu logo y tus colores en la página"
+  },
   "roles": {
     "customer": "Público",
     "creator": "Creador",

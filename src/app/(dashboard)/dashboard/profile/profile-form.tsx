@@ -301,8 +301,9 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
 
       {/* === Creator-only sections === */}
 
-      {/* Slug (vanity URL) - Guld & Premium */}
-      {!isCustomer && <div>
+      {/* Slug (vanity URL) - Guld & Premium.
+          id:et är ankaret som "Nå ut"-panelen på startsidan länkar till. */}
+      {!isCustomer && <div id="slug-section" style={{ scrollMarginTop: "5rem" }}>
         <label htmlFor="slug" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
           {t("slugLabel")}
           {!isPaidTier && (
@@ -603,8 +604,8 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
         </div>
       </div>}
 
-      {/* White label - Premium only */}
-      {!isCustomer && <div className={`space-y-4 rounded-xl border p-5 ${isPremium ? "border-[var(--usha-premium)]/20 bg-[var(--usha-premium)]/5" : "border-[var(--usha-border)] opacity-60"}`}>
+      {/* White label - Premium only. Ankare, se kommentaren vid slug. */}
+      {!isCustomer && <div id="whitelabel" style={{ scrollMarginTop: "5rem" }} className={`space-y-4 rounded-xl border p-5 ${isPremium ? "border-[var(--usha-premium)]/20 bg-[var(--usha-premium)]/5" : "border-[var(--usha-border)] opacity-60"}`}>
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-sm font-semibold flex items-center gap-2">
