@@ -161,3 +161,26 @@ export async function venuesUserCanCreateFor(userId: string): Promise<CreatableV
   }
   return out.sort((a, b) => a.name.localeCompare(b.name, "sv"));
 }
+
+/**
+ * Lokalerna där personen håller en viss behörighet.
+ *
+ * Används av ytor som hör till LOKALEN och inte till ett enskilt evenemang —
+ * kopplingsförfrågningar, till exempel. En medlem med `page` ska kunna svara på
+ * dem åt sin lokal, och behöver då veta vilka lokaler det gäller.
+ */
+export async function venuesUserHasCapability(
+  userId: string,
+  capability: VenueCapability
+): Promise<string[]> {
+  const { data } = await createAdminClient()
+    .from("venue_members")
+    .select("venue_profile_id, capabilities")
+    .eq("user_id", userId)
+    .not("accepted_at", "is", null)
+    .is("removed_at", null);
+
+  return (data ?? [])
+    .filter((r: { capabilities: unknown }) => sanitizeCapabilities(r.capabilities).includes(capability))
+    .map((r: { venue_profile_id: string }) => r.venue_profile_id);
+}
