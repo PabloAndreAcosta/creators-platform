@@ -1,9 +1,14 @@
-name: Hourly cron jobs
+name: Hourly cron jobs (reserv)
 
-# Hourly external triggers for jobs that need sub-daily frequency.
-# Vercel Hobby caps crons at once/day, so this scheduler hits the endpoints
-# instead. Endpoints are idempotent (dedup columns), so an occasional
-# double-fire is harmless. GitHub cron is best-effort (may drift a few minutes).
+# RESERV. Den skarpa klockan är numera Cloudflare-workern usha-cron
+# (workers/cron/), för att GitHubs schemaläggning är "best effort" på riktigt:
+# uppmätt över en vecka gick den här listan i median var 4,5:e timme, med ett
+# värsta glapp på 12,6. Påminnelsen "börjar snart" letar inom två timmar och
+# missade därför 52 av 57 bokningar.
+#
+# Vercel Hobby tillåter bara en körning per dygn, så det här schemat får ligga
+# kvar som andra ben. Endpointerna är idempotenta (varsin dedup-kolumn), så att
+# båda pingar samma jobb skickar inte dubbla mejl.
 on:
   schedule:
     - cron: "0 * * * *" # every hour, UTC
