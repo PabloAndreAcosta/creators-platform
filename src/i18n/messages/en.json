@@ -372,6 +372,7 @@
     "newService": "New service",
     "statistics": "Statistics",
     "yourServices": "Your services",
+    "preview": "Preview",
     "noServicesYet": "No services yet",
     "activeBookings": "{count} active bookings",
     "scanTicket": "Scan ticket",
@@ -2672,7 +2673,14 @@
     "fbErrorDenied": "You denied access to Facebook.",
     "fbErrorToken": "Couldn't fetch the Facebook token. Please try again.",
     "fbErrorPages": "Couldn't fetch your Facebook pages.",
-    "fbErrorNoPages": "No Facebook pages found. You need to manage a page to sync events."
+    "fbErrorNoPages": "No Facebook pages found. You need to manage a page to sync events.",
+    "statNext": "Next",
+    "statUpcoming": "Upcoming",
+    "preview": "Preview",
+    "seriesCount": "{count, plural, one {# date} other {# dates}}",
+    "showOccurrences": "Show {count} more",
+    "hideOccurrences": "Hide",
+    "badgePast": "Past"
   },
   "calendarPage": {
     "dayMon": "Mon",

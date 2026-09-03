@@ -372,6 +372,7 @@
     "newService": "Nuevo servicio",
     "statistics": "Estadísticas",
     "yourServices": "Tus servicios",
+    "preview": "Vista previa",
     "noServicesYet": "Aún no hay servicios",
     "activeBookings": "{count} reservas activas",
     "scanTicket": "Escanear entrada",
@@ -2672,7 +2673,14 @@
     "fbErrorDenied": "Denegaste el acceso a Facebook.",
     "fbErrorToken": "No se pudo obtener el token de Facebook. Inténtalo de nuevo.",
     "fbErrorPages": "No se pudieron obtener tus páginas de Facebook.",
-    "fbErrorNoPages": "No se encontraron páginas de Facebook. Necesitas administrar una página para sincronizar eventos."
+    "fbErrorNoPages": "No se encontraron páginas de Facebook. Necesitas administrar una página para sincronizar eventos.",
+    "statNext": "Próximo",
+    "statUpcoming": "Próximos",
+    "preview": "Vista previa",
+    "seriesCount": "{count, plural, one {# fecha} other {# fechas}}",
+    "showOccurrences": "Ver {count} más",
+    "hideOccurrences": "Ocultar",
+    "badgePast": "Pasado"
   },
   "calendarPage": {
     "dayMon": "Lun",

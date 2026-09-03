@@ -4,11 +4,12 @@ import { HomeContent } from "./home-content";
 import { getFeedPosts } from "./feed/queries";
 import { pendingTodos, type TodoItem } from "@/lib/todo/pending";
 import { sortEventsForOwner, todayInStockholm } from "@/lib/events/sort";
+import type { OwnListing } from "./own-listing-row";
 import { venuesUserHasCapability } from "@/lib/venues/members";
 
 /** Kolumnerna startsidan behöver av en egen listing. */
 const OWN_LISTING_COLUMNS =
-  "id, user_id, title, category, price, duration_minutes, is_active, created_at, event_date, event_time";
+  "id, user_id, title, category, price, duration_minutes, is_active, created_at, event_date, event_time, image_url, slug";
 
 interface Profile {
   id: string;
@@ -47,7 +48,7 @@ type TopCreator = Pick<Profile, "id" | "full_name" | "category" | "avatar_url">;
 export default async function AppHomePage() {
   let profile: Profile | null = null;
   let listings: Listing[] = [];
-  let ownServices: Listing[] = [];
+  let ownServices: OwnListing[] = [];
   let ownServicesCount = 0;
   let topCreators: TopCreator[] = [];
   let bookingsCount = 0;
@@ -114,10 +115,10 @@ export default async function AppHomePage() {
       listings = (listingsRes.data || []) as Listing[];
       // Kommande först i datumordning, sedan passerade och odaterade. Samma
       // ordning som arrangörens egen evenemangslista använder.
-      ownServices = sortEventsForOwner(
-        [...((kommandeRes.data || []) as Listing[]), ...((ovrigaRes.data || []) as Listing[])],
-        today
-      );
+      ownServices = sortEventsForOwner([
+        ...((kommandeRes.data || []) as OwnListing[]),
+        ...((ovrigaRes.data || []) as OwnListing[]),
+      ], today);
       ownServicesCount = ownCountRes.count ?? ownServices.length;
       bookingsCount = bookingsRes.count ?? 0;
 

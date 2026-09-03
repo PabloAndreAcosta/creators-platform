@@ -372,6 +372,7 @@
     "newService": "Ny tjänst",
     "statistics": "Statistik",
     "yourServices": "Dina tjänster",
+    "preview": "Förhandsgranska",
     "noServicesYet": "Inga tjänster ännu",
     "activeBookings": "{count} aktiva bokningar",
     "scanTicket": "Skanna biljett",
@@ -2672,7 +2673,14 @@
     "fbErrorDenied": "Du nekade åtkomst till Facebook.",
     "fbErrorToken": "Kunde inte hämta Facebook-token. Försök igen.",
     "fbErrorPages": "Kunde inte hämta dina Facebook-sidor.",
-    "fbErrorNoPages": "Inga Facebook-sidor hittades. Du behöver administrera en sida för att kunna synka event."
+    "fbErrorNoPages": "Inga Facebook-sidor hittades. Du behöver administrera en sida för att kunna synka event.",
+    "statNext": "Nästa",
+    "statUpcoming": "Kommande",
+    "preview": "Förhandsgranska",
+    "seriesCount": "{count, plural, one {# tillfälle} other {# tillfällen}}",
+    "showOccurrences": "Visa {count, plural, one {# till} other {# till}}",
+    "hideOccurrences": "Dölj",
+    "badgePast": "Passerat"
   },
   "calendarPage": {
     "dayMon": "Mån",
