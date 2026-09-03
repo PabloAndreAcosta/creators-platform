@@ -88,8 +88,12 @@ export const APP_DESTINATIONS: AppDestination[] = [
     group: "createSell", roles: ["creator", "venue"], surfaces: ["more"] },
   // Bara lokaler: arrangörer som vill koppla sitt evenemang hit. Utan en yta att
   // svara på blir kopplingen aldrig bekräftad, och då når den ingen.
-  { path: "/app/venue-requests", labelKey: "venueRequestsLabel", descKey: "venueRequestsDesc", icon: Building2,
-    group: "createSell", roles: ["venue"], surfaces: ["more"] },
+  // Ligger även i sidomenyn: det här är lokalens inkorg, inte ett verktyg. Låg
+  // den bara i Mer-griden fanns den inte alls på desktop utom via "Verktyg", och
+  // Bacchis första lokalvärd letade förgäves efter den i menyn.
+  { path: "/app/venue-requests", labelKey: "venueRequestsLabel", descKey: "venueRequestsDesc",
+    navLabelKey: "venueRequests", icon: Building2,
+    group: "createSell", roles: ["venue"], surfaces: ["more", "sidebar"] },
   // Bara lokaler: teamet. Ägaren delar ut behörigheter härifrån.
   { path: "/app/venue-team", labelKey: "venueTeamLabel", descKey: "venueTeamDesc", icon: Users,
     group: "createSell", roles: ["venue"], surfaces: ["more"] },
