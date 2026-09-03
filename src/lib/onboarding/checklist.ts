@@ -18,6 +18,14 @@ export interface OnboardingContext {
   companyVerifiedAt?: string | null;
   termsUrl?: string | null;
   servicesCount?: number;
+  /**
+   * Bekräftade evenemang som ANDRA arrangerar hos lokalen.
+   *
+   * En lokal som upplåter sina lokaler skapar aldrig egna evenemang, och skulle
+   * annars få "skapa ditt första evenemang" liggande kvar för alltid. En
+   * checklista som aldrig kan bli klar är en checklista man slutar läsa.
+   */
+  hostedEventsCount?: number;
   stripeAccountId?: string | null;
   stripeCardPaymentsEnabled?: boolean;
   isPublic?: boolean;
@@ -134,11 +142,13 @@ export function buildOnboardingSteps(ctx: OnboardingContext): OnboardingStep[] {
     });
   }
 
-  // First listing/event
+  // First listing/event. För en lokal räknas även bekräftade arrangemang som
+  // andra håller där — att fylla huset är målet, inte att själv stå som
+  // arrangör.
   steps.push({
     key: "listing",
     labelKey: isVenue ? "createFirstEvent" : "createFirstService",
-    done: services > 0,
+    done: services > 0 || (isVenue && (ctx.hostedEventsCount ?? 0) > 0),
     href: isVenue ? "/app/events/new" : "/dashboard/listings/new",
     required: true,
   });

@@ -127,3 +127,28 @@ describe("stripe-steget leder dit uppgiften hör hemma", () => {
     });
   }
 });
+
+describe("lokal som bara upplåter sina lokaler", () => {
+  it("räknar bekräftade arrangemang hos dem som avklarat steg", () => {
+    // Bacchi arrangerar inte själva — de upplåter källaren. Utan det här ligger
+    // "skapa ditt första evenemang" kvar för alltid, och en checklista som
+    // aldrig kan bli klar är en checklista man slutar läsa.
+    const steg = buildOnboardingSteps({
+      role: "venue", servicesCount: 0, hostedEventsCount: 8,
+    });
+    expect(steg.find((s) => s.key === "listing")?.done).toBe(true);
+  });
+
+  it("är fortfarande ogjort utan några arrangemang alls", () => {
+    const steg = buildOnboardingSteps({ role: "venue", servicesCount: 0, hostedEventsCount: 0 });
+    expect(steg.find((s) => s.key === "listing")?.done).toBe(false);
+  });
+
+  it("gäller inte kreatörer — de ska lägga upp egna tjänster", () => {
+    // En kreatör kan inte bocka av sitt eget utbud genom att uppträda hos andra.
+    const steg = buildOnboardingSteps({
+      role: "creator", servicesCount: 0, hostedEventsCount: 8,
+    });
+    expect(steg.find((s) => s.key === "listing")?.done).toBe(false);
+  });
+});
