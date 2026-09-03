@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { attendeeKey, attendeeName, bookingEmail, attachProfiles, type BookingLike } from "@/lib/attendees";
-import { canManageListing } from "@/lib/listings/manage-access";
+import { canAccessListingArea } from "@/lib/venues/listing-access";
 import { stockholmLocalToUtcISO } from "@/lib/time";
 
 // Per-event attendee statistics: how many booked/came, who, and which of them
@@ -27,7 +27,9 @@ export async function GET(
     .eq("id", eventId)
     .single();
   // Owner or accepted co-organizer may view stats.
-  if (!listing || (listing.user_id !== user.id && !(await canManageListing(admin, user.id, eventId)))) {
+  // `stats` är en egen behörighet i lokalteamet. Den som bara fått "Evenemang"
+  // ska inte få statistik på köpet — då vore kryssrutorna lögn.
+  if (!listing || (listing.user_id !== user.id && !(await canAccessListingArea(admin, user.id, eventId, "stats")))) {
     return NextResponse.json({ error: "Event not found" }, { status: 404 });
   }
 

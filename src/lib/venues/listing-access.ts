@@ -39,3 +39,36 @@ export async function hasVenueCapabilityForListing(
   if (!member || !member.accepted_at || member.removed_at) return false;
   return sanitizeCapabilities(member.capabilities).includes(capability);
 }
+
+/**
+ * Får `userId` komma åt en viss YTA på evenemanget?
+ *
+ * Skilt från canManageListing med flit. Den frågan betyder "får administrera",
+ * och används av redigering och publicering. Statistik och utskick är egna
+ * behörigheter i lokalteamet, och om de bara gick via canManageListing skulle
+ * kryssrutorna vara lögn: den som fick `events` hade fått statistik och utskick
+ * på köpet, och den som bara fick `stats` hade inte fått något alls.
+ *
+ * Medarrangören per evenemang (listing_collaborators.can_manage) släpps ändå
+ * igenom. Den rollen är grovkornig och fanns före behörigheterna — att plötsligt
+ * ta bort statistik från befintliga medarrangörer vore en tyst försämring för
+ * dem som redan använder funktionen.
+ */
+export async function canAccessListingArea(
+  admin: SupabaseClient,
+  userId: string,
+  listingId: string,
+  area: Extract<VenueCapability, "stats" | "messages">
+): Promise<boolean> {
+  const { data: collab } = await admin
+    .from("listing_collaborators")
+    .select("id")
+    .eq("listing_id", listingId)
+    .eq("user_id", userId)
+    .eq("status", "accepted")
+    .eq("can_manage", true)
+    .maybeSingle();
+  if (collab) return true;
+
+  return hasVenueCapabilityForListing(admin, userId, listingId, area);
+}

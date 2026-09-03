@@ -244,22 +244,38 @@ function roleMatches(dest: AppDestination, role: NavRole): boolean {
 }
 
 /** Destinationer för en roll på en given yta, i registrets ordning. */
-export function destinationsFor(role: NavRole, surface: NavSurface): AppDestination[] {
+export function destinationsFor(
+  role: NavRole,
+  surface: NavSurface,
+  /**
+   * Sidor som ska med oavsett roll, för att personen fått en behörighet som
+   * låser upp dem. En teammedlem hos en lokal kan ha rollen customer men sköta
+   * lokalens sida — utan det här hittar hen aldrig dit, och behörigheten blir en
+   * kryssruta utan verkan.
+   *
+   * Undantaget är avsiktligt smalt: enskilda sökvägar, inte en andra
+   * behörighetsmodell i navigationen.
+   */
+  extraPaths: readonly string[] = []
+): AppDestination[] {
   return APP_DESTINATIONS.filter(
-    (d) => d.surfaces.includes(surface) && roleMatches(d, role)
+    (d) =>
+      d.surfaces.includes(surface) &&
+      (roleMatches(d, role) || extraPaths.includes(d.path))
   );
 }
 
 /** Samma, men grupperad — för Mer-griden. */
 export function groupedDestinationsFor(
   role: NavRole,
-  surface: NavSurface
+  surface: NavSurface,
+  extraPaths: readonly string[] = []
 ): { group: NavGroup; items: AppDestination[] }[] {
   const order: NavGroup[] = ["createSell", "finance", "explore", "myAccount"];
   return order
     .map((group) => ({
       group,
-      items: destinationsFor(role, surface).filter((d) => d.group === group),
+      items: destinationsFor(role, surface, extraPaths).filter((d) => d.group === group),
     }))
     .filter((g) => g.items.length > 0);
 }

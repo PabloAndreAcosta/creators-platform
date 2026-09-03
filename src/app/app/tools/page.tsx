@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { LayoutGrid, ShieldCheck } from "lucide-react";
 import { isVenueRole } from "@/lib/roles";
+import { venuesUserHasCapability } from "@/lib/venues/members";
 import {
   groupedDestinationsFor,
   ADMIN_ROOT,
@@ -32,6 +33,7 @@ export default async function ToolsPage() {
   // driva isär och göra en sida osynlig beroende på skärmbredd.
   let role: NavRole = "customer";
   let showAdmin = false;
+  const extra: string[] = [];
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -40,12 +42,19 @@ export default async function ToolsPage() {
       const dbRole = (data?.role as string) ?? "customer";
       role = isVenueRole(dbRole) ? "venue" : dbRole === "creator" ? "creator" : "customer";
       showAdmin = hasAnyAdminAccess(await adminAccessFor(user.id));
+
+      // Behörigheter kan låsa upp sidor som rollen inte ger. Den som sköter en
+      // lokals sida ska hitta Förfrågningar även om det egna kontot har
+      // besökarrollen — annars är behörigheten en kryssruta utan verkan.
+      if ((await venuesUserHasCapability(user.id, "page")).length > 0) {
+        extra.push("/app/venue-requests");
+      }
     }
   } catch {
     // Faller tillbaka på kundvyn — hellre färre verktyg än en trasig sida.
   }
 
-  const groups = groupedDestinationsFor(role, "more");
+  const groups = groupedDestinationsFor(role, "more", extra);
 
   return (
     <div className="px-4 py-6">

@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { venuesUserHasCapability } from "@/lib/venues/members";
 import VenueRequestsContent from "./venue-requests-content";
 
 /**
@@ -17,10 +18,15 @@ export default async function VenueRequestsPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
+  // Lokalens ägare ser sina egna förfrågningar. En teammedlem med `page` ser
+  // förfrågningarna för de lokaler hen sköter sidan åt — utan det var
+  // behörigheten en kryssruta utan verkan.
+  const lokaler = [user.id, ...(await venuesUserHasCapability(user.id, "page"))];
+
   const { data: rows } = await supabase
     .from("listings")
     .select("id, title, event_date, event_time, event_location, venue_confirmed_at, profiles!user_id(full_name)")
-    .eq("venue_profile_id", user.id)
+    .in("venue_profile_id", lokaler)
     .neq("user_id", user.id)
     .eq("is_active", true)
     .order("event_date", { ascending: true });
