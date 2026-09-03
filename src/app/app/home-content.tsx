@@ -27,6 +27,7 @@ import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { OnboardingChecklist } from "./creator-onboarding";
 import { PendingTodos } from "./pending-todos";
+import { OwnListingRow, type OwnListing } from "./own-listing-row";
 import type { TodoItem } from "@/lib/todo/pending";
 import RecommendedEvents from "@/components/RecommendedEvents";
 import { FavoriteButton } from "@/components/favorite-button";
@@ -76,6 +77,8 @@ interface Listing {
   updated_at: string;
   event_date?: string | null;
   event_time?: string | null;
+  image_url?: string | null;
+  slug?: string | null;
 }
 
 type TopCreator = Pick<Profile, "id" | "full_name" | "category" | "avatar_url">;
@@ -90,7 +93,7 @@ export interface UpcomingBooking {
 interface HomeContentProps {
   profile: Profile | null;
   listings: Listing[];
-  ownServices?: Listing[];
+  ownServices?: OwnListing[];
   /**
    * Antal egna listningar, räknat i databasen. Listan ovan är kapad till tio
    * poster, så dess längd är en visningsgräns och inte ett antal — KPI-rutan
@@ -637,7 +640,7 @@ function KreatorHome({
   profile: Profile | null;
   bookingsCount: number;
   listings: Listing[];
-  ownServices?: Listing[];
+  ownServices?: OwnListing[];
   /** Räknat i databasen — ownServices är kapad och duger inte att räkna på. */
   servicesCount?: number;
   monthlyRevenue?: number;
@@ -653,16 +656,10 @@ function KreatorHome({
   const isGuld = tier === "guld";
   const commission = isPremium ? 3 : isGuld ? 8 : 15;
 
-  // The creator's OWN services (dedicated query), not the global feed.
-  const todaysListings = ownServices.slice(0, 3).map((listing) => ({
-    id: listing.id,
-    title: listing.title,
-    date: listing.event_date
-      ? new Date(`${listing.event_date}T12:00:00+02:00`).toLocaleDateString("sv-SE", { day: "numeric", month: "short" })
-      : null,
-    time: listing.duration_minutes ? `${listing.duration_minutes} min` : "-",
-    category: listing.category || "Övrigt",
-  }));
+  // Egna listningar, de tre närmaste. Raden renderas av OwnListingRow — den
+  // fick tidigare en tillplattad kopia utan bild, pris eller status, vilket var
+  // hela anledningen till att listan såg ofullständig ut.
+  const todaysListings = ownServices.slice(0, 3);
 
   const userListings = ownServices.map((l) => ({ id: l.id, title: l.title }));
 
@@ -765,28 +762,8 @@ function KreatorHome({
         <section>
           <h2 className="mb-3 text-sm font-semibold text-[var(--usha-muted)]">{t("yourServices")}</h2>
           <div className="space-y-1.5">
-            {todaysListings.length > 0 ? todaysListings.map((cls) => (
-              <Link
-                key={cls.id}
-                href={`/dashboard/listings/${cls.id}/edit`}
-                className="flex items-center justify-between rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2.5 transition hover:border-[var(--usha-gold)]/30"
-              >
-                <div className="flex items-center gap-2">
-                  <div className="h-1.5 w-1.5 rounded-full bg-green-400" />
-                  <span className="text-sm">{cls.title}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  {cls.date && (
-                    <span className="flex items-center gap-1 text-[10px] text-[var(--usha-muted)]">
-                      <Calendar size={11} />
-                      {cls.date}
-                    </span>
-                  )}
-                  <span className="text-[10px] text-[var(--usha-muted)]">{cls.time}</span>
-                  <span className="rounded bg-[var(--usha-card)] px-1.5 py-0.5 text-[9px] text-[var(--usha-muted)] border border-[var(--usha-border)]">{cls.category}</span>
-                  <ChevronRight size={14} className="text-[var(--usha-muted)]" />
-                </div>
-              </Link>
+            {todaysListings.length > 0 ? todaysListings.map((l) => (
+              <OwnListingRow key={l.id} listing={l} />
             )) : (
               servicesEmpty
             )}
@@ -873,15 +850,8 @@ function KreatorHome({
             <Link href="/app/courses" className="text-xs text-[var(--usha-gold)]">{tc("all")}</Link>
           </div>
           <div className="space-y-2">
-            {todaysListings.length > 0 ? todaysListings.map((cls) => (
-              <Link key={cls.id} href={`/dashboard/listings/${cls.id}/edit`} className="flex items-center gap-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 transition hover:border-[var(--usha-gold)]/30">
-                <Clock size={16} className="text-[var(--usha-gold)]" />
-                <div className="flex-1">
-                  <h3 className="text-sm font-medium">{cls.title}</h3>
-                  <p className="text-[10px] text-[var(--usha-muted)]">{cls.date ? `${cls.date} · ` : ""}{cls.time} · {cls.category}</p>
-                </div>
-                <ChevronRight size={16} className="text-[var(--usha-muted)]" />
-              </Link>
+            {todaysListings.length > 0 ? todaysListings.map((l) => (
+              <OwnListingRow key={l.id} listing={l} />
             )) : (
               servicesEmpty
             )}
@@ -987,15 +957,8 @@ function KreatorHome({
           <Link href="/app/courses" className="text-xs text-[var(--usha-gold)]">{tc("all")}</Link>
         </div>
         <div className="space-y-2">
-          {todaysListings.length > 0 ? todaysListings.map((cls) => (
-            <Link key={cls.id} href={`/dashboard/listings/${cls.id}/edit`} className="flex items-center gap-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 transition hover:border-[var(--usha-gold)]/30">
-              <Clock size={16} className="text-[var(--usha-gold)]" />
-              <div className="flex-1">
-                <h3 className="text-sm font-medium">{cls.title}</h3>
-                <p className="text-[10px] text-[var(--usha-muted)]">{cls.date ? `${cls.date} · ` : ""}{cls.time} · {cls.category}</p>
-              </div>
-              <ChevronRight size={16} className="text-[var(--usha-muted)]" />
-            </Link>
+          {todaysListings.length > 0 ? todaysListings.map((l) => (
+            <OwnListingRow key={l.id} listing={l} />
           )) : (
             <p className="py-6 text-center text-sm text-[var(--usha-muted)]">{t("noServicesYet")}</p>
           )}
@@ -1051,7 +1014,7 @@ function UpplevelseHome({
   profile: Profile | null;
   bookingsCount: number;
   listings: Listing[];
-  ownServices?: Listing[];
+  ownServices?: OwnListing[];
   /** Räknat i databasen — ownServices är kapad och duger inte att räkna på. */
   servicesCount?: number;
   monthlyRevenue?: number;
@@ -1072,17 +1035,9 @@ function UpplevelseHome({
   const activeEvents = ownServices.filter((l) => l.is_active);
   const draftEvents = ownServices.filter((l) => !l.is_active);
 
-  // Datumet är evenemangets, inte radens skapandetid. Rutan heter "kommande"
-  // och visade när posten lades in — två kvällar i samma serie skapas inom
-  // några sekunder och fick därför samma datum i listan.
-  const upcomingEvents = ownServices.slice(0, 5).map((listing) => ({
-    id: listing.id,
-    title: listing.title,
-    date: listing.event_date
-      ? new Date(`${listing.event_date}T12:00:00+02:00`).toLocaleDateString("sv-SE", { day: "numeric", month: "short" })
-      : "",
-    status: listing.is_active ? "Aktiv" : "Utkast",
-  }));
+  // Kommande evenemang, renderade av samma rad som kreatörsvyn: affisch, datum,
+  // pris, status och en väg till hur sidan ser ut publikt.
+  const upcomingEvents = ownServices.slice(0, 5);
 
   const userListings = ownServices.map((l) => ({ id: l.id, title: l.title }));
 
@@ -1187,23 +1142,7 @@ function UpplevelseHome({
           <h2 className="mb-3 text-sm font-semibold text-[var(--usha-muted)]">{t("eventPipeline")}</h2>
           <div className="space-y-1.5">
             {upcomingEvents.length > 0 ? upcomingEvents.map((event) => (
-              <Link
-                key={event.id}
-                href={`/app/events/${event.id}/edit`}
-                className="flex items-center justify-between rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2.5 transition hover:border-[var(--usha-gold)]/30"
-              >
-                <div className="flex items-center gap-2">
-                  <div className={`h-1.5 w-1.5 rounded-full ${event.status === "Aktiv" ? "bg-green-400" : "bg-[var(--usha-muted)]"}`} />
-                  <span className="text-sm">{event.title}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] text-[var(--usha-muted)]">{event.date}</span>
-                  <span className={`rounded px-1.5 py-0.5 text-[9px] font-medium ${
-                    event.status === "Aktiv" ? "bg-green-500/10 text-green-400" : "bg-[var(--usha-muted)]/10 text-[var(--usha-muted)]"
-                  }`}>{event.status}</span>
-                  <ChevronRight size={14} className="text-[var(--usha-muted)]" />
-                </div>
-              </Link>
+              <OwnListingRow key={event.id} listing={event} />
             )) : (
               eventsEmpty
             )}
@@ -1267,17 +1206,7 @@ function UpplevelseHome({
           </div>
           <div className="space-y-2">
             {upcomingEvents.length > 0 ? upcomingEvents.slice(0, 4).map((event) => (
-              <Link key={event.id} href={`/app/events/${event.id}/edit`} className="flex items-center gap-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 transition hover:border-[var(--usha-gold)]/30">
-                <Ticket size={16} className="text-[var(--usha-gold)]" />
-                <div className="flex-1">
-                  <h3 className="text-sm font-medium">{event.title}</h3>
-                  <p className="text-[10px] text-[var(--usha-muted)]">{event.date}</p>
-                </div>
-                <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                  event.status === "Aktiv" ? "bg-green-500/20 text-green-400" : "bg-[var(--usha-muted)]/20 text-[var(--usha-muted)]"
-                }`}>{event.status}</span>
-                <ChevronRight size={16} className="text-[var(--usha-muted)]" />
-              </Link>
+              <OwnListingRow key={event.id} listing={event} />
             )) : (
               eventsEmpty
             )}
@@ -1367,15 +1296,7 @@ function UpplevelseHome({
           <h2 className="mb-3 text-sm font-semibold text-[var(--usha-muted)]">{t("eventPipeline")}</h2>
           <div className="space-y-1.5">
             {upcomingEvents.length > 0 ? upcomingEvents.slice(0, 3).map((event) => (
-              <Link key={event.id} href={`/app/events/${event.id}/edit`} className="flex items-center justify-between rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-2.5 transition hover:border-[var(--usha-gold)]/30">
-                <div className="flex items-center gap-2">
-                  <div className={`h-1.5 w-1.5 rounded-full ${event.status === "Aktiv" ? "bg-green-400" : "bg-[var(--usha-muted)]"}`} />
-                  <span className="text-sm">{event.title}</span>
-                </div>
-                <span className={`rounded px-1.5 py-0.5 text-[9px] font-medium ${
-                  event.status === "Aktiv" ? "bg-green-500/10 text-green-400" : "bg-[var(--usha-muted)]/10 text-[var(--usha-muted)]"
-                }`}>{event.status}</span>
-              </Link>
+              <OwnListingRow key={event.id} listing={event} />
             )) : (
               eventsEmpty
             )}
@@ -1391,17 +1312,8 @@ function UpplevelseHome({
         </div>
         <div className="space-y-2">
           {upcomingEvents.length > 0 ? upcomingEvents.slice(0, 3).map((event) => (
-            <Link key={event.id} href={`/app/events/${event.id}/edit`} className="flex items-center gap-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 transition hover:border-[var(--usha-gold)]/30">
-              <Ticket size={16} className="text-[var(--usha-gold)]" />
-              <div className="flex-1">
-                <h3 className="text-sm font-medium">{event.title}</h3>
-                <p className="text-[10px] text-[var(--usha-muted)]">{event.date}</p>
-              </div>
-              <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                event.status === "Aktiv" ? "bg-green-500/20 text-green-400" : "bg-[var(--usha-muted)]/20 text-[var(--usha-muted)]"
-              }`}>{event.status}</span>
-            </Link>
-          )) : (
+              <OwnListingRow key={event.id} listing={event} />
+            )) : (
             <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--usha-border)] bg-[var(--usha-card)] py-12">
               <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[var(--usha-gold)]/20 to-[var(--usha-accent)]/20">
                 <Ticket size={24} className="text-[var(--usha-gold)]" />
