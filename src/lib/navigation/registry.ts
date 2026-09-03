@@ -18,7 +18,7 @@ import {
   Package, CalendarCheck, CalendarDays, ScanLine, Briefcase, BookOpen, Building2,
   Wallet, BarChart3, CreditCard, Tag, Search, Store, FileText, Heart, Trophy,
   ShoppingBag, Ticket, MessageCircle, BookMarked, Gift, Bell, User, Settings,
-  Users, Home, Sparkles, Box, LayoutGrid, KeyRound, Languages } from "lucide-react";
+  Users, Home, Sparkles, Box, LayoutGrid, KeyRound, Languages, Layers } from "lucide-react";
 
 /** Kanoniska roller. Se roll-modellen: creator/venue säljer, customer köper. */
 export type NavRole = "customer" | "creator" | "venue";
@@ -27,10 +27,11 @@ export type NavRole = "customer" | "creator" | "venue";
  * Ytor en destination kan visas på.
  * - `sidebar`: sidomenyn på desktop
  * - `more`: Mer-griden (mobil)
+ * - `sell`: Utbud-sidan, samlingen av allt man kan sälja
  * Profilmenyn och settings-hubben är små och handredigerade, men deras sidor
  * måste ändå stå i registret för att passera coverage-testet.
  */
-export type NavSurface = "sidebar" | "more" | "profile" | "settings";
+export type NavSurface = "sidebar" | "more" | "profile" | "settings" | "sell";
 
 export type NavGroup =
   | "createSell"
@@ -64,8 +65,32 @@ export const APP_DESTINATIONS: AppDestination[] = [
   // ---- Skapa & sälj -------------------------------------------------------
   { path: "/app", labelKey: "homeLabel", navLabelKey: "home", icon: Home,
     group: "createSell", roles: "all", surfaces: ["sidebar"] },
+  // Utbud: en ingång i stället för fem. Tjänster, Produkter, Kurser och de två
+  // gig-sidorna låg som jämlikar i menyerna trots att tre av dem inte hade en
+  // enda rad i databasen och Tjänster visade exakt samma lista som Evenemang.
+  // Fem nästan lika menyrader tvingar en att veta vad man ska kalla det man
+  // säljer innan man börjat. Ett klick till, och sidan säger vad var sak är.
+  { path: "/app/sell", labelKey: "sellLabel", descKey: "sellDesc", navLabelKey: "sell", icon: Layers,
+    group: "createSell", roles: ["creator", "venue"], surfaces: ["more", "sidebar"] },
+  // Evenemang ligger kvar i sidomenyn OCH på Utbud. Det är det enda av utbudet
+  // som används dagligen och den enda tabellen med riktig data — att lägga det
+  // bakom ett extra klick vore att göra vanligast till krångligast.
+  { path: "/app/events", labelKey: "eventsLabel", descKey: "eventsDesc", navLabelKey: "events", icon: Building2,
+    group: "createSell", roles: ["creator", "venue"], surfaces: ["more", "sidebar", "sell"] },
+  { path: "/app/courses", labelKey: "coursesLabel", descKey: "coursesDesc", navLabelKey: "content", icon: BookOpen,
+    group: "createSell", roles: ["creator", "venue"], surfaces: ["sell"] },
+  { path: "/dashboard/products", labelKey: "productsLabel", descKey: "productsDesc", icon: Box,
+    group: "createSell", roles: ["creator", "venue"], surfaces: ["sell"] },
   { path: "/dashboard/listings", labelKey: "servicesLabel", descKey: "servicesDesc", icon: Package,
-    group: "createSell", roles: ["creator", "venue"], surfaces: ["more"] },
+    group: "createSell", roles: ["creator", "venue"], surfaces: ["sell"] },
+  // Uppdragsmarknaden har två sidor: lokalen lägger ut, kreatören söker. De låg
+  // som två menyrader med olika namn under olika prefix, så vilken sida av
+  // marknaden man såg berodde på vilken roll man råkade ha. Samma etikett nu,
+  // en ruta på Utbud, och rollen avgör vart den leder — det är samma marknad.
+  { path: "/dashboard/gigs", labelKey: "gigsLabel", descKey: "gigsDesc", icon: Briefcase,
+    group: "createSell", roles: ["venue"], surfaces: ["sell"] },
+  { path: "/app/gigs", labelKey: "openGigsLabel", descKey: "openGigsDesc", icon: Briefcase,
+    group: "createSell", roles: ["creator"], surfaces: ["sell"] },
   // I sidomenyn: vilka som kommer i kväll är en daglig fråga för den som håller
   // event, inte något man letar upp i en verktygslåda.
   { path: "/dashboard/bookings", labelKey: "bookingsLabel", descKey: "bookingsDesc",
@@ -75,18 +100,6 @@ export const APP_DESTINATIONS: AppDestination[] = [
     group: "createSell", roles: "all", surfaces: ["more", "sidebar"] },
   { path: "/app/scan", labelKey: "scanLabel", descKey: "scanDesc", navLabelKey: "scan", icon: ScanLine,
     group: "createSell", roles: ["creator", "venue"], surfaces: ["more", "sidebar"] },
-  { path: "/dashboard/gigs", labelKey: "gigsLabel", descKey: "gigsDesc", icon: Briefcase,
-    group: "createSell", roles: ["venue"], surfaces: ["more"] },
-  // Dansarsidan av gig-marknaden. Saknade helt ingång — arrangören kunde lägga
-  // upp uppdrag som ingen kunde se eller söka.
-  { path: "/app/gigs", labelKey: "openGigsLabel", descKey: "openGigsDesc", icon: Briefcase,
-    group: "createSell", roles: ["creator"], surfaces: ["more"] },
-  { path: "/app/events", labelKey: "eventsLabel", descKey: "eventsDesc", navLabelKey: "events", icon: Building2,
-    group: "createSell", roles: ["creator", "venue"], surfaces: ["more", "sidebar"] },
-  { path: "/app/courses", labelKey: "coursesLabel", descKey: "coursesDesc", navLabelKey: "content", icon: BookOpen,
-    group: "createSell", roles: ["creator", "venue"], surfaces: ["more", "sidebar"] },
-  { path: "/dashboard/products", labelKey: "productsLabel", descKey: "productsDesc", icon: Box,
-    group: "createSell", roles: ["creator", "venue"], surfaces: ["more"] },
   // Bara lokaler: arrangörer som vill koppla sitt evenemang hit. Utan en yta att
   // svara på blir kopplingen aldrig bekräftad, och då når den ingen.
   // Ligger även i sidomenyn: det här är lokalens inkorg, inte ett verktyg. Låg
@@ -242,7 +255,7 @@ export const CONTEXTUAL_ROUTES: Record<string, string> = {
   "/app/invites/[token]": "Nås via inbjudningslänk i mejl.",
   "/dashboard/listings/new": "Nås från tjänstelistan.",
   "/dashboard/listings/[id]/edit": "Nås genom att öppna en tjänst.",
-  "/dashboard/gigs/new": "Nås från gig-listan.",
+  "/dashboard/gigs/new": "Nås från gig-listan, som i sin tur nås från Utbud.",
   "/dashboard/gigs/[id]": "Nås genom att öppna ett gig.",
   "/dashboard/admin/promo/new": "Nås från Ny kod-knappen i rabattkodslistan.",
   "/dashboard/profile": "Redigera profil — nås från profilmenyn.",

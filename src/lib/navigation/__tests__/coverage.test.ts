@@ -123,6 +123,35 @@ describe("navigationsregistret täcker varje inloggad sida", () => {
   });
 });
 
+describe("Utbud är en ingång, inte en återvändsgränd", () => {
+  it("allt som bara ligger på Utbud nås via Utbud-sidan", () => {
+    // Utbud-ytan finns för att Tjänster, Produkter, Kurser och gig-sidorna
+    // skulle sluta ta var sin rad i menyerna. Det fungerar bara så länge
+    // /app/sell själv står i en meny — annars har de fyra ingen väg alls.
+    const sellOnly = APP_DESTINATIONS.filter(
+      (d) => d.surfaces.includes("sell") && !d.surfaces.some((s) => s === "sidebar" || s === "more")
+    );
+    const hub = APP_DESTINATIONS.find((d) => d.path === "/app/sell");
+    expect(
+      hub && (hub.surfaces.includes("sidebar") || hub.surfaces.includes("more")),
+      `${sellOnly.length} destinationer nås bara via Utbud, och Utbud står inte i någon meny.`
+    ).toBe(true);
+  });
+
+  it("den som ser en Utbud-destination ser också Utbud", () => {
+    // En roll som når t.ex. Produkter men inte Utbud ser en sida hon inte kan
+    // komma till. Rollerna måste följas åt.
+    const hub = APP_DESTINATIONS.find((d) => d.path === "/app/sell")!;
+    const hubRoles = hub.roles === "all" ? ["customer", "creator", "venue"] : hub.roles;
+    const orphaned = APP_DESTINATIONS.filter((d) => {
+      if (!d.surfaces.includes("sell") || d.path === "/app/sell") return false;
+      const roles = d.roles === "all" ? ["customer", "creator", "venue"] : d.roles;
+      return roles.some((r) => !hubRoles.includes(r as never));
+    }).map((d) => d.path);
+    expect(orphaned, `Syns på Utbud för en roll som inte når Utbud: ${orphaned.join(", ")}`).toEqual([]);
+  });
+});
+
 describe("desktop tappar inte bort destinationer", () => {
   it("allt en kreatör når i Mer-griden går också att nå på desktop", () => {
     // Mer-griden är md:hidden. Ligger något BARA där är det osynligt på
