@@ -48,6 +48,7 @@ export default async function AppHomePage() {
   let feedPosts: any[] = [];
   let upcomingBookings: { id: string; title: string; scheduledAt: string; location: string | null }[] = [];
   let hasPreferences = false;
+  let hostedEventsCount = 0;
 
   try {
     const supabase = await createClient();
@@ -91,6 +92,17 @@ export default async function AppHomePage() {
         .eq("profile_id", user.id)
         .maybeSingle();
       hasPreferences = !!prefRow?.onboarding_completed_at;
+
+      // Arrangemang som ANDRA håller hos lokalen. En lokal som upplåter sina
+      // lokaler skapar aldrig egna evenemang, och skulle annars få "skapa ditt
+      // första evenemang" liggande kvar i checklistan för alltid.
+      const { count: hosted } = await supabase
+        .from("listings")
+        .select("id", { count: "exact", head: true })
+        .eq("venue_profile_id", user.id)
+        .not("venue_confirmed_at", "is", null)
+        .eq("is_active", true);
+      hostedEventsCount = hosted ?? 0;
 
       const startOfMonth = new Date();
       startOfMonth.setDate(1);
@@ -171,6 +183,7 @@ export default async function AppHomePage() {
       feedPosts={feedPosts}
       upcomingBookings={upcomingBookings}
       hasPreferences={hasPreferences}
+      hostedEventsCount={hostedEventsCount}
     />
   );
 }

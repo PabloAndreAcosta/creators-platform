@@ -96,6 +96,7 @@ interface HomeContentProps {
   feedPosts?: FeedPost[];
   upcomingBookings?: UpcomingBooking[];
   hasPreferences?: boolean;
+  hostedEventsCount?: number;
 }
 
 export function HomeContent({
@@ -109,6 +110,7 @@ export function HomeContent({
   feedPosts = [],
   upcomingBookings = [],
   hasPreferences = false,
+  hostedEventsCount = 0,
 }: HomeContentProps) {
   const { role } = useRole();
 
@@ -142,7 +144,7 @@ export function HomeContent({
   }
 
   return (
-    <UpplevelseHome profile={profile} bookingsCount={bookingsCount} listings={listings} ownServices={ownServices} monthlyRevenue={monthlyRevenue} averageRating={averageRating} tier={profile?.tier || "gratis"} feedPosts={feedPosts} />
+    <UpplevelseHome profile={profile} bookingsCount={bookingsCount} listings={listings} ownServices={ownServices} monthlyRevenue={monthlyRevenue} averageRating={averageRating} tier={profile?.tier || "gratis"} feedPosts={feedPosts} hostedEventsCount={hostedEventsCount} />
   );
 }
 
@@ -1007,6 +1009,7 @@ function KreatorHome({
 
 /* ─── Upplevelse (Venue/Experience) Home ─── */
 function UpplevelseHome({
+  hostedEventsCount = 0,
   profile,
   bookingsCount,
   listings,
@@ -1024,6 +1027,7 @@ function UpplevelseHome({
   averageRating?: number | null;
   tier?: string;
   feedPosts?: FeedPost[];
+  hostedEventsCount?: number;
 }) {
   const t = useTranslations("home");
   const tc = useTranslations("common");
@@ -1060,6 +1064,7 @@ function UpplevelseHome({
       stripeAccountId={profile?.stripe_account_id}
       stripeCardPaymentsEnabled={!!profile?.stripe_card_payments_enabled}
       isPublic={profile?.is_public}
+          hostedEventsCount={hostedEventsCount}
     />
   );
 
