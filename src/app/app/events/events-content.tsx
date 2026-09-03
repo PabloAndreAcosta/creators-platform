@@ -192,7 +192,7 @@ export function EventsContent({
               En serie renderas som ETT kort med sina kvällar hopfällda under.
               Åtta identiska affischer i rad är ingen översikt — man skrollar
               förbi dem och hittar inte det enstaka eventet som ligger sist. */}
-          <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0 lg:grid-cols-3">
+          <div className="space-y-4 md:grid md:grid-cols-2 md:items-start md:gap-4 md:space-y-0 lg:grid-cols-3">
             {grupper.map((grupp, i) =>
               grupp.length === 1 ? (
                 <EventCard
@@ -230,10 +230,18 @@ function EventCard({
   listing,
   index,
   hasPageConnected,
+  series,
 }: {
   listing: ListingData;
   index: number;
   hasPageConnected: boolean;
+  /**
+   * Sätts när kortet representerar en serie. Serieinfon bor INNE i kortet och
+   * inte på en rad ovanför: en extra rad ovanför bilden sköt ner kortet i
+   * förhållande till de enstaka evenemangen bredvid, så korten i samma rad
+   * började på olika höjd.
+   */
+  series?: { count: number; range: string | null };
 }) {
   const [showMenu, setShowMenu] = useState(false);
   const [showCloneModal, setShowCloneModal] = useState(false);
@@ -299,6 +307,13 @@ function EventCard({
           {categoryLabel}
         </span>
 
+        {series && (
+          <span className="absolute left-3 top-11 inline-flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-1 text-[10px] font-medium text-white backdrop-blur-sm">
+            <Layers size={11} />
+            {t("seriesCount", { count: series.count })}
+          </span>
+        )}
+
         <div className="absolute bottom-0 left-0 right-0 p-3">
           <h3 className="text-base font-bold text-white">{listing.title}</h3>
         </div>
@@ -324,6 +339,9 @@ function EventCard({
                 <span className="flex items-center gap-1">
                   <Calendar size={12} />
                   {new Date(listing.event_date + "T00:00").toLocaleDateString("sv-SE", { day: "numeric", month: "short", year: "numeric" })}
+                  {series?.range && (
+                    <span className="text-[var(--usha-muted)]">· {series.range}</span>
+                  )}
                 </span>
               )}
               {listing.event_time && (
@@ -545,15 +563,15 @@ function SeriesGroup({
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center gap-2 text-xs text-[var(--usha-muted)]">
-        <Layers size={13} className="text-[var(--usha-gold)]" />
-        <span className="font-medium text-[var(--usha-white)]">
-          {t("seriesCount", { count: occurrences.length })}
-        </span>
-        {spann.length === 2 && <span>{spann[0]} – {spann[1]}</span>}
-      </div>
-
-      <EventCard listing={huvud} index={index} hasPageConnected={hasPageConnected} />
+      <EventCard
+        listing={huvud}
+        index={index}
+        hasPageConnected={hasPageConnected}
+        series={{
+          count: occurrences.length,
+          range: spann.length === 2 ? `${spann[0]} – ${spann[1]}` : null,
+        }}
+      />
 
       {ovriga.length > 0 && (
         <>
