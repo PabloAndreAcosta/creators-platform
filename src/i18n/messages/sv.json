@@ -79,6 +79,15 @@
       "action": "Visa"
     }
   },
+  "reachOut": {
+    "heading": "Nå ut",
+    "intro": "Sätt QR-koden på flygbladet, affischen eller i fönstret. Den leder till er sida på Usha.",
+    "download": "Ladda ner QR",
+    "copy": "Kopiera adressen",
+    "qrAlt": "QR-kod till din sida",
+    "chooseAddress": "Välj en kortare adress — usha.se/dittnamn",
+    "brandIt": "Er logotyp och era färger på sidan"
+  },
   "roles": {
     "customer": "Publik",
     "creator": "Kreatör",

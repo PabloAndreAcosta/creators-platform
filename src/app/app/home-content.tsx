@@ -28,6 +28,7 @@ import Link from "next/link";
 import { OnboardingChecklist } from "./creator-onboarding";
 import { PendingTodos } from "./pending-todos";
 import { OwnListingRow, type OwnListing } from "./own-listing-row";
+import { ReachOut } from "./reach-out";
 import type { TodoItem } from "@/lib/todo/pending";
 import RecommendedEvents from "@/components/RecommendedEvents";
 import { FavoriteButton } from "@/components/favorite-button";
@@ -60,6 +61,8 @@ interface Profile {
   is_company?: boolean | null;
   company_verified_at?: string | null;
   terms_url?: string | null;
+  slug?: string | null;
+  whitelabel_enabled?: boolean | null;
   stripe_card_payments_enabled?: boolean | null;
   customer_location?: string | null;
 }
@@ -256,6 +259,8 @@ function PublikHome({
   return (
     <div className="space-y-8 pb-4">
       <PendingTodos items={todos} />
+      {/* Ingen ReachOut i publikvyn: QR, egen adress och whitelabel är verktyg
+          för den som säljer något. En besökare har ingen sida att sprida. */}
       <OnboardingChecklist
         role={profile?.role ?? "customer"}
         customerLocation={profile?.customer_location ?? null}
@@ -666,6 +671,14 @@ function KreatorHome({
   const onboarding = (
     <>
       <PendingTodos items={todos} />
+      {profile && (
+        <ReachOut
+          profileId={profile.id}
+          slug={profile.slug ?? null}
+          isPublic={!!profile.is_public}
+          whitelabelEnabled={!!profile.whitelabel_enabled}
+        />
+      )}
       <OnboardingChecklist
       role={profile?.role ?? "creator"}
       isCompany={!!profile?.is_company}
@@ -1044,6 +1057,14 @@ function UpplevelseHome({
   const onboarding = (
     <>
       <PendingTodos items={todos} />
+      {profile && (
+        <ReachOut
+          profileId={profile.id}
+          slug={profile.slug ?? null}
+          isPublic={!!profile.is_public}
+          whitelabelEnabled={!!profile.whitelabel_enabled}
+        />
+      )}
       <OnboardingChecklist
       role={profile?.role ?? "venue"}
       isCompany={!!profile?.is_company}

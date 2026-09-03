@@ -79,6 +79,15 @@
       "action": "View"
     }
   },
+  "reachOut": {
+    "heading": "Get the word out",
+    "intro": "Put the QR code on a flyer, a poster or in the window. It leads to your page on Usha.",
+    "download": "Download QR",
+    "copy": "Copy the address",
+    "qrAlt": "QR code to your page",
+    "chooseAddress": "Pick a shorter address — usha.se/yourname",
+    "brandIt": "Your logo and colours on the page"
+  },
   "roles": {
     "customer": "Audience",
     "creator": "Creator",
