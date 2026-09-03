@@ -3,7 +3,12 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { HomeContent } from "./home-content";
 import { getFeedPosts } from "./feed/queries";
 import { pendingTodos, type TodoItem } from "@/lib/todo/pending";
+import { sortEventsForOwner, todayInStockholm } from "@/lib/events/sort";
 import { venuesUserHasCapability } from "@/lib/venues/members";
+
+/** Kolumnerna startsidan behöver av en egen listing. */
+const OWN_LISTING_COLUMNS =
+  "id, user_id, title, category, price, duration_minutes, is_active, created_at, event_date, event_time";
 
 interface Profile {
   id: string;
@@ -43,6 +48,7 @@ export default async function AppHomePage() {
   let profile: Profile | null = null;
   let listings: Listing[] = [];
   let ownServices: Listing[] = [];
+  let ownServicesCount = 0;
   let topCreators: TopCreator[] = [];
   let bookingsCount = 0;
   let monthlyRevenue = 0;
@@ -60,7 +66,8 @@ export default async function AppHomePage() {
     } = await supabase.auth.getUser();
 
     if (user) {
-      const [profileRes, listingsRes, bookingsRes, ownServicesRes] = await Promise.all([
+      const today = todayInStockholm();
+      const [profileRes, listingsRes, bookingsRes, kommandeRes, ovrigaRes, ownCountRes] = await Promise.all([
         // Egen rad via service-role: känsliga kolumner (bl.a. stripe_account_id)
         // är kolumn-låsta för authenticated, så select("*") skulle nekas.
         createAdminClient().from("profiles").select("*").eq("id", user.id).single(),
@@ -76,16 +83,42 @@ export default async function AppHomePage() {
           .select("*", { count: "exact", head: true })
           .eq("creator_id", user.id)
           .in("status", ["pending", "confirmed"]),
+        // Egna evenemang, i två frågor. "De tio senast skapade" gav fel svar
+        // på två sätt: en serie skapas i en klump så ordningen blev godtycklig
+        // (19 okt, 5 okt, 28 sep på startsidan), och den som har mer än tio
+        // rader kunde få nästa kväll utanför urvalet helt. Hämta det kommande
+        // för sig, i datumordning, så kan det inte hända.
         supabase
           .from("listings")
-          .select("id, user_id, title, category, price, duration_minutes, is_active, created_at, event_date, event_time")
+          .select(OWN_LISTING_COLUMNS)
           .eq("user_id", user.id)
+          .gte("event_date", today)
+          .order("event_date", { ascending: true })
+          .limit(10),
+        supabase
+          .from("listings")
+          .select(OWN_LISTING_COLUMNS)
+          .eq("user_id", user.id)
+          .or(`event_date.lt.${today},event_date.is.null`)
           .order("created_at", { ascending: false })
           .limit(10),
+        // Siffran i KPI-raden. Den läste tidigare listans längd, men listan är
+        // kapad till tio — så 17 tjänster visades som "10". En kapad lista är
+        // inget att räkna på.
+        supabase
+          .from("listings")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", user.id),
       ]);
       profile = profileRes.data as Profile | null;
       listings = (listingsRes.data || []) as Listing[];
-      ownServices = (ownServicesRes.data || []) as Listing[];
+      // Kommande först i datumordning, sedan passerade och odaterade. Samma
+      // ordning som arrangörens egen evenemangslista använder.
+      ownServices = sortEventsForOwner(
+        [...((kommandeRes.data || []) as Listing[]), ...((ovrigaRes.data || []) as Listing[])],
+        today
+      );
+      ownServicesCount = ownCountRes.count ?? ownServices.length;
       bookingsCount = bookingsRes.count ?? 0;
 
       // Customer onboarding: have they set matching preferences?
@@ -206,6 +239,7 @@ export default async function AppHomePage() {
       profile={profile}
       listings={listings}
       ownServices={ownServices}
+      ownServicesCount={ownServicesCount}
       topCreators={topCreators}
       bookingsCount={bookingsCount}
       monthlyRevenue={monthlyRevenue}

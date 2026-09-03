@@ -91,6 +91,12 @@ interface HomeContentProps {
   profile: Profile | null;
   listings: Listing[];
   ownServices?: Listing[];
+  /**
+   * Antal egna listningar, räknat i databasen. Listan ovan är kapad till tio
+   * poster, så dess längd är en visningsgräns och inte ett antal — KPI-rutan
+   * visade "10" för den som hade sjutton.
+   */
+  ownServicesCount?: number;
   topCreators: TopCreator[];
   bookingsCount: number;
   monthlyRevenue?: number;
@@ -107,6 +113,7 @@ export function HomeContent({
   profile,
   listings,
   ownServices = [],
+  ownServicesCount,
   topCreators,
   bookingsCount,
   monthlyRevenue = 0,
@@ -118,6 +125,7 @@ export function HomeContent({
   todos = [],
 }: HomeContentProps) {
   const { role } = useRole();
+  const servicesCount = ownServicesCount ?? ownServices.length;
 
   if (role === "customer") {
     return (
@@ -141,6 +149,7 @@ export function HomeContent({
         bookingsCount={bookingsCount}
         listings={listings}
         ownServices={ownServices}
+        servicesCount={servicesCount}
         monthlyRevenue={monthlyRevenue}
         averageRating={averageRating}
         tier={profile?.tier || "gratis"}
@@ -151,7 +160,7 @@ export function HomeContent({
   }
 
   return (
-    <UpplevelseHome profile={profile} bookingsCount={bookingsCount} listings={listings} ownServices={ownServices} monthlyRevenue={monthlyRevenue} averageRating={averageRating} tier={profile?.tier || "gratis"} feedPosts={feedPosts} hostedEventsCount={hostedEventsCount} todos={todos} />
+    <UpplevelseHome profile={profile} bookingsCount={bookingsCount} listings={listings} ownServices={ownServices} servicesCount={servicesCount} monthlyRevenue={monthlyRevenue} averageRating={averageRating} tier={profile?.tier || "gratis"} feedPosts={feedPosts} hostedEventsCount={hostedEventsCount} todos={todos} />
   );
 }
 
@@ -618,6 +627,7 @@ function KreatorHome({
   bookingsCount,
   listings,
   ownServices = [],
+  servicesCount = 0,
   monthlyRevenue = 0,
   averageRating = null,
   tier = "gratis",
@@ -628,6 +638,8 @@ function KreatorHome({
   bookingsCount: number;
   listings: Listing[];
   ownServices?: Listing[];
+  /** Räknat i databasen — ownServices är kapad och duger inte att räkna på. */
+  servicesCount?: number;
   monthlyRevenue?: number;
   averageRating?: number | null;
   tier?: string;
@@ -665,7 +677,7 @@ function KreatorHome({
       bankidVerifiedAt={profile?.bankid_verified_at ?? null}
       companyVerifiedAt={profile?.company_verified_at ?? null}
       termsUrl={profile?.terms_url ?? null}
-      servicesCount={ownServices.length}
+      servicesCount={servicesCount}
       stripeAccountId={profile?.stripe_account_id}
       stripeCardPaymentsEnabled={!!profile?.stripe_card_payments_enabled}
       isPublic={profile?.is_public}
@@ -720,7 +732,7 @@ function KreatorHome({
             { label: t("revenue"), value: `${monthlyRevenue.toLocaleString("sv-SE")} kr` },
             { label: t("bookings"), value: String(bookingsCount) },
             { label: t("rating"), value: averageRating != null ? `${averageRating}/5` : "—" },
-            { label: t("services"), value: String(ownServices.length) },
+            { label: t("services"), value: String(servicesCount) },
           ].map((kpi) => (
             <div key={kpi.label} className="flex-1 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-3 text-center">
               <p className="text-base font-bold leading-none">{kpi.value}</p>
@@ -936,7 +948,7 @@ function KreatorHome({
             { label: t("revenue"), value: `${monthlyRevenue.toLocaleString("sv-SE")} kr` },
             { label: t("bookings"), value: String(bookingsCount) },
             { label: t("rating"), value: averageRating != null ? `${averageRating}/5` : "—" },
-            { label: t("services"), value: String(ownServices.length) },
+            { label: t("services"), value: String(servicesCount) },
           ].map((kpi) => (
             <div key={kpi.label} className="flex-1 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-3 text-center">
               <p className="text-base font-bold leading-none">{kpi.value}</p>
@@ -1030,6 +1042,7 @@ function UpplevelseHome({
   bookingsCount,
   listings,
   ownServices = [],
+  servicesCount = 0,
   monthlyRevenue = 0,
   averageRating = null,
   tier = "gratis",
@@ -1039,6 +1052,8 @@ function UpplevelseHome({
   bookingsCount: number;
   listings: Listing[];
   ownServices?: Listing[];
+  /** Räknat i databasen — ownServices är kapad och duger inte att räkna på. */
+  servicesCount?: number;
   monthlyRevenue?: number;
   averageRating?: number | null;
   tier?: string;
@@ -1057,11 +1072,14 @@ function UpplevelseHome({
   const activeEvents = ownServices.filter((l) => l.is_active);
   const draftEvents = ownServices.filter((l) => !l.is_active);
 
+  // Datumet är evenemangets, inte radens skapandetid. Rutan heter "kommande"
+  // och visade när posten lades in — två kvällar i samma serie skapas inom
+  // några sekunder och fick därför samma datum i listan.
   const upcomingEvents = ownServices.slice(0, 5).map((listing) => ({
     id: listing.id,
     title: listing.title,
-    date: listing.created_at
-      ? new Date(listing.created_at).toLocaleDateString("sv-SE", { day: "numeric", month: "short" })
+    date: listing.event_date
+      ? new Date(`${listing.event_date}T12:00:00+02:00`).toLocaleDateString("sv-SE", { day: "numeric", month: "short" })
       : "",
     status: listing.is_active ? "Aktiv" : "Utkast",
   }));
@@ -1079,7 +1097,7 @@ function UpplevelseHome({
       bankidVerifiedAt={profile?.bankid_verified_at ?? null}
       companyVerifiedAt={profile?.company_verified_at ?? null}
       termsUrl={profile?.terms_url ?? null}
-      servicesCount={ownServices.length}
+      servicesCount={servicesCount}
       stripeAccountId={profile?.stripe_account_id}
       stripeCardPaymentsEnabled={!!profile?.stripe_card_payments_enabled}
       isPublic={profile?.is_public}
