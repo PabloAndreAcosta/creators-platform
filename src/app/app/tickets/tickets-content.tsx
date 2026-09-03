@@ -559,6 +559,7 @@ function QRModal({
   onClose: () => void;
 }) {
   const t = useTranslations("myTickets");
+  const tc = useTranslations("common");
   const panelRef = useRef<HTMLDivElement>(null);
 
   // Move focus into the dialog on open so keyboard/screen-reader users land
@@ -670,10 +671,11 @@ function QRModal({
       {ticket.listingId && (
         <div className="mt-4 w-full max-w-sm">
           <ShareEventButton
-            url={`${typeof window !== "undefined" ? window.location.origin : "https://usha.se"}/listing/${ticket.listingId}`}
+            url={`${typeof window !== "undefined" ? window.location.origin : "https://usha.se"}/event/${ticket.listingId}`}
             title={ticket.title}
             text={t("shareText", { title: ticket.title })}
             label={t("inviteFriends")}
+            copiedLabel={tc("linkCopied")}
             className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
           />
         </div>

@@ -11,19 +11,22 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
-
-// UI-locale → BCP 47-tagg för datumformatering i delningstexten.
-const DATE_LOCALES: Record<string, string> = { sv: "sv-SE", en: "en-GB", es: "es-ES" };
+import {
+  buildShareMessage,
+  buildShareSummary,
+  formatShareWhen,
+  nativeShareText,
+} from "@/lib/events/share";
 
 interface SocialShareButtonProps {
   /** Listing/event title */
   title: string;
-  /** Short description or excerpt */
-  description?: string;
-  /** Public URL to share (e.g. creator profile or listing page) */
+  /** Public URL to share — evenemangssidan, där biljetten köps */
   url: string;
   /** Optional: event date for richer share text */
   eventDate?: string | null;
+  /** Optional: event start time (HH:MM) */
+  eventTime?: string | null;
   /** Optional: event location */
   eventLocation?: string | null;
   /** Optional: price in SEK */
@@ -32,9 +35,9 @@ interface SocialShareButtonProps {
 
 export function SocialShareButton({
   title,
-  description,
   url,
   eventDate,
+  eventTime,
   eventLocation,
   price,
 }: SocialShareButtonProps) {
@@ -44,21 +47,17 @@ export function SocialShareButton({
   const ta = useTranslations("a11y");
   const t = useTranslations("common");
   const tc = useTranslations("listingCard");
-  const dateLocale = DATE_LOCALES[useLocale()] ?? "en-GB";
+  const locale = useLocale();
 
-  // Build share text
-  const parts = [title];
-  if (eventDate) {
-    parts.push(
-      new Date(eventDate + "T00:00").toLocaleDateString(dateLocale, {
-        day: "numeric",
-        month: "long",
-      })
-    );
-  }
-  if (eventLocation) parts.push(eventLocation);
-  if (price != null) parts.push(price > 0 ? `${price} kr` : tc("free"));
-  const shareText = parts.join(" — ");
+  // Delningen ska sälja en biljett, inte återge hela eventbeskrivningen.
+  // Tre rader — vad, när/var, pris — och sedan länken.
+  const summary = {
+    title,
+    when: formatShareWhen(eventDate, eventTime, locale),
+    where: eventLocation,
+    price: price == null ? null : price > 0 ? t("shareFrom", { price }) : tc("free"),
+  };
+  const shareText = buildShareSummary(summary);
 
   const encodedUrl = encodeURIComponent(url);
   const encodedText = encodeURIComponent(shareText);
@@ -72,7 +71,7 @@ export function SocialShareButton({
   }
 
   function getWhatsAppUrl() {
-    return `https://wa.me/?text=${encodeURIComponent(`${shareText}\n${url}`)}`;
+    return `https://wa.me/?text=${encodeURIComponent(buildShareMessage(summary, url))}`;
   }
 
   function getLinkedInUrl() {
@@ -95,7 +94,7 @@ export function SocialShareButton({
     try {
       await navigator.share({
         title,
-        text: description || shareText,
+        text: nativeShareText(summary),
         url,
       });
     } catch {

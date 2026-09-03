@@ -55,8 +55,7 @@ export default function DashboardSeriesCard({ occurrences }: { occurrences: List
           {first.series_slug && (
             <SocialShareButton
               title={first.title}
-              description={first.description ?? undefined}
-              url={`${typeof window !== "undefined" ? window.location.origin : ""}/series/${first.series_slug}`}
+              url={`${typeof window !== "undefined" ? window.location.origin : "https://usha.se"}/series/${first.series_slug}`}
               eventLocation={first.event_location}
               price={first.price}
             />
