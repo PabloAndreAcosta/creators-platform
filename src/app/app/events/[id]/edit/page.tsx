@@ -65,7 +65,7 @@ export default async function EditEventPage(props: { params: Promise<{ id: strin
     };
   });
 
-  const venues = await listVenueOptions(supabase);
+  const venues = await listVenueOptions();
 
   const action = updateEvent.bind(null, event.id);
 
