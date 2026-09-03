@@ -66,8 +66,11 @@ export const APP_DESTINATIONS: AppDestination[] = [
     group: "createSell", roles: "all", surfaces: ["sidebar"] },
   { path: "/dashboard/listings", labelKey: "servicesLabel", descKey: "servicesDesc", icon: Package,
     group: "createSell", roles: ["creator", "venue"], surfaces: ["more"] },
-  { path: "/dashboard/bookings", labelKey: "bookingsLabel", descKey: "bookingsDesc", icon: CalendarCheck,
-    group: "createSell", roles: ["creator", "venue"], surfaces: ["more"] },
+  // I sidomenyn: vilka som kommer i kväll är en daglig fråga för den som håller
+  // event, inte något man letar upp i en verktygslåda.
+  { path: "/dashboard/bookings", labelKey: "bookingsLabel", descKey: "bookingsDesc",
+    navLabelKey: "bookings", icon: CalendarCheck,
+    group: "createSell", roles: ["creator", "venue"], surfaces: ["more", "sidebar"] },
   { path: "/app/calendar", labelKey: "calendarLabel", descKey: "calendarDesc", navLabelKey: "calendar", icon: CalendarDays,
     group: "createSell", roles: "all", surfaces: ["more", "sidebar"] },
   { path: "/app/scan", labelKey: "scanLabel", descKey: "scanDesc", navLabelKey: "scan", icon: ScanLine,
@@ -84,8 +87,6 @@ export const APP_DESTINATIONS: AppDestination[] = [
     group: "createSell", roles: ["creator", "venue"], surfaces: ["more", "sidebar"] },
   { path: "/dashboard/products", labelKey: "productsLabel", descKey: "productsDesc", icon: Box,
     group: "createSell", roles: ["creator", "venue"], surfaces: ["more"] },
-  { path: "/app/events/insights", labelKey: "statisticsLabel", descKey: "statisticsDesc", icon: BarChart3,
-    group: "createSell", roles: ["creator", "venue"], surfaces: ["more"] },
   // Bara lokaler: arrangörer som vill koppla sitt evenemang hit. Utan en yta att
   // svara på blir kopplingen aldrig bekräftad, och då når den ingen.
   // Ligger även i sidomenyn: det här är lokalens inkorg, inte ett verktyg. Låg
@@ -99,8 +100,11 @@ export const APP_DESTINATIONS: AppDestination[] = [
     group: "createSell", roles: ["venue"], surfaces: ["more"] },
 
   // ---- Ekonomi ------------------------------------------------------------
-  { path: "/dashboard/payouts", labelKey: "payoutsLabel", descKey: "payoutsDesc", icon: Wallet,
-    group: "finance", roles: ["creator", "venue"], surfaces: ["more"] },
+  // I sidomenyn: "var är mina pengar" är den fråga folk letar efter först och
+  // tålmodigast med. Den ska inte ligga bakom en generisk etikett.
+  { path: "/dashboard/payouts", labelKey: "payoutsLabel", descKey: "payoutsDesc",
+    navLabelKey: "payouts", icon: Wallet,
+    group: "finance", roles: ["creator", "venue"], surfaces: ["more", "sidebar"] },
   { path: "/dashboard/analytics", labelKey: "analyticsLabel", descKey: "analyticsDesc", icon: BarChart3,
     group: "finance", roles: ["creator", "venue"], surfaces: ["more"] },
   { path: "/dashboard/billing", labelKey: "billingLabel", descKey: "billingDesc", icon: CreditCard,
@@ -233,6 +237,7 @@ export const CONTEXTUAL_ROUTES: Record<string, string> = {
   "/app/events/[id]/codes": "Nås från eventsidan.",
   "/app/events/new": "Nås från Skapa-knappen i eventlistan.",
   "/app/events/open": "Nås från eventlistan.",
+  "/app/events/insights": "Statistik för egna event — nås från Statistik-länken i eventlistans huvud. Det är en underrutt till Evenemang, inte en jämlike i menyn.",
   "/app/events/select-page": "Nås mitt i Facebook-inloggningen när kontot har flera sidor.",
   "/app/invites/[token]": "Nås via inbjudningslänk i mejl.",
   "/dashboard/listings/new": "Nås från tjänstelistan.",

@@ -12,6 +12,7 @@ import { EVENT_CATEGORIES } from "./constants";
 import { getSubscriptionStatus } from "@/lib/subscription/check";
 import { checkListingLimit } from "@/lib/listings/limits";
 import { generateUniqueListingSlug, generateUniqueSeriesSlug } from "@/lib/listings/slug";
+import { createNotification } from "@/lib/notifications/create";
 import { isSeller } from "@/lib/roles";
 import { ticketGateForNewEvent, ticketGateForListing } from "@/lib/capabilities/gate";
 import { stockholmLocalToUtcISO } from "@/lib/time";
@@ -468,6 +469,30 @@ export async function createEvent(formData: FormData) {
     image_url: first.image_url,
     listing_id: first.id,
   });
+
+  // Säg till lokalen. Kopplingen ger arrangören plats på lokalens sida och
+  // mejlar lokalens följare, så den händer inte förrän lokalen svarat ja — och
+  // förr sa ingenting till att det låg och väntade. Bacchi fick åtta kvällar
+  // liggande i två dygn och fick veta det via ett meddelande utanför appen.
+  //
+  // En notis per serie, inte per kväll: åtta bjällror för samma beslut är inte
+  // åtta gånger tydligare, bara åtta gånger mer att avfärda.
+  const venueId = parsed.data.venue_profile_id;
+  if (venueId && venueId !== ownerId) {
+    const { data: me } = await supabase
+      .from("profiles")
+      .select("full_name")
+      .eq("id", ownerId)
+      .maybeSingle();
+    await createNotification({
+      userId: venueId,
+      type: "venue_request",
+      titleKey: "venueRequestTitle",
+      bodyKey: "venueRequestMsg",
+      params: { organiser: me?.full_name ?? first.title, count: created.length },
+      link: "/app/venue-requests",
+    });
+  }
 
   revalidatePath("/app/events");
   revalidatePath("/app");

@@ -53,6 +53,7 @@
     "myPosts": "Mis publicaciones",
     "messages": "Mensajes",
     "tickets": "Entradas",
+    "payouts": "Pagos",
     "scan": "Escanear",
     "events": "Eventos",
     "venueRequests": "Solicitudes",
@@ -60,10 +61,22 @@
     "library": "Biblioteca",
     "leaderboard": "Clasificación",
     "calendar": "Calendario",
+    "bookings": "Reservas",
     "more": "Más",
     "profile": "Perfil",
     "shop": "Tienda",
     "buddies": "Compañeros"
+  },
+  "pendingTodos": {
+    "heading": "Te esperan",
+    "venueRequests": {
+      "text": "{count, plural, one {# evento quiere celebrarse en tu local} other {# eventos quieren celebrarse en tu local}}",
+      "action": "Responder"
+    },
+    "awaitingVenue": {
+      "text": "{count, plural, one {# evento espera la aceptación del local} other {# eventos esperan la aceptación del local}}",
+      "action": "Ver"
+    }
   },
   "roles": {
     "customer": "Público",
@@ -877,7 +890,9 @@
     "levelName7": "Maestro",
     "levelName8": "Leyenda",
     "levelName9": "Icono",
-    "levelNameGeneric": "Nivel {level}"
+    "levelNameGeneric": "Nivel {level}",
+    "venueRequestTitle": "Solicitud para tu local",
+    "venueRequestMsg": "{organiser} quiere celebrar {count, plural, one {un evento} other {# eventos}} en tu local. No pasa nada hasta que respondas."
   },
   "apiErrors": {
     "unauthorized": "No autorizado",
