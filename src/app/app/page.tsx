@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { HomeContent } from "./home-content";
 import { getFeedPosts } from "./feed/queries";
+import { pendingTodos, type TodoItem } from "@/lib/todo/pending";
+import { venuesUserHasCapability } from "@/lib/venues/members";
 
 interface Profile {
   id: string;
@@ -49,6 +51,7 @@ export default async function AppHomePage() {
   let upcomingBookings: { id: string; title: string; scheduledAt: string; location: string | null }[] = [];
   let hasPreferences = false;
   let hostedEventsCount = 0;
+  let todos: TodoItem[] = [];
 
   try {
     const supabase = await createClient();
@@ -103,6 +106,33 @@ export default async function AppHomePage() {
         .not("venue_confirmed_at", "is", null)
         .eq("is_active", true);
       hostedEventsCount = hosted ?? 0;
+
+      // Sådant som väntar på ett svar. Marias åtta förfrågningar låg obesvarade
+      // i två dygn utan att något sa till — startsidan får säga det nu.
+      // Samma lokaler som förfrågningssidan visar: egna plus dem man sköter
+      // sidan åt, annars ser en teammedlem en siffra hen inte kan agera på.
+      const lokaler = [user.id, ...(await venuesUserHasCapability(user.id, "page"))];
+      const [inkomna, utgaende] = await Promise.all([
+        supabase
+          .from("listings")
+          .select("id", { count: "exact", head: true })
+          .in("venue_profile_id", lokaler)
+          .neq("user_id", user.id)
+          .is("venue_confirmed_at", null)
+          .eq("is_active", true),
+        supabase
+          .from("listings")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", user.id)
+          .not("venue_profile_id", "is", null)
+          .neq("venue_profile_id", user.id)
+          .is("venue_confirmed_at", null)
+          .eq("is_active", true),
+      ]);
+      todos = pendingTodos({
+        venueRequestsPending: inkomna.count,
+        listingsAwaitingVenue: utgaende.count,
+      });
 
       const startOfMonth = new Date();
       startOfMonth.setDate(1);
@@ -184,6 +214,7 @@ export default async function AppHomePage() {
       upcomingBookings={upcomingBookings}
       hasPreferences={hasPreferences}
       hostedEventsCount={hostedEventsCount}
+      todos={todos}
     />
   );
 }

@@ -53,6 +53,7 @@
     "myPosts": "My Posts",
     "messages": "Messages",
     "tickets": "Tickets",
+    "payouts": "Payouts",
     "scan": "Scan",
     "events": "Events",
     "venueRequests": "Requests",
@@ -60,10 +61,22 @@
     "library": "Library",
     "leaderboard": "Leaderboard",
     "calendar": "Calendar",
+    "bookings": "Bookings",
     "more": "More",
     "profile": "Profile",
     "shop": "Shop",
     "buddies": "Training buddies"
+  },
+  "pendingTodos": {
+    "heading": "Waiting for you",
+    "venueRequests": {
+      "text": "{count, plural, one {# event wants to be held at your venue} other {# events want to be held at your venue}}",
+      "action": "Respond"
+    },
+    "awaitingVenue": {
+      "text": "{count, plural, one {# event is waiting for the venue to accept} other {# events are waiting for the venue to accept}}",
+      "action": "View"
+    }
   },
   "roles": {
     "customer": "Audience",
@@ -877,7 +890,9 @@
     "levelName7": "Master",
     "levelName8": "Legend",
     "levelName9": "Icon",
-    "levelNameGeneric": "Level {level}"
+    "levelNameGeneric": "Level {level}",
+    "venueRequestTitle": "Request for your venue",
+    "venueRequestMsg": "{organiser} wants to hold {count, plural, one {an event} other {# events}} at your venue. Nothing happens until you respond."
   },
   "apiErrors": {
     "unauthorized": "Unauthorized",

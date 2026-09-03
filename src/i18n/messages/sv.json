@@ -53,6 +53,7 @@
     "myPosts": "Mina inlägg",
     "messages": "Meddelanden",
     "tickets": "Biljetter",
+    "payouts": "Utbetalningar",
     "scan": "Skanna",
     "events": "Evenemang",
     "venueRequests": "Förfrågningar",
@@ -60,10 +61,22 @@
     "library": "Bibliotek",
     "leaderboard": "Topplista",
     "calendar": "Kalender",
+    "bookings": "Bokningar",
     "more": "Mer",
     "profile": "Profil",
     "shop": "Butik",
     "buddies": "Träningsvänner"
+  },
+  "pendingTodos": {
+    "heading": "Väntar på dig",
+    "venueRequests": {
+      "text": "{count, plural, one {# evenemang vill hållas hos er} other {# evenemang vill hållas hos er}}",
+      "action": "Svara"
+    },
+    "awaitingVenue": {
+      "text": "{count, plural, one {# evenemang väntar på lokalens ja} other {# evenemang väntar på lokalens ja}}",
+      "action": "Visa"
+    }
   },
   "roles": {
     "customer": "Publik",
@@ -877,7 +890,9 @@
     "levelName7": "Mästare",
     "levelName8": "Legend",
     "levelName9": "Ikon",
-    "levelNameGeneric": "Nivå {level}"
+    "levelNameGeneric": "Nivå {level}",
+    "venueRequestTitle": "Förfrågan om er lokal",
+    "venueRequestMsg": "{organiser} vill hålla {count, plural, one {ett evenemang} other {# evenemang}} hos er. Det händer inget förrän ni svarar."
   },
   "apiErrors": {
     "unauthorized": "Ej behörig",

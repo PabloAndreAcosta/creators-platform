@@ -26,6 +26,8 @@ import {
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { OnboardingChecklist } from "./creator-onboarding";
+import { PendingTodos } from "./pending-todos";
+import type { TodoItem } from "@/lib/todo/pending";
 import RecommendedEvents from "@/components/RecommendedEvents";
 import { FavoriteButton } from "@/components/favorite-button";
 import { BuyTicketCta } from "@/components/buy-ticket-cta";
@@ -97,6 +99,8 @@ interface HomeContentProps {
   upcomingBookings?: UpcomingBooking[];
   hasPreferences?: boolean;
   hostedEventsCount?: number;
+  /** Sådant som väntar på ett svar. Tomt = panelen visas inte alls. */
+  todos?: TodoItem[];
 }
 
 export function HomeContent({
@@ -111,6 +115,7 @@ export function HomeContent({
   upcomingBookings = [],
   hasPreferences = false,
   hostedEventsCount = 0,
+  todos = [],
 }: HomeContentProps) {
   const { role } = useRole();
 
@@ -124,6 +129,7 @@ export function HomeContent({
         feedPosts={feedPosts}
         upcomingBookings={upcomingBookings}
         hasPreferences={hasPreferences}
+        todos={todos}
       />
     );
   }
@@ -139,12 +145,13 @@ export function HomeContent({
         averageRating={averageRating}
         tier={profile?.tier || "gratis"}
         feedPosts={feedPosts}
+        todos={todos}
       />
     );
   }
 
   return (
-    <UpplevelseHome profile={profile} bookingsCount={bookingsCount} listings={listings} ownServices={ownServices} monthlyRevenue={monthlyRevenue} averageRating={averageRating} tier={profile?.tier || "gratis"} feedPosts={feedPosts} hostedEventsCount={hostedEventsCount} />
+    <UpplevelseHome profile={profile} bookingsCount={bookingsCount} listings={listings} ownServices={ownServices} monthlyRevenue={monthlyRevenue} averageRating={averageRating} tier={profile?.tier || "gratis"} feedPosts={feedPosts} hostedEventsCount={hostedEventsCount} todos={todos} />
   );
 }
 
@@ -157,6 +164,7 @@ function PublikHome({
   feedPosts = [],
   upcomingBookings = [],
   hasPreferences = false,
+  todos = [],
 }: {
   profile: Profile | null;
   listings: Listing[];
@@ -165,6 +173,7 @@ function PublikHome({
   feedPosts?: FeedPost[];
   upcomingBookings?: UpcomingBooking[];
   hasPreferences?: boolean;
+  todos?: TodoItem[];
 }) {
   const t = useTranslations("home");
   const tc = useTranslations("common");
@@ -234,6 +243,7 @@ function PublikHome({
 
   return (
     <div className="space-y-8 pb-4">
+      <PendingTodos items={todos} />
       <OnboardingChecklist
         role={profile?.role ?? "customer"}
         customerLocation={profile?.customer_location ?? null}
@@ -612,6 +622,7 @@ function KreatorHome({
   averageRating = null,
   tier = "gratis",
   feedPosts = [],
+  todos = [],
 }: {
   profile: Profile | null;
   bookingsCount: number;
@@ -621,6 +632,7 @@ function KreatorHome({
   averageRating?: number | null;
   tier?: string;
   feedPosts?: FeedPost[];
+  todos?: TodoItem[];
 }) {
   const t = useTranslations("home");
   const tc = useTranslations("common");
@@ -643,7 +655,9 @@ function KreatorHome({
   const userListings = ownServices.map((l) => ({ id: l.id, title: l.title }));
 
   const onboarding = (
-    <OnboardingChecklist
+    <>
+      <PendingTodos items={todos} />
+      <OnboardingChecklist
       role={profile?.role ?? "creator"}
       isCompany={!!profile?.is_company}
       bio={profile?.bio}
@@ -655,7 +669,8 @@ function KreatorHome({
       stripeAccountId={profile?.stripe_account_id}
       stripeCardPaymentsEnabled={!!profile?.stripe_card_payments_enabled}
       isPublic={profile?.is_public}
-    />
+      />
+    </>
   );
 
   const servicesEmpty = (
@@ -1010,6 +1025,7 @@ function KreatorHome({
 /* ─── Upplevelse (Venue/Experience) Home ─── */
 function UpplevelseHome({
   hostedEventsCount = 0,
+  todos = [],
   profile,
   bookingsCount,
   listings,
@@ -1028,6 +1044,7 @@ function UpplevelseHome({
   tier?: string;
   feedPosts?: FeedPost[];
   hostedEventsCount?: number;
+  todos?: TodoItem[];
 }) {
   const t = useTranslations("home");
   const tc = useTranslations("common");
@@ -1052,7 +1069,9 @@ function UpplevelseHome({
   const userListings = ownServices.map((l) => ({ id: l.id, title: l.title }));
 
   const onboarding = (
-    <OnboardingChecklist
+    <>
+      <PendingTodos items={todos} />
+      <OnboardingChecklist
       role={profile?.role ?? "venue"}
       isCompany={!!profile?.is_company}
       bio={profile?.bio}
@@ -1064,8 +1083,9 @@ function UpplevelseHome({
       stripeAccountId={profile?.stripe_account_id}
       stripeCardPaymentsEnabled={!!profile?.stripe_card_payments_enabled}
       isPublic={profile?.is_public}
-          hostedEventsCount={hostedEventsCount}
-    />
+      hostedEventsCount={hostedEventsCount}
+      />
+    </>
   );
 
   const eventsEmpty = (

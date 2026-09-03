@@ -21,7 +21,10 @@ export type NotificationType =
   | 'gage_agreed'
   | 'gage_canceled'
   | 'gage_paid'
-  | 'collab_invite';
+  | 'collab_invite'
+  // En arrangör vill hålla sitt evenemang hos en lokal. Kopplingen händer inte
+  // förrän lokalen svarar ja, så lokalen måste få veta att den ligger och väntar.
+  | 'venue_request';
 
 interface CreateNotificationParams {
   userId: string;
