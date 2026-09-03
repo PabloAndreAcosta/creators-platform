@@ -473,28 +473,10 @@ export default async function EventPage(props: Params) {
 
           <aside className="space-y-4">
             <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
-              <div className="mb-4 text-center">
-                <p className="text-xs uppercase tracking-wide text-[var(--usha-muted)]">
-                  {saleBadge ?? t("ticket")}
-                </p>
-                <p className="mt-1 whitespace-nowrap text-3xl font-bold text-[var(--usha-gold)]">
-                  {isFree ? (
-                    t("free")
-                  ) : (
-                    <>
-                      {sale.price < (listing.price ?? 0) && (
-                        <span className="mr-2 align-middle text-xl font-normal text-[var(--usha-muted)] line-through">
-                          {listing.price} kr
-                        </span>
-                      )}
-                      {`${sale.price} kr`}
-                    </>
-                  )}
-                </p>
-                {saleNote && (
-                  <p className="mt-1 text-xs text-[var(--usha-muted)]">{saleNote}</p>
-                )}
-              </div>
+              {/* Prisrubriken hör ihop med biljettvalet, så under försäljning
+                  renderas den av BookButton och följer det man klickat på.
+                  Går det inte att köpa finns inget val att följa, och då står
+                  den kvar här. */}
               {sale.buyable ? (
                 <BookButton
                   listingId={listing.id}
@@ -502,12 +484,41 @@ export default async function EventPage(props: Params) {
                   isLoggedIn={!!user}
                   returnPath={returnPath}
                   ticketTypes={ticketTypesForSale}
+                  header={{
+                    badge: saleBadge ?? t("ticket"),
+                    listPrice: listing.price ?? null,
+                    note: saleNote,
+                  }}
                 />
               ) : (
-                <div className="w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-4 py-2.5 text-center text-sm font-semibold text-[var(--usha-muted)]">
-                  {sale.state === "past" ? t("badgePast") :
-                   sale.state === "sold_out" ? t("soldOut") : t("notReleased")}
-                </div>
+                <>
+                  <div className="mb-4 text-center">
+                    <p className="text-xs uppercase tracking-wide text-[var(--usha-muted)]">
+                      {saleBadge ?? t("ticket")}
+                    </p>
+                    <p className="mt-1 whitespace-nowrap text-3xl font-bold text-[var(--usha-gold)]">
+                      {isFree ? (
+                        t("free")
+                      ) : (
+                        <>
+                          {sale.price < (listing.price ?? 0) && (
+                            <span className="mr-2 align-middle text-xl font-normal text-[var(--usha-muted)] line-through">
+                              {t("priceLabel", { price: listing.price ?? 0 })}
+                            </span>
+                          )}
+                          {t("priceLabel", { price: sale.price })}
+                        </>
+                      )}
+                    </p>
+                    {saleNote && (
+                      <p className="mt-1 text-xs text-[var(--usha-muted)]">{saleNote}</p>
+                    )}
+                  </div>
+                  <div className="w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-4 py-2.5 text-center text-sm font-semibold text-[var(--usha-muted)]">
+                    {sale.state === "past" ? t("badgePast") :
+                     sale.state === "sold_out" ? t("soldOut") : t("notReleased")}
+                  </div>
+                </>
               )}
               {sale.buyable && !user && (
                 <p className="mt-3 text-center text-[11px] text-[var(--usha-muted)]">

@@ -19,6 +19,22 @@ interface Props {
   isLoggedIn: boolean;
   returnPath: string;
   ticketTypes?: TicketType[];
+  /**
+   * Prisrubriken ovanför väljaren. Den renderades tidigare av sidan, på
+   * servern, och kunde därför bara visa grundpriset — valde man Workshop för
+   * 100 kr stod det fortfarande 50 kr i stort format medan köpknappen sa 100.
+   * Två olika belopp i samma ruta, och det översta det man läser först.
+   *
+   * Rubriken bor här nu, hos valet den beskriver. Sidan skickar bara det som
+   * inte kan ändras av ett klick.
+   */
+  header?: {
+    /** "Biljett", eller ett läge som "Early bird". */
+    badge: string;
+    /** Ordinarie pris, för överstrykning när sista minuten-priset är lägre. */
+    listPrice: number | null;
+    note: string | null;
+  };
 }
 
 const BTN =
@@ -28,7 +44,7 @@ function soldOut(tt: TicketType) {
   return tt.capacity != null && tt.tickets_sold >= tt.capacity;
 }
 
-export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [] }: Props) {
+export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], header }: Props) {
   const { toast } = useToast();
   const t = useTranslations("eventPage");
   const [loading, setLoading] = useState(false);
@@ -79,6 +95,38 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [] }: P
       setLoading(false);
     }
   }
+
+  // Rubriken namnger biljetten man valt, inte "Biljett" i allmänhet. Står det
+  // "Workshop 19–20 · 100 kr" över en köpknapp som säger 100 kr finns det inget
+  // att bli förvirrad av. Antalet räknas inte in — rubriken beskriver EN
+  // biljett, knappen beskriver ordern.
+  const headerBlock = header ? (
+    <div className="mb-4 text-center">
+      <p className="text-xs uppercase tracking-wide text-[var(--usha-muted)]">
+        {selectedType ? selectedType.name : header.badge}
+      </p>
+      <p className="mt-1 whitespace-nowrap text-3xl font-bold text-[var(--usha-gold)]">
+        {isFree ? (
+          t("free")
+        ) : (
+          <>
+            {/* Överstrykningen jämför mot listingens ordinarie pris och säger
+                alltså bara något om grundbiljetten. Med biljettyper jämför den
+                två olika saker, så då visas den inte. */}
+            {!selectedType && header.listPrice != null && effectivePrice < header.listPrice && (
+              <span className="mr-2 align-middle text-xl font-normal text-[var(--usha-muted)] line-through">
+                {t("priceLabel", { price: header.listPrice })}
+              </span>
+            )}
+            {t("priceLabel", { price: effectivePrice })}
+          </>
+        )}
+      </p>
+      {header.note && (
+        <p className="mt-1 text-xs text-[var(--usha-muted)]">{header.note}</p>
+      )}
+    </div>
+  ) : null;
 
   const picker = hasTypes ? (
     <div className="mb-3 space-y-2">
@@ -155,6 +203,7 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [] }: P
   if (isLoggedIn) {
     return (
       <>
+        {headerBlock}
         {picker}
         {qtyStepper}
         {nameInputs}
@@ -179,6 +228,7 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [] }: P
       }}
       className="space-y-2"
     >
+      {headerBlock}
       {picker}
       {qtyStepper}
       {nameInputs}
