@@ -39,7 +39,7 @@ export default async function NewEventPage({
   }
 
   const [venues, organisers] = await Promise.all([
-    listVenueOptions(supabase),
+    listVenueOptions(),
     venuesUserCanCreateFor(user.id),
   ]);
 
