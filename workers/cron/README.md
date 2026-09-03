@@ -37,3 +37,11 @@ hela timme.
     cd workers/cron && npm install && npx wrangler deploy
 
 Ingen automatisk deploy — Workern ändras sällan och ligger utanför Vercel-bygget.
+
+## Varför mappen är utesluten ur appens tsconfig
+
+Workern körs på Cloudflares runtime, inte i Next. Dess typer (`ScheduledController`,
+`ExecutionContext`) kommer ur `@cloudflare/workers-types` och finns inte i appens
+typvärld — låg mappen kvar i rot-`tsconfig.json`s `include` failade `next build`
+med "Cannot find name 'ScheduledController'". `workers/` står därför i `exclude`,
+och Workern typkollas för sig med sin egen `tsconfig.json`.
