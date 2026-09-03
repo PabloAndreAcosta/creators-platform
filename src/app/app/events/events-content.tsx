@@ -33,6 +33,7 @@ import { EVENT_CATEGORY_LABELS } from "./constants";
 import { FacebookConnect } from "@/components/facebook/FacebookConnect";
 import { FacebookSyncButton } from "@/components/facebook/FacebookSyncButton";
 import { SocialShareButton } from "@/components/social-share-button";
+import { eventShareUrl } from "@/lib/events/share";
 
 const EVENT_IMAGES = [
   "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&h=200&fit=crop",
@@ -67,6 +68,7 @@ interface ListingData {
   event_time: string | null;
   event_location: string | null;
   user_id: string;
+  slug: string | null;
 }
 
 interface EventsContentProps {
@@ -415,9 +417,12 @@ function EventCard({
         <div className="flex items-center gap-2">
           <SocialShareButton
             title={listing.title}
-            description={listing.description ?? undefined}
-            url={`${typeof window !== "undefined" ? window.location.origin : ""}/creators/${listing.user_id}`}
+            url={eventShareUrl(
+              listing,
+              typeof window !== "undefined" ? window.location.origin : null
+            )}
             eventDate={listing.event_date}
+            eventTime={listing.event_time}
             eventLocation={listing.event_location}
             price={listing.price}
           />

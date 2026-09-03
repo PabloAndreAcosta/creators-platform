@@ -467,9 +467,9 @@ export default async function EventPage(props: Params) {
               </p>
               <SocialShareButton
                 title={listing.title}
-                description={listing.description ?? undefined}
                 url={`${appUrl}/event/${slug}`}
                 eventDate={listing.event_date}
+                eventTime={listing.event_time}
                 eventLocation={listing.event_location}
                 price={listing.price}
               />

@@ -9,6 +9,7 @@ import Link from "next/link";
 import { Clock, Pencil, Trash2, Crown, Calendar, MapPin, Copy } from "lucide-react";
 import { CATEGORY_LABELS } from "@/lib/categories";
 import { SocialShareButton } from "@/components/social-share-button";
+import { eventShareUrl } from "@/lib/events/share";
 
 export interface Listing {
   id: string;
@@ -25,6 +26,7 @@ export interface Listing {
   event_venue?: string | null;
   series_id?: string | null;
   series_slug?: string | null;
+  slug?: string | null;
   user_id?: string;
   created_at: string;
 }
@@ -145,9 +147,12 @@ export default function ListingRow({ listing }: { listing: Listing }) {
       <div className="flex flex-wrap items-center gap-2 sm:ml-4 sm:shrink-0">
         <SocialShareButton
           title={listing.title}
-          description={listing.description ?? undefined}
-          url={`${typeof window !== "undefined" ? window.location.origin : ""}/creators/${listing.user_id}`}
+          url={eventShareUrl(
+            listing,
+            typeof window !== "undefined" ? window.location.origin : null
+          )}
           eventDate={listing.event_date}
+          eventTime={listing.event_time}
           eventLocation={listing.event_location}
           price={listing.price}
         />

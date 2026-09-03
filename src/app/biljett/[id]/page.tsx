@@ -36,6 +36,7 @@ export default async function GuestTicketPage({
   if (!isUUID(id)) notFound();
 
   const t = await getTranslations("ticketPage");
+  const tCommon = await getTranslations("common");
   const admin = createAdminClient();
   const { data: booking } = await admin
     .from("bookings")
@@ -47,7 +48,7 @@ export default async function GuestTicketPage({
   const [{ data: listing }, { data: creator }] = await Promise.all([
     admin
       .from("listings")
-      .select("title, event_date, event_time, event_location, venue_profile_id, venue_confirmed_at")
+      .select("title, slug, event_date, event_time, event_location, venue_profile_id, venue_confirmed_at")
       .eq("id", booking.listing_id)
       .maybeSingle(),
     admin
@@ -297,10 +298,11 @@ export default async function GuestTicketPage({
 
           {!canceled && (
             <ShareEventButton
-              url={`${appUrl}/listing/${booking.listing_id}`}
+              url={`${appUrl}/event/${listing?.slug || booking.listing_id}`}
               title={listing?.title ?? t("eventFallback")}
               text={t("shareText", { title: listing?.title ?? t("shareTitleFallback") })}
               label={t("shareLabel")}
+              copiedLabel={tCommon("linkCopied")}
               className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2.5 text-sm font-semibold text-black transition hover:opacity-90"
             />
           )}

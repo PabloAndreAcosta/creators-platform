@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Share2, Check } from "lucide-react";
+import { withTrailingBreak } from "@/lib/events/share";
 
 /**
  * "Invite friends / share you're going" button shown after a booking. Uses the
@@ -13,12 +14,14 @@ export function ShareEventButton({
   title,
   text,
   label,
+  copiedLabel,
   className,
 }: {
   url: string;
   title: string;
   text?: string;
   label: string;
+  copiedLabel: string;
   className?: string;
 }) {
   const [copied, setCopied] = useState(false);
@@ -27,7 +30,7 @@ export function ShareEventButton({
     // navigator.share can reject (user cancels) — treat as a no-op.
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
-        await navigator.share({ title, text, url });
+        await navigator.share({ title, text: text ? withTrailingBreak(text) : undefined, url });
         return;
       } catch {
         return;
@@ -52,7 +55,7 @@ export function ShareEventButton({
       }
     >
       {copied ? <Check size={15} /> : <Share2 size={15} />}
-      {copied ? "Länk kopierad" : label}
+      {copied ? copiedLabel : label}
     </button>
   );
 }
