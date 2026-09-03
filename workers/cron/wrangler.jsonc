@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "usha-cron",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-01",
+  "observability": { "enabled": true },
+  "triggers": {
+    // Varje hel timme. GitHub Actions schemalägger "best effort" och strypte
+    // i praktiken den här listan till var 4,5:e timme (värsta uppmätta glapp
+    // 12,6 h), vilket gjorde T-2h-påminnelsen till ett lotteri. Cloudflares
+    // cron triggers stryps inte på samma sätt.
+    "crons": ["0 * * * *"]
+  }
+}
