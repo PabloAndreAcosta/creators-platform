@@ -62,13 +62,19 @@ export function EventMap({
   // Då är länken ensam bättre än en trasig karta.
   const showEmbed = !!key;
 
-  const mapsHref = hasCoords
-    ? `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`
-    : placeId
-      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-          location || ""
-        )}&query_place_id=${placeId}`
-      : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(textQuery || "")}`;
+  // Länken ut prioriterar NAMNET, inte koordinaterna — tvärtemot inbäddningen.
+  // Koordinater ger en namnlös nål i Google Maps: ingen infokarta, inga
+  // öppettider, inget foto, bara "59.32, 18.07". Med namnet öppnas stället som
+  // ett ställe, med Vägbeskrivning-knappen och allt Google vet om det.
+  // place_id läggs till när det finns, så rätt ställe träffas även om namnet
+  // är tvetydigt. Saknas namn helt faller vi tillbaka på koordinaterna.
+  const namedQuery = textQuery || location;
+  const mapsHref = namedQuery
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(namedQuery)}` +
+      (placeId ? `&query_place_id=${placeId}` : "")
+    : hasCoords
+      ? `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`
+      : "https://www.google.com/maps";
 
   return (
     <section className="mt-8">
