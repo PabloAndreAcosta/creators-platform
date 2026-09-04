@@ -32,6 +32,11 @@ const JOBS = [
   { name: "event-reminders", desc: "Autopublicering till Facebook (T-3d)" },
   { name: "waitlist-release", desc: "Mejl till väntelistan när biljetter släpps" },
   { name: "connect-sync", desc: "Synk av Stripe Connect-kapaciteter" },
+  // Avräkningen låg bara i GitHub-schemat, som driver 4–12 timmar. Med
+  // payout_delay_days = 1 ska underlaget finnas morgonen efter kvällen, och
+  // det gör det inte om jobbet kör vid lunch. Körningen är idempotent
+  // (UNIQUE(listing_id)), så att båda schemana pingar den är ofarligt.
+  { name: "settlement-payouts", desc: "Avräkning mot partner för kvällar som varit" },
 ] as const;
 
 async function runJob(env: Env, path: string): Promise<{ ok: boolean; detail: string }> {
