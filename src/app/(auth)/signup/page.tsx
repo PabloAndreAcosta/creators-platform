@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
+import { authUrlWithNext, callbackUrlWithNext } from "@/lib/auth/next-path";
 import { createClient } from "@/lib/supabase/client";
 import { isPasswordPwned } from "@/lib/auth/password-strength";
 import { isRateLimitError } from "@/lib/auth/rate-limit-error";
@@ -278,7 +279,7 @@ export default function SignupPage() {
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/callback`,
+        redirectTo: callbackUrlWithNext(window.location.origin, searchParams.get("next")),
         queryParams: { prompt: "select_account" },
       },
     });
@@ -289,7 +290,7 @@ export default function SignupPage() {
     storeRoleForOAuth();
     await supabase.auth.signInWithOAuth({
       provider: "facebook",
-      options: { redirectTo: `${window.location.origin}/callback` },
+      options: { redirectTo: callbackUrlWithNext(window.location.origin, searchParams.get("next")) },
     });
   }
 
@@ -346,7 +347,7 @@ export default function SignupPage() {
 
           <p className="mt-6 text-center text-sm text-[var(--usha-muted)]">
             {t("haveAccount")}{" "}
-            <a href="/login" className="text-[var(--usha-gold)] hover:underline">
+            <a href={authUrlWithNext("/login", searchParams.get("next"))} className="text-[var(--usha-gold)] hover:underline">
               {t("logIn")}
             </a>
           </p>
@@ -520,7 +521,7 @@ export default function SignupPage() {
 
           <p className="mt-4 text-center text-sm text-[var(--usha-muted)]">
             {t("haveAccount")}{" "}
-            <a href="/login" className="text-[var(--usha-gold)] hover:underline">
+            <a href={authUrlWithNext("/login", searchParams.get("next"))} className="text-[var(--usha-gold)] hover:underline">
               {t("logIn")}
             </a>
           </p>

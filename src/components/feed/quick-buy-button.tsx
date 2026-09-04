@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { authUrlWithNext } from "@/lib/auth/next-path";
 import { useTranslations } from "next-intl";
 import { Loader2, ShoppingBag, Ticket, Calendar, Mail, X } from "lucide-react";
 
@@ -104,7 +105,7 @@ export function QuickBuyButton({
 
     // Guest: for digital products, need account
     if (!canGuestCheckout) {
-      router.push(`/login?redirect=/flode`);
+      router.push(authUrlWithNext("/login", "/flode"));
       return;
     }
 

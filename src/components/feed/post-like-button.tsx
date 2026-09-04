@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { authUrlWithNext } from "@/lib/auth/next-path";
 import { Heart } from "lucide-react";
 
 interface PostLikeButtonProps {
@@ -18,7 +19,7 @@ export function PostLikeButton({ postId, initialLiked, initialCount, isLoggedIn 
 
   async function handleToggle() {
     if (!isLoggedIn) {
-      router.push("/login?redirect=/flode");
+      router.push(authUrlWithNext("/login", "/flode"));
       return;
     }
 
