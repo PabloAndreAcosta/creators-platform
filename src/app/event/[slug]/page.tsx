@@ -16,6 +16,7 @@ import { getTranslations, getLocale, getMessages } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
 import { SocialShareButton } from "@/components/social-share-button";
 import { TrackEvent } from "@/components/track-event";
+import { EventMap } from "@/components/event-map";
 
 export const revalidate = 60;
 
@@ -79,7 +80,7 @@ async function getListing(slug: string) {
   const { data: listing } = await supabase
     .from("listings")
     .select(
-      "id, user_id, title, description, category, price, duration_minutes, image_url, image_url_square, event_date, event_time, event_end_time, event_location, slug, series_slug, is_active, content_language, organizer_name, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, venue_profile_id, venue_confirmed_at"
+      "id, user_id, title, description, category, price, duration_minutes, image_url, image_url_square, event_date, event_time, event_end_time, event_location, event_place_id, event_lat, event_lng, slug, series_slug, is_active, content_language, organizer_name, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, venue_profile_id, venue_confirmed_at"
     )
     .eq(isUUID(slug) ? "id" : "slug", slug)
     .eq("is_active", true)
@@ -497,6 +498,19 @@ export default async function EventPage(props: Params) {
                 {t("durationMin", { minutes: listing.duration_minutes })}
               </p>
             )}
+
+            {/* Kartan. Den som läst klart och bestämt sig ska inte behöva
+                googla adressen själv — särskilt inte på väg dit. */}
+            <EventMap
+              lat={listing.event_lat}
+              lng={listing.event_lng}
+              placeId={listing.event_place_id}
+              location={listing.event_location}
+              city="Stockholm"
+              locale={locale}
+              heading={t("mapHeading")}
+              linkLabel={t("openInMaps")}
+            />
           </div>
 
           <aside className="space-y-4">

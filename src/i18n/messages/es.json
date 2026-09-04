@@ -2114,7 +2114,9 @@
     "codeSuccessBody": "Tu entrada gratis está confirmada: revisa {email}.",
     "manageCodes": "Códigos de acceso",
     "quantity": "Cantidad",
-    "attendeeNamePlaceholder": "Nombre del invitado {n} (opcional)"
+    "attendeeNamePlaceholder": "Nombre del invitado {n} (opcional)",
+    "mapHeading": "Cómo llegar",
+    "openInMaps": "Abrir en Maps"
   },
   "eventErrors": {
     "notReleased": "Las entradas aún no están disponibles.",

@@ -2114,7 +2114,9 @@
     "codeSuccessBody": "Your free ticket is confirmed — check {email}.",
     "manageCodes": "Access codes",
     "quantity": "Quantity",
-    "attendeeNamePlaceholder": "Name of guest {n} (optional)"
+    "attendeeNamePlaceholder": "Name of guest {n} (optional)",
+    "mapHeading": "Getting there",
+    "openInMaps": "Open in Maps"
   },
   "eventErrors": {
     "notReleased": "Tickets have not been released yet.",
