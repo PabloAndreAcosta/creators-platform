@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { authUrlWithNext, callbackUrlWithNext } from "@/lib/auth/next-path";
 import { createClient } from "@/lib/supabase/client";
 import { isRateLimitError } from "@/lib/auth/rate-limit-error";
 import { ShieldCheck, Eye, EyeOff } from "lucide-react";
@@ -158,7 +159,7 @@ export default function LoginPage() {
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/callback`,
+        redirectTo: callbackUrlWithNext(window.location.origin, rawNext),
         queryParams: { prompt: "select_account" },
       },
     });
@@ -168,7 +169,7 @@ export default function LoginPage() {
     await supabase.auth.signOut({ scope: "local" }).catch(() => {});
     await supabase.auth.signInWithOAuth({
       provider: "facebook",
-      options: { redirectTo: `${window.location.origin}/callback` },
+      options: { redirectTo: callbackUrlWithNext(window.location.origin, rawNext) },
     });
   }
 
@@ -291,7 +292,9 @@ export default function LoginPage() {
 
         <p className="mt-6 text-center text-sm text-[var(--usha-muted)]">
           {t("noAccount")}{" "}
-          <a href="/signup" className="text-[var(--usha-gold)] hover:underline">
+          {/* Vägen tillbaka följer med när man byter dörr — annars tappas den
+              av den som klickar sig från inloggning till registrering. */}
+          <a href={authUrlWithNext("/signup", rawNext)} className="text-[var(--usha-gold)] hover:underline">
             {t("signUp")}
           </a>
         </p>

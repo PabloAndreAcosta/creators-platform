@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { authUrlWithNext } from "@/lib/auth/next-path";
 import { useTranslations } from "next-intl";
 import { UserPlus, UserCheck, Loader2 } from "lucide-react";
 
@@ -26,7 +27,9 @@ export function FollowButton({
 
   async function handleToggle() {
     if (!isLoggedIn) {
-      router.push(`/login?redirect=/creators/${creatorId}`);
+      // Den som skannar en lokals QR-kod har oftast inget konto. Signup är rätt
+      // dörr, och login-länken där bär med vägen tillbaka.
+      router.push(authUrlWithNext("/signup", `/creators/${creatorId}`));
       return;
     }
 
