@@ -18,6 +18,7 @@ import {
 import BookingForm from "@/app/creators/[id]/booking-form";
 import { BuyTicketButton } from "@/components/buy-ticket-button";
 import { InstructorMinutesCard } from "@/components/instructor-minutes-card";
+import { EventMap } from "@/components/event-map";
 import { CATEGORY_LABELS } from "@/lib/categories";
 import { calculateDiscountedPrice } from "@/lib/stripe/commission";
 import { canReceivePayments } from "@/lib/payments/beta-gate";
@@ -72,7 +73,7 @@ export default async function ListingDetailPage(props: Props) {
     supabase
       .from("listings")
       .select(
-        "id, title, description, category, price, duration_minutes, event_date, event_time, event_end_time, event_location, event_lat, event_lng, image_url, listing_type, min_guests, max_guests, experience_details, user_id, is_active, slug, series_id, series_slug, open_to_instructors"
+        "id, title, description, category, price, duration_minutes, event_date, event_time, event_end_time, event_location, event_lat, event_lng, event_place_id, image_url, listing_type, min_guests, max_guests, experience_details, user_id, is_active, slug, series_id, series_slug, open_to_instructors"
       )
       .eq(column, params.id)
       .eq("is_active", true)
@@ -369,32 +370,17 @@ export default async function ListingDetailPage(props: Props) {
               </div>
             ) : null}
 
-            {/* Map */}
-            {listing.event_lat && listing.event_lng && (
-              <div className="mb-6">
-                <h2 className="mb-2 text-lg font-semibold">Karta</h2>
-                <div className="overflow-hidden rounded-xl border border-[var(--usha-border)]">
-                  <iframe
-                    width="100%"
-                    height="200"
-                    style={{ border: 0 }}
-                    className="sm:h-[300px]"
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&q=${listing.event_lat},${listing.event_lng}&zoom=15&language=sv`}
-                  />
-                  <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${listing.event_lat},${listing.event_lng}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 bg-[var(--usha-card)] px-4 py-3 text-sm text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
-                  >
-                    <MapPin size={14} className="text-[var(--usha-gold)]" />
-                    {listing.event_location || "Öppna i Google Maps"}
-                  </a>
-                </div>
-              </div>
-            )}
+            {/* Kartan bor i EventMap, som också kan rita en plats som bara
+                finns som fri text — här visades ingenting utan koordinater. */}
+            <EventMap
+              lat={listing.event_lat}
+              lng={listing.event_lng}
+              placeId={listing.event_place_id}
+              location={listing.event_location}
+              city="Stockholm"
+              heading="Karta"
+              linkLabel="Öppna i Google Maps"
+            />
           </div>
 
           {/* Sidebar — booking + creator */}

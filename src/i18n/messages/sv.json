@@ -2114,7 +2114,9 @@
     "codeSuccessBody": "Din gratisbiljett är bekräftad — kolla {email}.",
     "manageCodes": "Åtkomstkoder",
     "quantity": "Antal",
-    "attendeeNamePlaceholder": "Namn på gäst {n} (valfritt)"
+    "attendeeNamePlaceholder": "Namn på gäst {n} (valfritt)",
+    "mapHeading": "Hitta hit",
+    "openInMaps": "Öppna i Maps"
   },
   "eventErrors": {
     "notReleased": "Biljetterna har inte släppts än.",
