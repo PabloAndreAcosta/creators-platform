@@ -79,7 +79,7 @@ async function getListing(slug: string) {
   const { data: listing } = await supabase
     .from("listings")
     .select(
-      "id, user_id, title, description, category, price, duration_minutes, image_url, image_url_square, event_date, event_time, event_end_time, event_location, slug, series_slug, is_active, content_language, organizer_name, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold"
+      "id, user_id, title, description, category, price, duration_minutes, image_url, image_url_square, event_date, event_time, event_end_time, event_location, slug, series_slug, is_active, content_language, organizer_name, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, venue_profile_id, venue_confirmed_at"
     )
     .eq(isUUID(slug) ? "id" : "slug", slug)
     .eq("is_active", true)
@@ -92,6 +92,25 @@ async function getListing(slug: string) {
     .select("id, full_name, slug, avatar_url, bankid_verified_at")
     .eq("id", listing.user_id)
     .maybeSingle();
+
+  // Lokalen, när kopplingen är godkänd och lokalen är någon annan än
+  // arrangören. Innan detta nämndes lokalen bara som text i platsraden medan
+  // arrangören fick en klickbar profil — den som skannade en QR-kod i baren
+  // såg alltså husets namn utan att kunna ta sig till huset. Kopplingen är
+  // ömsesidig, presentationen ska vara det också.
+  const venueId =
+    listing.venue_confirmed_at && listing.venue_profile_id !== listing.user_id
+      ? listing.venue_profile_id
+      : null;
+  const { data: venue } = venueId
+    ? await supabase
+        .from("profiles")
+        .select("id, full_name, slug, avatar_url, is_public")
+        .eq("id", venueId)
+        .maybeSingle()
+    : { data: null };
+  // En lokal som gömt sin profil ska inte länkas fram av ett evenemang.
+  const venueLink = venue?.is_public ? venue : null;
 
   const today = new Date().toISOString().slice(0, 10);
   const cardColumns = "id, title, slug, image_url, event_date, event_location, price, series_slug";
@@ -133,7 +152,7 @@ async function getListing(slug: string) {
     .filter((m) => !seriesSlug || m.series_slug !== seriesSlug)
     .slice(0, 3);
 
-  return { listing, host, more, moreDates: (moreDatesRows ?? []) as EventCard[] };
+  return { listing, host, venue: venueLink, more, moreDates: (moreDatesRows ?? []) as EventCard[] };
 }
 
 async function getCrew(listingId: string) {
@@ -241,7 +260,7 @@ export default async function EventPage(props: Params) {
     notFound();
   }
 
-  const { listing, host, more, moreDates } = data;
+  const { listing, host, venue, more, moreDates } = data;
   const crew = await getCrew(listing.id);
   const supabase = await createClient();
 
@@ -404,12 +423,21 @@ export default async function EventPage(props: Params) {
                     {timeLabel}
                   </span>
                 )}
-                {listing.event_location && (
-                  <span className="inline-flex items-center gap-1.5">
-                    <MapPin size={16} />
-                    {listing.event_location}
-                  </span>
-                )}
+                {listing.event_location &&
+                  (venue ? (
+                    <Link
+                      href={`/creators/${venue.slug || venue.id}`}
+                      className="inline-flex items-center gap-1.5 underline-offset-4 transition hover:text-white hover:underline"
+                    >
+                      <MapPin size={16} />
+                      {listing.event_location}
+                    </Link>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5">
+                      <MapPin size={16} />
+                      {listing.event_location}
+                    </span>
+                  ))}
               </div>
             )}
           </div>
@@ -588,6 +616,23 @@ export default async function EventPage(props: Params) {
                 </span>
               )}
             </div>
+
+            {/* Lokalen får samma plats som arrangören. Kvällen är deras hus lika
+                mycket som hans produktion, och den som hittar hit ska kunna
+                hitta vidare till vad mer som händer där. */}
+            {venue && (
+              <div className="border-l border-[var(--usha-border)] pl-4">
+                <p className="text-xs uppercase tracking-wide text-[var(--usha-muted)]">
+                  {t("venue")}
+                </p>
+                <Link
+                  href={`/creators/${venue.slug || venue.id}`}
+                  className="text-sm font-medium text-[var(--usha-white)] hover:text-[var(--usha-gold)]"
+                >
+                  {venue.full_name}
+                </Link>
+              </div>
+            )}
           </div>
         )}
 
