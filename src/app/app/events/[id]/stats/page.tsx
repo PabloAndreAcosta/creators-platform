@@ -13,6 +13,7 @@ interface Attendee {
   eventsCount: number;
   checkedIn: boolean;
   returning: boolean;
+  bookingId: string;
 }
 interface Stats {
   event: { id: string; title: string; capacity: number | null; eventDate: string | null };
@@ -38,6 +39,9 @@ export default function EventStatsPage() {
   const t = useTranslations("eventStats");
   const { tier } = useSubscription();
   const [data, setData] = useState<Stats | null>(null);
+  // Vem vi just nu checkar in. Knappen låses medan anropet pågår så att ett
+  // dubbelklick inte blir två anrop.
+  const [checkingIn, setCheckingIn] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -56,6 +60,34 @@ export default function EventStatsPage() {
       setLoading(false);
     }
   }, [id, t]);
+
+  /**
+   * Checka in någon i efterhand, från listan.
+   *
+   * Går mot samma endpoint som skannern i dörren, med samma behörighetskontroll
+   * — ingen ny väg in i incheckningen, bara en andra knapp till den som redan
+   * finns. Efter svaret hämtas statistiken om, så att både raden och siffrorna
+   * längst upp stämmer.
+   */
+  const checkInManually = useCallback(
+    async (bookingId: string) => {
+      setCheckingIn(bookingId);
+      try {
+        const res = await fetch("/api/tickets/checkin", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ bookingId }),
+        });
+        if (res.ok) await fetchData();
+        else setError(t("errorCheckIn"));
+      } catch {
+        setError(t("errorConnection"));
+      } finally {
+        setCheckingIn(null);
+      }
+    },
+    [fetchData, t]
+  );
 
   useEffect(() => {
     fetchData();
@@ -174,6 +206,16 @@ export default function EventStatsPage() {
                 <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-medium ${a.returning ? "bg-[var(--usha-gold)]/15 text-[var(--usha-gold)]" : "bg-[var(--usha-border)] text-[var(--usha-muted)]"}`}>
                   {a.returning ? t("returningBadge", { count: a.eventsCount }) : t("typeNew")}
                 </span>
+                {!a.checkedIn && (
+                  <button
+                    type="button"
+                    onClick={() => checkInManually(a.bookingId)}
+                    disabled={checkingIn === a.bookingId}
+                    className="shrink-0 rounded-lg border border-[var(--usha-border)] px-2.5 py-1 text-[11px] font-medium text-[var(--usha-muted)] transition hover:border-green-500/50 hover:text-green-400 disabled:opacity-40"
+                  >
+                    {checkingIn === a.bookingId ? t("checkingIn") : t("markAttended")}
+                  </button>
+                )}
               </div>
             ))}
           </div>

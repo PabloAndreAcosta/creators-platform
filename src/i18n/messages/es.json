@@ -2834,7 +2834,7 @@
     "cardAttendees": "Asistentes",
     "cardCheckedIn": "Asistieron (registrados)",
     "cardCheckInRate": "Tasa de registro",
-    "cardNoShow": "No asistieron",
+    "cardNoShow": "Sin registrar",
     "cardReturning": "Recurrentes",
     "cardNew": "Nuevos",
     "cardRevenue": "Ingresos",
@@ -2852,7 +2852,10 @@
     "csvType": "Tipo",
     "csvStatusAttended": "Asistió",
     "csvStatusBooked": "Reservado",
-    "csvFilePrefix": "asistentes"
+    "csvFilePrefix": "asistentes",
+    "markAttended": "Vino",
+    "checkingIn": "…",
+    "errorCheckIn": "No se pudo registrar. Inténtalo de nuevo."
   },
   "libraryPage": {
     "title": "Mi biblioteca",

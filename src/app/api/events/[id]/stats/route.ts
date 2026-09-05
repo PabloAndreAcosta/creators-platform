@@ -56,7 +56,15 @@ export async function GET(
   const eventBookings = allBookings.filter((b) => b.listing_id === eventId);
 
   // One row per attendee on this event
-  const byKey = new Map<string, { name: string; email: string | null; checkedIn: boolean }>();
+  // bookingId följer med ut, så att listan kan checka in någon i efterhand.
+  // Skannern i dörren missar folk — vid Test and taste kom nio, fem skannades,
+  // och en av de fyra "no-shows" stod i rummet hela kvällen. Utan ett sätt att
+  // rätta det blir siffran fel för alltid, och den ligger till grund för både
+  // statistiken och bilden av vem som faktiskt kommer.
+  const byKey = new Map<
+    string,
+    { name: string; email: string | null; checkedIn: boolean; bookingId: string }
+  >();
   for (const b of eventBookings) {
     const k = attendeeKey(b);
     const cur = byKey.get(k);
@@ -64,7 +72,12 @@ export async function GET(
       if (b.checked_in_at) cur.checkedIn = true;
       if (cur.name === "Gäst") cur.name = attendeeName(b);
     } else {
-      byKey.set(k, { name: attendeeName(b), email: bookingEmail(b), checkedIn: !!b.checked_in_at });
+      byKey.set(k, {
+        name: attendeeName(b),
+        email: bookingEmail(b),
+        checkedIn: !!b.checked_in_at,
+        bookingId: b.id,
+      });
     }
   }
 
@@ -76,6 +89,7 @@ export async function GET(
       eventsCount,
       checkedIn: v.checkedIn,
       returning: eventsCount >= 2,
+      bookingId: v.bookingId,
     };
   });
   list.sort((a, b) => Number(b.checkedIn) - Number(a.checkedIn) || a.name.localeCompare(b.name, "sv"));

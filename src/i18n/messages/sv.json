@@ -2834,7 +2834,7 @@
     "cardAttendees": "Deltagare",
     "cardCheckedIn": "Kom (incheckade)",
     "cardCheckInRate": "Incheckningsgrad",
-    "cardNoShow": "No-show",
+    "cardNoShow": "Ej incheckade",
     "cardReturning": "Återkommande",
     "cardNew": "Nya",
     "cardRevenue": "Intäkt",
@@ -2852,7 +2852,10 @@
     "csvType": "Typ",
     "csvStatusAttended": "Kom",
     "csvStatusBooked": "Bokad",
-    "csvFilePrefix": "deltagare"
+    "csvFilePrefix": "deltagare",
+    "markAttended": "Kom",
+    "checkingIn": "…",
+    "errorCheckIn": "Kunde inte checka in. Försök igen."
   },
   "libraryPage": {
     "title": "Mitt bibliotek",
