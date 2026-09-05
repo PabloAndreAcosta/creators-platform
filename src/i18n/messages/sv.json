@@ -2307,7 +2307,8 @@
       "withdrawn": "Du hör inte från {venue}.",
       "change": "Ändra",
       "failed": "Det gick inte att spara svaret. Försök igen."
-    }
+    },
+    "addOnHeading": "Vill du stanna längre? Lägg till ett pass."
   },
   "settlement": {
     "back": "Tillbaka",

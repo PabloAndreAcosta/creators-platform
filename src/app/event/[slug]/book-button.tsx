@@ -20,6 +20,12 @@ interface Props {
   returnPath: string;
   ticketTypes?: TicketType[];
   /**
+   * Förvald biljettyp, från `?tt=` på eventsidan. Används av "Lägg till" på
+   * biljettsidan: den som köpt practica och vill ha workshopen ska landa med
+   * workshopen redan vald, inte behöva hitta raden igen i dörren.
+   */
+  preselectTicketTypeId?: string | null;
+  /**
    * Prisrubriken ovanför väljaren. Den renderades tidigare av sidan, på
    * servern, och kunde därför bara visa grundpriset — valde man Workshop för
    * 100 kr stod det fortfarande 50 kr i stort format medan köpknappen sa 100.
@@ -44,7 +50,7 @@ function soldOut(tt: TicketType) {
   return tt.capacity != null && tt.tickets_sold >= tt.capacity;
 }
 
-export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], header }: Props) {
+export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], header, preselectTicketTypeId }: Props) {
   const { toast } = useToast();
   const t = useTranslations("eventPage");
   const [loading, setLoading] = useState(false);
@@ -52,9 +58,12 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], hea
   const [name, setName] = useState("");
 
   const hasTypes = ticketTypes.length > 0;
-  const [selectedTypeId, setSelectedTypeId] = useState<string>(
-    () => ticketTypes.find((tt) => !soldOut(tt))?.id ?? ticketTypes[0]?.id ?? ""
-  );
+  const [selectedTypeId, setSelectedTypeId] = useState<string>(() => {
+    // Förvalet gäller bara om typen finns och går att köpa — en länk till en
+    // slutsåld typ ska inte låsa knappen.
+    const wanted = ticketTypes.find((tt) => tt.id === preselectTicketTypeId && !soldOut(tt));
+    return wanted?.id ?? ticketTypes.find((tt) => !soldOut(tt))?.id ?? ticketTypes[0]?.id ?? "";
+  });
   const selectedType = hasTypes ? ticketTypes.find((tt) => tt.id === selectedTypeId) ?? null : null;
   const effectivePrice = selectedType ? selectedType.price : price;
   const typeSoldOut = selectedType ? soldOut(selectedType) : false;
