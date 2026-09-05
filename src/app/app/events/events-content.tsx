@@ -286,12 +286,19 @@ function EventCard({
 
   return (
     <div
-      className={`overflow-hidden rounded-xl border bg-[var(--usha-card)] transition-opacity ${
+      className={`relative overflow-hidden rounded-xl border bg-[var(--usha-card)] transition-opacity ${
         isActive ? "border-[var(--usha-border)]" : "border-[var(--usha-border)] opacity-60"
       } ${isPending ? "pointer-events-none opacity-50" : ""}`}
     >
-      {/* Image */}
-      <Link href={`/app/events/${listing.id}/edit`} className="relative block aspect-[1.91/1]">
+      {/* Bilden bär länken, men träffytan är hela kortet.
+          `after:absolute after:inset-0` lägger en osynlig platta över kortets
+          rot — den som råkar trycka på datumraden, platsen eller den tomma
+          ytan bredvid priset hamnar också rätt. Knapparna nedanför lyfts över
+          plattan med z-10, annars skulle länken sluka dem. */}
+      <Link
+        href={`/app/events/${listing.id}/edit`}
+        className="relative block aspect-[1.91/1] after:absolute after:inset-0 after:z-0 after:content-['']"
+      >
         <img src={image} alt={listing.title} className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
 
@@ -373,7 +380,7 @@ function EventCard({
           )}
         </div>
 
-        <div className="flex items-center justify-between">
+        <div className="relative z-10 flex items-center justify-between">
           <span className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-xs font-medium text-[var(--usha-gold)]">
             {price}
           </span>
@@ -481,7 +488,7 @@ function EventCard({
         </div>
 
         {/* Social sharing */}
-        <div className="flex items-center gap-2">
+        <div className="relative z-10 flex items-center gap-2">
           {/* Så här ser sidan ut för en besökare. Vägen dit fanns inte alls —
               man fick kopiera delningslänken och klistra in den själv. */}
           {listing.slug && (
