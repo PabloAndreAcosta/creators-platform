@@ -98,6 +98,35 @@ export default async function GuestTicketPage({
     venueConsent = consentState(consentRow);
   }
 
+  // Övriga pass på samma kväll, för "Lägg till".
+  //
+  // The Lab är tre pass efter varandra: practica, workshop, social. Den som
+  // köpt ett av dem och vill stanna hade ingen väg vidare från biljetten — hen
+  // fick leta upp eventsidan igen mitt i kvällen, medan arrangören står ensam
+  // i dörren. Nu ligger de andra passen här, en knapp per pass, och köparen
+  // sköter det själv i sin egen telefon.
+  //
+  // Passen köps som en egen biljett, inte som en ändring av den här. Att räkna
+  // mellanskillnad och byta typ på en betald bokning är en ny pengaväg, och en
+  // sådan lägger jag inte in dagarna före den första betalkvällen.
+  const { data: otherTypes } = booking.status !== "canceled"
+    ? await admin
+        .from("ticket_types")
+        .select("id, name, price, capacity, tickets_sold")
+        .eq("listing_id", booking.listing_id)
+        .neq("name", booking.ticket_type_name ?? "")
+        .order("price", { ascending: true })
+    : { data: null };
+
+  const eventOver = listing?.event_date
+    ? listing.event_date < new Date().toISOString().slice(0, 10)
+    : false;
+  const addOns = eventOver
+    ? []
+    : (otherTypes ?? []).filter(
+        (tt) => tt.capacity == null || (tt.tickets_sold ?? 0) < tt.capacity
+      );
+
   const locale = await getLocale();
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";
   const code = `USH-${booking.id.slice(0, 8).toUpperCase()}`;
@@ -294,6 +323,28 @@ export default async function GuestTicketPage({
                 failed: t("venueConsent.failed"),
               }}
             />
+          )}
+
+          {addOns.length > 0 && (
+            <div className="rounded-xl border border-[var(--usha-border)] p-3">
+              <p className="mb-2 text-center text-xs text-[var(--usha-muted)]">
+                {t("addOnHeading")}
+              </p>
+              <div className="space-y-1.5">
+                {addOns.map((tt) => (
+                  <a
+                    key={tt.id}
+                    href={`${appUrl}/event/${listing?.slug || booking.listing_id}?tt=${tt.id}`}
+                    className="flex items-center justify-between gap-2 rounded-lg border border-[var(--usha-border)] px-3 py-2.5 text-sm transition hover:border-[var(--usha-gold)]/50"
+                  >
+                    <span className="min-w-0 truncate">{tt.name}</span>
+                    <span className="shrink-0 font-medium text-[var(--usha-gold)]">
+                      + {tt.price} kr
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </div>
           )}
 
           {!canceled && (

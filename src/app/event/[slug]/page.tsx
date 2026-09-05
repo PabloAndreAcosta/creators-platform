@@ -25,6 +25,8 @@ const FALLBACK_IMAGE =
 
 interface Params {
   params: Promise<{ slug: string }>;
+  /** `?tt=<biljettyp>` förväljer en biljettyp — se "Lägg till" på biljettsidan. */
+  searchParams?: Promise<{ tt?: string }>;
 }
 
 function isUUID(str: string) {
@@ -254,6 +256,10 @@ function formatTime(timeStr: string | null, endTimeStr: string | null) {
 export default async function EventPage(props: Params) {
   const params = await props.params;
   const { slug } = await params;
+  // Den som redan har en biljett och vill lägga till ett pass kommer hit med
+  // typen förvald, så att första skärmen visar rätt pris i stället för att be
+  // hen leta rätt på raden igen.
+  const preselectTicketTypeId = (await props.searchParams)?.tt ?? null;
   let data = await getListing(slug);
   if (!data) {
     const resolved = await resolveSlugToOccurrence(slug);
@@ -526,6 +532,7 @@ export default async function EventPage(props: Params) {
                   isLoggedIn={!!user}
                   returnPath={returnPath}
                   ticketTypes={ticketTypesForSale}
+                  preselectTicketTypeId={preselectTicketTypeId}
                   header={{
                     badge: saleBadge ?? t("ticket"),
                     listPrice: listing.price ?? null,

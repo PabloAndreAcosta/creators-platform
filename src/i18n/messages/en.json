@@ -2307,7 +2307,8 @@
       "withdrawn": "You will not hear from {venue}.",
       "change": "Change",
       "failed": "The answer could not be saved. Please try again."
-    }
+    },
+    "addOnHeading": "Staying longer? Add another session."
   },
   "settlement": {
     "back": "Back",
