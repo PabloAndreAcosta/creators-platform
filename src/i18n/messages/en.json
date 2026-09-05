@@ -2834,7 +2834,7 @@
     "cardAttendees": "Attendees",
     "cardCheckedIn": "Attended (checked in)",
     "cardCheckInRate": "Check-in rate",
-    "cardNoShow": "No-show",
+    "cardNoShow": "Not checked in",
     "cardReturning": "Returning",
     "cardNew": "New",
     "cardRevenue": "Revenue",
@@ -2852,7 +2852,10 @@
     "csvType": "Type",
     "csvStatusAttended": "Attended",
     "csvStatusBooked": "Booked",
-    "csvFilePrefix": "attendees"
+    "csvFilePrefix": "attendees",
+    "markAttended": "Attended",
+    "checkingIn": "…",
+    "errorCheckIn": "Could not check in. Try again."
   },
   "libraryPage": {
     "title": "My library",
