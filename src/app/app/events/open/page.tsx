@@ -102,10 +102,15 @@ export default async function OpenEventsPage() {
             return (
               <div
                 key={e.id}
-                className="flex flex-col gap-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 sm:flex-row sm:items-center sm:justify-between"
+                className="relative flex flex-col gap-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 transition hover:border-[var(--usha-gold)]/30 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div className="min-w-0">
-                  <Link href={`/listing/${e.slug || e.id}`} className="font-semibold hover:underline">
+                  {/* Hela kortet är träffytan, inte bara titeln. Se
+                      kommentaren i events-content.tsx. */}
+                  <Link
+                    href={`/listing/${e.slug || e.id}`}
+                    className="font-semibold after:absolute after:inset-0 after:z-0 after:content-[''] hover:underline"
+                  >
                     {e.title}
                   </Link>
                   <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-[var(--usha-muted)]">
@@ -124,7 +129,7 @@ export default async function OpenEventsPage() {
                     )}
                   </div>
                 </div>
-                <div className="shrink-0">
+                <div className="relative z-10 shrink-0">
                   {isOwn ? (
                     <span className="text-xs text-[var(--usha-muted)]">{t("ownEvent")}</span>
                   ) : eligible ? (
