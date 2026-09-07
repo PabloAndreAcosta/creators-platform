@@ -416,7 +416,11 @@ export default async function EventPage(props: Params) {
             rubriken slogs ihop till ett rörigt lapptäcke — särskilt i
             Facebooks inbyggda webbläsare, där Usha-brickan lade sig mitt i
             titeln. Bilden får tala själv; uppgifterna står under den. */}
-        <div className="absolute left-6 top-6 z-10">
+        {/* Nere till vänster, inte uppe. Överst hamnade brickan mot den ljusa
+            affischväggen i flera av Bacchi-bilderna och blev nästan oläslig;
+            nedre kanten är mörkare i alla tre. Den ligger ovanpå bilden och
+            inte under den, eftersom den är sidans enda väg tillbaka. */}
+        <div className="absolute bottom-6 left-6 z-10">
           <Link
             href="/"
             className="flex items-center gap-2 rounded-full bg-black/40 px-3 py-1.5 text-xs font-medium backdrop-blur-sm transition hover:bg-black/60"
