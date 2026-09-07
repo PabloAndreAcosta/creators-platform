@@ -2398,7 +2398,8 @@
     "errCouldNotVerify": "Could not verify ticket",
     "errNetwork": "Network error. Please try again.",
     "errNetworkShort": "Network error",
-    "seats": "{n} seats"
+    "seats": "{n} seats",
+    "statusWrongDate": "Wrong date — this ticket is for {date}"
   },
   "terms": {
     "back": "Back",

@@ -468,6 +468,7 @@ export default function ScanPage() {
                 {result.status === "already_used" ? t("statusAlreadyUsed") :
                  result.status === "canceled" ? t("statusCanceled") :
                  result.status === "pending" ? t("statusPending") :
+                 result.status === "wrong_date" ? t("statusWrongDate", { date: result.ticket.date }) :
                  t("statusInvalid")}
               </p>
             </>

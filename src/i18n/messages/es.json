@@ -2398,7 +2398,8 @@
     "errCouldNotVerify": "No se pudo verificar la entrada",
     "errNetwork": "Error de red. Inténtalo de nuevo.",
     "errNetworkShort": "Error de red",
-    "seats": "{n} plazas"
+    "seats": "{n} plazas",
+    "statusWrongDate": "Fecha incorrecta: la entrada es para el {date}"
   },
   "terms": {
     "back": "Atrás",
