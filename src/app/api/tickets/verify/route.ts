@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdminById } from "@/lib/admin/check";
 import { canScanListing } from "@/lib/scan-access";
+import { isEventDay } from "@/lib/tickets/event-day";
 
 export async function GET(request: NextRequest) {
   const t = await getTranslations("scanApi");
@@ -216,6 +217,15 @@ export async function GET(request: NextRequest) {
       valid = true;
       status = "confirmed";
     }
+  }
+
+  // Rätt dag? En bekräftad, oanvänd biljett för den 21:a lyste grön i dörren
+  // den 7:e. Statusen var korrekt — datumet var det ingen jämförde. En biljett
+  // på fel dag är inte giltig; vill arrangören ändå släppa in kan det göras i
+  // efterhand från bokningslistan.
+  if (valid && !isEventDay(listing?.event_date)) {
+    valid = false;
+    status = "wrong_date";
   }
 
   // Biljettypen är det dörren faktiskt behöver. En Practica-biljett och en

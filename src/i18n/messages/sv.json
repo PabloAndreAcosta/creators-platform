@@ -2398,7 +2398,8 @@
     "errCouldNotVerify": "Kunde inte verifiera biljett",
     "errNetwork": "Nätverksfel. Försök igen.",
     "errNetworkShort": "Nätverksfel",
-    "seats": "{n} platser"
+    "seats": "{n} platser",
+    "statusWrongDate": "Fel datum — biljetten gäller {date}"
   },
   "terms": {
     "back": "Tillbaka",
