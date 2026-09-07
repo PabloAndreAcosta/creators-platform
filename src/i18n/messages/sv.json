@@ -2397,7 +2397,8 @@
     "errOnlyOwnEvents": "Du kan bara skanna biljetter för dina egna evenemang.",
     "errCouldNotVerify": "Kunde inte verifiera biljett",
     "errNetwork": "Nätverksfel. Försök igen.",
-    "errNetworkShort": "Nätverksfel"
+    "errNetworkShort": "Nätverksfel",
+    "seats": "{n} platser"
   },
   "terms": {
     "back": "Tillbaka",

@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
 
   let bookingQuery = admin
     .from("bookings")
-    .select("id, listing_id, creator_id, status, scheduled_at, notes, amount_paid, booking_type, guest_count");
+    .select("id, listing_id, creator_id, status, scheduled_at, notes, amount_paid, booking_type, guest_count, ticket_type_name, guest_name");
 
   // The QR encodes the FULL booking UUID as `id` — match it exactly. Only the
   // code-only path (USH-XXXXXXXX, 8 hex) needs the prefix range. Using
@@ -218,6 +218,10 @@ export async function GET(request: NextRequest) {
     }
   }
 
+  // Biljettypen är det dörren faktiskt behöver. En Practica-biljett och en
+  // Allt-biljett gav tidigare exakt samma gröna ruta — och Practica-gästen
+  // ska inte in på socialen. Namnet står med så värden kan tilltala rätt
+  // person när flera kommer på samma bokning.
   return NextResponse.json({
     valid,
     status,
@@ -230,6 +234,9 @@ export async function GET(request: NextRequest) {
       date: displayDate,
       time: displayTime,
       location: displayLocation,
+      ticketType: booking.ticket_type_name ?? null,
+      holder: booking.guest_name ?? null,
+      seats: booking.guest_count ?? 1,
     },
   });
 }

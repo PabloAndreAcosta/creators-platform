@@ -2397,7 +2397,8 @@
     "errOnlyOwnEvents": "You can only scan tickets for your own events.",
     "errCouldNotVerify": "Could not verify ticket",
     "errNetwork": "Network error. Please try again.",
-    "errNetworkShort": "Network error"
+    "errNetworkShort": "Network error",
+    "seats": "{n} seats"
   },
   "terms": {
     "back": "Back",
