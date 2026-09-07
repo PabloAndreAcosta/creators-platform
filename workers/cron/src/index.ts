@@ -37,6 +37,11 @@ const JOBS = [
   // det gör det inte om jobbet kör vid lunch. Körningen är idempotent
   // (UNIQUE(listing_id)), så att båda schemana pingar den är ofarligt.
   { name: "settlement-payouts", desc: "Avräkning mot partner för kvällar som varit" },
+  // Nästa försäljning är det första riktiga testet av tvåflödesbygget: landar
+  // Ushas egna event verkligen direkt på plattformskontot? Timvis räcker gott,
+  // poängen är att få veta samma dag i stället för att anta. Första körningen
+  // sätter bara markören och skickar ingenting.
+  { name: "platform-sale-alert", desc: "Larm när en betalning landar på plattformskontot" },
 ] as const;
 
 async function runJob(env: Env, path: string): Promise<{ ok: boolean; detail: string }> {
