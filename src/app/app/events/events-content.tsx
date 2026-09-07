@@ -287,7 +287,7 @@ function EventCard({
 
   return (
     <div
-      className={`relative overflow-hidden rounded-xl border bg-[var(--usha-card)] transition-opacity ${
+      className={`relative rounded-xl border bg-[var(--usha-card)] transition-opacity ${
         isActive ? "border-[var(--usha-border)]" : "border-[var(--usha-border)] opacity-60"
       } ${isPending ? "pointer-events-none opacity-50" : ""}`}
     >
@@ -298,9 +298,13 @@ function EventCard({
           `relative`, så `inset-0` mätte mot BILDEN och inte mot kortet. Hela
           kortet såg alltså ut att vara en knapp i koden medan bara bilden gick
           att trycka på. */}
+      {/* overflow-hidden ligger på bilden, inte på kortet. Låg den på kortet
+          klipptes ⋮-menyn, som öppnas uppåt, vid kortets överkant — de tre
+          översta posterna (Skanna, Sälj i entrén, Bokningar) fanns men syntes
+          aldrig på en telefon. Bilden behöver bara själv runda sina hörn. */}
       <Link
         href={`/app/events/${listing.id}/edit`}
-        className="relative block aspect-[1.91/1]"
+        className="relative block aspect-[1.91/1] overflow-hidden rounded-t-xl"
       >
         <img src={image} alt={listing.title} className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
