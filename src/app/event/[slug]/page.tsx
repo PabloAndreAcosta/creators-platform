@@ -519,10 +519,14 @@ export default async function EventPage(props: Params) {
             </Link>
           </div>
         )}
+        {/* min-w-0 på båda grid-barnen: ett grid-spår tar annars minst sitt
+            innehålls min-content-bredd, och ett enda obrytbart stycke drar ut
+            spåret förbi skärmkanten — då hamnar kartan och biljettrutan
+            utanför till höger på mobil, medan texten ovanför ser ok ut. */}
         <div className="grid gap-8 md:grid-cols-[1fr_280px] md:gap-12">
-          <div>
+          <div className="min-w-0">
             {listing.description ? (
-              <div className="whitespace-pre-wrap text-base leading-relaxed text-[var(--usha-white)] sm:text-lg">
+              <div className="whitespace-pre-wrap [overflow-wrap:anywhere] text-base leading-relaxed text-[var(--usha-white)] sm:text-lg">
                 {listing.description}
               </div>
             ) : (
@@ -551,7 +555,7 @@ export default async function EventPage(props: Params) {
             />
           </div>
 
-          <aside className="space-y-4">
+          <aside className="min-w-0 space-y-4">
             <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
               {/* Prisrubriken hör ihop med biljettvalet, så under försäljning
                   renderas den av BookButton och följer det man klickat på.
