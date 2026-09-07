@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { ROLES, normalizeRole } from "@/lib/roles";
 import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
@@ -131,18 +132,21 @@ function extractTierFromPlan(plan: string): MemberTier {
  * Extracts role from plan metadata or plan key.
  */
 function extractRoleFromPlan(plan: string, metadataRole?: string): string {
-  if (metadataRole) return metadataRole;
+  // Rollistan bor i lib/roles — en lokal kopia här gled isär från triggern.
+  // normalizeRole tar även gamla stavningar, så ett äldre plan-metadata med
+  // "experience" landar som venue i stället för att skrivas rakt in.
+  const fromMetadata = normalizeRole(metadataRole);
+  if (fromMetadata) return fromMetadata;
 
   // Try to extract from new format plan key
   const parts = plan.split('_');
-  if (parts.length === 2 && ['customer', 'creator', 'venue'].includes(parts[0])) {
-    return parts[0];
-  }
+  const fromPlan = parts.length === 2 ? normalizeRole(parts[0]) : null;
+  if (fromPlan) return fromPlan;
 
   // Legacy plans were creator-focused
-  if (plan.startsWith('creator_')) return 'creator';
+  if (plan.startsWith('creator_')) return ROLES.CREATOR;
 
-  return 'customer';
+  return ROLES.CUSTOMER;
 }
 
 export async function POST(req: NextRequest) {

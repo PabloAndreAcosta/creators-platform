@@ -12,7 +12,7 @@ import { SIGNUP_CREDIT_ORE, SIGNUP_CREDIT_MIN_SPEND_ORE } from "@/lib/credits/si
 import { Palette, Store, Search, ShieldCheck, Loader2, Music, User, Building2, Gift } from "lucide-react";
 import { GoogleIcon, FacebookIcon } from "@/components/brand-icons";
 
-type Role = "creator" | "venue" | "customer";
+import type { Role } from "@/lib/roles";
 type CreatorSubcategory = "general" | "taxi_dancer";
 
 // Only creators must verify with BankID at signup. Venues sign up normally and
