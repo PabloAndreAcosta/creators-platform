@@ -2397,7 +2397,8 @@
     "errOnlyOwnEvents": "Solo puedes escanear entradas de tus propios eventos.",
     "errCouldNotVerify": "No se pudo verificar la entrada",
     "errNetwork": "Error de red. Inténtalo de nuevo.",
-    "errNetworkShort": "Error de red"
+    "errNetworkShort": "Error de red",
+    "seats": "{n} plazas"
   },
   "terms": {
     "back": "Atrás",
