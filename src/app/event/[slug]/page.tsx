@@ -416,15 +416,18 @@ export default async function EventPage(props: Params) {
             rubriken slogs ihop till ett rörigt lapptäcke — särskilt i
             Facebooks inbyggda webbläsare, där Usha-brickan lade sig mitt i
             titeln. Bilden får tala själv; uppgifterna står under den. */}
-        {/* Uppe till höger. Vänsterkanten är upptagen i Bacchi-bilderna —
-            affischpelaren överst, barstolarna nederst — och brickan försvann
-            mot båda. Höger hörn är lugnt i alla tre bilderna serien roterar
-            mellan. Den ligger ovanpå bilden och inte under den, eftersom den
-            är sidans enda väg tillbaka. */}
-        <div className="absolute right-6 top-6 z-10">
+        {/* Nere till höger, tätt mot kanten. Vänsterkanten är upptagen i
+            Bacchi-bilderna — affischpelaren överst, barstolarna nederst — så
+            brickan hör hemma på högersidan. Den ligger ovanpå bilden och inte
+            under den, eftersom den är sidans enda väg tillbaka. */}
+        <div className="absolute bottom-3 right-3 z-10">
           <Link
             href="/"
-            className="flex items-center gap-2 rounded-full bg-black/40 px-3 py-1.5 text-xs font-medium backdrop-blur-sm transition hover:bg-black/60"
+            /* Mer genomskinlig platta, tydligare kant: bilden ska synas igenom,
+               och det är kanten snarare än fyllningen som håller brickan läsbar
+               mot både ljus och mörk bakgrund. Suddet bakom gör texten läsbar
+               även där bilden är brokig. */
+            className="flex items-center gap-2 rounded-full border border-white/45 bg-black/20 px-3 py-1.5 text-xs font-medium backdrop-blur-md transition hover:border-white/70 hover:bg-black/40"
           >
             <span className="flex h-5 w-5 items-center justify-center rounded bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)] text-[10px] font-bold text-black">
               U
