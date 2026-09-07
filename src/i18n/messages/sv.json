@@ -519,7 +519,8 @@
     "businessCompanyDesc": "Jag fakturerar via ett företag med organisationsnummer",
     "businessTypeNote": "Företag får verifiera org.nr och visas som säljare med organisationsnummer på kvittot. Du kan ändra detta senare.",
     "signupCreditTitle": "{amount} kr till nya konton",
-    "signupCreditNote": "Att använda vid köp från {minSpend} kr. Gäller i 12 månader."
+    "signupCreditNote": "Att använda vid köp från {minSpend} kr. Gäller i 12 månader.",
+    "marketingConsent": "Ja, jag vill få mejl om erbjudanden och nyheter från Usha. Du kan ändra det när som helst i inställningarna."
   },
   "landing": {
     "meta": {

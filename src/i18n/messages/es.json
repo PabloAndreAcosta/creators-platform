@@ -519,7 +519,8 @@
     "businessCompanyDesc": "Facturo a través de una empresa con número de organización",
     "businessTypeNote": "Las empresas pueden verificar su nº de organización y aparecer como vendedor con el número en el recibo. Puedes cambiarlo más tarde.",
     "signupCreditTitle": "{amount} kr para cuentas nuevas",
-    "signupCreditNote": "Para usar en una compra desde {minSpend} kr. Válido durante 12 meses."
+    "signupCreditNote": "Para usar en una compra desde {minSpend} kr. Válido durante 12 meses.",
+    "marketingConsent": "Sí, quiero recibir correos sobre ofertas y novedades de Usha. Puedes cambiarlo cuando quieras en los ajustes."
   },
   "landing": {
     "meta": {

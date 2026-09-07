@@ -519,7 +519,8 @@
     "businessCompanyDesc": "I invoice through a company with a registration number",
     "businessTypeNote": "Companies can verify their org. number and appear as the seller with the org. number on the receipt. You can change this later.",
     "signupCreditTitle": "{amount} kr for new accounts",
-    "signupCreditNote": "To use on a purchase from {minSpend} kr. Valid for 12 months."
+    "signupCreditNote": "To use on a purchase from {minSpend} kr. Valid for 12 months.",
+    "marketingConsent": "Yes, send me email about offers and news from Usha. You can change this any time in settings."
   },
   "landing": {
     "meta": {
