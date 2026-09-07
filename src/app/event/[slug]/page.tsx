@@ -416,20 +416,23 @@ export default async function EventPage(props: Params) {
             rubriken slogs ihop till ett rörigt lapptäcke — särskilt i
             Facebooks inbyggda webbläsare, där Usha-brickan lade sig mitt i
             titeln. Bilden får tala själv; uppgifterna står under den. */}
-        {/* Nere till höger, tätt mot kanten. Vänsterkanten är upptagen i
-            Bacchi-bilderna — affischpelaren överst, barstolarna nederst — så
-            brickan hör hemma på högersidan. Den ligger ovanpå bilden och inte
-            under den, eftersom den är sidans enda väg tillbaka. */}
-        <div className="absolute bottom-3 right-3 z-10">
+        {/* Lodrätt längs vänsterkanten, nedifrån och upp.
+            writing-mode gör texten vertikal utan att rotera hela lådan, så
+            träffytan och rundningen följer med; rotate-180 vänder läsriktningen
+            till nedifrån och upp, vilket är den som fungerar när etiketten
+            sitter i vänsterkanten. U-märket vänds tillbaka så bokstaven står
+            rätt. Den ligger ovanpå bilden och inte under den, eftersom den är
+            sidans enda väg tillbaka. */}
+        <div className="absolute bottom-3 left-3 z-10">
           <Link
             href="/"
             /* Mer genomskinlig platta, tydligare kant: bilden ska synas igenom,
                och det är kanten snarare än fyllningen som håller brickan läsbar
                mot både ljus och mörk bakgrund. Suddet bakom gör texten läsbar
                även där bilden är brokig. */
-            className="flex items-center gap-2 rounded-full border border-white/45 bg-black/20 px-3 py-1.5 text-xs font-medium backdrop-blur-md transition hover:border-white/70 hover:bg-black/40"
+            className="flex rotate-180 items-center gap-2 rounded-full border border-white/45 bg-black/20 px-1.5 py-3 text-xs font-medium backdrop-blur-md transition [writing-mode:vertical-rl] hover:border-white/70 hover:bg-black/40"
           >
-            <span className="flex h-5 w-5 items-center justify-center rounded bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)] text-[10px] font-bold text-black">
+            <span className="flex h-5 w-5 shrink-0 rotate-180 items-center justify-center rounded bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)] text-[10px] font-bold text-black [writing-mode:horizontal-tb]">
               U
             </span>
             {t("production")}
