@@ -58,6 +58,24 @@ export async function GET(req: NextRequest) {
             .eq("id", user.id);
         }
 
+        // 1b. Samtycke till marknadsföring, valt på registreringssidan innan
+        //     rundturen till Google/Facebook. Triggern har redan skapat
+        //     user_settings-raden med false, så här behöver bara ett ja skrivas.
+        //
+        //     isFreshSignup av samma skäl som rollen ovan: cookien sätts av
+        //     webbläsaren. Utan den kontrollen hade en kvarliggande cookie
+        //     kunnat slå på marknadsföring vid en senare inloggning, för någon
+        //     som stängt av den under tiden — och samtycke som användaren inte
+        //     gett vid just det tillfället är inget samtycke.
+        if (
+          req.cookies.get("pending_marketing_consent")?.value === "true" &&
+          isFreshSignup(user.created_at)
+        ) {
+          await admin
+            .from("user_settings")
+            .upsert({ user_id: user.id, notif_marketing: true }, { onConflict: "user_id" });
+        }
+
         // 2. Apply BankID verification cookie if present — independent of
         //    pending_role so it works for existing-user merge logins too.
         const bankidCookie = req.cookies.get("bankid_verified")?.value;
@@ -92,6 +110,7 @@ export async function GET(req: NextRequest) {
         const redirectUrl = safeNext || destination;
         const response = NextResponse.redirect(`${origin}${redirectUrl}`);
         response.cookies.set("pending_role", "", { path: "/", maxAge: 0 });
+        response.cookies.set("pending_marketing_consent", "", { path: "/", maxAge: 0 });
         response.cookies.set("bankid_verified", "", { path: "/", maxAge: 0 });
 
         // Carry the account's chosen language onto this browser.

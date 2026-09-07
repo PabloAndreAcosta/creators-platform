@@ -306,6 +306,12 @@ export default function SignupPage() {
 
   function storeRoleForOAuth() {
     document.cookie = `pending_role=${selectedRole};path=/;max-age=600;SameSite=Lax`;
+    // Google och Facebook bär inte med sig något av det som fylls i här, så
+    // valet får resa i en cookie och plockas upp i /callback. Samma max-age
+    // som rollen, och den tillämpas bara när OAuth-rundturen nyss SKAPADE
+    // kontot — annars skulle en gammal cookie kunna slå över inställningen
+    // vid en senare inloggning.
+    document.cookie = `pending_marketing_consent=${marketingConsent ? "true" : "false"};path=/;max-age=600;SameSite=Lax`;
   }
 
   async function handleGoogleSignup() {
@@ -600,6 +606,20 @@ export default function SignupPage() {
 
         <WelcomeCredit />
 
+        {/* Samtycket står före ALLA tre registreringsvägarna, inte nere vid
+            formulärets knapp. Google- och Facebook-knapparna ligger ovanför
+            formuläret, så en ruta där nere hade aldrig hunnit synas för den som
+            registrerar sig med OAuth — valet hade i praktiken varit ett nej. */}
+        <label className="mb-4 flex cursor-pointer items-start gap-3 text-left text-sm text-[var(--usha-muted)]">
+          <input
+            type="checkbox"
+            checked={marketingConsent}
+            onChange={(e) => setMarketingConsent(e.target.checked)}
+            className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-[var(--usha-gold)]"
+          />
+          <span>{t("marketingConsent")}</span>
+        </label>
+
         {/* OAuth buttons — only available after BankID for creator/experience */}
         {(!NEEDS_BANKID.includes(selectedRole!) || bankidVerified) && (
           <>
@@ -717,16 +737,6 @@ export default function SignupPage() {
           ) : error ? (
             <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400">{error}</p>
           ) : null}
-
-          <label className="flex cursor-pointer items-start gap-3 text-sm text-[var(--usha-muted)]">
-            <input
-              type="checkbox"
-              checked={marketingConsent}
-              onChange={(e) => setMarketingConsent(e.target.checked)}
-              className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-[var(--usha-gold)]"
-            />
-            <span>{t("marketingConsent")}</span>
-          </label>
 
           <button
             type="submit"
