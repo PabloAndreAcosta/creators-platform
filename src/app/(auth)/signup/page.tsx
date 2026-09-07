@@ -19,6 +19,22 @@ type CreatorSubcategory = "general" | "taxi_dancer";
 // verify their company (org-nr) in the dashboard; BankID is optional for them.
 const NEEDS_BANKID: Role[] = ["creator"];
 
+/**
+ * Roll från länken, för kampanjer som ska landa direkt i registreringen.
+ *
+ * QR-koden på danskvällarna lovar 50 kr och ska ta folk raka vägen till kontot.
+ * Rollvalet är då första hindret: en fråga om hur man tänker använda
+ * plattformen, ställd till någon som bara vill ha sin rabatt. `?role=customer`
+ * hoppar över steget.
+ *
+ * Bara kända roller släpps igenom. Ett okänt värde faller tillbaka på det
+ * vanliga rollvalet i stället för att skapa ett konto med en roll som inte
+ * finns.
+ */
+function roleFromParam(value: string | null): Role | null {
+  return value === "creator" || value === "venue" || value === "customer" ? value : null;
+}
+
 function FieldError({ message }: { message: string }) {
   return <p className="mt-1 text-xs text-red-400">{message}</p>;
 }
@@ -54,7 +70,9 @@ export default function SignupPage() {
   const t = useTranslations("auth");
   const locale = useLocale();
   const searchParams = useSearchParams();
-  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+  const [selectedRole, setSelectedRole] = useState<Role | null>(() =>
+    roleFromParam(searchParams.get("role"))
+  );
   const [selectedSubcategory, setSelectedSubcategory] = useState<CreatorSubcategory | null>(null);
   // Creator only: sells as a private individual vs a company (unlocks org.nr steps).
   const [selectedIsCompany, setSelectedIsCompany] = useState<boolean | null>(null);
