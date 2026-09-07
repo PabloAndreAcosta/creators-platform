@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { isSupabaseAuthCookie, expiredCookieVariants, authCookieNamesFrom } from "../auth-cookies";
+import { isSupabaseAuthCookie, expiredCookieVariants, authCookieNamesFrom, expiredSetCookieHeader } from "../auth-cookies";
 
 describe("auth-cookies", () => {
   it("känner igen sessionen, chunkar och PKCE-verifieraren", () => {
@@ -33,5 +33,12 @@ describe("auth-cookies", () => {
 
   it("nöjer sig med host-only när ingen domän är konfigurerad", () => {
     expect(expiredCookieVariants("sb-x-auth-token", undefined)).toEqual([{ name: "sb-x-auth-token" }]);
+  });
+
+  it("serialiserar en raderande Set-Cookie-rad med och utan domän", () => {
+    expect(expiredSetCookieHeader("sb-x-auth-token")).toBe("sb-x-auth-token=; Path=/; Max-Age=0; SameSite=Lax");
+    expect(expiredSetCookieHeader("sb-x-auth-token", ".usha.se")).toBe(
+      "sb-x-auth-token=; Path=/; Max-Age=0; SameSite=Lax; Domain=.usha.se"
+    );
   });
 });

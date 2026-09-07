@@ -1,7 +1,7 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { sharedCookieOptions } from "./cookie-options";
-import { authCookieNamesFrom, expiredCookieVariants } from "./auth-cookies";
+import { authCookieNamesFrom } from "./auth-cookies";
 
 function isValidBase64URL(str: string): boolean {
   try {
@@ -13,12 +13,24 @@ function isValidBase64URL(str: string): boolean {
   }
 }
 
-export async function updateSession(request: NextRequest) {
+export interface SessionResult {
+  response: NextResponse;
+  /**
+   * Auth-cookies som ska raderas även i host-only-varianten. Anroparen måste
+   * lägga dem som råa Set-Cookie-rader EFTER sin sista `cookies.set`: Nexts
+   * cookie-jar håller en post per namn och skriver om hela headern vid varje
+   * set, så en andra variant av samma namn överlever bara som rå rad sist.
+   */
+  clearHostOnly: string[];
+}
+
+export async function updateSession(request: NextRequest): Promise<SessionResult> {
   let response = NextResponse.next({ request: { headers: request.headers } });
+  const clearHostOnly: string[] = [];
 
   // Skip if env vars are missing (e.g. during build)
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    return response;
+    return { response, clearHostOnly };
   }
 
   const supabase = createServerClient(
@@ -67,10 +79,12 @@ export async function updateSession(request: NextRequest) {
     const names = authCookieNamesFrom(
       request.cookies.getAll().map((c) => `${c.name}=`).join("; ")
     );
+    const domain = sharedCookieOptions?.domain;
     for (const name of names) {
-      for (const v of expiredCookieVariants(name, sharedCookieOptions?.domain)) {
-        response.cookies.set({ name, value: "", maxAge: 0, path: "/", ...(v.domain ? { domain: v.domain } : {}) });
-      }
+      // Domänvarianten via cookie-jaren (en post per namn räcker för den).
+      response.cookies.set({ name, value: "", maxAge: 0, path: "/", ...(domain ? { domain } : {}) });
+      // Host-only-varianten kan inte samsas i jaren — anroparen lägger den sist.
+      if (domain) clearHostOnly.push(name);
     }
   };
 
@@ -93,5 +107,5 @@ export async function updateSession(request: NextRequest) {
     // client doesn't keep hitting "Invalid UTF-8 sequence" errors.
     clearAuthCookies();
   }
-  return response;
+  return { response, clearHostOnly };
 }

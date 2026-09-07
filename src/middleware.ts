@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
+import { expiredSetCookieHeader } from "@/lib/supabase/auth-cookies";
 import { locales, LOCALE_COOKIE_NAME, detectLocaleFromAcceptLanguage, isLikelyBot } from "@/i18n/config";
 
 export async function middleware(request: NextRequest) {
@@ -15,8 +16,9 @@ export async function middleware(request: NextRequest) {
     : detectLocaleFromAcceptLanguage(request.headers.get("accept-language"), fallback);
 
   let response: NextResponse;
+  let clearHostOnly: string[] = [];
   try {
-    response = await updateSession(request);
+    ({ response, clearHostOnly } = await updateSession(request));
   } catch {
     response = NextResponse.next({ request: { headers: request.headers } });
   }
@@ -28,6 +30,15 @@ export async function middleware(request: NextRequest) {
       maxAge: 60 * 60 * 24 * 365,
       sameSite: "lax",
     });
+  }
+
+  // Sist, efter alla cookies.set: host-only-varianten av döda auth-cookies.
+  // Måste gå som rå header — Nexts cookie-jar håller en post per namn och
+  // skulle annars slå ihop den med .usha.se-varianten ovan. Utan den här raden
+  // överlever en gammal host-only-cookie från före domänbytet och skuggar
+  // varje ny inloggning (refresh-stormen 2026-09-07).
+  for (const name of clearHostOnly) {
+    response.headers.append("Set-Cookie", expiredSetCookieHeader(name));
   }
 
   return response;
