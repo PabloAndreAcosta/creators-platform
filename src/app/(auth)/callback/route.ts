@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { verifyCookieValue } from "@/lib/signicat/crypto";
 import type { BankIdVerifiedData } from "@/types/bankid";
+import { normalizeRole } from "@/lib/roles";
 
 /**
  * Skapades kontot av det OAuth-flöde vi just kom tillbaka från?
@@ -49,9 +50,11 @@ export async function GET(req: NextRequest) {
         //    faktiskt håller är att bara tillämpa den när OAuth-flödet nyss
         //    SKAPADE kontot. Ett befintligt konto kan då inte höja sin roll;
         //    den vägen går via BankID-cookien nedan, som är signerad.
-        const pendingRole = req.cookies.get("pending_role")?.value;
-        const validRoles = ["creator", "venue", "customer"];
-        if (pendingRole && validRoles.includes(pendingRole) && isFreshSignup(user.created_at)) {
+        // Rollistan bor i lib/roles. Samma lista fanns tidigare på tre
+        //    ställen (här, i webhooken och i triggern) och gled isär — triggern
+        //    saknade venue i tre månader utan att någon märkte det.
+        const pendingRole = normalizeRole(req.cookies.get("pending_role")?.value);
+        if (pendingRole && isFreshSignup(user.created_at)) {
           await admin
             .from("profiles")
             .update({ role: pendingRole })
