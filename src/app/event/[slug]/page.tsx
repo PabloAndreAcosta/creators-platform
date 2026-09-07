@@ -412,8 +412,10 @@ export default async function EventPage(props: Params) {
             className="block h-auto w-full sm:absolute sm:inset-0 sm:h-full sm:object-cover sm:object-center"
           />
         </picture>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/10 to-black" />
-
+        {/* Ingen gradient och ingen text över bilden längre. Affischen och
+            rubriken slogs ihop till ett rörigt lapptäcke — särskilt i
+            Facebooks inbyggda webbläsare, där Usha-brickan lade sig mitt i
+            titeln. Bilden får tala själv; uppgifterna står under den. */}
         <div className="absolute left-6 top-6 z-10">
           <Link
             href="/"
@@ -426,50 +428,51 @@ export default async function EventPage(props: Params) {
           </Link>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 px-6 pb-10 text-white sm:px-10 sm:pb-16">
-          <div className="mx-auto max-w-4xl">
-            <span className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-[var(--usha-gold)]/15 px-3 py-1 text-xs font-medium text-[var(--usha-gold)]">
-              {categoryLabel}
-            </span>
-            <h1 className="text-3xl font-bold leading-tight sm:text-5xl">
-              {listing.title}
-            </h1>
-            {(dateLabel || listing.event_location) && (
-              <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-white/80 sm:text-base">
-                {dateLabel && (
-                  <span className="inline-flex items-center gap-1.5">
-                    <Calendar size={16} />
-                    {dateLabel}
-                  </span>
-                )}
-                {timeLabel && (
-                  <span className="inline-flex items-center gap-1.5">
-                    <Clock size={16} />
-                    {timeLabel}
-                  </span>
-                )}
-                {listing.event_location &&
-                  (venue ? (
-                    <Link
-                      href={`/creators/${venue.slug || venue.id}`}
-                      className="inline-flex items-center gap-1.5 underline-offset-4 transition hover:text-white hover:underline"
-                    >
-                      <MapPin size={16} />
-                      {listing.event_location}
-                    </Link>
-                  ) : (
-                    <span className="inline-flex items-center gap-1.5">
-                      <MapPin size={16} />
-                      {listing.event_location}
-                    </span>
-                  ))}
-              </div>
-            )}
-          </div>
-        </div>
       </div>
 
-      <div className="mx-auto max-w-4xl px-6 py-10 sm:px-10 sm:py-16">
+      {/* Rubriken och uppgifterna, nu på sidans egen yta i stället för ovanpå
+          affischen. Samma innehåll som förut — bara läsbart. */}
+      <header className="mx-auto max-w-4xl px-6 pt-8 sm:px-10 sm:pt-12">
+        <span className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-[var(--usha-gold)]/15 px-3 py-1 text-xs font-medium text-[var(--usha-gold)]">
+          {categoryLabel}
+        </span>
+        <h1 className="text-3xl font-bold leading-tight text-[var(--usha-white)] sm:text-5xl">
+          {listing.title}
+        </h1>
+        {(dateLabel || listing.event_location) && (
+          <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-[var(--usha-muted)] sm:text-base">
+            {dateLabel && (
+              <span className="inline-flex items-center gap-1.5">
+                <Calendar size={16} />
+                {dateLabel}
+              </span>
+            )}
+            {timeLabel && (
+              <span className="inline-flex items-center gap-1.5">
+                <Clock size={16} />
+                {timeLabel}
+              </span>
+            )}
+            {listing.event_location &&
+              (venue ? (
+                <Link
+                  href={`/creators/${venue.slug || venue.id}`}
+                  className="inline-flex items-center gap-1.5 underline-offset-4 transition hover:text-[var(--usha-white)] hover:underline"
+                >
+                  <MapPin size={16} />
+                  {listing.event_location}
+                </Link>
+              ) : (
+                <span className="inline-flex items-center gap-1.5">
+                  <MapPin size={16} />
+                  {listing.event_location}
+                </span>
+              ))}
+          </div>
+        )}
+      </header>
+
+      <div className="mx-auto max-w-4xl px-6 pb-10 pt-8 sm:px-10 sm:pb-16 sm:pt-10">
         {isHost && (
           <div className="mb-8 flex flex-wrap items-center gap-2 rounded-2xl border border-[var(--usha-gold)]/30 bg-[var(--usha-gold)]/5 p-3">
             <span className="mr-1 px-1 text-xs font-medium text-[var(--usha-gold)]">

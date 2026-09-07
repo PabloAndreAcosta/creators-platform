@@ -290,14 +290,16 @@ function EventCard({
         isActive ? "border-[var(--usha-border)]" : "border-[var(--usha-border)] opacity-60"
       } ${isPending ? "pointer-events-none opacity-50" : ""}`}
     >
-      {/* Bilden bär länken, men träffytan är hela kortet.
-          `after:absolute after:inset-0` lägger en osynlig platta över kortets
-          rot — den som råkar trycka på datumraden, platsen eller den tomma
-          ytan bredvid priset hamnar också rätt. Knapparna nedanför lyfts över
-          plattan med z-10, annars skulle länken sluka dem. */}
+      {/* Bilden bär den synliga länken. Träffytan för resten av kortet ligger
+          i en egen platta längst ned i det här blocket — se kommentaren där.
+
+          Plattan satt tidigare som ett ::after på den här länken, men länken är
+          `relative`, så `inset-0` mätte mot BILDEN och inte mot kortet. Hela
+          kortet såg alltså ut att vara en knapp i koden medan bara bilden gick
+          att trycka på. */}
       <Link
         href={`/app/events/${listing.id}/edit`}
-        className="relative block aspect-[1.91/1] after:absolute after:inset-0 after:z-0 after:content-['']"
+        className="relative block aspect-[1.91/1]"
       >
         <img src={image} alt={listing.title} className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
@@ -521,6 +523,20 @@ function EventCard({
           />
         </div>
       </div>
+
+      {/* Träffytan för hela kortet.
+          Ligger sist och mäter mot kortets rot (som är `relative`), så den
+          täcker även datumraden, platsen och den tomma ytan bredvid priset.
+          z-0 räcker: den är positionerad och målas därför över den statiska
+          texten, medan knapparna lyfts förbi den med `relative z-10`.
+          aria-hidden + tabIndex -1 gör att den inte dyker upp som ytterligare
+          en länk för skärmläsare eller tangentbord — bilden bär den riktiga. */}
+      <Link
+        href={`/app/events/${listing.id}/edit`}
+        aria-hidden
+        tabIndex={-1}
+        className="absolute inset-0 z-0"
+      />
 
       {showCloneModal && (
         <CloneModal
