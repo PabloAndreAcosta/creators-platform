@@ -2698,7 +2698,8 @@
     "seriesCount": "{count, plural, one {# date} other {# dates}}",
     "showOccurrences": "Show {count} more",
     "hideOccurrences": "Hide",
-    "badgePast": "Past"
+    "badgePast": "Past",
+    "sellAtDoor": "Sell at the door"
   },
   "calendarPage": {
     "dayMon": "Mon",
@@ -4011,5 +4012,22 @@
       "title": "Stuck?",
       "body": "Write to us at pablo.acosta@usha.se and we will help. The platform is new and your feedback shapes it."
     }
+  },
+  "entrance": {
+    "title": "Door",
+    "back": "Back",
+    "pickTicket": "Pick a ticket to show the guest a QR code.",
+    "noTicketTypes": "This event has no ticket types to sell.",
+    "priceSek": "{price} kr",
+    "soldOut": "Sold out",
+    "qrAlt": "QR code for {ticket}",
+    "guestScans": "The guest scans with their own phone and pays with Apple Pay, Google Pay or card.",
+    "otherTicket": "Pick another ticket",
+    "paidHeading": "Just paid",
+    "guest": "Guest",
+    "seats": "{n} seats",
+    "noPermission": "You do not have permission to sell at the door for this event.",
+    "loadError": "Could not load the tickets.",
+    "connectionLost": "No connection to the server."
   }
 }

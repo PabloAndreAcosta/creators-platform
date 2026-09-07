@@ -2698,7 +2698,8 @@
     "seriesCount": "{count, plural, one {# tillfälle} other {# tillfällen}}",
     "showOccurrences": "Visa {count, plural, one {# till} other {# till}}",
     "hideOccurrences": "Dölj",
-    "badgePast": "Passerat"
+    "badgePast": "Passerat",
+    "sellAtDoor": "Sälj i entrén"
   },
   "calendarPage": {
     "dayMon": "Mån",
@@ -4011,5 +4012,22 @@
       "title": "Fastnar du?",
       "body": "Skriv till oss på pablo.acosta@usha.se, så hjälper vi till. Plattformen är ny och er återkoppling formar den."
     }
+  },
+  "entrance": {
+    "title": "Entré",
+    "back": "Tillbaka",
+    "pickTicket": "Välj biljett så visas en QR-kod gästen scannar.",
+    "noTicketTypes": "Eventet har inga biljettyper att sälja.",
+    "priceSek": "{price} kr",
+    "soldOut": "Slutsålt",
+    "qrAlt": "QR-kod för {ticket}",
+    "guestScans": "Gästen scannar med sin egen telefon och betalar med Apple Pay, Google Pay eller kort.",
+    "otherTicket": "Välj annan biljett",
+    "paidHeading": "Betalt nyss",
+    "guest": "Gäst",
+    "seats": "{n} platser",
+    "noPermission": "Du har inte behörighet att sälja i entrén för det här eventet.",
+    "loadError": "Kunde inte hämta biljetterna.",
+    "connectionLost": "Ingen kontakt med servern."
   }
 }

@@ -2698,7 +2698,8 @@
     "seriesCount": "{count, plural, one {# fecha} other {# fechas}}",
     "showOccurrences": "Ver {count} más",
     "hideOccurrences": "Ocultar",
-    "badgePast": "Pasado"
+    "badgePast": "Pasado",
+    "sellAtDoor": "Vender en la entrada"
   },
   "calendarPage": {
     "dayMon": "Lun",
@@ -4011,5 +4012,22 @@
       "title": "¿Te has atascado?",
       "body": "Escríbenos a pablo.acosta@usha.se y te ayudamos. La plataforma es nueva y vuestros comentarios la moldean."
     }
+  },
+  "entrance": {
+    "title": "Entrada",
+    "back": "Volver",
+    "pickTicket": "Elige una entrada para mostrar un código QR al invitado.",
+    "noTicketTypes": "Este evento no tiene entradas a la venta.",
+    "priceSek": "{price} kr",
+    "soldOut": "Agotado",
+    "qrAlt": "Código QR para {ticket}",
+    "guestScans": "El invitado escanea con su propio móvil y paga con Apple Pay, Google Pay o tarjeta.",
+    "otherTicket": "Elegir otra entrada",
+    "paidHeading": "Recién pagado",
+    "guest": "Invitado",
+    "seats": "{n} plazas",
+    "noPermission": "No tienes permiso para vender en la entrada de este evento.",
+    "loadError": "No se pudieron cargar las entradas.",
+    "connectionLost": "Sin conexión con el servidor."
   }
 }

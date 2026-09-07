@@ -16,6 +16,7 @@ import {
   ToggleRight,
   Radio,
   ScanLine,
+  QrCode,
   BarChart3,
   Copy,
   Users,
@@ -407,6 +408,17 @@ function EventCard({
                   >
                     <ScanLine size={12} />
                     {t("scanTickets")}
+                  </Link>
+                  {/* Direkt under scanningen: det är samma person, i samma dörr,
+                      i samma stund. Den som skannar biljetter är också den som
+                      möter spontanbesökaren utan biljett. */}
+                  <Link
+                    href={`/app/events/${listing.id}/entre`}
+                    className="flex w-full items-center gap-2 px-4 py-2 text-xs font-medium text-[var(--usha-gold)] hover:bg-[var(--usha-card-hover)]"
+                    onClick={() => setShowMenu(false)}
+                  >
+                    <QrCode size={12} />
+                    {t("sellAtDoor")}
                   </Link>
                   {/* Bokningar först: det är hit man går för att se vem som
                       köpt och för att betala tillbaka. Återbetalning låg
