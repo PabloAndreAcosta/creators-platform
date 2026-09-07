@@ -51,9 +51,15 @@ men det uppmanade till köp, och den tolkningen bör inte lutas mot.
   kontoskapandet. Bara strängen 'true' räknas — saknad nyckel och OAuth-flöden
   utan ruta blir nej. Verifierat mot alla tre fallen.
 
-## Kvar att bestämma
+- OAuth-flödet (7 sep 2026). Rutan flyttad till ovanför Google- och
+  Facebook-knapparna, så den föregår alla tre registreringsvägarna; nere vid
+  formulärets knapp hade den aldrig hunnit synas för den som klickar Google.
+  Valet reser i `pending_marketing_consent`-cookien och plockas upp i
+  /callback, men bara när rundturen nyss skapade kontot — annars kunde en
+  kvarliggande cookie slå på marknadsföring vid en senare inloggning.
 
-- Om de 19 ska kontaktas. Ett meddelande om saken är i sig ytterligare ett
-  utskick till samma personer, vilket talar emot.
-- Samma ruta i OAuth-flödet (Google/Facebook), som inte passerar
-  registreringsformuläret och därför alltid landar på nej.
+## Beslut
+
+- **De 19 kontaktas inte** (7 sep 2026). Ett meddelande om saken är i sig
+  ytterligare ett utskick till precis de personer som inte bett om ett.
+  Samtyckesrutan får i stället bygga listan framåt.
