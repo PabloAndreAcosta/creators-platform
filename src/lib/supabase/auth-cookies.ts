@@ -32,6 +32,16 @@ export function expiredCookieVariants(name: string, domain: string | undefined):
   return domain ? [{ name }, { name, domain }] : [{ name }];
 }
 
+/**
+ * Rå Set-Cookie-rad som raderar en cookie. Behövs eftersom Nexts
+ * `response.cookies` håller EN post per namn och skriver om hela headern vid
+ * varje `set` — två varianter av samma namn kan bara samexistera som råa
+ * header-rader, tillagda efter den sista `cookies.set`.
+ */
+export function expiredSetCookieHeader(name: string, domain?: string): string {
+  return `${name}=; Path=/; Max-Age=0; SameSite=Lax` + (domain ? `; Domain=${domain}` : "");
+}
+
 /** Namn ur en cookie-header/document.cookie-sträng, dubbletter ihopslagna. */
 export function authCookieNamesFrom(cookieString: string): string[] {
   const names = new Set<string>();
