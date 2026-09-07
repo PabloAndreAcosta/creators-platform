@@ -485,7 +485,7 @@ export default function ScanPage() {
               {(result.ticket.seats ?? 1) > 1 && (
                 <span className="text-[var(--usha-muted)]">
                   {result.ticket.holder ? " · " : ""}
-                  {t("seats", { n: result.ticket.seats })}
+                  {t("seats", { n: result.ticket.seats ?? 1 })}
                 </span>
               )}
             </p>
