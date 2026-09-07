@@ -42,6 +42,9 @@ export default function SignupPage() {
   const [passwordError, setPasswordError] = useState("");
   const [nameTouched, setNameTouched] = useState(false);
   const [emailTouched, setEmailTouched] = useState(false);
+  // Omarkerad som standard, och det är hela poängen: ett förkryssat val är
+  // inget samtycke. Sparas som user_settings.notif_marketing via triggern.
+  const [marketingConsent, setMarketingConsent] = useState(false);
   const [passwordTouched, setPasswordTouched] = useState(false);
 
   // BankID state
@@ -218,6 +221,10 @@ export default function SignupPage() {
         ? { is_company: "true" }
         : {}),
       ...(refCode ? { referred_by_code: refCode.toUpperCase() } : {}),
+      // Går vidare till handle_new_user, som lägger user_settings-raden. Skickas
+      // alltid — utan nyckeln kan triggern inte skilja "tackade nej" från
+      // "registrerade sig innan rutan fanns".
+      marketing_consent: marketingConsent ? "true" : "false",
       // Seeds profiles.locale via handle_new_user, so the welcome mail and every
       // later receipt arrive in the language this account was created in.
       locale,
@@ -678,6 +685,16 @@ export default function SignupPage() {
           ) : error ? (
             <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400">{error}</p>
           ) : null}
+
+          <label className="flex cursor-pointer items-start gap-3 text-sm text-[var(--usha-muted)]">
+            <input
+              type="checkbox"
+              checked={marketingConsent}
+              onChange={(e) => setMarketingConsent(e.target.checked)}
+              className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-[var(--usha-gold)]"
+            />
+            <span>{t("marketingConsent")}</span>
+          </label>
 
           <button
             type="submit"

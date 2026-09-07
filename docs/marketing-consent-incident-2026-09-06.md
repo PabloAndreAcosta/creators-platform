@@ -45,8 +45,15 @@ men det uppmanade till köp, och den tolkningen bör inte lutas mot.
 - `scripts/send-welcome-credit.ts` väljer bara mottagare med aktivt ja.
 - Regressionstest i `src/lib/email/__tests__/check-preferences.test.ts`.
 
+- Samtyckesruta vid registrering (7 sep 2026). Omarkerad som standard;
+  valet går via `raw_user_meta_data.marketing_consent` till
+  `handle_new_user`, som nu skapar user_settings-raden direkt vid
+  kontoskapandet. Bara strängen 'true' räknas — saknad nyckel och OAuth-flöden
+  utan ruta blir nej. Verifierat mot alla tre fallen.
+
 ## Kvar att bestämma
 
-- Samtyckesruta vid registrering, så nya konton får ett riktigt val.
 - Om de 19 ska kontaktas. Ett meddelande om saken är i sig ytterligare ett
   utskick till samma personer, vilket talar emot.
+- Samma ruta i OAuth-flödet (Google/Facebook), som inte passerar
+  registreringsformuläret och därför alltid landar på nej.
