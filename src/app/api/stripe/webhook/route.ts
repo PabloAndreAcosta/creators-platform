@@ -624,7 +624,7 @@ export async function POST(req: NextRequest) {
             special_requests: specialRequests,
             attendees,
             notes,
-            ...(danceCount && danceCount > 0 ? { dances_total: danceCount, dances_redeemed: 0 } : {}),
+            ...(danceCount && danceCount > 0 ? { sessions_total: danceCount, sessions_redeemed: 0 } : {}),
           });
 
           // Notify the creator of the new paid, confirmed booking.
