@@ -13,7 +13,7 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
-export function Nav() {
+export function Nav({ showCalendar = false }: { showCalendar?: boolean } = {}) {
   const t = useTranslations("landing");
   const ta = useTranslations("a11y");
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -69,6 +69,9 @@ export function Nav() {
     { href: "https://shop.usha.se", label: t("nav.shop") },
   ];
   const appLinks = [
+    // Kalendern finns alltid på /kalender; länken dyker upp när utbudet räcker
+    // (app_config.calendar_min_supply). Se lib/calendar/visibility.ts.
+    ...(showCalendar ? [{ href: "/kalender", label: t("nav.calendar") }] : []),
     { href: "/flode", label: t("nav.feed") },
     { href: "/upplevelser", label: t("nav.experiences") },
     { href: "/marketplace", label: t("nav.marketplace") },
