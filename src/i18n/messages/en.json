@@ -545,7 +545,8 @@
       "forAudience": "Audience",
       "shop": "Shop",
       "sellTickets": "Sell tickets",
-      "homeAriaLabel": "Usha Platform – home"
+      "homeAriaLabel": "Usha Platform – home",
+      "calendar": "Calendar"
     },
     "install": {
       "title": "Install Usha Platform",
@@ -988,6 +989,26 @@
     "priceFrom": "From {price} kr",
     "followerCount": "{count} followers",
     "listingCount": "{count, plural, one {# service} other {# services}}"
+  },
+  "calendar": {
+    "metaTitle": "Calendar – Usha Platform",
+    "metaDescription": "Upcoming events, classes and nights on Usha Platform – day by day.",
+    "title": "Calendar",
+    "intro": "{count, plural, one {# upcoming happening} other {# upcoming happenings}}",
+    "navFeed": "Feed",
+    "navExperiences": "Experiences",
+    "navCreateProfile": "Create profile",
+    "today": "Today",
+    "thisWeek": "This week",
+    "nextWeek": "Next week",
+    "later": "Later",
+    "every": "Every {weekday}",
+    "occurrences": "{count} dates",
+    "next": "Next {date}",
+    "free": "Free",
+    "price": "{price} kr",
+    "empty": "Nothing scheduled right now. Check back soon.",
+    "open": "Open"
   },
   "experiences": {
     "metaTitle": "Experiences – Usha Platform",

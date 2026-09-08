@@ -545,7 +545,8 @@
       "forAudience": "Publik",
       "shop": "Shop",
       "sellTickets": "Sälj biljetter",
-      "homeAriaLabel": "Usha Platform – hem"
+      "homeAriaLabel": "Usha Platform – hem",
+      "calendar": "Kalender"
     },
     "install": {
       "title": "Installera Usha Platform",
@@ -988,6 +989,26 @@
     "priceFrom": "Från {price} kr",
     "followerCount": "{count} följare",
     "listingCount": "{count, plural, one {# tjänst} other {# tjänster}}"
+  },
+  "calendar": {
+    "metaTitle": "Kalender – Usha Platform",
+    "metaDescription": "Kommande evenemang, kurser och kvällar på Usha Platform – dag för dag.",
+    "title": "Kalender",
+    "intro": "{count, plural, one {# kommande händelse} other {# kommande händelser}}",
+    "navFeed": "Flöde",
+    "navExperiences": "Upplevelser",
+    "navCreateProfile": "Skapa profil",
+    "today": "I dag",
+    "thisWeek": "Den här veckan",
+    "nextWeek": "Nästa vecka",
+    "later": "Längre fram",
+    "every": "Varje {weekday}",
+    "occurrences": "{count} tillfällen",
+    "next": "Nästa {date}",
+    "free": "Gratis",
+    "price": "{price} kr",
+    "empty": "Inget inplanerat just nu. Titta in igen snart.",
+    "open": "Öppna"
   },
   "experiences": {
     "metaTitle": "Upplevelser – Usha Platform",

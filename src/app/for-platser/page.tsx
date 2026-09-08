@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { useTranslations } from "next-intl";
 import { ShieldCheck, CalendarCheck, SlidersHorizontal } from "lucide-react";
-import { Nav } from "@/components/landing/nav";
+import { SiteNav } from "@/components/landing/site-nav";
 import { PerspectiveHero } from "@/components/landing/perspective-hero";
 import { LoopSection } from "@/components/landing/loop-section";
 import { PerspectiveLinks } from "@/components/landing/perspective-links";
@@ -50,7 +50,7 @@ export default function ForVenuesPage() {
   return (
     <main>
       <RedirectIfAuthed />
-      <Nav />
+      <SiteNav />
       <PerspectiveHero ns="forVenues" ctaHref="/signup" />
       <VenueValues />
       <LoopSection ns="forVenues" />

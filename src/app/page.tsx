@@ -6,7 +6,7 @@ import { safeJsonLd } from "@/lib/json-ld";
 import { LandingStats } from "@/components/landing-stats";
 import { LandingInstall } from "@/components/landing-install";
 import { InstallPrompt } from "@/components/install-prompt";
-import { Nav } from "@/components/landing/nav";
+import { SiteNav } from "@/components/landing/site-nav";
 import { Ecosystem } from "@/components/landing/ecosystem";
 import { Trust } from "@/components/landing/trust";
 import { Footer } from "@/components/landing/footer";
@@ -178,7 +178,7 @@ export default function Home() {
       {/* Non-blocking: logged-in users go to /app after render; anonymous
           visitors and crawlers always get the full landing HTML. */}
       <RedirectIfAuthed />
-      <Nav />
+      <SiteNav />
       <Hero />
       <LandingStats />
       <Ecosystem />

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { Nav } from "@/components/landing/nav";
+import { SiteNav } from "@/components/landing/site-nav";
 import { PerspectiveHero } from "@/components/landing/perspective-hero";
 import { LoopSection } from "@/components/landing/loop-section";
 import { AudienceFeatures } from "@/components/landing/audience-features";
@@ -25,7 +25,7 @@ export default function ForAudiencePage() {
   return (
     <main>
       <RedirectIfAuthed />
-      <Nav />
+      <SiteNav />
       {/* Primary CTA leads into the functional browse page; the no-account
           ticket wedge sits just beneath it as lighter-weight reassurance. */}
       <PerspectiveHero ns="forAudience" ctaHref="/upplevelser" wedge />
