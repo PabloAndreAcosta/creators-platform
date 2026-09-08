@@ -51,6 +51,14 @@ function parseListingForm(formData: FormData) {
       ? sessionCountParsed
       : null;
 
+  // Klippkort kopplat till en serie: kortet blir en biljett som skannas i
+  // dörren. Ägarskapet av serien prövas i create/update (kräver databas).
+  const passSeriesRaw = (formData.get("pass_series_id") as string)?.trim() || null;
+  const pass_series_id =
+    listing_type === "package" && passSeriesRaw && /^[0-9a-f-]{36}$/i.test(passSeriesRaw) ? passSeriesRaw : null;
+  const pass_covers =
+    listing_type === "package" ? ((formData.get("pass_covers") as string)?.trim().slice(0, 80) || null) : null;
+
   if (!title) return { error: "Titel krävs" } as const;
   if (!category || !CATEGORIES.includes(category as (typeof CATEGORIES)[number])) {
     return { error: "Välj en giltig kategori" } as const;
@@ -86,6 +94,8 @@ function parseListingForm(formData: FormData) {
       event_place_id: eventPlaceId,
       listing_type,
       session_count,
+      pass_series_id,
+      pass_covers,
     },
   } as const;
 }
@@ -131,6 +141,10 @@ export async function createListing(formData: FormData) {
     if ((profile as { creator_subcategory?: string | null } | null)?.creator_subcategory !== "taxi_dancer") {
       resolvedListingType = "service";
     }
+  }
+
+  if (parsed.data.pass_series_id && !(await ownsSeries(supabase, user.id, parsed.data.pass_series_id))) {
+    return { error: "Serien hittades inte bland dina evenemang." };
   }
 
   const { data: listing, error } = await supabase
@@ -186,6 +200,10 @@ export async function updateListing(id: string, formData: FormData) {
     if ((profile as { creator_subcategory?: string | null } | null)?.creator_subcategory !== "taxi_dancer") {
       resolvedListingType = "service";
     }
+  }
+
+  if (parsed.data.pass_series_id && !(await ownsSeries(supabase, user.id, parsed.data.pass_series_id))) {
+    return { error: "Serien hittades inte bland dina evenemang." };
   }
 
   const { error } = await supabase
@@ -292,4 +310,18 @@ export async function duplicateListing(id: string) {
   revalidatePath("/dashboard/listings");
   revalidatePath("/dashboard");
   return { success: true, id: copy.id };
+}
+
+/** Får bara koppla kortet till en serie man själv arrangerar. */
+async function ownsSeries(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  seriesId: string
+): Promise<boolean> {
+  const { count } = await supabase
+    .from("listings")
+    .select("id", { count: "exact", head: true })
+    .eq("series_id", seriesId)
+    .eq("user_id", userId);
+  return (count ?? 0) > 0;
 }

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { passBookingFields } from "@/lib/passes/series-pass";
 import { ROLES, normalizeRole } from "@/lib/roles";
 import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@supabase/supabase-js";
@@ -227,6 +228,7 @@ export async function POST(req: NextRequest) {
             guest_count: guestQty,
             ticket_type_id: session.metadata?.ticketTypeId || null,
             ticket_type_name: session.metadata?.ticketTypeName || null,
+            ...passBookingFields(session.metadata?.sessionsTotal),
           }).select("id").single();
 
           // One scannable attendee per seat (only for multi-ticket orders).
@@ -457,6 +459,7 @@ export async function POST(req: NextRequest) {
             guest_count: ticketQty,
             ticket_type_id: session.metadata?.ticketTypeId || null,
             ticket_type_name: session.metadata?.ticketTypeName || null,
+            ...passBookingFields(session.metadata?.sessionsTotal),
           }).select("id").single();
 
           // Förbruka avdraget. Villkoret `used_at is null` gör skrivningen till

@@ -2064,6 +2064,9 @@
     }
   },
   "eventPage": {
+    "singleTicket": "Entrada para la noche",
+    "passSessions": "{n} sesiones",
+    "buyPass": "Comprar bono · {price} kr",
     "bankidVerified": "Verificado con BankID",
     "crewHeading": "Participantes",
     "dateComing": "Fecha por confirmar",
@@ -2312,6 +2315,8 @@
     "ctaButton": "Empieza gratis"
   },
   "ticketPage": {
+    "passChip": "Bono · quedan {remaining} de {total}",
+    "passCovers": "Cada uso da acceso a: {covers}",
     "walletApple": "Añadir a Apple Wallet",
     "walletGoogle": "Guardar en Google Wallet",
     "canceled": "Esta reserva ha sido cancelada",
@@ -2379,6 +2384,7 @@
     "shareFormLocked": "Esta noche ya ha vendido entradas. Las condiciones no se pueden cambiar después — cambiaría lo que se debe por compras ya realizadas."
   },
   "scanPage": {
+    "passRemaining": "Quedan {n} sesiones en el bono",
     "title": "Escanear entradas",
     "subtitle": "Escanea el código QR o introduce el código de la entrada manualmente.",
     "gateMessage": "Mejora a Gold o Premium para escanear entradas.",
@@ -2477,6 +2483,9 @@
     "s9BodyPost": "También tienes derecho a presentar una reclamación ante la Autoridad Sueca de Protección de la Privacidad (IMY)."
   },
   "scanApi": {
+    "passType": "Bono · {covers} · quedan {remaining} de {total}",
+    "passNoEventToday": "Hoy no hay noche de esta serie: el bono no se puede usar.",
+    "passUsedUp": "Todas las sesiones del bono están usadas.",
     "notLoggedIn": "Debes iniciar sesión",
     "invalidRequest": "Solicitud no válida",
     "missingBookingId": "Falta el ID de la reserva",
@@ -3343,6 +3352,11 @@
     "submit": "Publicar evento"
   },
   "listingForm": {
+    "passSeriesLabel": "Válido como entrada para la serie",
+    "passSeriesNone": "Ninguna: se canjea a mano en la lista de reservas",
+    "passSeriesHint": "Vinculado a una serie, el QR del bono se escanea en la puerta, un uso por noche.",
+    "passCoversLabel": "Cada uso da acceso a",
+    "passCoversPlaceholder": "p. ej. Todo: practica + taller + social",
     "uploadFailed": "Error al subir",
     "saveFailed": "No se pudo guardar el servicio",
     "savedToast": "Servicio guardado",

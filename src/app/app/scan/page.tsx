@@ -33,6 +33,7 @@ interface CheckInResult {
   error?: string;
   status?: string;
   attendeeLabel?: string;
+  passRemaining?: number;
 }
 
 export default function ScanPage() {
@@ -552,6 +553,9 @@ export default function ScanPage() {
               <UserCheck size={48} className="mx-auto mb-3 text-green-400" />
               <p className="text-lg font-bold text-green-400">{t("checkedInSuccess")}</p>
               <p className="mt-2 text-sm font-medium">{checkInDone.title}</p>
+              {checkInDone.passRemaining != null && (
+                <p className="mt-1 text-sm font-semibold text-[var(--usha-gold)]">{t("passRemaining", { n: checkInDone.passRemaining })}</p>
+              )}
               <p className="mt-1 text-xs text-[var(--usha-muted)]">
                 {new Date(checkInDone.checkedInAt!).toLocaleTimeString("sv-SE", {
                   hour: "2-digit",

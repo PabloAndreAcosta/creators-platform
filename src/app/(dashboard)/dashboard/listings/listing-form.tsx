@@ -25,6 +25,8 @@ interface Listing {
   event_lng?: number | null;
   event_place_id?: string | null;
   listing_type?: string | null;
+  pass_series_id?: string | null;
+  pass_covers?: string | null;
   session_count?: number | null;
 }
 
@@ -32,10 +34,13 @@ export default function ListingForm({
   listing,
   action,
   creatorSubcategory,
+  seriesOptions = [],
 }: {
   listing?: Listing;
   action: (formData: FormData) => Promise<{ error?: string } | void>;
   creatorSubcategory?: string | null;
+  /** Kreatörens egna serier, för klippkort som ska gälla som biljett. */
+  seriesOptions?: { id: string; title: string }[];
 }) {
   const t = useTranslations("listingForm");
   const ta = useTranslations("a11y");
@@ -197,6 +202,37 @@ export default function ListingForm({
                   className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
                 />
               </div>
+              {seriesOptions.length > 0 && (
+                <div className="mt-3">
+                  <label htmlFor="pass_series_id" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
+                    {t("passSeriesLabel")}
+                  </label>
+                  <select
+                    id="pass_series_id"
+                    name="pass_series_id"
+                    defaultValue={listing?.pass_series_id ?? ""}
+                    className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+                  >
+                    <option value="">{t("passSeriesNone")}</option>
+                    {seriesOptions.map((s) => (
+                      <option key={s.id} value={s.id}>{s.title}</option>
+                    ))}
+                  </select>
+                  <p className="mt-1.5 text-xs text-[var(--usha-muted)]">{t("passSeriesHint")}</p>
+                  <label htmlFor="pass_covers" className="mb-1.5 mt-3 block text-sm text-[var(--usha-muted)]">
+                    {t("passCoversLabel")}
+                  </label>
+                  <input
+                    id="pass_covers"
+                    name="pass_covers"
+                    type="text"
+                    maxLength={80}
+                    defaultValue={listing?.pass_covers ?? ""}
+                    placeholder={t("passCoversPlaceholder")}
+                    className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+                  />
+                </div>
+              )}
             </>
           )}
           {listingType === "coaching_session" && (

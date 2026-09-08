@@ -2064,6 +2064,9 @@
     }
   },
   "eventPage": {
+    "singleTicket": "Ticket for the night",
+    "passSessions": "{n} sessions",
+    "buyPass": "Buy pass · {price} kr",
     "bankidVerified": "BankID-verified",
     "crewHeading": "Line-up",
     "dateComing": "Date to be announced",
@@ -2312,6 +2315,8 @@
     "ctaButton": "Get started free"
   },
   "ticketPage": {
+    "passChip": "Pass · {remaining} of {total} left",
+    "passCovers": "One clip gives: {covers}",
     "walletApple": "Add to Apple Wallet",
     "walletGoogle": "Save to Google Wallet",
     "canceled": "This booking has been cancelled",
@@ -2379,6 +2384,7 @@
     "shareFormLocked": "This evening has already sold tickets. The terms cannot be changed afterwards — it would change what is owed on purchases already made."
   },
   "scanPage": {
+    "passRemaining": "{n} sessions left on the pass",
     "title": "Scan tickets",
     "subtitle": "Scan the QR code or enter the ticket code manually.",
     "gateMessage": "Upgrade to Gold or Premium to scan tickets.",
@@ -2477,6 +2483,9 @@
     "s9BodyPost": "You also have the right to lodge a complaint with the Swedish Authority for Privacy Protection (IMY)."
   },
   "scanApi": {
+    "passType": "Pass · {covers} · {remaining} of {total} left",
+    "passNoEventToday": "No night in this series today – the pass can't be clipped.",
+    "passUsedUp": "All sessions on this pass are used.",
     "notLoggedIn": "You must be logged in",
     "invalidRequest": "Invalid request",
     "missingBookingId": "Missing booking ID",
@@ -3343,6 +3352,11 @@
     "submit": "Publish gig"
   },
   "listingForm": {
+    "passSeriesLabel": "Valid as a ticket for series",
+    "passSeriesNone": "None – redeemed manually in the bookings list",
+    "passSeriesHint": "Linked to a series, the pass QR is scanned at the door, one clip per night.",
+    "passCoversLabel": "One clip gives access to",
+    "passCoversPlaceholder": "e.g. Everything: practica + workshop + social",
     "uploadFailed": "Upload failed",
     "saveFailed": "Could not save service",
     "savedToast": "Service saved",

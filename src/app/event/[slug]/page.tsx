@@ -82,7 +82,7 @@ async function getListing(slug: string) {
   const { data: listing } = await supabase
     .from("listings")
     .select(
-      "id, user_id, title, description, category, price, duration_minutes, image_url, image_url_square, event_date, event_time, event_end_time, event_location, event_place_id, event_lat, event_lng, slug, series_slug, is_active, content_language, organizer_name, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, venue_profile_id, venue_confirmed_at"
+      "id, user_id, title, description, category, price, duration_minutes, image_url, image_url_square, series_id, event_date, event_time, event_end_time, event_location, event_place_id, event_lat, event_lng, slug, series_slug, is_active, content_language, organizer_name, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, venue_profile_id, venue_confirmed_at"
     )
     .eq(isUUID(slug) ? "id" : "slug", slug)
     .eq("is_active", true)
@@ -288,6 +288,24 @@ export default async function EventPage(props: Params) {
   const { listing, host, venue, more, moreDates } = data;
   const crew = await getCrew(listing.id);
   const supabase = await createClient();
+
+  // Klippkort på serien ("5 kvällar") säljs som ett alternativ bredvid
+  // kvällens biljetter. Kortet är en egen annons (package) kopplad via
+  // pass_series_id, så pris och antal ändras i kreatörens tjänstelista.
+  const seriesIdForPass = (listing as { series_id?: string | null }).series_id ?? null;
+  type PassRow = { id: string; title: string; price: number | null; session_count: number | null; pass_covers: string | null };
+  const { data: passRows } = seriesIdForPass
+    ? await supabase
+        .from("listings")
+        .select("id, title, price, session_count, pass_covers")
+        .eq("pass_series_id", seriesIdForPass)
+        .eq("is_active", true)
+        .eq("is_public", true)
+        .order("price", { ascending: true })
+    : { data: [] as PassRow[] };
+  const passes = ((passRows ?? []) as PassRow[])
+    .filter((p) => (p.session_count ?? 0) > 0)
+    .map((p) => ({ id: p.id, title: p.title, price: p.price ?? 0, sessionCount: p.session_count ?? 0, covers: p.pass_covers }));
 
   // Ticket types (price tiers). Empty → single-price event (unchanged).
   const { data: ticketTypes } = await supabase
@@ -568,6 +586,7 @@ export default async function EventPage(props: Params) {
                   isLoggedIn={!!user}
                   returnPath={returnPath}
                   ticketTypes={ticketTypesForSale}
+                  passes={passes}
                   preselectTicketTypeId={preselectTicketTypeId}
                   creditOre={signupCreditOre}
                   header={{
