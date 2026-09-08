@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
     // Get listing
     const { data: listing } = await supabase
       .from("listings")
-      .select("id, title, price, user_id, is_active, min_guests, max_guests, listing_type, dance_count")
+      .select("id, title, price, user_id, is_active, min_guests, max_guests, listing_type, session_count")
       .eq("id", listingId)
       .single();
 
@@ -86,9 +86,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // For dance_package listings, scheduled_at represents the moment of purchase
+    // For package (klippkort) listings, scheduled_at represents the moment of purchase
     // (no specific event datetime). Override any client-supplied value.
-    const scheduledAt = listing.listing_type === "dance_package"
+    const scheduledAt = listing.listing_type === "package"
       ? new Date().toISOString()
       : requestedScheduledAt;
 
@@ -231,8 +231,8 @@ export async function POST(req: NextRequest) {
         })(),
         originalPrice: String(originalPrice),
         discountedPrice: String(discountedPrice),
-        ...(listing.listing_type === "dance_package" && (listing as { dance_count?: number | null }).dance_count
-          ? { danceCount: String((listing as { dance_count?: number | null }).dance_count) }
+        ...(listing.listing_type === "package" && (listing as { session_count?: number | null }).session_count
+          ? { danceCount: String((listing as { session_count?: number | null }).session_count) }
           : {}),
         ...(promoCodeId && { promoCodeId }),
         ...(promoDiscountAmount && {

@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { requiresTaxiDancer } from "@/lib/listings/package-access";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requirePaidSubscription, getSubscriptionStatus } from "@/lib/subscription/check";
@@ -14,7 +15,7 @@ const VALID_LISTING_TYPES = [
   "table_reservation",
   "spa_treatment",
   "group_activity",
-  "dance_package",
+  "package",
   "coaching_session",
   "b2b_offering",
 ] as const;
@@ -40,14 +41,14 @@ function parseListingForm(formData: FormData) {
   const listing_type: ListingType = VALID_LISTING_TYPES.includes(listingTypeRaw as ListingType)
     ? (listingTypeRaw as ListingType)
     : "service";
-  const danceCountRaw = formData.get("dance_count") as string;
-  const danceCountParsed = danceCountRaw ? parseInt(danceCountRaw, 10) : null;
-  const dance_count =
-    listing_type === "dance_package" &&
-    danceCountParsed !== null &&
-    Number.isFinite(danceCountParsed) &&
-    danceCountParsed > 0
-      ? danceCountParsed
+  const sessionCountRaw = formData.get("session_count") as string;
+  const sessionCountParsed = sessionCountRaw ? parseInt(sessionCountRaw, 10) : null;
+  const session_count =
+    listing_type === "package" &&
+    sessionCountParsed !== null &&
+    Number.isFinite(sessionCountParsed) &&
+    sessionCountParsed > 0
+      ? sessionCountParsed
       : null;
 
   if (!title) return { error: "Titel krävs" } as const;
@@ -64,8 +65,8 @@ function parseListingForm(formData: FormData) {
   if (duration_minutes !== null && (isNaN(duration_minutes) || duration_minutes <= 0)) {
     return { error: "Längden måste vara ett positivt tal" } as const;
   }
-  if (listing_type === "dance_package" && dance_count === null) {
-    return { error: "Antal danser måste anges för danspaket" } as const;
+  if (listing_type === "package" && session_count === null) {
+    return { error: "Antal pass måste anges för ett klippkort" } as const;
   }
 
   return {
@@ -84,7 +85,7 @@ function parseListingForm(formData: FormData) {
       event_lng: eventLng,
       event_place_id: eventPlaceId,
       listing_type,
-      dance_count,
+      session_count,
     },
   } as const;
 }
@@ -114,14 +115,14 @@ export async function createListing(formData: FormData) {
   const parsed = parseListingForm(formData);
   if ("error" in parsed) return { error: parsed.error };
 
-  // Only taxi_dancer creators can publish dance_package / coaching_session listings.
-  // Forge-attempt fallback: silently downgrade to 'service'.
+  // Coaching och B2B är taxidansarnas egna typer och förblir låsta.
+  // KLIPPKORT (package) är det inte: en boxningstränare säljer 5- och
+  // 10-passkort på precis samma sätt som en taxidansare säljer danser, och
+  // plattformen är inte en dansplattform. Låsningen var arvet från när
+  // funktionen hette danspaket.
+  // Förfalskningsförsök faller tillbaka på 'service'.
   let resolvedListingType: ListingType = parsed.data.listing_type;
-  if (
-    resolvedListingType === "dance_package" ||
-    resolvedListingType === "coaching_session" ||
-    resolvedListingType === "b2b_offering"
-  ) {
+  if (requiresTaxiDancer(resolvedListingType)) {
     const { data: profile } = await supabase
       .from("profiles")
       .select("creator_subcategory")
@@ -173,12 +174,10 @@ export async function updateListing(id: string, formData: FormData) {
   const parsed = parseListingForm(formData);
   if ("error" in parsed) return { error: parsed.error };
 
+  // Samma grind som i createListing: klippkort är öppet för alla kreatörer,
+  // coaching och B2B är fortsatt taxidansarnas.
   let resolvedListingType: ListingType = parsed.data.listing_type;
-  if (
-    resolvedListingType === "dance_package" ||
-    resolvedListingType === "coaching_session" ||
-    resolvedListingType === "b2b_offering"
-  ) {
+  if (requiresTaxiDancer(resolvedListingType)) {
     const { data: profile } = await supabase
       .from("profiles")
       .select("creator_subcategory")
@@ -269,7 +268,7 @@ export async function duplicateListing(id: string) {
   const { data: src } = await supabase
     .from("listings")
     .select(
-      "title, description, category, price, duration_minutes, event_tier, image_url, event_date, event_time, event_end_time, event_location, event_lat, event_lng, event_place_id, event_city, event_venue, listing_type, capacity, min_guests, max_guests, experience_details, series_id, series_slug, open_to_instructors, dance_count"
+      "title, description, category, price, duration_minutes, event_tier, image_url, event_date, event_time, event_end_time, event_location, event_lat, event_lng, event_place_id, event_city, event_venue, listing_type, capacity, min_guests, max_guests, experience_details, series_id, series_slug, open_to_instructors, session_count"
     )
     .eq("id", id)
     .eq("user_id", user.id)

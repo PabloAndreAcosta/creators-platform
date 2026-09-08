@@ -25,7 +25,7 @@ interface Listing {
   event_lng?: number | null;
   event_place_id?: string | null;
   listing_type?: string | null;
-  dance_count?: number | null;
+  session_count?: number | null;
 }
 
 export default function ListingForm({
@@ -41,7 +41,7 @@ export default function ListingForm({
   const ta = useTranslations("a11y");
   const isTaxiDancer = creatorSubcategory === "taxi_dancer";
   const [listingType, setListingType] = useState<string>(
-    listing?.listing_type ?? (isTaxiDancer ? "dance_package" : "service")
+    listing?.listing_type ?? (isTaxiDancer ? "package" : "service")
   );
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
@@ -153,9 +153,11 @@ export default function ListingForm({
         />
       </div>
 
-      {/* Listing type — only for taxi_dancer creators */}
-      {isTaxiDancer && (
-        <div>
+      {/* Typväljaren visas för ALLA kreatörer. Tidigare låg hela blocket bakom
+          isTaxiDancer, så en boxningstränare kunde varken se eller välja
+          klippkort — serverns grind var lyft men knappen fanns inte.
+          Coaching och B2B är fortsatt taxidansarnas och listas bara för dem. */}
+      <div>
           <label htmlFor="listing_type" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
             {t("listingTypeLabel")}
           </label>
@@ -165,29 +167,33 @@ export default function ListingForm({
             onChange={(e) => setListingType(e.target.value)}
             className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
           >
-            <option value="dance_package">{t("typeDancePackage")}</option>
-            <option value="coaching_session">{t("typeCoachingSession")}</option>
-            <option value="b2b_offering">{t("typeB2bOffering")}</option>
             <option value="service">{t("typeService")}</option>
+            <option value="package">{t("typePackage")}</option>
+            {isTaxiDancer && (
+              <>
+                <option value="coaching_session">{t("typeCoachingSession")}</option>
+                <option value="b2b_offering">{t("typeB2bOffering")}</option>
+              </>
+            )}
           </select>
-          {listingType === "dance_package" && (
+          {listingType === "package" && (
             <>
               <p className="mt-1.5 text-xs text-[var(--usha-muted)]">
-                {t("dancePackageHint")}
+                {t("packageHint")}
               </p>
               <div className="mt-3">
-                <label htmlFor="dance_count" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-                  {t("danceCountLabel")}
+                <label htmlFor="session_count" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
+                  {t("sessionCountLabel")}
                 </label>
                 <input
-                  id="dance_count"
-                  name="dance_count"
+                  id="session_count"
+                  name="session_count"
                   type="number"
                   min={1}
                   step={1}
                   required
-                  defaultValue={listing?.dance_count ?? 5}
-                  placeholder={t("danceCountPlaceholder")}
+                  defaultValue={listing?.session_count ?? 5}
+                  placeholder={t("sessionCountPlaceholder")}
                   className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
                 />
               </div>
@@ -203,8 +209,7 @@ export default function ListingForm({
               {t("b2bOfferingHint")}
             </p>
           )}
-        </div>
-      )}
+      </div>
 
       {/* Category + Price */}
       <div className="grid gap-6 sm:grid-cols-2">
