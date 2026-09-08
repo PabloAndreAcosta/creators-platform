@@ -2064,6 +2064,9 @@
     }
   },
   "eventPage": {
+    "singleTicket": "Biljett till kvällen",
+    "passSessions": "{n} tillfällen",
+    "buyPass": "Köp klippkort · {price} kr",
     "bankidVerified": "BankID-verifierad",
     "crewHeading": "Medverkande",
     "dateComing": "Datum kommer",
@@ -2312,6 +2315,8 @@
     "ctaButton": "Kom igång gratis"
   },
   "ticketPage": {
+    "passChip": "Klippkort · {remaining} av {total} kvar",
+    "passCovers": "Ett klipp ger: {covers}",
     "walletApple": "Lägg till i Apple Wallet",
     "walletGoogle": "Spara i Google Wallet",
     "canceled": "Bokningen är avbokad",
@@ -2379,6 +2384,7 @@
     "shareFormLocked": "Kvällen har redan sålt biljetter. Villkoren går inte att ändra i efterhand — det skulle ändra vad som är skyldigt på köp som redan skett."
   },
   "scanPage": {
+    "passRemaining": "{n} klipp kvar på kortet",
     "title": "Skanna biljetter",
     "subtitle": "Skanna QR-koden eller ange biljettkoden manuellt.",
     "gateMessage": "Uppgradera till Guld eller Premium för att skanna biljetter.",
@@ -2477,6 +2483,9 @@
     "s9BodyPost": "Du har även rätt att lämna klagomål till Integritetsskyddsmyndigheten (IMY)."
   },
   "scanApi": {
+    "passType": "Klippkort · {covers} · {remaining} av {total} kvar",
+    "passNoEventToday": "Ingen kväll i serien i dag – kortet kan inte klippas.",
+    "passUsedUp": "Alla klipp på kortet är använda.",
     "notLoggedIn": "Du måste vara inloggad",
     "invalidRequest": "Ogiltig begäran",
     "missingBookingId": "Boknings-ID saknas",
@@ -3343,6 +3352,11 @@
     "submit": "Publicera gig"
   },
   "listingForm": {
+    "passSeriesLabel": "Gäller som biljett på serie",
+    "passSeriesNone": "Ingen – löses in för hand i bokningslistan",
+    "passSeriesHint": "Kopplat till en serie skannas kortets QR-kod i dörren, ett klipp per kväll.",
+    "passCoversLabel": "Ett klipp ger tillträde till",
+    "passCoversPlaceholder": "t.ex. Allt: practica + workshop + social",
     "uploadFailed": "Uppladdning misslyckades",
     "saveFailed": "Kunde inte spara tjänst",
     "savedToast": "Tjänst sparad",

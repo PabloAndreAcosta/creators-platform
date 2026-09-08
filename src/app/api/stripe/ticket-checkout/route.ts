@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { passBookingFields } from '@/lib/passes/series-pass';
 import type Stripe from 'stripe';
 import { getStripeLocale } from "@/lib/i18n/stripe-locale";
 import { stripe } from '@/lib/stripe/client';
@@ -27,7 +28,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const { listingId, ticketTypeId, quantity, attendeeNames } = await req.json();
-    const qty = clampQuantity(quantity);
+    let qty = clampQuantity(quantity);
 
     if (!listingId) {
       return NextResponse.json(
@@ -62,7 +63,7 @@ export async function POST(req: NextRequest) {
     // Get listing details
     const { data: listing, error: listingError } = await supabase
       .from('listings')
-      .select('id, title, price, user_id, is_active, event_date, event_time, release_to_gold_at, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, service_fee_mode')
+      .select('id, title, price, user_id, is_active, event_date, event_time, release_to_gold_at, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, service_fee_mode, listing_type, session_count')
       .eq('id', listingId)
       .single();
 
@@ -80,6 +81,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Klippkort säljs ett åt gången och har inga biljettyper — kortet ÄR typen.
+    const isPass = listing.listing_type === 'package' && (listing.session_count ?? 0) > 0;
+    if (isPass) qty = 1;
+
     if (listing.user_id === user.id) {
       return NextResponse.json(
         { error: 'You cannot buy a ticket to your own event' },
@@ -90,7 +95,7 @@ export async function POST(req: NextRequest) {
     // Optional ticket type (price tier). When present it overrides the price and
     // capacity for this purchase; validated to belong to this listing.
     let ticketType: { id: string; name: string; price: number; capacity: number | null; tickets_sold: number } | null = null;
-    if (ticketTypeId) {
+    if (ticketTypeId && !isPass) {
       const { data: tt } = await supabase
         .from('ticket_types')
         .select('id, name, price, capacity, tickets_sold')
@@ -181,6 +186,7 @@ export async function POST(req: NextRequest) {
         guest_count: qty,
         ticket_type_id: ticketType?.id ?? null,
         ticket_type_name: ticketType?.name ?? null,
+        ...passBookingFields(isPass ? listing.session_count : null),
       }).select('id').single();
 
       if (insertError) {
@@ -384,6 +390,7 @@ export async function POST(req: NextRequest) {
           ticketTypeName: ticketType?.name ?? '',
           creditOre: String(creditOre),
           quantity: String(qty),
+          sessionsTotal: isPass ? String(listing.session_count) : '',
           attendeeNames: attendeeNamesToMeta(attendeeNames, qty),
           reserved: 'true',
           eventDate: listing.event_date || '',

@@ -7,6 +7,7 @@
  */
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { passRedemptionRows } from "@/lib/passes/series-pass";
 import { getStripe } from "@/lib/stripe/client";
 import {
   decidePayout,
@@ -104,6 +105,8 @@ export async function runSettlementPayouts(now: Date = new Date()): Promise<Payo
       .select("status, amount_paid, platform_fee_amount, refund_amount, guest_count, credit_applied_ore")
       .eq("listing_id", listing.id)
       .eq("booking_type", "ticket");
+    // Inlösta klipp på seriekort: 1/N av kortet per kväll, se lib/passes.
+    const passRows = await passRedemptionRows(db, listing.id);
 
     const candidate: PayoutCandidate = {
       listingId: listing.id,
@@ -113,7 +116,7 @@ export async function runSettlementPayouts(now: Date = new Date()): Promise<Payo
       partnerPercent: share.partner_percent,
       vatRate: Number(share.vat_rate),
       payoutDelayDays: share.payout_delay_days,
-      bookings: bookings ?? [],
+      bookings: [...(bookings ?? []), ...passRows],
     };
 
     const decision = decidePayout(candidate);

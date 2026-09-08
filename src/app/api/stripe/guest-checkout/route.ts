@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { passBookingFields } from "@/lib/passes/series-pass";
 import type Stripe from "stripe";
 import { getStripeLocale } from "@/lib/i18n/stripe-locale";
 import { stripe } from "@/lib/stripe/client";
@@ -25,7 +26,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const { listingId, email, name, ticketTypeId, quantity, attendeeNames } = await req.json();
-    const qty = clampQuantity(quantity);
+    let qty = clampQuantity(quantity);
 
     if (!listingId || !email) {
       return NextResponse.json(
@@ -39,7 +40,7 @@ export async function POST(req: NextRequest) {
     // Fetch listing
     const { data: listing } = await supabase
       .from("listings")
-      .select("id, title, price, user_id, is_active, event_date, event_time, event_location, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, service_fee_mode")
+      .select("id, title, price, user_id, is_active, event_date, event_time, event_location, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, service_fee_mode, listing_type, session_count")
       .eq("id", listingId)
       .eq("is_active", true)
       .single();
@@ -54,7 +55,10 @@ export async function POST(req: NextRequest) {
     // Optional ticket type (price tier) — overrides price + capacity, validated
     // to belong to this listing.
     let ticketType: { id: string; name: string; price: number; capacity: number | null; tickets_sold: number } | null = null;
-    if (ticketTypeId) {
+    // Klippkort: ett åt gången, ingen biljettyp — kortet är typen.
+    const isPass = listing.listing_type === "package" && (listing.session_count ?? 0) > 0;
+    if (isPass) qty = 1;
+    if (ticketTypeId && !isPass) {
       const { data: tt } = await supabase
         .from("ticket_types")
         .select("id, name, price, capacity, tickets_sold")
@@ -136,6 +140,7 @@ export async function POST(req: NextRequest) {
           status: "confirmed",
           scheduled_at: scheduledAt,
           booking_type: "ticket",
+        ...passBookingFields(isPass ? listing.session_count : null),
           amount_paid: 0,
           is_free: true,
           guest_count: qty,
@@ -304,6 +309,7 @@ export async function POST(req: NextRequest) {
           ticketTypeId: ticketType?.id ?? "",
           ticketTypeName: ticketType?.name ?? "",
           quantity: String(qty),
+          sessionsTotal: isPass ? String(listing.session_count) : "",
           attendeeNames: attendeeNamesToMeta(attendeeNames, qty),
           reserved: "true",
           eventDate: listing.event_date || "",

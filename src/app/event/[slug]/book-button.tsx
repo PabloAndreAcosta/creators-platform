@@ -14,12 +14,22 @@ interface TicketType {
   tickets_sold: number;
 }
 
+/** Klippkort på serien: köps här, gäller på seriens alla kvällar. */
+interface PassOption {
+  id: string;
+  title: string;
+  price: number;
+  sessionCount: number;
+  covers: string | null;
+}
+
 interface Props {
   listingId: string;
   price: number;
   isLoggedIn: boolean;
   returnPath: string;
   ticketTypes?: TicketType[];
+  passes?: PassOption[];
   /**
    * Förvald biljettyp, från `?tt=` på eventsidan. Används av "Lägg till" på
    * biljettsidan: den som köpt practica och vill ha workshopen ska landa med
@@ -53,7 +63,7 @@ function soldOut(tt: TicketType) {
   return tt.capacity != null && tt.tickets_sold >= tt.capacity;
 }
 
-export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], header, preselectTicketTypeId, creditOre = 0 }: Props) {
+export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], passes = [], header, preselectTicketTypeId, creditOre = 0 }: Props) {
   const { toast } = useToast();
   const t = useTranslations("eventPage");
   const [loading, setLoading] = useState(false);
@@ -68,8 +78,11 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], hea
     return wanted?.id ?? ticketTypes.find((tt) => !soldOut(tt))?.id ?? ticketTypes[0]?.id ?? "";
   });
   const selectedType = hasTypes ? ticketTypes.find((tt) => tt.id === selectedTypeId) ?? null : null;
-  const effectivePrice = selectedType ? selectedType.price : price;
-  const typeSoldOut = selectedType ? soldOut(selectedType) : false;
+  // Ett valt klippkort ersätter biljettvalet: ett kort, en order.
+  const [selectedPassId, setSelectedPassId] = useState<string | null>(null);
+  const selectedPass = passes.find((p) => p.id === selectedPassId) ?? null;
+  const effectivePrice = selectedPass ? selectedPass.price : selectedType ? selectedType.price : price;
+  const typeSoldOut = selectedType && !selectedPass ? soldOut(selectedType) : false;
 
   const isFree = !effectivePrice || effectivePrice <= 0;
   // Quantity (paid tickets only). Buying N → one order, N scannable QRs.
@@ -84,13 +97,16 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], hea
       return next;
     });
   const attendeeNames = Array.from({ length: qty }, (_, i) => names[i] ?? "");
-  const total = effectivePrice * qty;
+  const effectiveQty = selectedPass ? 1 : qty;
+  const total = effectivePrice * effectiveQty;
   // Avdraget räknas i ören men visas i kronor, och gäller bara över gränsen.
   const credit = applicableCredit({ creditOre, subtotalOre: total * 100 });
   const totalAfterCredit = total - credit / 100;
-  const label = isFree
-    ? t("freeTicket")
-    : t("buyTicket", { price: credit > 0 ? totalAfterCredit : total });
+  const label = selectedPass
+    ? t("buyPass", { price: credit > 0 ? totalAfterCredit : total })
+    : isFree
+      ? t("freeTicket")
+      : t("buyTicket", { price: credit > 0 ? totalAfterCredit : total });
 
   async function checkout(endpoint: string, payload: Record<string, unknown>) {
     setLoading(true);
@@ -120,7 +136,7 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], hea
   const headerBlock = header ? (
     <div className="mb-4 text-center">
       <p className="text-xs uppercase tracking-wide text-[var(--usha-muted)]">
-        {selectedType ? selectedType.name : header.badge}
+        {selectedPass ? selectedPass.title : selectedType ? selectedType.name : header.badge}
       </p>
       <p className="mt-1 whitespace-nowrap text-3xl font-bold text-[var(--usha-gold)]">
         {isFree ? (
@@ -145,17 +161,32 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], hea
     </div>
   ) : null;
 
-  const picker = hasTypes ? (
+  const rowClass = (active: boolean) =>
+    `flex w-full items-center justify-between rounded-xl border px-4 py-3 text-left text-sm transition disabled:opacity-40 ${
+      active
+        ? "border-[var(--usha-gold)]/60 bg-[var(--usha-gold)]/10 text-[var(--usha-white)]"
+        : "border-[var(--usha-border)] text-[var(--usha-white)] hover:border-[var(--usha-gold)]/40"
+    }`;
+
+  const picker = hasTypes || passes.length > 0 ? (
     <div className="mb-3 space-y-2">
+      {/* Utan biljettyper behövs ändå en rad för den vanliga biljetten, så
+          att kortet är ett val och inte det enda alternativet. */}
+      {!hasTypes && (
+        <button type="button" onClick={() => setSelectedPassId(null)} className={rowClass(!selectedPass)}>
+          <span className="font-medium">{t("singleTicket")}</span>
+          <span className="text-[var(--usha-muted)]">{price > 0 ? t("priceLabel", { price }) : t("freeTicket")}</span>
+        </button>
+      )}
       {ticketTypes.map((tt) => {
         const out = soldOut(tt);
-        const active = tt.id === selectedTypeId;
+        const active = !selectedPass && tt.id === selectedTypeId;
         return (
           <button
             type="button"
             key={tt.id}
             disabled={out}
-            onClick={() => setSelectedTypeId(tt.id)}
+            onClick={() => { setSelectedTypeId(tt.id); setSelectedPassId(null); }}
             className={`flex w-full items-center justify-between rounded-xl border px-4 py-3 text-left text-sm transition disabled:opacity-40 ${
               active
                 ? "border-[var(--usha-gold)]/60 bg-[var(--usha-gold)]/10 text-[var(--usha-white)]"
@@ -169,11 +200,28 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], hea
           </button>
         );
       })}
+      {passes.map((p) => (
+        <button
+          type="button"
+          key={p.id}
+          onClick={() => { setSelectedPassId(p.id); setQty(1); }}
+          className={rowClass(p.id === selectedPassId)}
+        >
+          <span className="flex min-w-0 flex-col">
+            <span className="font-medium">{p.title}</span>
+            <span className="text-xs text-[var(--usha-muted)]">
+              {t("passSessions", { n: p.sessionCount })}
+              {p.covers ? ` · ${p.covers}` : ""}
+            </span>
+          </span>
+          <span className="shrink-0 pl-3 text-[var(--usha-muted)]">{t("priceLabel", { price: p.price })}</span>
+        </button>
+      ))}
     </div>
   ) : null;
 
   // Quantity stepper (paid tickets only). Free events stay one-per-order.
-  const qtyStepper = !isFree ? (
+  const qtyStepper = !isFree && !selectedPass ? (
     <div className="mb-3 flex items-center justify-between rounded-xl border border-[var(--usha-border)] px-4 py-2.5">
       <span className="text-sm text-[var(--usha-muted)]">{t("quantity")}</span>
       <div className="flex items-center gap-3">
@@ -201,7 +249,7 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], hea
   ) : null;
 
   // Optional per-ticket name inputs (multi-ticket orders only).
-  const nameInputs = !isFree && qty > 1 ? (
+  const nameInputs = !isFree && !selectedPass && qty > 1 ? (
     <div className="mb-3 space-y-2">
       {Array.from({ length: qty }, (_, i) => (
         <input
@@ -242,7 +290,7 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], hea
         {nameInputs}
         {creditNote}
         <button
-          onClick={() => checkout("/api/stripe/ticket-checkout", { listingId, ticketTypeId: selectedTypeId || undefined, quantity: qty, attendeeNames })}
+          onClick={() => checkout("/api/stripe/ticket-checkout", { listingId: selectedPass?.id ?? listingId, ticketTypeId: selectedPass ? undefined : selectedTypeId || undefined, quantity: effectiveQty, attendeeNames })}
           disabled={loading || typeSoldOut}
           className={BTN}
         >
@@ -258,7 +306,7 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], hea
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        checkout("/api/stripe/guest-checkout", { listingId, email, name, ticketTypeId: selectedTypeId || undefined, quantity: qty, attendeeNames });
+        checkout("/api/stripe/guest-checkout", { listingId: selectedPass?.id ?? listingId, email, name, ticketTypeId: selectedPass ? undefined : selectedTypeId || undefined, quantity: effectiveQty, attendeeNames });
       }}
       className="space-y-2"
     >
