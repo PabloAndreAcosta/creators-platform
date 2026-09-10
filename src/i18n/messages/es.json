@@ -1010,6 +1010,37 @@
     "empty": "Nada programado por ahora. Vuelve pronto.",
     "open": "Abrir"
   },
+  "followUs": {
+      "heading": "Síguenos",
+      "facebook": "Usha en Facebook",
+      "instagram": "Usha en Instagram",
+      "tiktok": "Usha en TikTok"
+  },
+  "emailFollow": {
+      "prompt": "Recibe un correo cuando {name} publique la próxima fecha",
+      "placeholder": "tu@correo.com",
+      "button": "Seguir por correo",
+      "pending": "Casi listo: confirma en el correo que acabamos de enviar.",
+      "active": "Sigues a {name} por correo.",
+      "failed": "No funcionó. Inténtalo de nuevo.",
+      "ticketQuestion": "¿Quieres un correo cuando {name} publique la próxima fecha?",
+      "ticketExplain": "Un correo por cada fecha nueva a {email}. Cancela cuando quieras desde el enlace del correo.",
+      "yes": "Sí, escríbeme",
+      "no": "No, gracias",
+      "unsubscribed": "No recibirás correos sobre nuevas fechas de {name}.",
+      "change": "Cambiar",
+      "confirmTitle": "Listo: sigues a {name}",
+      "confirmBody": "Te escribiremos cuando se publique la próxima fecha. Cancela cuando quieras desde el enlace de cada correo.",
+      "confirmInvalidTitle": "Este enlace ya no es válido",
+      "confirmInvalidBody": "Pide una nueva confirmación desde la página del evento.",
+      "unsubTitle": "Te has dado de baja",
+      "unsubBody": "No más correos sobre nuevas fechas. Puedes volver a seguir desde la página del evento cuando quieras.",
+      "unsubInvalidTitle": "Enlace no reconocido",
+      "unsubInvalidBody": "Comprueba que el enlace completo del correo llegó bien.",
+      "toProfile": "Ir a {name}",
+      "metaConfirm": "Confirmar seguimiento – Usha Platform",
+      "metaUnsub": "Darse de baja – Usha Platform"
+  },
   "experiences": {
     "metaTitle": "Experiencias – Usha Platform",
     "metaDescription": "Explora experiencias creativas, eventos y servicios cerca de ti. Baile, música, fotografía y más.",
@@ -3675,6 +3706,12 @@
     "refundedAmount": "Reembolsada {amount} kr"
   },
   "emails": {
+    "greetingNoName": "¡Hola!",
+    "creatorEventUnsubscribe": "¿No quieres más correos? Date de baja aquí.",
+    "followConfirmSubject": "Confirma que quieres seguir a {creator}",
+    "followConfirmIntro": "Pediste un correo cada vez que {creator} publique una nueva fecha en Usha Platform. Confirma con el botón de abajo.",
+    "followConfirmCta": "Sí, avísame de nuevas fechas",
+    "followConfirmFooter": "¿No lo pediste? Ignora este correo y no pasará nada.",
     "greeting": "Hola {name}:",
     "greetingExcited": "¡Hola {name}!",
     "labelDate": "Fecha: {value}",

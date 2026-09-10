@@ -8,6 +8,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { MapPin, Clock, Calendar, ArrowLeft, User, ChevronRight } from "lucide-react";
 import { CATEGORY_LABELS } from "@/lib/categories";
+import { FollowButton } from "@/components/follow-button";
+import { EmailFollowForm } from "@/components/email-follow-form";
+import { FollowUs } from "@/components/follow-us";
 import { getTranslations, getLocale } from "next-intl/server";
 
 interface Props {
@@ -170,6 +173,14 @@ export default async function SeriesPage(props: Props) {
 
   const locale = await resolveLocale(series);
   const t = await getTranslations({ locale, namespace: "seriesPage" });
+  const isOwnSeries = !!user && user.id === series.user_id;
+  const [{ count: followerCount }, { data: myFollow }] = await Promise.all([
+    supabase.from("follows").select("id", { count: "exact", head: true }).eq("followed_id", series.user_id),
+    user
+      ? supabase.from("follows").select("id").eq("follower_id", user.id).eq("followed_id", series.user_id).maybeSingle()
+      : Promise.resolve({ data: null }),
+  ]);
+  const tFollow = await getTranslations({ locale, namespace: "emailFollow" });
   const tCat = await getTranslations({ locale, namespace: "categories" });
   const categoryLabel = (value: string | null) =>
     !value ? "" : tCat.has(value) ? tCat(value) : CATEGORY_LABELS[value] ?? value;
@@ -354,6 +365,35 @@ export default async function SeriesPage(props: Props) {
             </div>
           </Link>
         )}
+
+        {/* Följ härifrån: serien är det man faktiskt vill ha nästa kväll av. */}
+        {creator && !isOwnSeries && (
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <FollowButton
+              creatorId={series.user_id}
+              initialFollowing={!!myFollow}
+              followerCount={followerCount ?? 0}
+              isLoggedIn={isLoggedIn}
+              returnTo={`/series/${params.slug}`}
+            />
+          </div>
+        )}
+        {creator && !user && (
+          <EmailFollowForm
+            followedId={series.user_id}
+            locale={locale}
+            className="mt-4"
+            labels={{
+              prompt: tFollow("prompt", { name: creator.full_name || t("creator") }),
+              placeholder: tFollow("placeholder"),
+              button: tFollow("button"),
+              pending: tFollow("pending"),
+              active: tFollow("active", { name: creator.full_name || t("creator") }),
+              failed: tFollow("failed"),
+            }}
+          />
+        )}
+        <FollowUs className="mt-8" />
       </div>
     </div>
   );

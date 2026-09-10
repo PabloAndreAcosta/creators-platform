@@ -8,6 +8,9 @@ import { Calendar, Clock, MapPin, Repeat, ArrowRight } from "lucide-react";
 import { stockholmDay } from "@/lib/tickets/event-day";
 import { fetchUpcomingListings } from "@/lib/calendar/visibility";
 import { bucketFor, groupUpcoming, type CalendarBucket, type CalendarEntry } from "@/lib/calendar/upcoming";
+import { createClient } from "@/lib/supabase/server";
+import { FollowButton } from "@/components/follow-button";
+import { FollowUs } from "@/components/follow-us";
 
 // Publik kalender. Ingen filtrering, ingen sortering att välja — bara vad som
 // händer, i tidsordning, med serier hopslagna till en rad. Sidan nås alltid
@@ -45,6 +48,16 @@ export default async function KalenderPage() {
   ]);
   const today = stockholmDay(new Date());
   const entries = groupUpcoming(listings, today);
+
+  // Följ arrangören direkt i listan. Inloggade följer med ett klick; andra
+  // skickas till registrering och tillbaka hit.
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const organizerIds = [...new Set(entries.map((e) => e.organizerId).filter((id): id is string => !!id))];
+  const { data: myFollows } = user && organizerIds.length
+    ? await supabase.from("follows").select("followed_id").eq("follower_id", user.id).in("followed_id", organizerIds)
+    : { data: [] as { followed_id: string }[] };
+  const followingIds = new Set((myFollows ?? []).map((f) => f.followed_id));
 
   const dayFmt = new Intl.DateTimeFormat(locale, { weekday: "short", day: "numeric", month: "short", timeZone: TZ });
   const weekdayFmt = new Intl.DateTimeFormat(locale, { weekday: "long", timeZone: TZ });
@@ -141,6 +154,18 @@ export default async function KalenderPage() {
                         </div>
                         <ArrowRight size={16} className="mt-1 shrink-0 self-start text-[var(--usha-muted)] transition group-hover:text-[var(--usha-gold)]" />
                       </Link>
+                      {e.organizerId && user?.id !== e.organizerId && (
+                        <div className="mt-2 flex justify-end">
+                          <FollowButton
+                            creatorId={e.organizerId}
+                            initialFollowing={followingIds.has(e.organizerId)}
+                            followerCount={0}
+                            isLoggedIn={!!user}
+                            returnTo="/kalender"
+                            size="sm"
+                          />
+                        </div>
+                      )}
                     </li>
                   );
                 })}
@@ -148,6 +173,7 @@ export default async function KalenderPage() {
             </section>
           );
         })}
+        <FollowUs className="mt-10" />
       </main>
     </div>
   );

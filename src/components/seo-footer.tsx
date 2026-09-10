@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FollowUs } from "@/components/follow-us";
 import { CATEGORIES } from "@/lib/categories";
 import { createClient } from "@/lib/supabase/server";
 import { getTranslations } from "next-intl/server";
@@ -128,6 +129,7 @@ export async function SeoFooter() {
         {/* Bottom */}
         <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-[var(--usha-border)] pt-6">
           <Link href="/" className="text-sm font-bold text-gradient">Usha Platform</Link>
+          <FollowUs />
           <div className="flex gap-4">
             <Link href="/platser" className="text-[10px] text-[var(--usha-muted)] hover:text-[var(--usha-white)]">{t("seoFooter.places")}</Link>
             <Link href="/privacy" className="text-[10px] text-[var(--usha-muted)] hover:text-[var(--usha-white)]">{t("seoFooter.privacyPolicy")}</Link>
