@@ -17,6 +17,9 @@ import { NextIntlClientProvider } from "next-intl";
 import { SocialShareButton } from "@/components/social-share-button";
 import { TrackEvent } from "@/components/track-event";
 import { EventMap } from "@/components/event-map";
+import { FollowButton } from "@/components/follow-button";
+import { EmailFollowForm } from "@/components/email-follow-form";
+import { FollowUs } from "@/components/follow-us";
 
 export const revalidate = 60;
 
@@ -350,6 +353,7 @@ export default async function EventPage(props: Params) {
   const tRoot = await getTranslations({ locale: eventLocale });
   const messages = await getMessages({ locale: eventLocale });
   const locale = eventLocale;
+  const tFollow = await getTranslations({ locale, namespace: "emailFollow" });
   const image = listing.image_url ?? FALLBACK_IMAGE;
   // Kategorin är ett enum i databasen — översätt via eventPage.cat_* och annars
   // via de delade categories.*-nycklarna innan råvärdet visas.
@@ -381,6 +385,19 @@ export default async function EventPage(props: Params) {
     sale.state === "sold_out" && saleUntil ? t("releasesAt", { date: saleUntil }) : null;
   const isHost = !!user && user.id === listing.user_id;
   const returnPath = `/event/${slug}`;
+
+  // Följ arrangören (och lokalen) härifrån, där publiken faktiskt är. Profilen
+  // hade knappen; eventsidan hade den inte, och det är hit man kommer från
+  // Facebook, QR-koden i dörren och biljetten.
+  const followTargets = [listing.user_id, ...(venue ? [venue.id] : [])];
+  const [{ count: hostFollowerCount }, { data: myFollows }] = await Promise.all([
+    supabase.from("follows").select("id", { count: "exact", head: true }).eq("followed_id", listing.user_id),
+    user
+      ? supabase.from("follows").select("followed_id").eq("follower_id", user.id).in("followed_id", followTargets)
+      : Promise.resolve({ data: [] as { followed_id: string }[] }),
+  ]);
+  const followingIds = new Set((myFollows ?? []).map((f) => f.followed_id));
+  const hostDisplayName = listing.organizer_name || host?.full_name || t("organizer");
 
   const prepareCards = (items: EventCard[]): PreparedCard[] =>
     items.map((m) => ({
@@ -692,6 +709,18 @@ export default async function EventPage(props: Params) {
                   · {t("bankidVerified")}
                 </span>
               )}
+              {!isHost && (
+                <div className="mt-2">
+                  <FollowButton
+                    creatorId={listing.user_id}
+                    initialFollowing={followingIds.has(listing.user_id)}
+                    followerCount={hostFollowerCount ?? 0}
+                    isLoggedIn={!!user}
+                    returnTo={returnPath}
+                    size="sm"
+                  />
+                </div>
+              )}
             </div>
 
             {/* Lokalen får samma plats som arrangören. Kvällen är deras hus lika
@@ -708,10 +737,42 @@ export default async function EventPage(props: Params) {
                 >
                   {venue.full_name}
                 </Link>
+                {user?.id !== venue.id && (
+                  <div className="mt-2">
+                    <FollowButton
+                      creatorId={venue.id}
+                      initialFollowing={followingIds.has(venue.id)}
+                      followerCount={0}
+                      isLoggedIn={!!user}
+                      returnTo={returnPath}
+                      size="sm"
+                    />
+                  </div>
+                )}
               </div>
             )}
           </div>
         )}
+
+        {/* Utan konto: följ via e-post. Bekräftas med länk i mejlet innan
+            något annat skickas. */}
+        {host && !user && (
+          <EmailFollowForm
+            followedId={listing.user_id}
+            locale={locale}
+            className="mt-6"
+            labels={{
+              prompt: tFollow("prompt", { name: hostDisplayName }),
+              placeholder: tFollow("placeholder"),
+              button: tFollow("button"),
+              pending: tFollow("pending"),
+              active: tFollow("active", { name: hostDisplayName }),
+              failed: tFollow("failed"),
+            }}
+          />
+        )}
+
+        <FollowUs className="mt-8" />
 
         {crew.length > 0 && (
           <div className="mt-8 border-t border-[var(--usha-border)] pt-8">

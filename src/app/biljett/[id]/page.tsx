@@ -8,6 +8,10 @@ import VenueConsentCard from "./venue-consent-card";
 import { consentIdentity, consentState, shouldAskConsent } from "@/lib/venues/consent";
 import { getLocale } from "next-intl/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
+import EmailFollowCard from "./email-follow-card";
+import { FollowButton } from "@/components/follow-button";
+import { emailFollowState, findEmailFollow } from "@/lib/follows/email-follow";
 import { ShareEventButton } from "@/components/share-event-button";
 import { appleWalletConfigured, googleWalletConfigured } from "@/lib/tickets/wallet";
 
@@ -136,6 +140,22 @@ export default async function GuestTicketPage({
       );
 
   const locale = await getLocale();
+
+  // "Följ oss" efter köpet. Gästen (utan konto) får en fråga med aktivt ja;
+  // kontoinnehavaren får den vanliga följ-knappen. Frågan ställs här och inte
+  // i kassan av samma skäl som lokalens samtycke: svaret påverkar inget köp.
+  const followedId = booking.creator_id;
+  const { data: { user: viewer } } = await (await createClient()).auth.getUser();
+  const guestEmail = !booking.customer_id ? booking.guest_email : null;
+  const emailFollow = guestEmail && followedId ? await findEmailFollow(admin, guestEmail, followedId) : null;
+  const [{ count: organizerFollowerCount }, { data: viewerFollow }] = await Promise.all([
+    admin.from("follows").select("id", { count: "exact", head: true }).eq("followed_id", followedId),
+    viewer && followedId
+      ? admin.from("follows").select("id").eq("follower_id", viewer.id).eq("followed_id", followedId).maybeSingle()
+      : Promise.resolve({ data: null }),
+  ]);
+  const tFollow = await getTranslations("emailFollow");
+  const organizerName = creator?.full_name || t("eventFallback");
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";
   const code = `USH-${booking.id.slice(0, 8).toUpperCase()}`;
   const verifyUrl = `${appUrl}/api/tickets/verify?code=${code}&id=${booking.id}`;
@@ -338,6 +358,39 @@ export default async function GuestTicketPage({
                 failed: t("venueConsent.failed"),
               }}
             />
+          )}
+
+          {!canceled && followedId && guestEmail && (
+            <EmailFollowCard
+              bookingId={booking.id}
+              email={guestEmail}
+              followedId={followedId}
+              locale={locale}
+              initialState={emailFollowState(emailFollow)}
+              labels={{
+                question: tFollow("ticketQuestion", { name: organizerName }),
+                explain: tFollow("ticketExplain", { email: guestEmail }),
+                yes: tFollow("yes"),
+                no: tFollow("no"),
+                active: tFollow("active", { name: organizerName }),
+                unsubscribed: tFollow("unsubscribed", { name: organizerName }),
+                change: tFollow("change"),
+                failed: tFollow("failed"),
+              }}
+            />
+          )}
+          {!canceled && followedId && !guestEmail && viewer?.id !== followedId && (
+            <div className="flex items-center justify-between gap-3 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
+              <p className="text-sm">{tFollow("ticketQuestion", { name: organizerName })}</p>
+              <FollowButton
+                creatorId={followedId}
+                initialFollowing={!!viewerFollow}
+                followerCount={organizerFollowerCount ?? 0}
+                isLoggedIn={!!viewer}
+                returnTo={`/biljett/${booking.id}`}
+                size="sm"
+              />
+            </div>
           )}
 
           {addOns.length > 0 && (

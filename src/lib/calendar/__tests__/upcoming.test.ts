@@ -3,7 +3,7 @@ import { groupUpcoming, bucketFor, hasEnoughSupply, weekdayOf, type CalendarList
 
 function l(over: Partial<CalendarListing> & { id: string; event_date: string }): CalendarListing {
   return {
-    slug: null, series_id: null, series_slug: null, title: over.id,
+    user_id: null, slug: null, series_id: null, series_slug: null, title: over.id,
     event_time: "19:00:00", event_end_time: null, event_location: null,
     event_city: null, event_venue: null, image_url: null, price: 100,
     ...over,

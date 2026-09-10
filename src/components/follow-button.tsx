@@ -11,6 +11,9 @@ interface FollowButtonProps {
   initialFollowing: boolean;
   followerCount: number;
   isLoggedIn: boolean;
+  /** Vart signup-flödet ska återvända. Standard: kreatörens profil. */
+  returnTo?: string;
+  size?: "sm" | "md";
 }
 
 export function FollowButton({
@@ -18,6 +21,8 @@ export function FollowButton({
   initialFollowing,
   followerCount,
   isLoggedIn,
+  returnTo,
+  size = "md",
 }: FollowButtonProps) {
   const t = useTranslations("creatorProfile");
   const [following, setFollowing] = useState(initialFollowing);
@@ -29,7 +34,7 @@ export function FollowButton({
     if (!isLoggedIn) {
       // Den som skannar en lokals QR-kod har oftast inget konto. Signup är rätt
       // dörr, och login-länken där bär med vägen tillbaka.
-      router.push(authUrlWithNext("/signup", `/creators/${creatorId}`));
+      router.push(authUrlWithNext("/signup", returnTo ?? `/creators/${creatorId}`));
       return;
     }
 
@@ -61,7 +66,7 @@ export function FollowButton({
     <button
       onClick={handleToggle}
       disabled={loading}
-      className={`inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-medium transition ${
+      className={`inline-flex items-center gap-1.5 rounded-xl font-medium transition ${size === "sm" ? "px-3 py-1.5 text-xs" : "px-4 py-2 text-sm"} ${
         following
           ? "border border-[var(--usha-gold)]/30 text-[var(--usha-gold)] hover:border-red-500/30 hover:text-red-400"
           : "bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] text-black hover:opacity-90"
