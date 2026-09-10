@@ -1010,6 +1010,37 @@
     "empty": "Nothing scheduled right now. Check back soon.",
     "open": "Open"
   },
+  "followUs": {
+      "heading": "Follow us",
+      "facebook": "Usha on Facebook",
+      "instagram": "Usha on Instagram",
+      "tiktok": "Usha on TikTok"
+  },
+  "emailFollow": {
+      "prompt": "Get an email when {name} posts the next date",
+      "placeholder": "you@email.com",
+      "button": "Follow by email",
+      "pending": "Almost there – confirm in the email we just sent.",
+      "active": "You follow {name} by email.",
+      "failed": "That didn't work. Try again.",
+      "ticketQuestion": "Want an email when {name} posts the next date?",
+      "ticketExplain": "One email per new date to {email}. Unsubscribe anytime via the link in the email.",
+      "yes": "Yes, email me",
+      "no": "No thanks",
+      "unsubscribed": "You won't get emails about new dates from {name}.",
+      "change": "Change",
+      "confirmTitle": "Done – you follow {name}",
+      "confirmBody": "We'll email you when the next date is posted. Unsubscribe anytime via the link in every email.",
+      "confirmInvalidTitle": "This link is no longer valid",
+      "confirmInvalidBody": "Request a new confirmation from the event page.",
+      "unsubTitle": "You're unsubscribed",
+      "unsubBody": "No more emails about new dates. You can follow again from the event page anytime.",
+      "unsubInvalidTitle": "Link not recognised",
+      "unsubInvalidBody": "Check that the whole link from the email came through.",
+      "toProfile": "Go to {name}",
+      "metaConfirm": "Confirm follow – Usha Platform",
+      "metaUnsub": "Unsubscribe – Usha Platform"
+  },
   "experiences": {
     "metaTitle": "Experiences – Usha Platform",
     "metaDescription": "Explore creative experiences, events and services near you. Dance, music, photography and more.",
@@ -3675,6 +3706,12 @@
     "refundedAmount": "Refunded {amount} kr"
   },
   "emails": {
+    "greetingNoName": "Hi!",
+    "creatorEventUnsubscribe": "Don't want more emails? Unsubscribe here.",
+    "followConfirmSubject": "Confirm that you want to follow {creator}",
+    "followConfirmIntro": "You asked for an email every time {creator} posts a new date on Usha Platform. Confirm with the button below.",
+    "followConfirmCta": "Yes, email me about new dates",
+    "followConfirmFooter": "Didn't ask for this? Ignore this email and nothing happens.",
     "greeting": "Hi {name},",
     "greetingExcited": "Hi {name}!",
     "labelDate": "Date: {value}",

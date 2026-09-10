@@ -1010,6 +1010,37 @@
     "empty": "Inget inplanerat just nu. Titta in igen snart.",
     "open": "Öppna"
   },
+  "followUs": {
+      "heading": "Följ oss",
+      "facebook": "Usha på Facebook",
+      "instagram": "Usha på Instagram",
+      "tiktok": "Usha på TikTok"
+  },
+  "emailFollow": {
+      "prompt": "Få ett mejl när {name} lägger upp nästa tillfälle",
+      "placeholder": "din@epost.se",
+      "button": "Följ via e-post",
+      "pending": "Nästan klart – bekräfta i mejlet vi just skickade.",
+      "active": "Du följer {name} via e-post.",
+      "failed": "Det gick inte. Försök igen.",
+      "ticketQuestion": "Vill du ha ett mejl när {name} lägger upp nästa tillfälle?",
+      "ticketExplain": "Ett mejl per nytt tillfälle till {email}. Avsluta när du vill via länken i mejlet.",
+      "yes": "Ja, mejla mig",
+      "no": "Nej tack",
+      "unsubscribed": "Du får inga mejl om nya tillfällen från {name}.",
+      "change": "Ändra",
+      "confirmTitle": "Klart – du följer {name}",
+      "confirmBody": "Vi mejlar dig när nästa tillfälle läggs upp. Avsluta när du vill via länken i varje mejl.",
+      "confirmInvalidTitle": "Länken gäller inte längre",
+      "confirmInvalidBody": "Be om en ny bekräftelse från eventsidan.",
+      "unsubTitle": "Du är avprenumererad",
+      "unsubBody": "Inga fler mejl om nya tillfällen. Du kan följa igen från eventsidan när du vill.",
+      "unsubInvalidTitle": "Länken känns inte igen",
+      "unsubInvalidBody": "Kontrollera att hela länken från mejlet följde med.",
+      "toProfile": "Till {name}",
+      "metaConfirm": "Bekräfta följning – Usha Platform",
+      "metaUnsub": "Avsluta följning – Usha Platform"
+  },
   "experiences": {
     "metaTitle": "Upplevelser – Usha Platform",
     "metaDescription": "Utforska kreativa upplevelser, events och tjänster nära dig. Dans, musik, fotografi och mer.",
@@ -3675,6 +3706,12 @@
     "refundedAmount": "Återbetald {amount} kr"
   },
   "emails": {
+    "greetingNoName": "Hej!",
+    "creatorEventUnsubscribe": "Vill du inte ha fler mejl? Avsluta här.",
+    "followConfirmSubject": "Bekräfta att du vill följa {creator}",
+    "followConfirmIntro": "Du har bett om ett mejl varje gång {creator} lägger upp ett nytt tillfälle på Usha Platform. Bekräfta med knappen nedan.",
+    "followConfirmCta": "Ja, mejla mig om nya tillfällen",
+    "followConfirmFooter": "Bad du inte om detta? Ignorera mejlet, så händer inget.",
     "greeting": "Hej {name},",
     "greetingExcited": "Hej {name}!",
     "labelDate": "Datum: {value}",

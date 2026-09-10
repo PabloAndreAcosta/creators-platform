@@ -1,4 +1,5 @@
 import { useTranslations } from "next-intl";
+import { FollowUs } from "@/components/follow-us";
 
 /** Shared site footer for the home page and perspective pages. */
 export function Footer() {
@@ -33,6 +34,7 @@ export function Footer() {
             <p className="max-w-xs text-sm leading-relaxed text-[var(--usha-muted)]">
               {t("footer.description")}
             </p>
+            <FollowUs className="mt-5" />
           </div>
 
           {Object.entries(FOOTER_LINKS).map(([title, links]) => (
