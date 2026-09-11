@@ -122,6 +122,9 @@ export const APP_DESTINATIONS: AppDestination[] = [
     group: "finance", roles: ["creator", "venue"], surfaces: ["more"] },
   { path: "/dashboard/billing", labelKey: "billingLabel", descKey: "billingDesc", icon: CreditCard,
     group: "finance", roles: "all", surfaces: ["more"] },
+  // Partnerprogrammet: alla kan värva, så raden ligger hos alla roller.
+  { path: "/app/partner", labelKey: "partnerLabel", descKey: "partnerDesc", navLabelKey: "partner", icon: Gift,
+    group: "finance", roles: "all", surfaces: ["more"] },
   { path: "/dashboard/promo-codes", labelKey: "promoCodesLabel", descKey: "promoCodesDesc", icon: Tag,
     group: "finance", roles: ["creator", "venue"], surfaces: ["more"] },
 

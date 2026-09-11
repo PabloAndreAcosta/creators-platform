@@ -46,6 +46,7 @@
     "switchToDark": "Cambiar a modo oscuro"
   },
   "nav": {
+    "partner": "Partner",
     "tools": "Herramientas",
     "favorites": "Favoritos",
     "home": "Inicio",
@@ -307,6 +308,7 @@
     "editPrefs": "Editar preferencias"
   },
   "profile": {
+    "partner": "Programa de partners",
     "editProfile": "Editar perfil",
     "viewMyPage": "Ver mi página",
     "payouts": "Pagos",
@@ -1041,6 +1043,47 @@
       "toProfile": "Ir a {name}",
       "metaConfirm": "Confirmar seguimiento – Usha Platform",
       "metaUnsub": "Darse de baja – Usha Platform"
+  },
+  "partner": {
+      "metaTitle": "Programa de partners – Usha Platform",
+      "title": "Programa de partners",
+      "intro": "Comparte tu enlace. Ganas el {share} % de los ingresos de Usha por todo lo que tus referidos compren o vendan durante doce meses, más tiempo premium y crédito.",
+      "yourLink": "Tu enlace",
+      "linkHint": "El enlace funciona en todas las páginas de usha.se: añade ?ref=tu código a cualquier dirección, por ejemplo The Lab:",
+      "copy": "Copiar",
+      "copied": "Copiado",
+      "share": "Compartir",
+      "shareTitle": "Usha Platform",
+      "shareText": "Descubre Usha Platform: clases, noches y entradas en un solo lugar.",
+      "qrHint": "El código QR apunta a tu enlace. Muéstralo en la puerta o en un cartel.",
+      "statClicks": "Clics",
+      "statSignups": "Registros",
+      "statPurchases": "Compras",
+      "statEarned": "Ganado",
+      "statPaid": "Pagado",
+      "statPremium": "Tiempo premium",
+      "kr": "{amount} kr",
+      "days": "{count} días",
+      "termsHeading": "Cómo funciona",
+      "terms1": "El {share} % de los ingresos de Usha por todo lo que tus referidos compren o vendan, durante doce meses desde el registro.",
+      "terms2": "{days} días de premium cuando un creador o sala que referiste publica su primera oferta, y lo mismo para esa persona.",
+      "terms3": "{amount} kr de crédito cuando un cliente que referiste hace su primera compra.",
+      "terms4": "Se cuenta cuando la compra está pagada. Las compras reembolsadas se descuentan.",
+      "terms5": "Sin recompensa por tus propias compras o tus propias cuentas.",
+      "payoutNote": "Las empresas cobran trimestralmente por Stripe a partir de 200 kr; si no, en crédito. Los particulares reciben siempre crédito para gastar. Los pagos se abren en el siguiente paso: todo lo que ganes ahora cuenta.",
+      "rewardsHeading": "Tus recompensas",
+      "rewardsEmpty": "Nada todavía. Comparte el enlace y aparecerá aquí.",
+      "kind": {
+          "credit": "Crédito",
+          "premium_days": "Tiempo premium",
+          "commission_share": "Parte de ingresos"
+      },
+      "status": {
+          "pending": "pendiente",
+          "approved": "aprobada",
+          "paid": "pagada",
+          "void": "anulada"
+      }
   },
   "experiences": {
     "metaTitle": "Experiencias – Usha Platform",
@@ -2588,6 +2631,8 @@
     "inviteFriends": "Invitar a amigos"
   },
   "toolsPage": {
+    "partnerLabel": "Programa de partners",
+    "partnerDesc": "Tu enlace, tus referidos y lo que han generado.",
     "homeLabel": "Inicio",
     "toolsLabel": "Herramientas",
     "openGigsLabel": "Trabajos",

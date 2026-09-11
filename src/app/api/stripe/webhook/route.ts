@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { passBookingFields } from "@/lib/passes/series-pass";
+import { recordBookingRewards } from "@/lib/affiliate/rewards";
 import { ROLES, normalizeRole } from "@/lib/roles";
 import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@supabase/supabase-js";
@@ -233,6 +234,7 @@ export async function POST(req: NextRequest) {
 
           // One scannable attendee per seat (only for multi-ticket orders).
           if (guestBooking?.id) await createTicketAttendees(getSupabaseAdmin(), guestBooking.id, guestQty, attendeeNamesFromMeta(session.metadata?.attendeeNames));
+          if (guestBooking?.id) await recordAffiliateFromSession(session, guestBooking.id, null);
 
           // Count the sold tickets for capacity — UNLESS the checkout already
           // reserved them up front (reserved='true'), in which case the seats
@@ -462,6 +464,8 @@ export async function POST(req: NextRequest) {
             ...passBookingFields(session.metadata?.sessionsTotal),
           }).select("id").single();
 
+          if (acctBooking?.id) await recordAffiliateFromSession(session, acctBooking.id, userId ?? null);
+
           // Förbruka avdraget. Villkoret `used_at is null` gör skrivningen till
           // spärren: två samtidiga köp kan båda ha fått avdraget beräknat i
           // kassan, men bara den som kommer först hit får märka det som använt.
@@ -614,7 +618,7 @@ export async function POST(req: NextRequest) {
           // Payment already succeeded → auto-confirm the booking (no manual
           // creator confirmation step). The creator is notified below and can
           // still cancel (→ refund) if the proposed time doesn't work.
-          await getSupabaseAdmin().from("bookings").insert({
+          const { data: paidBooking } = await getSupabaseAdmin().from("bookings").insert({
             listing_id: listingId,
             creator_id: creatorId,
             customer_id: userId,
@@ -628,7 +632,8 @@ export async function POST(req: NextRequest) {
             attendees,
             notes,
             ...(danceCount && danceCount > 0 ? { sessions_total: danceCount, sessions_redeemed: 0 } : {}),
-          });
+          }).select("id").single();
+          if (paidBooking?.id) await recordAffiliateFromSession(session, paidBooking.id, userId ?? null);
 
           // Notify the creator of the new paid, confirmed booking.
           if (creatorId) {
@@ -1228,4 +1233,30 @@ async function sendTrialEndingEmail(
     daysLeft,
     memberId: userId,
   });
+}
+
+/**
+ * Partnerprogrammet: kassan la partnerns id i metadata (affiliateId). Här,
+ * när pengarna faktiskt kommit in, skrivs bokningens referred_by och
+ * belöningarna (idempotent på ref, så en omkörd webhook ger inga dubbletter).
+ */
+async function recordAffiliateFromSession(
+  session: Stripe.Checkout.Session,
+  bookingId: string,
+  customerId: string | null
+) {
+  const affiliateId = session.metadata?.affiliateId;
+  if (!affiliateId) return;
+  try {
+    await recordBookingRewards(getSupabaseAdmin(), {
+      bookingId,
+      affiliateId,
+      customerId,
+      flow: session.metadata?.flow,
+      platformFeeOre: Number(session.metadata?.platformFeeOre) || 0,
+      amountOre: session.amount_total ?? 0,
+    });
+  } catch (err) {
+    console.error("affiliate reward failed:", err);
+  }
 }

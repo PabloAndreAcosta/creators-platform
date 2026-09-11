@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { REF_COOKIE, claimReferral } from "@/lib/affiliate/attribution";
 import { locales, LOCALE_COOKIE_NAME } from "@/i18n/config";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -78,6 +79,14 @@ export async function GET(req: NextRequest) {
             .from("user_settings")
             .upsert({ user_id: user.id, notif_marketing: true }, { onConflict: "user_id" });
         }
+
+        // 1c. Partnerlänk (usha_ref-cookien från middleware). Samma
+        //     isFreshSignup-skydd: bara ett nyskapat konto kan knytas.
+        await claimReferral(admin, {
+          userId: user.id,
+          code: req.cookies.get(REF_COOKIE)?.value,
+          createdAt: user.created_at,
+        });
 
         // 2. Apply BankID verification cookie if present — independent of
         //    pending_role so it works for existing-user merge logins too.
