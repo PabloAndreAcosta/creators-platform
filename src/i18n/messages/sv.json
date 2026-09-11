@@ -1141,6 +1141,13 @@
       "durationMin": "{minutes} min",
       "guests": "{min}–{max} gäster"
     },
+    "coaching": {
+      "heading": "Coaching",
+      "onLab": "Coaching på The Lab",
+      "onLabHint": "Köp minuter med {name} under nästa öppna kväll. Betalas här, används på plats.",
+      "nextNight": "Nästa tillfälle: {date}",
+      "itsYou": "Det här är du."
+    },
     "events": {
       "heading": "Evenemang",
       "seeCalendar": "Se kalender",

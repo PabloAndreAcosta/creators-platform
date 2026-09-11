@@ -21,6 +21,7 @@ import { calculateDiscountedPrice } from "@/lib/stripe/commission";
 import { canReceivePayments } from "@/lib/payments/beta-gate";
 import { filterByGoldExclusivity } from "@/lib/listings/early-bird";
 import { FollowButton } from "@/components/follow-button";
+import { InstructorMinutesCard } from "@/components/instructor-minutes-card";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -82,7 +83,7 @@ export default async function CreatorProfilePage(props: Props) {
     supabase
       .from("profiles")
       .select(
-        "id, full_name, avatar_url, bio, category, location, hourly_rate, website, company_verified_at, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3, bankid_verified_at, bankid_name"
+        "id, full_name, avatar_url, bio, category, location, hourly_rate, website, company_verified_at, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3, bankid_verified_at, bankid_name, offers_coaching, coaching_hourly_rate_sek, coaching_specialties"
       )
       .eq(column, params.id)
       .eq("is_public", true)
@@ -116,6 +117,26 @@ export default async function CreatorProfilePage(props: Props) {
     .eq("is_public", true)
     .order("event_date", { ascending: true });
 
+  // Coaching på The Lab säljs som instruktörsminuter på ett öppet event, inte
+  // från profilen. Profilen visar därför nästa öppna kväll och låter minuterna
+  // köpas mot den. Utan en kommande öppen kväll finns inget att köpa mot, och
+  // då visas inte kortet — ett dött köp är sämre än inget.
+  const coachingOnLab = !!(profile as any).offers_coaching && ((profile as any).coaching_hourly_rate_sek ?? 0) > 0;
+  const { data: nextOpenNight } = coachingOnLab
+    ? await supabase
+        .from("listings")
+        .select("id, title, event_date, event_time")
+        .eq("user_id", profile.id)
+        .eq("listing_type", "event")
+        .eq("open_to_instructors", true)
+        .eq("is_active", true)
+        .eq("is_public", true)
+        .gte("event_date", new Date().toISOString().slice(0, 10))
+        .order("event_date", { ascending: true })
+        .limit(1)
+        .maybeSingle()
+    : { data: null };
+
   // Get visitor's tier for discount calculation + early bird filtering, and role for B2B booking gating
   let visitorTier: string | null = null;
   let visitorRole: string | null = null;
@@ -131,6 +152,10 @@ export default async function CreatorProfilePage(props: Props) {
 
   // Filter out Gold-exclusive listings for gratis users
   const listings = filterByGoldExclusivity(allListings || [], visitorTier);
+  // Ett evenemang och en tjänst renderades i samma rutnät under rubriken
+  // "Tjänster", och sedan en gång till i evenemangstidslinjen. Samma kväll två
+  // gånger på samma sida. Tjänster är det som inte har ett datum att gå till.
+  const serviceListings = listings.filter((l) => l.listing_type !== "event");
 
   // Fetch creator availability for current month
   const now = new Date();
@@ -322,6 +347,29 @@ export default async function CreatorProfilePage(props: Props) {
                 ))}
               </div>
             )}
+            {coachingOnLab && nextOpenNight && (
+              <div className="mb-4 max-w-md">
+                <p className="mb-1 text-sm font-semibold">{t("coaching.onLab")}</p>
+                <p className="mb-2 text-xs text-[var(--usha-muted)]">
+                  {t("coaching.onLabHint", { name: profile.full_name || t("creatorFallbackName") })}{" "}
+                  <Link href={`/listing/${nextOpenNight.id}`} className="text-[var(--usha-gold)] hover:underline">
+                    {t("coaching.nextNight", {
+                      date: [new Date(nextOpenNight.event_date + "T00:00").toLocaleDateString("sv-SE", { day: "numeric", month: "long" }), nextOpenNight.event_time?.slice(0, 5)].filter(Boolean).join(" "),
+                    })}
+                  </Link>
+                </p>
+                <InstructorMinutesCard
+                  listingId={nextOpenNight.id}
+                  instructorId={profile.id}
+                  instructorName={profile.full_name || t("creatorFallbackName")}
+                  avatarUrl={profile.avatar_url}
+                  specialties={((profile as any).coaching_specialties as string[] | null) ?? []}
+                  hourlyRate={(profile as any).coaching_hourly_rate_sek as number}
+                  isLoggedIn={isLoggedIn}
+                  disabledReason={isOwnProfile ? t("coaching.itsYou") : undefined}
+                />
+              </div>
+            )}
             <div className="mb-4 flex flex-wrap items-center gap-3 text-sm text-[var(--usha-muted)]">
               {creatorWebsites.map((url) => (
                 <a
@@ -454,13 +502,13 @@ export default async function CreatorProfilePage(props: Props) {
         {/* Listings */}
         <div>
           <h2 className="mb-4 text-xl font-bold">{t("services.heading")}</h2>
-          {!listings || listings.length === 0 ? (
+          {serviceListings.length === 0 ? (
             <p className="text-sm text-[var(--usha-muted)]">
               {t("services.empty")}
             </p>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2">
-              {listings.map((listing) => (
+              {serviceListings.map((listing) => (
                 <Link
                   key={listing.id}
                   href={`/listing/${listing.id}`}

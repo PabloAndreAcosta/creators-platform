@@ -1141,6 +1141,13 @@
       "durationMin": "{minutes} min",
       "guests": "{min}–{max} invitados"
     },
+    "coaching": {
+      "heading": "Coaching",
+      "onLab": "Coaching en The Lab",
+      "onLabHint": "Compra minutos con {name} durante la próxima noche abierta. Se paga aquí, se usa en el lugar.",
+      "nextNight": "Próxima sesión: {date}",
+      "itsYou": "Este eres tú."
+    },
     "events": {
       "heading": "Eventos",
       "seeCalendar": "Ver calendario",
