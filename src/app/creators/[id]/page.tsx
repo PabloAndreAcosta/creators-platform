@@ -21,6 +21,7 @@ import { calculateDiscountedPrice } from "@/lib/stripe/commission";
 import { canReceivePayments } from "@/lib/payments/beta-gate";
 import { filterByGoldExclusivity } from "@/lib/listings/early-bird";
 import { FollowButton } from "@/components/follow-button";
+import { ShareEventButton } from "@/components/share-event-button";
 import { InstructorMinutesCard } from "@/components/instructor-minutes-card";
 
 interface Props {
@@ -78,13 +79,14 @@ export default async function CreatorProfilePage(props: Props) {
   const supabase = await createClient();
   const t = await getTranslations("creatorProfile");
   const locale = await getLocale();
+  const tCommon = await getTranslations("common");
 
   const column = isUUID(params.id) ? "id" : "slug";
   const [{ data: profile }, { data: { user } }] = await Promise.all([
     supabase
       .from("profiles")
       .select(
-        "id, full_name, avatar_url, bio, category, location, hourly_rate, website, company_verified_at, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3, bankid_verified_at, bankid_name, offers_coaching, coaching_hourly_rate_sek, coaching_specialties"
+        "id, full_name, avatar_url, bio, category, location, hourly_rate, website, company_verified_at, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3, bankid_verified_at, bankid_name, offers_coaching, coaching_hourly_rate_sek, coaching_specialties, slug"
       )
       .eq(column, params.id)
       .eq("is_public", true)
@@ -444,6 +446,19 @@ export default async function CreatorProfilePage(props: Props) {
                 {profile.bio}
               </p>
             )}
+            {/* Dela finns för alla — även ägaren, som når hit via "Visa min sida"
+                och vill kunna skicka sin sida vidare direkt därifrån. Absolut
+                adress: navigator.share kräver en fullständig URL. */}
+            <div className="mt-4">
+              <ShareEventButton
+                url={`https://usha.se/creators/${(profile as any).slug || profile.id}`}
+                title={profile.full_name || t("creatorFallbackName")}
+                text={t("shareText", { name: profile.full_name || t("creatorFallbackName") })}
+                label={t("share")}
+                copiedLabel={tCommon("linkCopied")}
+                className="inline-flex items-center gap-2 rounded-xl border border-[var(--usha-border)] px-4 py-2 text-sm font-medium transition hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-gold)]"
+              />
+            </div>
             {!isOwnProfile && (
               <div className="mt-4 flex items-center gap-3">
                 <FollowButton
