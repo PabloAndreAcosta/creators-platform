@@ -1121,6 +1121,7 @@
     "metaTitleFallback": "Creator – Usha Platform",
     "share": "Dela profil",
     "shareText": "Kolla in {name} på Usha",
+    "previewBanner": "Förhandsvisning — den här profilen är inte publik ännu. Bara du och Ushas admin ser den.",
     "metaTitle": "{name} – Usha Platform",
     "metaTitleOg": "{name} – Usha Platform",
     "metaDescriptionFallback": "{category} på Usha Platform",
@@ -3817,6 +3818,7 @@
     "accessDesc": "Ge partners tillgång till enskilda adminverktyg."
   },
   "adminCreators": {
+    "previewProfile": "Förhandsgranska profilen så som den ser ut publikt",
     "title": "Kreatörer — privatperson/företag",
     "intro": "Sök upp en kreatör och ändra om de säljer som företag (org.nr-verifiering + org.nr på kvitto).",
     "searchPlaceholder": "kreatörens e-post",

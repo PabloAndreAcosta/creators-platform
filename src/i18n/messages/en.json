@@ -1121,6 +1121,7 @@
     "metaTitleFallback": "Creator – Usha Platform",
     "share": "Share profile",
     "shareText": "Check out {name} on Usha",
+    "previewBanner": "Preview — this profile is not public yet. Only you and Usha's admin can see it.",
     "metaTitle": "{name} – Usha Platform",
     "metaTitleOg": "{name} – Usha Platform",
     "metaDescriptionFallback": "{category} on Usha Platform",
@@ -3817,6 +3818,7 @@
     "accessDesc": "Give partners access to individual admin tools."
   },
   "adminCreators": {
+    "previewProfile": "Preview the profile as it looks publicly",
     "title": "Creators — private person/company",
     "intro": "Look up a creator and change whether they sell as a company (company reg. no verification + reg. no on the receipt).",
     "searchPlaceholder": "the creator's email",

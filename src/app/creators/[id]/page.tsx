@@ -22,6 +22,8 @@ import { canReceivePayments } from "@/lib/payments/beta-gate";
 import { filterByGoldExclusivity } from "@/lib/listings/early-bird";
 import { FollowButton } from "@/components/follow-button";
 import { ShareEventButton } from "@/components/share-event-button";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { isAdminById } from "@/lib/admin/check";
 import { InstructorMinutesCard } from "@/components/instructor-minutes-card";
 
 interface Props {
@@ -82,19 +84,26 @@ export default async function CreatorProfilePage(props: Props) {
   const tCommon = await getTranslations("common");
 
   const column = isUUID(params.id) ? "id" : "slug";
+  // Hämtas med service-role och UTAN is_public-filtret, för att ägaren och
+  // admin ska kunna se en sida innan den är publik. En kreatör som bygger sin
+  // profil hade annars ingen väg att se resultatet förrän hen tryckt publicera,
+  // och admin fick rendera sidan för hand ur databasen för att följa framsteg.
+  // Alla andra möter fortfarande 404 för en opublik profil — samma som förut.
   const [{ data: profile }, { data: { user } }] = await Promise.all([
-    supabase
+    createAdminClient()
       .from("profiles")
       .select(
-        "id, full_name, avatar_url, bio, category, location, hourly_rate, website, company_verified_at, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3, bankid_verified_at, bankid_name, offers_coaching, coaching_hourly_rate_sek, coaching_specialties, slug"
+        "id, full_name, avatar_url, bio, category, location, hourly_rate, website, company_verified_at, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3, bankid_verified_at, bankid_name, offers_coaching, coaching_hourly_rate_sek, coaching_specialties, slug, is_public"
       )
       .eq(column, params.id)
-      .eq("is_public", true)
-      .single(),
+      .maybeSingle(),
     supabase.auth.getUser(),
   ]);
 
   if (!profile) notFound();
+  const canPreview = !!user && (user.id === profile.id || (await isAdminById(user.id)));
+  if (!profile.is_public && !canPreview) notFound();
+  const isPreviewOfUnpublished = !profile.is_public;
 
   const { data: allListings } = await supabase
     .from("listings")
@@ -294,6 +303,11 @@ export default async function CreatorProfilePage(props: Props) {
         </div>
       </header>
       <div className="mx-auto max-w-6xl px-4 py-6 md:px-6 md:py-10">
+        {isPreviewOfUnpublished && (
+          <div className="mb-4 rounded-xl border border-[var(--usha-gold)]/40 bg-[var(--usha-gold)]/10 px-4 py-3 text-sm text-[var(--usha-gold)]">
+            {t("previewBanner")}
+          </div>
+        )}
         <Link
           href="/marketplace"
           className="mb-6 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]"

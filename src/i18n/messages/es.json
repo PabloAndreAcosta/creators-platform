@@ -1121,6 +1121,7 @@
     "metaTitleFallback": "Creador – Usha Platform",
     "share": "Compartir perfil",
     "shareText": "Mira a {name} en Usha",
+    "previewBanner": "Vista previa — este perfil aún no es público. Solo tú y el administrador de Usha podéis verlo.",
     "metaTitle": "{name} – Usha Platform",
     "metaTitleOg": "{name} – Usha Platform",
     "metaDescriptionFallback": "{category} en Usha Platform",
@@ -3817,6 +3818,7 @@
     "accessDesc": "Da a los socios acceso a herramientas concretas."
   },
   "adminCreators": {
+    "previewProfile": "Ver el perfil tal como se muestra públicamente",
     "title": "Creadores: particular/empresa",
     "intro": "Busca a un creador y cambia si vende como empresa (verificación del n.º de empresa + n.º en el recibo).",
     "searchPlaceholder": "correo del creador",

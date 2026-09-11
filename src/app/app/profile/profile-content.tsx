@@ -231,7 +231,7 @@ export function ProfileContent({
       <div className="space-y-1 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] overflow-hidden">
         <SettingsRow icon={Trophy} label={t("leaderboard")} href="/app/leaderboard" />
         <SettingsRow icon={Gift} label={t("rewards")} href="/app/rewards" />
-        {profile?.is_public && (
+        {profile && (
           <SettingsRow
             icon={Eye}
             label={t("viewMyPage")}
