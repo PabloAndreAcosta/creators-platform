@@ -12,6 +12,7 @@ export function Footer() {
       { label: t("nav.forAudience"), href: "/for-publik" },
       { label: t("footer.marketplace"), href: "/marketplace" },
       { label: t("footer.about"), href: "/om" },
+      { label: t("footer.partner"), href: "/partner" },
     ],
     [t("footer.legal")]: [
       { label: t("footer.terms"), href: "/terms" },
