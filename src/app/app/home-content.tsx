@@ -664,7 +664,9 @@ function KreatorHome({
   // Egna listningar, de tre närmaste. Raden renderas av OwnListingRow — den
   // fick tidigare en tillplattad kopia utan bild, pris eller status, vilket var
   // hela anledningen till att listan såg ofullständig ut.
-  const todaysListings = ownServices.slice(0, 3);
+  // "Dina tjänster" visade även evenemangen, som redan har en egen flik.
+  // Samma Lab-kväll dök upp på två ställen och rubriken blev meningslös.
+  const todaysListings = ownServices.filter((l) => l.listing_type !== "event").slice(0, 3);
 
   const userListings = ownServices.map((l) => ({ id: l.id, title: l.title }));
 
