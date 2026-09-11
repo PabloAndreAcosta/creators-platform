@@ -360,6 +360,11 @@ export default async function CreatorProfilePage(props: Props) {
                 </span>
               ))}
             </div>
+            {profile.bio && (
+              <p className="mb-5 max-w-2xl whitespace-pre-line text-[15px] leading-relaxed text-[var(--usha-white)]">
+                {profile.bio}
+              </p>
+            )}
             {Object.keys(creatorRates).length > 0 && (
               <div className="mb-4 flex flex-wrap gap-2">
                 {Object.entries(creatorRates).map(([cat, rate]) => (
@@ -367,29 +372,6 @@ export default async function CreatorProfilePage(props: Props) {
                     {t("rate", { category: CATEGORY_LABELS[cat] || cat, rate })}
                   </span>
                 ))}
-              </div>
-            )}
-            {coachingOnLab && nextOpenNight && (
-              <div className="mb-4 max-w-md">
-                <p className="mb-1 text-sm font-semibold">{t("coaching.onLab")}</p>
-                <p className="mb-2 text-xs text-[var(--usha-muted)]">
-                  {t("coaching.onLabHint", { name: profile.full_name || t("creatorFallbackName") })}{" "}
-                  <Link href={`/listing/${nextOpenNight.id}`} className="text-[var(--usha-gold)] hover:underline">
-                    {t("coaching.nextNight", {
-                      date: [new Date(nextOpenNight.event_date + "T00:00").toLocaleDateString(locale, { day: "numeric", month: "long" }), nextOpenNight.event_time?.slice(0, 5)].filter(Boolean).join(" "),
-                    })}
-                  </Link>
-                </p>
-                <InstructorMinutesCard
-                  listingId={nextOpenNight.id}
-                  instructorId={profile.id}
-                  instructorName={profile.full_name || t("creatorFallbackName")}
-                  avatarUrl={profile.avatar_url}
-                  specialties={((profile as any).coaching_specialties as string[] | null) ?? []}
-                  hourlyRate={(profile as any).coaching_hourly_rate_sek as number}
-                  isLoggedIn={isLoggedIn}
-                  disabledReason={isOwnProfile ? t("coaching.itsYou") : undefined}
-                />
               </div>
             )}
             <div className="mb-4 flex flex-wrap items-center gap-3 text-sm text-[var(--usha-muted)]">
@@ -454,11 +436,6 @@ export default async function CreatorProfilePage(props: Props) {
                   </a>
                 )}
               </div>
-            )}
-            {profile.bio && (
-              <p className="max-w-2xl whitespace-pre-line text-[15px] leading-relaxed text-[var(--usha-white)]">
-                {profile.bio}
-              </p>
             )}
             {/* Dela finns för alla — även ägaren, som når hit via "Visa min sida"
                 och vill kunna skicka sin sida vidare direkt därifrån. Absolut
@@ -644,6 +621,33 @@ export default async function CreatorProfilePage(props: Props) {
                   </div>
                 </Link>
               ))}
+            </div>
+          )}
+
+          {/* Coaching på The Lab är också en tjänst — den säljs bara på ett annat sätt:
+              minuter mot nästa öppna kväll i stället för en bokad tid. Därför står den
+              här bland tjänsterna, inte uppe i huvudet bredvid priserna. */}
+          {coachingOnLab && nextOpenNight && (
+            <div className="mt-4 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5">
+              <h3 className="mb-1 font-semibold">{t("coaching.onLab")}</h3>
+              <p className="mb-2 text-xs text-[var(--usha-muted)]">
+                {t("coaching.onLabHint", { name: profile.full_name || t("creatorFallbackName") })}{" "}
+                <Link href={`/listing/${nextOpenNight.id}`} className="text-[var(--usha-gold)] hover:underline">
+                  {t("coaching.nextNight", {
+                    date: [new Date(nextOpenNight.event_date + "T00:00").toLocaleDateString(locale, { day: "numeric", month: "long" }), nextOpenNight.event_time?.slice(0, 5)].filter(Boolean).join(" "),
+                  })}
+                </Link>
+              </p>
+              <InstructorMinutesCard
+                listingId={nextOpenNight.id}
+                instructorId={profile.id}
+                instructorName={profile.full_name || t("creatorFallbackName")}
+                avatarUrl={profile.avatar_url}
+                specialties={((profile as any).coaching_specialties as string[] | null) ?? []}
+                hourlyRate={(profile as any).coaching_hourly_rate_sek as number}
+                isLoggedIn={isLoggedIn}
+                disabledReason={isOwnProfile ? t("coaching.itsYou") : undefined}
+              />
             </div>
           )}
         </div>
