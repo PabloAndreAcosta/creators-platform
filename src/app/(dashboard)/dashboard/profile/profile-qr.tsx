@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import QRCode from "qrcode";
-import { Download, Copy, Check } from "lucide-react";
+import { Download, Copy, Check, ExternalLink } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
 import { useTranslations } from "next-intl";
 
@@ -92,14 +92,28 @@ export function ProfileQR({
           <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-black)] px-3 py-2.5 text-xs text-[var(--usha-muted)] break-all">
             {profileUrl}
           </div>
-          <button
-            type="button"
-            onClick={handleCopyLink}
-            className="flex items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-2.5 text-sm font-medium text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
-          >
-            {copied ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
-            {copied ? t("copied") : t("copyLink")}
-          </button>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={handleCopyLink}
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-2.5 text-sm font-medium text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
+            >
+              {copied ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
+              {copied ? t("copied") : t("copyLink")}
+            </button>
+            {/* Relativ väg, inte profileUrl: den är hårdkodad till usha.se för
+                QR-kodens skull och skulle skicka dig till produktion från en
+                preview-deploy eller localhost. */}
+            <a
+              href={`/creators/${slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-2.5 text-sm font-medium text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
+            >
+              <ExternalLink size={14} />
+              {t("preview")}
+            </a>
+          </div>
           <button
             type="button"
             onClick={handleDownload}
