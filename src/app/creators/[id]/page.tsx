@@ -442,7 +442,12 @@ export default async function CreatorProfilePage(props: Props) {
             )}
             {/* Dela finns för alla — även ägaren, som når hit via "Visa min sida"
                 och vill kunna skicka sin sida vidare direkt därifrån. Absolut
-                adress: navigator.share kräver en fullständig URL. */}
+                adress: navigator.share kräver en fullständig URL.
+
+                Men inte på en opublik profil: den sidan är 404 för alla utom
+                ägaren och admin, så en delad länk hade lett mottagaren till en
+                återvändsgränd. */}
+            {!isPreviewOfUnpublished && (
             <div className="mt-4">
               <ShareEventButton
                 url={`https://usha.se/creators/${(profile as any).slug || profile.id}`}
@@ -453,6 +458,7 @@ export default async function CreatorProfilePage(props: Props) {
                 className="inline-flex items-center gap-2 rounded-xl border border-[var(--usha-border)] px-4 py-2 text-sm font-medium transition hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-gold)]"
               />
             </div>
+            )}
             {!isOwnProfile && (
               <div className="mt-4 flex items-center gap-3">
                 <FollowButton
