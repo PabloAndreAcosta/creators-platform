@@ -3,7 +3,7 @@ export const revalidate = 60; // ISR: revalidate every 60 seconds
 import { createClient } from "@/lib/supabase/server";
 import { safeJsonLd } from "@/lib/json-ld";
 import { CATEGORY_LABELS } from "@/lib/categories";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import type { ExperienceDetails } from "@/types/database";
@@ -77,6 +77,7 @@ export default async function CreatorProfilePage(props: Props) {
   const params = await props.params;
   const supabase = await createClient();
   const t = await getTranslations("creatorProfile");
+  const locale = await getLocale();
 
   const column = isUUID(params.id) ? "id" : "slug";
   const [{ data: profile }, { data: { user } }] = await Promise.all([
@@ -354,7 +355,7 @@ export default async function CreatorProfilePage(props: Props) {
                   {t("coaching.onLabHint", { name: profile.full_name || t("creatorFallbackName") })}{" "}
                   <Link href={`/listing/${nextOpenNight.id}`} className="text-[var(--usha-gold)] hover:underline">
                     {t("coaching.nextNight", {
-                      date: [new Date(nextOpenNight.event_date + "T00:00").toLocaleDateString("sv-SE", { day: "numeric", month: "long" }), nextOpenNight.event_time?.slice(0, 5)].filter(Boolean).join(" "),
+                      date: [new Date(nextOpenNight.event_date + "T00:00").toLocaleDateString(locale, { day: "numeric", month: "long" }), nextOpenNight.event_time?.slice(0, 5)].filter(Boolean).join(" "),
                     })}
                   </Link>
                 </p>
