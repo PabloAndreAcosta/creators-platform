@@ -13,7 +13,7 @@ import { getSubscriptionStatus } from "@/lib/subscription/check";
 import { checkListingLimit } from "@/lib/listings/limits";
 import { generateUniqueListingSlug, generateUniqueSeriesSlug } from "@/lib/listings/slug";
 import { createNotification } from "@/lib/notifications/create";
-import { isSeller } from "@/lib/roles";
+import { isSeller, isCreatorRole } from "@/lib/roles";
 import { ticketGateForNewEvent, ticketGateForListing } from "@/lib/capabilities/gate";
 import { stockholmLocalToUtcISO } from "@/lib/time";
 
@@ -727,7 +727,6 @@ export async function toggleEventActive(id: string, isActive: boolean) {
 // ── Instructor opt-in: offer paid mini-sessions at someone's open event ──
 
 const INSTRUCTOR_TIERS = ["guld", "premium"];
-const INSTRUCTOR_ROLES = ["creator", "creator"];
 
 /**
  * A paying dance-instructor creator joins an open event so they can sell
@@ -752,7 +751,7 @@ export async function joinOpenEvent(listingId: string) {
     .eq("id", user.id)
     .single();
 
-  if (!profile || !INSTRUCTOR_ROLES.includes(profile.role)) {
+  if (!profile || !isCreatorRole(profile.role)) {
     return { error: "Endast instruktörer (kreatörer) kan gå med." };
   }
   if (!INSTRUCTOR_TIERS.includes(profile.tier)) {
