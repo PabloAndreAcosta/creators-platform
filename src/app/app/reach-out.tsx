@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import QRCode from "qrcode";
 import { useTranslations } from "next-intl";
-import { Check, Copy, Download, Link2, Palette, QrCode } from "lucide-react";
+import { Check, Copy, Download, ExternalLink, Link2, Palette, QrCode } from "lucide-react";
 
 /**
  * Nå ut — de tre verktygen för att få folk till sin sida.
@@ -129,6 +129,18 @@ export function ReachOut({
             >
               {copied ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
             </button>
+            {/* Relativ väg, inte `url`: den är hårdkodad till usha.se för QR-kodens
+                skull och skulle skicka en preview-deploy till produktion. */}
+            <a
+              href={`/creators/${path}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={t("preview")}
+              title={t("preview")}
+              className="shrink-0 text-[var(--usha-muted)] transition hover:text-[var(--usha-gold)]"
+            >
+              <ExternalLink size={14} />
+            </a>
           </div>
 
           {/* Den långa UUID-adressen fungerar, men går inte att säga högt eller
