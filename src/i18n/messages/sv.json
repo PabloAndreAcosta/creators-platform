@@ -1119,6 +1119,8 @@
   },
   "creatorProfile": {
     "metaTitleFallback": "Creator – Usha Platform",
+    "share": "Dela profil",
+    "shareText": "Kolla in {name} på Usha",
     "metaTitle": "{name} – Usha Platform",
     "metaTitleOg": "{name} – Usha Platform",
     "metaDescriptionFallback": "{category} på Usha Platform",
