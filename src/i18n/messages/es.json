@@ -1119,6 +1119,8 @@
   },
   "creatorProfile": {
     "metaTitleFallback": "Creador – Usha Platform",
+    "share": "Compartir perfil",
+    "shareText": "Mira a {name} en Usha",
     "metaTitle": "{name} – Usha Platform",
     "metaTitleOg": "{name} – Usha Platform",
     "metaDescriptionFallback": "{category} en Usha Platform",
