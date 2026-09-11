@@ -46,6 +46,7 @@
     "switchToDark": "Byt till mörkt läge"
   },
   "nav": {
+    "partner": "Partner",
     "tools": "Verktyg",
     "favorites": "Favoriter",
     "home": "Hem",
@@ -307,6 +308,7 @@
     "editPrefs": "Redigera preferenser"
   },
   "profile": {
+    "partner": "Partnerprogram",
     "editProfile": "Redigera Profil",
     "viewMyPage": "Visa min sida",
     "payouts": "Utbetalningar",
@@ -1041,6 +1043,47 @@
       "toProfile": "Till {name}",
       "metaConfirm": "Bekräfta följning – Usha Platform",
       "metaUnsub": "Avsluta följning – Usha Platform"
+  },
+  "partner": {
+      "metaTitle": "Partnerprogram – Usha Platform",
+      "title": "Partnerprogram",
+      "intro": "Dela din länk. Du får {share} % av Ushas intäkt på allt dina värvade köper eller säljer i tolv månader, plus premium-tid och kredit.",
+      "yourLink": "Din länk",
+      "linkHint": "Länken fungerar på alla sidor på usha.se – lägg ?ref=din kod efter vilken adress som helst, till exempel The Lab:",
+      "copy": "Kopiera",
+      "copied": "Kopierad",
+      "share": "Dela",
+      "shareTitle": "Usha Platform",
+      "shareText": "Kolla in Usha Platform – kurser, kvällar och biljetter på ett ställe.",
+      "qrHint": "QR-koden pekar på din länk. Visa den i dörren eller på en affisch.",
+      "statClicks": "Klick",
+      "statSignups": "Registreringar",
+      "statPurchases": "Köp",
+      "statEarned": "Intjänat",
+      "statPaid": "Utbetalt",
+      "statPremium": "Premium-tid",
+      "kr": "{amount} kr",
+      "days": "{count} dagar",
+      "termsHeading": "Så fungerar det",
+      "terms1": "{share} % av Ushas intäkt på allt dina värvade köper eller säljer, i tolv månader från registreringen.",
+      "terms2": "{days} dagar premium när en kreatör eller lokal du värvat publicerar sitt första utbud – och samma till hen.",
+      "terms3": "{amount} kr i kredit när en kund du värvat gör sitt första köp.",
+      "terms4": "Räknas när köpet är betalt. Återbetalade köp räknas bort.",
+      "terms5": "Ingen belöning för egna köp eller egna konton.",
+      "payoutNote": "Bolag får kontant utbetalning kvartalsvis via Stripe vid minst 200 kr, annars som kredit. Privatpersoner får alltid kredit att handla för. Utbetalningarna öppnar i nästa steg – allt du tjänar nu räknas.",
+      "rewardsHeading": "Dina belöningar",
+      "rewardsEmpty": "Inget än. Dela länken så syns det här.",
+      "kind": {
+          "credit": "Kredit",
+          "premium_days": "Premium-tid",
+          "commission_share": "Andel av intäkt"
+      },
+      "status": {
+          "pending": "väntar",
+          "approved": "godkänd",
+          "paid": "utbetald",
+          "void": "återkallad"
+      }
   },
   "experiences": {
     "metaTitle": "Upplevelser – Usha Platform",
@@ -2588,6 +2631,8 @@
     "inviteFriends": "Bjud in vänner"
   },
   "toolsPage": {
+    "partnerLabel": "Partnerprogram",
+    "partnerDesc": "Din länk, dina värvningar och vad de gett.",
     "homeLabel": "Hem",
     "toolsLabel": "Verktyg",
     "openGigsLabel": "Uppdrag",

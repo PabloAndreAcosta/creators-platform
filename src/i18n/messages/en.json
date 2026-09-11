@@ -46,6 +46,7 @@
     "switchToDark": "Switch to dark mode"
   },
   "nav": {
+    "partner": "Partner",
     "tools": "Tools",
     "favorites": "Favorites",
     "home": "Home",
@@ -307,6 +308,7 @@
     "editPrefs": "Edit preferences"
   },
   "profile": {
+    "partner": "Partner programme",
     "editProfile": "Edit Profile",
     "viewMyPage": "View my page",
     "payouts": "Payouts",
@@ -1041,6 +1043,47 @@
       "toProfile": "Go to {name}",
       "metaConfirm": "Confirm follow – Usha Platform",
       "metaUnsub": "Unsubscribe – Usha Platform"
+  },
+  "partner": {
+      "metaTitle": "Partner programme – Usha Platform",
+      "title": "Partner programme",
+      "intro": "Share your link. You earn {share}% of Usha's revenue on everything your referrals buy or sell for twelve months, plus premium time and credit.",
+      "yourLink": "Your link",
+      "linkHint": "The link works on every page on usha.se – add ?ref=your code to any address, for example The Lab:",
+      "copy": "Copy",
+      "copied": "Copied",
+      "share": "Share",
+      "shareTitle": "Usha Platform",
+      "shareText": "Check out Usha Platform – classes, nights and tickets in one place.",
+      "qrHint": "The QR code points to your link. Show it at the door or on a poster.",
+      "statClicks": "Clicks",
+      "statSignups": "Sign-ups",
+      "statPurchases": "Purchases",
+      "statEarned": "Earned",
+      "statPaid": "Paid out",
+      "statPremium": "Premium time",
+      "kr": "{amount} kr",
+      "days": "{count} days",
+      "termsHeading": "How it works",
+      "terms1": "{share}% of Usha's revenue on everything your referrals buy or sell, for twelve months from sign-up.",
+      "terms2": "{days} days of premium when a creator or venue you referred publishes their first offering – and the same for them.",
+      "terms3": "{amount} kr credit when a customer you referred makes their first purchase.",
+      "terms4": "Counted when the purchase is paid. Refunded purchases are removed.",
+      "terms5": "No reward for your own purchases or your own accounts.",
+      "payoutNote": "Companies are paid out quarterly via Stripe from 200 kr, otherwise as credit. Private individuals always receive credit to spend. Payouts open in the next step – everything you earn now counts.",
+      "rewardsHeading": "Your rewards",
+      "rewardsEmpty": "Nothing yet. Share the link and it shows up here.",
+      "kind": {
+          "credit": "Credit",
+          "premium_days": "Premium time",
+          "commission_share": "Revenue share"
+      },
+      "status": {
+          "pending": "pending",
+          "approved": "approved",
+          "paid": "paid",
+          "void": "voided"
+      }
   },
   "experiences": {
     "metaTitle": "Experiences – Usha Platform",
@@ -2588,6 +2631,8 @@
     "inviteFriends": "Invite friends"
   },
   "toolsPage": {
+    "partnerLabel": "Partner programme",
+    "partnerDesc": "Your link, your referrals and what they earned.",
     "homeLabel": "Home",
     "toolsLabel": "Tools",
     "openGigsLabel": "Jobs",

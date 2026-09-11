@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { REF_COOKIE, affiliateForPurchase } from "@/lib/affiliate/attribution";
 import { getStripeLocale } from "@/lib/i18n/stripe-locale";
 import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@/lib/supabase/server";
@@ -136,6 +137,8 @@ export async function POST(req: NextRequest) {
       full_name: creator.full_name ?? null,
     };
     const flow = resolvePayeeFlow(payee);
+    // Partnerprogrammet: vem ledde hit? Kontots värvare inom fönstret, annars cookien.
+    const affiliateId = await affiliateForPurchase(createAdminClient(), { userId: user.id, refCookie: req.cookies.get(REF_COOKIE)?.value });
 
     if (flow === "third_party") {
       if (!creator.stripe_account_id) {
@@ -224,6 +227,8 @@ export async function POST(req: NextRequest) {
         scheduledAt,
         notes: notes || "",
         guestCount: String(guests),
+        affiliateId: affiliateId ?? "",
+        platformFeeOre: String(finalFee),
         specialRequests: specialRequests || "",
         attendees: (() => {
           const json = attendees ? JSON.stringify(attendees) : "[]";

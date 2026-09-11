@@ -2,6 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 import { expiredSetCookieHeader } from "@/lib/supabase/auth-cookies";
 import { locales, LOCALE_COOKIE_NAME, detectLocaleFromAcceptLanguage, isLikelyBot } from "@/i18n/config";
+import { REF_COOKIE, REF_COOKIE_MAX_AGE, normalizeRefCode } from "@/lib/affiliate/attribution";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function middleware(request: NextRequest) {
   // 1. Ensure locale cookie exists. A cookieless visitor gets their device
@@ -30,6 +32,24 @@ export async function middleware(request: NextRequest) {
       maxAge: 60 * 60 * 24 * 365,
       sameSite: "lax",
     });
+  }
+
+  // Partnerlänk: ?ref=KOD på vilken sida som helst sätter en 90-dagarscookie
+  // som registreringen och kassan läser. Klicket räknas per kod och dag.
+  const refCode = normalizeRefCode(request.nextUrl.searchParams.get("ref"));
+  if (refCode) {
+    response.cookies.set(REF_COOKIE, refCode, {
+      path: "/",
+      maxAge: REF_COOKIE_MAX_AGE,
+      sameSite: "lax",
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+    });
+    try {
+      await createAdminClient().rpc("count_referral_click", { p_code: refCode });
+    } catch {
+      // ett tappat klick är inte värt en trasig sida
+    }
   }
 
   // Sist, efter alla cookies.set: host-only-varianten av döda auth-cookies.

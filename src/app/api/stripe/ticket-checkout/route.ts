@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { REF_COOKIE, affiliateForPurchase } from "@/lib/affiliate/attribution";
 import { passBookingFields } from '@/lib/passes/series-pass';
 import type Stripe from 'stripe';
 import { getStripeLocale } from "@/lib/i18n/stripe-locale";
@@ -241,6 +242,8 @@ export async function POST(req: NextRequest) {
       full_name: creator.full_name ?? null,
     };
     const flow = resolvePayeeFlow(payee);
+    // Partnerprogrammet: vem ledde hit? Kontots värvare inom fönstret, annars cookien.
+    const affiliateId = await affiliateForPurchase(createAdminClient(), { userId: user.id, refCookie: req.cookies.get(REF_COOKIE)?.value });
 
     if (flow === 'third_party') {
       if (!creator.stripe_account_id) {
@@ -390,6 +393,7 @@ export async function POST(req: NextRequest) {
           ticketTypeName: ticketType?.name ?? '',
           creditOre: String(creditOre),
           quantity: String(qty),
+          affiliateId: affiliateId ?? '',
           sessionsTotal: isPass ? String(listing.session_count) : '',
           attendeeNames: attendeeNamesToMeta(attendeeNames, qty),
           reserved: 'true',

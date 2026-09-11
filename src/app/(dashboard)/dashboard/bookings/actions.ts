@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { handleCapacityReached, autoPromoteFromQueue, addToQueue, getQueuePosition } from "@/lib/bookings/queue";
 import { requirePaidSubscription } from "@/lib/subscription/check";
 import { refundBookingCharge } from "@/lib/tickets/refund";
+import { voidRewardsForBooking } from "@/lib/affiliate/rewards";
 import { stockholmLocalToUtcISO } from "@/lib/time";
 import { sendBookingConfirmationEmail, sendBookingCancellationEmail } from "@/lib/email/send-booking";
 import { shouldSendEmail } from "@/lib/email/check-preferences";
@@ -260,6 +261,8 @@ export async function updateBookingStatus(
     try {
       refundInfo = await refundBookingCharge(booking.stripe_payment_id);
       console.log(`Refunded ${refundInfo.amount} öre (${refundInfo.refundId}) for booking ${bookingId}`);
+      // Partnerns andel av ett återbetalat köp ska inte betalas ut.
+      await voidRewardsForBooking(createAdminClient(), bookingId);
     } catch (err) {
       console.error("Auto-refund failed:", err);
       return { error: "Kunde inte återbetala. Kontakta support." };
