@@ -9,7 +9,7 @@ import type { Metadata } from "next";
 import type { ExperienceDetails } from "@/types/database";
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin, Clock, Globe, ArrowLeft, Calendar, MessageCircle, Users, Instagram, Mail, Phone, ShieldCheck } from "lucide-react";
+import { MapPin, Clock, Globe, ArrowLeft, Calendar, MessageCircle, Users, Instagram, Mail, Phone, ShieldCheck, ChevronDown } from "lucide-react";
 import BookingForm from "./booking-form";
 import { BuyTicketButton } from "@/components/buy-ticket-button";
 import { CreatorReviews } from "@/components/creator-reviews";
@@ -172,7 +172,10 @@ export default async function CreatorProfilePage(props: Props) {
   // månader utan att någon läst det, så det är inte att lita på: ett åttaveckors
   // kostprogram låg typat som "event" utan datum och hade försvunnit från båda
   // sektionerna. Tidslinjen längre ner går redan på datum — samma regel här.
-  const serviceListings = listings.filter((l) => !l.event_date);
+  const serviceListings = listings.filter((l) => !l.event_date && l.listing_type !== "package");
+  // Klippkorten saknar datum men hör till kvällarna de ger tillträde till, inte
+  // till coachingen. De hör alltså hemma under Evenemang, inte under Tjänster.
+  const passListings = listings.filter((l) => !l.event_date && l.listing_type === "package");
 
   // Fetch creator availability for current month
   const now = new Date();
@@ -655,7 +658,7 @@ export default async function CreatorProfilePage(props: Props) {
         {/* Event Timeline */}
         {(() => {
           const eventsWithDates = (listings || []).filter((l) => l.event_date);
-          if (eventsWithDates.length === 0) return null;
+          if (eventsWithDates.length === 0 && passListings.length === 0) return null;
           const today = new Date().toISOString().split("T")[0];
           const upcoming = eventsWithDates.filter((l) => l.event_date! >= today).sort((a, b) => a.event_date!.localeCompare(b.event_date!));
           const past = eventsWithDates.filter((l) => l.event_date! < today).sort((a, b) => b.event_date!.localeCompare(a.event_date!));
@@ -667,10 +670,25 @@ export default async function CreatorProfilePage(props: Props) {
                   <Calendar size={14} /> {t("events.seeCalendar")}
                 </Link>
               </div>
+              {passListings.length > 0 && (
+                <div className="mb-6 space-y-2">
+                  <h3 className="mb-3 text-sm font-semibold text-[var(--usha-gold)]">{t("events.passes")}</h3>
+                  {passListings.map((p) => (
+                    <Link key={p.id} href={`/listing/${p.id}`} className="flex items-center justify-between gap-4 rounded-xl border border-[var(--usha-gold)]/25 bg-[var(--usha-gold)]/5 p-4 transition hover:border-[var(--usha-gold)]/50">
+                      <p className="min-w-0 font-medium">{p.title}</p>
+                      {p.price != null && <span className="shrink-0 font-semibold text-[var(--usha-gold)]">{t("services.priceSek", { price: p.price })}</span>}
+                    </Link>
+                  ))}
+                </div>
+              )}
               {upcoming.length > 0 && (
-                <>
-                  <h3 className="mb-3 text-sm font-semibold text-emerald-400">{t("events.upcoming")}</h3>
-                  <div className="mb-6 space-y-2">
+                <details open className="group mb-6">
+                  <summary className="mb-3 flex cursor-pointer list-none items-center gap-2 text-sm font-semibold text-emerald-400">
+                    <ChevronDown size={14} className="transition-transform group-open:rotate-180" />
+                    {t("events.upcoming")}
+                    <span className="font-normal text-[var(--usha-muted)]">{upcoming.length}</span>
+                  </summary>
+                  <div className="space-y-2">
                     {upcoming.map((ev) => (
                       <Link key={ev.id} href={`/listing/${ev.id}`} className="flex items-center gap-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 transition hover:border-emerald-500/40">
                         <div className="shrink-0 text-center">
@@ -692,11 +710,15 @@ export default async function CreatorProfilePage(props: Props) {
                       </Link>
                     ))}
                   </div>
-                </>
+                </details>
               )}
               {past.length > 0 && (
-                <>
-                  <h3 className="mb-3 text-sm font-semibold text-[var(--usha-muted)]">{t("events.past")}</h3>
+                <details className="group">
+                  <summary className="mb-3 flex cursor-pointer list-none items-center gap-2 text-sm font-semibold text-[var(--usha-muted)]">
+                    <ChevronDown size={14} className="transition-transform group-open:rotate-180" />
+                    {t("events.past")}
+                    <span className="font-normal">{Math.min(past.length, 10)}</span>
+                  </summary>
                   <div className="space-y-2">
                     {past.slice(0, 10).map((ev) => (
                       <Link key={ev.id} href={`/listing/${ev.id}`} className="flex items-center gap-4 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 opacity-70 transition hover:opacity-90">
@@ -717,7 +739,7 @@ export default async function CreatorProfilePage(props: Props) {
                       </Link>
                     ))}
                   </div>
-                </>
+                </details>
               )}
             </div>
           );
