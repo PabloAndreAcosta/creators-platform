@@ -386,7 +386,7 @@ export default async function CreatorProfilePage(props: Props) {
               </div>
             )}
             {profile.bio && (
-              <p className="max-w-2xl whitespace-pre-line text-sm leading-relaxed text-[var(--usha-muted)]">
+              <p className="max-w-2xl whitespace-pre-line text-[15px] leading-relaxed text-[var(--usha-white)]">
                 {profile.bio}
               </p>
             )}
