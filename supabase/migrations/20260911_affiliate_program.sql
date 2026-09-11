@@ -62,8 +62,11 @@ language sql
 security definer
 set search_path = public, pg_temp
 as $$
+  -- Bara koder som finns räknas – annars kan vem som helst fylla tabellen
+  -- med påhittade koder från adressfältet.
   insert into public.referral_clicks (code, day, count)
-  values (upper(p_code), (now() at time zone 'Europe/Stockholm')::date, 1)
+  select upper(p_code), (now() at time zone 'Europe/Stockholm')::date, 1
+  where exists (select 1 from public.profiles where referral_code = upper(p_code))
   on conflict (code, day) do update set count = public.referral_clicks.count + 1;
 $$;
 revoke execute on function public.count_referral_click(text) from public, anon, authenticated;
