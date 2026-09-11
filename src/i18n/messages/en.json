@@ -1153,6 +1153,7 @@
       "itsYou": "This is you."
     },
     "events": {
+      "passes": "Passes",
       "heading": "Events",
       "seeCalendar": "View calendar",
       "upcoming": "Upcoming",
