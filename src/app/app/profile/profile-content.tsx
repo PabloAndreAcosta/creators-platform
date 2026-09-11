@@ -12,6 +12,7 @@ import { useLevelName } from "@/lib/points/level-name";
 import {
   User,
   Edit2,
+  Eye,
   CreditCard,
   Bell,
   Shield,
@@ -52,6 +53,7 @@ interface Profile {
   location: string | null;
   hourly_rate: number | null;
   is_public: boolean;
+  slug?: string | null;
   tier: string | null;
   stripe_account_id: string | null;
   created_at: string;
@@ -229,6 +231,14 @@ export function ProfileContent({
       <div className="space-y-1 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] overflow-hidden">
         <SettingsRow icon={Trophy} label={t("leaderboard")} href="/app/leaderboard" />
         <SettingsRow icon={Gift} label={t("rewards")} href="/app/rewards" />
+        {profile?.is_public && (
+          <SettingsRow
+            icon={Eye}
+            label={t("viewMyPage")}
+            href={`/creators/${profile.slug || profile.id}`}
+            external
+          />
+        )}
         <SettingsRow icon={Edit2} label={t("editProfile")} href="/dashboard/profile" />
         <SettingsRow icon={Crown} label={t("myPlan")} href="/dashboard/billing" />
         {/* Säljarens väg till "hur får jag betalt". Låg tidigare bara under Mer,
@@ -334,12 +344,15 @@ function SettingsRow({
   icon: Icon,
   label,
   href,
+  external,
   comingSoon,
   comingSoonLabel,
 }: {
   icon: LucideIcon;
   label: string;
   href?: string;
+  /** Öppna i ny flik — för länkar som lämnar appen, så att man inte tappar sin plats i den. */
+  external?: boolean;
   comingSoon?: boolean;
   comingSoonLabel?: string;
 }) {
@@ -362,6 +375,7 @@ function SettingsRow({
     return (
       <a
         href={href}
+        {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
         className="flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-[var(--usha-card-hover)]"
       >
         {inner}
