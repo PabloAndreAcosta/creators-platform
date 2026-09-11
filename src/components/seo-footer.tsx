@@ -132,6 +132,7 @@ export async function SeoFooter() {
           <FollowUs />
           <div className="flex gap-4">
             <Link href="/platser" className="text-[10px] text-[var(--usha-muted)] hover:text-[var(--usha-white)]">{t("seoFooter.places")}</Link>
+            <Link href="/partner" className="text-[10px] text-[var(--usha-muted)] hover:text-[var(--usha-white)]">{t("seoFooter.partner")}</Link>
             <Link href="/privacy" className="text-[10px] text-[var(--usha-muted)] hover:text-[var(--usha-white)]">{t("seoFooter.privacyPolicy")}</Link>
             <Link href="/terms" className="text-[10px] text-[var(--usha-muted)] hover:text-[var(--usha-white)]">{t("seoFooter.terms")}</Link>
           </div>

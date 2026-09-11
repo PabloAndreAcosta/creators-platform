@@ -227,6 +227,8 @@ export const ADMIN_DESTINATIONS: AdminDestination[] = [
     requires: "creators" },
   { path: "/dashboard/admin/promo", labelKey: "promoLabel", descKey: "promoDesc", icon: Tag,
     requires: "promo" },
+  { path: "/dashboard/admin/partners", labelKey: "partnersLabel", descKey: "partnersDesc", icon: Gift,
+    requires: "partners" },
   // Att dela ut behörighet går inte att delegera: en partner som kan bredda sin
   // egen behörighet har i praktiken ingen begränsning.
   { path: "/dashboard/admin/access", labelKey: "accessLabel", descKey: "accessDesc", icon: KeyRound,
