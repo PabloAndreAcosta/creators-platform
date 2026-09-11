@@ -1070,7 +1070,7 @@
       "terms3": "{amount} kr i kredit när en kund du värvat gör sitt första köp.",
       "terms4": "Räknas när köpet är betalt. Återbetalade köp räknas bort.",
       "terms5": "Ingen belöning för egna köp eller egna konton.",
-      "payoutNote": "Bolag får kontant utbetalning kvartalsvis via Stripe vid minst 200 kr, annars som kredit. Privatpersoner får alltid kredit att handla för. Utbetalningarna öppnar i nästa steg – allt du tjänar nu räknas.",
+      "payoutNote": "Bolag får kontant utbetalning kvartalsvis via Stripe vid minst 200 kr, annars som kredit. Privatpersoner får alltid kredit att handla för i kassan. Andelar godkänns 14 dagar efter köpet.",
       "rewardsHeading": "Dina belöningar",
       "rewardsEmpty": "Inget än. Dela länken så syns det här.",
       "kind": {

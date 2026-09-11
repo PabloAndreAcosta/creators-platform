@@ -44,11 +44,18 @@ function svenskTimme(): number {
   );
 }
 
+/** Dag i månaden, svensk tid – för jobb som ska gå en gång per månad/kvartal. */
+function svenskDagIManaden(): number {
+  return Number(
+    new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Stockholm", day: "numeric" }).format(new Date())
+  );
+}
+
 /**
  * Jobben, i den ordning de körs. Namnet används i larmmejlet.
  *
  * `atHour` betyder "bara den här timmen, svensk tid". Utan den körs jobbet
- * varje hel timme som förut.
+ * varje hel timme som förut. `onDayOfMonth` begränsar dessutom till en dag.
  */
 const JOBS = [
   { name: "booking-reminders-soon", desc: 'Påminnelse "börjar snart" (T-2h)' },
@@ -67,6 +74,12 @@ const JOBS = [
   // sedan förra körningen, så inget missas av att den kör en gång per dygn.
   // Första körningen sätter bara markören och skickar ingenting.
   { name: "platform-sale-alert", desc: "Larm när en betalning landar på plattformskontot", atHour: 8 },
+  // Partnerprogrammet: kredit och premium-tid delas ut, andelar godkänns efter
+  // ångerfönstret, utgången premium återställs. En gång per natt räcker.
+  { name: "affiliate", desc: "Partnerprogrammets dagliga jobb (kredit, premium, godkännande)", atHour: 4 },
+  // Kvartalsutbetalningen: första dagen i kvartalet kl 05. Idempotent per
+  // partner och period, så att den råkar köra fler dagar är ofarligt.
+  { name: "affiliate?task=payout", desc: "Partnerprogrammets kvartalsutbetalning", atHour: 5, onDayOfMonth: 1 },
 ] as const;
 
 async function runJob(env: Env, path: string): Promise<{ ok: boolean; detail: string }> {
@@ -120,9 +133,12 @@ export default {
       (async () => {
         const failures: { name: string; desc: string; detail: string }[] = [];
         const timme = svenskTimme();
+        const dagIManaden = svenskDagIManaden();
         for (const job of JOBS) {
           const atHour = "atHour" in job ? job.atHour : undefined;
           if (atHour !== undefined && atHour !== timme) continue;
+          const onDay = "onDayOfMonth" in job ? job.onDayOfMonth : undefined;
+          if (onDay !== undefined && onDay !== dagIManaden) continue;
           const res = await runJob(env, job.name);
           if (res.ok) console.log(`${job.name}: ${res.detail}`);
           else failures.push({ name: job.name, desc: job.desc, detail: res.detail });

@@ -1070,7 +1070,7 @@
       "terms3": "{amount} kr de crédito cuando un cliente que referiste hace su primera compra.",
       "terms4": "Se cuenta cuando la compra está pagada. Las compras reembolsadas se descuentan.",
       "terms5": "Sin recompensa por tus propias compras o tus propias cuentas.",
-      "payoutNote": "Las empresas cobran trimestralmente por Stripe a partir de 200 kr; si no, en crédito. Los particulares reciben siempre crédito para gastar. Los pagos se abren en el siguiente paso: todo lo que ganes ahora cuenta.",
+      "payoutNote": "Las empresas cobran trimestralmente por Stripe a partir de 200 kr; si no, en crédito. Los particulares reciben siempre crédito para gastar en la caja. Las partes se aprueban 14 días después de la compra.",
       "rewardsHeading": "Tus recompensas",
       "rewardsEmpty": "Nada todavía. Comparte el enlace y aparecerá aquí.",
       "kind": {

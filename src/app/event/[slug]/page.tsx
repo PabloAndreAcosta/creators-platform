@@ -20,6 +20,7 @@ import { EventMap } from "@/components/event-map";
 import { FollowButton } from "@/components/follow-button";
 import { EmailFollowForm } from "@/components/email-follow-form";
 import { FollowUs } from "@/components/follow-us";
+import { getCreditLedgerBalance } from "@/lib/credits/balance";
 
 export const revalidate = 60;
 
@@ -278,7 +279,7 @@ export default async function EventPage(props: Params) {
         .eq("user_id", buyer.id)
         .maybeSingle();
       const gone = !!credit?.used_at || (!!credit?.expires_at && new Date(credit.expires_at) < new Date());
-      signupCreditOre = credit && !gone ? credit.amount_ore : 0;
+      signupCreditOre = (credit && !gone ? credit.amount_ore : 0) + (await getCreditLedgerBalance(sb, buyer.id));
     }
   }
   let data = await getListing(slug);
