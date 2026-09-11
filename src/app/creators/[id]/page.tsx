@@ -156,7 +156,12 @@ export default async function CreatorProfilePage(props: Props) {
   // Ett evenemang och en tjänst renderades i samma rutnät under rubriken
   // "Tjänster", och sedan en gång till i evenemangstidslinjen. Samma kväll två
   // gånger på samma sida. Tjänster är det som inte har ett datum att gå till.
-  const serviceListings = listings.filter((l) => l.listing_type !== "event");
+  //
+  // Skiljs på datum, inte på listing_type. Fältet har skrivits av formuläret i
+  // månader utan att någon läst det, så det är inte att lita på: ett åttaveckors
+  // kostprogram låg typat som "event" utan datum och hade försvunnit från båda
+  // sektionerna. Tidslinjen längre ner går redan på datum — samma regel här.
+  const serviceListings = listings.filter((l) => !l.event_date);
 
   // Fetch creator availability for current month
   const now = new Date();

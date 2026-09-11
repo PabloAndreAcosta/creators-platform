@@ -666,7 +666,8 @@ function KreatorHome({
   // hela anledningen till att listan såg ofullständig ut.
   // "Dina tjänster" visade även evenemangen, som redan har en egen flik.
   // Samma Lab-kväll dök upp på två ställen och rubriken blev meningslös.
-  const todaysListings = ownServices.filter((l) => l.listing_type !== "event").slice(0, 3);
+  // Skiljs på datum, inte listing_type — se serviceListings på profilsidan.
+  const todaysListings = ownServices.filter((l) => !l.event_date).slice(0, 3);
 
   const userListings = ownServices.map((l) => ({ id: l.id, title: l.title }));
 
