@@ -469,12 +469,21 @@ export async function POST(req: NextRequest) {
           // Förbruka avdraget. Villkoret `used_at is null` gör skrivningen till
           // spärren: två samtidiga köp kan båda ha fått avdraget beräknat i
           // kassan, men bara den som kommer först hit får märka det som använt.
-          if (creditOre > 0 && userId) {
+          // Välkomstavdraget (engångs) och intjänad kredit (ledger) förbrukas var
+          // för sig. Äldre sessioner saknar de nya nycklarna: då är allt välkomstavdrag.
+          const welcomeCreditOre = session.metadata?.welcomeCreditOre != null ? Number(session.metadata.welcomeCreditOre) || 0 : creditOre;
+          const ledgerCreditOre = Number(session.metadata?.ledgerCreditOre) || 0;
+          if (welcomeCreditOre > 0 && userId) {
             await getSupabaseAdmin()
               .from("account_credits")
               .update({ used_at: new Date().toISOString(), used_booking_id: acctBooking?.id ?? null })
               .eq("user_id", userId)
               .is("used_at", null);
+          }
+          if (ledgerCreditOre > 0 && userId && acctBooking?.id) {
+            await getSupabaseAdmin()
+              .from("credit_ledger")
+              .upsert({ profile_id: userId, delta_ore: -ledgerCreditOre, reason: "booking", ref: `booking:${acctBooking.id}` }, { onConflict: "ref", ignoreDuplicates: true });
           }
 
           // One scannable attendee per seat (only for multi-ticket orders).

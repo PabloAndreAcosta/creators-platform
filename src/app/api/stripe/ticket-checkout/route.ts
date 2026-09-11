@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getCreditLedgerBalance, applicableLedgerCredit } from "@/lib/credits/balance";
 import { REF_COOKIE, affiliateForPurchase } from "@/lib/affiliate/attribution";
 import { passBookingFields } from '@/lib/passes/series-pass';
 import type Stripe from 'stripe';
@@ -287,12 +288,16 @@ export async function POST(req: NextRequest) {
       .select('amount_ore, used_at, expires_at')
       .eq('user_id', user.id)
       .maybeSingle();
-    const creditOre = applicableCredit({
+    const welcomeCreditOre = applicableCredit({
       creditOre: creditRow?.amount_ore,
       subtotalOre,
       used: !!creditRow?.used_at,
       expired: !!creditRow?.expires_at && new Date(creditRow.expires_at) < new Date(),
     });
+    // Intjänad kredit (partnerprogrammet) läggs ovanpå välkomstavdraget, utan
+    // minimigräns – den är förtjänad, inte en gåva.
+    const ledgerCreditOre = applicableLedgerCredit(await getCreditLedgerBalance(admin, user.id), subtotalOre - welcomeCreditOre);
+    const creditOre = welcomeCreditOre + ledgerCreditOre;
     const payableOre = subtotalOre - creditOre;
     // Styckpriset avrundas nedåt och resten läggs på första biljetten, så att
     // summan blir exakt även när avdraget inte går jämnt upp på antalet.
@@ -392,6 +397,8 @@ export async function POST(req: NextRequest) {
           ticketTypeId: ticketType?.id ?? '',
           ticketTypeName: ticketType?.name ?? '',
           creditOre: String(creditOre),
+          welcomeCreditOre: String(welcomeCreditOre),
+          ledgerCreditOre: String(ledgerCreditOre),
           quantity: String(qty),
           affiliateId: affiliateId ?? '',
           sessionsTotal: isPass ? String(listing.session_count) : '',

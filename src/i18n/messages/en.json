@@ -1070,7 +1070,7 @@
       "terms3": "{amount} kr credit when a customer you referred makes their first purchase.",
       "terms4": "Counted when the purchase is paid. Refunded purchases are removed.",
       "terms5": "No reward for your own purchases or your own accounts.",
-      "payoutNote": "Companies are paid out quarterly via Stripe from 200 kr, otherwise as credit. Private individuals always receive credit to spend. Payouts open in the next step – everything you earn now counts.",
+      "payoutNote": "Companies are paid out quarterly via Stripe from 200 kr, otherwise as credit. Private individuals always receive credit to spend at checkout. Shares are approved 14 days after the purchase.",
       "rewardsHeading": "Your rewards",
       "rewardsEmpty": "Nothing yet. Share the link and it shows up here.",
       "kind": {
