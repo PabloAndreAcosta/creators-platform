@@ -2245,6 +2245,7 @@
     "quickBuyConfirm": "Pagar {price} kr",
     "quickBuyCancel": "Cancelar",
     "priceLabel": "{price} kr",
+    "priceFromLabel": "Desde {price} kr",
     "booking": "Reservando...",
     "errorTitle": "No se pudo reservar",
     "errorRetry": "Inténtalo de nuevo.",

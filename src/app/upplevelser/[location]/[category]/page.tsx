@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { upcomingOrUndated } from "@/lib/listings/time-window";
 import { CATEGORIES, CATEGORY_LABELS } from "@/lib/categories";
 import { safeJsonLd } from "@/lib/json-ld";
 import type { Metadata } from "next";
@@ -29,7 +30,8 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     .eq("is_active", true)
     .eq("is_public", true)
     .eq("category", params.category)
-    .ilike("event_city", `%${city}%`);
+    .ilike("event_city", `%${city}%`)
+    .or(upcomingOrUndated());
 
   return {
     title: `${categoryLabel} i ${city} – Usha Platform`,
@@ -56,6 +58,7 @@ export default async function LocationCategoryPage(props: Props) {
     .eq("is_public", true)
     .eq("category", params.category)
     .ilike("event_city", `%${city}%`)
+    .or(upcomingOrUndated())
     .order("event_date", { ascending: true, nullsFirst: false })
     .limit(50);
 
@@ -69,7 +72,8 @@ export default async function LocationCategoryPage(props: Props) {
     .select("category")
     .eq("is_active", true)
     .eq("is_public", true)
-    .ilike("event_city", `%${city}%`);
+    .ilike("event_city", `%${city}%`)
+    .or(upcomingOrUndated());
   const cityCats = new Set((cityCatRows || []).map((r) => r.category).filter(Boolean));
 
   const jsonLd = {

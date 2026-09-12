@@ -35,6 +35,11 @@ function parseListingForm(formData: FormData) {
   const eventLatRaw = formData.get("event_lat") as string;
   const eventLngRaw = formData.get("event_lng") as string;
   const eventPlaceId = (formData.get("event_place_id") as string)?.trim() || null;
+  // PlacesAutocomplete skickar med stad och lokalnamn, men de lästes aldrig
+  // här — så allt som skapades från dashboarden saknade event_city och föll
+  // ur stadsfiltret, sidfoten och "Upplevelser i Stockholm".
+  const eventCity = (formData.get("event_city") as string)?.trim() || null;
+  const eventVenue = (formData.get("event_venue") as string)?.trim() || null;
   const eventLat = eventLatRaw ? parseFloat(eventLatRaw) : null;
   const eventLng = eventLngRaw ? parseFloat(eventLngRaw) : null;
   const listingTypeRaw = (formData.get("listing_type") as string)?.trim();
@@ -92,6 +97,8 @@ function parseListingForm(formData: FormData) {
       event_lat: eventLat,
       event_lng: eventLng,
       event_place_id: eventPlaceId,
+      event_city: eventCity,
+      event_venue: eventVenue,
       listing_type,
       session_count,
       pass_series_id,

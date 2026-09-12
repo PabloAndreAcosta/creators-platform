@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { upcomingOrUndated } from "@/lib/listings/time-window";
 import { CATEGORIES, CATEGORY_LABELS } from "@/lib/categories";
 import { safeJsonLd } from "@/lib/json-ld";
 import type { Metadata } from "next";
@@ -28,7 +29,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     .eq("is_active", true)
     .eq("is_public", true)
     .ilike("event_city", `%${city}%`)
-    .or(upcomingFilter());
+    .or(upcomingOrUndated());
 
   return {
     title: `Upplevelser i ${city} – Usha Platform`,
@@ -42,18 +43,6 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   };
 }
 
-// Samma fönster som /upplevelser: kommande plus det som saknar datum.
-// Stockholmstid, annars byter sidan innehåll vid midnatt UTC.
-function upcomingFilter() {
-  const today = new Intl.DateTimeFormat("sv-SE", {
-    timeZone: "Europe/Stockholm",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(new Date());
-  return `event_date.is.null,event_date.gte.${today}`;
-}
-
 export default async function LocationPage(props: Props) {
   const params = await props.params;
   const city = capitalize(decodeURIComponent(params.location));
@@ -65,7 +54,7 @@ export default async function LocationPage(props: Props) {
     .eq("is_active", true)
     .eq("is_public", true)
     .ilike("event_city", `%${city}%`)
-    .or(upcomingFilter())
+    .or(upcomingOrUndated())
     .order("event_date", { ascending: true, nullsFirst: false })
     .limit(50);
 
