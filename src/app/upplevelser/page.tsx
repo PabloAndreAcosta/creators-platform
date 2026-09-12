@@ -25,6 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 interface SearchParams {
   category?: string;
+  when?: string;
   location?: string;
   sort?: string;
   page?: string;
@@ -47,7 +48,25 @@ export default async function UpplevelserPage(
   const searchParams = await props.searchParams;
   const supabase = await createClient();
   const t = await getTranslations();
-  const { category, location, sort, page: pageParam } = searchParams;
+  const { category, location, sort, when, page: pageParam } = searchParams;
+
+  // Ett passerat event ska inte ligga först när någon klickar sig in från en
+  // story. Kommande är default; de gamla finns kvar men bakom ?when=past, så
+  // biblioteket är intakt och bara nedprioriterat.
+  const showPast = when === "past";
+  // Datumgränsen måste vara svensk lokaltid — annars byter listan innehåll
+  // klockan 01:00 svensk tid (midnatt UTC) kvällen före.
+  const todayStockholm = new Intl.DateTimeFormat("sv-SE", {
+    timeZone: "Europe/Stockholm",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+  // Tjänster och klippkort saknar datum och hör hemma bland kommande, aldrig
+  // bland de passerade.
+  const timeFilter = showPast
+    ? `event_date.lt.${todayStockholm}`
+    : `event_date.is.null,event_date.gte.${todayStockholm}`;
   const currentPage = Math.max(1, parseInt(pageParam || "1", 10) || 1);
   const offset = (currentPage - 1) * PAGE_SIZE;
 
@@ -55,7 +74,8 @@ export default async function UpplevelserPage(
   let query = supabase
     .from("listings")
     .select("id, title, price, event_date, event_location, event_city, event_venue, category, image_url, listing_type, created_at, is_promoted, promoted_until", { count: "exact" })
-    .eq("is_active", true).eq("is_public", true);
+    .eq("is_active", true).eq("is_public", true)
+    .or(timeFilter);
 
   if (category && category !== "all") {
     query = query.eq("category", category);
@@ -80,8 +100,15 @@ export default async function UpplevelserPage(
     case "price_desc":
       query = query.order("price", { ascending: false, nullsFirst: false });
       break;
-    default:
+    case "newest":
       query = query.order("created_at", { ascending: false });
+      break;
+    default:
+      // Närmast i tiden först. Passerade listas nyast först i stället, annars
+      // hamnar det äldsta eventet överst i biblioteket.
+      query = showPast
+        ? query.order("event_date", { ascending: false, nullsFirst: false })
+        : query.order("event_date", { ascending: true, nullsFirst: false });
   }
 
   // Paginate
@@ -104,6 +131,7 @@ export default async function UpplevelserPage(
     .eq("is_active", true)
     .eq("is_public", true)
     .eq("is_promoted", true)
+    .or(timeFilter)
     .order("created_at", { ascending: false })
     .limit(6);
 
@@ -117,7 +145,8 @@ export default async function UpplevelserPage(
   const { data: countRows } = await supabase
     .from("listings")
     .select("category, event_city")
-    .eq("is_active", true).eq("is_public", true);
+    .eq("is_active", true).eq("is_public", true)
+    .or(timeFilter);
 
   const categoryCounts: Record<string, number> = {};
   const locationCounts: Record<string, number> = {};
@@ -140,7 +169,7 @@ export default async function UpplevelserPage(
   // ── Helper to build filter URLs ──
   function filterUrl(overrides: Record<string, string | undefined>) {
     const params = new URLSearchParams();
-    const merged = { category, location, sort, ...overrides };
+    const merged = { category, location, sort, when, ...overrides };
     Object.entries(merged).forEach(([k, v]) => {
       if (v && v !== "all") params.set(k, v);
     });
@@ -148,7 +177,7 @@ export default async function UpplevelserPage(
     return `/upplevelser${qs ? `?${qs}` : ""}`;
   }
 
-  const hasFilters = category || location || sort;
+  const hasFilters = category || location || sort || when;
 
   return (
     <div className="min-h-screen bg-[var(--usha-black)]">
@@ -219,13 +248,30 @@ export default async function UpplevelserPage(
             </>
           )}
 
-          {/* Sort - pushed right */}
+          {/* Kommande / Tidigare — biblioteket finns kvar, men är inte det
+              första någon möter. */}
           <div className="ml-auto flex items-center gap-1.5">
+            <Link
+              href={filterUrl({ when: undefined, page: undefined })}
+              className={`rounded-lg px-2.5 py-1.5 text-xs transition ${!showPast ? "bg-white/10 font-medium text-[var(--usha-white)]" : "text-[var(--usha-muted)] hover:text-[var(--usha-white)]"}`}
+            >
+              {t("experiences.whenUpcoming")}
+            </Link>
+            <Link
+              href={filterUrl({ when: "past", page: undefined })}
+              className={`rounded-lg px-2.5 py-1.5 text-xs transition ${showPast ? "bg-white/10 font-medium text-[var(--usha-white)]" : "text-[var(--usha-muted)] hover:text-[var(--usha-white)]"}`}
+            >
+              {t("experiences.whenPast")}
+            </Link>
+          </div>
+
+          {/* Sort */}
+          <div className="flex items-center gap-1.5">
             {SORT_OPTIONS.map((opt) => (
               <Link
                 key={opt.value}
                 href={filterUrl({ sort: opt.value, page: undefined })}
-                className={`rounded-lg px-2.5 py-1.5 text-xs transition ${(sort || "newest") === opt.value ? "bg-white/10 font-medium text-[var(--usha-white)]" : "text-[var(--usha-muted)] hover:text-[var(--usha-white)]"}`}
+                className={`rounded-lg px-2.5 py-1.5 text-xs transition ${(sort || "date") === opt.value ? "bg-white/10 font-medium text-[var(--usha-white)]" : "text-[var(--usha-muted)] hover:text-[var(--usha-white)]"}`}
               >
                 {t(opt.labelKey)}
               </Link>
