@@ -6,8 +6,12 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin, Clock, Calendar, ArrowLeft, User, ChevronRight } from "lucide-react";
+import { MapPin, Clock, Calendar, ArrowLeft, User, ChevronRight, ChevronDown } from "lucide-react";
 import { CATEGORY_LABELS } from "@/lib/categories";
+import {
+  splitBilingualDescription,
+  buildPreviewDescription,
+} from "@/lib/listings/description";
 import { FollowButton } from "@/components/follow-button";
 import { EmailFollowForm } from "@/components/email-follow-form";
 import { FollowUs } from "@/components/follow-us";
@@ -71,7 +75,12 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 
   const s = occurrences[0];
   const title = t("metaTitle", { title: s.title });
-  const description = s.description?.slice(0, 160) || t("metaDescription", { title: s.title });
+  // Samma behandling som eventsidan: plats först, dekorativ inledning och
+  // andraspråk bort. Utan det inleds förhandsvisningen med brödtextens början
+  // och kan svämma över i den engelska halvan.
+  const description =
+    buildPreviewDescription([s.event_location?.split(",")[0]?.trim()], s.description, 160) ||
+    t("metaDescription", { title: s.title });
   const url = `${appUrl()}/series/${params.slug}`;
 
   return {
@@ -187,6 +196,7 @@ export default async function SeriesPage(props: Props) {
     !value ? "" : tCat.has(value) ? tCat(value) : CATEGORY_LABELS[value] ?? value;
   // Lägsta biljettpris, och "från" när typerna spänner över flera priser.
   // Annars står "50 SEK" på en kväll där bara practican kostar 50.
+  const seriesText = splitBilingualDescription(series.description);
   const priceLabel = (o: Occurrence) => {
     const tiers = (o.ticket_types ?? [])
       .map((tt) => tt.price)
@@ -216,7 +226,9 @@ export default async function SeriesPage(props: Props) {
     "@type": "EventSeries",
     name: series.title,
     url: `${appUrl()}/series/${params.slug}`,
-    ...(series.description ? { description: series.description.slice(0, 300) } : {}),
+    ...(series.description
+      ? { description: splitBilingualDescription(series.description).primary.slice(0, 300) }
+      : {}),
     ...(series.image_url ? { image: series.image_url } : {}),
     ...(creator
       ? {
@@ -298,9 +310,23 @@ export default async function SeriesPage(props: Props) {
         )}
 
         {series.description && (
-          <p className="mt-4 whitespace-pre-line text-sm leading-relaxed text-[var(--usha-muted)]">
-            {series.description}
-          </p>
+          <div className="mt-4 text-sm leading-relaxed text-[var(--usha-muted)]">
+            <p className="whitespace-pre-line">{seriesText.primary}</p>
+            {/* Samma utfällning som på eventsidan — en serie visar samma
+                beskrivning som sina kvällar, och skulle annars upprepa hela
+                texten på båda språken här också. */}
+            {seriesText.secondary && (
+              <details className="group mt-4 rounded-xl border border-[var(--usha-border)]">
+                <summary className="flex cursor-pointer items-center justify-between gap-2 px-4 py-3 text-sm font-medium text-[var(--usha-muted)] transition hover:text-[var(--usha-white)] [&::-webkit-details-marker]:hidden">
+                  {seriesText.secondaryLabel}
+                  <ChevronDown size={16} className="shrink-0 transition group-open:rotate-180" />
+                </summary>
+                <p className="whitespace-pre-line border-t border-[var(--usha-border)] px-4 py-4">
+                  {seriesText.secondary}
+                </p>
+              </details>
+            )}
+          </div>
         )}
 
         {/* Upcoming */}
