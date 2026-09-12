@@ -1169,6 +1169,7 @@
     "navCreateProfile": "Crear perfil",
     "title": "Experiencias",
     "countInSweden": "{count} experiencias por toda Suecia",
+    "countInCity": "{count} experiencias en {city}",
     "filterAll": "Todas",
     "allCities": "Todas las ciudades",
     "whenUpcoming": "Próximas",

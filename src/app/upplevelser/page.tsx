@@ -70,12 +70,14 @@ export default async function UpplevelserPage(
     query = query.eq("category", category);
   }
 
-  if (location) {
-    const sanitized = decodeURIComponent(location).replace(/[,()\\]/g, " ").trim();
-    if (sanitized) {
-      // Filter on the real city, not the raw address (which starts with the venue).
-      query = query.ilike("event_city", `%${sanitized}%`);
-    }
+  // Ett namn, använt av både listan och filterräknarna — annars räknar chipsen
+  // hela landet medan listan visar en stad.
+  const sanitizedLocation = location
+    ? decodeURIComponent(location).replace(/[,()\\]/g, " ").trim()
+    : "";
+  if (sanitizedLocation) {
+    // Filter on the real city, not the raw address (which starts with the venue).
+    query = query.ilike("event_city", `%${sanitizedLocation}%`);
   }
 
   // Sort
@@ -140,8 +142,13 @@ export default async function UpplevelserPage(
   const categoryCounts: Record<string, number> = {};
   const locationCounts: Record<string, number> = {};
   const cityCatCounts: Record<string, Record<string, number>> = {};
+  const locationNeedle = sanitizedLocation.toLowerCase();
   (countRows || []).forEach((l) => {
-    if (l.category) categoryCounts[l.category] = (categoryCounts[l.category] || 0) + 1;
+    // Kategorichipsen räknar det klicket faktiskt ger. Med Stockholm valt stod
+    // det "Dans (10)" medan Dans + Stockholm gav nio — den tionde saknar stad.
+    const inLocation =
+      !locationNeedle || (l.event_city ?? "").toLowerCase().includes(locationNeedle);
+    if (l.category && inLocation) categoryCounts[l.category] = (categoryCounts[l.category] || 0) + 1;
     // Real city only — venues never appear under "Alla städer".
     const city = l.event_city?.trim();
     if (city) {
@@ -189,7 +196,14 @@ export default async function UpplevelserPage(
         )}
 
         <h1 className="text-2xl font-bold md:text-3xl">{t("experiences.title")}</h1>
-        <p className="mt-1 text-sm text-[var(--usha-muted)]">{t("experiences.countInSweden", { count: totalCount || 0 })}</p>
+        <p className="mt-1 text-sm text-[var(--usha-muted)]">
+          {sanitizedLocation
+            ? t("experiences.countInCity", {
+                count: totalCount || 0,
+                city: sanitizedLocation.charAt(0).toUpperCase() + sanitizedLocation.slice(1),
+              })
+            : t("experiences.countInSweden", { count: totalCount || 0 })}
+        </p>
 
         {/* ── Filter bar ── */}
         <div className="mt-6 flex flex-wrap items-center gap-2">

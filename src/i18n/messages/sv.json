@@ -1169,6 +1169,7 @@
     "navCreateProfile": "Skapa profil",
     "title": "Upplevelser",
     "countInSweden": "{count} upplevelser i hela Sverige",
+    "countInCity": "{count} upplevelser i {city}",
     "filterAll": "Alla",
     "allCities": "Alla städer",
     "whenUpcoming": "Kommande",
