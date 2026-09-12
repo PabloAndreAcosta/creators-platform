@@ -2241,6 +2241,7 @@
     "free": "Free",
     "freeTicket": "Get free ticket",
     "buyTicket": "Buy ticket · {price} kr",
+    "ticketsFromCta": "Tickets from {price} kr",
     "buyTicketFrom": "Tickets from {price} kr",
     "quickBuyTitle": "Confirm your purchase",
     "quickBuyConfirm": "Pay {price} kr",

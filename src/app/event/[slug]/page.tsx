@@ -6,12 +6,13 @@ import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Calendar, Clock, MapPin, Ticket, Users, Pencil } from "lucide-react";
+import { Calendar, ChevronDown, Clock, MapPin, Ticket, Users, Pencil } from "lucide-react";
 import { EVENT_CATEGORY_LABELS } from "@/app/app/events/constants";
 import { BookButton } from "./book-button";
 import { WaitlistForm } from "./waitlist-form";
 import { AccessCodeForm } from "./access-code-form";
 import { getSaleState } from "@/lib/listings/sale-state";
+import { splitBilingualDescription } from "@/lib/listings/description";
 import { getTranslations, getLocale, getMessages } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
 import { SocialShareButton } from "@/components/social-share-button";
@@ -368,6 +369,14 @@ export default async function EventPage(props: Params) {
   // Timed automation: effective price + whether tickets are buyable right now.
   const sale = getSaleState(listing, new Date());
   const isFree = !sale.price || sale.price <= 0;
+
+  // Priset för knappen högst upp. Biljettyperna kan spänna över flera priser
+  // (50/100/130/200 på The Lab) — då är lägsta priset rätt att visa, med
+  // "från", eftersom inget val är gjort ännu.
+  const beskrivning = splitBilingualDescription(listing.description);
+  const salePrices = ticketTypesForSale.map((tt) => tt.price);
+  const lowestPrice = salePrices.length ? Math.min(...salePrices) : sale.price;
+  const hasPriceRange = new Set(salePrices).size > 1;
   const saleUntil = sale.until
     ? new Intl.DateTimeFormat(dateLocaleFor(locale), {
         day: "numeric", month: "long", hour: "2-digit", minute: "2-digit",
@@ -500,6 +509,25 @@ export default async function EventPage(props: Params) {
                 {timeLabel}
               </span>
             )}
+            {/* Biljettlänken hör till uppgifterna om kvällen: när, var, vad det
+                kostar. På mobil ligger biljettrutan efter beskrivningen och
+                kartan, så utan den här knappen ser en besökare varken pris
+                eller köpväg förrän hen scrollat förbi allt. Från md och upp
+                står sidokolumnen redan bredvid rubriken — då skulle knappen
+                scrolla till något som redan syns. */}
+            {sale.buyable && (
+              <a
+                href="#biljetter"
+                className="inline-flex items-center gap-1.5 rounded-full bg-[var(--usha-gold)]/15 px-3 py-1 text-sm font-semibold text-[var(--usha-gold)] transition hover:bg-[var(--usha-gold)]/25 md:hidden"
+              >
+                <Ticket size={14} />
+                {isFree
+                  ? t("freeTicket")
+                  : hasPriceRange
+                    ? t("ticketsFromCta", { price: lowestPrice })
+                    : t("buyTicket", { price: lowestPrice })}
+              </a>
+            )}
             {listing.event_location &&
               (venue ? (
                 <Link
@@ -562,8 +590,26 @@ export default async function EventPage(props: Params) {
         <div className="grid gap-8 md:grid-cols-[1fr_280px] md:gap-12">
           <div className="min-w-0">
             {listing.description ? (
-              <div className="whitespace-pre-wrap [overflow-wrap:anywhere] text-base leading-relaxed text-[var(--usha-white)] sm:text-lg">
-                {listing.description}
+              <div className="text-base leading-relaxed text-[var(--usha-white)] sm:text-lg">
+                <div className="whitespace-pre-wrap [overflow-wrap:anywhere]">
+                  {beskrivning.primary}
+                </div>
+                {/* Andra språket bakom en utfällning i stället för under
+                    förstasidestexten. Hela texten två gånger gör sidan dubbelt
+                    så lång, och den som söker sitt språk måste scrolla förbi
+                    ett stycke hen inte kan läsa. <details> klarar sig utan JS
+                    och är öppningsbar innan sidan hydrerat. */}
+                {beskrivning.secondary && (
+                  <details className="group mt-6 rounded-xl border border-[var(--usha-border)]">
+                    <summary className="flex cursor-pointer items-center justify-between gap-2 px-4 py-3 text-sm font-medium text-[var(--usha-muted)] transition hover:text-[var(--usha-white)] [&::-webkit-details-marker]:hidden">
+                      {beskrivning.secondaryLabel}
+                      <ChevronDown size={16} className="shrink-0 transition group-open:rotate-180" />
+                    </summary>
+                    <div className="whitespace-pre-wrap [overflow-wrap:anywhere] border-t border-[var(--usha-border)] px-4 py-4 text-base leading-relaxed sm:text-lg">
+                      {beskrivning.secondary}
+                    </div>
+                  </details>
+                )}
               </div>
             ) : (
               <p className="text-base text-[var(--usha-muted)]">
@@ -597,7 +643,7 @@ export default async function EventPage(props: Params) {
           </div>
 
           <aside className="min-w-0 space-y-4">
-            <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
+            <div id="biljetter" className="scroll-mt-6 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
               {/* Prisrubriken hör ihop med biljettvalet, så under försäljning
                   renderas den av BookButton och följer det man klickat på.
                   Går det inte att köpa finns inget val att följa, och då står
