@@ -571,7 +571,12 @@ export default async function EventPage(props: Params) {
               </p>
             )}
 
-            {listing.duration_minutes && (
+            {/* duration_minutes är ett fält från tjänsteformuläret och kan
+                motsäga klockslagen: The Lab har 240 lagrat men pågår 17–23,
+                alltså 360. Står både "17:00 – 23:00" och "240 min" på samma
+                sida vet ingen vilket som gäller. Finns en sluttid är den
+                sanningen, och längden är redan uttryckt. */}
+            {listing.duration_minutes && !listing.event_end_time && (
               <p className="mt-6 text-sm text-[var(--usha-muted)]">
                 {t("durationMin", { minutes: listing.duration_minutes })}
               </p>

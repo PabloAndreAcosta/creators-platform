@@ -96,6 +96,19 @@ export default async function ListingDetailPage(props: Props) {
     notFound();
   }
 
+  // Ett daterat evenemang har en riktig eventsida. Den här sidan var en andra,
+  // svagare variant av samma sak: ingen delaknapp, inga biljettpriser utöver
+  // grundpriset, och all text hårdkodad på svenska. Profilen länkade hit medan
+  // marknadsplatsen länkade till /event, så vilken sida en besökare mötte
+  // berodde på var hen kom ifrån.
+  //
+  // Omdirigeringen sitter här i stället för att länkarna rättas på sex ställen,
+  // eftersom den också fångar /listing-adresser som redan delats.
+  // /event/[slug] slår upp både slug och rått id.
+  if (listing.event_date) {
+    redirect(`/event/${listing.slug || listing.id}`);
+  }
+
   // Fetch creator profile
   const { data: creator } = await supabase
     .from("profiles")
