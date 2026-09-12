@@ -151,7 +151,12 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
                 {t("priceLabel", { price: header.listPrice })}
               </span>
             )}
-            {t("priceLabel", { price: effectivePrice })}
+            {/* Innan ett val är gjort är rubrikpriset det lägsta av flera —
+                säg "Från", annars lovar rubriken 50 kr på en kväll där bara
+                practican kostar 50. */}
+            {!selectedType && !selectedPass && new Set(ticketTypes.map((tt) => tt.price)).size > 1
+              ? t("priceFromLabel", { price: Math.min(...ticketTypes.map((tt) => tt.price)) })
+              : t("priceLabel", { price: effectivePrice })}
           </>
         )}
       </p>

@@ -9,6 +9,7 @@ import { ListingCard } from "@/components/listing-card";
 import { getBookingCounts, sortWithPromoted, isActivelyPromoted } from "@/lib/listings/popularity";
 import { GeoLocationDetector } from "@/components/geo-location";
 import { EventCarousel } from "@/components/event-carousel";
+import { upcomingOrUndated, pastOnly } from "@/lib/listings/time-window";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
@@ -54,19 +55,7 @@ export default async function UpplevelserPage(
   // story. Kommande är default; de gamla finns kvar men bakom ?when=past, så
   // biblioteket är intakt och bara nedprioriterat.
   const showPast = when === "past";
-  // Datumgränsen måste vara svensk lokaltid — annars byter listan innehåll
-  // klockan 01:00 svensk tid (midnatt UTC) kvällen före.
-  const todayStockholm = new Intl.DateTimeFormat("sv-SE", {
-    timeZone: "Europe/Stockholm",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(new Date());
-  // Tjänster och klippkort saknar datum och hör hemma bland kommande, aldrig
-  // bland de passerade.
-  const timeFilter = showPast
-    ? `event_date.lt.${todayStockholm}`
-    : `event_date.is.null,event_date.gte.${todayStockholm}`;
+  const timeFilter = showPast ? pastOnly() : upcomingOrUndated();
   const currentPage = Math.max(1, parseInt(pageParam || "1", 10) || 1);
   const offset = (currentPage - 1) * PAGE_SIZE;
 

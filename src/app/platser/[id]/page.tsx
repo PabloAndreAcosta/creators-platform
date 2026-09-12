@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { upcomingOrUndated } from "@/lib/listings/time-window";
 import { notFound } from "next/navigation";
 import { safeJsonLd } from "@/lib/json-ld";
 import type { Metadata } from "next";
@@ -52,7 +53,9 @@ export default async function VenueDetailPage(props: Props) {
       .from("listings")
       .select("id, title, price, event_date, event_location, category, image_url, listing_type, is_promoted, promoted_until, slug, ticket_types(price)")
       .eq("is_active", true)
+      .eq("is_public", true)
       .eq("event_place_id", venue.place_id)
+      .or(upcomingOrUndated())
       .order("event_date", { ascending: true, nullsFirst: false });
 
     listings = data || [];

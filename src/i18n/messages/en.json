@@ -2245,6 +2245,7 @@
     "quickBuyConfirm": "Pay {price} kr",
     "quickBuyCancel": "Cancel",
     "priceLabel": "{price} kr",
+    "priceFromLabel": "From {price} kr",
     "booking": "Booking...",
     "errorTitle": "Could not book",
     "errorRetry": "Please try again.",
