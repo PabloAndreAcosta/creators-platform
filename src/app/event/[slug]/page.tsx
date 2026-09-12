@@ -13,6 +13,7 @@ import { WaitlistForm } from "./waitlist-form";
 import { AccessCodeForm } from "./access-code-form";
 import { getSaleState } from "@/lib/listings/sale-state";
 import { splitBilingualDescription, buildPreviewDescription } from "@/lib/listings/description";
+import { buildMapsHref } from "@/lib/listings/maps";
 import { getTranslations, getLocale, getMessages } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
 import { SocialShareButton } from "@/components/social-share-button";
@@ -536,9 +537,9 @@ export default async function EventPage(props: Params) {
             {sale.buyable && (
               <a
                 href="#biljetter"
-                className="inline-flex items-center gap-1.5 rounded-full bg-[var(--usha-gold)]/15 px-3 py-1 text-sm font-semibold text-[var(--usha-gold)] transition hover:bg-[var(--usha-gold)]/25 md:hidden"
+                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-5 py-2.5 text-base font-bold text-black shadow-lg shadow-[var(--usha-gold)]/20 transition hover:opacity-90 active:scale-[0.98] md:hidden"
               >
-                <Ticket size={14} />
+                <Ticket size={17} />
                 {isFree
                   ? t("freeTicket")
                   : hasPriceRange
@@ -556,10 +557,25 @@ export default async function EventPage(props: Params) {
                   {listing.event_location}
                 </Link>
               ) : (
-                <span className="inline-flex items-center gap-1.5">
+                // Utan lokalprofil pekade adressen ingenstans. Den som läst
+                // klart vill veta var det ligger, och ska inte behöva scrolla
+                // till kartan längre ner eller markera texten för att googla.
+                // Samma mål som kartans knapp, via samma hjälpare.
+                <a
+                  href={buildMapsHref({
+                    location: listing.event_location,
+                    city: "Stockholm",
+                    placeId: listing.event_place_id,
+                    lat: listing.event_lat,
+                    lng: listing.event_lng,
+                  })}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 underline-offset-4 transition hover:text-[var(--usha-white)] hover:underline"
+                >
                   <MapPin size={16} />
                   {listing.event_location}
-                </span>
+                </a>
               ))}
           </div>
         )}
