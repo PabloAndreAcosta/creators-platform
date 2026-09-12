@@ -142,7 +142,8 @@
     "p1": "Creemos que los mejores momentos ocurren cuando las personas se encuentran de verdad — en el movimiento, en el juego y al crear juntas. Usha Platform reúne a creadores, experiencias y participantes en un solo lugar, donde la pasión se une a la profesionalidad y cada reserva se siente segura. Todos los creadores están verificados con BankID y todos los pagos se gestionan de forma segura, para que puedas centrarte en lo que de verdad importa: la experiencia.",
     "p2": "Usha fue fundada por Pablo Acosta, que trabaja en la intersección entre el baile, la tecnología y la creación de comunidad. La visión es sencilla: construir un lugar donde la creatividad pueda florecer, el talento pueda verse y las personas puedan acercarse.",
     "roadmapTitle": "Hacia dónde nos dirigimos",
-    "p3": "Estamos construyendo paso a paso, con experiencias reales desde el primer día. Este verano empezamos con The Kiz Lab — entrenamiento de baile abierto cada semana en Estocolmo. A partir de ahí crecemos hacia fiestas mensuales recurrentes y, más adelante, un festival anual que reúna a toda la comunidad.",
+    "p3": "Estamos construyendo paso a paso, con experiencias reales desde el primer día. La base son noches recurrentes en Estocolmo — entrenamiento de baile abierto cada semana, donde todos son bienvenidos sin importar el nivel. A partir de ahí crecemos hacia fiestas mensuales y, más adelante, un festival anual que reúna a toda la comunidad.",
+    "p3Link": "Mira qué está pasando ahora →",
     "closing": "Esto es solo el principio. Te damos la bienvenida a acompañarnos desde el comienzo.",
     "tagline": "Usha Platform — para la expresión humana."
   },
@@ -1190,6 +1191,7 @@
     "badgeBookings": "{count} reservas",
     "free": "Gratis",
     "price": "{price} kr",
+    "fromPrice": "Desde {price} kr",
     "carouselPromoted": "Destacado",
     "carouselMoreInfo": "Más información →"
   },
@@ -2238,6 +2240,7 @@
     "free": "Gratis",
     "freeTicket": "Consigue entrada gratis",
     "buyTicket": "Comprar entrada · {price} kr",
+    "buyTicketFrom": "Entradas desde {price} kr",
     "quickBuyTitle": "Confirma tu compra",
     "quickBuyConfirm": "Pagar {price} kr",
     "quickBuyCancel": "Cancelar",
@@ -3801,6 +3804,7 @@
     "view": "Ver",
     "free": "Gratis",
     "priceSek": "{price} SEK",
+    "priceFromSek": "Desde {price} SEK",
     "creator": "Creador",
     "viewProfile": "Ver perfil"
   },

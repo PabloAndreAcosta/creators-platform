@@ -33,6 +33,7 @@ type Occurrence = {
   image_url: string | null;
   user_id: string;
   content_language: string | null;
+  ticket_types?: { price: number | null }[] | null;
 };
 
 async function fetchSeries(slug: string): Promise<Occurrence[]> {
@@ -40,7 +41,7 @@ async function fetchSeries(slug: string): Promise<Occurrence[]> {
   const { data } = await supabase
     .from("listings")
     .select(
-      "id, slug, title, description, category, price, event_date, event_time, event_end_time, event_location, event_lat, event_lng, image_url, user_id, content_language"
+      "id, slug, title, description, category, price, event_date, event_time, event_end_time, event_location, event_lat, event_lng, image_url, user_id, content_language, ticket_types(price)"
     )
     .eq("series_slug", slug)
     .eq("is_active", true)
@@ -184,8 +185,17 @@ export default async function SeriesPage(props: Props) {
   const tCat = await getTranslations({ locale, namespace: "categories" });
   const categoryLabel = (value: string | null) =>
     !value ? "" : tCat.has(value) ? tCat(value) : CATEGORY_LABELS[value] ?? value;
-  const priceLabel = (price: number | null) =>
-    price == null ? null : price > 0 ? t("priceSek", { price }) : t("free");
+  // Lägsta biljettpris, och "från" när typerna spänner över flera priser.
+  // Annars står "50 SEK" på en kväll där bara practican kostar 50.
+  const priceLabel = (o: Occurrence) => {
+    const tiers = (o.ticket_types ?? [])
+      .map((tt) => tt.price)
+      .filter((p): p is number => typeof p === "number");
+    const price = tiers.length ? Math.min(...tiers) : o.price;
+    if (price == null) return null;
+    if (price <= 0) return t("free");
+    return t(new Set(tiers).size > 1 ? "priceFromSek" : "priceSek", { price });
+  };
 
   // Creator profile
   const { data: creator } = await supabase
@@ -305,7 +315,7 @@ export default async function SeriesPage(props: Props) {
                   key={o.id}
                   o={o}
                   locale={locale}
-                  priceLabel={priceLabel(o.price)}
+                  priceLabel={priceLabel(o)}
                   ctaLabel={t("book")}
                 />
               ))}
@@ -330,7 +340,7 @@ export default async function SeriesPage(props: Props) {
                   o={o}
                   past
                   locale={locale}
-                  priceLabel={priceLabel(o.price)}
+                  priceLabel={priceLabel(o)}
                   ctaLabel={t("view")}
                 />
               ))}

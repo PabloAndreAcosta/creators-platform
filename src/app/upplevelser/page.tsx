@@ -73,7 +73,7 @@ export default async function UpplevelserPage(
   // ── Build filtered listings query ──
   let query = supabase
     .from("listings")
-    .select("id, title, price, event_date, event_location, event_city, event_venue, category, image_url, listing_type, created_at, is_promoted, promoted_until", { count: "exact" })
+    .select("id, title, price, event_date, event_location, event_city, event_venue, category, image_url, listing_type, created_at, is_promoted, promoted_until, ticket_types(price)", { count: "exact" })
     .eq("is_active", true).eq("is_public", true)
     .or(timeFilter);
 
