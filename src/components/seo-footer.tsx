@@ -16,13 +16,15 @@ export async function SeoFooter() {
   try {
     const supabase = await createClient();
 
-    // Get top cities from active listings
+    // event_city, inte event_location. Adressen inleds med lokalen, så
+    // split(",")[0] gav "Bacchi Syre" — en länk till /upplevelser/bacchi-syre,
+    // som filtrerar på stad och alltid svarade "0 upplevelser hittade".
     const { data: listingLocations } = await supabase
       .from("listings")
-      .select("event_location")
+      .select("event_city")
       .eq("is_active", true)
       .eq("is_public", true)
-      .not("event_location", "is", null);
+      .not("event_city", "is", null);
 
     // Get top cities from public profiles
     const { data: profileLocations } = await supabase
@@ -33,8 +35,9 @@ export async function SeoFooter() {
 
     const cityCounts: Record<string, number> = {};
     [...(listingLocations || []), ...(profileLocations || [])].forEach((item) => {
-      const loc = (item as any).event_location || (item as any).location;
-      const city = loc?.split(",")[0]?.trim();
+      const raw = (item as any).event_city || (item as any).location;
+      // Profilernas location är fortfarande fritext och kan bära hela adressen.
+      const city = raw?.split(",")[0]?.trim();
       if (city && city.length > 1) {
         cityCounts[city] = (cityCounts[city] || 0) + 1;
       }
@@ -45,7 +48,9 @@ export async function SeoFooter() {
       .slice(0, 20)
       .map(([city]) => city);
 
-    if (sorted.length >= 4) cities = sorted;
+    // Finns det ens en stad med riktigt innehåll är den bättre än tolv
+    // påhittade. Fallbacklistan gäller bara en helt tom databas.
+    if (sorted.length > 0) cities = sorted;
   } catch {}
 
   return (

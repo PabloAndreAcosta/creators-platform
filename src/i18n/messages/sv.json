@@ -1170,6 +1170,8 @@
     "countInSweden": "{count} upplevelser i hela Sverige",
     "filterAll": "Alla",
     "allCities": "Alla städer",
+    "whenUpcoming": "Kommande",
+    "whenPast": "Tidigare",
     "sortDate": "Datum",
     "sortPriceAsc": "Pris (lägst)",
     "sortPriceDesc": "Pris (högst)",
