@@ -258,9 +258,14 @@ export default async function ListingDetailPage(props: Props) {
           Tillbaka till {creator.full_name || "kreatören"}
         </Link>
 
+        {/* min-w-0 på båda grid-barnen: ett grid-spår tar annars minst sitt
+            innehålls min-content-bredd, och ett enda obrytbart stycke drar ut
+            spåret förbi skärmkanten — då hamnar kartan och biljettrutan utanför
+            till höger på mobil, medan texten ovanför ser ok ut. Samma fix som
+            redan gjorts på /event/[slug]. */}
         <div className="grid gap-8 lg:grid-cols-[1fr_340px]">
           {/* Main content */}
-          <div>
+          <div className="min-w-0">
             {/* Event image */}
             {listing.image_url && (
               <div className="mb-6 overflow-hidden rounded-2xl">
@@ -344,7 +349,10 @@ export default async function ListingDetailPage(props: Props) {
             {listing.description && (
               <div className="mb-6">
                 <h2 className="mb-2 text-lg font-semibold">Om evenemanget</h2>
-                <p className="whitespace-pre-line text-sm leading-relaxed text-[var(--usha-muted)]">
+                {/* min-w-0 låter spåret krympa, men en obrytbar sträng — en
+                    lång adress, eller dekorativa tecken utan mellanrum — spränger
+                    ändå sin egen ruta. Samma skydd som /event/[slug] har. */}
+                <p className="whitespace-pre-line [overflow-wrap:anywhere] text-sm leading-relaxed text-[var(--usha-muted)]">
                   {listing.description}
                 </p>
               </div>
@@ -397,7 +405,7 @@ export default async function ListingDetailPage(props: Props) {
           </div>
 
           {/* Sidebar — booking + creator */}
-          <div className="space-y-4">
+          <div className="min-w-0 space-y-4">
             {/* Booking card */}
             <div className="space-y-4 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5 sm:p-6 lg:sticky lg:top-6">
               {isOwner && (
