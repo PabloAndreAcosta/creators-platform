@@ -12,7 +12,7 @@ import { BookButton } from "./book-button";
 import { WaitlistForm } from "./waitlist-form";
 import { AccessCodeForm } from "./access-code-form";
 import { getSaleState } from "@/lib/listings/sale-state";
-import { splitBilingualDescription } from "@/lib/listings/description";
+import { splitBilingualDescription, buildPreviewDescription } from "@/lib/listings/description";
 import { getTranslations, getLocale, getMessages } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
 import { SocialShareButton } from "@/components/social-share-button";
@@ -207,8 +207,26 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const t = await getTranslations({ locale: eventLocale, namespace: "eventPage" });
   const image = listing.image_url ?? FALLBACK_IMAGE;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://usha.se";
+  // Förhandsvisningen i WhatsApp, Facebook och iMessage klipps efter ett par
+  // rader. Faktaraden först: när och var kvällen hålls är mer värt där än
+  // brödtextens inledning — som dessutom kan vara en stiliserad rubrik, eller
+  // den andra halvan av en tvåspråkig text.
+  const previewDate = listing.event_date
+    ? new Intl.DateTimeFormat(eventLocale === "sv" ? "sv-SE" : eventLocale === "es" ? "es-ES" : "en-GB", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        timeZone: "Europe/Stockholm",
+      }).format(new Date(`${listing.event_date}T12:00:00`))
+    : null;
+  const previewTime = listing.event_time
+    ? `${listing.event_time.slice(0, 5)}${listing.event_end_time ? `–${listing.event_end_time.slice(0, 5)}` : ""}`
+    : null;
   const description =
-    listing.description?.slice(0, 200) ??
+    buildPreviewDescription(
+      [previewDate, previewTime, listing.event_location?.split(",")[0]?.trim()],
+      listing.description
+    ) ||
     (host?.full_name ? t("metaDescriptionBy", { name: host.full_name }) : t("metaDescription"));
 
   return {
