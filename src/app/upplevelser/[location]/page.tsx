@@ -61,7 +61,7 @@ export default async function LocationPage(props: Props) {
 
   const { data: rawListings } = await supabase
     .from("listings")
-    .select("id, title, description, price, event_date, event_location, event_city, event_venue, category, image_url, listing_type, is_promoted, promoted_until")
+    .select("id, title, description, price, event_date, event_location, event_city, event_venue, category, image_url, listing_type, is_promoted, promoted_until, ticket_types(price)")
     .eq("is_active", true)
     .eq("is_public", true)
     .ilike("event_city", `%${city}%`)

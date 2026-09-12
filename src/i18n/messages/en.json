@@ -142,7 +142,8 @@
     "p1": "We believe the best moments happen when people meet for real — in movement, in play, and in creating together. Usha Platform brings creators, experiences and participants together in one place, where passion meets professionalism and every booking feels safe. All creators are BankID-verified and all payments are handled securely, so you can focus on what actually matters: the experience.",
     "p2": "Usha was founded by Pablo Acosta, who works at the intersection of dance, technology and community-building. The vision is simple: to build a place where creativity can thrive, talent can be seen, and people can come closer together.",
     "roadmapTitle": "Where we're headed",
-    "p3": "We're building step by step, with real experiences from day one. This summer we start with The Kiz Lab — open dance training every week in Stockholm. From there we grow into recurring monthly parties and, further ahead, an annual festival that brings the whole community together.",
+    "p3": "We're building step by step, with real experiences from day one. The foundation is recurring nights in Stockholm — open dance training every week, where everyone is welcome regardless of level. From there we grow into monthly parties and, further ahead, an annual festival that brings the whole community together.",
+    "p3Link": "See what's on right now →",
     "closing": "This is just the beginning. Welcome to join us from the start.",
     "tagline": "Usha Platform — for human expression."
   },
@@ -1190,6 +1191,7 @@
     "badgeBookings": "{count} bookings",
     "free": "Free",
     "price": "{price} kr",
+    "fromPrice": "From {price} kr",
     "carouselPromoted": "Featured",
     "carouselMoreInfo": "More info →"
   },
@@ -2238,6 +2240,7 @@
     "free": "Free",
     "freeTicket": "Get free ticket",
     "buyTicket": "Buy ticket · {price} kr",
+    "buyTicketFrom": "Tickets from {price} kr",
     "quickBuyTitle": "Confirm your purchase",
     "quickBuyConfirm": "Pay {price} kr",
     "quickBuyCancel": "Cancel",
@@ -3801,6 +3804,7 @@
     "view": "View",
     "free": "Free",
     "priceSek": "{price} SEK",
+    "priceFromSek": "From {price} SEK",
     "creator": "Creator",
     "viewProfile": "View profile"
   },

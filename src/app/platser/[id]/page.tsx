@@ -50,7 +50,7 @@ export default async function VenueDetailPage(props: Props) {
   if (venue.place_id) {
     const { data } = await supabase
       .from("listings")
-      .select("id, title, price, event_date, event_location, category, image_url, listing_type, is_promoted, promoted_until, slug")
+      .select("id, title, price, event_date, event_location, category, image_url, listing_type, is_promoted, promoted_until, slug, ticket_types(price)")
       .eq("is_active", true)
       .eq("event_place_id", venue.place_id)
       .order("event_date", { ascending: true, nullsFirst: false });

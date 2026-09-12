@@ -44,7 +44,12 @@ export default async function AboutPage() {
 
           <section className="pt-2">
             <h2 className="mb-3 text-lg font-semibold text-[var(--usha-white)]">{t("roadmapTitle")}</h2>
-            <p>{t("p3")}</p>
+            <p>
+              {t("p3")}{" "}
+              <Link href="/upplevelser" className="text-[var(--usha-gold)] hover:underline">
+                {t("p3Link")}
+              </Link>
+            </p>
           </section>
 
           <p className="text-[var(--usha-white)]">{t("closing")}</p>
