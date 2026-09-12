@@ -2241,6 +2241,7 @@
     "free": "Gratis",
     "freeTicket": "Få gratis biljett",
     "buyTicket": "Köp biljett · {price} kr",
+    "ticketsFromCta": "Biljetter från {price} kr",
     "buyTicketFrom": "Biljetter från {price} kr",
     "quickBuyTitle": "Bekräfta ditt köp",
     "quickBuyConfirm": "Betala {price} kr",
