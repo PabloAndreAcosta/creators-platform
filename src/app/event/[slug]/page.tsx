@@ -547,36 +547,28 @@ export default async function EventPage(props: Params) {
                     : t("buyTicket", { price: lowestPrice })}
               </a>
             )}
-            {listing.event_location &&
-              (venue ? (
-                <Link
-                  href={`/creators/${venue.slug || venue.id}`}
-                  className="inline-flex items-center gap-1.5 underline-offset-4 transition hover:text-[var(--usha-white)] hover:underline"
-                >
-                  <MapPin size={16} />
-                  {listing.event_location}
-                </Link>
-              ) : (
-                // Utan lokalprofil pekade adressen ingenstans. Den som läst
-                // klart vill veta var det ligger, och ska inte behöva scrolla
-                // till kartan längre ner eller markera texten för att googla.
-                // Samma mål som kartans knapp, via samma hjälpare.
-                <a
-                  href={buildMapsHref({
-                    location: listing.event_location,
-                    city: "Stockholm",
-                    placeId: listing.event_place_id,
-                    lat: listing.event_lat,
-                    lng: listing.event_lng,
-                  })}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 underline-offset-4 transition hover:text-[var(--usha-white)] hover:underline"
-                >
-                  <MapPin size={16} />
-                  {listing.event_location}
-                </a>
-              ))}
+            {/* Adressen går till kartan, även när lokalen har en profil hos
+                oss. Den som läser adressraden vill veta var det ligger;
+                lokalens profil når man från lokalkortet i sidokolumnen, som
+                finns just för det. Förut tog adressen dit i stället, och till
+                kartan kom man bara genom att scrolla förbi hela texten. */}
+            {listing.event_location && (
+              <a
+                href={buildMapsHref({
+                  location: listing.event_location,
+                  city: "Stockholm",
+                  placeId: listing.event_place_id,
+                  lat: listing.event_lat,
+                  lng: listing.event_lng,
+                })}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 underline decoration-[var(--usha-muted)]/40 underline-offset-4 transition hover:text-[var(--usha-white)] hover:decoration-[var(--usha-gold)]"
+              >
+                <MapPin size={16} />
+                {listing.event_location}
+              </a>
+            )}
           </div>
         )}
       </header>
