@@ -2245,7 +2245,6 @@
     "quickBuyConfirm": "Betala {price} kr",
     "quickBuyCancel": "Avbryt",
     "priceLabel": "{price} kr",
-    "priceFromLabel": "Från {price} kr",
     "booking": "Bokar...",
     "errorTitle": "Kunde inte boka",
     "errorRetry": "Försök igen.",
