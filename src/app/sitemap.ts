@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { todayStockholm } from "@/lib/listings/time-window";
+import { SELLER_ROLE_VALUES } from "@/lib/roles";
 import type { MetadataRoute } from "next";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -25,19 +26,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   // Public creator profiles
+  // Bara säljarroller, och bara profiler med något att visa. /creators sätter
+  // noindex på en tunn profil (ingen bio och inga aktiva listningar), och att
+  // skicka in en noindex-URL i sitemapen ger "Submitted URL marked noindex" i
+  // Search Console. Samma rollfilter som marknadsplatsen använder.
   const { data: creators } = await supabase
     .from("profiles")
-    .select("id, slug, updated_at")
+    .select("id, slug, updated_at, bio")
+    .in("role", SELLER_ROLE_VALUES)
     .eq("is_public", true)
     .order("updated_at", { ascending: false })
     .limit(500);
-
-  const creatorPages: MetadataRoute.Sitemap = (creators || []).map((c) => ({
-    url: `${baseUrl}/creators/${c.slug || c.id}`,
-    lastModified: c.updated_at ? new Date(c.updated_at) : new Date(),
-    changeFrequency: "weekly" as const,
-    priority: 0.7,
-  }));
 
   // Aktiva listningar. Ett daterat evenemang bor på /event/[slug] sedan #326 —
   // /listing omdirigerar dit. Att lista omdirigeringar i en sitemap är att be
@@ -45,7 +44,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Tjänster och klippkort saknar datum och bor kvar på /listing.
   const { data: listings } = await supabase
     .from("listings")
-    .select("id, slug, updated_at, event_date, series_slug")
+    .select("id, slug, updated_at, event_date, series_slug, user_id")
     .eq("is_active", true)
     .eq("is_public", true)
     .order("updated_at", { ascending: false })
@@ -59,6 +58,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // att någon landar på från en sökning.
     priority: l.event_date && l.event_date < todayStockholm() ? 0.3 : 0.6,
   }));
+
+  // Profiler med något att visa. /creators sätter noindex på en tunn profil
+  // (ingen bio OCH inga aktiva listningar); sitemapen följer samma regel, så
+  // vi inte skickar in en URL vi själva ber Google låta bli.
+  const medInnehall = new Set((listings || []).map((l) => l.user_id));
+  const creatorPages: MetadataRoute.Sitemap = (creators || [])
+    .filter((c) => (c.bio && c.bio.trim()) || medInnehall.has(c.id))
+    .map((c) => ({
+      url: `${baseUrl}/creators/${c.slug || c.id}`,
+      lastModified: c.updated_at ? new Date(c.updated_at) : new Date(),
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    }));
 
   // Serierna. En serie samlar alla kommande tillfällen på en adress som inte
   // åldras när en kväll passerat — ofta den bättre träffen för en sökning på
