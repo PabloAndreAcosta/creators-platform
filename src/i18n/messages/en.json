@@ -2259,6 +2259,8 @@
     "releasesAt": "Releases {date}",
     "soldOut": "Sold out",
     "notReleased": "Not released yet",
+    "payAtVenueBadge": "Pay at the door",
+    "payAtVenueNote": "This organiser cannot take online payment yet. You are welcome anyway — pay at the venue.",
     "createAccountNote": "You will create a free Usha Platform account in the same flow",
     "waitlistLabel": "Waitlist",
     "waitlistHeading": "Secure your spot in line",

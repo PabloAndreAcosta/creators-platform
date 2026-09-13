@@ -2259,6 +2259,8 @@
     "releasesAt": "Disponible el {date}",
     "soldOut": "Agotado",
     "notReleased": "Aún no disponible",
+    "payAtVenueBadge": "Pago en la puerta",
+    "payAtVenueNote": "Este organizador aún no acepta pago en línea. Ven igualmente — paga en el lugar.",
     "createAccountNote": "Crearás una cuenta gratuita de Usha Platform en el mismo proceso",
     "waitlistLabel": "Lista de espera",
     "waitlistHeading": "Asegura tu lugar en la fila",
