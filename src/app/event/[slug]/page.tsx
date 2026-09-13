@@ -516,7 +516,11 @@ export default async function EventPage(props: Params) {
     "@type": "DanceEvent",
     name: listing.title,
     url: `${appUrl}/event/${slug}`,
-    ...(beskrivning.primary ? { description: beskrivning.primary.slice(0, 500) } : {}),
+    // Radbrytningar fyller ingen funktion i en maskinläst beskrivning, och att
+    // inte ha dem tar bort en hel klass av escapningsproblem.
+    ...(beskrivning.primary
+      ? { description: beskrivning.primary.replace(/\s+/g, " ").trim().slice(0, 500) }
+      : {}),
     ...(listing.image_url ? { image: [listing.image_url] } : {}),
     startDate: isoStart,
     ...(isoEnd ? { endDate: isoEnd } : {}),
@@ -557,12 +561,20 @@ export default async function EventPage(props: Params) {
   };
 
   return (
+    <>
+    {/* Utanför NextIntlClientProvider med flit. safeJsonLd escapar <, > och &
+        till \u003c/\u003e/\u0026, men korsar strängen RSC-gränsen in i en
+        klientkomponent avkodas den ett varv på vägen: & blev & igen och \n
+        blev en riktig radbrytning inuti en JSON-sträng. Resultatet var ogiltig
+        JSON som varken Google eller en aggregator kunde läsa. /series och
+        /listing har alltid fungerat just för att de saknar klientgräns runt
+        sitt skript. */}
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: safeJsonLd(eventJsonLd) }}
+    />
     <NextIntlClientProvider locale={eventLocale} messages={messages}>
     <main className="min-h-screen bg-[var(--usha-black)] text-[var(--usha-white)]">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: safeJsonLd(eventJsonLd) }}
-      />
       <TrackEvent
         name="listing_view"
         params={{
@@ -1047,6 +1059,7 @@ export default async function EventPage(props: Params) {
       )}
     </main>
     </NextIntlClientProvider>
+    </>
   );
 }
 
