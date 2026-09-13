@@ -15,6 +15,7 @@ import { getSaleState } from "@/lib/listings/sale-state";
 import { splitBilingualDescription, buildPreviewDescription } from "@/lib/listings/description";
 import { buildMapsHref } from "@/lib/listings/maps";
 import { canReceivePayments } from "@/lib/payments/beta-gate";
+import { safeJsonLd } from "@/lib/json-ld";
 import { getTranslations, getLocale, getMessages } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
 import { SocialShareButton } from "@/components/social-share-button";
@@ -89,7 +90,7 @@ async function getListing(slug: string) {
   const { data: listing } = await supabase
     .from("listings")
     .select(
-      "id, user_id, title, description, category, price, duration_minutes, image_url, image_url_square, series_id, event_date, event_time, event_end_time, event_location, event_place_id, event_lat, event_lng, slug, series_slug, is_active, content_language, organizer_name, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, venue_profile_id, venue_confirmed_at"
+      "id, user_id, title, description, category, price, duration_minutes, image_url, image_url_square, series_id, event_date, event_time, event_end_time, event_location, event_place_id, event_lat, event_lng, event_city, event_venue, slug, series_slug, is_active, content_language, organizer_name, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, venue_profile_id, venue_confirmed_at"
     )
     .eq(isUUID(slug) ? "id" : "slug", slug)
     .eq("is_active", true)
@@ -462,9 +463,106 @@ export default async function EventPage(props: Params) {
     }));
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://usha.se";
 
+  // Strukturerad data. Sidan hade ingen alls, medan /listing — som daterade
+  // evenemang omdirigeras BORT från sedan #326 — hade full Event-markup. Varje
+  // event flyttades alltså till en sida som varken Google eller en aggregator
+  // kan läsa maskinellt.
+  //
+  // Tidszonen skrivs ut (+02:00/+01:00) i stället för att utelämnas: utan
+  // offset tolkas tiden som besökarens lokala, och en kväll 17:00 i Stockholm
+  // blir fel för alla andra.
+  const tzOffset = (() => {
+    const d = new Date(`${listing.event_date}T12:00:00Z`);
+    const namn = new Intl.DateTimeFormat("en-US", {
+      timeZone: "Europe/Stockholm",
+      timeZoneName: "longOffset",
+    }).formatToParts(d).find((x) => x.type === "timeZoneName")?.value;
+    return namn?.replace("GMT", "") || "+01:00";
+  })();
+  const isoStart = listing.event_time
+    ? `${listing.event_date}T${listing.event_time.slice(0, 8)}${tzOffset}`
+    : listing.event_date;
+  const isoEnd = listing.event_end_time
+    ? `${listing.event_date}T${listing.event_end_time.slice(0, 8)}${tzOffset}`
+    : undefined;
+
+  // En Offer per biljettyp. Det är hela poängen för en aggregator: "från 50 kr"
+  // går att härleda, och practica/workshop/social syns var för sig.
+  const offers = ticketTypesForSale.length
+    ? ticketTypesForSale.map((tt) => ({
+        "@type": "Offer",
+        name: tt.name,
+        price: tt.price,
+        priceCurrency: "SEK",
+        url: `${appUrl}/event/${slug}`,
+        availability: sale.buyable && sellable
+          ? "https://schema.org/InStock"
+          : "https://schema.org/SoldOut",
+      }))
+    : listing.price != null
+      ? [{
+          "@type": "Offer",
+          price: listing.price,
+          priceCurrency: "SEK",
+          url: `${appUrl}/event/${slug}`,
+          availability: sale.buyable && sellable
+            ? "https://schema.org/InStock"
+            : "https://schema.org/SoldOut",
+        }]
+      : [];
+
+  const eventJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "DanceEvent",
+    name: listing.title,
+    url: `${appUrl}/event/${slug}`,
+    ...(beskrivning.primary ? { description: beskrivning.primary.slice(0, 500) } : {}),
+    ...(listing.image_url ? { image: [listing.image_url] } : {}),
+    startDate: isoStart,
+    ...(isoEnd ? { endDate: isoEnd } : {}),
+    eventStatus: "https://schema.org/EventScheduled",
+    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+    ...(listing.event_location
+      ? {
+          location: {
+            "@type": "Place",
+            name: listing.event_venue || listing.event_location.split(",")[0]?.trim(),
+            address: {
+              "@type": "PostalAddress",
+              streetAddress: listing.event_location,
+              ...(listing.event_city ? { addressLocality: listing.event_city } : {}),
+              addressCountry: "SE",
+            },
+            ...(typeof listing.event_lat === "number" && typeof listing.event_lng === "number"
+              ? {
+                  geo: {
+                    "@type": "GeoCoordinates",
+                    latitude: listing.event_lat,
+                    longitude: listing.event_lng,
+                  },
+                }
+              : {}),
+          },
+        }
+      : {}),
+    ...(offers.length ? { offers } : {}),
+    organizer: {
+      "@type": "Organization",
+      name: listing.organizer_name || host?.full_name || "Usha Platform",
+      url: host ? `${appUrl}/creators/${host.slug || host.id}` : appUrl,
+    },
+    ...(listing.series_slug
+      ? { superEvent: { "@type": "EventSeries", url: `${appUrl}/series/${listing.series_slug}` } }
+      : {}),
+  };
+
   return (
     <NextIntlClientProvider locale={eventLocale} messages={messages}>
     <main className="min-h-screen bg-[var(--usha-black)] text-[var(--usha-white)]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(eventJsonLd) }}
+      />
       <TrackEvent
         name="listing_view"
         params={{
