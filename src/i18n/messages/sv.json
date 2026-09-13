@@ -2259,6 +2259,8 @@
     "releasesAt": "Släpps {date}",
     "soldOut": "Slutsålt",
     "notReleased": "Inte släppt än",
+    "payAtVenueBadge": "Betalning i dörren",
+    "payAtVenueNote": "Den här arrangören tar inte emot onlinebetalning ännu. Du är välkommen ändå — betala på plats.",
     "createAccountNote": "Du skapar ett gratis Usha Platform-konto i samma flöde",
     "waitlistLabel": "Väntelista",
     "waitlistHeading": "Säkra din plats i kön",

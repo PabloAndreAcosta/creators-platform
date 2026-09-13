@@ -14,6 +14,7 @@ import { AccessCodeForm } from "./access-code-form";
 import { getSaleState } from "@/lib/listings/sale-state";
 import { splitBilingualDescription, buildPreviewDescription } from "@/lib/listings/description";
 import { buildMapsHref } from "@/lib/listings/maps";
+import { canReceivePayments } from "@/lib/payments/beta-gate";
 import { getTranslations, getLocale, getMessages } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
 import { SocialShareButton } from "@/components/social-share-button";
@@ -98,7 +99,7 @@ async function getListing(slug: string) {
 
   const { data: host } = await supabase
     .from("profiles")
-    .select("id, full_name, slug, avatar_url, bankid_verified_at")
+    .select("id, full_name, slug, avatar_url, bankid_verified_at, company_verified_at")
     .eq("id", listing.user_id)
     .maybeSingle();
 
@@ -392,7 +393,18 @@ export default async function EventPage(props: Params) {
   // Priset för knappen högst upp. Biljettyperna kan spänna över flera priser
   // (50/100/130/200 på The Lab) — då är lägsta priset rätt att visa, med
   // "från", eftersom inget val är gjort ännu.
+  // Betalspärren under beta: bara plattformsägaren och verifierade bolag får ta
+  // emot riktiga betalningar. Alla checkout-rutter kontrollerar det redan, men
+  // den här sidan gjorde det inte — så en besökare kunde trycka Köp och mötas
+  // av ett fel först efteråt. Bättre att aldrig visa knappen.
+  const payeeCanReceive = canReceivePayments({
+    id: listing.user_id,
+    company_verified_at:
+      (host as { company_verified_at?: string | null } | null)?.company_verified_at ?? null,
+  });
   const beskrivning = splitBilingualDescription(listing.description);
+  // Gratis biljetter rör inga pengar och berörs inte av spärren.
+  const sellable = payeeCanReceive || isFree;
   const salePrices = ticketTypesForSale.map((tt) => tt.price);
   const lowestPrice = salePrices.length ? Math.min(...salePrices) : sale.price;
   const hasPriceRange = new Set(salePrices).size > 1;
@@ -534,7 +546,7 @@ export default async function EventPage(props: Params) {
                 eller köpväg förrän hen scrollat förbi allt. Från md och upp
                 står sidokolumnen redan bredvid rubriken — då skulle knappen
                 scrolla till något som redan syns. */}
-            {sale.buyable && (
+            {sale.buyable && sellable && (
               <a
                 href="#biljetter"
                 className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-5 py-2.5 text-base font-bold text-black shadow-lg shadow-[var(--usha-gold)]/20 transition hover:opacity-90 active:scale-[0.98] md:hidden"
@@ -674,7 +686,7 @@ export default async function EventPage(props: Params) {
                   renderas den av BookButton och följer det man klickat på.
                   Går det inte att köpa finns inget val att följa, och då står
                   den kvar här. */}
-              {sale.buyable ? (
+              {sale.buyable && sellable ? (
                 <BookButton
                   listingId={listing.id}
                   price={sale.price}
@@ -716,8 +728,18 @@ export default async function EventPage(props: Params) {
                   </div>
                   <div className="w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-4 py-2.5 text-center text-sm font-semibold text-[var(--usha-muted)]">
                     {sale.state === "past" ? t("badgePast") :
-                     sale.state === "sold_out" ? t("soldOut") : t("notReleased")}
+                     sale.state === "sold_out" ? t("soldOut") :
+                     sale.buyable ? t("payAtVenueBadge") : t("notReleased")}
                   </div>
+                  {/* Säljfönstret är öppet, men arrangören får inte ta emot
+                      onlinebetalning under beta. Säg vad som gäller i stället
+                      för att låta rutan se ut som ett tekniskt fel — kvällen
+                      blir ju av, betalningen sker bara i dörren. */}
+                  {sale.buyable && (
+                    <p className="mt-3 text-center text-xs leading-relaxed text-[var(--usha-muted)]">
+                      {t("payAtVenueNote")}
+                    </p>
+                  )}
                 </>
               )}
               {sale.buyable && !user && (
