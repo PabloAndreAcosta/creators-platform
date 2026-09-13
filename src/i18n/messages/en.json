@@ -1186,6 +1186,20 @@
     "seoCategoryInCity": "{category} in {city}",
     "emptyCreateFirst": "Are you a creator? Create the first experience here."
   },
+  "listingPage": {
+    "metaFallbackTitle": "Event – Usha Platform",
+    "backTo": "Back to {name}",
+    "creatorFallbackLower": "the creator",
+    "creatorFallback": "Creator",
+    "free": "Free",
+    "aboutHeading": "About this event",
+    "includedHeading": "What's included",
+    "amenitiesHeading": "Amenities",
+    "ownerPreview": "Preview — this is how visitors see the page",
+    "instructorsHeading": "Book an instructor on site",
+    "instructorFallback": "Instructor",
+    "thatIsYou": "That's you"
+  },
   "listingCard": {
     "badgePromoted": "Featured",
     "badgePopular": "Popular",
@@ -3721,6 +3735,15 @@
     "siteOgDescription": "Create events, sell tickets, scan at the door and pay your crew — all in one app."
   },
   "platserPage": {
+    "detail": {
+      "metaFallbackTitle": "Venue – Usha Platform",
+      "metaDescription": "Experiences and events at {name}.",
+      "metaDescriptionCity": "Experiences and events at {name} in {city}.",
+      "navExperiences": "Experiences",
+      "navMarketplace": "Marketplace",
+      "empty": "No experiences at this venue right now.",
+      "seeAll": "See all experiences"
+    },
     "meta": {
       "title": "Venues – Usha Platform",
       "description": "Explore venues, studios, clubs and places where creative experiences happen.",
