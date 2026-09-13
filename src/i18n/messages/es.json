@@ -1186,6 +1186,20 @@
     "seoCategoryInCity": "{category} en {city}",
     "emptyCreateFirst": "¿Eres creador? Crea aquí la primera experiencia."
   },
+  "listingPage": {
+    "metaFallbackTitle": "Evento – Usha Platform",
+    "backTo": "Volver a {name}",
+    "creatorFallbackLower": "el creador",
+    "creatorFallback": "Creador",
+    "free": "Gratis",
+    "aboutHeading": "Sobre el evento",
+    "includedHeading": "Qué incluye",
+    "amenitiesHeading": "Comodidades",
+    "ownerPreview": "Vista previa — así ven la página los visitantes",
+    "instructorsHeading": "Reserva un instructor en el lugar",
+    "instructorFallback": "Instructor",
+    "thatIsYou": "Eres tú"
+  },
   "listingCard": {
     "badgePromoted": "Destacado",
     "badgePopular": "Popular",
@@ -3721,6 +3735,15 @@
     "siteOgDescription": "Crea eventos, vende entradas, escanea en la puerta y paga a tu equipo, todo en una app."
   },
   "platserPage": {
+    "detail": {
+      "metaFallbackTitle": "Lugar – Usha Platform",
+      "metaDescription": "Experiencias y eventos en {name}.",
+      "metaDescriptionCity": "Experiencias y eventos en {name}, {city}.",
+      "navExperiences": "Experiencias",
+      "navMarketplace": "Marketplace",
+      "empty": "No hay experiencias en este lugar ahora mismo.",
+      "seeAll": "Ver todas las experiencias"
+    },
     "meta": {
       "title": "Espacios – Usha Platform",
       "description": "Explora locales, estudios, clubes y espacios donde suceden las experiencias creativas.",

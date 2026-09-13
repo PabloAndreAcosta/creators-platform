@@ -1186,6 +1186,20 @@
     "seoCategoryInCity": "{category} i {city}",
     "emptyCreateFirst": "Är du kreatör? Skapa den första upplevelsen här."
   },
+  "listingPage": {
+    "metaFallbackTitle": "Evenemang – Usha Platform",
+    "backTo": "Tillbaka till {name}",
+    "creatorFallbackLower": "kreatören",
+    "creatorFallback": "Kreatör",
+    "free": "Gratis",
+    "aboutHeading": "Om evenemanget",
+    "includedHeading": "Vad ingår",
+    "amenitiesHeading": "Bekvämligheter",
+    "ownerPreview": "Förhandsvisning — så ser besökare sidan",
+    "instructorsHeading": "Boka en instruktör på plats",
+    "instructorFallback": "Instruktör",
+    "thatIsYou": "Det här är du"
+  },
   "listingCard": {
     "badgePromoted": "Framhävd",
     "badgePopular": "Populär",
@@ -3721,6 +3735,15 @@
     "siteOgDescription": "Skapa event, sälj biljetter, skanna vid dörren och betala ditt crew — allt i en app."
   },
   "platserPage": {
+    "detail": {
+      "metaFallbackTitle": "Plats – Usha Platform",
+      "metaDescription": "Upplevelser och events på {name}.",
+      "metaDescriptionCity": "Upplevelser och events på {name} i {city}.",
+      "navExperiences": "Upplevelser",
+      "navMarketplace": "Marketplace",
+      "empty": "Inga upplevelser på denna plats just nu.",
+      "seeAll": "Se alla upplevelser"
+    },
     "meta": {
       "title": "Platser – Usha Platform",
       "description": "Utforska lokaler, studior, klubbar och platser där kreativa upplevelser händer.",
