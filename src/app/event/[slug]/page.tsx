@@ -638,11 +638,19 @@ export default async function EventPage(props: Params) {
         </h1>
         {(dateLabel || listing.event_location) && (
           <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-[var(--usha-muted)] sm:text-base">
+            {/* Datumet är en länk till en kalenderpost. Den som bestämt sig
+                ska inte behöva skriva in kvällen för hand — och just den raden
+                är där blicken redan är när beslutet tas. */}
             {dateLabel && (
-              <span className="inline-flex items-center gap-1.5">
+              <a
+                href={`/event/${slug}/kalender.ics`}
+                title={t("addToCalendar")}
+                aria-label={`${t("addToCalendar")}: ${dateLabel}`}
+                className="inline-flex items-center gap-1.5 underline decoration-[var(--usha-muted)]/40 underline-offset-4 transition hover:text-[var(--usha-white)] hover:decoration-[var(--usha-gold)]"
+              >
                 <Calendar size={16} />
                 {dateLabel}
-              </span>
+              </a>
             )}
             {timeLabel && (
               <span className="inline-flex items-center gap-1.5">
