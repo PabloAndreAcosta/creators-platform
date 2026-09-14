@@ -2076,6 +2076,7 @@
     "date": "Fecha",
     "startTime": "Hora de inicio",
     "endTime": "Hora de finalización",
+    "endTimeHint": "Necesaria para que el calendario del visitante muestre la duración correcta.",
     "recurring": "Evento recurrente (serie)",
     "interval": "Intervalo",
     "intervalWeekly": "Cada semana",
