@@ -2328,6 +2328,7 @@
     "quantity": "Quantity",
     "attendeeNamePlaceholder": "Name of guest {n} (optional)",
     "mapHeading": "Getting there",
+    "addToCalendar": "Add to calendar",
     "openInMaps": "Open in Maps",
     "creditApplied": "Your {amount} kr welcome credit is applied",
     "creditMinSpend": "You have {amount} kr in welcome credit — valid from {min} kr"
