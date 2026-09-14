@@ -2076,6 +2076,7 @@
     "date": "Date",
     "startTime": "Start time",
     "endTime": "End time",
+    "endTimeHint": "Needed so the visitor's calendar shows the right duration.",
     "recurring": "Recurring event (series)",
     "interval": "Interval",
     "intervalWeekly": "Every week",

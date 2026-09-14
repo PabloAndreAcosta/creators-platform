@@ -2076,6 +2076,7 @@
     "date": "Datum",
     "startTime": "Starttid",
     "endTime": "Sluttid",
+    "endTimeHint": "Behövs för att besökarens kalender ska visa rätt längd.",
     "recurring": "Återkommande event (serie)",
     "interval": "Intervall",
     "intervalWeekly": "Varje vecka",

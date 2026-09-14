@@ -119,6 +119,24 @@ function parseEventForm(formData: FormData) {
   const includedRaw = (formData.get("included") as string)?.trim() || "";
 
   if (!title) return { error: "Titel krävs" } as const;
+
+  // Tid krävs när evenemanget har ett datum.
+  //
+  // Sluttiden var frivillig, och utan den gissar besökarens kalenderapp: Google
+  // lägger på en timme, Apple gör posten punktformig. En kväll 17–23 hamnade
+  // alltså som en timme i kalendern hos den som tryckte på datumet.
+  //
+  // Starttiden kommer med i samma villkor eftersom en sluttid utan starttid
+  // inte betyder något.
+  if (eventDate) {
+    if (!eventTime) return { error: "Ange starttid för evenemanget" } as const;
+    if (!eventEndTime) return { error: "Ange sluttid — annars vet inte besökarens kalender hur länge kvällen håller på" } as const;
+    // Sluttid FÖRE starttid är tillåtet: kvällen passerar midnatt. Lika tider
+    // ger däremot ett evenemang utan längd.
+    if (eventEndTime === eventTime) {
+      return { error: "Sluttiden kan inte vara samma som starttiden" } as const;
+    }
+  }
   if (!category || !EVENT_CATEGORIES.includes(category as (typeof EVENT_CATEGORIES)[number])) {
     return { error: "Välj en giltig kategori" } as const;
   }
@@ -513,6 +531,12 @@ export async function duplicateEvent(
 
   if (!user) return { error: "Ej inloggad" };
   if (!newDate) return { error: "Datum krävs" };
+  // Samma krav som när ett evenemang skapas. Utan det kunde en dubblett bli
+  // den enda vägen till ett evenemang utan sluttid — och därmed till en
+  // kalenderpost som gissar längden.
+  if (!newTime) return { error: "Ange starttid för evenemanget" };
+  if (!newEndTime) return { error: "Ange sluttid — annars vet inte besökarens kalender hur länge kvällen håller på" };
+  if (newEndTime === newTime) return { error: "Sluttiden kan inte vara samma som starttiden" };
 
   if (!(await isBankidCleared(supabase, user.id))) {
     return { error: BANKID_REQUIRED_MSG };
