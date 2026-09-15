@@ -25,6 +25,7 @@ import { FollowButton } from "@/components/follow-button";
 import { EmailFollowForm } from "@/components/email-follow-form";
 import { FollowUs } from "@/components/follow-us";
 import { getCreditLedgerBalance } from "@/lib/credits/balance";
+import { indexable } from "@/lib/seo/metadata";
 
 export const revalidate = 60;
 
@@ -235,6 +236,10 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   return {
     title: t("metaTitle", { title: listing.title }),
     description,
+    // Kvällen bor på sin egen adress även när besökaren kom in via seriens
+    // slug (som omdirigerar hit) eller via /listing/<id>. Utan canonical får
+    // sökmotorn välja mellan tre adresser till samma innehåll.
+    ...indexable(`/event/${listing.slug ?? listing.id}`),
     openGraph: {
       title: listing.title,
       description,

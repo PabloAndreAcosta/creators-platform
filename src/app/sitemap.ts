@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { todayStockholm } from "@/lib/listings/time-window";
 import { SELLER_ROLE_VALUES } from "@/lib/roles";
 import type { MetadataRoute } from "next";
+import { languageAlternates } from "@/lib/seo/metadata";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://usha.se";
@@ -18,7 +19,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/flode`, lastModified: new Date(), changeFrequency: "hourly", priority: 0.7 },
     { url: `${baseUrl}/kalender`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
     { url: `${baseUrl}/platser`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.6 },
+    { url: `${baseUrl}/salj-biljetter`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
+    { url: `${baseUrl}/partner`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.6 },
+    { url: `${baseUrl}/guide`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.5 },
     { url: `${baseUrl}/om`, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${baseUrl}/refund-policy`, changeFrequency: "yearly", priority: 0.2 },
     { url: `${baseUrl}/signup`, changeFrequency: "monthly", priority: 0.5 },
     { url: `${baseUrl}/privacy`, changeFrequency: "yearly", priority: 0.2 },
     { url: `${baseUrl}/terms`, changeFrequency: "yearly", priority: 0.2 },
@@ -134,5 +139,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
   ];
 
-  return [...staticPages, ...creatorPages, ...listingPages, ...seriesPages, ...venuePages, ...cityPages];
+  const all = [...staticPages, ...creatorPages, ...listingPages, ...seriesPages, ...venuePages, ...cityPages];
+
+  // Språkvarianterna med i sitemapen. Sajten byter språk på cookie, så utan
+  // ?lang= finns det bara en adress per sida och de andra två språken kan
+  // aldrig hittas av en sökmotor. Samma uppsättning som sidornas egna
+  // hreflang-taggar, så de två källorna säger samma sak.
+  return all.map((entry) => ({
+    ...entry,
+    alternates: { languages: languageAlternates(entry.url.replace(baseUrl, "") || "/") },
+  }));
 }

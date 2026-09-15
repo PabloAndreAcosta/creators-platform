@@ -9,6 +9,7 @@ import { MapPin, ArrowLeft } from "lucide-react";
 import { SeoFooter } from "@/components/seo-footer";
 import { ListingCard } from "@/components/listing-card";
 import { getBookingCounts, sortWithPromoted, isActivelyPromoted } from "@/lib/listings/popularity";
+import { indexable } from "@/lib/seo/metadata";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -27,6 +28,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   if (!venue) return { title: tMeta("detail.metaFallbackTitle") };
 
   return {
+    ...indexable(`/platser/${params.id}`),
     title: `${venue.name} – Usha Platform`,
     description: venue.city
       ? tMeta("detail.metaDescriptionCity", { name: venue.name, city: venue.city })

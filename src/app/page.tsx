@@ -46,15 +46,40 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 // Organization structured data (company Usha AB, product Usha Platform).
+// Organisationen och sajten i ett graf-objekt. WebSite med SearchAction är det
+// som kan ge en sökruta direkt i Googles resultat; utan den kan en sökande bara
+// klicka in på startsidan och leta vidare själv.
 const ORGANIZATION_JSONLD = {
   "@context": "https://schema.org",
-  "@type": "Organization",
-  name: "Usha Platform",
-  legalName: "Usha AB",
-  url: "https://usha.se",
-  logo: "https://usha.se/icon-192.png",
-  description:
-    "Kuraterad, BankID-verifierad marknadsplats som förenar kreatörer, platser och publik.",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://usha.se/#organization",
+      name: "Usha Platform",
+      legalName: "Usha AB",
+      url: "https://usha.se",
+      logo: "https://usha.se/icon-192.png",
+      description:
+        "Kuraterad, BankID-verifierad marknadsplats som förenar kreatörer, platser och publik.",
+      sameAs: ["https://www.facebook.com/438136616060981"],
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://usha.se/#website",
+      url: "https://usha.se",
+      name: "Usha Platform",
+      publisher: { "@id": "https://usha.se/#organization" },
+      inLanguage: ["sv", "en", "es"],
+      potentialAction: {
+        "@type": "SearchAction",
+        target: {
+          "@type": "EntryPoint",
+          urlTemplate: "https://usha.se/upplevelser?location={search_term_string}",
+        },
+        "query-input": "required name=search_term_string",
+      },
+    },
+  ],
 };
 
 /* ─────────────── HERO (the cycle) ─────────────── */

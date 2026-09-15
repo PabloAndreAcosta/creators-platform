@@ -6,10 +6,12 @@ import { SiteNav } from "@/components/landing/site-nav";
 import { Footer } from "@/components/landing/footer";
 import { createClient } from "@/lib/supabase/server";
 import { COMMISSION_SHARE, FIRST_PURCHASE_CREDIT_ORE, PREMIUM_DAYS_PER_CREATOR } from "@/lib/affiliate/rewards";
+import { indexable } from "@/lib/seo/metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("partnerPublic");
   return {
+    ...indexable("/partner"),
     title: t("metaTitle"),
     description: t("metaDescription"),
     openGraph: { title: t("metaTitle"), description: t("metaDescription"), url: `${process.env.NEXT_PUBLIC_APP_URL ?? "https://usha.se"}/partner` },

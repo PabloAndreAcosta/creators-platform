@@ -23,6 +23,7 @@ import { EventMap } from "@/components/event-map";
 import { CATEGORY_LABELS } from "@/lib/categories";
 import { calculateDiscountedPrice } from "@/lib/stripe/commission";
 import { canReceivePayments } from "@/lib/payments/beta-gate";
+import { indexable } from "@/lib/seo/metadata";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -56,6 +57,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     title: `${listing.title} – Usha Platform`,
     description,
     ...(isThin ? { robots: { index: false } } : {}),
+    ...indexable(`/listing/${listing.slug ?? listing.id}`),
     openGraph: {
       title: `${listing.title} – Usha Platform`,
       description,

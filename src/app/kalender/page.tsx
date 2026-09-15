@@ -9,8 +9,11 @@ import { stockholmDay } from "@/lib/tickets/event-day";
 import { fetchUpcomingListings } from "@/lib/calendar/visibility";
 import { bucketFor, groupUpcoming, type CalendarBucket, type CalendarEntry } from "@/lib/calendar/upcoming";
 import { createClient } from "@/lib/supabase/server";
+import { safeJsonLd } from "@/lib/json-ld";
+import { absoluteUrl } from "@/lib/seo/metadata";
 import { FollowButton } from "@/components/follow-button";
 import { FollowUs } from "@/components/follow-us";
+import { indexable } from "@/lib/seo/metadata";
 
 // Publik kalender. Ingen filtrering, ingen sortering att välja — bara vad som
 // händer, i tidsordning, med serier hopslagna till en rad. Sidan nås alltid
@@ -19,6 +22,7 @@ import { FollowUs } from "@/components/follow-us";
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("calendar");
   return {
+    ...indexable("/kalender"),
     title: t("metaTitle"),
     description: t("metaDescription"),
     openGraph: {
@@ -59,6 +63,33 @@ export default async function KalenderPage() {
     : { data: [] as { followed_id: string }[] };
   const followingIds = new Set((myFollows ?? []).map((f) => f.followed_id));
 
+  // Kalendern som en lista av evenemang, så en sökmotor ser vad som faktiskt
+  // står på programmet i stället för en sida med datum i löptext. En serie
+  // räknas som ett evenemang här, precis som i listan.
+  const itemListJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: t("title"),
+    itemListElement: entries.slice(0, 30).map((e, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      item: {
+        "@type": "Event",
+        name: e.title,
+        startDate: e.time ? `${e.date}T${e.time}` : e.date,
+        ...(e.endTime ? { endDate: `${e.date}T${e.endTime}` } : {}),
+        eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+        eventStatus: "https://schema.org/EventScheduled",
+        url: absoluteUrl(e.href),
+        ...(e.imageUrl ? { image: e.imageUrl } : {}),
+        ...(e.location ? { location: { "@type": "Place", name: e.location } } : {}),
+        ...(e.price
+          ? { offers: { "@type": "Offer", price: e.price, priceCurrency: "SEK", url: absoluteUrl(e.href), availability: "https://schema.org/InStock" } }
+          : {}),
+      },
+    })),
+  };
+
   const dayFmt = new Intl.DateTimeFormat(locale, { weekday: "short", day: "numeric", month: "short", timeZone: TZ });
   const weekdayFmt = new Intl.DateTimeFormat(locale, { weekday: "long", timeZone: TZ });
   const nextFmt = new Intl.DateTimeFormat(locale, { day: "numeric", month: "long", timeZone: TZ });
@@ -73,6 +104,12 @@ export default async function KalenderPage() {
 
   return (
     <div className="min-h-screen bg-[var(--usha-black)]">
+      {entries.length > 0 && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: safeJsonLd(itemListJsonLd) }}
+        />
+      )}
       <header className="sticky top-0 z-30 border-b border-[var(--usha-border)] bg-[var(--usha-black)]/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
           <Link href="/" className="text-lg font-bold text-gradient">Usha Platform</Link>

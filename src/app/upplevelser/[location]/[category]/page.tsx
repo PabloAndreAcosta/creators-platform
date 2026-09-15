@@ -8,6 +8,7 @@ import { ArrowLeft } from "lucide-react";
 import { SeoFooter } from "@/components/seo-footer";
 import { ListingCard } from "@/components/listing-card";
 import { getBookingCounts, sortWithPromoted, isActivelyPromoted } from "@/lib/listings/popularity";
+import { indexable } from "@/lib/seo/metadata";
 
 interface Props {
   params: Promise<{ location: string; category: string }>;
@@ -37,6 +38,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     title: `${categoryLabel} i ${city} – Usha Platform`,
     description: `Hitta ${categoryLabel.toLowerCase()} events och upplevelser i ${city}. Boka direkt på Usha Platform.`,
     ...(!count ? { robots: { index: false } } : {}),
+    ...indexable(`/upplevelser/${params.location}/${params.category}`),
     openGraph: {
       title: `${categoryLabel} i ${city} – Usha Platform`,
       description: `${categoryLabel} events och upplevelser i ${city}.`,
