@@ -1,5 +1,13 @@
 import type { MetadataRoute } from "next";
 
+/**
+ * OBS: ?ref= och ?utm_ blockeras INTE här, trots att de pekar på sidor som
+ * redan finns i sitemapen. En partnerlänk delas på Facebook, och Facebooks
+ * crawler respekterar robots.txt — blockeras adressen får inlägget ingen
+ * förhandsvisning, vilket vore att sabotera partnerprogrammet för att spara
+ * crawlbudget. Dubbletterna löses i stället av canonical, som sedan #340 finns
+ * på varje indexerbar sida och pekar på adressen utan parametrar.
+ */
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
@@ -20,10 +28,6 @@ export default function robots(): MetadataRoute.Robots {
           "/waitlist/",
           "/data-deletion/",
           "/onboarding",
-          // Partnerlänkar och kampanjspårning pekar på sidor som redan finns i
-          // sitemapen. Utan den här raden crawlas samma sida en gång per kod.
-          "/*?ref=",
-          "/*?utm_",
         ],
       },
     ],
