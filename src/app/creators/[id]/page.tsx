@@ -25,6 +25,7 @@ import { ShareEventButton } from "@/components/share-event-button";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdminById } from "@/lib/admin/check";
 import { InstructorMinutesCard } from "@/components/instructor-minutes-card";
+import { indexable } from "@/lib/seo/metadata";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -66,6 +67,10 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     title: t("metaTitle", { name: profile.full_name || t("creatorFallbackName") }),
     description,
     ...(isThin ? { robots: { index: false } } : {}),
+    // Profilen nås som /creators/<id>, /creators/<slug> och via kreatörens
+    // korta /<slug> (som omdirigerar hit). Sluggen är den adress vi vill ha
+    // indexerad när den finns.
+    ...indexable(`/creators/${profile.slug || profile.id}`),
     openGraph: {
       title: t("metaTitleOg", { name: profile.full_name || t("creatorFallbackName") }),
       description,

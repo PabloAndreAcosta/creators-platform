@@ -3,10 +3,12 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { ArrowLeft } from "lucide-react";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { indexable } from "@/lib/seo/metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("about");
   return {
+    ...indexable("/om"),
     title: t("metaTitle"),
     description: t("metaDescription"),
     openGraph: {

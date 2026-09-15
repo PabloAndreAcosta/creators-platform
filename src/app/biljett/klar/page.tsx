@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { CheckCircle2, Mail } from "lucide-react";
 
-export const metadata = { title: "Tack för ditt köp — Usha Platform" };
+import { notIndexable } from "@/lib/seo/metadata";
+
+export const metadata = { title: "Tack för ditt köp — Usha Platform", ...notIndexable() };
 
 // Post-purchase confirmation for GUEST ticket buyers (no account). The Stripe
 // success_url points here so a buyer gets a clear "it worked" screen instead of

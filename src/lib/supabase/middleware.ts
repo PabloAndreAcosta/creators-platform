@@ -24,8 +24,13 @@ export interface SessionResult {
   clearHostOnly: string[];
 }
 
-export async function updateSession(request: NextRequest): Promise<SessionResult> {
-  let response = NextResponse.next({ request: { headers: request.headers } });
+export async function updateSession(
+  request: NextRequest,
+  /** Headers att skicka vidare till renderingen (middleware kan lägga till egna). */
+  forwardHeaders?: Headers
+): Promise<SessionResult> {
+  const requestHeaders = forwardHeaders ?? request.headers;
+  let response = NextResponse.next({ request: { headers: requestHeaders } });
   const clearHostOnly: string[] = [];
 
   // Skip if env vars are missing (e.g. during build)
@@ -57,12 +62,12 @@ export async function updateSession(request: NextRequest): Promise<SessionResult
         },
         set(name: string, value: string, options: CookieOptions) {
           request.cookies.set({ name, value, ...options });
-          response = NextResponse.next({ request: { headers: request.headers } });
+          response = NextResponse.next({ request: { headers: requestHeaders } });
           response.cookies.set({ name, value, ...options });
         },
         remove(name: string, options: CookieOptions) {
           request.cookies.set({ name, value: "", ...options });
-          response = NextResponse.next({ request: { headers: request.headers } });
+          response = NextResponse.next({ request: { headers: requestHeaders } });
           response.cookies.set({ name, value: "", ...options });
         },
       },

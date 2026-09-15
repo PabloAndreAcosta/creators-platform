@@ -10,10 +10,12 @@ import { getBookingCounts, sortWithPromoted, isActivelyPromoted } from "@/lib/li
 import { GeoLocationDetector } from "@/components/geo-location";
 import { EventCarousel } from "@/components/event-carousel";
 import { upcomingOrUndated, pastOnly } from "@/lib/listings/time-window";
+import { indexable } from "@/lib/seo/metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
   return {
+    ...indexable("/upplevelser"),
     title: t("experiences.metaTitle"),
     description: t("experiences.metaDescription"),
     openGraph: {
