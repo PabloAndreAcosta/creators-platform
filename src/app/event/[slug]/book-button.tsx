@@ -5,6 +5,8 @@ import { useTranslations } from "next-intl";
 import { Ticket, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
 import { applicableCredit, SIGNUP_CREDIT_MIN_SPEND_ORE } from "@/lib/credits/signup";
+import { trackEvent } from "@/lib/analytics";
+import { ANALYTICS_EVENTS } from "@/lib/analytics/events";
 
 interface TicketType {
   id: string;
@@ -109,6 +111,17 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
       : t("buyTicket", { price: credit > 0 ? totalAfterCredit : total });
 
   async function checkout(endpoint: string, payload: Record<string, unknown>) {
+    // Skickas innan resan till Stripe. Tillsammans med purchase-händelsen på
+    // vägen tillbaka visar den hur många som börjar men inte fullföljer — det
+    // är den siffran som säger om kassan är problemet eller priset.
+    trackEvent(ANALYTICS_EVENTS.beginCheckout, {
+      value: credit > 0 ? totalAfterCredit : total,
+      currency: "SEK",
+      item_id: selectedPass?.id ?? listingId,
+      item_category: selectedPass ? "pass" : "ticket",
+      quantity: effectiveQty,
+      logged_in: isLoggedIn,
+    });
     setLoading(true);
     try {
       const res = await fetch(endpoint, {

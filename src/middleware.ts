@@ -5,6 +5,7 @@ import { locales, LOCALE_COOKIE_NAME, detectLocaleFromAcceptLanguage, isLikelyBo
 import { asLocale } from "@/lib/seo/metadata";
 import { REF_COOKIE, REF_COOKIE_MAX_AGE, normalizeRefCode } from "@/lib/affiliate/attribution";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { UTM_COOKIE, UTM_COOKIE_MAX_AGE, readUtmFromParams, hasUtm, serializeUtm } from "@/lib/analytics/utm";
 
 export async function middleware(request: NextRequest) {
   // 1. Ensure locale cookie exists. A cookieless visitor gets their device
@@ -58,6 +59,21 @@ export async function middleware(request: NextRequest) {
     } catch {
       // ett tappat klick är inte värt en trasig sida
     }
+  }
+
+  // Kampanjparametrar. Samma resa som partnerkoden: in i en cookie vid
+  // landningen, ut i Stripe-metadata i kassan, ned i bokningen i webhooken.
+  // Utan det steget vet vi att en biljett såldes men inte vad som sålde den —
+  // omdirigeringen till Stripe och tillbaka raderar all referrer.
+  const utm = readUtmFromParams(request.nextUrl.searchParams);
+  if (hasUtm(utm)) {
+    response.cookies.set(UTM_COOKIE, serializeUtm(utm), {
+      path: "/",
+      maxAge: UTM_COOKIE_MAX_AGE,
+      sameSite: "lax",
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+    });
   }
 
   // Sist, efter alla cookies.set: host-only-varianten av döda auth-cookies.

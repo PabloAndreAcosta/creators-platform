@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { authUrlWithNext } from "@/lib/auth/next-path";
 import { useTranslations } from "next-intl";
 import { UserPlus, UserCheck, Loader2 } from "lucide-react";
+import { trackEvent } from "@/lib/analytics";
+import { ANALYTICS_EVENTS } from "@/lib/analytics/events";
 
 interface FollowButtonProps {
   creatorId: string;
@@ -54,6 +56,10 @@ export function FollowButton({
         // Revert
         setFollowing(following);
         setCount(count);
+      } else if (!following) {
+        // Bara när någon börjar följa. Att sluta följa är också information,
+        // men det hör hemma i databasen, inte som en "konvertering".
+        trackEvent(ANALYTICS_EVENTS.follow, { creator: creatorId, method: "account" });
       }
     } catch {
       setFollowing(following);

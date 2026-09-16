@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { UTM_COOKIE, parseUtm, utmMetadata } from "@/lib/analytics/utm";
 import { REF_COOKIE, affiliateForPurchase } from "@/lib/affiliate/attribution";
 import { passBookingFields } from "@/lib/passes/series-pass";
 import type Stripe from "stripe";
@@ -208,6 +209,8 @@ export async function POST(req: NextRequest) {
     const flow = resolvePayeeFlow(payee);
     // Partnerprogrammet: vem ledde hit? Kontots värvare inom fönstret, annars cookien.
     const affiliateId = await affiliateForPurchase(createAdminClient(), { userId: null, refCookie: req.cookies.get(REF_COOKIE)?.value });
+    // Kanalen köpet kom ifrån, från landningscookien.
+    const utm = parseUtm(req.cookies.get(UTM_COOKIE)?.value);
 
     if (flow === "third_party") {
       if (!creator.stripe_account_id) {
@@ -297,7 +300,10 @@ export async function POST(req: NextRequest) {
         automatic_tax: { enabled: true },
         // Clear confirmation screen for guests (no account) — the ticket QR is
         // emailed; landing on the feed left buyers unsure the purchase worked.
-        success_url: `${baseUrl}/biljett/klar`,
+        // Sessions-id:t följer med så kvittosidan kan slå upp den bokning som
+        // faktiskt skapades och rapportera köpet med rätt belopp — gästen har
+        // inget konto att läsa historik från.
+        success_url: `${baseUrl}/biljett/klar?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${baseUrl}/flode`,
         metadata: {
           type: "guest_ticket",
@@ -313,6 +319,7 @@ export async function POST(req: NextRequest) {
           ticketTypeName: ticketType?.name ?? "",
           quantity: String(qty),
           affiliateId: affiliateId ?? "",
+          ...utmMetadata(utm),
           sessionsTotal: isPass ? String(listing.session_count) : "",
           attendeeNames: attendeeNamesToMeta(attendeeNames, qty),
           reserved: "true",

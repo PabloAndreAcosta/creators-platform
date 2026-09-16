@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { UTM_COOKIE, parseUtm, utmMetadata } from "@/lib/analytics/utm";
 import { REF_COOKIE, affiliateForPurchase } from "@/lib/affiliate/attribution";
 import { getStripeLocale } from "@/lib/i18n/stripe-locale";
 import { stripe } from "@/lib/stripe/client";
@@ -139,6 +140,8 @@ export async function POST(req: NextRequest) {
     const flow = resolvePayeeFlow(payee);
     // Partnerprogrammet: vem ledde hit? Kontots värvare inom fönstret, annars cookien.
     const affiliateId = await affiliateForPurchase(createAdminClient(), { userId: user.id, refCookie: req.cookies.get(REF_COOKIE)?.value });
+    // Kanalen köpet kom ifrån, från landningscookien.
+    const utm = parseUtm(req.cookies.get(UTM_COOKIE)?.value);
 
     if (flow === "third_party") {
       if (!creator.stripe_account_id) {
@@ -228,6 +231,7 @@ export async function POST(req: NextRequest) {
         notes: notes || "",
         guestCount: String(guests),
         affiliateId: affiliateId ?? "",
+        ...utmMetadata(utm),
         platformFeeOre: String(finalFee),
         specialRequests: specialRequests || "",
         attendees: (() => {
