@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { passBookingFields } from "@/lib/passes/series-pass";
+import { utmBookingFields } from "@/lib/analytics/utm";
 import { recordBookingRewards } from "@/lib/affiliate/rewards";
 import { ROLES, normalizeRole } from "@/lib/roles";
 import { stripe } from "@/lib/stripe/client";
@@ -230,6 +231,7 @@ export async function POST(req: NextRequest) {
             ticket_type_id: session.metadata?.ticketTypeId || null,
             ticket_type_name: session.metadata?.ticketTypeName || null,
             ...passBookingFields(session.metadata?.sessionsTotal),
+            ...utmBookingFields(session.metadata),
           }).select("id").single();
 
           // One scannable attendee per seat (only for multi-ticket orders).
@@ -462,6 +464,7 @@ export async function POST(req: NextRequest) {
             ticket_type_id: session.metadata?.ticketTypeId || null,
             ticket_type_name: session.metadata?.ticketTypeName || null,
             ...passBookingFields(session.metadata?.sessionsTotal),
+            ...utmBookingFields(session.metadata),
           }).select("id").single();
 
           if (acctBooking?.id) await recordAffiliateFromSession(session, acctBooking.id, userId ?? null);
@@ -641,6 +644,7 @@ export async function POST(req: NextRequest) {
             attendees,
             notes,
             ...(danceCount && danceCount > 0 ? { sessions_total: danceCount, sessions_redeemed: 0 } : {}),
+            ...utmBookingFields(session.metadata),
           }).select("id").single();
           if (paidBooking?.id) await recordAffiliateFromSession(session, paidBooking.id, userId ?? null);
 

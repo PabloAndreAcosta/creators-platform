@@ -2,6 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { Mail, Loader2, Check } from "lucide-react";
+import { trackEvent } from "@/lib/analytics";
+import { ANALYTICS_EVENTS } from "@/lib/analytics/events";
 
 interface Labels {
   prompt: string;
@@ -43,6 +45,7 @@ export function EmailFollowForm({
         const data = await res.json();
         if (!res.ok) throw new Error();
         setState(data.state === "active" ? "active" : "pending");
+        trackEvent(ANALYTICS_EVENTS.followEmail, { creator: followedId, state: data.state ?? "pending" });
       } catch {
         setState("error");
       }
