@@ -31,7 +31,7 @@ export default function ForCreatorsPage() {
       <PerspectiveHero ns="forCreators" ctaHref="/signup" />
       <Onboarding />
       <Features />
-      <Pricing />
+      <Pricing role="creator" />
       <LoopSection ns="forCreators" />
       <PerspectiveLinks exclude="creators" />
       <Trust />

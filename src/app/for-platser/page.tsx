@@ -5,6 +5,7 @@ import { ShieldCheck, CalendarCheck, SlidersHorizontal } from "lucide-react";
 import { SiteNav } from "@/components/landing/site-nav";
 import { PerspectiveHero } from "@/components/landing/perspective-hero";
 import { LoopSection } from "@/components/landing/loop-section";
+import { Pricing } from "@/components/landing/pricing";
 import { PerspectiveLinks } from "@/components/landing/perspective-links";
 import { Trust } from "@/components/landing/trust";
 import { Footer } from "@/components/landing/footer";
@@ -54,6 +55,7 @@ export default function ForVenuesPage() {
       <PerspectiveHero ns="forVenues" ctaHref="/signup" />
       <VenueValues />
       <LoopSection ns="forVenues" />
+      <Pricing role="venue" />
       <PerspectiveLinks exclude="venues" />
       <Trust />
       <Footer />
