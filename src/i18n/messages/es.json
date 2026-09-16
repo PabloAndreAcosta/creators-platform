@@ -788,7 +788,12 @@
       "upplevelsePremium2": "3 % de comisión (en lugar del 15 %)",
       "upplevelsePremium3": "Máxima visibilidad + destacado",
       "upplevelsePremium4": "Sincronización con Facebook",
-      "upplevelsePremium5": "Soporte dedicado"
+      "upplevelsePremium5": "Soporte dedicado",
+      "subtitleVenue": "Recibe a creadores, llena tus noches y mantén las cuentas en un solo sitio. El local pone las condiciones; la plataforma se encarga de las entradas, el registro y la liquidación.",
+      "subtitleCustomer": "La membresía es para quien sale a menudo: descuento en las reservas, acceso anticipado a las entradas y todo el programa en tu calendario.",
+      "publikFreeDesc": "Todo lo necesario para asistir",
+      "publikGoldDesc": "Para quien sale a menudo",
+      "publikPremiumDesc": "Para quien nunca se lo pierde"
     },
     "faq": {
       "title": "Preguntas y",

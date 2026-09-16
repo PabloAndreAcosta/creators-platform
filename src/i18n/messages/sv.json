@@ -788,7 +788,12 @@
       "upplevelsePremium2": "3% kommission (istället för 15%)",
       "upplevelsePremium3": "Toppsynlighet + utvalda",
       "upplevelsePremium4": "Facebook-sync",
-      "upplevelsePremium5": "Dedikerad support"
+      "upplevelsePremium5": "Dedikerad support",
+      "subtitleVenue": "Ta emot kreatörer, fyll kvällarna och håll ekonomin samlad. Lokalen sätter villkoren, plattformen sköter biljetter, incheckning och avräkning.",
+      "subtitleCustomer": "Medlemskapet är för dig som går ut ofta: rabatt på bokningar, tidig tillgång till biljetterna och hela programmet samlat i din kalender.",
+      "publikFreeDesc": "Allt du behöver för att gå på saker",
+      "publikGoldDesc": "För dig som går ut regelbundet",
+      "publikPremiumDesc": "För dig som alltid är med"
     },
     "faq": {
       "title": "Frågor &",

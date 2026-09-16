@@ -788,7 +788,12 @@
       "upplevelsePremium2": "3% commission (instead of 15%)",
       "upplevelsePremium3": "Top visibility + featured",
       "upplevelsePremium4": "Facebook sync",
-      "upplevelsePremium5": "Dedicated support"
+      "upplevelsePremium5": "Dedicated support",
+      "subtitleVenue": "Host creators, fill your nights and keep the finances in one place. The venue sets the terms; the platform handles tickets, check-in and settlement.",
+      "subtitleCustomer": "Membership is for people who go out often: a discount on bookings, early access to tickets, and the whole programme in your calendar.",
+      "publikFreeDesc": "Everything you need to attend",
+      "publikGoldDesc": "For regular nights out",
+      "publikPremiumDesc": "For the ones always there"
     },
     "faq": {
       "title": "Questions &",
