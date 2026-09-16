@@ -122,7 +122,7 @@ export default async function CreatorProfilePage(props: Props) {
 
   const { data: allListings } = await supabase
     .from("listings")
-    .select("id, title, description, category, price, duration_minutes, event_date, event_time, event_location, release_to_gold_at, listing_type, min_guests, max_guests, experience_details, sort_order")
+    .select("id, title, image_url, description, category, price, duration_minutes, event_date, event_time, event_location, release_to_gold_at, listing_type, min_guests, max_guests, experience_details, sort_order")
     .eq("user_id", profile.id)
     .eq("is_active", true)
     .eq("is_public", true)
@@ -551,100 +551,118 @@ export default async function CreatorProfilePage(props: Props) {
                 <Link
                   key={listing.id}
                   href={`/listing/${listing.id}`}
-                  className="block rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5 transition hover:border-[var(--usha-gold)]/30"
+                  className="group block overflow-hidden rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] transition hover:border-[var(--usha-gold)]/30"
                 >
-                  <div className="mb-2 flex items-start justify-between">
-                    <h3 className="font-semibold">{listing.title}</h3>
-                    {listing.price != null && (
-                      <span className="shrink-0 font-semibold text-[var(--usha-gold)]">
-                        {t("services.priceSek", { price: listing.price })}
-                      </span>
-                    )}
-                  </div>
-                  {listing.description && (
-                    <p className="mb-3 line-clamp-2 text-sm text-[var(--usha-muted)]">
-                      {listing.description}
-                    </p>
+                  {/* Tjänsten säljs på bilden lika mycket som på texten. Saknas den
+                      får kortet en lugn platshållare i stället för att hoppa i höjd. */}
+                  {listing.image_url ? (
+                    <div className="aspect-video overflow-hidden">
+                      <img
+                        src={listing.image_url}
+                        alt={listing.title}
+                        className="h-full w-full object-cover transition group-hover:scale-105"
+                        loading="lazy"
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex aspect-video items-center justify-center bg-[var(--usha-gold)]/5">
+                      <Calendar size={24} className="text-[var(--usha-gold)]/30" />
+                    </div>
                   )}
-                  {/* Experience details badges */}
-                  {listing.experience_details && (() => {
-                    const details = listing.experience_details as ExperienceDetails;
-                    return details?.included?.length ? (
-                      <div className="mb-3 flex flex-wrap gap-1.5">
-                        {details.included.map((item) => (
-                          <span key={item} className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-[10px] text-[var(--usha-gold)]">
-                            {item}
-                          </span>
-                        ))}
-                      </div>
-                    ) : null;
-                  })()}
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1.5">
-                      <div className="flex items-center gap-3 text-xs text-[var(--usha-muted)]">
-                        <span className="rounded-full border border-[var(--usha-border)] px-2 py-0.5">
-                          {CATEGORY_LABELS[listing.category] || listing.category}
+                  <div className="p-5">
+                    <div className="mb-2 flex items-start justify-between">
+                      <h3 className="font-semibold">{listing.title}</h3>
+                      {listing.price != null && (
+                        <span className="shrink-0 font-semibold text-[var(--usha-gold)]">
+                          {t("services.priceSek", { price: listing.price })}
                         </span>
-                        {listing.duration_minutes != null && (
-                          <span className="flex items-center gap-1">
-                            <Clock size={11} />
-                            {t("services.durationMin", { minutes: listing.duration_minutes })}
-                          </span>
-                        )}
-                        {listing.max_guests && (
-                          <span className="flex items-center gap-1">
-                            <Users size={11} />
-                            {t("services.guests", { min: listing.min_guests ?? 1, max: listing.max_guests })}
-                          </span>
-                        )}
-                      </div>
-                      {(listing.event_date || listing.event_time || listing.event_location) && (
-                        <div className="flex flex-wrap items-center gap-3 text-xs text-[var(--usha-muted)]">
-                          {listing.event_date && (
-                            <span className="flex items-center gap-1">
-                              <Calendar size={11} />
-                              {new Date(listing.event_date + "T00:00").toLocaleDateString("sv-SE", { day: "numeric", month: "short", year: "numeric" })}
+                      )}
+                    </div>
+                    {listing.description && (
+                      <p className="mb-3 line-clamp-2 text-sm text-[var(--usha-muted)]">
+                        {listing.description}
+                      </p>
+                    )}
+                    {/* Experience details badges */}
+                    {listing.experience_details && (() => {
+                      const details = listing.experience_details as ExperienceDetails;
+                      return details?.included?.length ? (
+                        <div className="mb-3 flex flex-wrap gap-1.5">
+                          {details.included.map((item) => (
+                            <span key={item} className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-[10px] text-[var(--usha-gold)]">
+                              {item}
                             </span>
-                          )}
-                          {listing.event_time && (
+                          ))}
+                        </div>
+                      ) : null;
+                    })()}
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1.5">
+                        <div className="flex items-center gap-3 text-xs text-[var(--usha-muted)]">
+                          <span className="rounded-full border border-[var(--usha-border)] px-2 py-0.5">
+                            {CATEGORY_LABELS[listing.category] || listing.category}
+                          </span>
+                          {listing.duration_minutes != null && (
                             <span className="flex items-center gap-1">
                               <Clock size={11} />
-                              {listing.event_time.slice(0, 5)}
+                              {t("services.durationMin", { minutes: listing.duration_minutes })}
                             </span>
                           )}
-                          {listing.event_location && (
+                          {listing.max_guests && (
                             <span className="flex items-center gap-1">
-                              <MapPin size={11} />
-                              {listing.event_location}
+                              <Users size={11} />
+                              {t("services.guests", { min: listing.min_guests ?? 1, max: listing.max_guests })}
                             </span>
                           )}
                         </div>
+                        {(listing.event_date || listing.event_time || listing.event_location) && (
+                          <div className="flex flex-wrap items-center gap-3 text-xs text-[var(--usha-muted)]">
+                            {listing.event_date && (
+                              <span className="flex items-center gap-1">
+                                <Calendar size={11} />
+                                {new Date(listing.event_date + "T00:00").toLocaleDateString("sv-SE", { day: "numeric", month: "short", year: "numeric" })}
+                              </span>
+                            )}
+                            {listing.event_time && (
+                              <span className="flex items-center gap-1">
+                                <Clock size={11} />
+                                {listing.event_time.slice(0, 5)}
+                              </span>
+                            )}
+                            {listing.event_location && (
+                              <span className="flex items-center gap-1">
+                                <MapPin size={11} />
+                                {listing.event_location}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      {!isOwnProfile && (
+                        <div className="flex items-center gap-2">
+                          {/* Tickets are only for events; services are booked, not ticketed. */}
+                          {listing.listing_type === "event" &&
+                            listing.price != null &&
+                            listing.price > 0 && (
+                              <BuyTicketButton
+                                listingId={listing.id}
+                                originalPrice={listing.price}
+                                discountedPrice={calculateDiscountedPrice(listing.price, visitorTier)}
+                                isLoggedIn={isLoggedIn}
+                                hasConnect={hasConnect}
+                              />
+                            )}
+                          <BookingForm
+                            listing={listing}
+                            creatorId={profile.id}
+                            isLoggedIn={isLoggedIn}
+                            hasConnect={hasConnect}
+                            payeeCanReceive={payeeCanReceive}
+                            viewerRole={visitorRole}
+                          />
+                        </div>
                       )}
                     </div>
-                    {!isOwnProfile && (
-                      <div className="flex items-center gap-2">
-                        {/* Tickets are only for events; services are booked, not ticketed. */}
-                        {listing.listing_type === "event" &&
-                          listing.price != null &&
-                          listing.price > 0 && (
-                            <BuyTicketButton
-                              listingId={listing.id}
-                              originalPrice={listing.price}
-                              discountedPrice={calculateDiscountedPrice(listing.price, visitorTier)}
-                              isLoggedIn={isLoggedIn}
-                              hasConnect={hasConnect}
-                            />
-                          )}
-                        <BookingForm
-                          listing={listing}
-                          creatorId={profile.id}
-                          isLoggedIn={isLoggedIn}
-                          hasConnect={hasConnect}
-                          payeeCanReceive={payeeCanReceive}
-                          viewerRole={visitorRole}
-                        />
-                      </div>
-                    )}
                   </div>
                 </Link>
               ))}
