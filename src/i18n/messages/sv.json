@@ -1786,6 +1786,8 @@
     "toastEarlyBirdError": "Misslyckades",
     "toastGenericError": "Något gick fel",
     "duplicate": "Duplicera",
+    "moveUp": "Flytta upp",
+    "moveDown": "Flytta ner",
     "toastDuplicated": "Kopia skapad som utkast",
     "toastDuplicateError": "Kunde inte duplicera",
     "seriesBadge": "Serie",

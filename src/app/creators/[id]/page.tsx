@@ -122,10 +122,13 @@ export default async function CreatorProfilePage(props: Props) {
 
   const { data: allListings } = await supabase
     .from("listings")
-    .select("id, title, description, category, price, duration_minutes, event_date, event_time, event_location, release_to_gold_at, listing_type, min_guests, max_guests, experience_details")
+    .select("id, title, description, category, price, duration_minutes, event_date, event_time, event_location, release_to_gold_at, listing_type, min_guests, max_guests, experience_details, sort_order")
     .eq("user_id", profile.id)
     .eq("is_active", true)
     .eq("is_public", true)
+    // Kreatörens egen ordning först. NULL sorteras sist, så allt som aldrig
+    // ordnats behåller exakt sitt gamla utseende — nyast först.
+    .order("sort_order", { ascending: true, nullsFirst: false })
     .order("created_at", { ascending: false });
 
   // Evenemang som ANDRA arrangerar hos den här lokalen. Det är den här sidan

@@ -361,3 +361,59 @@ async function ownsSeries(
     .eq("user_id", userId);
   return (count ?? 0) > 0;
 }
+
+/**
+ * Flytta en tjänst upp eller ner i kreatörens egen ordning.
+ *
+ * Ordningen är gles och normaliseras vid varje flytt: raderna numreras om
+ * 0,1,2,… innan bytet. Det gör funktionen tålig mot rader som saknar ordning
+ * (allt som fanns före kolumnen), mot dubbletter, och mot att två flyttar sker
+ * tätt inpå varandra — utfallet blir detsamma oavsett vilket skick listan var
+ * i när man började.
+ *
+ * Bara tjänster ordnas. Evenemang har datum, och ett datum är en bättre
+ * ordning än en handpåläggning.
+ */
+export async function moveListing(id: string, riktning: "upp" | "ner") {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Ej inloggad" } as const;
+
+  const { data: rader } = await supabase
+    .from("listings")
+    .select("id, sort_order, created_at, event_date")
+    .eq("user_id", user.id)
+    .is("event_date", null)
+    .order("sort_order", { ascending: true, nullsFirst: false })
+    .order("created_at", { ascending: false });
+
+  const lista = rader ?? [];
+  const i = lista.findIndex((l) => l.id === id);
+  if (i < 0) return { error: "Hittar inte tjänsten" } as const;
+
+  const j = riktning === "upp" ? i - 1 : i + 1;
+  if (j < 0 || j >= lista.length) return { ok: true } as const; // redan ytterst
+
+  const omordnad = [...lista];
+  [omordnad[i], omordnad[j]] = [omordnad[j], omordnad[i]];
+
+  // Skriv bara de rader vars nummer faktiskt ändras.
+  const uppdateringar = omordnad
+    .map((l, n) => ({ id: l.id, sort_order: n, gammalt: l.sort_order }))
+    .filter((u) => u.sort_order !== u.gammalt);
+
+  for (const u of uppdateringar) {
+    const { error } = await supabase
+      .from("listings")
+      .update({ sort_order: u.sort_order })
+      .eq("id", u.id)
+      .eq("user_id", user.id);
+    if (error) return { error: "Kunde inte spara ordningen. Försök igen." } as const;
+  }
+
+  revalidatePath("/dashboard/listings");
+  revalidatePath("/creators", "layout");
+  return { ok: true } as const;
+}
