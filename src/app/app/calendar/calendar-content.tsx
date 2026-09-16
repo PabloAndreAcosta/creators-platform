@@ -3,7 +3,7 @@
 import TimeSelect from "@/components/time-select";
 import { useState, useTransition, useEffect } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, User, Clock, Calendar, Check, Plus, Trash2, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, User, Clock, Calendar, Check, Plus, Trash2, Loader2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRole } from "@/components/mobile/role-context";
 import { toggleAvailability, getAvailability, addTimeSlot, removeTimeSlot } from "./actions";
@@ -450,19 +450,19 @@ function TimeSlotEditor({
         )}
       </div>
 
-      {/* All-day toggle */}
+      {/* All-day toggle. Knappen säger vad den GÖR, inte vilket läge dagen är i:
+          "Hela dagen (aktiv)" läste som en statusetikett, så den enda vägen att
+          avmarkera en grön dag såg ut att vara ur funktion. */}
       <button
         onClick={onToggleAllDay}
         className={`mb-3 flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition ${
-          isAllDay
-            ? "bg-emerald-500/20 text-emerald-400"
-            : !isAvailable
-              ? "bg-[var(--usha-card)] text-[var(--usha-muted)] hover:text-emerald-400"
-              : "bg-[var(--usha-card)] text-[var(--usha-muted)]"
+          isAvailable
+            ? "bg-red-500/10 text-red-400 hover:bg-red-500/20"
+            : "bg-[var(--usha-card)] text-[var(--usha-muted)] hover:text-emerald-400"
         }`}
       >
-        <Check size={12} />
-        {isAllDay ? t("allDayActive") : !isAvailable ? t("markAllDay") : t("removeAllTimes")}
+        {isAvailable ? <X size={12} /> : <Check size={12} />}
+        {!isAvailable ? t("markAllDay") : isAllDay ? t("removeAllDay") : t("removeAllTimes")}
       </button>
 
       {/* Existing slots */}
