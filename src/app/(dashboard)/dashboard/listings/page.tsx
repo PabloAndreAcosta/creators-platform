@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Plus, ScanLine } from "lucide-react";
 import ListingRow, { type Listing } from "./listing-row";
+import { SortableServices } from "./sortable-services";
 import SeriesCard from "./series-card";
 import { NoListings } from "@/components/ui/empty-state";
 import { groupListingsBySeries } from "@/lib/listings/group";
@@ -72,22 +73,14 @@ export default async function ListingsPage() {
           {series.map((occ) => (
             <SeriesCard key={`series-${occ[0].series_id}`} occurrences={occ} />
           ))}
-          {/* Pilarna visas bara på tjänster. Ett evenemang har datum, och ett
-              datum är en bättre ordning än en handpåläggning — därför får bara
-              det odaterade flyttas, och bara i förhållande till annat odaterat. */}
-          {standalone.map((listing, i, rader) => {
-            const tjanster = rader.filter((l) => !l.event_date);
-            const plats = tjanster.findIndex((l) => l.id === listing.id);
-            const arTjanst = plats >= 0;
-            return (
-            <ListingRow
-              key={listing.id}
-              listing={listing}
-              kanFlyttaUpp={arTjanst && plats > 0}
-              kanFlyttaNer={arTjanst && plats < tjanster.length - 1}
-          />
-            );
-          })}
+          {/* Tjänsterna är sorterbara, evenemangen inte. Ett evenemang har
+              datum, och ett datum är en bättre ordning än en handpåläggning. */}
+          <SortableServices tjanster={standalone.filter((l) => !l.event_date)} />
+          {standalone
+            .filter((l) => l.event_date)
+            .map((listing) => (
+              <ListingRow key={listing.id} listing={listing} />
+            ))}
         </div>
       )}
     </>

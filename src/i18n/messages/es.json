@@ -1786,6 +1786,7 @@
     "toastEarlyBirdError": "Falló",
     "toastGenericError": "Algo salió mal",
     "duplicate": "Duplicar",
+    "dragHandle": "Arrastra para reordenar",
     "moveUp": "Subir",
     "moveDown": "Bajar",
     "toastDuplicated": "Copia creada como borrador",

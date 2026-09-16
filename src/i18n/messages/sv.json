@@ -1786,6 +1786,7 @@
     "toastEarlyBirdError": "Misslyckades",
     "toastGenericError": "Något gick fel",
     "duplicate": "Duplicera",
+    "dragHandle": "Dra för att ändra ordning",
     "moveUp": "Flytta upp",
     "moveDown": "Flytta ner",
     "toastDuplicated": "Kopia skapad som utkast",

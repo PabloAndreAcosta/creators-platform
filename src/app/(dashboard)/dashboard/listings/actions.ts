@@ -417,3 +417,43 @@ export async function moveListing(id: string, riktning: "upp" | "ner") {
   revalidatePath("/creators", "layout");
   return { ok: true } as const;
 }
+
+/**
+ * Spara en hel ordning på en gång — det drag-och-släpp ger.
+ *
+ * Tar emot id:n i den ordning de ska ligga och numrerar om dem 0,1,2,…
+ * Ägarskapet prövas per rad (.eq("user_id", user.id)), så en påhittad lista med
+ * någon annans id ändrar ingenting hos dem.
+ *
+ * Skriver bara de rader vars nummer faktiskt ändras. Ett drag flyttar oftast
+ * några få steg, och då är det onödigt att röra hela listan.
+ */
+export async function reorderListings(orderedIds: string[]) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Ej inloggad" } as const;
+
+  const { data: nuvarande } = await supabase
+    .from("listings")
+    .select("id, sort_order")
+    .eq("user_id", user.id)
+    .in("id", orderedIds);
+
+  const gammal = new Map((nuvarande ?? []).map((l) => [l.id, l.sort_order]));
+
+  for (let i = 0; i < orderedIds.length; i++) {
+    if (gammal.get(orderedIds[i]) === i) continue;
+    const { error } = await supabase
+      .from("listings")
+      .update({ sort_order: i })
+      .eq("id", orderedIds[i])
+      .eq("user_id", user.id);
+    if (error) return { error: "Kunde inte spara ordningen. Försök igen." } as const;
+  }
+
+  revalidatePath("/dashboard/listings");
+  revalidatePath("/creators", "layout");
+  return { ok: true } as const;
+}
