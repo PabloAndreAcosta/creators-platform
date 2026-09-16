@@ -26,6 +26,7 @@ interface Listing {
   event_place_id?: string | null;
   listing_type?: string | null;
   pass_series_id?: string | null;
+  pass_series_ids?: string[] | null;
   pass_covers?: string | null;
   session_count?: number | null;
 }
@@ -45,6 +46,13 @@ export default function ListingForm({
   const t = useTranslations("listingForm");
   const ta = useTranslations("a11y");
   const isTaxiDancer = creatorSubcategory === "taxi_dancer";
+  // Kortet kan gälla flera serier. Äldre kort har bara pass_series_id.
+  const selectedSeries =
+    listing?.pass_series_ids?.length
+      ? listing.pass_series_ids
+      : listing?.pass_series_id
+        ? [listing.pass_series_id]
+        : [];
   const [listingType, setListingType] = useState<string>(
     listing?.listing_type ?? (isTaxiDancer ? "package" : "service")
   );
@@ -204,20 +212,23 @@ export default function ListingForm({
               </div>
               {seriesOptions.length > 0 && (
                 <div className="mt-3">
-                  <label htmlFor="pass_series_id" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
+                  <span className="mb-1.5 block text-sm text-[var(--usha-muted)]">
                     {t("passSeriesLabel")}
-                  </label>
-                  <select
-                    id="pass_series_id"
-                    name="pass_series_id"
-                    defaultValue={listing?.pass_series_id ?? ""}
-                    className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
-                  >
-                    <option value="">{t("passSeriesNone")}</option>
+                  </span>
+                  <div className="flex flex-col gap-2 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3">
                     {seriesOptions.map((s) => (
-                      <option key={s.id} value={s.id}>{s.title}</option>
+                      <label key={s.id} className="flex items-center gap-2.5 text-sm">
+                        <input
+                          type="checkbox"
+                          name="pass_series_id"
+                          value={s.id}
+                          defaultChecked={selectedSeries.includes(s.id)}
+                          className="h-4 w-4 accent-[var(--usha-gold)]"
+                        />
+                        <span>{s.title}</span>
+                      </label>
                     ))}
-                  </select>
+                  </div>
                   <p className="mt-1.5 text-xs text-[var(--usha-muted)]">{t("passSeriesHint")}</p>
                   <label htmlFor="pass_covers" className="mb-1.5 mt-3 block text-sm text-[var(--usha-muted)]">
                     {t("passCoversLabel")}

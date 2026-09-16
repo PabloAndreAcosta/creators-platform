@@ -3547,8 +3547,7 @@
   },
   "listingForm": {
     "passSeriesLabel": "Gäller som biljett på serie",
-    "passSeriesNone": "Ingen – löses in för hand i bokningslistan",
-    "passSeriesHint": "Kopplat till en serie skannas kortets QR-kod i dörren, ett klipp per kväll.",
+    "passSeriesHint": "Bocka i varje serie kortet ska gälla på — QR-koden skannas i dörren, ett klipp per kväll. Ingen serie ibockad betyder att kortet löses in för hand i bokningslistan.",
     "passCoversLabel": "Ett klipp ger tillträde till",
     "passCoversPlaceholder": "t.ex. Allt: practica + workshop + social",
     "uploadFailed": "Uppladdning misslyckades",

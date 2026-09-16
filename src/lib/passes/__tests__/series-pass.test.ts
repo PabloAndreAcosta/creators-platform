@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { isPassBooking, passRemaining, passBookingFields, redemptionSlice, pickOccurrence } from "../series-pass";
+import { isPassBooking, passRemaining, passBookingFields, passSeriesIds, redemptionSlice, pickOccurrence } from "../series-pass";
 
 describe("klippkort på serie", () => {
   it("känner igen ett klippkort och räknar kvarvarande klipp", () => {
@@ -40,5 +40,39 @@ describe("klippkort på serie", () => {
     const tue = pickOccurrence(list, new Date("2026-09-15T18:00:00Z"));
     expect(tue.today).toBeNull();
     expect(tue.next?.id).toBe("b");
+  });
+});
+
+describe("kort som gäller flera serier", () => {
+  const MON = "97206f7c-156e-4c53-9b9a-188ba61eba0b";
+  const THU = "c4a8fb90-d0ec-455f-be0d-269a00a2ea10";
+
+  it("läser arrayen när den finns", () => {
+    expect(passSeriesIds({ pass_series_ids: [MON, THU], pass_series_id: MON })).toEqual([MON, THU]);
+  });
+
+  it("faller tillbaka på den gamla kolumnen för äldre kort", () => {
+    expect(passSeriesIds({ pass_series_ids: null, pass_series_id: MON })).toEqual([MON]);
+    expect(passSeriesIds({ pass_series_id: MON })).toEqual([MON]);
+  });
+
+  it("ger tom lista för kort utan serie", () => {
+    expect(passSeriesIds({ pass_series_ids: [], pass_series_id: null })).toEqual([]);
+    expect(passSeriesIds(null)).toEqual([]);
+  });
+
+  it("dubblerar inte en serie som står i båda kolumnerna", () => {
+    expect(passSeriesIds({ pass_series_ids: [MON, MON, THU], pass_series_id: MON })).toEqual([MON, THU]);
+  });
+
+  it("hittar kvällens tillfälle oavsett vilken serie det tillhör", () => {
+    // Måndagen är passerad, torsdagen är i dag: kortet ska klippas på torsdagen.
+    const occurrences = [
+      { id: "mon", title: "Måndag", event_date: "2026-09-21", event_time: "17:00", event_location: null },
+      { id: "thu", title: "Torsdag", event_date: "2026-09-24", event_time: "17:00", event_location: null },
+    ];
+    const { today, next } = pickOccurrence(occurrences, new Date("2026-09-24T19:00:00+02:00"));
+    expect(today?.id).toBe("thu");
+    expect(next).toBeNull();
   });
 });

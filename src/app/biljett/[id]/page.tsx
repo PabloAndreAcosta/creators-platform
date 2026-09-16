@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { isPassBooking, passRemaining, pickOccurrence, seriesOccurrences } from "@/lib/passes/series-pass";
+import { isPassBooking, passRemaining, passSeriesIds, pickOccurrence, seriesOccurrences } from "@/lib/passes/series-pass";
 import { notFound } from "next/navigation";
 import QRCode from "qrcode";
 import { Calendar, Clock, MapPin, CheckCircle2, XCircle } from "lucide-react";
@@ -53,7 +53,7 @@ export default async function GuestTicketPage({
   const [{ data: listing }, { data: creator }] = await Promise.all([
     admin
       .from("listings")
-      .select("title, slug, event_date, event_time, event_location, venue_profile_id, venue_confirmed_at, pass_series_id, pass_covers")
+      .select("title, slug, event_date, event_time, event_location, venue_profile_id, venue_confirmed_at, pass_series_id, pass_series_ids, pass_covers")
       .eq("id", booking.listing_id)
       .maybeSingle(),
     admin
@@ -66,8 +66,9 @@ export default async function GuestTicketPage({
   // Klippkort på en serie: biljetten visar seriens nästa kväll (eller kvällens),
   // inte köpögonblicket, och hur många klipp som är kvar.
   const isPass = isPassBooking(booking);
-  const passShown = isPass && listing?.pass_series_id
-    ? (({ today, next }) => today ?? next)(pickOccurrence(await seriesOccurrences(admin, listing.pass_series_id)))
+  const passSeries = passSeriesIds(listing);
+  const passShown = isPass && passSeries.length > 0
+    ? (({ today, next }) => today ?? next)(pickOccurrence(await seriesOccurrences(admin, passSeries)))
     : null;
 
   let attendee: string | null = booking.guest_name;

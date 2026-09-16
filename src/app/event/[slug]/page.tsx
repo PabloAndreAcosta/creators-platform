@@ -321,15 +321,22 @@ export default async function EventPage(props: Params) {
   const supabase = await createClient();
 
   // Klippkort på serien ("5 kvällar") säljs som ett alternativ bredvid
-  // kvällens biljetter. Kortet är en egen annons (package) kopplad via
-  // pass_series_id, så pris och antal ändras i kreatörens tjänstelista.
-  const seriesIdForPass = (listing as { series_id?: string | null }).series_id ?? null;
+  // kvällens biljetter. Kortet är en egen annons (package) kopplad till en
+  // eller flera serier, så pris och antal ändras i kreatörens tjänstelista.
+  // Ett kort som gäller flera serier ligger i pass_series_ids; pass_series_id
+  // tas med i sökningen för kort som skrevs innan arrayen fanns.
+  // Värdet vävs in i ett PostgREST-filter nedan, så det får bara vara ett uuid.
+  const seriesIdRaw = (listing as { series_id?: string | null }).series_id ?? null;
+  const seriesIdForPass =
+    seriesIdRaw && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(seriesIdRaw)
+      ? seriesIdRaw
+      : null;
   type PassRow = { id: string; title: string; price: number | null; session_count: number | null; pass_covers: string | null };
   const { data: passRows } = seriesIdForPass
     ? await supabase
         .from("listings")
         .select("id, title, price, session_count, pass_covers")
-        .eq("pass_series_id", seriesIdForPass)
+        .or(`pass_series_id.eq.${seriesIdForPass},pass_series_ids.cs.{${seriesIdForPass}}`)
         .eq("is_active", true)
         .eq("is_public", true)
         .order("price", { ascending: true })
