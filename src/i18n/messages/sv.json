@@ -2253,6 +2253,8 @@
   "eventPage": {
     "singleTicket": "Biljett till kvällen",
     "passSessions": "{n} tillfällen",
+    "passPerSession": "{price} kr/kväll",
+    "passDiscount": "−{percent} % mot dörrpris",
     "buyPass": "Köp klippkort · {price} kr",
     "bankidVerified": "BankID-verifierad",
     "crewHeading": "Medverkande",

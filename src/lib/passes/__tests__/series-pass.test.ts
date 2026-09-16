@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { isPassBooking, passRemaining, passBookingFields, passSeriesIds, redemptionSlice, pickOccurrence } from "../series-pass";
+import { isPassBooking, passRemaining, passBookingFields, passSavings, passSeriesIds, redemptionSlice, pickOccurrence } from "../series-pass";
 
 describe("klippkort på serie", () => {
   it("känner igen ett klippkort och räknar kvarvarande klipp", () => {
@@ -74,5 +74,28 @@ describe("kort som gäller flera serier", () => {
     const { today, next } = pickOccurrence(occurrences, new Date("2026-09-24T19:00:00+02:00"));
     expect(today?.id).toBe("thu");
     expect(next).toBeNull();
+  });
+});
+
+describe("rabatten på ett klippkort", () => {
+  it("räknar procent mot kvällens ordinarie biljett", () => {
+    // 1 400 kr för tio kvällar à 200 kr = 140 kr/kväll, 30 procent under.
+    expect(passSavings({ price: 1400, sessionCount: 10 }, 200)).toEqual({ perSession: 140, percent: 30 });
+    expect(passSavings({ price: 800, sessionCount: 5 }, 200)).toEqual({ perSession: 160, percent: 20 });
+    expect(passSavings({ price: 1050, sessionCount: 10 }, 150)).toEqual({ perSession: 105, percent: 30 });
+  });
+
+  it("visar ingen rabatt när kortet inte är billigare", () => {
+    expect(passSavings({ price: 1000, sessionCount: 5 }, 200)).toBeNull();
+    expect(passSavings({ price: 1200, sessionCount: 5 }, 200)).toBeNull();
+  });
+
+  it("påstår ingenting när jämförpriset saknas", () => {
+    expect(passSavings({ price: 800, sessionCount: 5 }, 0)).toBeNull();
+    expect(passSavings({ price: 800, sessionCount: 5 }, null)).toBeNull();
+  });
+
+  it("delar aldrig med noll", () => {
+    expect(passSavings({ price: 800, sessionCount: 0 }, 2000)).toEqual({ perSession: 800, percent: 60 });
   });
 });

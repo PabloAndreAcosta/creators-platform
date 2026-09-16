@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { collabRoleLabel } from "@/lib/collaborators";
 import { applyPoolLimits } from "@/lib/tickets/pools";
+import { passSavings } from "@/lib/passes/series-pass";
 import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -374,6 +375,16 @@ export default async function EventPage(props: Params) {
       }),
     }))
   );
+
+  // Rabatten på ett klippkort ska stå i klartext i köpvalet. Den räknas mot
+  // kvällens ordinarie biljett för just det kortet täcker (pass_covers matchar
+  // biljettypens namn), annars mot entrépriset — aldrig mot ett påhittat
+  // jämförpris.
+  const passesForSale = passes.map((p) => {
+    const reference =
+      (ticketTypes ?? []).find((tt) => tt.name === p.covers)?.price ?? listing.price ?? 0;
+    return { ...p, savings: passSavings({ price: p.price, sessionCount: p.sessionCount }, reference) };
+  });
 
   const {
     data: { user },
@@ -823,7 +834,7 @@ export default async function EventPage(props: Params) {
                   isLoggedIn={!!user}
                   returnPath={returnPath}
                   ticketTypes={ticketTypesForSale}
-                  passes={passes}
+                  passes={passesForSale}
                   preselectTicketTypeId={preselectTicketTypeId}
                   creditOre={signupCreditOre}
                   header={{
