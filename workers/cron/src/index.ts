@@ -68,6 +68,11 @@ const JOBS = [
   // det gör det inte om jobbet kör vid lunch. Körningen är idempotent
   // (UNIQUE(listing_id)), så att båda schemana pingar den är ofarligt.
   { name: "settlement-payouts", desc: "Avräkning mot partner för kvällar som varit" },
+  // Betanivåerna delades ut utan betalning och med slutdatum 2099. De bär
+  // påhittade Stripe-id, så ingen webhook kan nedgradera dem — utan det här
+  // jobbet löper de vidare efter betan utan att någon valt att betala. En gång
+  // per dygn räcker: en dags fördröjning på en nedgradering skadar ingen.
+  { name: "expire-comp-subscriptions", desc: "Nedgradering av gratis nivåer som gått ut", atHour: 4 },
   // Nästa försäljning är det första riktiga testet av tvåflödesbygget: landar
   // Ushas egna event verkligen direkt på plattformskontot? En gång per morgon
   // räcker — larmet ska ge besked, inte pipa i realtid. Rutten samlar ihop allt
