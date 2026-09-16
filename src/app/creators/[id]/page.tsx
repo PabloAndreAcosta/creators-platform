@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { safeJsonLd } from "@/lib/json-ld";
 import { CATEGORY_LABELS } from "@/lib/categories";
 import { getTranslations, getLocale } from "next-intl/server";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
 import type { ExperienceDetails } from "@/types/database";
 import Link from "next/link";
@@ -109,6 +109,16 @@ export default async function CreatorProfilePage(props: Props) {
   const canPreview = !!user && (user.id === profile.id || (await isAdminById(user.id)));
   if (!profile.is_public && !canPreview) notFound();
   const isPreviewOfUnpublished = !profile.is_public;
+
+  // En profil med egen adress ska bo på den, inte på sitt id. Länkar byggda
+  // innan slugen fanns — en QR-kod, ett delat meddelande, en gammal bokmärkning
+  // — pekar fortfarande på UUID:t, och utan det här står den kvar i
+  // adressfältet hos den som klickar. Metadatans canonical pekar redan på
+  // slug-adressen, så utan omdirigeringen säger sidan en sak och webbläsaren
+  // en annan.
+  if (isUUID(params.id) && profile.slug) {
+    redirect(`/creators/${profile.slug}`);
+  }
 
   const { data: allListings } = await supabase
     .from("listings")
