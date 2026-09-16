@@ -6,7 +6,8 @@ import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { MapPin, Calendar, ArrowRight, SlidersHorizontal } from "lucide-react";
 import { SeoFooter } from "@/components/seo-footer";
-import { ListingCard } from "@/components/listing-card";
+import { SeriesCard } from "@/components/series-card";
+import { groupBySeries } from "@/lib/listings/group-series";
 import { getBookingCounts, sortWithPromoted, isActivelyPromoted } from "@/lib/listings/popularity";
 import { GeoLocationDetector } from "@/components/geo-location";
 import { EventCarousel } from "@/components/event-carousel";
@@ -65,7 +66,7 @@ export default async function UpplevelserPage(
   // ── Build filtered listings query ──
   let query = supabase
     .from("listings")
-    .select("id, title, price, event_date, event_location, event_city, event_venue, category, image_url, listing_type, created_at, is_promoted, promoted_until, ticket_types(price)", { count: "exact" })
+    .select("id, title, price, event_date, event_location, event_city, event_venue, category, image_url, listing_type, created_at, is_promoted, promoted_until, series_id, ticket_types(price)", { count: "exact" })
     .eq("is_active", true).eq("is_public", true)
     .or(BROWSABLE_TYPES)
     .or(timeFilter);
@@ -118,6 +119,14 @@ export default async function UpplevelserPage(
 
   // Sort promoted first (preserve sort order otherwise)
   const listings = sortWithPromoted(rawListings || []);
+  // En serie är ETT kort med datumen bakom en utfällning. Fjorton The
+  // Lab-kvällar fyllde annars listan med nästan identiska kort och trängde ut
+  // kurser och tjänster, trots att de är egna erbjudanden.
+  //
+  // Grupperingen sker efter hämtningen, så totalsiffran och sidindelningen
+  // räknar fortfarande kvällar. Det är medvetet: annars skulle sida två börja
+  // mitt i en serie och samma kväll kunna dyka upp på båda sidorna.
+  const grupper = groupBySeries(listings);
 
   // ── Fetch promoted events for carousel ──
   const { data: promotedEvents } = await supabase
@@ -300,12 +309,12 @@ export default async function UpplevelserPage(
         {/* ── Listings grid ── */}
         {listings && listings.length > 0 ? (
           <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {listings.map((listing) => (
-              <ListingCard
-                key={listing.id}
-                listing={listing}
-                bookingCount={bookingCounts[listing.id] || 0}
-                isPromoted={isActivelyPromoted(listing)}
+            {grupper.map((g) => (
+              <SeriesCard
+                key={g.forsta.id}
+                grupp={g}
+                bookingCount={bookingCounts[g.forsta.id] || 0}
+                isPromoted={isActivelyPromoted(g.forsta)}
               />
             ))}
           </div>
