@@ -1786,6 +1786,8 @@
     "toastEarlyBirdError": "Failed",
     "toastGenericError": "Something went wrong",
     "duplicate": "Duplicate",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
     "toastDuplicated": "Copy created as a draft",
     "toastDuplicateError": "Could not duplicate",
     "seriesBadge": "Series",

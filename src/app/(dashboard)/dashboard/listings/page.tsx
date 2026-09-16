@@ -21,6 +21,9 @@ export default async function ListingsPage() {
     .from("listings")
     .select("*")
     .eq("user_id", user.id)
+    // Samma ordning som publiken ser, annars flyttar man ett kort i listan och
+    // ser ingen skillnad på sin egen sida.
+    .order("sort_order", { ascending: true, nullsFirst: false })
     .order("created_at", { ascending: false });
 
   // Group occurrences that share a series_id so a series renders as one
@@ -69,9 +72,22 @@ export default async function ListingsPage() {
           {series.map((occ) => (
             <SeriesCard key={`series-${occ[0].series_id}`} occurrences={occ} />
           ))}
-          {standalone.map((listing) => (
-            <ListingRow key={listing.id} listing={listing} />
-          ))}
+          {/* Pilarna visas bara på tjänster. Ett evenemang har datum, och ett
+              datum är en bättre ordning än en handpåläggning — därför får bara
+              det odaterade flyttas, och bara i förhållande till annat odaterat. */}
+          {standalone.map((listing, i, rader) => {
+            const tjanster = rader.filter((l) => !l.event_date);
+            const plats = tjanster.findIndex((l) => l.id === listing.id);
+            const arTjanst = plats >= 0;
+            return (
+            <ListingRow
+              key={listing.id}
+              listing={listing}
+              kanFlyttaUpp={arTjanst && plats > 0}
+              kanFlyttaNer={arTjanst && plats < tjanster.length - 1}
+          />
+            );
+          })}
         </div>
       )}
     </>
