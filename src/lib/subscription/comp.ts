@@ -18,6 +18,22 @@
  * själv, om inte kontoägaren själv tecknar ett riktigt abonnemang.
  */
 
+/**
+ * Permanent gåva — ska ALDRIG falla.
+ *
+ * Fem konton har Premium på obestämd tid med avsikt: ägarens tre egna konton,
+ * Love och Osvaldo. De bär alla "lifetime" i sitt grant-id, vilket var
+ * konventionen redan när de skapades. Det ordet är därför markören: en
+ * livstidsgåva är ett beslut, inte en betaperiod som råkat bli kvar.
+ *
+ * Utan den här skillnaden hade beta-nedgraderingen tagit dem med sig, eftersom
+ * de i övrigt ser ut precis som en tidsbegränsad comp-rad: påhittat Stripe-id
+ * och slutdatum 2099-12-31.
+ */
+export function isPermanentGrant(sub: { stripe_subscription_id?: string | null }): boolean {
+  return (sub.stripe_subscription_id ?? "").includes("lifetime");
+}
+
 /** En rad utan äkta Stripe-koppling. */
 export function isCompGrant(sub: { stripe_subscription_id?: string | null }): boolean {
   // Ett äkta Stripe-abonnemang har alltid ett id som börjar med "sub_". Allt
@@ -35,12 +51,16 @@ export function isCompGrant(sub: { stripe_subscription_id?: string | null }): bo
  * (`beta_ends_at`). Är den osatt löper comp-raderna vidare — men de faller
  * ändå på sitt eget current_period_end, vilket är det som gäller för en
  * tidsbegränsad gåva som Christians månad.
+ *
+ * Livstidsgåvor undantas helt. Se isPermanentGrant.
  */
 export function hasExpired(
-  sub: { current_period_end?: string | null },
+  sub: { current_period_end?: string | null; stripe_subscription_id?: string | null },
   now: Date,
   betaEndsAt: Date | null
 ): boolean {
+  // En livstidsgåva överlever både sitt eget slutdatum och betans slut.
+  if (isPermanentGrant(sub)) return false;
   if (sub.current_period_end) {
     const slut = new Date(sub.current_period_end);
     if (slut.getTime() <= now.getTime()) return true;

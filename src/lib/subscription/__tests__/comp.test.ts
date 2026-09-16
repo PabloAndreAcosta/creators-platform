@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { isCompGrant, hasExpired } from "../comp";
+import { isCompGrant, isPermanentGrant, hasExpired } from "../comp";
 
 describe("isCompGrant", () => {
   it("räknar ett äkta Stripe-abonnemang som betalande", () => {
@@ -44,5 +44,59 @@ describe("hasExpired", () => {
 
   it("utan slutdatum och utan betagräns händer inget", () => {
     expect(hasExpired({ current_period_end: null }, nu, null)).toBe(false);
+  });
+});
+
+describe("isPermanentGrant", () => {
+  it("känner igen de fem livstidsgåvorna", () => {
+    for (const id of [
+      "comp_owner_lifetime",
+      "comp_owner_lifetime_gmail",
+      "comp_owner_lifetime_aztk",
+      "comp_owner_lifetime_gmail2",
+      "comp_family_lifetime_osvaldo",
+    ]) {
+      expect(isPermanentGrant({ stripe_subscription_id: id })).toBe(true);
+    }
+  });
+
+  it("en tidsbegränsad gåva är inte permanent", () => {
+    expect(isPermanentGrant({ stripe_subscription_id: "comp_christian_1man" })).toBe(false);
+    expect(isPermanentGrant({ stripe_subscription_id: null })).toBe(false);
+  });
+});
+
+describe("livstidsgåvor faller aldrig", () => {
+  const nu = new Date("2026-09-16T12:00:00Z");
+  const betaSlut = new Date("2026-09-01T00:00:00Z"); // redan passerat
+
+  it("överlever betans slut", () => {
+    expect(
+      hasExpired(
+        { current_period_end: "2099-12-31T00:00:00Z", stripe_subscription_id: "comp_owner_lifetime" },
+        nu,
+        betaSlut
+      )
+    ).toBe(false);
+  });
+
+  it("överlever även ett passerat eget slutdatum", () => {
+    expect(
+      hasExpired(
+        { current_period_end: "2026-01-01T00:00:00Z", stripe_subscription_id: "comp_family_lifetime_osvaldo" },
+        nu,
+        null
+      )
+    ).toBe(false);
+  });
+
+  it("men en tidsbegränsad gåva faller som förut", () => {
+    expect(
+      hasExpired(
+        { current_period_end: "2026-09-15T00:00:00Z", stripe_subscription_id: "comp_christian_1man" },
+        nu,
+        null
+      )
+    ).toBe(true);
   });
 });
