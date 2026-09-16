@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { BROWSABLE_TYPES } from "@/lib/listings/browse";
 import { CATEGORIES } from "@/lib/categories";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
@@ -66,6 +67,7 @@ export default async function UpplevelserPage(
     .from("listings")
     .select("id, title, price, event_date, event_location, event_city, event_venue, category, image_url, listing_type, created_at, is_promoted, promoted_until, ticket_types(price)", { count: "exact" })
     .eq("is_active", true).eq("is_public", true)
+    .or(BROWSABLE_TYPES)
     .or(timeFilter);
 
   if (category && category !== "all") {
@@ -123,6 +125,7 @@ export default async function UpplevelserPage(
     .select("id, slug, title, price, event_date, event_location, image_url, category, is_promoted, promoted_until")
     .eq("is_active", true)
     .eq("is_public", true)
+    .or(BROWSABLE_TYPES)
     .eq("is_promoted", true)
     .or(timeFilter)
     .order("created_at", { ascending: false })
@@ -139,6 +142,7 @@ export default async function UpplevelserPage(
     .from("listings")
     .select("category, event_city")
     .eq("is_active", true).eq("is_public", true)
+    .or(BROWSABLE_TYPES)
     .or(timeFilter);
 
   const categoryCounts: Record<string, number> = {};
