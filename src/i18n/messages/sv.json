@@ -527,6 +527,11 @@
     "marketingConsent": "Ja, jag vill få mejl om erbjudanden och nyheter från Usha. Du kan ändra det när som helst i inställningarna."
   },
   "landing": {
+    "whatsOn": {
+      "heading": "Vad händer",
+      "sub": "Kommande kvällar, kurser och tjänster.",
+      "seeAll": "Se allt"
+    },
     "meta": {
       "title": "Usha Platform — Där kreatörer, platser och publik möts",
       "description": "Kretsloppet som får Sveriges kreativa liv att snurra – kreatörer hittar uppdrag, platser fyller sin kalender, publiken upptäcker upplevelser. Tryggt med BankID och Stripe.",

@@ -527,6 +527,11 @@
     "marketingConsent": "Yes, send me email about offers and news from Usha. You can change this any time in settings."
   },
   "landing": {
+    "whatsOn": {
+      "heading": "What's on",
+      "sub": "Upcoming nights, courses and services.",
+      "seeAll": "See all"
+    },
     "meta": {
       "title": "Usha Platform — Where creators, venues and audiences meet",
       "description": "The cycle that keeps Sweden's creative life turning – creators find work, venues fill their calendar, audiences discover experiences. Safe with BankID and Stripe.",

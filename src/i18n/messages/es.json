@@ -527,6 +527,11 @@
     "marketingConsent": "Sí, quiero recibir correos sobre ofertas y novedades de Usha. Puedes cambiarlo cuando quieras en los ajustes."
   },
   "landing": {
+    "whatsOn": {
+      "heading": "Qué pasa",
+      "sub": "Próximas noches, cursos y servicios.",
+      "seeAll": "Ver todo"
+    },
     "meta": {
       "title": "Usha Platform — Donde se encuentran creadores, espacios y público",
       "description": "El ciclo que mantiene en marcha la vida creativa de Suecia: los creadores encuentran trabajo, los espacios llenan su calendario y el público descubre experiencias. Con la seguridad de BankID y Stripe.",

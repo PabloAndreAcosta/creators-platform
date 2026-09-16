@@ -7,6 +7,7 @@ import { LandingStats } from "@/components/landing-stats";
 import { LandingInstall } from "@/components/landing-install";
 import { InstallPrompt } from "@/components/install-prompt";
 import { SiteNav } from "@/components/landing/site-nav";
+import { WhatsOn } from "@/components/landing/whats-on";
 import { Ecosystem } from "@/components/landing/ecosystem";
 import { Trust } from "@/components/landing/trust";
 import { Footer } from "@/components/landing/footer";
@@ -87,7 +88,11 @@ function Hero() {
   const t = useTranslations("landing");
 
   return (
-    <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 pt-16 sm:px-6">
+    // Inte längre min-h-screen. Hero tog en hel skärm, så det första en
+    // besökare mötte var en pitch — och svaret på "vad händer" låg utanför
+    // bild. Nu tar sektionen den höjd innehållet kräver, och listan med
+    // kommande kvällar börjar synas direkt under.
+    <section className="relative flex flex-col items-center justify-center overflow-hidden px-4 pt-24 pb-14 sm:px-6 sm:pt-28 sm:pb-16">
       <div className="pointer-events-none absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2">
         <div className="h-[600px] w-[900px] rounded-full bg-[var(--usha-gold)] opacity-[0.05] blur-[180px]" />
       </div>
@@ -111,12 +116,14 @@ function Hero() {
           className="animate-fade-up delay-150 mx-auto mb-8 max-w-3xl overflow-hidden rounded-xl border border-[var(--usha-border)] sm:mb-10 sm:rounded-2xl"
           style={{ opacity: 0 }}
         >
+          {/* Höjdtaket gäller även på desktop. Utan det växte videon med
+              skärmen och tryckte ned allt konkret under vikningen. */}
           <video
             autoPlay
             loop
             muted
             playsInline
-            className="w-full max-h-[50vh] object-cover sm:max-h-none"
+            className="w-full max-h-[38vh] object-cover sm:max-h-[44vh]"
             suppressHydrationWarning
           >
             <source src="/hero-video.mp4" type="video/mp4" />
@@ -141,17 +148,8 @@ function Hero() {
           </a>
         </div>
 
-        {/* Three doors into the cycle */}
-        <div className="animate-fade-up delay-300 w-full" style={{ opacity: 0 }}>
-          <AudienceDoors />
-        </div>
       </div>
 
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-        <div className="h-8 w-5 rounded-full border-2 border-[var(--usha-border)] p-1">
-          <div className="mx-auto h-2 w-1 rounded-full bg-[var(--usha-gold)]" />
-        </div>
-      </div>
     </section>
   );
 }
@@ -205,6 +203,17 @@ export default function Home() {
       <RedirectIfAuthed />
       <SiteNav />
       <Hero />
+      {/* Svaret på "vad händer" högst upp, före pitchen om ekosystemet. Den
+          som vill förstå plattformen skrollar vidare; den som bara undrar när
+          nästa kväll är behöver inte göra det. */}
+      <WhatsOn />
+      {/* Dörrarna låg tidigare i hero och sköt ned allt konkret. De förklarar
+          ekosystemet, vilket är nästa fråga — inte den första. */}
+      <section className="px-4 pb-14 sm:px-6 sm:pb-16">
+        <div className="mx-auto max-w-6xl">
+          <AudienceDoors />
+        </div>
+      </section>
       <LandingStats />
       <Ecosystem />
       <Trust />
