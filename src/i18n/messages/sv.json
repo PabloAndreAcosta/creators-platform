@@ -1211,6 +1211,10 @@
     "instructorFallback": "Instruktör",
     "thatIsYou": "Det här är du"
   },
+  "seriesCard": {
+    "more": "{count, plural, =1 {# tillfälle till} other {# tillfällen till}}",
+    "book": "Boka"
+  },
   "listingCard": {
     "badgePromoted": "Framhävd",
     "badgePopular": "Populär",

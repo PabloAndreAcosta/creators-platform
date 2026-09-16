@@ -1211,6 +1211,10 @@
     "instructorFallback": "Instructor",
     "thatIsYou": "That's you"
   },
+  "seriesCard": {
+    "more": "{count, plural, =1 {# more date} other {# more dates}}",
+    "book": "Book"
+  },
   "listingCard": {
     "badgePromoted": "Featured",
     "badgePopular": "Popular",

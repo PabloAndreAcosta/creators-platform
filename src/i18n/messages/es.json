@@ -1211,6 +1211,10 @@
     "instructorFallback": "Instructor",
     "thatIsYou": "Eres tú"
   },
+  "seriesCard": {
+    "more": "{count, plural, =1 {# fecha más} other {# fechas más}}",
+    "book": "Reservar"
+  },
   "listingCard": {
     "badgePromoted": "Destacado",
     "badgePopular": "Popular",
