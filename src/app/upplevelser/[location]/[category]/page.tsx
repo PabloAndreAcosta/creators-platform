@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { BROWSABLE_TYPES } from "@/lib/listings/browse";
 import { upcomingOrUndated } from "@/lib/listings/time-window";
 import { CATEGORIES, CATEGORY_LABELS } from "@/lib/categories";
 import { safeJsonLd } from "@/lib/json-ld";
@@ -30,6 +31,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     .select("id", { count: "exact", head: true })
     .eq("is_active", true)
     .eq("is_public", true)
+    .or(BROWSABLE_TYPES)
     .eq("category", params.category)
     .ilike("event_city", `%${city}%`)
     .or(upcomingOrUndated());
@@ -58,6 +60,7 @@ export default async function LocationCategoryPage(props: Props) {
     .select("id, title, description, price, event_date, event_location, event_city, event_venue, category, image_url, listing_type, is_promoted, promoted_until, ticket_types(price)")
     .eq("is_active", true)
     .eq("is_public", true)
+    .or(BROWSABLE_TYPES)
     .eq("category", params.category)
     .ilike("event_city", `%${city}%`)
     .or(upcomingOrUndated())
@@ -74,6 +77,7 @@ export default async function LocationCategoryPage(props: Props) {
     .select("category")
     .eq("is_active", true)
     .eq("is_public", true)
+    .or(BROWSABLE_TYPES)
     .ilike("event_city", `%${city}%`)
     .or(upcomingOrUndated());
   const cityCats = new Set((cityCatRows || []).map((r) => r.category).filter(Boolean));
