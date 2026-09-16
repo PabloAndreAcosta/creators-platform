@@ -23,6 +23,8 @@ interface PassOption {
   price: number;
   sessionCount: number;
   covers: string | null;
+  /** Arrangörens eget jämförpris per kväll, om hen satt ett. */
+  referencePrice?: number | null;
   /** Vad kortet sparar mot kvällsbiljetten. null = ingen rabatt att visa. */
   savings?: { perSession: number; percent: number } | null;
 }

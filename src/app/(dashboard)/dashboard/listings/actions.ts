@@ -72,6 +72,12 @@ function parseListingForm(formData: FormData) {
   const pass_series_id = pass_series_ids[0] ?? null;
   const pass_covers =
     listing_type === "package" ? ((formData.get("pass_covers") as string)?.trim().slice(0, 80) || null) : null;
+  // Jämförpriset rabatten räknas mot. Tomt = systemet jämför mot biljettypen
+  // som heter samma sak som pass_covers.
+  const referenceRaw = listing_type === "package" ? (formData.get("pass_reference_price") as string)?.trim() : "";
+  const referenceParsed = referenceRaw ? parseInt(referenceRaw, 10) : NaN;
+  const pass_reference_price =
+    Number.isFinite(referenceParsed) && referenceParsed > 0 ? referenceParsed : null;
 
   if (!title) return { error: "Titel krävs" } as const;
   if (!category || !CATEGORIES.includes(category as (typeof CATEGORIES)[number])) {
@@ -113,6 +119,7 @@ function parseListingForm(formData: FormData) {
       pass_series_id,
       pass_series_ids: pass_series_ids.length > 0 ? pass_series_ids : null,
       pass_covers,
+      pass_reference_price,
     },
   } as const;
 }
