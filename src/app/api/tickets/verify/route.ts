@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isPassBooking, passRemaining, pickOccurrence, seriesOccurrences } from "@/lib/passes/series-pass";
+import { isPassBooking, passRemaining, passSeriesIds, pickOccurrence, seriesOccurrences } from "@/lib/passes/series-pass";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -277,10 +277,11 @@ async function verifySeriesPass(opts: {
   const { admin, userId, booking, ticketCode, t } = opts;
   const { data: pass } = await admin
     .from("listings")
-    .select("title, pass_series_id, pass_covers")
+    .select("title, pass_series_id, pass_series_ids, pass_covers")
     .eq("id", booking.listing_id)
     .maybeSingle();
-  const occurrences = pass?.pass_series_id ? await seriesOccurrences(admin, pass.pass_series_id) : [];
+  const passSeries = passSeriesIds(pass);
+  const occurrences = await seriesOccurrences(admin, passSeries);
   const { today, next } = pickOccurrence(occurrences);
 
   // Behörigheten prövas mot kvällens tillfälle: den som får skanna i dörren
@@ -296,7 +297,7 @@ async function verifySeriesPass(opts: {
   let status: string;
   if (booking.status === "canceled") status = "canceled";
   else if (booking.status === "pending") status = "pending";
-  else if (!pass?.pass_series_id) status = "pass_not_series";
+  else if (passSeries.length === 0) status = "pass_not_series";
   else if (remaining <= 0) status = "already_used";
   else if (!today) status = "wrong_date";
   else {

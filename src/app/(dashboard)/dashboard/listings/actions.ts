@@ -56,11 +56,20 @@ function parseListingForm(formData: FormData) {
       ? sessionCountParsed
       : null;
 
-  // Klippkort kopplat till en serie: kortet blir en biljett som skannas i
-  // dörren. Ägarskapet av serien prövas i create/update (kräver databas).
-  const passSeriesRaw = (formData.get("pass_series_id") as string)?.trim() || null;
-  const pass_series_id =
-    listing_type === "package" && passSeriesRaw && /^[0-9a-f-]{36}$/i.test(passSeriesRaw) ? passSeriesRaw : null;
+  // Klippkort kopplat till en eller flera serier: kortet blir en biljett som
+  // skannas i dörren på varje seriens kvällar. Ägarskapet av serierna prövas i
+  // create/update (kräver databas). pass_series_id speglar första serien så en
+  // äldre utrullning som läser kolumnen ser rätt.
+  const pass_series_ids =
+    listing_type === "package"
+      ? [...new Set(
+          formData
+            .getAll("pass_series_id")
+            .map((v) => String(v).trim())
+            .filter((v) => /^[0-9a-f-]{36}$/i.test(v))
+        )]
+      : [];
+  const pass_series_id = pass_series_ids[0] ?? null;
   const pass_covers =
     listing_type === "package" ? ((formData.get("pass_covers") as string)?.trim().slice(0, 80) || null) : null;
 
@@ -102,6 +111,7 @@ function parseListingForm(formData: FormData) {
       listing_type,
       session_count,
       pass_series_id,
+      pass_series_ids: pass_series_ids.length > 0 ? pass_series_ids : null,
       pass_covers,
     },
   } as const;
@@ -150,7 +160,7 @@ export async function createListing(formData: FormData) {
     }
   }
 
-  if (parsed.data.pass_series_id && !(await ownsSeries(supabase, user.id, parsed.data.pass_series_id))) {
+  if (!(await ownsEverySeries(supabase, user.id, parsed.data.pass_series_ids))) {
     return { error: "Serien hittades inte bland dina evenemang." };
   }
 
@@ -209,7 +219,7 @@ export async function updateListing(id: string, formData: FormData) {
     }
   }
 
-  if (parsed.data.pass_series_id && !(await ownsSeries(supabase, user.id, parsed.data.pass_series_id))) {
+  if (!(await ownsEverySeries(supabase, user.id, parsed.data.pass_series_ids))) {
     return { error: "Serien hittades inte bland dina evenemang." };
   }
 
@@ -317,6 +327,18 @@ export async function duplicateListing(id: string) {
   revalidatePath("/dashboard/listings");
   revalidatePath("/dashboard");
   return { success: true, id: copy.id };
+}
+
+/** Varje serie kortet gäller måste vara ens egen; tomt är inget kort på serie. */
+async function ownsEverySeries(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  seriesIds: string[] | null | undefined
+): Promise<boolean> {
+  for (const id of seriesIds ?? []) {
+    if (!(await ownsSeries(supabase, userId, id))) return false;
+  }
+  return true;
 }
 
 /** Får bara koppla kortet till en serie man själv arrangerar. */

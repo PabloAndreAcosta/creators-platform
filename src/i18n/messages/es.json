@@ -3547,8 +3547,7 @@
   },
   "listingForm": {
     "passSeriesLabel": "Válido como entrada para la serie",
-    "passSeriesNone": "Ninguna: se canjea a mano en la lista de reservas",
-    "passSeriesHint": "Vinculado a una serie, el QR del bono se escanea en la puerta, un uso por noche.",
+    "passSeriesHint": "Marca cada serie que cubre el bono: el QR se escanea en la puerta, un uso por noche. Sin ninguna serie marcada, el bono se canjea a mano en la lista de reservas.",
     "passCoversLabel": "Cada uso da acceso a",
     "passCoversPlaceholder": "p. ej. Todo: practica + taller + social",
     "uploadFailed": "Error al subir",

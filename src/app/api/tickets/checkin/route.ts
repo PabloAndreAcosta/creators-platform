@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isPassBooking, passRemaining, pickOccurrence, seriesOccurrences } from "@/lib/passes/series-pass";
+import { isPassBooking, passRemaining, passSeriesIds, pickOccurrence, seriesOccurrences } from "@/lib/passes/series-pass";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -202,10 +202,10 @@ async function checkInSeriesPass(opts: {
   const { admin, userId, booking, t } = opts;
   const { data: pass } = await admin
     .from("listings")
-    .select("title, pass_series_id")
+    .select("title, pass_series_id, pass_series_ids")
     .eq("id", booking.listing_id)
     .maybeSingle();
-  const occurrences = pass?.pass_series_id ? await seriesOccurrences(admin, pass.pass_series_id) : [];
+  const occurrences = await seriesOccurrences(admin, passSeriesIds(pass));
   const { today } = pickOccurrence(occurrences);
 
   const isOwnerOrAdmin = booking.creator_id === userId || (await isAdminById(userId));

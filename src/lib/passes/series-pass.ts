@@ -3,11 +3,11 @@ import { isEventDay, stockholmDay } from "@/lib/tickets/event-day";
 import type { SettlementBookingRow } from "@/lib/settlements/aggregate";
 
 /**
- * Klippkort på en serie.
+ * Klippkort på en eller flera serier.
  *
  * En bokning är ett klippkort när sessions_total > 0. Är kortets annons
- * (listing) kopplad till en serie via pass_series_id fungerar QR-koden som
- * biljett på seriens kvällar: ett klipp per kväll, loggat i pass_redemptions.
+ * (listing) kopplad till minst en serie fungerar QR-koden som biljett på
+ * seriernas kvällar: ett klipp per kväll, loggat i pass_redemptions.
  */
 export interface PassBookingLike {
   sessions_total: number | null;
@@ -69,11 +69,32 @@ export function pickOccurrence(
   return { today, next };
 }
 
-export async function seriesOccurrences(admin: SupabaseClient, seriesId: string): Promise<Occurrence[]> {
+/** Rad som bär kopplingen till serier — arrayen är sanningen. */
+export interface PassSeriesLike {
+  pass_series_ids?: string[] | null;
+  pass_series_id?: string | null;
+}
+
+/**
+ * Serierna ett kort gäller på. pass_series_id läses som reserv så kort som
+ * skrevs av en äldre utrullning fortfarande fungerar i dörren.
+ */
+export function passSeriesIds(row: PassSeriesLike | null | undefined): string[] {
+  const many = row?.pass_series_ids?.filter(Boolean) ?? [];
+  if (many.length > 0) return [...new Set(many)];
+  return row?.pass_series_id ? [row.pass_series_id] : [];
+}
+
+export async function seriesOccurrences(
+  admin: SupabaseClient,
+  series: string | readonly string[]
+): Promise<Occurrence[]> {
+  const ids = (typeof series === "string" ? [series] : series).filter(Boolean);
+  if (ids.length === 0) return [];
   const { data } = await admin
     .from("listings")
     .select("id, title, event_date, event_time, event_location")
-    .eq("series_id", seriesId)
+    .in("series_id", ids as string[])
     .eq("is_active", true)
     .not("event_date", "is", null)
     .order("event_date", { ascending: true });
