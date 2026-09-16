@@ -232,11 +232,13 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
             {t("passSessions", { n: p.sessionCount })}
             {p.covers ? ` · ${p.covers}` : ""}
           </span>
-          <span className="flex items-baseline justify-between gap-3">
-            <span className="font-semibold">
+          {/* Priset och "kr/kväll" hör ihop och får aldrig brytas isär; ryms
+              inte rabatten på samma rad hoppar den ned i stället. */}
+          <span className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+            <span className="font-semibold whitespace-nowrap">
               {t("priceLabel", { price: p.price })}
               {p.savings && (
-                <span className="ml-1.5 text-xs font-normal text-[var(--usha-muted)]">
+                <span className="ml-1.5 text-xs font-normal whitespace-nowrap text-[var(--usha-muted)]">
                   {t("passPerSession", { price: p.savings.perSession })}
                 </span>
               )}
