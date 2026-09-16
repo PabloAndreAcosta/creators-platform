@@ -13,7 +13,7 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
-export function Nav({ showCalendar = false }: { showCalendar?: boolean } = {}) {
+export function Nav() {
   const t = useTranslations("landing");
   const ta = useTranslations("a11y");
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -60,21 +60,19 @@ export function Nav({ showCalendar = false }: { showCalendar?: boolean } = {}) {
     return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
 
+  // Menyn hade åtta länkar, varav fem vände sig till någon som vill SÄLJA:
+  // Kreatör, Plats, Publik, Sälj biljetter, Shop. Den som bara undrar vad som
+  // händer fick leta fram Upplevelser på sjunde plats, i en grupp med Flöde och
+  // Marketplace — ord som beskriver systemets delar, inte besökarens fråga.
+  //
+  // Nu är utgångspunkten att en besökare främst vill se vad som händer.
+  // Upplevelser rymmer både kvällarna och kurserna, och är därför den enda
+  // ingång som behövs i toppen. Kalendern är en vy av samma sak och nås från
+  // sidan; flöde, marknadsplats och säljarsidorna bor i sidfoten, där den som
+  // vill förstå ekosystemet hittar dem.
   const pageLinks = [
-    { href: "/for-kreatorer", label: t("nav.forCreators") },
-    { href: "/for-platser", label: t("nav.forVenues") },
-    { href: "/for-publik", label: t("nav.forAudience") },
-    { href: "/salj-biljetter", label: t("nav.sellTickets") },
-    // Storefront lives on the shop.usha.se subdomain (same brand, separate app).
-    { href: "https://shop.usha.se", label: t("nav.shop") },
-  ];
-  const appLinks = [
-    // Kalendern finns alltid på /kalender; länken dyker upp när utbudet räcker
-    // (app_config.calendar_min_supply). Se lib/calendar/visibility.ts.
-    ...(showCalendar ? [{ href: "/kalender", label: t("nav.calendar") }] : []),
-    { href: "/flode", label: t("nav.feed") },
     { href: "/upplevelser", label: t("nav.experiences") },
-    { href: "/marketplace", label: t("nav.marketplace") },
+    { href: "/for-kreatorer", label: t("nav.forCreators") },
   ];
 
   async function handleInstallClick(e: React.MouseEvent) {
@@ -116,12 +114,6 @@ export function Nav({ showCalendar = false }: { showCalendar?: boolean } = {}) {
         <div className="hidden items-center gap-5 whitespace-nowrap text-sm lg:flex">
           {pageLinks.map((l) => (
             <a key={l.href} href={l.href} className="text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]">
-              {l.label}
-            </a>
-          ))}
-          <span className="h-4 w-px bg-[var(--usha-border)]" />
-          {appLinks.map((l) => (
-            <a key={l.href} href={l.href} className="text-[#60a5fa] transition hover:text-[#93c5fd]">
               {l.label}
             </a>
           ))}
@@ -169,17 +161,6 @@ export function Nav({ showCalendar = false }: { showCalendar?: boolean } = {}) {
                 href={l.href}
                 onClick={() => setMobileOpen(false)}
                 className="py-2 text-sm text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
-              >
-                {l.label}
-              </a>
-            ))}
-            <div className="my-1 h-px bg-[var(--usha-border)]" />
-            {appLinks.map((l) => (
-              <a
-                key={l.href}
-                href={l.href}
-                onClick={() => setMobileOpen(false)}
-                className="py-2 text-sm text-[#60a5fa] transition hover:text-[#93c5fd]"
               >
                 {l.label}
               </a>
