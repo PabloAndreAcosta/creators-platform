@@ -332,11 +332,11 @@ export default async function EventPage(props: Params) {
     seriesIdRaw && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(seriesIdRaw)
       ? seriesIdRaw
       : null;
-  type PassRow = { id: string; title: string; price: number | null; session_count: number | null; pass_covers: string | null };
+  type PassRow = { id: string; title: string; price: number | null; session_count: number | null; pass_covers: string | null; pass_reference_price: number | null };
   const { data: passRows } = seriesIdForPass
     ? await supabase
         .from("listings")
-        .select("id, title, price, session_count, pass_covers")
+        .select("id, title, price, session_count, pass_covers, pass_reference_price")
         .or(`pass_series_id.eq.${seriesIdForPass},pass_series_ids.cs.{${seriesIdForPass}}`)
         .eq("is_active", true)
         .eq("is_public", true)
@@ -344,7 +344,7 @@ export default async function EventPage(props: Params) {
     : { data: [] as PassRow[] };
   const passes = ((passRows ?? []) as PassRow[])
     .filter((p) => (p.session_count ?? 0) > 0)
-    .map((p) => ({ id: p.id, title: p.title, price: p.price ?? 0, sessionCount: p.session_count ?? 0, covers: p.pass_covers }));
+    .map((p) => ({ id: p.id, title: p.title, price: p.price ?? 0, sessionCount: p.session_count ?? 0, covers: p.pass_covers, referencePrice: p.pass_reference_price }));
 
   // Ticket types (price tiers). Empty → single-price event (unchanged).
   const { data: ticketTypes } = await supabase
@@ -376,13 +376,16 @@ export default async function EventPage(props: Params) {
     }))
   );
 
-  // Rabatten på ett klippkort ska stå i klartext i köpvalet. Den räknas mot
-  // kvällens ordinarie biljett för just det kortet täcker (pass_covers matchar
-  // biljettypens namn), annars mot entrépriset — aldrig mot ett påhittat
-  // jämförpris.
+  // Rabatten på ett klippkort ska stå i klartext i köpvalet. Jämförpriset är i
+  // första hand arrangörens eget (pass_reference_price), annars kvällens
+  // biljett som heter det kortet täcker, annars entrépriset. Finns inget att
+  // jämföra med står det ingenting — hellre tyst än ett påhittat jämförpris.
   const passesForSale = passes.map((p) => {
     const reference =
-      (ticketTypes ?? []).find((tt) => tt.name === p.covers)?.price ?? listing.price ?? 0;
+      p.referencePrice ??
+      (ticketTypes ?? []).find((tt) => tt.name === p.covers)?.price ??
+      listing.price ??
+      0;
     return { ...p, savings: passSavings({ price: p.price, sessionCount: p.sessionCount }, reference) };
   });
 

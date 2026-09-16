@@ -3552,6 +3552,8 @@
     "passSeriesHint": "Bocka i varje serie kortet ska gälla på — QR-koden skannas i dörren, ett klipp per kväll. Ingen serie ibockad betyder att kortet löses in för hand i bokningslistan.",
     "passCoversLabel": "Ett klipp ger tillträde till",
     "passCoversPlaceholder": "t.ex. Allt: practica + workshop + social",
+    "passReferencePriceLabel": "Ordinarie pris per kväll (valfritt)",
+    "passReferencePriceHint": "Vad samma kväll kostar styckvis. Används bara för att visa rabatten i procent. Lämna tomt så jämförs kortet med biljetten som heter samma sak som fältet ovan.",
     "uploadFailed": "Uppladdning misslyckades",
     "saveFailed": "Kunde inte spara tjänst",
     "savedToast": "Tjänst sparad",

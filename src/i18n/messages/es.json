@@ -3552,6 +3552,8 @@
     "passSeriesHint": "Marca cada serie que cubre el bono: el QR se escanea en la puerta, un uso por noche. Sin ninguna serie marcada, el bono se canjea a mano en la lista de reservas.",
     "passCoversLabel": "Cada uso da acceso a",
     "passCoversPlaceholder": "p. ej. Todo: practica + taller + social",
+    "passReferencePriceLabel": "Precio normal por noche (opcional)",
+    "passReferencePriceHint": "Lo que cuesta una noche suelta. Solo se usa para mostrar el descuento en porcentaje. Déjalo vacío para comparar con la entrada que se llama igual que el campo de arriba.",
     "uploadFailed": "Error al subir",
     "saveFailed": "No se pudo guardar el servicio",
     "savedToast": "Servicio guardado",

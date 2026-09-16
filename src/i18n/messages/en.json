@@ -3552,6 +3552,8 @@
     "passSeriesHint": "Tick every series the pass covers — the QR is scanned at the door, one clip per night. No series ticked means the pass is redeemed by hand in the bookings list.",
     "passCoversLabel": "One clip gives access to",
     "passCoversPlaceholder": "e.g. Everything: practica + workshop + social",
+    "passReferencePriceLabel": "Regular price per night (optional)",
+    "passReferencePriceHint": "What one night costs on its own. Used only to show the discount as a percentage. Leave empty to compare against the ticket named in the field above.",
     "uploadFailed": "Upload failed",
     "saveFailed": "Could not save service",
     "savedToast": "Service saved",

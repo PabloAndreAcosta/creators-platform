@@ -27,6 +27,7 @@ interface Listing {
   listing_type?: string | null;
   pass_series_id?: string | null;
   pass_series_ids?: string[] | null;
+  pass_reference_price?: number | null;
   pass_covers?: string | null;
   session_count?: number | null;
 }
@@ -242,6 +243,19 @@ export default function ListingForm({
                     placeholder={t("passCoversPlaceholder")}
                     className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
                   />
+                  <label htmlFor="pass_reference_price" className="mb-1.5 mt-3 block text-sm text-[var(--usha-muted)]">
+                    {t("passReferencePriceLabel")}
+                  </label>
+                  <input
+                    id="pass_reference_price"
+                    name="pass_reference_price"
+                    type="number"
+                    min={1}
+                    step={1}
+                    defaultValue={listing?.pass_reference_price ?? ""}
+                    className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+                  />
+                  <p className="mt-1.5 text-xs text-[var(--usha-muted)]">{t("passReferencePriceHint")}</p>
                 </div>
               )}
             </>
