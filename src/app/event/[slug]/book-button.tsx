@@ -23,6 +23,8 @@ interface PassOption {
   price: number;
   sessionCount: number;
   covers: string | null;
+  /** Vad kortet sparar mot kvällsbiljetten. null = ingen rabatt att visa. */
+  savings?: { perSession: number; percent: number } | null;
 }
 
 interface Props {
@@ -225,9 +227,17 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
             <span className="text-xs text-[var(--usha-muted)]">
               {t("passSessions", { n: p.sessionCount })}
               {p.covers ? ` · ${p.covers}` : ""}
+              {p.savings ? ` · ${t("passPerSession", { price: p.savings.perSession })}` : ""}
             </span>
           </span>
-          <span className="shrink-0 pl-3 text-[var(--usha-muted)]">{t("priceLabel", { price: p.price })}</span>
+          <span className="flex shrink-0 flex-col items-end pl-3">
+            <span className="text-[var(--usha-muted)]">{t("priceLabel", { price: p.price })}</span>
+            {p.savings && (
+              <span className="text-xs font-semibold text-[var(--usha-gold)]">
+                {t("passDiscount", { percent: p.savings.percent })}
+              </span>
+            )}
+          </span>
         </button>
       ))}
     </div>

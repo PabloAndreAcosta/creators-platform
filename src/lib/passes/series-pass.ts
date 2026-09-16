@@ -49,6 +49,22 @@ export function redemptionSlice(b: PassMoney) {
   };
 }
 
+/**
+ * Vad kortet sparar mot att betala kväll för kväll. Jämförelsen görs mot
+ * kvällens ordinarie biljett för det kortet täcker, så procenten är sann och
+ * inte ett påstående: 1 400 kr för tio kvällar à 200 kr är 30 procent.
+ */
+export function passSavings(
+  pass: { price: number; sessionCount: number },
+  referencePrice: number | null | undefined
+): { perSession: number; percent: number } | null {
+  const n = Math.max(1, pass.sessionCount);
+  const perSession = Math.round(pass.price / n);
+  const ref = referencePrice ?? 0;
+  if (ref <= 0 || perSession >= ref) return null;
+  return { perSession, percent: Math.round((1 - perSession / ref) * 100) };
+}
+
 export interface Occurrence {
   id: string;
   title: string;
