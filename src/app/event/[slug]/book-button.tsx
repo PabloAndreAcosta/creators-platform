@@ -217,25 +217,32 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
           </button>
         );
       })}
+      {/* Kortets rad staplas i stället för att delas i två kolumner: titlarna
+          är långa och biljettspalten smal, så sida vid sida blev titeln fem
+          rader hög medan priset svävade i mitten. */}
       {passes.map((p) => (
         <button
           type="button"
           key={p.id}
           onClick={() => { setSelectedPassId(p.id); setQty(1); }}
-          className={rowClass(p.id === selectedPassId)}
+          className={`${rowClass(p.id === selectedPassId)} flex-col items-stretch gap-1.5`}
         >
-          <span className="flex min-w-0 flex-col">
-            <span className="font-medium">{p.title}</span>
-            <span className="text-xs text-[var(--usha-muted)]">
-              {t("passSessions", { n: p.sessionCount })}
-              {p.covers ? ` · ${p.covers}` : ""}
-              {p.savings ? ` · ${t("passPerSession", { price: p.savings.perSession })}` : ""}
-            </span>
+          <span className="font-medium">{p.title}</span>
+          <span className="text-xs text-[var(--usha-muted)]">
+            {t("passSessions", { n: p.sessionCount })}
+            {p.covers ? ` · ${p.covers}` : ""}
           </span>
-          <span className="flex shrink-0 flex-col items-end pl-3">
-            <span className="text-[var(--usha-muted)]">{t("priceLabel", { price: p.price })}</span>
+          <span className="flex items-baseline justify-between gap-3">
+            <span className="font-semibold">
+              {t("priceLabel", { price: p.price })}
+              {p.savings && (
+                <span className="ml-1.5 text-xs font-normal text-[var(--usha-muted)]">
+                  {t("passPerSession", { price: p.savings.perSession })}
+                </span>
+              )}
+            </span>
             {p.savings && (
-              <span className="text-xs font-semibold text-[var(--usha-gold)]">
+              <span className="shrink-0 rounded-md bg-[var(--usha-gold)]/15 px-1.5 py-0.5 text-xs font-semibold whitespace-nowrap text-[var(--usha-gold)]">
                 {t("passDiscount", { percent: p.savings.percent })}
               </span>
             )}
