@@ -18,6 +18,7 @@ import {
   ScanLine,
   QrCode,
   BarChart3,
+  Package,
   Copy,
   Users,
   X as XIcon,
@@ -107,6 +108,11 @@ export function EventsContent({
     (a, b) => listings.indexOf(a[0]) - listings.indexOf(b[0])
   );
 
+  // Tjänster utan datum ligger i samma tabell och listas här, men ordningen
+  // sätts på tjänstesidan. Osvaldo hittade inte dit: den låg bakom Mer → Utbud
+  // → Tjänster, medan Evenemang är fliken man faktiskt öppnar.
+  const hasServices = listings.some((l) => !l.event_date);
+
   const kommande = listings
     .filter((l) => l.event_date && l.event_date >= today)
     .sort((a, b) => (a.event_date! < b.event_date! ? -1 : 1));
@@ -147,6 +153,15 @@ export function EventsContent({
           >
             {t("openEvents")}
           </Link>
+          {hasServices && (
+            <Link
+              href="/dashboard/listings"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--usha-gold)] underline-offset-2 hover:underline"
+            >
+              <Package size={13} />
+              {t("orderServices")}
+            </Link>
+          )}
           <span className="rounded-full bg-[var(--usha-gold)]/10 px-3 py-1 text-xs font-medium text-[var(--usha-gold)]">
             {t("activeCount", { count: activeCount })}
           </span>
