@@ -16,6 +16,7 @@ import { FollowButton } from "@/components/follow-button";
 import { EmailFollowForm } from "@/components/email-follow-form";
 import { FollowUs } from "@/components/follow-us";
 import { getTranslations, getLocale } from "next-intl/server";
+import { canonicalSeriesSlug } from "@/lib/listings/series-aliases";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -40,7 +41,9 @@ type Occurrence = {
   ticket_types?: { price: number | null }[] | null;
 };
 
-async function fetchSeries(slug: string): Promise<Occurrence[]> {
+async function fetchSeries(rawSlug: string): Promise<Occurrence[]> {
+  // Gamla serienycklar finns på utskrivna QR-koder och i delade länkar.
+  const slug = canonicalSeriesSlug(rawSlug);
   const supabase = await createClient();
   const { data } = await supabase
     .from("listings")
@@ -81,7 +84,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   const description =
     buildPreviewDescription([s.event_location?.split(",")[0]?.trim()], s.description, 160) ||
     t("metaDescription", { title: s.title });
-  const url = `${appUrl()}/series/${params.slug}`;
+  const url = `${appUrl()}/series/${canonicalSeriesSlug(params.slug)}`;
 
   return {
     title,
@@ -225,7 +228,7 @@ export default async function SeriesPage(props: Props) {
     "@context": "https://schema.org",
     "@type": "EventSeries",
     name: series.title,
-    url: `${appUrl()}/series/${params.slug}`,
+    url: `${appUrl()}/series/${canonicalSeriesSlug(params.slug)}`,
     ...(series.description
       ? { description: splitBilingualDescription(series.description).primary.slice(0, 300) }
       : {}),
@@ -410,7 +413,7 @@ export default async function SeriesPage(props: Props) {
               initialFollowing={!!myFollow}
               followerCount={followerCount ?? 0}
               isLoggedIn={isLoggedIn}
-              returnTo={`/series/${params.slug}`}
+              returnTo={`/series/${canonicalSeriesSlug(params.slug)}`}
             />
           </div>
         )}
