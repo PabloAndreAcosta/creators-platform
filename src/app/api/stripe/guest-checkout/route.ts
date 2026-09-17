@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     // Fetch listing
     const { data: listing } = await supabase
       .from("listings")
-      .select("id, title, price, user_id, is_active, event_date, event_time, event_location, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, service_fee_mode, listing_type, session_count")
+      .select("id, title, price, user_id, is_active, event_date, event_time, event_location, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, service_fee_mode, listing_type, session_count, series_slug")
       .eq("id", listingId)
       .eq("is_active", true)
       .single();
@@ -283,7 +283,7 @@ export async function POST(req: NextRequest) {
       flow,
       payee,
       applicationFeeOre: applicationFee * qty + serviceFee,
-      metadata: buildPaymentMetadata({ flow, payee, eventId: listing.id, eventDate: listing.event_date, termsUrl: creator.terms_url }),
+      metadata: buildPaymentMetadata({ flow, payee, eventId: listing.id, eventDate: listing.event_date, seriesSlug: listing.series_slug, termsUrl: creator.terms_url }),
     });
 
     const stripeLocale = await getStripeLocale();

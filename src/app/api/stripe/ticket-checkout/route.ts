@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
     // Get listing details
     const { data: listing, error: listingError } = await supabase
       .from('listings')
-      .select('id, title, price, user_id, is_active, event_date, event_time, release_to_gold_at, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, service_fee_mode, listing_type, session_count')
+      .select('id, title, price, user_id, is_active, event_date, event_time, release_to_gold_at, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, service_fee_mode, listing_type, session_count, series_slug')
       .eq('id', listingId)
       .single();
 
@@ -368,7 +368,7 @@ export async function POST(req: NextRequest) {
       // Partnern är skyddad oavsett: avräkningen räknas på ordinarie pris via
       // bookings.credit_applied_ore, inte på det köparen betalade.
       applicationFeeOre: Math.max(0, applicationFee * qty + serviceFee - creditOre),
-      metadata: buildPaymentMetadata({ flow, payee, eventId: listing.id, eventDate: listing.event_date, termsUrl: creator.terms_url }),
+      metadata: buildPaymentMetadata({ flow, payee, eventId: listing.id, eventDate: listing.event_date, seriesSlug: listing.series_slug, termsUrl: creator.terms_url }),
     });
 
     // Create Stripe Checkout session with Connect split
