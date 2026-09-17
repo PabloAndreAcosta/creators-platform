@@ -85,6 +85,11 @@ const JOBS = [
   // Kvartalsutbetalningen: första dagen i kvartalet kl 05. Idempotent per
   // partner och period, så att den råkar köra fler dagar är ofarligt.
   { name: "affiliate?task=payout", desc: "Partnerprogrammets kvartalsutbetalning", atHour: 5, onDayOfMonth: 1 },
+  // Skyddsnät för det arvet inte fångar: en kväll som kopplas till lokalen
+  // efter att den skapats, eller vars avräkning ändras för hand. Går kl 06 så
+  // att beskedet finns innan avräkningen betalar ut dagens kvällar. Mejlar
+  // bara när något avviker.
+  { name: "settlement-gaps", desc: "Kvällar som inte följer en stående regel", atHour: 6 },
 ] as const;
 
 async function runJob(env: Env, path: string): Promise<{ ok: boolean; detail: string }> {
