@@ -98,7 +98,11 @@ export async function runSettlementPayouts(now: Date = new Date()): Promise<Payo
       .eq("listing_id", listing.id)
       .maybeSingle();
 
-    if (existing && (existing.status === "paid" || existing.status === "dry_run")) continue;
+    // En torrkörd kväll är räknad men obetald. När utbetalningarna slås på ska
+    // den betalas, inte hoppas över för evigt — annars blir varje kväll som
+    // hunnit torrköras permanent oreglerad, och det är just de kvällarna man
+    // slår på funktionen för.
+    if (existing && (existing.status === "paid" || (existing.status === "dry_run" && !live))) continue;
 
     const { data: bookings } = await db
       .from("bookings")
@@ -157,6 +161,30 @@ export async function runSettlementPayouts(now: Date = new Date()): Promise<Payo
         if (insErr.code !== "23505") {
           result.failed.push({ listingId: listing.id, title: candidate.listingTitle, error: insErr.message });
         }
+        continue;
+      }
+    } else if (live && existing.status === "dry_run") {
+      // Torrkörningen blir en riktig utbetalning. Beloppen räknas om från
+      // dagens bokningar i stället för att lita på vad som stod i raden när
+      // den skrevs — biljetter kan ha tillkommit eller återbetalats sedan
+      // dess. Statusbytet till "pending" är samma lås som insert ger en ny rad.
+      const { error: updErr } = await db
+        .from("event_settlement_payouts")
+        .update({
+          status: "pending",
+          amount_ore: s.partnerOre,
+          gross_ore: s.grossOre,
+          refunded_ore: s.refundedOre,
+          vat_ore: s.vatOre,
+          basis_ore: s.basisOre,
+          partner_percent: s.partnerPercent,
+          vat_rate: s.vatRate,
+        })
+        .eq("listing_id", listing.id)
+        .eq("status", "dry_run");
+
+      if (updErr) {
+        result.failed.push({ listingId: listing.id, title: candidate.listingTitle, error: updErr.message });
         continue;
       }
     }
