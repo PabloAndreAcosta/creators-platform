@@ -2890,6 +2890,7 @@
     "title": "Mis Eventos",
     "statistics": "Estadísticas",
     "openEvents": "Eventos abiertos →",
+    "orderServices": "Ordenar servicios →",
     "activeCount": "{count} activos",
     "emptyTitle": "Aún no hay eventos",
     "emptyBody": "Crea tu primer evento para empezar",
