@@ -41,20 +41,33 @@ type Occurrence = {
   ticket_types?: { price: number | null }[] | null;
 };
 
-async function fetchSeries(rawSlug: string): Promise<Occurrence[]> {
-  // Gamla serienycklar finns på utskrivna QR-koder och i delade länkar.
-  const slug = canonicalSeriesSlug(rawSlug);
+const SERIES_COLUMNS =
+  "id, slug, title, description, category, price, event_date, event_time, event_end_time, event_location, event_lat, event_lng, image_url, user_id, content_language, ticket_types(price)";
+
+async function fetchBySeriesSlug(slug: string): Promise<Occurrence[]> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("listings")
-    .select(
-      "id, slug, title, description, category, price, event_date, event_time, event_end_time, event_location, event_lat, event_lng, image_url, user_id, content_language, ticket_types(price)"
-    )
+    .select(SERIES_COLUMNS)
     .eq("series_slug", slug)
     .eq("is_active", true)
     .eq("is_public", true)
     .order("event_date", { ascending: true });
   return (data as Occurrence[] | null) ?? [];
+}
+
+/**
+ * Gamla serienycklar finns på utskrivna QR-koder och i delade länkar, så de
+ * översätts till dagens nyckel. Slår den nya tomt provas den inmatade som den
+ * är: aliaset och databasbytet kan inte landa i exakt samma sekund, och i
+ * glappet ska ingen mötas av 404. (Det hände 2026-09-17 — alias-deployen gick
+ * ut före omdöpningen, och den utskrivna QR-kodens adress dog i tio minuter.)
+ */
+async function fetchSeries(rawSlug: string): Promise<Occurrence[]> {
+  const canonical = canonicalSeriesSlug(rawSlug);
+  const rows = await fetchBySeriesSlug(canonical);
+  if (rows.length > 0 || canonical === rawSlug) return rows;
+  return fetchBySeriesSlug(rawSlug);
 }
 
 // Per-series language: if the host pinned a language on the series, the page
