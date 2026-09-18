@@ -121,7 +121,7 @@ export function Nav() {
 
         <div className="hidden items-center gap-5 whitespace-nowrap text-sm lg:flex">
           {pageLinks.map((l) => (
-            <a key={l.href} href={l.href} className="text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]">
+            <a key={l.href} href={l.href} className="font-medium text-[var(--usha-white)] transition hover:opacity-80">
               {l.label}
             </a>
           ))}
@@ -168,7 +168,7 @@ export function Nav() {
                 key={l.href}
                 href={l.href}
                 onClick={() => setMobileOpen(false)}
-                className="py-2 text-sm text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
+                className="py-2 text-base font-semibold text-[var(--usha-white)] transition hover:opacity-80"
               >
                 {l.label}
               </a>
