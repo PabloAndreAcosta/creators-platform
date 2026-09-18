@@ -74,13 +74,13 @@ export function Nav() {
   // navigerar och finns på VARJE sida, även ett evenemang eller en profil där
   // sidans argument inte syns. Därför ligger rollvalet ("Jag är kreatör" …) på
   // startsidan som dörrar, och menyn bär bara det man ska kunna nå varifrån
-  // som helst: utbudet, vilka vi är, och sitt eget konto.
+  // som helst: utbudet och sitt eget konto. Om oss bor i sidfoten, där den
+  // som vill veta vilka vi är letar efter den.
   //
   // Upplevelser måste ligga kvar: står du på ett evenemang är menyn den enda
   // vägen tillbaka till utbudet.
   const pageLinks = [
     { href: "/upplevelser", label: t("nav.experiences") },
-    { href: "/om", label: t("nav.about") },
   ];
 
   async function handleInstallClick(e: React.MouseEvent) {
