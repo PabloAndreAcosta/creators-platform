@@ -28,6 +28,8 @@ export interface PayoutRunResult {
   deferred: { listingId: string; title: string }[];
   failed: { listingId: string; title: string; error: string }[];
   totalOre: number;
+  /** Kvällar som faktiskt fick pengar den här körningen, för beskedet efteråt. */
+  transfers: { title: string; eventDate: string; amountOre: number; transferId: string; partnerName: string }[];
 }
 
 /**
@@ -42,6 +44,8 @@ interface ShareRow {
   payout_delay_days: number;
   listing: { id: string; title: string | null; event_date: string | null } | null;
   partner: {
+    full_name?: string | null;
+    company_name?: string | null;
     id: string;
     stripe_account_id: string | null;
     company_verified_at: string | null;
@@ -66,6 +70,7 @@ export async function runSettlementPayouts(now: Date = new Date()): Promise<Payo
     dryRun: 0,
     blocked: [],
     deferred: [],
+    transfers: [],
     failed: [],
     totalOre: 0,
   };
@@ -78,7 +83,7 @@ export async function runSettlementPayouts(now: Date = new Date()): Promise<Payo
     .select(
       "listing_id, partner_percent, vat_rate, payout_delay_days, " +
         "listing:listings!listing_id(id, title, event_date), " +
-        "partner:profiles!partner_profile_id(id, stripe_account_id, company_verified_at, stripe_charges_enabled)"
+        "partner:profiles!partner_profile_id(id, full_name, company_name, stripe_account_id, company_verified_at, stripe_charges_enabled)"
     );
 
   if (error) throw new Error(`Kunde inte läsa delningsavtal: ${error.message}`);
@@ -230,6 +235,13 @@ export async function runSettlementPayouts(now: Date = new Date()): Promise<Payo
 
       result.paid += 1;
       result.totalOre += s.partnerOre;
+      result.transfers.push({
+        title: candidate.listingTitle,
+        eventDate: listing.event_date,
+        amountOre: s.partnerOre,
+        transferId: transfer.id,
+        partnerName: partner.company_name || partner.full_name || "partner",
+      });
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e);
 
