@@ -546,7 +546,8 @@
       "marketplace": "Marketplace",
       "openApp": "Open app",
       "downloadApp": "Download app",
-      "getStarted": "Get started",
+      "about": "About us",
+      "getStarted": "Create account",
       "menuAriaLabel": "Menu",
       "login": "Log in",
       "forCreators": "Creators",
@@ -844,6 +845,10 @@
       "venueDesc": "Fill your calendar with curated creators",
       "audienceLabel": "I want to experience",
       "audienceDesc": "Discover experiences near you"
+    },
+    "signupCta": {
+      "title": "Create an account – it's free",
+      "description": "One account covers everything: buy tickets, follow organisers, and sell your own the day you want to."
     },
     "homeCta": {
       "title": "Find your place in the cycle",

@@ -52,7 +52,7 @@ export default function ForVenuesPage() {
     <main>
       <RedirectIfAuthed />
       <SiteNav />
-      <PerspectiveHero ns="forVenues" ctaHref="/signup" />
+      <PerspectiveHero ns="forVenues" ctaHref="/signup?role=venue" />
       <VenueValues />
       <LoopSection ns="forVenues" />
       <Pricing role="venue" />

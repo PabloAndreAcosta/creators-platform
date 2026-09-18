@@ -546,7 +546,8 @@
       "marketplace": "Marketplace",
       "openApp": "Abrir app",
       "downloadApp": "Descargar app",
-      "getStarted": "Empezar",
+      "about": "Sobre nosotros",
+      "getStarted": "Crear cuenta",
       "menuAriaLabel": "Menú",
       "login": "Iniciar sesión",
       "forCreators": "Creadores",
@@ -844,6 +845,10 @@
       "venueDesc": "Llena tu calendario con creadores seleccionados",
       "audienceLabel": "Quiero vivir experiencias",
       "audienceDesc": "Descubre experiencias cerca de ti"
+    },
+    "signupCta": {
+      "title": "Crea una cuenta: es gratis",
+      "description": "Una cuenta sirve para todo: comprar entradas, seguir a organizadores y vender lo tuyo cuando quieras."
     },
     "homeCta": {
       "title": "Encuentra tu lugar en el ciclo",

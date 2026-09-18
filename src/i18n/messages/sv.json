@@ -546,7 +546,8 @@
       "marketplace": "Marketplace",
       "openApp": "Öppna appen",
       "downloadApp": "Ladda ner appen",
-      "getStarted": "Kom igång",
+      "about": "Om oss",
+      "getStarted": "Skaffa konto",
       "menuAriaLabel": "Meny",
       "login": "Logga in",
       "forCreators": "Kreatör",
@@ -844,6 +845,10 @@
       "venueDesc": "Fyll kalendern med kuraterade kreatörer",
       "audienceLabel": "Jag vill uppleva",
       "audienceDesc": "Upptäck upplevelser nära dig"
+    },
+    "signupCta": {
+      "title": "Skaffa konto – det är gratis",
+      "description": "Ett konto räcker för allt: köpa biljetter, följa arrangörer, och sälja själv den dagen du vill."
     },
     "homeCta": {
       "title": "Hitta din plats i kretsloppet",
