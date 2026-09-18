@@ -546,7 +546,7 @@
       "marketplace": "Marketplace",
       "openApp": "Öppna appen",
       "downloadApp": "Ladda ner appen",
-      "getStarted": "Kom igång",
+      "getStarted": "Skaffa konto",
       "menuAriaLabel": "Meny",
       "login": "Logga in",
       "forCreators": "Kreatör",
@@ -582,10 +582,10 @@
       "eventsCta": "Se evenemang"
     },
     "ecosystem": {
-      "title": "Tre ben, ett",
-      "titleHighlight": "ekosystem",
-      "subtitle": "BankID-verifierade kreatörer skapar utbudet. Upplevelser erbjuder platserna. Kunder upptäcker och bokar tryggt. Alla förstärker varandra.",
-      "loopMessage": "Fler kreatörer lockar fler kunder. Fler kunder lockar fler upplevelser. Kretsloppet som driver tillväxt.",
+      "title": "Så hänger",
+      "titleHighlight": "det ihop",
+      "subtitle": "BankID-verifierade kreatörer skapar utbudet. Platser upplåter sina lokaler. Publiken upptäcker och bokar tryggt. Alla förstärker varandra.",
+      "loopMessage": "Fler kreatörer lockar fler besökare. Fler besökare lockar fler platser. Kretsloppet som driver tillväxt.",
       "creators": {
         "title": "Kreatörer",
         "desc": "Dansinstruktörer, fotografer, musiker, designers — kreativa talanger som bygger sin verksamhet.",
@@ -595,7 +595,7 @@
         "detail4": "Säkra Stripe-utbetalningar med intäktsstatistik"
       },
       "experiences": {
-        "title": "Upplevelser",
+        "title": "Platser",
         "desc": "Restauranger, konserthus, SPA, nattklubbar och retreat centers — platser som skapar oförglömliga stunder.",
         "detail1": "Skapa events & sälj biljetter med QR-kod",
         "detail2": "Skanna biljetter & ha koll på deltagare i dörren",
@@ -604,7 +604,7 @@
         "detail5": "Bjud in personal och dela ut delar av lokalen — utan att ge bort ekonomin"
       },
       "customers": {
-        "title": "Kunder",
+        "title": "Publik",
         "desc": "Människor som vill upptäcka BankID-verifierade kreativa talanger och upplevelser — och boka dem direkt.",
         "detail1": "Upptäck BankID-verifierade kreatörer & upplevelser",
         "detail2": "Boka direkt med datum & tid — säker Stripe-betalning",
@@ -844,6 +844,10 @@
       "venueDesc": "Fyll kalendern med kuraterade kreatörer",
       "audienceLabel": "Jag vill uppleva",
       "audienceDesc": "Upptäck upplevelser nära dig"
+    },
+    "signupCta": {
+      "title": "Skaffa konto – det är gratis",
+      "description": "Ett konto räcker för allt: köpa biljetter, följa arrangörer, och sälja själv den dagen du vill."
     },
     "homeCta": {
       "title": "Hitta din plats i kretsloppet",

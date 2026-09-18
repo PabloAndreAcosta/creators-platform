@@ -70,9 +70,17 @@ export function Nav() {
   // ingång som behövs i toppen. Kalendern är en vy av samma sak och nås från
   // sidan; flöde, marknadsplats och säljarsidorna bor i sidfoten, där den som
   // vill förstå ekosystemet hittar dem.
+  // Menyn och sidan har olika jobb. Sidan övertalar och får ta plats; menyn
+  // navigerar och finns på VARJE sida, även ett evenemang eller en profil där
+  // sidans argument inte syns. Därför ligger rollvalet ("Jag är kreatör" …) på
+  // startsidan som dörrar, och menyn bär bara det man ska kunna nå varifrån
+  // som helst: utbudet och sitt eget konto. Om oss bor i sidfoten, där den
+  // som vill veta vilka vi är letar efter den.
+  //
+  // Upplevelser måste ligga kvar: står du på ett evenemang är menyn den enda
+  // vägen tillbaka till utbudet.
   const pageLinks = [
     { href: "/upplevelser", label: t("nav.experiences") },
-    { href: "/for-kreatorer", label: t("nav.forCreators") },
   ];
 
   async function handleInstallClick(e: React.MouseEvent) {
@@ -113,7 +121,7 @@ export function Nav() {
 
         <div className="hidden items-center gap-5 whitespace-nowrap text-sm lg:flex">
           {pageLinks.map((l) => (
-            <a key={l.href} href={l.href} className="text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]">
+            <a key={l.href} href={l.href} className="font-medium text-[var(--usha-white)] transition hover:opacity-80">
               {l.label}
             </a>
           ))}
@@ -160,17 +168,21 @@ export function Nav() {
                 key={l.href}
                 href={l.href}
                 onClick={() => setMobileOpen(false)}
-                className="py-2 text-sm text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
+                className="py-2 text-base font-semibold text-[var(--usha-white)] transition hover:opacity-80"
               >
                 {l.label}
               </a>
             ))}
-            <button
-              onClick={handleInstallClick}
-              className="py-2 text-left text-sm text-[var(--usha-white)] transition hover:text-[var(--usha-white)]"
-            >
-              {isLoggedIn ? t("nav.openApp") : t("nav.downloadApp")}
-            </button>
+            <div className="my-1 h-px bg-[var(--usha-border)]" />
+            {!isLoggedIn && (
+              <a
+                href="/signup"
+                onClick={() => setMobileOpen(false)}
+                className="rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2.5 text-center text-sm font-bold text-black transition hover:opacity-90"
+              >
+                {t("nav.getStarted")}
+              </a>
+            )}
             {!isLoggedIn && (
               <a
                 href="/login"
@@ -180,6 +192,12 @@ export function Nav() {
                 {t("nav.login")}
               </a>
             )}
+            <button
+              onClick={handleInstallClick}
+              className="py-2 text-left text-sm text-[var(--usha-white)] transition hover:text-[var(--usha-white)]"
+            >
+              {isLoggedIn ? t("nav.openApp") : t("nav.downloadApp")}
+            </button>
             <div className="my-1 h-px bg-[var(--usha-border)]" />
             <div className="flex items-center gap-2">
               <ThemeToggle />

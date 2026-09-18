@@ -28,7 +28,7 @@ export default function ForCreatorsPage() {
     <main>
       <RedirectIfAuthed />
       <SiteNav />
-      <PerspectiveHero ns="forCreators" ctaHref="/signup" />
+      <PerspectiveHero ns="forCreators" ctaHref="/signup?role=creator" />
       <Onboarding />
       <Features />
       <Pricing role="creator" />

@@ -154,7 +154,17 @@ function Hero() {
   );
 }
 
-/* ─────────────── CLOSING CTA (pick your door) ─────────────── */
+/* ─────────────── AVSLUTNINGEN: var hör du hemma, och hur går du med ─────────────── */
+/**
+ * Sidan ställer besökarens frågor i tur och ordning: vad är det här (hero),
+ * finns det något på riktigt (Vad händer), hur hänger det ihop (Kretsloppet),
+ * går det att lita på (Trust). Först HÄR kommer "var hör jag hemma" och "hur
+ * går jag med" — när allt annat är besvarat.
+ *
+ * Dörrarna låg tidigare på två ställen på samma sida. När samma val visas
+ * dubbelt känns ingen av gångerna som huvudsaken, så de står nu en enda gång
+ * och får vara stora i stället.
+ */
 function HomeCta() {
   const t = useTranslations("landing");
 
@@ -164,21 +174,38 @@ function HomeCta() {
         <div className="absolute top-1/2 left-1/2 h-[400px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--usha-gold)] opacity-[0.06] blur-[150px]" />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-3xl text-center">
+      <div className="relative z-10 mx-auto max-w-4xl text-center">
         <h2 className="mb-3 text-2xl font-bold sm:text-3xl md:text-4xl">{t("homeCta.title")}</h2>
-        <p className="mb-8 text-base text-[var(--usha-muted)] sm:mb-10 sm:text-lg">
+        <p className="mb-10 text-base text-[var(--usha-muted)] sm:mb-12 sm:text-lg">
           {t("homeCta.description")}
         </p>
-        <div className="mb-10 flex justify-center">
-          <a
-            href="/upplevelser"
-            className="glow-gold inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-7 py-3.5 text-base font-bold text-black transition hover:opacity-90"
-          >
-            <Ticket size={18} />
-            {t("hero.eventsCta")}
-          </a>
+
+        <AudienceDoors size="large" />
+
+        {/* Kontot, med eget avsnitt i stället för en knapp i ett hörn. Den som
+            läst hela vägen hit har fått svaren och ska inte behöva leta. */}
+        <div className="mt-12 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-8 sm:mt-16 sm:p-10">
+          <h3 className="mb-2 text-xl font-bold sm:text-2xl">{t("signupCta.title")}</h3>
+          <p className="mx-auto mb-7 max-w-md text-sm text-[var(--usha-muted)] sm:text-base">
+            {t("signupCta.description")}
+          </p>
+          <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <a
+              href="/signup"
+              className="glow-gold inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-7 py-3.5 text-base font-bold text-black transition hover:opacity-90 sm:w-auto"
+            >
+              {t("nav.getStarted")}
+            </a>
+            <a
+              href="/upplevelser"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] px-7 py-3.5 text-base font-semibold transition hover:border-[var(--usha-gold)]/40 sm:w-auto"
+            >
+              <Ticket size={18} />
+              {t("hero.eventsCta")}
+            </a>
+          </div>
         </div>
-        <AudienceDoors />
+
         <div className="mt-10 border-t border-[var(--usha-border)] pt-10">
           <LandingInstall />
         </div>
@@ -207,13 +234,6 @@ export default function Home() {
           som vill förstå plattformen skrollar vidare; den som bara undrar när
           nästa kväll är behöver inte göra det. */}
       <WhatsOn />
-      {/* Dörrarna låg tidigare i hero och sköt ned allt konkret. De förklarar
-          ekosystemet, vilket är nästa fråga — inte den första. */}
-      <section className="px-4 pb-14 sm:px-6 sm:pb-16">
-        <div className="mx-auto max-w-6xl">
-          <AudienceDoors />
-        </div>
-      </section>
       <LandingStats />
       <Ecosystem />
       <Trust />
