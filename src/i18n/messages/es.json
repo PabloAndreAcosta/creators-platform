@@ -582,10 +582,10 @@
       "eventsCta": "Ver eventos"
     },
     "ecosystem": {
-      "title": "Tres pilares, un",
-      "titleHighlight": "ecosistema",
-      "subtitle": "Los creadores verificados con BankID construyen la oferta. Las experiencias ofrecen los espacios. Los clientes descubren y reservan con confianza. Todos se impulsan mutuamente.",
-      "loopMessage": "Más creadores atraen más clientes. Más clientes atraen más experiencias. El ciclo que impulsa el crecimiento.",
+      "title": "Cómo encaja",
+      "titleHighlight": "todo",
+      "subtitle": "Creadores verificados con BankID crean la oferta. Los espacios ceden sus salas. El público descubre y reserva con seguridad. Cada parte refuerza a las demás.",
+      "loopMessage": "Más creadores atraen a más público. Más público atrae a más espacios. El ciclo que impulsa el crecimiento.",
       "creators": {
         "title": "Creadores",
         "desc": "Instructores de baile, fotógrafos, músicos, diseñadores: talentos creativos que construyen su negocio.",
@@ -595,7 +595,7 @@
         "detail4": "Pagos seguros con Stripe y estadísticas de ingresos"
       },
       "experiences": {
-        "title": "Experiencias",
+        "title": "Espacios",
         "desc": "Restaurantes, salas de conciertos, spas, discotecas y centros de retiro: espacios que crean momentos inolvidables.",
         "detail1": "Crea eventos y vende entradas con códigos QR",
         "detail2": "Escanea entradas y controla la asistencia en la entrada",
@@ -604,7 +604,7 @@
         "detail5": "Invita a tu personal y reparte partes del local — sin ceder las finanzas"
       },
       "customers": {
-        "title": "Clientes",
+        "title": "Público",
         "desc": "Personas que quieren descubrir talentos creativos y experiencias verificados con BankID, y reservarlos directamente.",
         "detail1": "Descubre creadores y experiencias verificados con BankID",
         "detail2": "Reserva directamente con fecha y hora: pago seguro con Stripe",

@@ -582,10 +582,10 @@
       "eventsCta": "See events"
     },
     "ecosystem": {
-      "title": "Three pillars, one",
-      "titleHighlight": "ecosystem",
-      "subtitle": "BankID-verified creators build the supply. Experiences offer the venues. Customers discover and book with confidence. Everyone amplifies each other.",
-      "loopMessage": "More creators attract more customers. More customers attract more experiences. The cycle that drives growth.",
+      "title": "How it fits",
+      "titleHighlight": "together",
+      "subtitle": "BankID-verified creators make the offering. Venues open their rooms. The audience discovers and books safely. Each one strengthens the others.",
+      "loopMessage": "More creators draw more guests. More guests draw more venues. The cycle that drives growth.",
       "creators": {
         "title": "Creators",
         "desc": "Dance instructors, photographers, musicians, designers — creative talents building their business.",
@@ -595,7 +595,7 @@
         "detail4": "Secure Stripe payouts with revenue stats"
       },
       "experiences": {
-        "title": "Experiences",
+        "title": "Venues",
         "desc": "Restaurants, concert halls, spas, nightclubs and retreat centers — venues that create unforgettable moments.",
         "detail1": "Create events & sell tickets with QR codes",
         "detail2": "Scan tickets & track attendees at the door",
@@ -604,7 +604,7 @@
         "detail5": "Invite staff and hand out parts of the venue — without giving away the finances"
       },
       "customers": {
-        "title": "Customers",
+        "title": "Audience",
         "desc": "People who want to discover BankID-verified creative talents and experiences — and book them directly.",
         "detail1": "Discover BankID-verified creators & experiences",
         "detail2": "Book directly with date & time — secure Stripe payment",
