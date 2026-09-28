@@ -2379,6 +2379,7 @@
     "manageCodes": "Códigos de acceso",
     "quantity": "Cantidad",
     "attendeeNamePlaceholder": "Nombre del invitado {n} (opcional)",
+    "showAttendanceLabel": "Mostrar que voy: mi nombre y mi foto serán visibles para quienes miren esta noche",
     "mapHeading": "Cómo llegar",
     "addToCalendar": "Añadir al calendario",
     "openInMaps": "Abrir en Maps",
