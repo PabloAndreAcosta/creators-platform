@@ -83,10 +83,6 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Check if this is a 100% discount (free trial)
-    const isFreeWithPromo =
-      promoDiscountAmount !== undefined && promoDiscountAmount >= plan.price;
-
     const sessionParams: any = {
       customer_email: user.email,
       line_items: [{ price: priceId, quantity: 1 }],
@@ -103,17 +99,19 @@ export async function POST(req: NextRequest) {
       },
     };
 
-    if (BETA_MODE) {
-      // Beta: free trial, no payment method required
-      // Configure trial length via BETA_TRIAL_DAYS env var (default: 90 days / ~3 months)
-      const trialDays = parseInt(process.env.BETA_TRIAL_DAYS || "90", 10);
-      sessionParams.subscription_data = { trial_period_days: trialDays };
-      sessionParams.payment_method_collection = "if_required";
-    } else if (isFreeWithPromo) {
-      // 100% discount: use a 30-day trial so no payment method is needed
-      sessionParams.subscription_data = { trial_period_days: 30 };
-      sessionParams.payment_method_collection = "if_required";
-    }
+    // Provmånad för alla som tecknar medlemskap (beslut 2026-09-28).
+    //
+    // Tidigare gavs provperioden BARA under betan, och då 90 dagar. Det hade
+    // två följder som båda var fel: den som tecknade i september fick tre
+    // månader i stället för en, och från 1 oktober — när betan går ut — hade
+    // nya medlemmar debiterats direkt utan någon prövotid alls.
+    //
+    // Inget kort krävs. Finns inget kort när månaden är slut faller
+    // prenumerationen till past_due och webhooken nedgraderar till gratis av
+    // sig själv, i stället för att debitera någon som glömt säga upp.
+    const trialDays = parseInt(process.env.TRIAL_DAYS || "30", 10);
+    sessionParams.subscription_data = { trial_period_days: trialDays };
+    sessionParams.payment_method_collection = "if_required";
 
     if (stripeCouponId && !BETA_MODE) {
       sessionParams.discounts = [{ coupon: stripeCouponId }];
