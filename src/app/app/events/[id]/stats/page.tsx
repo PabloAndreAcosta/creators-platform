@@ -28,6 +28,8 @@ interface Stats {
   revenue: number;
   fillRate: number | null;
   list: Attendee[];
+  /** Sant när betraktaren bara får läsa siffrorna — då är list tom med flit. */
+  listWithheld?: boolean;
 }
 
 function csvEscape(v: string) {
@@ -197,6 +199,14 @@ export default function EventStatsPage() {
         ))}
       </div>
 
+      {data.listWithheld ? (
+        // Läsbehörighet för statistik ger siffrorna, inte gästerna. Ett tomt
+        // listavsnitt hade sett ut som att ingen köpt biljett, så avsnittet
+        // byts mot en rad som säger varför det inte står något här.
+        <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-6 text-center text-sm text-[var(--usha-muted)]">
+          {t("attendeesWithheld")}
+        </div>
+      ) : (
       <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] overflow-hidden">
         <div className="flex items-center justify-between border-b border-[var(--usha-border)] px-4 py-3">
           <h3 className="text-sm font-semibold">{t("attendeesHeader", { count: data.list.length })}</h3>
@@ -237,6 +247,7 @@ export default function EventStatsPage() {
           </div>
         )}
       </div>
+      )}
     </div>
   );
 }

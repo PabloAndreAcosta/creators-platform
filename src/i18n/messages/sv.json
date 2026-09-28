@@ -3061,7 +3061,12 @@
     "manageOff": "Gör till medarrangör",
     "manageToggleTitle": "Låt den här personen administrera eventet (redigera + skicka mejl), utan att äga det eller få betalningar",
     "manageEnabled": "Är nu medarrangör",
-    "manageRemoved": "Medarrangör-rätt borttagen"
+    "manageRemoved": "Medarrangör-rätt borttagen",
+    "statsOn": "Ser statistik",
+    "statsOff": "Låt läsa statistik",
+    "statsToggleTitle": "Låt den här personen se hur många biljetter som sålts — siffrorna, inte deltagarlistan, och inget annat",
+    "statsEnabled": "Får nu läsa statistiken",
+    "statsRemoved": "Läsrätt för statistik borttagen"
   },
   "eventInsights": {
     "errorFetch": "Kunde inte hämta statistik",
@@ -3123,6 +3128,7 @@
     "cardFillRate": "Fyllnadsgrad",
     "revenueValue": "{amount} kr",
     "attendeesHeader": "Deltagare ({count})",
+    "attendeesWithheld": "Du ser evenemangets siffror. Deltagarlistan hör till arrangören.",
     "emptyAttendees": "Inga deltagare ännu.",
     "returningBadge": "Återkommande · {count} event",
     "typeNew": "Ny",

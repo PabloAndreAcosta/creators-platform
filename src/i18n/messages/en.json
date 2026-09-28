@@ -3061,7 +3061,12 @@
     "manageOff": "Make co-organizer",
     "manageToggleTitle": "Let this person administer the event (edit + send emails) without owning it or receiving payments",
     "manageEnabled": "Now a co-organizer",
-    "manageRemoved": "Co-organizer access removed"
+    "manageRemoved": "Co-organizer access removed",
+    "statsOn": "Views stats",
+    "statsOff": "Allow viewing stats",
+    "statsToggleTitle": "Let this person see how many tickets have sold — the numbers, not the attendee list, and nothing else",
+    "statsEnabled": "Can now view the stats",
+    "statsRemoved": "Stats access removed"
   },
   "eventInsights": {
     "errorFetch": "Could not load stats",
@@ -3123,6 +3128,7 @@
     "cardFillRate": "Fill rate",
     "revenueValue": "{amount} kr",
     "attendeesHeader": "Attendees ({count})",
+    "attendeesWithheld": "You see the event's numbers. The attendee list belongs to the organizer.",
     "emptyAttendees": "No attendees yet.",
     "returningBadge": "Returning · {count} events",
     "typeNew": "New",

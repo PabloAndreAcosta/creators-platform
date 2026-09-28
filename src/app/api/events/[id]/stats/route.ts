@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { attendeeKey, attendeeName, bookingEmail, attachProfiles, type BookingLike } from "@/lib/attendees";
-import { canAccessListingArea } from "@/lib/venues/listing-access";
+import { listingStatsAccess } from "@/lib/listings/stats-access";
 import { stockholmLocalToUtcISO } from "@/lib/time";
 
 // Per-event attendee statistics: how many booked/came, who, and which of them
@@ -26,10 +26,15 @@ export async function GET(
     .select("id, title, max_guests, user_id, event_date, event_end_time")
     .eq("id", eventId)
     .single();
-  // Owner or accepted co-organizer may view stats.
+  // Ägare, medarrangör och lokalteamets `stats` ser allt. can_view_stats ser
+  // bara siffrorna — deltagarlistan utelämnas längre ner.
+  //
   // `stats` är en egen behörighet i lokalteamet. Den som bara fått "Evenemang"
   // ska inte få statistik på köpet — då vore kryssrutorna lögn.
-  if (!listing || (listing.user_id !== user.id && !(await canAccessListingArea(admin, user.id, eventId, "stats")))) {
+  const access = listing
+    ? await listingStatsAccess(admin, user.id, eventId, listing.user_id)
+    : "none";
+  if (!listing || access === "none") {
     return NextResponse.json({ error: "Event not found" }, { status: 404 });
   }
 
@@ -122,6 +127,10 @@ export async function GET(
     checkInRate: eventEnded && attendees > 0 ? Math.round((checkedIn / attendees) * 100) : null,
     revenue,
     fillRate: capacity ? Math.round((attendees / capacity) * 100) : null,
-    list,
+    // Siffrorna är evenemangets, namnen och mejladresserna är gästernas. Den
+    // som bara fått läsa statistik får därför en tom lista — inte en kortad,
+    // utan ingen alls, så att klienten kan dölja avsnittet helt.
+    list: access === "full" ? list : [],
+    listWithheld: access !== "full",
   });
 }
