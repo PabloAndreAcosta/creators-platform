@@ -3061,7 +3061,12 @@
     "manageOff": "Hacer coorganizador",
     "manageToggleTitle": "Permite que esta persona administre el evento (editar + enviar correos) sin poseerlo ni recibir pagos",
     "manageEnabled": "Ahora es coorganizador",
-    "manageRemoved": "Acceso de coorganizador eliminado"
+    "manageRemoved": "Acceso de coorganizador eliminado",
+    "statsOn": "Ve estadísticas",
+    "statsOff": "Permitir ver estadísticas",
+    "statsToggleTitle": "Permite que esta persona vea cuántas entradas se han vendido: las cifras, no la lista de asistentes, y nada más",
+    "statsEnabled": "Ya puede ver las estadísticas",
+    "statsRemoved": "Acceso a estadísticas eliminado"
   },
   "eventInsights": {
     "errorFetch": "No se pudieron cargar las estadísticas",
@@ -3123,6 +3128,7 @@
     "cardFillRate": "Tasa de ocupación",
     "revenueValue": "{amount} kr",
     "attendeesHeader": "Asistentes ({count})",
+    "attendeesWithheld": "Ves las cifras del evento. La lista de asistentes pertenece al organizador.",
     "emptyAttendees": "Aún no hay asistentes.",
     "returningBadge": "Recurrente · {count} eventos",
     "typeNew": "Nuevo",

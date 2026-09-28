@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Loader2, Trash2, Copy, Check, UserPlus, ShieldCheck, Search, ScanLine } from "lucide-react";
+import { Loader2, Trash2, Copy, Check, UserPlus, ShieldCheck, Search, ScanLine, BarChart3 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useToast } from "@/components/ui/toaster";
 import {
@@ -18,6 +18,7 @@ interface Collaborator {
   avatar_url: string | null;
   can_scan: boolean;
   can_manage: boolean;
+  can_view_stats: boolean;
   scan_eligible: boolean;
   payee_connected: boolean;
   gage: GageView | null;
@@ -80,6 +81,7 @@ export function CrewManager({
   const [invitedIds, setInvitedIds] = useState<Set<string>>(new Set());
   const [scanToggling, setScanToggling] = useState<string | null>(null);
   const [manageToggling, setManageToggling] = useState<string | null>(null);
+  const [statsToggling, setStatsToggling] = useState<string | null>(null);
   const searchSeq = useRef(0);
 
   useEffect(() => {
@@ -203,6 +205,44 @@ export function CrewManager({
       );
     } finally {
       setManageToggling(null);
+    }
+  }
+
+  /**
+   * Läsbehörighet för statistik. Egen växel med flit: den ska gå att ge utan
+   * att ge medarrangörskap, annars är den ingen lättnad utan bara ett extra
+   * klick på vägen till samma stora rättighet.
+   */
+  async function handleToggleStats(userId: string, next: boolean) {
+    setStatsToggling(userId);
+    setCollaborators((prev) =>
+      prev.map((c) => (c.user_id === userId ? { ...c, can_view_stats: next } : c))
+    );
+    try {
+      const res = await fetch(
+        `/api/listings/${listingId}/collaborators/${userId}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ can_view_stats: next }),
+        }
+      );
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        toast.error(data.error ?? t("errorUpdate"));
+        setCollaborators((prev) =>
+          prev.map((c) => (c.user_id === userId ? { ...c, can_view_stats: !next } : c))
+        );
+        return;
+      }
+      toast.success(next ? t("statsEnabled") : t("statsRemoved"));
+    } catch {
+      toast.error(t("errorNetwork"));
+      setCollaborators((prev) =>
+        prev.map((c) => (c.user_id === userId ? { ...c, can_view_stats: !next } : c))
+      );
+    } finally {
+      setStatsToggling(null);
     }
   }
 
@@ -464,6 +504,24 @@ export function CrewManager({
                     {c.can_scan ? t("scanOn") : t("scanOff")}
                   </button>
                 )}
+                <button
+                    onClick={() => handleToggleStats(c.user_id, !c.can_view_stats)}
+                    disabled={statsToggling === c.user_id}
+                    aria-pressed={c.can_view_stats}
+                    title={t("statsToggleTitle")}
+                    className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-medium transition disabled:opacity-50 ${
+                      c.can_view_stats
+                        ? "bg-[var(--usha-gold)] text-black"
+                        : "border border-[var(--usha-border)] text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
+                    }`}
+                  >
+                    {statsToggling === c.user_id ? (
+                      <Loader2 size={13} className="animate-spin" />
+                    ) : (
+                      <BarChart3 size={13} />
+                    )}
+                    {c.can_view_stats ? t("statsOn") : t("statsOff")}
+                  </button>
                 {canDelegateScan && (
                   <button
                     onClick={() => handleToggleManage(c.user_id, !c.can_manage)}

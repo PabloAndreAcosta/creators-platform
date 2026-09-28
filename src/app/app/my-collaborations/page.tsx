@@ -3,7 +3,7 @@ import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Calendar, MapPin, Users, ScanLine } from "lucide-react";
+import { Calendar, MapPin, Users, ScanLine, BarChart3 } from "lucide-react";
 import { collabRoleLabel } from "@/lib/collaborators";
 import { GagePanel, type GageView } from "@/components/gage-panel";
 import { StripeConnectButton } from "@/components/stripe-connect-button";
@@ -39,7 +39,7 @@ export default async function MyCollaborationsPage() {
   // RLS allows self-select on listing_collaborators.
   const { data: collabs } = await supabase
     .from("listing_collaborators")
-    .select("listing_id, role, accepted_at, can_scan")
+    .select("listing_id, role, accepted_at, can_scan, can_manage, can_view_stats")
     .eq("user_id", user.id)
     .eq("status", "accepted")
     .order("accepted_at", { ascending: false });
@@ -220,6 +220,18 @@ export default async function MyCollaborationsPage() {
                       {collabRoleLabel(c.role)}
                     </span>
                   </Link>
+                  {(c.can_view_stats || c.can_manage) && (
+                    // Utan den här länken finns behörigheten men ingen väg
+                    // till den: sidan länkar annars bara till den publika
+                    // eventsidan, och statistiken ligger under /app/events.
+                    <Link
+                      href={`/app/events/${c.listing_id}/stats`}
+                      className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-[var(--usha-border)] px-3 py-1.5 text-[11px] font-medium text-[var(--usha-muted)] transition hover:border-[var(--usha-gold)]/50 hover:text-[var(--usha-white)]"
+                    >
+                      <BarChart3 size={12} />
+                      Statistik
+                    </Link>
+                  )}
                   <GagePanel
                     listingId={c.listing_id}
                     perspective="crew"

@@ -65,8 +65,12 @@ export async function PATCH(
   const body = await req.json().catch(() => null);
   const hasScan = typeof body?.can_scan === "boolean";
   const hasManage = typeof body?.can_manage === "boolean";
-  if (!hasScan && !hasManage) {
-    return NextResponse.json({ error: "can_scan or can_manage (boolean) is required" }, { status: 400 });
+  const hasViewStats = typeof body?.can_view_stats === "boolean";
+  if (!hasScan && !hasManage && !hasViewStats) {
+    return NextResponse.json(
+      { error: "can_scan, can_manage or can_view_stats (boolean) is required" },
+      { status: 400 }
+    );
   }
 
   const admin = createAdminClient();
@@ -117,6 +121,16 @@ export async function PATCH(
       );
     }
     update.can_manage = body.can_manage;
+  }
+
+  if (hasViewStats) {
+    // Läsbehörighet för statistik har medvetet INGEN nivåspärr. Den ger varken
+    // pengar, gäster eller redigering, och kravet på Guld/Premium för att
+    // delegera skanning och medarrangörskap finns för att de rättigheterna
+    // väger tungt. Att låsa in "får se hur många som köpt" bakom samma tröskel
+    // skulle bara hindra små arrangörer från att visa siffran för den som
+    // hjälper dem.
+    update.can_view_stats = body.can_view_stats;
   }
 
   const { error } = await supabase
