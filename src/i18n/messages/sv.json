@@ -2379,6 +2379,7 @@
     "manageCodes": "Åtkomstkoder",
     "quantity": "Antal",
     "attendeeNamePlaceholder": "Namn på gäst {n} (valfritt)",
+    "showAttendanceLabel": "Visa att jag kommer — mitt förnamn och min bild syns för andra som tittar på kvällen",
     "mapHeading": "Hitta hit",
     "addToCalendar": "Lägg till i kalendern",
     "openInMaps": "Öppna i Maps",

@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { listingId, ticketTypeId, quantity, attendeeNames } = await req.json();
+    const { listingId, ticketTypeId, quantity, attendeeNames, showAttendance } = await req.json();
     let qty = clampQuantity(quantity);
 
     if (!listingId) {
@@ -410,6 +410,9 @@ export async function POST(req: NextRequest) {
           ...utmMetadata(utm),
           sessionsTotal: isPass ? String(listing.session_count) : '',
           attendeeNames: attendeeNamesToMeta(attendeeNames, qty),
+          // Köparens eget val att synas bland deltagarna. Bara ett uttryckligt
+          // true räknas — allt annat (saknas, null, "kanske") blir nej.
+          showAttendance: showAttendance === true ? 'true' : 'false',
           reserved: 'true',
           eventDate: listing.event_date || '',
           eventTime: listing.event_time || '',

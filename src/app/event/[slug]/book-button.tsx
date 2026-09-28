@@ -96,6 +96,10 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
   const [qty, setQty] = useState(1);
   // Optional per-attendee names (index 0..qty-1). Left blank → "Gäst i" on the QR.
   const [names, setNames] = useState<string[]>([]);
+  // "Visa att jag kommer". Av som standard: att köpa en biljett är inget
+  // samtycke till att synas. Bara inloggade får frågan — ett gästköp har ingen
+  // profil att visa, så ett kryss vore ett löfte vi inte kan hålla.
+  const [showAttendance, setShowAttendance] = useState(false);
   const setAttendeeName = (i: number, v: string) =>
     setNames((p) => {
       const next = [...p];
@@ -298,6 +302,18 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
     </div>
   ) : null;
 
+  const attendanceOptIn = isLoggedIn ? (
+    <label className="mb-3 flex cursor-pointer items-start gap-2 text-left text-[12px] text-[var(--usha-muted)]">
+      <input
+        type="checkbox"
+        checked={showAttendance}
+        onChange={(e) => setShowAttendance(e.target.checked)}
+        className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--usha-gold)]"
+      />
+      <span>{t("showAttendanceLabel")}</span>
+    </label>
+  ) : null;
+
   // Avdraget måste synas innan man trycker, annars är det ingen anledning att
   // trycka. Står det bara i Stripe har köparen redan bestämt sig.
   const creditNote =
@@ -322,9 +338,10 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
         {picker}
         {qtyStepper}
         {nameInputs}
+        {attendanceOptIn}
         {creditNote}
         <button
-          onClick={() => checkout("/api/stripe/ticket-checkout", { listingId: selectedPass?.id ?? listingId, ticketTypeId: selectedPass ? undefined : selectedTypeId || undefined, quantity: effectiveQty, attendeeNames })}
+          onClick={() => checkout("/api/stripe/ticket-checkout", { listingId: selectedPass?.id ?? listingId, ticketTypeId: selectedPass ? undefined : selectedTypeId || undefined, quantity: effectiveQty, attendeeNames, showAttendance })}
           disabled={loading || typeSoldOut}
           className={BTN}
         >

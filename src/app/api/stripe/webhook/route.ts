@@ -463,6 +463,11 @@ export async function POST(req: NextRequest) {
             stripe_payment_id: paymentIntentId,
             amount_paid: amountPaid,
             credit_applied_ore: creditOre,
+            // Köparens eget val att synas bland deltagarna. Bara ett uttryckligt
+            // ja sparas som ja; saknas fältet (äldre sessioner, andra flöden)
+            // blir det false. Sätts bara här, på kontoköpet — ett gästköp har
+            // ingen profil att visa, och ett ja vore ett löfte vi inte kan hålla.
+            show_attendance: session.metadata?.showAttendance === "true",
             platform_fee_amount: Number(session.metadata?.platformFeeOre) || 0,
             guest_count: ticketQty,
             ticket_type_id: session.metadata?.ticketTypeId || null,
