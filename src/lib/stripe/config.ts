@@ -88,14 +88,15 @@ export const PLANS: Record<PlanKey, Plan> = {
     interval: "month",
     description: "Väx din verksamhet",
     popular: true,
+    // Bara sådant som faktiskt är grindat på nivån i koden. Prioriterad
+    // synlighet fanns inte — rankningen tittar aldrig på tier. Egen
+    // profiladress finns för alla, betald eller ej, och är alltså ingen förmån.
     features: [
-      "Upp till 15 tjänster",
+      "Upp till 15 aktiva tjänster",
       "5% kommission (istället för 8%)",
-      "Egen profiladress (usha.se/dittnamn)",
+      "Låt någon annan skanna biljetter i dörren",
+      "Medarrangör: dela administrationen av ett event",
       "Sälj digitalt material",
-      "Skapa events",
-      "Avancerad statistik",
-      "Prioriterad synlighet",
     ],
     stripePriceId: process.env.STRIPE_KREATOR_GULD_PRICE_ID || "",
   },
@@ -108,14 +109,12 @@ export const PLANS: Record<PlanKey, Plan> = {
     interval: "month",
     description: "Full kontroll och maximal synlighet",
     features: [
-      "Obegränsade tjänster",
+      "Obegränsat antal tjänster",
       "3% kommission (istället för 8%)",
-      "White label — egen logga & branding",
-      "Egen profiladress (usha.se/dittnamn)",
-      "Toppsynlighet + utvalda",
+      "Låt någon annan skanna biljetter i dörren",
+      "Medarrangör: dela administrationen av ett event",
       "Facebook-sync",
       "Kalender läs + skriv",
-      "Dedikerad support",
       "Statistikexport",
     ],
     stripePriceId: process.env.STRIPE_KREATOR_PREMIUM_PRICE_ID || "",
@@ -141,7 +140,6 @@ export const PLANS: Record<PlanKey, Plan> = {
     features: [
       "Upp till 15 events",
       "5% kommission (istället för 8%)",
-      "Egen profiladress (usha.se/dittnamn)",
       "Boka kreatörer",
       "Sälj digitalt material",
       "Skapa events",
@@ -161,9 +159,6 @@ export const PLANS: Record<PlanKey, Plan> = {
     features: [
       "Obegränsade events",
       "3% kommission (istället för 8%)",
-      "White label — egen logga & branding",
-      "Egen profiladress (usha.se/dittnamn)",
-      "Toppsynlighet + utvalda",
       "Facebook-sync",
       "Boka kreatörer + analys",
       "Dedikerad support",
@@ -185,7 +180,7 @@ export const GRATIS_PLAN = {
   currency: "SEK",
   description: "Perfekt för att komma igång",
   features: [
-    "Skapa profil + tjänster/events (upp till 3)",
+    "Skapa profil + tjänster/events (upp till 3 aktiva)",
     "Synlig på marknadsplatsen",
     "8% kommission på bokningar",
     "Grundläggande statistik",

@@ -99,3 +99,18 @@ describe('getPlanList', () => {
     }
   });
 });
+
+describe('nivåerna lovar bara sådant som är byggt', () => {
+  it('ingen plan lovar synlighet som rankningen inte ger', () => {
+    // Rekommendationsmotorn tittar aldrig på tier. "Prioriterad synlighet"
+    // och "Toppsynlighet + utvalda" var alltså löften utan täckning.
+    const alla = Object.values(PLANS).flatMap((p) => p.features).join(' ');
+    expect(alla).not.toMatch(/Prioriterad synlighet|Toppsynlighet|White label/);
+  });
+
+  it('ingen plan säljer något alla redan har', () => {
+    // Egen profiladress (/[slug]) finns för varje profil, betald eller ej.
+    const alla = Object.values(PLANS).flatMap((p) => p.features).join(' ');
+    expect(alla).not.toMatch(/Egen profiladress/);
+  });
+});
