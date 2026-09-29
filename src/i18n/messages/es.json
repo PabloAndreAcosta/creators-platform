@@ -2728,6 +2728,7 @@
     "passType": "Bono · {covers} · quedan {remaining} de {total}",
     "passNoEventToday": "Hoy no hay noche de esta serie: el bono no se puede usar.",
     "passUsedUp": "Todas las sesiones del bono están usadas.",
+    "passExpired": "La tarjeta ha caducado.",
     "notLoggedIn": "Debes iniciar sesión",
     "invalidRequest": "Solicitud no válida",
     "missingBookingId": "Falta el ID de la reserva",

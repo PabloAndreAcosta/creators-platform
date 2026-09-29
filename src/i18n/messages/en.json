@@ -2728,6 +2728,7 @@
     "passType": "Pass · {covers} · {remaining} of {total} left",
     "passNoEventToday": "No night in this series today – the pass can't be clipped.",
     "passUsedUp": "All sessions on this pass are used.",
+    "passExpired": "This pass has expired.",
     "notLoggedIn": "You must be logged in",
     "invalidRequest": "Invalid request",
     "missingBookingId": "Missing booking ID",

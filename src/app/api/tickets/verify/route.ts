@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
 
   let bookingQuery = admin
     .from("bookings")
-    .select("id, listing_id, creator_id, status, scheduled_at, notes, amount_paid, booking_type, guest_count, ticket_type_name, guest_name, sessions_total, sessions_redeemed");
+    .select("id, listing_id, creator_id, status, scheduled_at, notes, amount_paid, booking_type, guest_count, ticket_type_name, guest_name, sessions_total, sessions_redeemed, pass_expires_at");
 
   // The QR encodes the FULL booking UUID as `id` — match it exactly. Only the
   // code-only path (USH-XXXXXXXX, 8 hex) needs the prefix range. Using

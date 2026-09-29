@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isPassBooking, passRemaining, passSeriesIds, pickOccurrence, seriesOccurrences } from "@/lib/passes/series-pass";
+import { isPassBooking, passExpired, passRemaining, passSeriesIds, pickOccurrence, seriesOccurrences } from "@/lib/passes/series-pass";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
   // Fetch booking and verify the scanner is the creator of this listing
   const { data: booking, error: bookingError } = await admin
     .from("bookings")
-    .select("id, status, creator_id, checked_in_at, listing_id, guest_count, sessions_total, sessions_redeemed, listings(title)")
+    .select("id, status, creator_id, checked_in_at, listing_id, guest_count, sessions_total, sessions_redeemed, pass_expires_at, listings(title)")
     .eq("id", bookingId)
     .single();
 
@@ -227,6 +227,11 @@ async function checkInSeriesPass(opts: {
   const total = booking.sessions_total ?? 0;
   if (passRemaining(booking) <= 0) {
     return NextResponse.json({ success: false, error: t("passUsedUp") });
+  }
+  // Utgånget kort. Kollas före klippet skrivs, annars hade raden i
+  // pass_redemptions funnits och räknats med i avräkningen.
+  if (passExpired((booking as { pass_expires_at?: string | null }).pass_expires_at)) {
+    return NextResponse.json({ success: false, error: t("passExpired") });
   }
 
   // Ett klipp per kväll: unika nyckeln (booking, tillfälle) är spärren mot
