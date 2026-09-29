@@ -2559,6 +2559,7 @@
   },
   "ticketPage": {
     "passChip": "Pass · {remaining} of {total} left",
+    "passValidUntil": "Valid until {date}",
     "passCovers": "One clip gives: {covers}",
     "walletApple": "Add to Apple Wallet",
     "walletGoogle": "Save to Google Wallet",

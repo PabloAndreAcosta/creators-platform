@@ -2559,6 +2559,7 @@
   },
   "ticketPage": {
     "passChip": "Klippkort · {remaining} av {total} kvar",
+    "passValidUntil": "Giltigt till {date}",
     "passCovers": "Ett klipp ger: {covers}",
     "walletApple": "Lägg till i Apple Wallet",
     "walletGoogle": "Spara i Google Wallet",

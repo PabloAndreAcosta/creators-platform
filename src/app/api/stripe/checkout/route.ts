@@ -32,6 +32,17 @@ export async function POST(req: NextRequest) {
     }
 
     const plan = PLANS[planKey as PlanKey];
+
+    // Avvecklade nivåer syns inte i prislistan men låg kvar i PLANS, och
+    // nyckeln räckte för att teckna dem. Stripe-priset är oförändrat, så ett
+    // anrop hit hade startat en prenumeration på 299 eller 599 kr på en nivå
+    // som inte säljs längre. Att dölja något i gränssnittet är ingen spärr.
+    if (plan.retired) {
+      return NextResponse.json(
+        { error: "Den här nivån säljs inte längre.", code: "plan_retired" },
+        { status: 410 }
+      );
+    }
     const priceId = plan.stripePriceId;
 
     if (!priceId) {

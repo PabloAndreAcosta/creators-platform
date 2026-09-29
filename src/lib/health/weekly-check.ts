@@ -102,14 +102,20 @@ export function granskaKvall(k: KvallInput, idag: string, horisontDagar: number)
     });
   }
 
-  // 4. Odelad kväll inom horisonten. Inte ett fel i sig, men det är så en
-  //    kväll blir osåld: den finns, den är publik, och ingen vet om den.
+  // 4. Kväll utan inlägg publicerat FRÅN APPEN, inom horisonten.
+  //
+  //    Formuleringen är viktig. Kolumnen vet bara om appen publicerat ett
+  //    sidinlägg. Ett Facebook-evenemang som skapats för hand — vilket är hur
+  //    The Labs torsdagar delas i dag, eftersom Facebook stängt sitt
+  //    evenemangs-API — syns inte här. Kallade larmet det "odelad" skulle det
+  //    påstå något falskt om fem kvällar som faktiskt är delade, och ett larm
+  //    man lärt sig att inte lita på är värre än inget larm.
   if (!k.facebookEventId && inomDagar(idag, k.eventDate, horisontDagar)) {
     ut.push({
       allvar: "bör_rättas",
-      regel: "odelad",
+      regel: "inget-inlägg-från-appen",
       kvall: namn,
-      detalj: "inget Facebook-inlägg",
+      detalj: "appen har inte publicerat något inlägg (ett FB-evenemang skapat för hand syns inte här)",
     });
   }
 
