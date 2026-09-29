@@ -240,6 +240,10 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
           <span className="text-xs text-[var(--usha-muted)]">
             {t("passSessions", { n: p.sessionCount })}
             {p.covers ? ` · ${p.covers}` : ""}
+            {/* Giltighetstiden är ett villkor för köpet och måste stå FÖRE
+                man köper. Den låg bara i kortets beskrivning, och den
+                beskrivningen renderas aldrig för köparen. */}
+            {p.sessionCount > 0 ? ` · ${t("passValidMonths", { n: p.sessionCount })}` : ""}
           </span>
           {/* Priset och "kr/kväll" hör ihop och får aldrig brytas isär; ryms
               inte rabatten på samma rad hoppar den ned i stället. */}

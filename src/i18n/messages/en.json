@@ -2297,6 +2297,7 @@
   "eventPage": {
     "singleTicket": "Ticket for the night",
     "passSessions": "{n} sessions",
+    "passValidMonths": "valid for {n} months",
     "passPerSession": "{price} kr/night",
     "passDiscount": "−{percent}% vs door price",
     "buyPass": "Buy pass · {price} kr",

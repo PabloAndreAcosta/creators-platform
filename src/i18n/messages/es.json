@@ -2297,6 +2297,7 @@
   "eventPage": {
     "singleTicket": "Entrada para la noche",
     "passSessions": "{n} sesiones",
+    "passValidMonths": "válido {n} meses",
     "passPerSession": "{price} kr/noche",
     "passDiscount": "−{percent}% frente a taquilla",
     "buyPass": "Comprar bono · {price} kr",
