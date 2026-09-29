@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { verifyCookieValue } from "@/lib/signicat/crypto";
 import type { BankIdVerifiedData } from "@/types/bankid";
 import { normalizeRole } from "@/lib/roles";
+import { adoptGuestBookings } from "@/lib/bookings/adopt-guest";
 
 /**
  * Skapades kontot av det OAuth-flöde vi just kom tillbaka från?
@@ -87,6 +88,11 @@ export async function GET(req: NextRequest) {
           code: req.cookies.get(REF_COOKIE)?.value,
           createdAt: user.created_at,
         });
+
+        // 1d. Knyt gamla gästköp på samma mejladress till kontot. Utan det
+        //     ser den nya användaren sina biljetter men räknas inte som
+        //     deltagare någonstans. Idempotent, så den får köras varje gång.
+        await adoptGuestBookings(admin, user.id, user.email);
 
         // 2. Apply BankID verification cookie if present — independent of
         //    pending_role so it works for existing-user merge logins too.

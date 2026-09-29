@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Ticket, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
-import { applicableCredit, SIGNUP_CREDIT_MIN_SPEND_ORE } from "@/lib/credits/signup";
+import { applicableCredit, SIGNUP_CREDIT_ORE, SIGNUP_CREDIT_MIN_SPEND_ORE } from "@/lib/credits/signup";
 import { trackEvent } from "@/lib/analytics";
 import { ANALYTICS_EVENTS } from "@/lib/analytics/events";
 
@@ -72,6 +73,7 @@ function soldOut(tt: TicketType) {
 export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], passes = [], header, preselectTicketTypeId, creditOre = 0 }: Props) {
   const { toast } = useToast();
   const t = useTranslations("eventPage");
+  const pathname = usePathname();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
@@ -112,6 +114,9 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
   // Avdraget räknas i ören men visas i kronor, och gäller bara över gränsen.
   const credit = applicableCredit({ creditOre, subtotalOre: total * 100 });
   const totalAfterCredit = total - credit / 100;
+  // Välkomstavdraget nämns bara när det faktiskt skulle gälla. Ett löfte om
+  // 50 kr på en 120-kronorsbiljett vore en lögn — gränsen ligger på 150.
+  const qualifiesForSignupCredit = total * 100 >= SIGNUP_CREDIT_MIN_SPEND_ORE;
   const label = selectedPass
     ? t("buyPass", { price: credit > 0 ? totalAfterCredit : total })
     : isFree
@@ -352,7 +357,24 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
     );
   }
 
-  // Logged-out: guest checkout — buy with just an email, no account required.
+  // Kontovägen fanns inte i köpboxen alls — gästköp var inte det snabbare
+  // alternativet, det var det enda som visades. Hälften av alla bokningar blev
+  // gästköp, och en gäst blir aldrig en räknad deltagare. Det här är raden som
+  // saknades.
+  const accountPrompt = !isLoggedIn ? (
+    <p className="mb-2 text-center text-[12px] text-[var(--usha-muted)]">
+      {t("haveAccountPrefix")}{" "}
+      <a
+        href={`/login?next=${encodeURIComponent(pathname)}`}
+        className="font-medium text-[var(--usha-gold)] underline underline-offset-2"
+      >
+        {t("haveAccountLink")}
+      </a>
+      {qualifiesForSignupCredit ? ` ${t("signupCreditTeaser", { amount: SIGNUP_CREDIT_ORE / 100 })}` : ""}
+    </p>
+  ) : null;
+
+  // Logged-out: guest checkout — buy with just an email, no account required.  // Logged-out: guest checkout — buy with just an email, no account required.
   return (
     <form
       onSubmit={(e) => {
@@ -365,6 +387,7 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
       {picker}
       {qtyStepper}
       {nameInputs}
+      {accountPrompt}
       <input
         type="email"
         required

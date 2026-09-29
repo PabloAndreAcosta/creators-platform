@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { adoptGuestBookings } from "@/lib/bookings/adopt-guest";
 
 // Passwordless / magic-link + recovery landing route.
 //
@@ -27,6 +29,11 @@ export async function GET(req: NextRequest) {
     const supabase = await createClient();
     const { error } = await supabase.auth.verifyOtp({ type, token_hash });
     if (!error) {
+      // Lösenordsfri inloggning går inte via /callback, så adoptionen av
+      // gamla gästköp måste ske även här — annars beror det på HUR man loggar
+      // in om ens biljetter räknas.
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) await adoptGuestBookings(createAdminClient(), user.id, user.email);
       return NextResponse.redirect(`${origin}${safeNext}`);
     }
   }
