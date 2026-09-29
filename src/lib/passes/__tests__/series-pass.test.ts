@@ -10,7 +10,8 @@ describe("klippkort på serie", () => {
   });
 
   it("ger bokningen klippkortsfält bara när kassan sålde ett kort", () => {
-    expect(passBookingFields("5")).toEqual({ sessions_total: 5, sessions_redeemed: 0 });
+    // Utgångsdatumet tillkom 2026-09-30 och testas i expiry.test.ts.
+    expect(passBookingFields("5")).toMatchObject({ sessions_total: 5, sessions_redeemed: 0 });
     expect(passBookingFields("")).toEqual({});
     expect(passBookingFields(undefined)).toEqual({});
     expect(passBookingFields("0")).toEqual({});

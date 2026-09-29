@@ -2728,6 +2728,7 @@
     "passType": "Klippkort · {covers} · {remaining} av {total} kvar",
     "passNoEventToday": "Ingen kväll i serien i dag – kortet kan inte klippas.",
     "passUsedUp": "Alla klipp på kortet är använda.",
+    "passExpired": "Klippkortet har gått ut.",
     "notLoggedIn": "Du måste vara inloggad",
     "invalidRequest": "Ogiltig begäran",
     "missingBookingId": "Boknings-ID saknas",

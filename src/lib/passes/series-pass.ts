@@ -22,10 +22,55 @@ export function passRemaining(b: PassBookingLike): number {
   return Math.max(0, (b.sessions_total ?? 0) - (b.sessions_redeemed ?? 0));
 }
 
+/**
+ * Giltighetstiden på ett klippkort: lika många månader som klipp.
+ *
+ * Ett tiokort räcker i tio månader, ett femkort i fem. Takten blir alltså en
+ * kväll i månaden — rejält mycket långsammare än The Labs veckotakt, så den
+ * som köper kortet för att gå regelbundet märker aldrig gränsen. Den finns för
+ * kortet som köps i entusiasm och sedan glöms bort.
+ *
+ * Tidigare saknades giltighetstid med flit. Det ändrades 2026-09-30, och skälet
+ * är inte att pressa någon: ett förskottsbetalt kort som aldrig kan förfalla är
+ * en skuld utan slutdatum i bokföringen, och lokalens andel av ett oanvänt
+ * klipp blir aldrig utbetald. Med ett datum går båda att redovisa.
+ *
+ * Månader, inte dagar: ett kort köpt den 31 januari går ut den sista februari,
+ * inte den 3 mars. setMonth klarar det själv genom att klampa till månadens
+ * sista dag.
+ */
+export function passExpiryFrom(purchasedAt: Date, sessionsTotal: number): Date {
+  const d = new Date(purchasedAt);
+  const dagIManaden = d.getDate();
+  d.setMonth(d.getMonth() + sessionsTotal);
+  // Klampa: 31 jan + 1 månad blir 3 mars i JS. Har dagen bytts har vi passerat
+  // månadsskiftet och backar till sista dagen i rätt månad.
+  if (d.getDate() !== dagIManaden) d.setDate(0);
+  return d;
+}
+
+/** Har kortet gått ut? Ett kort utan datum gäller tills vidare (gamla köp). */
+export function passExpired(
+  expiresAt: string | Date | null | undefined,
+  now: Date = new Date()
+): boolean {
+  if (!expiresAt) return false;
+  const d = typeof expiresAt === "string" ? new Date(expiresAt) : expiresAt;
+  return d.getTime() < now.getTime();
+}
+
 /** Kolumnerna en bokning får när kassan sålde ett klippkort. */
-export function passBookingFields(sessionsTotal: string | number | null | undefined) {
+export function passBookingFields(
+  sessionsTotal: string | number | null | undefined,
+  purchasedAt: Date = new Date()
+) {
   const n = Number(sessionsTotal);
-  return Number.isFinite(n) && n > 0 ? { sessions_total: n, sessions_redeemed: 0 } : {};
+  if (!Number.isFinite(n) || n <= 0) return {};
+  return {
+    sessions_total: n,
+    sessions_redeemed: 0,
+    pass_expires_at: passExpiryFrom(purchasedAt, n).toISOString(),
+  };
 }
 
 export interface PassMoney {
