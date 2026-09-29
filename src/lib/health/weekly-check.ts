@@ -33,6 +33,10 @@ export interface KvallInput {
   price: number | null;
   facebookEventId: string | null;
   ticketTypeCount: number;
+  /** Har kvällen en intäktsdelning med en lokal? (modell A) */
+  harIntaktsdelning: boolean;
+  /** Är säljaren någon annan än Usha? Då tas provision. (modell B) */
+  saljsAvTredjepart: boolean;
 }
 
 /**
@@ -83,7 +87,22 @@ export function granskaKvall(k: KvallInput, idag: string, horisontDagar: number)
     });
   }
 
-  // 3. Odelad kväll inom horisonten. Inte ett fel i sig, men det är så en
+  // 3. Båda modellerna på samma kväll. Se docs/lokalmodeller.md.
+  //
+  //    En kväll kör antingen intäktsdelning med lokalen ELLER provision från
+  //    kreatören. Gäller båda får lokalen sin andel av kvällen samtidigt som
+  //    kreatören får provision avdragen — någon blir betald två gånger eller
+  //    ingen gång, och det upptäcks först när pengarna redan gått.
+  if (k.harIntaktsdelning && k.saljsAvTredjepart) {
+    ut.push({
+      allvar: "blockerar",
+      regel: "blandade-modeller",
+      kvall: namn,
+      detalj: "både intäktsdelning med lokal och provision från kreatör",
+    });
+  }
+
+  // 4. Odelad kväll inom horisonten. Inte ett fel i sig, men det är så en
   //    kväll blir osåld: den finns, den är publik, och ingen vet om den.
   if (!k.facebookEventId && inomDagar(idag, k.eventDate, horisontDagar)) {
     ut.push({

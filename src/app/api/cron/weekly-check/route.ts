@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
 
   const { data: listings } = await admin
     .from("listings")
-    .select("id, slug, title, event_date, is_active, price, facebook_event_id")
+    .select("id, slug, title, event_date, is_active, price, facebook_event_id, user_id")
     .gte("event_date", idag)
     .eq("is_active", true);
 
@@ -55,6 +55,22 @@ export async function GET(req: NextRequest) {
     antalTyper.set(t.listing_id, (antalTyper.get(t.listing_id) ?? 0) + 1);
   }
 
+  // Modell A: kvällar med en intäktsdelning mot en lokal.
+  const { data: shares } = ids.length
+    ? await admin.from("event_revenue_shares").select("listing_id").in("listing_id", ids)
+    : { data: [] as { listing_id: string }[] };
+  const medIntaktsdelning = new Set((shares ?? []).map((s) => s.listing_id));
+
+  // Modell B: säljaren är någon annan än Usha, alltså tas provision.
+  // is_usha_owned_seller avgör flödet; allt annat är tredjepartsförsäljning.
+  const agarIds = [...new Set((listings ?? []).map((l) => l.user_id).filter(Boolean))];
+  const { data: agare } = agarIds.length
+    ? await admin.from("profiles").select("id, is_usha_owned_seller").in("id", agarIds)
+    : { data: [] as { id: string; is_usha_owned_seller: boolean | null }[] };
+  const ushaSaljare = new Set(
+    (agare ?? []).filter((p) => p.is_usha_owned_seller).map((p) => p.id)
+  );
+
   const avvikelser: Avvikelse[] = [];
   for (const l of listings ?? []) {
     const k: KvallInput = {
@@ -66,6 +82,8 @@ export async function GET(req: NextRequest) {
       price: l.price,
       facebookEventId: l.facebook_event_id,
       ticketTypeCount: antalTyper.get(l.id) ?? 0,
+      harIntaktsdelning: medIntaktsdelning.has(l.id),
+      saljsAvTredjepart: !ushaSaljare.has(l.user_id),
     };
     avvikelser.push(...granskaKvall(k, idag, HORISONT_DAGAR));
   }

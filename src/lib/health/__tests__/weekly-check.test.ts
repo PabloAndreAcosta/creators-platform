@@ -19,6 +19,8 @@ const kvall = (o: Partial<KvallInput> = {}): KvallInput => ({
   price: 200,
   facebookEventId: "438_122",
   ticketTypeCount: 4,
+  harIntaktsdelning: true,
+  saljsAvTredjepart: false,
   ...o,
 });
 
@@ -75,6 +77,33 @@ describe("granskaKvall", () => {
     // Gamla event ska finnas kvar som bibliotek — de är inte fel.
     expect(granskaKvall(kvall({ eventDate: "2026-09-01", slug: "x-2026-09-01" }), IDAG, 21)).toEqual([]);
     expect(granskaKvall(kvall({ isActive: false, facebookEventId: null }), IDAG, 21)).toEqual([]);
+  });
+});
+
+describe("blandade modeller", () => {
+  it("FÅNGAR en kväll med både intäktsdelning och tredjepartsförsäljning", () => {
+    // Lokalen får sin andel av kvällen och kreatören får provision avdragen.
+    // Någon blir betald två gånger eller ingen gång, och det upptäcks först
+    // när pengarna gått. Se docs/lokalmodeller.md.
+    const a = granskaKvall(
+      kvall({ harIntaktsdelning: true, saljsAvTredjepart: true }),
+      IDAG,
+      21
+    );
+    expect(a.map((x) => x.regel)).toContain("blandade-modeller");
+    expect(a.find((x) => x.regel === "blandade-modeller")?.allvar).toBe("blockerar");
+  });
+
+  it("intäktsdelning där Usha är säljare är modell A — inget fel", () => {
+    expect(
+      granskaKvall(kvall({ harIntaktsdelning: true, saljsAvTredjepart: false }), IDAG, 21)
+    ).toEqual([]);
+  });
+
+  it("tredjepartsförsäljning utan intäktsdelning är modell B — inget fel", () => {
+    expect(
+      granskaKvall(kvall({ harIntaktsdelning: false, saljsAvTredjepart: true }), IDAG, 21)
+    ).toEqual([]);
   });
 });
 
