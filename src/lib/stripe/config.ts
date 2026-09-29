@@ -29,37 +29,53 @@ interface Plan {
 }
 
 export const PLANS: Record<PlanKey, Plan> = {
+  // AVVECKLAD 2026-09-29. Samma skäl som venue-nivåerna, men tydligare.
+  //
+  // 22 personer har någonsin köpt en biljett. Snittet är 1,1 köp per person,
+  // ingen har köpt tre gånger, och den bästa kunden har spenderat 500 kr under
+  // plattformens hela livstid. Publik Guld kostade 199 kr I MÅNADEN — mer per
+  // månad än den bästa kunden spenderat totalt.
+  //
+  // En prenumeration ber någon satsa på ett återkommande beteende de inte
+  // etablerat. Klippkortet gör tvärtom: det köps i entusiasmen efter en bra
+  // kväll, utan bindning, och förvandlar 1,1 köp till N.
+  //
+  // Av sex utlovade förmåner fungerade en (rabatten, avstängd under betan),
+  // en var byggd men använd på 1 av 48 kvällar (förturen), och fyra fanns inte
+  // alls: VIP utan kö, exklusivt innehåll, prioriterad support och
+  // nivåkopplad kalendersync. Att sälja dem hade varit ett löfte vi inte kan
+  // hålla.
+  //
+  // Kan komma tillbaka den dag någon köper tio gånger om året. Då som årskort,
+  // inte månadsprenumeration.
   publik_guld: {
+    retired: true,
     name: "Guld",
     role: "customer",
     tier: "guld",
-    price: 199,
+    price: 0,
     currency: "SEK",
     interval: "month",
     description: "Rabatter och tidig tillgång",
     features: [
       "10% rabatt på bokningar",
       "Tidig tillgång 48h före alla andra",
-      "Prioriterad support",
-      "Kalendersync",
     ],
     stripePriceId: process.env.STRIPE_PUBLIK_GULD_PRICE_ID || "",
   },
   publik_premium: {
+    retired: true,
     name: "Premium",
     role: "customer",
     tier: "premium",
-    price: 499,
+    price: 0,
     currency: "SEK",
     interval: "month",
     popular: true,
     description: "VIP-upplevelse utan köer",
     features: [
       "20% rabatt på bokningar",
-      "VIP — aldrig i kö",
-      "Exklusivt innehåll",
       "Tidig tillgång 72h före alla andra",
-      "Prioriterad support",
     ],
     stripePriceId: process.env.STRIPE_PUBLIK_PREMIUM_PRICE_ID || "",
   },

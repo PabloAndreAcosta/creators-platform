@@ -25,9 +25,24 @@ describe('PLANS', () => {
     expect(PLANS.publik_premium.price).toBeLessThan(PLANS.kreator_premium.price);
   });
 
-  it('guld plans are cheaper than premium plans within same role', () => {
-    expect(PLANS.publik_guld.price).toBeLessThan(PLANS.publik_premium.price);
+  it('guld är billigare än premium bland nivåer som går att teckna', () => {
     expect(PLANS.kreator_guld.price).toBeLessThan(PLANS.kreator_premium.price);
+  });
+
+  it('publiknivåerna är avvecklade och kostar noll', () => {
+    // 22 personer har någonsin köpt biljett, snitt 1,1 köp. En månadsavgift
+    // på 199 kr var mer än bästa kunden spenderat totalt. Klippkortet är
+    // produkten i stället.
+    expect(PLANS.publik_guld.retired).toBe(true);
+    expect(PLANS.publik_premium.retired).toBe(true);
+    expect(PLANS.publik_guld.price).toBe(0);
+    expect(PLANS.publik_premium.price).toBe(0);
+  });
+
+  it('avvecklade nivåer lovar inget som inte är byggt', () => {
+    // VIP utan kö, exklusivt innehåll och prioriterad support fanns aldrig.
+    const alla = Object.values(PLANS).flatMap((p) => p.features).join(" ");
+    expect(alla).not.toMatch(/VIP|Exklusivt innehåll|Prioriterad support/);
   });
 
   it('venue-nivåerna är avvecklade och kostar noll', () => {
@@ -55,14 +70,12 @@ describe('getPlanList', () => {
     // Sex plan-nycklar finns, men de två avvecklade venue-nivåerna ska inte
     // dyka upp i någon prislista.
     const plans = getPlanList();
-    expect(plans).toHaveLength(4);
-    expect(plans.some((p) => p.role === 'venue')).toBe(false);
+    expect(plans).toHaveLength(2);
+    expect(plans.every((p) => p.role === 'creator')).toBe(true);
   });
 
-  it('returns 2 plans for publik role', () => {
-    const plans = getPlanList('customer');
-    expect(plans).toHaveLength(2);
-    expect(plans.every((p) => p.role === 'customer')).toBe(true);
+  it('returnerar inga nivåer för publik — de är avvecklade', () => {
+    expect(getPlanList('customer')).toHaveLength(0);
   });
 
   it('returns 2 plans for kreator role', () => {
