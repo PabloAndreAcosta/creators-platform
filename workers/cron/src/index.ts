@@ -44,6 +44,15 @@ function svenskTimme(): number {
   );
 }
 
+/** Veckodag, svensk tid. 1 = måndag ... 7 = söndag. */
+function svenskVeckodag(): number {
+  const namn = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/Stockholm",
+    weekday: "short",
+  }).format(new Date());
+  return ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].indexOf(namn) + 1;
+}
+
 /** Dag i månaden, svensk tid – för jobb som ska gå en gång per månad/kvartal. */
 function svenskDagIManaden(): number {
   return Number(
@@ -55,7 +64,8 @@ function svenskDagIManaden(): number {
  * Jobben, i den ordning de körs. Namnet används i larmmejlet.
  *
  * `atHour` betyder "bara den här timmen, svensk tid". Utan den körs jobbet
- * varje hel timme som förut. `onDayOfMonth` begränsar dessutom till en dag.
+ * varje hel timme som förut. `onDayOfMonth` begränsar till en dag i månaden och
+ * `onWeekday` till en veckodag (1 = måndag).
  */
 const JOBS = [
   { name: "booking-reminders-soon", desc: 'Påminnelse "börjar snart" (T-2h)' },
@@ -90,6 +100,11 @@ const JOBS = [
   // att beskedet finns innan avräkningen betalar ut dagens kvällar. Mejlar
   // bara när något avviker.
   { name: "settlement-gaps", desc: "Kvällar som inte följer en stående regel", atHour: 6 },
+  // Veckokontrollen letar efter drift ingen bett den leta efter: slugens datum
+  // mot kvällens, kvällar som inte går att köpa biljett till, kvällar som inte
+  // delats. Måndag morgon, så att veckans fel hinner rättas före helgens
+  // kvällar. Mejlar bara när den hittar något.
+  { name: "weekly-check", desc: "Veckokontroll av evenemang", atHour: 7, onWeekday: 1 },
 ] as const;
 
 async function runJob(env: Env, path: string): Promise<{ ok: boolean; detail: string }> {
@@ -144,11 +159,14 @@ export default {
         const failures: { name: string; desc: string; detail: string }[] = [];
         const timme = svenskTimme();
         const dagIManaden = svenskDagIManaden();
+        const veckodag = svenskVeckodag();
         for (const job of JOBS) {
           const atHour = "atHour" in job ? job.atHour : undefined;
           if (atHour !== undefined && atHour !== timme) continue;
           const onDay = "onDayOfMonth" in job ? job.onDayOfMonth : undefined;
           if (onDay !== undefined && onDay !== dagIManaden) continue;
+          const onWeekday = "onWeekday" in job ? job.onWeekday : undefined;
+          if (onWeekday !== undefined && onWeekday !== veckodag) continue;
           const res = await runJob(env, job.name);
           if (res.ok) console.log(`${job.name}: ${res.detail}`);
           else failures.push({ name: job.name, desc: job.desc, detail: res.detail });
