@@ -9,16 +9,23 @@
  * lagras avdraget separat på bokningen och läggs tillbaka i underlaget innan
  * delningen. Partnern får sin andel av ordinarie pris.
  *
- * MINSTA KÖP 150 KR. Utan gräns blir en practica-biljett för 50 kr gratis, och
- * ett köparkonto kräver bara en mejladress. Gränsen gör avdraget till en knuff
- * mot workshop, social eller hela kvällen i stället för till gratis inträde.
+ * MINSTA KÖP 120 KR. Utan gräns blir en practica-biljett för 50 kr gratis, och
+ * ett köparkonto kräver bara en mejladress. Gränsen håller avdraget borta från
+ * gratis inträde utan att stänga ute den vanligaste biljetten.
+ *
+ * Gränsen låg på 150 kr fram till 2026-09-29 och sänktes till 120 för att
+ * zouk-tisdagarna kostar just 120 — avdraget gällde alltså inte den biljett
+ * flest köper. Sänkningen är ett medvetet minusbeslut: på en kväll med
+ * partner går Usha back ett par kronor på ett förstagångsköp (se
+ * ushaNetAfterCreditOre). Ett nytt konto är värt mer än så, och kostnaden
+ * bärs av Usha — varken partnern eller kreatören är med och betalar den.
  */
 
 /** Avdragets storlek i öre. */
 export const SIGNUP_CREDIT_ORE = 5000;
 
 /** Lägsta ordersumma i öre för att avdraget ska gälla. */
-export const SIGNUP_CREDIT_MIN_SPEND_ORE = 15000;
+export const SIGNUP_CREDIT_MIN_SPEND_ORE = 12000;
 
 export interface CreditInput {
   /** Kvarvarande avdrag i öre. 0 eller saknat = inget att använda. */
@@ -75,8 +82,10 @@ export function settlementBasisOre(row: {
  * Räknat på The Lab och zouk-tisdagarna (partner 50 %, moms 25 %):
  *   120 kr → -2 kr    150 kr → +10 kr    200 kr → +30 kr
  *
- * Därför sänks inte gränsen. En 120-kronorsbiljett med avdrag kostar Usha
- * pengar att sälja, och att kalla det marknadsföring gör det inte billigare.
+ * Minusposten på 120 kr är känd och accepterad: gränsen ligger där för att
+ * avdraget ska gälla zouk-tisdagarna, och Usha bär mellanskillnaden. Funktionen
+ * finns kvar så att nästa ändring av gränsen börjar i siffror — och så att det
+ * syns om priset eller partnerandelen flyttar sig så att minusposten växer.
  */
 export function ushaNetAfterCreditOre(input: {
   priceOre: number;

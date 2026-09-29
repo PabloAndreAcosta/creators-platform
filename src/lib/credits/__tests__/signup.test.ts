@@ -66,8 +66,18 @@ describe("ushaNetAfterCreditOre — varför gränsen inte sänks", () => {
     expect(ushaNetAfterCreditOre({ priceOre: 12000, ...bacchi })).toBeLessThan(0);
   });
 
-  it("gränsen på 150 kr lämnar något kvar", () => {
-    expect(ushaNetAfterCreditOre({ priceOre: SIGNUP_CREDIT_MIN_SPEND_ORE, ...bacchi })).toBeGreaterThan(0);
+  it("vid gränsen går Usha back ett par kronor — känt och accepterat", () => {
+    // Gränsen sänktes till 120 kr för att avdraget skulle gälla
+    // zouk-tisdagarna. Minusposten bärs av Usha, inte av partnern och inte av
+    // kreatören. Testet finns för att fånga om den växer: blir det värre än
+    // -500 öre har priset eller partnerandelen flyttat sig.
+    const vidGransen = ushaNetAfterCreditOre({ priceOre: SIGNUP_CREDIT_MIN_SPEND_ORE, ...bacchi });
+    expect(vidGransen).toBeLessThan(0);
+    expect(vidGransen).toBeGreaterThan(-500);
+  });
+
+  it("150 kr och uppåt bär avdraget", () => {
+    expect(ushaNetAfterCreditOre({ priceOre: 15000, ...bacchi })).toBeGreaterThan(0);
   });
 
   it("hela kvällen för 200 kr bär avdraget med marginal", () => {
