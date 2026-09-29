@@ -4,6 +4,7 @@ import {
   settlementBasisOre,
   SIGNUP_CREDIT_ORE,
   SIGNUP_CREDIT_MIN_SPEND_ORE,
+  ushaNetAfterCreditOre,
 } from "../signup";
 
 describe("applicableCredit", () => {
@@ -54,5 +55,29 @@ describe("settlementBasisOre", () => {
     expect(settlementBasisOre({ amount_paid: 20000, credit_applied_ore: 0 })).toBe(20000);
     expect(settlementBasisOre({ amount_paid: 20000 })).toBe(20000);
     expect(settlementBasisOre({})).toBe(0);
+  });
+});
+
+describe("ushaNetAfterCreditOre — varför gränsen inte sänks", () => {
+  const bacchi = { partnerPercent: 50, vatRate: 0.25, creditOre: SIGNUP_CREDIT_ORE };
+
+  it("en 120-kronorsbiljett med avdrag går back", () => {
+    // Zouk-tisdagen. Att sänka gränsen hit vore att betala för att sälja.
+    expect(ushaNetAfterCreditOre({ priceOre: 12000, ...bacchi })).toBeLessThan(0);
+  });
+
+  it("gränsen på 150 kr lämnar något kvar", () => {
+    expect(ushaNetAfterCreditOre({ priceOre: SIGNUP_CREDIT_MIN_SPEND_ORE, ...bacchi })).toBeGreaterThan(0);
+  });
+
+  it("hela kvällen för 200 kr bär avdraget med marginal", () => {
+    expect(ushaNetAfterCreditOre({ priceOre: 20000, ...bacchi })).toBeGreaterThan(2000);
+  });
+
+  it("utan partner bär även en billig biljett avdraget", () => {
+    // Egna kvällar utan delning: där vore en lägre gräns försvarbar.
+    expect(
+      ushaNetAfterCreditOre({ priceOre: 12000, partnerPercent: 0, vatRate: 0.25, creditOre: SIGNUP_CREDIT_ORE })
+    ).toBeGreaterThan(0);
   });
 });

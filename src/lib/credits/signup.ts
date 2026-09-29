@@ -63,3 +63,28 @@ export function settlementBasisOre(row: {
 }): number {
   return (row.amount_paid ?? 0) + (row.credit_applied_ore ?? 0);
 }
+
+/**
+ * Vad Usha har kvar av ett köp efter moms, partnerns andel och avdraget.
+ *
+ * Finns här för att gränsen på 150 kr ska gå att kontrollera i stället för att
+ * bara tros på. Partnern får sin andel av ordinarie pris — avdraget är helt
+ * Ushas kostnad — så ju billigare biljetten är, desto större del av Ushas egen
+ * andel äter avdraget upp.
+ *
+ * Räknat på The Lab och zouk-tisdagarna (partner 50 %, moms 25 %):
+ *   120 kr → -2 kr    150 kr → +10 kr    200 kr → +30 kr
+ *
+ * Därför sänks inte gränsen. En 120-kronorsbiljett med avdrag kostar Usha
+ * pengar att sälja, och att kalla det marknadsföring gör det inte billigare.
+ */
+export function ushaNetAfterCreditOre(input: {
+  priceOre: number;
+  partnerPercent: number;
+  vatRate: number;
+  creditOre?: number;
+}): number {
+  const netOfVat = input.priceOre / (1 + input.vatRate);
+  const ushaShare = netOfVat * (1 - input.partnerPercent / 100);
+  return Math.round(ushaShare - (input.creditOre ?? 0));
+}
