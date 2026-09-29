@@ -2297,6 +2297,7 @@
   "eventPage": {
     "singleTicket": "Biljett till kvällen",
     "passSessions": "{n} tillfällen",
+    "passValidMonths": "giltigt i {n} månader",
     "passPerSession": "{price} kr/kväll",
     "passDiscount": "−{percent} % mot dörrpris",
     "buyPass": "Köp klippkort · {price} kr",
