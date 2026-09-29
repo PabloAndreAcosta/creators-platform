@@ -45,7 +45,7 @@ export default async function GuestTicketPage({
   const admin = createAdminClient();
   const { data: booking } = await admin
     .from("bookings")
-    .select("id, status, scheduled_at, guest_name, guest_email, customer_id, creator_id, listing_id, checked_in_at, ticket_type_name, guest_count, sessions_total, sessions_redeemed")
+    .select("id, status, scheduled_at, guest_name, guest_email, customer_id, creator_id, listing_id, checked_in_at, ticket_type_name, guest_count, sessions_total, sessions_redeemed, pass_expires_at")
     .eq("id", id)
     .maybeSingle();
   if (!booking) notFound();
@@ -253,6 +253,15 @@ export default async function GuestTicketPage({
                 {isPass
                   ? t("passChip", { remaining: passRemaining(booking), total: booking.sessions_total ?? 0 })
                   : booking.ticket_type_name}
+              </p>
+            )}
+            {/* Giltighetstiden är ett villkor för kortet. Innehavaren måste
+                kunna se sitt eget slutdatum utan att fråga någon. */}
+            {isPass && booking.pass_expires_at && (
+              <p className="mt-1 text-xs text-[var(--usha-muted)]">
+                {t("passValidUntil", {
+                  date: new Date(booking.pass_expires_at).toLocaleDateString("sv-SE"),
+                })}
               </p>
             )}
             {attendee && (

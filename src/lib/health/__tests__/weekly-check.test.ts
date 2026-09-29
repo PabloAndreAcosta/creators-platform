@@ -57,13 +57,13 @@ describe("granskaKvall", () => {
     expect(granskaKvall(kvall({ price: 0, ticketTypeCount: 2 }), IDAG, 21)).toEqual([]);
   });
 
-  it("fångar odelad kväll inom horisonten", () => {
+  it("fångar kväll utan inlägg från appen, inom horisonten", () => {
     const a = granskaKvall(kvall({ facebookEventId: null }), IDAG, 21);
-    expect(a.map((x) => x.regel)).toContain("odelad");
+    expect(a.map((x) => x.regel)).toContain("inget-inlägg-från-appen");
     expect(a[0].allvar).toBe("bör_rättas");
   });
 
-  it("klagar INTE på en odelad kväll långt fram", () => {
+  it("klagar INTE på en kväll långt fram", () => {
     // En kväll i december behöver inget inlägg i oktober.
     const a = granskaKvall(
       kvall({ facebookEventId: null, eventDate: "2026-12-10", slug: "x-2026-12-10" }),
@@ -128,7 +128,7 @@ describe("sammanfattaGaster", () => {
 describe("sortera", () => {
   it("lägger det blockerande först", () => {
     const s = sortera([
-      { allvar: "bör_rättas", regel: "odelad", kvall: "B", detalj: "" },
+      { allvar: "bör_rättas", regel: "inget-inlägg-från-appen", kvall: "B", detalj: "" },
       { allvar: "blockerar", regel: "slug-datum", kvall: "A", detalj: "" },
     ]);
     expect(s[0].allvar).toBe("blockerar");

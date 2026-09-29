@@ -2559,6 +2559,7 @@
   },
   "ticketPage": {
     "passChip": "Bono · quedan {remaining} de {total}",
+    "passValidUntil": "Válido hasta {date}",
     "passCovers": "Cada uso da acceso a: {covers}",
     "walletApple": "Añadir a Apple Wallet",
     "walletGoogle": "Guardar en Google Wallet",

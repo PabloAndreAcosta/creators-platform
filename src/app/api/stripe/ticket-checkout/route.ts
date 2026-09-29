@@ -189,6 +189,10 @@ export async function POST(req: NextRequest) {
         guest_count: qty,
         ticket_type_id: ticketType?.id ?? null,
         ticket_type_name: ticketType?.name ?? null,
+        // Gratisbiljetten skrivs direkt här, inte via webhooken. Utan den här
+        // raden kryssade köparen i "visa att jag kommer" och valet kastades
+        // tyst — ett samtycke som inte sparas är värre än ingen kryssruta.
+        show_attendance: showAttendance === true,
         ...passBookingFields(isPass ? listing.session_count : null),
       }).select('id').single();
 
