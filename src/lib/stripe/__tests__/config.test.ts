@@ -28,7 +28,15 @@ describe('PLANS', () => {
   it('guld plans are cheaper than premium plans within same role', () => {
     expect(PLANS.publik_guld.price).toBeLessThan(PLANS.publik_premium.price);
     expect(PLANS.kreator_guld.price).toBeLessThan(PLANS.kreator_premium.price);
-    expect(PLANS.upplevelse_guld.price).toBeLessThan(PLANS.upplevelse_premium.price);
+  });
+
+  it('venue-nivåerna är avvecklade och kostar noll', () => {
+    // En lokal är en avtalspart, inte en abonnent. Nycklarna ligger kvar så
+    // att befintliga prenumerationer och webhooken kan läsa sitt plan-id.
+    expect(PLANS.upplevelse_guld.retired).toBe(true);
+    expect(PLANS.upplevelse_premium.retired).toBe(true);
+    expect(PLANS.upplevelse_guld.price).toBe(0);
+    expect(PLANS.upplevelse_premium.price).toBe(0);
   });
 });
 
@@ -43,8 +51,12 @@ describe('GRATIS_PLAN', () => {
 });
 
 describe('getPlanList', () => {
-  it('returns all 6 plans without filter', () => {
-    expect(getPlanList()).toHaveLength(6);
+  it('returnerar bara nivåer som går att teckna', () => {
+    // Sex plan-nycklar finns, men de två avvecklade venue-nivåerna ska inte
+    // dyka upp i någon prislista.
+    const plans = getPlanList();
+    expect(plans).toHaveLength(4);
+    expect(plans.some((p) => p.role === 'venue')).toBe(false);
   });
 
   it('returns 2 plans for publik role', () => {
@@ -59,10 +71,8 @@ describe('getPlanList', () => {
     expect(plans.every((p) => p.role === 'creator')).toBe(true);
   });
 
-  it('returns 2 plans for upplevelse role', () => {
-    const plans = getPlanList('venue');
-    expect(plans).toHaveLength(2);
-    expect(plans.every((p) => p.role === 'venue')).toBe(true);
+  it('returnerar inga nivåer för venue — de är avvecklade', () => {
+    expect(getPlanList('venue')).toHaveLength(0);
   });
 
   it('plan objects include key, name, price, features', () => {

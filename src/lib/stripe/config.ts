@@ -19,6 +19,13 @@ interface Plan {
   popular?: boolean;
   features: string[];
   stripePriceId: string;
+  /**
+   * Avvecklad nivå. Visas inte i prislistan och går inte att teckna, men
+   * ligger kvar så att befintliga prenumerationer och webhooken fortfarande
+   * känner igen sitt plan-id. Att radera nyckeln hade gjort gamla rader
+   * oläsbara.
+   */
+  retired?: boolean;
 }
 
 export const PLANS: Record<PlanKey, Plan> = {
@@ -67,7 +74,7 @@ export const PLANS: Record<PlanKey, Plan> = {
     popular: true,
     features: [
       "Upp till 15 tjänster",
-      "8% kommission (istället för 15%)",
+      "5% kommission (istället för 8%)",
       "Egen profiladress (usha.se/dittnamn)",
       "Sälj digitalt material",
       "Skapa events",
@@ -86,7 +93,7 @@ export const PLANS: Record<PlanKey, Plan> = {
     description: "Full kontroll och maximal synlighet",
     features: [
       "Obegränsade tjänster",
-      "3% kommission (istället för 15%)",
+      "3% kommission (istället för 8%)",
       "White label — egen logga & branding",
       "Egen profiladress (usha.se/dittnamn)",
       "Toppsynlighet + utvalda",
@@ -97,17 +104,27 @@ export const PLANS: Record<PlanKey, Plan> = {
     ],
     stripePriceId: process.env.STRIPE_KREATOR_PREMIUM_PRICE_ID || "",
   },
+  // AVVECKLAD 2026-09-29. En lokal är en avtalspart, inte en abonnent.
+  //
+  // Den enda riktiga lokalen på plattformen — Bacchi Syre, 31 kvällar — låg på
+  // gratisnivån hela tiden och tar 50 % av kvällen via intäktsdelning. Nivån
+  // har aldrig dragit in en krona, och att ta 299 i månaden av en lokal för att
+  // få lägga in sina kvällar är att ta betalt för leverans.
+  //
+  // Villkoren för en lokal bor i event_revenue_shares, inte i en prisstege.
+  // Se docs/lokalmodeller.md.
   upplevelse_guld: {
+    retired: true,
     name: "Guld",
     role: "venue",
     tier: "guld",
-    price: 299,
+    price: 0,
     currency: "SEK",
     interval: "month",
     description: "Väx din verksamhet",
     features: [
       "Upp till 15 events",
-      "8% kommission (istället för 15%)",
+      "5% kommission (istället för 8%)",
       "Egen profiladress (usha.se/dittnamn)",
       "Boka kreatörer",
       "Sälj digitalt material",
@@ -117,16 +134,17 @@ export const PLANS: Record<PlanKey, Plan> = {
     stripePriceId: process.env.STRIPE_UPPLEVELSE_GULD_PRICE_ID || "",
   },
   upplevelse_premium: {
+    retired: true,
     name: "Premium",
     role: "venue",
     tier: "premium",
-    price: 599,
+    price: 0,
     currency: "SEK",
     interval: "month",
     description: "Full kontroll och maximal synlighet",
     features: [
       "Obegränsade events",
-      "3% kommission (istället för 15%)",
+      "3% kommission (istället för 8%)",
       "White label — egen logga & branding",
       "Egen profiladress (usha.se/dittnamn)",
       "Toppsynlighet + utvalda",
@@ -153,7 +171,7 @@ export const GRATIS_PLAN = {
   features: [
     "Skapa profil + tjänster/events (upp till 3)",
     "Synlig på marknadsplatsen",
-    "15% kommission på bokningar",
+    "8% kommission på bokningar",
     "Grundläggande statistik",
   ],
 };
@@ -203,8 +221,14 @@ export function getGratisPlan(role: MemberRole, foundingPartner = false) {
 }
 
 /** Client-safe plan list, optionally filtered by role */
+/**
+ * Planerna som går att teckna. Avvecklade nivåer filtreras bort här i stället
+ * för att raderas, så att en befintlig prenumeration fortfarande kan läsas.
+ */
 export function getPlanList(role?: MemberRole) {
-  const plans = (Object.keys(PLANS) as PlanKey[]).map((key) => ({
+  const plans = (Object.keys(PLANS) as PlanKey[])
+    .filter((key) => !PLANS[key].retired)
+    .map((key) => ({
     key,
     name: PLANS[key].name,
     role: PLANS[key].role,
