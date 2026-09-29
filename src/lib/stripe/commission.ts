@@ -7,16 +7,39 @@ export interface PayoutBreakdown {
   commissionRate: number;
 }
 
+/**
+ * Provisionstrappan. Sänkt 2026-09-29 från 15/8/3.
+ *
+ * Femton procent på gratisnivån var inte "lite dyrt" — det var fyra och en
+ * halv gång dyrare än alternativen. Nortic och Tikly tar noll av arrangören
+ * och femton kronor av köparen; Billetto 3,9 % plus en tia, också av köparen.
+ * På en klass för 450 kr betydde vår trappa 67,50 kr av instruktören mot noll
+ * hos Nortic. En instruktör som jämför behöver inte tänka längre än så.
+ *
+ * Vad den gav: 58,50 kr sedan start, allt från Ushas egna kvällar. Ingen
+ * tredjepartskreatör har sålt något alls. Satsen skyddade alltså ingen intäkt
+ * — den stod i vägen för den.
+ *
+ * Hela trappan flyttades ned, inte bara första steget: hade gratis blivit 8 %
+ * med Guld kvar på 8 % vore Guld gratis att avstå från, och trappan hade
+ * upphört att vara en trappa.
+ */
 export const COMMISSION_RATES: Record<MemberTier, number> = {
-  gratis: 0.15,
-  guld: 0.08,
+  gratis: 0.08,
+  guld: 0.05,
   premium: 0.03,
 };
 
-// Reduced commission rates for taxi_dancer creators (Fas 5 perk).
-// Independent of subscription tier — taxi_dancer subcategory grants
-// a flat preferential rate that beats the gratis tier on day one and
-// stays competitive even at premium.
+/**
+ * Taxidansarnas förmån (Fas 5) var 8/5/3 när standard var 15/8/3. Sedan
+ * standardtrappan sänkts till samma siffror är förmånen identisk med den
+ * vanliga satsen — den ger inget längre.
+ *
+ * Tabellen ligger kvar med flit i stället för att tas bort: den är fortfarande
+ * den som gäller för taxidansare, och blir standardtrappan någonsin dyrare
+ * igen ska förmånen finnas kvar på sin gamla nivå utan att någon behöver minnas
+ * vad den var. Att radera den vore att tyst dra in något som utlovats.
+ */
 export const TAXI_DANCER_COMMISSION_RATES: Record<MemberTier, number> = {
   gratis: 0.08,
   guld: 0.05,
@@ -33,17 +56,21 @@ export const DISCOUNT_RATES: Record<'guld' | 'premium', number> = {
  * (optionally) their creator_subcategory. Taxi dancers get reduced
  * rates as a Fas 5 special offer.
  *
- * Standard: gratis 15%, guld 8%, premium 3%
- * Taxi dancer: gratis 8%, guld 5%, premium 3%
+ * Standard: gratis 8%, guld 5%, premium 3%
+ * Taxi dancer: samma siffror sedan 2026-09-29 (se tabellen ovan)
  */
 export function getCreatorCommissionRate(
   tier: string,
   creatorSubcategory?: string | null
 ): number {
+  // Fallbacken pekar på gratisnivån i stället för en hårdkodad siffra. Den var
+  // 0.15 och blev efter sänkningen DYRARE än alla riktiga nivåer — en okänd
+  // eller felstavad tier hade alltså tagit mer betalt än gratisnivån. Testet
+  // fångade det; den som ändrar trappan nästa gång slipper tänka på det.
   if (creatorSubcategory === "taxi_dancer") {
-    return TAXI_DANCER_COMMISSION_RATES[tier as MemberTier] ?? 0.08;
+    return TAXI_DANCER_COMMISSION_RATES[tier as MemberTier] ?? TAXI_DANCER_COMMISSION_RATES.gratis;
   }
-  return COMMISSION_RATES[tier as MemberTier] ?? 0.15;
+  return COMMISSION_RATES[tier as MemberTier] ?? COMMISSION_RATES.gratis;
 }
 
 /**
