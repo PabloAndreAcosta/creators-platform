@@ -2,7 +2,7 @@ import { useTranslations } from "next-intl";
 import {
   Sparkles, Ticket, QrCode, Users, ScanLine, Banknote, Radio, BarChart3,
   Fingerprint, CreditCard, Store, Newspaper, CalendarCheck, BookOpen, Gift,
-  KeyRound, Building2,
+  KeyRound, Building2, Layers, BellRing, Repeat, Receipt,
   type LucideIcon,
 } from "lucide-react";
 
@@ -29,6 +29,18 @@ const GROUPS: { heading: string; items: Item[] }[] = [
       { key: "crew", icon: Users },
       { key: "delegateScan", icon: ScanLine },
       { key: "live", icon: Radio },
+    ],
+  },
+  // Det här blocket är skälet att stanna, inte bara att prova: fyra sätt att
+  // sälja samma kväll mer än en gång. Allt fyra finns byggt och kört skarpt —
+  // kommer något hit som inte gör det är det ett löfte utan täckning.
+  {
+    heading: "sellMore",
+    items: [
+      { key: "passes", icon: Layers },
+      { key: "membership", icon: Repeat, isNew: true },
+      { key: "waitlist", icon: BellRing },
+      { key: "settlement", icon: Receipt },
     ],
   },
   {

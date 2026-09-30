@@ -33,11 +33,17 @@ export default async function SellTicketsPage() {
     { icon: Receipt, title: t("f6Title"), body: t("f6Body") },
   ];
   const bullets = [t("bullet1"), t("bullet2"), t("bullet3"), t("bullet4")];
+  // Jämförelsen handlade förut bara om avgiftens storlek, i fyra varianter.
+  // Nu jämför den också det som faktiskt skiljer: dörren, klippkorten och
+  // delningen med lokalen. Raden om avgiften står kvar men säger provisionen,
+  // inte serviceavgiften — serviceavgiften är avstängd och har aldrig tagits ut.
   const compare = [
-    { label: t("compareServiceFeeLabel"), usha: t("compareServiceFeeUsha"), tickster: t("compareServiceFeeTickster") },
-    { label: t("compareFreeLabel"), usha: t("compareFreeUsha"), tickster: t("compareFreeTickster") },
-    { label: t("compareWhoLabel"), usha: t("compareWhoUsha"), tickster: t("compareWhoTickster") },
-    { label: t("compareMonthlyLabel"), usha: t("compareMonthlyUsha"), tickster: t("compareMonthlyTickster") },
+    { label: t("compareServiceFeeLabel"), usha: t("compareServiceFeeUsha"), other: t("compareServiceFeeTickster") },
+    { label: t("compareMonthlyLabel"), usha: t("compareMonthlyUsha"), other: t("compareMonthlyTickster") },
+    { label: t("compareFreeLabel"), usha: t("compareFreeUsha"), other: t("compareFreeTickster") },
+    { label: t("compareDoorLabel"), usha: t("compareDoorUsha"), other: t("compareDoorTickster") },
+    { label: t("comparePassLabel"), usha: t("comparePassUsha"), other: t("comparePassTickster") },
+    { label: t("compareSettlementLabel"), usha: t("compareSettlementUsha"), other: t("compareSettlementTickster") },
   ];
 
   return (
@@ -90,7 +96,7 @@ export default async function SellTicketsPage() {
       <section className="mx-auto max-w-3xl px-6 py-10">
         <div className="rounded-2xl border border-[var(--usha-gold)]/30 bg-gradient-to-b from-[var(--usha-gold)]/10 to-transparent p-8 text-center">
           <p className="text-sm text-[var(--usha-muted)]">{t("pricingLabel")}</p>
-          <p className="mt-2 text-5xl font-bold text-[var(--usha-gold)]">3 %</p>
+          <p className="mt-2 text-5xl font-bold text-[var(--usha-gold)]">{t("pricingAmount")}</p>
           <p className="mt-2 text-sm text-[var(--usha-muted)]">{t("pricingSub")}</p>
           <ul className="mx-auto mt-6 max-w-sm space-y-2 text-left text-sm">
             {bullets.map((item) => (
@@ -106,13 +112,13 @@ export default async function SellTicketsPage() {
       {/* Comparison */}
       <section className="mx-auto max-w-3xl px-6 py-10">
         <h2 className="mb-5 text-center text-2xl font-bold">{t("compareTitle")}</h2>
-        <div className="overflow-hidden rounded-2xl border border-[var(--usha-border)]">
+        <div className="overflow-x-auto rounded-2xl border border-[var(--usha-border)]">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[var(--usha-border)] bg-[var(--usha-card)]">
                 <th className="px-4 py-3 text-left font-medium text-[var(--usha-muted)]"></th>
                 <th className="px-4 py-3 text-left font-semibold text-[var(--usha-gold)]">Usha</th>
-                <th className="px-4 py-3 text-left font-medium text-[var(--usha-muted)]">Tickster</th>
+                <th className="px-4 py-3 text-left font-medium text-[var(--usha-muted)]">{t("compareOtherHeader")}</th>
               </tr>
             </thead>
             <tbody>
@@ -120,7 +126,7 @@ export default async function SellTicketsPage() {
                 <tr key={row.label} className={i % 2 ? "bg-[var(--usha-card)]/40" : ""}>
                   <td className="px-4 py-3 text-[var(--usha-muted)]">{row.label}</td>
                   <td className="px-4 py-3 font-medium text-[var(--usha-white)]">{row.usha}</td>
-                  <td className="px-4 py-3 text-[var(--usha-muted)]">{row.tickster}</td>
+                  <td className="px-4 py-3 text-[var(--usha-muted)]">{row.other}</td>
                 </tr>
               ))}
             </tbody>
