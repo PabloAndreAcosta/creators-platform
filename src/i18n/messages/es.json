@@ -359,23 +359,11 @@
     "popularEvents": "Eventos populares",
     "noEventsYet": "Aún no hay eventos",
     "checkBackSoon": "¡Vuelve pronto!",
-    "exclusiveForYou": "Exclusivo para ti",
     "gold": "Gold",
-    "vip": "VIP",
-    "earlyAccess": "Acceso anticipado de {hours} h activo",
-    "seeNewEventsFirst": "Ves los eventos nuevos antes que nadie",
-    "bookingDiscount": "Descuento en reservas",
-    "priority": "Prioridad",
-    "neverInQueue": "Nunca haces cola",
-    "prioritySupport": "Soporte prioritario",
     "topCreators": "Mejores creadores",
     "noCreatorsYet": "Aún no hay creadores",
     "clubsAndStudios": "Clubes y estudios",
     "noVenuesYet": "Aún no hay espacios que mostrar",
-    "upgradeToPremium": "Mejora a Premium",
-    "premiumBenefits": "20 % de descuento, cola VIP y contenido exclusivo",
-    "becomeGold": "Hazte miembro Gold",
-    "goldBenefits": "10 % de descuento y acceso anticipado a todos los eventos",
     "commission": "{commission} % de comisión",
     "calendar": "Calendario",
     "revenue": "Ingresos",
@@ -793,7 +781,7 @@
       "kreatorPremium2": "3 % de comisión en lugar del 8 %",
       "kreatorPremium3": "Deja que otra persona escanee en la puerta",
       "kreatorPremium4": "Coorganizador: comparte la gestión de un evento",
-      "kreatorPremium5": "Sincronización con Facebook y calendario lectura + escritura",
+      "kreatorPremium5": "Sincronización con Facebook",
       "upplevelseFree1": "Publica vuestras noches sin coste mensual",
       "upplevelseFree2": "Elegís el modelo: reparto de ingresos o comisión",
       "upplevelseFree3": "Liquidación por noche, pago al día siguiente",
@@ -805,13 +793,14 @@
       "publikFree5": "Entradas, bonos y calendario en un solo sitio",
       "kreatorFree4": "Bonos, códigos de descuento y varios tipos de entrada",
       "kreatorFree5": "Visible en el marketplace y en el calendario",
-      "kreatorPremium6": "Exportación de estadísticas",
+      "kreatorPremium6": "Calendario lectura + escritura",
       "upplevelseFreeDesc": "El local pone las condiciones",
       "upplevelseFree4": "Vuestro personal escanea en la puerta, permiso por noche",
       "upplevelseFree5": "Estadísticas y listas de asistentes de vuestras noches",
       "footnoteCreator": "La comisión se cobra solo cuando vendes. Los eventos gratuitos cuestan 0 SEK, y no hay cuota de alta ni permanencia. Gold se iguala con el plan gratuito en torno a 10 000 SEK de ventas al mes.",
       "footnoteCustomer": "No te cobramos ninguna suscripción. Los bonos y las membresías los vende el propio creador.",
-      "footnoteVenue": "Ser local con nosotros no cuesta nada. Nos quedamos con nuestra parte de la noche según lo acordado — reparto de ingresos o comisión, nunca las dos y nunca una cuota fija."
+      "footnoteVenue": "Ser local con nosotros no cuesta nada. Nos quedamos con nuestra parte de la noche según lo acordado — reparto de ingresos o comisión, nunca las dos y nunca una cuota fija.",
+      "kreatorPremium7": "Exportación de estadísticas"
     },
     "faq": {
       "title": "Preguntas y",
@@ -1986,27 +1975,27 @@
   },
   "forCreators": {
     "meta": {
-      "title": "Para creadores – Usha Platform",
-      "description": "Más trabajo sin el desgaste de la venta. La verificación con BankID refuerza tu credibilidad, y las herramientas para gestionar tus eventos están aquí, con la seguridad de Stripe."
+      "title": "Para creadores: las herramientas para llevar tus noches | Usha Platform",
+      "description": "Entradas, bonos, membresías, registro en la puerta y liquidación con el local, en una sola herramienta. Sin coste mensual, 8 % de comisión cuando vendes."
     },
     "hero": {
-      "h1": "Más trabajo, sin el desgaste de la venta",
-      "sub": "Un nuevo canal de ingresos sin perseguir clientes. Tu verificación con BankID genera confianza, y todo lo que necesitas para gestionar tus eventos está en un solo lugar.",
-      "cta": "Crea tu perfil gratuito"
+      "h1": "Todo lo que hace falta para llevar una noche",
+      "sub": "Entradas, bonos, membresías, registro en la puerta y liquidación con el local. Sin coste mensual: 8 % de comisión cuando vendes, 0 SEK si la noche es gratuita.",
+      "cta": "Crea tu perfil gratis"
     },
     "loop": {
-      "title": "Cómo funciona el ciclo para ti",
-      "body": "Más locales en Usha Platform significa más escenarios para ti. Y más visitantes significa más reservas, sin perseguir a nadie."
+      "title": "Y nunca llevas la noche en solitario",
+      "body": "Comparte la gestión con un coorganizador, deja que alguien del equipo escanee en la puerta y paga los cachés desde la plataforma. Más locales y más visitantes en Usha también significan más escenarios para ti."
     }
   },
   "forVenues": {
     "meta": {
       "title": "Para locales – Usha Platform",
-      "description": "Una programación viva sin convertirte en representante. Llena tu calendario con creadores seleccionados y verificados con BankID – sin gestión de reservas por tu parte."
+      "description": "Un programa vivo sin convertirte en programador. Creadores curados y verificados con BankID, entradas y registro que funcionan solos, y liquidación por noche."
     },
     "hero": {
       "h1": "Una programación viva – sin convertirte en representante",
-      "sub": "Llena tu calendario con creadores seleccionados y verificados con BankID. Sin gestión de reservas, sin riesgo – tú mantienes el control.",
+      "sub": "Llena el calendario con creadores curados y verificados con BankID. Sin coste mensual ni gestión de reservas: vosotros ponéis las condiciones y se liquida vuestra parte por noche.",
       "cta": "Conecta tu local"
     },
     "loop": {
@@ -3866,7 +3855,7 @@
     "value": {
       "heading": "¿Por qué Usha Platform para el baile de alquiler?",
       "paidTitle": "Cobra directamente",
-      "paidBody": "El dinero llega a tu cuenta mediante Stripe Connect después de cada reserva. La comisión es del 8 % en el nivel gratuito, 5 % en Oro y 3 % en Premium.",
+      "paidBody": "Usha recibe el pago y transfiere tu parte a tu cuenta de Stripe tras la reserva. La comisión es del 8 % en el plan gratuito, 5 % en Gold y 3 % en Premium.",
       "bankidTitle": "Verificado con BankID",
       "bankidBody": "Todos los bailarines de alquiler confirman identidad y edad con BankID móvil. Genera confianza entre cliente, organizador y bailarín.",
       "packagesTitle": "Paquetes + coaching",
@@ -3885,7 +3874,7 @@
       "organizersStep1": "Envía una solicitud de evento desde el perfil del bailarín de alquiler: fecha, hora, local, remuneración.",
       "organizersStep2": "Añade ventajas (entrada, bebidas, hotel) que hagan atractiva la oferta.",
       "organizersStep3": "El bailarín de alquiler acepta o rechaza en poco tiempo.",
-      "organizersStep4": "Paga a través de la plataforma cuando se haya aceptado la solicitud. El dinero va directamente al bailarín."
+      "organizersStep4": "Paga a través de la plataforma cuando se acepte la solicitud. Nosotros transferimos el caché al bailarín."
     },
     "dancers": {
       "heading": "¿Eres una pareja de baile con experiencia?",
@@ -3999,17 +3988,6 @@
     "creatorEventIntro": "{creator}, a quien sigues, ha publicado un evento nuevo:",
     "creatorEventCta": "Ver el evento",
     "creatorEventFooter": "Recibes esto porque sigues a {creator} en Usha Platform.",
-    "goldSubject": "¡Bienvenido a Usha Platform Gold!",
-    "goldBadge": "Miembro Gold",
-    "goldIntro": "¡Bienvenido a Usha Platform Gold! Ya tienes acceso a ventajas exclusivas que mejoran tu experiencia.",
-    "goldBenefitsHeading": "Tus ventajas Gold",
-    "goldBenefitDiscount": "10 % de descuento en todas las reservas",
-    "goldBenefitEarlyAccess": "48 horas de acceso anticipado a los eventos nuevos",
-    "goldBenefitPriorityQueue": "Cola prioritaria",
-    "goldBenefitPrioritySupport": "Soporte prioritario",
-    "goldValidUntil": "Tu membresía Gold es válida hasta",
-    "goldNextSteps": "¡Empieza a explorar eventos y aprovecha tus nuevos descuentos!",
-    "goldCta": "Explorar eventos",
     "newMessageSubject": "Nuevo mensaje de {sender} — Usha Platform",
     "newMessageIntro": "{sender} te ha enviado un mensaje:",
     "newMessageCta": "Responder al mensaje",
@@ -4047,7 +4025,13 @@
     "creditHowAutomatic": "Se descuenta automáticamente en compras de {min} kr o más.",
     "creditHowOneOff": "Vale para una compra, no para varias.",
     "creditHowValid": "Disponible hasta el {date}.",
-    "creditCta": "Mira lo que viene"
+    "creditCta": "Mira lo que viene",
+    "planWelcomeSubject": "Bienvenido a {plan} en Usha Platform",
+    "planWelcomeIntro": "Tu nivel {plan} está activo. Esto es lo que incluye.",
+    "planWelcomeBenefitsHeading": "Qué incluye",
+    "planWelcomeValidUntil": "El nivel es válido hasta",
+    "planWelcomeNextSteps": "Las herramientas están en tu panel. Empieza ahí.",
+    "planWelcomeCta": "Ir a mi panel"
   },
   "adminPage": {
     "partnersLabel": "Programa de partners",

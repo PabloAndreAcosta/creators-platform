@@ -2,8 +2,21 @@ import type { Locale } from '@/i18n/config';
 import type { Translate } from '@/lib/i18n/server';
 import { formatEmailDate } from '@/lib/email/i18n';
 
-interface GoldMemberWelcomeProps {
+/**
+ * Välkomstmejlet när någon tecknat en betald nivå.
+ *
+ * Hette GoldMemberWelcome och räknade upp Publik Gulds förmåner för ALLA som
+ * tecknade något — även en kreatör som köpt Guld för 299 kr, som då fick läsa
+ * om rabatt på bokningar och en prioritetskö som inte gäller hen. Mallen bär
+ * numera ingen egen förmånslista alls: den får nivåns namn och dess faktiska
+ * förmåner utifrån, från lib/email/plan-benefits.ts.
+ */
+interface SubscriptionWelcomeProps {
   memberName: string;
+  /** Nivåns namn, t.ex. "Guld". Mallen gissar aldrig själv. */
+  planName: string;
+  /** Nivåns förmåner på mottagarens språk, i ordning. */
+  benefits: string[];
   expiryDate: Date;
   /** Translator for the `emails` namespace, in the recipient's language. */
   t: Translate;
@@ -16,23 +29,18 @@ const DATE_FORMAT: Intl.DateTimeFormatOptions = {
   year: 'numeric',
 };
 
-export function getGoldWelcomeSubject(t: Translate): string {
-  return t('goldSubject');
+export function getSubscriptionWelcomeSubject(t: Translate, planName: string): string {
+  return t('planWelcomeSubject', { plan: planName });
 }
 
-const BENEFITS = [
-  { key: 'goldBenefitDiscount', icon: '💰' },
-  { key: 'goldBenefitEarlyAccess', icon: '⏰' },
-  { key: 'goldBenefitPriorityQueue', icon: '🎯' },
-  { key: 'goldBenefitPrioritySupport', icon: '🎓' },
-];
-
-export default function GoldMemberWelcome({
+export default function SubscriptionWelcome({
   memberName,
+  planName,
+  benefits,
   expiryDate,
   t,
   locale,
-}: GoldMemberWelcomeProps) {
+}: SubscriptionWelcomeProps) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://usha.se';
 
   return (
@@ -87,7 +95,7 @@ export default function GoldMemberWelcome({
                                   color: '#c8a445',
                                   border: '1px solid rgba(200,164,69,0.2)',
                                 }}>
-                                  {t('goldBadge')}
+                                  {planName}
                                 </span>
                               </td>
                             </tr>
@@ -99,16 +107,16 @@ export default function GoldMemberWelcome({
                           {t('greetingExcited', { name: memberName })}
                         </p>
                         <p style={{ fontSize: 14, color: '#6b6b6b', margin: '0 0 28px', lineHeight: 1.6, textAlign: 'center' }}>
-                          {t('goldIntro')}
+                          {t('planWelcomeIntro', { plan: planName })}
                         </p>
 
                         {/* Benefits */}
                         <p style={{ fontSize: 13, fontWeight: 600, color: '#fafaf9', margin: '0 0 16px' }}>
-                          {t('goldBenefitsHeading')}
+                          {t('planWelcomeBenefitsHeading')}
                         </p>
                         <table width="100%" cellPadding={0} cellSpacing={0} style={{ marginBottom: 28 }}>
                           <tbody>
-                            {BENEFITS.map((benefit, i) => (
+                            {benefits.map((benefit, i) => (
                               <tr key={i}>
                                 <td style={{
                                   padding: '10px 12px',
@@ -119,10 +127,10 @@ export default function GoldMemberWelcome({
                                     <tbody>
                                       <tr>
                                         <td style={{ width: 28, verticalAlign: 'top', paddingTop: 1 }}>
-                                          <span style={{ fontSize: 14 }}>{benefit.icon}</span>
+                                          <span style={{ fontSize: 14, color: '#c8a445' }}>&#10003;</span>
                                         </td>
                                         <td style={{ fontSize: 13, color: '#fafaf9', lineHeight: 1.5 }}>
-                                          {t(benefit.key)}
+                                          {benefit}
                                         </td>
                                       </tr>
                                     </tbody>
@@ -144,7 +152,7 @@ export default function GoldMemberWelcome({
                                 textAlign: 'center',
                               }}>
                                 <p style={{ fontSize: 12, color: '#6b6b6b', margin: '0 0 2px' }}>
-                                  {t('goldValidUntil')}
+                                  {t('planWelcomeValidUntil')}
                                 </p>
                                 <p style={{ fontSize: 15, fontWeight: 600, color: '#c8a445', margin: 0 }}>
                                   {formatEmailDate(expiryDate, locale, DATE_FORMAT)}
@@ -156,7 +164,7 @@ export default function GoldMemberWelcome({
 
                         {/* Next Steps */}
                         <p style={{ fontSize: 14, color: '#6b6b6b', margin: '0 0 20px', textAlign: 'center', lineHeight: 1.6 }}>
-                          {t('goldNextSteps')}
+                          {t('planWelcomeNextSteps')}
                         </p>
 
                         {/* CTA Button */}
@@ -165,7 +173,7 @@ export default function GoldMemberWelcome({
                             <tr>
                               <td style={{ textAlign: 'center' }}>
                                 <a
-                                  href={`${appUrl}/marketplace`}
+                                  href={`${appUrl}/app`}
                                   style={{
                                     display: 'inline-block',
                                     padding: '14px 36px',
@@ -177,7 +185,7 @@ export default function GoldMemberWelcome({
                                     textDecoration: 'none',
                                   }}
                                 >
-                                  {t('goldCta')}
+                                  {t('planWelcomeCta')}
                                 </a>
                               </td>
                             </tr>

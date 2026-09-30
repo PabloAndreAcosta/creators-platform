@@ -12,7 +12,7 @@ import BookingConfirmation, { getBookingConfirmationSubject } from "@/components
 import BookingCancellation, { getBookingCancellationSubject } from "@/components/emails/BookingCancellation";
 import BookingReminder, { getBookingReminderSubject } from "@/components/emails/BookingReminder";
 import CreatorEventAnnouncement, { getCreatorEventSubject } from "@/components/emails/CreatorEventAnnouncement";
-import GoldMemberWelcome, { getGoldWelcomeSubject } from "@/components/emails/GoldMemberWelcome";
+import SubscriptionWelcome, { getSubscriptionWelcomeSubject } from "@/components/emails/SubscriptionWelcome";
 import NewMessage, { getNewMessageSubject } from "@/components/emails/NewMessage";
 import PayoutConfirmation, { getPayoutSubject } from "@/components/emails/PayoutConfirmation";
 import TrialEnding, { getTrialEndingSubject } from "@/components/emails/TrialEnding";
@@ -58,8 +58,11 @@ function templates(t: Translate, locale: Locale) {
       followerName: "Pau", creatorName: "Joy Nation", eventTitle: "Sparkle Day Party",
       eventDate: WHEN, location: "Hornsberg", eventUrl: "https://usha.se/listing/1", t, locale,
     }),
-    GoldMemberWelcome: createElement(GoldMemberWelcome, {
-      memberName: "Pau", expiryDate: WHEN, t, locale,
+    SubscriptionWelcome: createElement(SubscriptionWelcome, {
+      memberName: "Pau", planName: "Guld", expiryDate: WHEN, t, locale,
+      // Förmånerna kommer utifrån i skarp drift; fixturen ger dem på svenska
+      // eftersom mallen aldrig översätter dem själv.
+      benefits: ["Upp till 15 aktiva event eller tjänster"],
     }),
     // The preview is the sender's own words and is deliberately never
     // translated, so the fixture keeps it free of any language's marker words.
@@ -117,7 +120,7 @@ describe("email templates render in the reader's language", () => {
         getBookingReminderSubject(t, "Salsa 101", "soon"),
         getBookingReminderSubject(t, "Salsa 101", "day"),
         getCreatorEventSubject(t, "Joy", "Sparkle"),
-        getGoldWelcomeSubject(t),
+        getSubscriptionWelcomeSubject(t, "Guld"),
         getNewMessageSubject(t, "Joy"),
         getPayoutSubject(t, "batch", 1234),
         getPayoutSubject(t, "instant", 1234),

@@ -466,45 +466,12 @@ function PublikHome({
           </section>
         )}
 
-        {/* Guld/Premium exclusive section */}
-        {isGuld && (
-          <section>
-            <div className="mb-4 flex items-center gap-2">
-              <Star size={16} className="text-[var(--usha-gold)]" />
-              <h2 className="text-lg font-bold">{t("exclusiveForYou")}</h2>
-              {isPremium ? (
-                <span className="rounded-full bg-purple-500/10 px-2 py-0.5 text-[10px] font-semibold text-purple-400">{t("vip")}</span>
-              ) : (
-                <span className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-[10px] font-semibold text-[var(--usha-gold)]">{t("gold")}</span>
-              )}
-            </div>
-            <div className="rounded-2xl border border-[var(--usha-gold)]/20 bg-gradient-to-br from-[var(--usha-gold)]/5 to-transparent p-5">
-              <div className="flex items-center gap-4">
-                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--usha-gold)]/10">
-                  <Clock size={18} className="text-[var(--usha-gold)]" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold">
-                    {t("earlyAccess", { hours: isPremium ? "72" : "48" })}
-                  </p>
-                  <p className="text-xs text-[var(--usha-muted)]">
-                    {t("seeNewEventsFirst")}
-                  </p>
-                </div>
-              </div>
-              <div className="mt-4 grid grid-cols-2 gap-3">
-                <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 text-center">
-                  <p className="text-lg font-bold text-[var(--usha-gold)]">{isPremium ? "20%" : "10%"}</p>
-                  <p className="text-[10px] text-[var(--usha-muted)]">{t("bookingDiscount")}</p>
-                </div>
-                <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 text-center">
-                  <p className="text-lg font-bold text-[var(--usha-gold)]">{isPremium ? t("vip") : t("priority")}</p>
-                  <p className="text-[10px] text-[var(--usha-muted)]">{isPremium ? t("neverInQueue") : t("prioritySupport")}</p>
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
+        {/* AVVECKLAT 2026-09-29. Här stod "Exklusivt för dig" med 10/20 %
+            rabatt, 48/72 h förtur och prioritetskö — förmåner som hörde till
+            Publik Guld och Premium. Nivåerna går inte att teckna längre, två
+            av förmånerna fanns aldrig byggda, och rabatten är dessutom
+            avstängd under betan. Publikens värde ligger i välkomstkrediten,
+            biljetterna och klippkorten, inte i en prenumeration. */}
 
         {/* Top Creators — larger avatars with glow */}
         <section>
@@ -592,38 +559,8 @@ function PublikHome({
         </section>
 
         {/* Soft upgrade nudge */}
-        {!isPremium && (
-          <section>
-            <Link
-              href="/dashboard/billing"
-              className="group block overflow-hidden rounded-2xl border border-[var(--usha-gold)]/20 bg-gradient-to-r from-[var(--usha-gold)]/5 via-[var(--usha-accent)]/5 to-transparent p-5 transition-all duration-300 hover:border-[var(--usha-gold)]/40"
-            >
-              <div className="flex items-center gap-4">
-                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-[var(--usha-gold)]/20 to-[var(--usha-accent)]/20">
-                  <Sparkles size={18} className="text-[var(--usha-gold)]" />
-                </div>
-                <div className="flex-1">
-                  {isGuld ? (
-                    <>
-                      <p className="text-sm font-semibold">{t("upgradeToPremium")}</p>
-                      <p className="text-xs text-[var(--usha-muted)]">
-                        {t("premiumBenefits")}
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <p className="text-sm font-semibold">{t("becomeGold")}</p>
-                      <p className="text-xs text-[var(--usha-muted)]">
-                        {t("goldBenefits")}
-                      </p>
-                    </>
-                  )}
-                </div>
-                <ChevronRight size={16} className="text-[var(--usha-gold)]/60 transition-transform duration-300 group-hover:translate-x-1" />
-              </div>
-            </Link>
-          </section>
-        )}
+        {/* Ingen uppgraderingsbanner för publiken: det finns inget att
+            teckna. /api/stripe/checkout svarar 410 för publiknivåerna. */}
       </div>
     </div>
   );
@@ -996,20 +933,24 @@ function KreatorHome({
         </span>
       </Link>
 
-      {/* Upgrade nudge */}
-      <Link
-        href="/dashboard/billing"
-        className="group block rounded-xl border border-[var(--usha-gold)]/20 bg-gradient-to-r from-[var(--usha-gold)]/5 to-transparent p-4 transition hover:border-[var(--usha-gold)]/40"
-      >
-        <div className="flex items-center gap-3">
-          <Sparkles size={16} className="text-[var(--usha-gold)]" />
-          <div className="flex-1">
-            <p className="text-sm font-medium">{t("lowerCommission")}</p>
-            <p className="text-[11px] text-[var(--usha-muted)]">{t("payingToday")}</p>
+      {/* Uppmaningen gäller bara gratisnivån. Den som redan betalar för Guld
+          eller Premium ligger på 5 respektive 3 procent, och skulle annars
+          läsa att hen betalar 8. */}
+      {!isGuld && !isPremium && (
+        <Link
+          href="/dashboard/billing"
+          className="group block rounded-xl border border-[var(--usha-gold)]/20 bg-gradient-to-r from-[var(--usha-gold)]/5 to-transparent p-4 transition hover:border-[var(--usha-gold)]/40"
+        >
+          <div className="flex items-center gap-3">
+            <Sparkles size={16} className="text-[var(--usha-gold)]" />
+            <div className="flex-1">
+              <p className="text-sm font-medium">{t("lowerCommission")}</p>
+              <p className="text-[11px] text-[var(--usha-muted)]">{t("payingToday")}</p>
+            </div>
+            <ChevronRight size={14} className="text-[var(--usha-gold)]/60 transition group-hover:translate-x-1" />
           </div>
-          <ChevronRight size={14} className="text-[var(--usha-gold)]/60 transition group-hover:translate-x-1" />
-        </div>
-      </Link>
+        </Link>
+      )}
     </div>
   );
 }
@@ -1354,20 +1295,9 @@ function UpplevelseHome({
         </div>
       </section>
 
-      {/* Upgrade nudge */}
-      <Link
-        href="/dashboard/billing"
-        className="group block rounded-xl border border-[var(--usha-gold)]/20 bg-gradient-to-r from-[var(--usha-gold)]/5 to-transparent p-4 transition hover:border-[var(--usha-gold)]/40"
-      >
-        <div className="flex items-center gap-3">
-          <Sparkles size={16} className="text-[var(--usha-gold)]" />
-          <div className="flex-1">
-            <p className="text-sm font-medium">{t("lowerCommission")}</p>
-            <p className="text-[11px] text-[var(--usha-muted)]">{t("payingToday")}</p>
-          </div>
-          <ChevronRight size={14} className="text-[var(--usha-gold)]/60 transition group-hover:translate-x-1" />
-        </div>
-      </Link>
+      {/* Ingen uppgraderingsbanner för lokaler: venue-nivåerna är avvecklade,
+          så det finns inget att uppgradera till. Lokalens villkor bor i
+          avtalet, inte i en prisstege. Se docs/lokalmodeller.md. */}
     </div>
   );
 }

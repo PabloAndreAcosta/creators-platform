@@ -359,23 +359,11 @@
     "popularEvents": "Populära Evenemang",
     "noEventsYet": "Inga evenemang ännu",
     "checkBackSoon": "Kolla tillbaka snart!",
-    "exclusiveForYou": "Exklusivt för dig",
     "gold": "Guld",
-    "vip": "VIP",
-    "earlyAccess": "{hours}h tidig tillgång aktiv",
-    "seeNewEventsFirst": "Du ser nya events innan alla andra",
-    "bookingDiscount": "Rabatt på bokningar",
-    "priority": "Prioritet",
-    "neverInQueue": "Aldrig i kö",
-    "prioritySupport": "Prioriterad support",
     "topCreators": "Topp Kreatörer",
     "noCreatorsYet": "Inga kreatörer ännu",
     "clubsAndStudios": "Klubbar & Studios",
     "noVenuesYet": "Inga platser att visa ännu",
-    "upgradeToPremium": "Uppgradera till Premium",
-    "premiumBenefits": "20% rabatt, VIP-kö och exklusivt innehåll",
-    "becomeGold": "Bli Guld-medlem",
-    "goldBenefits": "10% rabatt och tidig tillgång till alla events",
     "commission": "{commission}% kommission",
     "calendar": "Kalender",
     "revenue": "Intäkter",
@@ -793,7 +781,7 @@
       "kreatorPremium2": "3 % provision i stället för 8 %",
       "kreatorPremium3": "Låt någon annan skanna biljetter i dörren",
       "kreatorPremium4": "Medarrangör: dela administrationen av ett event",
-      "kreatorPremium5": "Facebook-synk och kalender läs + skriv",
+      "kreatorPremium5": "Facebook-synk",
       "upplevelseFree1": "Lägg upp era kvällar utan månadskostnad",
       "upplevelseFree2": "Ni väljer modell: intäktsdelning eller provision",
       "upplevelseFree3": "Avräkning per kväll, utbetalning dagen efter",
@@ -805,13 +793,14 @@
       "publikFree5": "Biljetter, klippkort och kalender samlat",
       "kreatorFree4": "Klippkort, rabattkoder och flera biljettyper",
       "kreatorFree5": "Synlig på marknadsplatsen och i kalendern",
-      "kreatorPremium6": "Statistikexport",
+      "kreatorPremium6": "Kalender läs + skriv",
       "upplevelseFreeDesc": "Lokalen sätter villkoren",
       "upplevelseFree4": "Er personal kan skanna i dörren, behörighet per kväll",
       "upplevelseFree5": "Statistik och deltagarlistor för era kvällar",
       "footnoteCreator": "Provisionen tas bara när du säljer. Gratis event kostar 0 kr, och det finns varken startavgift eller bindningstid. Guld går jämnt upp mot gratisnivån vid ungefär 10 000 kr i försäljning per månad.",
       "footnoteCustomer": "Vi tar ingen prenumeration av dig. Klippkort och medlemskap säljs av kreatören själv.",
-      "footnoteVenue": "Det kostar ingenting att vara lokal hos oss. Vi tar vår del av kvällen enligt det ni kommit överens om — intäktsdelning eller provision, aldrig båda och aldrig en fast avgift."
+      "footnoteVenue": "Det kostar ingenting att vara lokal hos oss. Vi tar vår del av kvällen enligt det ni kommit överens om — intäktsdelning eller provision, aldrig båda och aldrig en fast avgift.",
+      "kreatorPremium7": "Statistikexport"
     },
     "faq": {
       "title": "Frågor &",
@@ -1986,27 +1975,27 @@
   },
   "forCreators": {
     "meta": {
-      "title": "För kreatörer – Usha Platform",
-      "description": "Fler uppdrag utan säljjobbet. BankID-verifiering höjer din trovärdighet, och verktygen för att driva dina event bor här – tryggt med Stripe."
+      "title": "För kreatörer – verktygen för att driva dina kvällar | Usha Platform",
+      "description": "Biljetter, klippkort, medlemskap, incheckning i dörren och avräkning med lokalen — i ett verktyg. Ingen månadskostnad, 8 % provision när du säljer."
     },
     "hero": {
-      "h1": "Fler uppdrag – utan säljjobbet",
-      "sub": "En ny inkomstkanal utan att jaga kunder. Din BankID-verifiering höjer trovärdigheten, och allt du behöver för att driva dina event finns på ett ställe.",
+      "h1": "Allt som krävs för att driva en kväll",
+      "sub": "Biljetter, klippkort, medlemskap, incheckning i dörren och avräkning med lokalen. Ingen månadskostnad — 8 % provision när du säljer, 0 kr när kvällen är gratis.",
       "cta": "Skapa profil gratis"
     },
     "loop": {
-      "title": "Så snurrar kretsloppet för dig",
-      "body": "Fler platser på Usha Platform betyder fler scener för dig. Och fler besökare betyder fler bokningar – utan att du behöver jaga någon."
+      "title": "Och du står aldrig ensam med kvällen",
+      "body": "Dela administrationen med en medarrangör, låt någon i crewet skanna i dörren, och betala ut gage direkt via plattformen. Fler platser och fler besökare på Usha betyder dessutom fler scener för dig."
     }
   },
   "forVenues": {
     "meta": {
       "title": "För platser – Usha Platform",
-      "description": "Levande program utan att bli bokare. Fyll kalendern med kuraterade, BankID-verifierade kreatörer – utan egen bokningsadministration."
+      "description": "Levande program utan att bli bokare. Kuraterade, BankID-verifierade kreatörer, biljetter och incheckning som sköter sig själva, och avräkning per kväll."
     },
     "hero": {
       "h1": "Levande program – utan att bli bokare",
-      "sub": "Fyll kalendern med kuraterade, BankID-verifierade kreatörer. Ingen egen bokningsadministration, ingen risk – du behåller kontrollen.",
+      "sub": "Fyll kalendern med kuraterade, BankID-verifierade kreatörer. Ingen månadskostnad, ingen bokningsadministration — ni sätter villkoren och får er andel avräknad per kväll.",
       "cta": "Anslut din plats"
     },
     "loop": {
@@ -3866,7 +3855,7 @@
     "value": {
       "heading": "Varför Usha Platform för taxidans?",
       "paidTitle": "Få betalt direkt",
-      "paidBody": "Pengarna landar på ditt konto via Stripe Connect efter varje bokning. Provisionen är 8 % på gratis-tier, 5 % på Guld och 3 % på Premium.",
+      "paidBody": "Usha tar emot betalningen och för över din del till ditt Stripe-konto efter bokningen. Provisionen är 8 % på gratisnivån, 5 % på Guld och 3 % på Premium.",
       "bankidTitle": "BankID-verifierat",
       "bankidBody": "Alla taxidansare bekräftar identitet och ålder med Mobilt BankID. Bygger förtroende mellan kund, arrangör och dansare.",
       "packagesTitle": "Paket + coachning",
@@ -3885,7 +3874,7 @@
       "organizersStep1": "Skicka eventförfrågan från taxidansarens profil — datum, tid, lokal, ersättning.",
       "organizersStep2": "Lägg till förmåner (entré, drinkar, hotell) som gör erbjudandet attraktivt.",
       "organizersStep3": "Taxidansaren accepterar eller avböjer inom kort.",
-      "organizersStep4": "Betala via plattformen när förfrågan accepterats. Pengarna går direkt till dansaren."
+      "organizersStep4": "Betala via plattformen när förfrågan accepterats. Vi för över ersättningen till dansaren."
     },
     "dancers": {
       "heading": "Är du erfaren danspartner?",
@@ -3999,17 +3988,6 @@
     "creatorEventIntro": "{creator}, som du följer, har lagt upp ett nytt event:",
     "creatorEventCta": "Se eventet",
     "creatorEventFooter": "Du får detta för att du följer {creator} på Usha Platform.",
-    "goldSubject": "Välkommen till Usha Platform Guld!",
-    "goldBadge": "Guld Medlem",
-    "goldIntro": "Välkommen till Usha Platform Guld! Du har nu tillgång till exklusiva förmåner som gör din upplevelse ännu bättre.",
-    "goldBenefitsHeading": "Dina Guld-förmåner",
-    "goldBenefitDiscount": "10% rabatt på alla bokningar",
-    "goldBenefitEarlyAccess": "48 timmar tidig tillgång till nya event",
-    "goldBenefitPriorityQueue": "Prioritetskö",
-    "goldBenefitPrioritySupport": "Prioriterad support",
-    "goldValidUntil": "Ditt Guld-medlemskap gäller till",
-    "goldNextSteps": "Börja utforska event och utnyttja dina nya rabatter direkt!",
-    "goldCta": "Utforska events",
     "newMessageSubject": "Nytt meddelande från {sender} — Usha Platform",
     "newMessageIntro": "{sender} har skickat dig ett meddelande:",
     "newMessageCta": "Svara på meddelandet",
@@ -4047,7 +4025,13 @@
     "creditHowAutomatic": "Dras automatiskt vid köp på minst {min} kr.",
     "creditHowOneOff": "Gäller ett köp, inte flera.",
     "creditHowValid": "Ligger kvar till {date}.",
-    "creditCta": "Se vad som är på gång"
+    "creditCta": "Se vad som är på gång",
+    "planWelcomeSubject": "Välkommen till {plan} på Usha Platform",
+    "planWelcomeIntro": "Din {plan}-nivå är igång. Här är vad den ger dig.",
+    "planWelcomeBenefitsHeading": "Det här ingår",
+    "planWelcomeValidUntil": "Nivån gäller till",
+    "planWelcomeNextSteps": "Verktygen finns i din översikt. Börja där.",
+    "planWelcomeCta": "Till min översikt"
   },
   "adminPage": {
     "partnersLabel": "Partnerprogram",

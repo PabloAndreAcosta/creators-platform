@@ -359,23 +359,11 @@
     "popularEvents": "Popular Events",
     "noEventsYet": "No events yet",
     "checkBackSoon": "Check back soon!",
-    "exclusiveForYou": "Exclusive for you",
     "gold": "Gold",
-    "vip": "VIP",
-    "earlyAccess": "{hours}h early access active",
-    "seeNewEventsFirst": "You see new events before everyone else",
-    "bookingDiscount": "Booking discount",
-    "priority": "Priority",
-    "neverInQueue": "Never in queue",
-    "prioritySupport": "Priority support",
     "topCreators": "Top Creators",
     "noCreatorsYet": "No creators yet",
     "clubsAndStudios": "Clubs & Studios",
     "noVenuesYet": "No venues to show yet",
-    "upgradeToPremium": "Upgrade to Premium",
-    "premiumBenefits": "20% discount, VIP queue and exclusive content",
-    "becomeGold": "Become a Gold member",
-    "goldBenefits": "10% discount and early access to all events",
     "commission": "{commission}% commission",
     "calendar": "Calendar",
     "revenue": "Revenue",
@@ -793,7 +781,7 @@
       "kreatorPremium2": "3% commission instead of 8%",
       "kreatorPremium3": "Let someone else scan tickets at the door",
       "kreatorPremium4": "Co-host: share the admin of an event",
-      "kreatorPremium5": "Facebook sync and calendar read + write",
+      "kreatorPremium5": "Facebook sync",
       "upplevelseFree1": "List your nights with no monthly cost",
       "upplevelseFree2": "You choose the model: revenue share or commission",
       "upplevelseFree3": "Settlement per night, payout the next day",
@@ -805,13 +793,14 @@
       "publikFree5": "Tickets, punch cards and calendar in one place",
       "kreatorFree4": "Punch cards, discount codes and several ticket types",
       "kreatorFree5": "Listed on the marketplace and in the calendar",
-      "kreatorPremium6": "Statistics export",
+      "kreatorPremium6": "Calendar read + write",
       "upplevelseFreeDesc": "The venue sets the terms",
       "upplevelseFree4": "Your staff can scan at the door, access per night",
       "upplevelseFree5": "Statistics and attendee lists for your nights",
       "footnoteCreator": "Commission is taken only when you sell. Free events cost 0 SEK, and there is no setup fee and no lock-in. Gold breaks even against the free tier at roughly 10,000 SEK in sales per month.",
       "footnoteCustomer": "We take no subscription from you. Punch cards and memberships are sold by the creator.",
-      "footnoteVenue": "Being a venue with us costs nothing. We take our share of the night on the terms you agreed — revenue share or commission, never both and never a fixed fee."
+      "footnoteVenue": "Being a venue with us costs nothing. We take our share of the night on the terms you agreed — revenue share or commission, never both and never a fixed fee.",
+      "kreatorPremium7": "Statistics export"
     },
     "faq": {
       "title": "Questions &",
@@ -1986,27 +1975,27 @@
   },
   "forCreators": {
     "meta": {
-      "title": "For creators – Usha Platform",
-      "description": "More work without the sales grind. BankID verification boosts your credibility, and the tools to run your events live here – safe with Stripe."
+      "title": "For creators – the tools to run your nights | Usha Platform",
+      "description": "Tickets, punch cards, memberships, door check-in and settlement with the venue — in one tool. No monthly cost, 8% commission when you sell."
     },
     "hero": {
-      "h1": "More work – without the sales grind",
-      "sub": "A new income channel without chasing clients. Your BankID verification builds trust, and everything you need to run your events is in one place.",
-      "cta": "Create your free profile"
+      "h1": "Everything it takes to run a night",
+      "sub": "Tickets, punch cards, memberships, door check-in and settlement with the venue. No monthly cost — 8% commission when you sell, 0 SEK when the night is free.",
+      "cta": "Create a profile for free"
     },
     "loop": {
-      "title": "How the cycle works for you",
-      "body": "More venues on Usha Platform means more stages for you. And more visitors means more bookings – without chasing anyone."
+      "title": "And you never run the night alone",
+      "body": "Share the admin with a co-host, let someone on the crew scan at the door, and pay out fees through the platform. More venues and more visitors on Usha also means more stages for you."
     }
   },
   "forVenues": {
     "meta": {
       "title": "For venues – Usha Platform",
-      "description": "A living programme without becoming a booker. Fill your calendar with curated, BankID-verified creators – no booking admin of your own."
+      "description": "A living programme without becoming a booker. Curated, BankID-verified creators, tickets and check-in that run themselves, and settlement per night."
     },
     "hero": {
       "h1": "A living programme – without becoming a booker",
-      "sub": "Fill your calendar with curated, BankID-verified creators. No booking admin, no risk – you stay in control.",
+      "sub": "Fill the calendar with curated, BankID-verified creators. No monthly cost, no booking admin — you set the terms and your share is settled per night.",
       "cta": "Connect your venue"
     },
     "loop": {
@@ -3866,7 +3855,7 @@
     "value": {
       "heading": "Why Usha Platform for taxi dancing?",
       "paidTitle": "Get paid directly",
-      "paidBody": "The money lands in your account via Stripe Connect after every booking. The commission is 8% on the free tier, 5% on Gold and 3% on Premium.",
+      "paidBody": "Usha receives the payment and transfers your share to your Stripe account after the booking. Commission is 8% on the free tier, 5% on Gold and 3% on Premium.",
       "bankidTitle": "BankID-verified",
       "bankidBody": "Every taxi dancer confirms identity and age with Mobile BankID. It builds trust between customer, organiser and dancer.",
       "packagesTitle": "Packages + coaching",
@@ -3885,7 +3874,7 @@
       "organizersStep1": "Send an event request from the taxi dancer's profile — date, time, venue, compensation.",
       "organizersStep2": "Add perks (entry, drinks, hotel) that make the offer attractive.",
       "organizersStep3": "The taxi dancer accepts or declines shortly.",
-      "organizersStep4": "Pay via the platform once the request has been accepted. The money goes straight to the dancer."
+      "organizersStep4": "Pay through the platform once the request is accepted. We transfer the fee to the dancer."
     },
     "dancers": {
       "heading": "Are you an experienced dance partner?",
@@ -3999,17 +3988,6 @@
     "creatorEventIntro": "{creator}, who you follow, has posted a new event:",
     "creatorEventCta": "See the event",
     "creatorEventFooter": "You're getting this because you follow {creator} on Usha Platform.",
-    "goldSubject": "Welcome to Usha Platform Gold!",
-    "goldBadge": "Gold Member",
-    "goldIntro": "Welcome to Usha Platform Gold! You now have access to exclusive benefits that make your experience even better.",
-    "goldBenefitsHeading": "Your Gold benefits",
-    "goldBenefitDiscount": "10% off every booking",
-    "goldBenefitEarlyAccess": "48 hours early access to new events",
-    "goldBenefitPriorityQueue": "Priority queue",
-    "goldBenefitPrioritySupport": "Priority support",
-    "goldValidUntil": "Your Gold membership runs until",
-    "goldNextSteps": "Start exploring events and put your new discounts to use!",
-    "goldCta": "Explore events",
     "newMessageSubject": "New message from {sender} — Usha Platform",
     "newMessageIntro": "{sender} has sent you a message:",
     "newMessageCta": "Reply to the message",
@@ -4047,7 +4025,13 @@
     "creditHowAutomatic": "Applied automatically on purchases of {min} kr or more.",
     "creditHowOneOff": "Good for one purchase, not several.",
     "creditHowValid": "Yours until {date}.",
-    "creditCta": "See what is coming up"
+    "creditCta": "See what is coming up",
+    "planWelcomeSubject": "Welcome to {plan} on Usha Platform",
+    "planWelcomeIntro": "Your {plan} tier is active. Here is what it gives you.",
+    "planWelcomeBenefitsHeading": "What is included",
+    "planWelcomeValidUntil": "The tier runs until",
+    "planWelcomeNextSteps": "The tools are in your dashboard. Start there.",
+    "planWelcomeCta": "Go to my dashboard"
   },
   "adminPage": {
     "partnersLabel": "Partner programme",

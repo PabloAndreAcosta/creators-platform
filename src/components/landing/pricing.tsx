@@ -105,6 +105,7 @@ export function Pricing({ role = "creator" }: { role?: PricingRole } = {}) {
           t("pricing.kreatorPremium4"),
           t("pricing.kreatorPremium5"),
           t("pricing.kreatorPremium6"),
+          t("pricing.kreatorPremium7"),
         ],
         cta: t("pricing.ctaPremium"),
         popular: false,

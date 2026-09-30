@@ -28,7 +28,7 @@ const msgs = Object.fromEntries(
 /** Alla strängvärden under en nyckelväg, oavsett hur djupt de ligger. */
 function varden(root: unknown, vag: string): string[] {
   let node: unknown = root;
-  for (const del of vag.split(".")) node = (node as Record<string, unknown>)?.[del];
+  for (const del of vag ? vag.split(".") : []) node = (node as Record<string, unknown>)?.[del];
   const ut: string[] = [];
   (function walk(o: unknown) {
     if (typeof o === "string") ut.push(o);
@@ -89,13 +89,54 @@ describe("biljettsidan", () => {
   });
 
   it("lovar inte att pengarna går direkt till kreatörens Stripe-konto", () => {
-    // card_payments har aldrig beviljats på något connected account, så
-    // direktbetalning till kreatörens konto har aldrig fungerat.
+    // card_payments har aldrig beviljats på något connected account. Usha tar
+    // emot betalningen och för över säljarens del efteråt — pengarna kommer
+    // fram, men inte på det sätt texten påstod. Kontrollen går över HELA
+    // språkfilen: påståendet stod på både biljettsidan och taxidansarsidan,
+    // och nästa gång ska det inte spela någon roll var det dyker upp.
     for (const l of LOCALES) {
-      const text = varden(msgs[l], "sellTickets").join(" ").toLowerCase();
-      for (const fras of ["direkt till ditt stripe", "straight to your stripe", "directamente a tu cuenta de stripe"]) {
+      const text = varden(msgs[l], "").join(" ").toLowerCase();
+      for (const fras of [
+        "direkt till ditt stripe",
+        "går direkt till dansaren",
+        "straight to your stripe",
+        "directly to your stripe",
+        "directamente a tu cuenta de stripe",
+      ]) {
         expect(text, `${l}.json`).not.toContain(fras);
       }
+    }
+  });
+});
+
+describe("appens egna ytor", () => {
+  it("erbjuder inte publiken eller lokaler en nivå de inte kan teckna", () => {
+    // Publikhemmet visade "Bli Guld-medlem" och en ruta med rabatt, förtur
+    // och prioritetskö. Nivåerna är avvecklade och två av förmånerna fanns
+    // aldrig. Nycklarna är borta; ligger de kvar är de ett klick från att
+    // renderas igen.
+    const doda = [
+      "exclusiveForYou",
+      "bookingDiscount",
+      "neverInQueue",
+      "prioritySupport",
+      "upgradeToPremium",
+      "premiumBenefits",
+      "becomeGold",
+      "goldBenefits",
+    ];
+    for (const l of LOCALES) {
+      const home = (msgs[l] as never as Record<string, Record<string, unknown>>).home;
+      expect(doda.filter((k) => k in home), `${l}.json`).toEqual([]);
+    }
+  });
+
+  it("välkomstmejlet bär ingen egen förmånslista", () => {
+    // Den ska komma från nivån. Se lib/email/plan-benefits.ts.
+    for (const l of LOCALES) {
+      const emails = (msgs[l] as never as Record<string, Record<string, unknown>>).emails;
+      const kvar = Object.keys(emails).filter((k) => k.startsWith("goldBenefit"));
+      expect(kvar, `${l}.json`).toEqual([]);
     }
   });
 });
