@@ -413,6 +413,9 @@
   "billing": {
     "title": "Suscripción",
     "payoutsMovedHint": "Conecta tu cuenta bancaria y consulta tus pagos",
+    "noPlansTitle": "No hay suscripción que contratar",
+    "noPlansCustomer": "Tu cuenta es gratuita y ya tiene todo lo necesario para comprar entradas, verlas en la app y seguir lo que te gusta. Si vienes a menudo, el bono es lo que baja el precio: se compra en la página de la noche, no aquí.",
+    "noPlansVenue": "Los locales no se suscriben con nosotros. Las condiciones de un local se fijan por acuerdo, con el reparto que acordéis. Escríbenos y lo vemos.",
     "subtitle": "Gestiona tu plan y tus pagos.",
     "paymentSuccess": "¡Pago realizado! Tu plan ya está activo.",
     "betaNotice": "Periodo beta: todas las funciones están desbloqueadas gratis para todos los usuarios.",

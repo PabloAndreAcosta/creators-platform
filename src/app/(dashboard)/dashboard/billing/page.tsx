@@ -241,6 +241,21 @@ export default async function BillingPage({
           )}
         </div>
 
+        {/* Roller utan nivåer att teckna. Publik- och venue-nivåerna är
+            avvecklade, så den som är kund eller lokal ser bara gratisplanen
+            och därefter ingenting — vilket ser ut som ett fel. Raden säger
+            i stället vad som gäller, och var värdet ligger i stället. */}
+        {rolePlans.length === 0 && (
+          <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-8">
+            <p className="text-sm font-semibold text-[var(--usha-white)]">
+              {t("noPlansTitle")}
+            </p>
+            <p className="mt-2 text-sm text-[var(--usha-muted)]">
+              {userRole === "venue" ? t("noPlansVenue") : t("noPlansCustomer")}
+            </p>
+          </div>
+        )}
+
         {/* Paid plan cards for user's role */}
         {rolePlans.map((plan) => {
           const isCurrent = currentPlan === plan.key;
