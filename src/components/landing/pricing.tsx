@@ -6,10 +6,26 @@ import { BETA_MODE, BETA_END_MS } from "@/lib/beta";
 
 type PricingRole = "customer" | "creator" | "venue";
 
+interface Tier {
+  name: string;
+  price: number;
+  desc: string;
+  features: string[];
+  cta: string;
+  popular: boolean;
+}
+
 /**
  * Prislistan är densamma överallt; `role` avgör bara vilken flik som är öppen
- * när sidan laddas, så att besökaren på /for-platser möter venue-priserna
+ * när sidan laddas, så att besökaren på /for-platser möter lokalens villkor
  * först men fortfarande kan jämföra med de andra rollerna.
+ *
+ * BARA KREATÖREN HAR EN PRISSTEGE. Publik- och venue-nivåerna avvecklades
+ * 2026-09-29 (se lib/stripe/config.ts för hela skälet): en lokal är en
+ * avtalspart och inte en abonnent, och publiken hade ombetts prenumerera på
+ * ett beteende den aldrig etablerat. De rollerna får därför EN ruta här, inte
+ * tre. Sidan får aldrig visa ett pris som inte går att teckna — det var precis
+ * vad den gjorde innan, med fyra förmåner som dessutom inte fanns byggda.
  */
 export function Pricing({ role = "creator" }: { role?: PricingRole } = {}) {
   const t = useTranslations("landing");
@@ -30,47 +46,44 @@ export function Pricing({ role = "creator" }: { role?: PricingRole } = {}) {
     { key: "venue", label: t("pricing.roleExperience") },
   ];
 
-  const PRICING_DATA: Record<string, { gratis: { features: string[] }; guld: { price: number; features: string[]; popular: boolean }; premium: { price: number; features: string[]; popular: boolean } }> = {
-    customer: {
-      gratis: {
+  // Nycklarna speglar lib/stripe/config.ts. Står en förmån här men inte där är
+  // det ett löfte utan täckning.
+  const TIERS: Record<PricingRole, Tier[]> = {
+    customer: [
+      {
+        name: t("pricing.free"),
+        price: 0,
+        desc: t("pricing.publikFreeDesc"),
         features: [
           t("pricing.publikFree1"),
           t("pricing.publikFree2"),
           t("pricing.publikFree3"),
+          t("pricing.publikFree4"),
+          t("pricing.publikFree5"),
         ],
-      },
-      guld: {
-        price: 199,
-        popular: true,
-        features: [
-          t("pricing.publikGold1"),
-          t("pricing.publikGold2"),
-          t("pricing.publikGold3"),
-          t("pricing.publikGold4"),
-        ],
-      },
-      premium: {
-        price: 499,
+        cta: t("pricing.ctaFree"),
         popular: false,
-        features: [
-          t("pricing.publikPremium1"),
-          t("pricing.publikPremium2"),
-          t("pricing.publikPremium3"),
-          t("pricing.publikPremium4"),
-        ],
       },
-    },
-    creator: {
-      gratis: {
+    ],
+    creator: [
+      {
+        name: t("pricing.free"),
+        price: 0,
+        desc: t("pricing.freeDesc"),
         features: [
           t("pricing.kreatorFree1"),
           t("pricing.kreatorFree2"),
           t("pricing.kreatorFree3"),
+          t("pricing.kreatorFree4"),
+          t("pricing.kreatorFree5"),
         ],
+        cta: t("pricing.ctaFree"),
+        popular: false,
       },
-      guld: {
+      {
+        name: t("pricing.gold"),
         price: 299,
-        popular: true,
+        desc: t("pricing.goldDesc"),
         features: [
           t("pricing.kreatorGold1"),
           t("pricing.kreatorGold2"),
@@ -78,72 +91,57 @@ export function Pricing({ role = "creator" }: { role?: PricingRole } = {}) {
           t("pricing.kreatorGold4"),
           t("pricing.kreatorGold5"),
         ],
+        cta: t("pricing.ctaGold"),
+        popular: true,
       },
-      premium: {
+      {
+        name: t("pricing.premium"),
         price: 599,
-        popular: false,
+        desc: t("pricing.premiumDesc"),
         features: [
           t("pricing.kreatorPremium1"),
           t("pricing.kreatorPremium2"),
           t("pricing.kreatorPremium3"),
           t("pricing.kreatorPremium4"),
           t("pricing.kreatorPremium5"),
+          t("pricing.kreatorPremium6"),
+          t("pricing.kreatorPremium7"),
         ],
+        cta: t("pricing.ctaPremium"),
+        popular: false,
       },
-    },
-    venue: {
-      gratis: {
+    ],
+    venue: [
+      {
+        name: t("pricing.free"),
+        price: 0,
+        desc: t("pricing.upplevelseFreeDesc"),
         features: [
           t("pricing.upplevelseFree1"),
           t("pricing.upplevelseFree2"),
           t("pricing.upplevelseFree3"),
+          t("pricing.upplevelseFree4"),
+          t("pricing.upplevelseFree5"),
         ],
-      },
-      guld: {
-        price: 299,
-        popular: true,
-        features: [
-          t("pricing.upplevelseGold1"),
-          t("pricing.upplevelseGold2"),
-          t("pricing.upplevelseGold3"),
-          t("pricing.upplevelseGold4"),
-        ],
-      },
-      premium: {
-        price: 599,
+        cta: t("pricing.ctaVenue"),
         popular: false,
-        features: [
-          t("pricing.upplevelsePremium1"),
-          t("pricing.upplevelsePremium2"),
-          t("pricing.upplevelsePremium3"),
-          t("pricing.upplevelsePremium4"),
-          t("pricing.upplevelsePremium5"),
-        ],
       },
-    },
+    ],
   };
 
-  const data = PRICING_DATA[activeRole];
+  const tiers = TIERS[activeRole];
 
-  // Säljarna vill veta vad de kan bygga, publiken vad de får ut av kvällen.
   const SUBTITLE_KEY: Record<PricingRole, string> = {
     customer: "pricing.subtitleCustomer",
     creator: "pricing.subtitle",
     venue: "pricing.subtitleVenue",
   };
 
-  const isAudience = activeRole === "customer";
-  const tierDesc = {
-    free: isAudience ? t("pricing.publikFreeDesc") : t("pricing.freeDesc"),
-    gold: isAudience ? t("pricing.publikGoldDesc") : t("pricing.goldDesc"),
-    premium: isAudience ? t("pricing.publikPremiumDesc") : t("pricing.premiumDesc"),
-  };
-
-  const tiers = [
-    { name: t("pricing.free"), price: 0, desc: tierDesc.free, features: data.gratis.features, cta: t("pricing.ctaFree"), popular: false },
-    { name: t("pricing.gold"), price: data.guld.price, desc: tierDesc.gold, features: data.guld.features, cta: t("pricing.ctaGold"), popular: data.guld.popular },
-    { name: t("pricing.premium"), price: data.premium.price, desc: tierDesc.premium, features: data.premium.features, cta: t("pricing.ctaPremium"), popular: data.premium.popular },
-  ];
+  // En ensam ruta ska inte sträckas över tre spalter — då ser gratisnivån ut
+  // som ett tomrum i stället för ett erbjudande.
+  const isSingle = tiers.length === 1;
+  // Betan rabatterar bara det som faktiskt kostar något.
+  const hasPaidTier = tiers.some((x) => x.price > 0);
 
   return (
     <section id="pricing" className="relative py-16 px-4 sm:py-28 sm:px-6">
@@ -159,7 +157,7 @@ export function Pricing({ role = "creator" }: { role?: PricingRole } = {}) {
           <p className="mx-auto max-w-xl text-sm text-[var(--usha-muted)] sm:text-base">
             {t(SUBTITLE_KEY[activeRole])}
           </p>
-          {BETA_MODE && (
+          {BETA_MODE && hasPaidTier && (
             <p className="mx-auto mt-3 max-w-lg text-sm text-[var(--usha-muted)]">
               {t("pricing.betaNotice")} <span className="font-semibold text-[var(--usha-gold)]">{t("pricing.betaHighlight")}</span>{" "}
               {betaEndLabel ? t("pricing.betaUntil", { date: betaEndLabel }) : t("pricing.betaSuffix")}
@@ -186,7 +184,7 @@ export function Pricing({ role = "creator" }: { role?: PricingRole } = {}) {
           </div>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className={isSingle ? "mx-auto max-w-md" : "grid gap-6 lg:grid-cols-3"}>
           {tiers.map((plan) => (
             <div
               key={plan.name}
@@ -256,6 +254,11 @@ export function Pricing({ role = "creator" }: { role?: PricingRole } = {}) {
             </div>
           ))}
         </div>
+
+        {/* Vad rollen faktiskt betalar, i klartext under rutorna. */}
+        <p className="mx-auto mt-8 max-w-2xl text-center text-sm text-[var(--usha-muted)]">
+          {t(`pricing.footnote${activeRole === "customer" ? "Customer" : activeRole === "venue" ? "Venue" : "Creator"}`)}
+        </p>
       </div>
     </section>
   );

@@ -10,7 +10,7 @@ import Stripe from "stripe";
 import type { MemberTier } from "@/types/database";
 import { PLANS, type PlanKey } from "@/lib/stripe/config";
 import { sendBookingConfirmationEmail } from "@/lib/email/send-booking";
-import { sendGoldWelcomeEmail } from "@/lib/email/send-welcome";
+import { sendSubscriptionWelcomeEmail } from "@/lib/email/send-welcome";
 import { sendTrialEndingEmail as sendTrialEndingEmailService } from "@/lib/email/send-trial-ending";
 import { createNotification } from "@/lib/notifications/create";
 import { notifyOwnerTicketSold, notifyOwnerSoldOut } from "@/lib/notifications/event-owner";
@@ -786,7 +786,7 @@ export async function POST(req: NextRequest) {
 
         // Send welcome email for new paid members (non-blocking)
         if (tier === 'guld' || tier === 'premium') {
-          sendSubscriptionWelcomeEmail(getSupabaseAdmin(), userId, subscription)
+          sendWelcomeForPlan(getSupabaseAdmin(), userId, planKey, subscription)
             .catch(err => console.error("Welcome email failed:", err));
         }
         break;
@@ -1209,9 +1209,10 @@ function buildSeller(
   return seller.orgNumber ? { ...seller, vatNote: "Moms ingår i priset." } : seller;
 }
 
-async function sendSubscriptionWelcomeEmail(
+async function sendWelcomeForPlan(
   admin: ReturnType<typeof getSupabaseAdmin>,
   userId: string,
+  planKey: string,
   subscription: Stripe.Subscription,
 ) {
   const { data: profile } = await admin
@@ -1222,9 +1223,10 @@ async function sendSubscriptionWelcomeEmail(
 
   if (!profile?.email) return;
 
-  await sendGoldWelcomeEmail({
+  await sendSubscriptionWelcomeEmail({
     to: profile.email,
     memberName: profile.full_name || "Medlem",
+    planKey,
     expiryDate: new Date(
       typeof subscription.current_period_end === "number"
         ? subscription.current_period_end * 1000
