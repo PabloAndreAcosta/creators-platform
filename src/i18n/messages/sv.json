@@ -413,6 +413,9 @@
   "billing": {
     "title": "Prenumeration",
     "payoutsMovedHint": "Anslut bankkonto och se dina utbetalningar",
+    "noPlansTitle": "Ingen prenumeration att teckna",
+    "noPlansCustomer": "Ditt konto är gratis och har allt du behöver för att köpa biljetter, se dem i appen och följa det du gillar. Går du ofta är klippkortet det som sänker priset — det köper du på kvällens sida, inte här.",
+    "noPlansVenue": "Lokaler har ingen prenumeration hos oss. Villkoren för en lokal skrivs i stället per avtal, med den fördelning ni kommer överens om. Hör av dig så tar vi det därifrån.",
     "subtitle": "Hantera din plan och betalningar.",
     "paymentSuccess": "Betalningen lyckades! Din plan är nu aktiv.",
     "betaNotice": "Beta-period — alla funktioner är upplåsta gratis för alla användare.",
