@@ -89,11 +89,16 @@ describe("biljettsidan", () => {
   });
 
   it("lovar inte att pengarna går direkt till kreatörens Stripe-konto", () => {
-    // card_payments har aldrig beviljats på något connected account. Usha tar
-    // emot betalningen och för över säljarens del efteråt — pengarna kommer
-    // fram, men inte på det sätt texten påstod. Kontrollen går över HELA
-    // språkfilen: påståendet stod på både biljettsidan och taxidansarsidan,
-    // och nästa gång ska det inte spela någon roll var det dyker upp.
+    // Påståendet stämmer inte för de flesta säljare. card_payments är aktiv
+    // på två av fem anslutna konton (Pablos kreatörskonto och Bacchi Syre);
+    // för övriga tar Usha emot betalningen och för över säljarens del efteråt.
+    // Och även MED kapaciteten är det ett MoR-skifte via on_behalf_of, inte
+    // en betalning som landar direkt hos säljaren. En sida kan inte lova
+    // något som beror på ett KYC-steg mottagaren kanske inte gjort.
+    //
+    // Kontrollen går över HELA språkfilen: påståendet stod på både
+    // biljettsidan och taxidansarsidan, och nästa gång ska det inte spela
+    // någon roll var det dyker upp.
     for (const l of LOCALES) {
       const text = varden(msgs[l], "").join(" ").toLowerCase();
       for (const fras of [
