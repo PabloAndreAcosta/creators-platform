@@ -27,15 +27,10 @@ export function payoutsEnabled(): boolean {
   return process.env.SETTLEMENT_PAYOUTS_ENABLED === "true";
 }
 
-/** Dagens datum i Stockholm som "YYYY-MM-DD". Evenemangsdatum är lokala datum. */
-export function stockholmToday(now: Date = new Date()): string {
-  return new Intl.DateTimeFormat("sv-SE", {
-    timeZone: "Europe/Stockholm",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(now);
-}
+// Flyttad till lib/time.ts — fler än avräkningen behöver veta vilket datum det
+// är i Stockholm (dörrlänkarna gör det också). Re-exporteras här så att
+// befintliga importer och tester fortsätter peka rätt.
+export { stockholmToday } from "@/lib/time";
 
 /**
  * Är kvällen klar att betalas ut?

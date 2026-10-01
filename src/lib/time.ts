@@ -43,3 +43,20 @@ function stockholmOffsetMs(date: Date): number {
   const asUTC = Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour, +p.minute, +p.second);
   return asUTC - date.getTime();
 }
+
+/**
+ * Dagens datum i Stockholm som "YYYY-MM-DD".
+ *
+ * Evenemangsdatum lagras som lokala datum utan tidszon, så "i dag" måste
+ * räknas i Stockholm och inte i serverns tidszon. Vercel kör UTC: mellan
+ * midnatt och 02 svensk tid är UTC-datumet gårdagens, och en dörrlänk skulle
+ * då hoppa till nästa veckas kväll mitt under pågående kväll.
+ */
+export function stockholmToday(now: Date = new Date()): string {
+  return new Intl.DateTimeFormat("sv-SE", {
+    timeZone: "Europe/Stockholm",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(now);
+}
