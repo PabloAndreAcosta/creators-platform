@@ -285,6 +285,7 @@ export async function POST(req: NextRequest) {
               location: listingRes.data?.event_location || undefined,
               bookingId: guestBooking?.id,
               seller: buildSeller(creatorId, creatorRes.data),
+              amountOre: amountPaid,
             }).catch(err => console.error("Guest confirmation email failed:", err));
           }
 
@@ -532,7 +533,7 @@ export async function POST(req: NextRequest) {
           }
 
           // Send ticket confirmation email (non-blocking)
-          sendTicketConfirmationEmail(getSupabaseAdmin(), userId, creatorId!, listingId!, new Date(scheduledAt))
+          sendTicketConfirmationEmail(getSupabaseAdmin(), userId, creatorId!, listingId!, new Date(scheduledAt), amountPaid)
             .catch(err => console.error("Ticket confirmation email failed:", err));
 
           // Notify the owner (+ co-organizers) of the sale / sold-out.
@@ -580,7 +581,7 @@ export async function POST(req: NextRequest) {
             });
           }
 
-          sendTicketConfirmationEmail(getSupabaseAdmin(), userId, instructorId, listingId, new Date())
+          sendTicketConfirmationEmail(getSupabaseAdmin(), userId, instructorId, listingId, new Date(), amountPaid)
             .catch(err => console.error("Instructor minutes confirmation email failed:", err));
 
           break;
@@ -688,7 +689,7 @@ export async function POST(req: NextRequest) {
           }
 
           // Send confirmation email (non-blocking)
-          sendTicketConfirmationEmail(getSupabaseAdmin(), userId, creatorId!, listingId!, new Date(scheduledAt))
+          sendTicketConfirmationEmail(getSupabaseAdmin(), userId, creatorId!, listingId!, new Date(scheduledAt), amountPaid)
             .catch(err => console.error("Paid booking confirmation email failed:", err));
 
           break;
@@ -1157,6 +1158,8 @@ async function sendTicketConfirmationEmail(
   creatorId: string,
   listingId: string,
   scheduledAt: Date,
+  /** Vad köparen betalade, i ören — kvittoraden i mejlet. */
+  amountOre?: number | null,
 ) {
   const [customerRes, creatorRes, listingRes] = await Promise.all([
     admin.from("profiles").select("email, full_name").eq("id", customerId).single(),
@@ -1182,6 +1185,7 @@ async function sendTicketConfirmationEmail(
     creatorName: listingRes.data?.organizer_name || creatorRes.data?.full_name || "Kreatör",
     location: listingRes.data?.event_location || undefined,
     seller: buildSeller(creatorId, creatorRes.data),
+    amountOre,
     customerId,
   });
 }

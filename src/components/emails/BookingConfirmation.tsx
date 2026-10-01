@@ -1,6 +1,6 @@
 import type { Locale } from "@/i18n/config";
 import type { Translate } from "@/lib/i18n/server";
-import { formatEmailDate } from "@/lib/email/i18n";
+import { formatEmailDate, formatSek } from "@/lib/email/i18n";
 
 interface BookingConfirmationProps {
   customerName: string;
@@ -13,6 +13,15 @@ interface BookingConfirmationProps {
   bookingId?: string;
   /** Legal seller for the receipt block (org.nr / name + VAT note). */
   seller?: { name: string; orgNumber?: string; vatNote?: string };
+  /**
+   * Vad köparen betalade, i ÖREN. 0 = gratis biljett, och det skrivs ut.
+   * undefined = beloppet är okänt i den här vägen, och då står raden inte alls.
+   *
+   * Utan belopp är mejlet ingen kvittohandling. En arbetsgivare som ska betala
+   * ut friskvårdsersättning behöver se summan, och vid en reklamation eller en
+   * bokföringsfråga är ett kvitto utan belopp värdelöst.
+   */
+  amountOre?: number | null;
   /** Translator for the `emails` namespace, in the recipient's language. */
   t: Translate;
   locale: Locale;
@@ -44,6 +53,7 @@ export default function BookingConfirmation({
   location,
   bookingId,
   seller,
+  amountOre,
   t,
   locale,
 }: BookingConfirmationProps) {
@@ -156,6 +166,13 @@ export default function BookingConfirmation({
                                   {seller.orgNumber && (
                                     <p style={{ fontSize: 13, color: "#fafaf9", margin: "0 0 4px" }}>
                                       {t("receiptOrgNumber", { number: seller.orgNumber })}
+                                    </p>
+                                  )}
+                                  {amountOre != null && (
+                                    <p style={{ fontSize: 13, color: "#fafaf9", margin: "0 0 4px", fontWeight: 600 }}>
+                                      {amountOre > 0
+                                        ? t("receiptAmount", { amount: formatSek(amountOre / 100) })
+                                        : t("receiptFree")}
                                     </p>
                                   )}
                                   {seller.vatNote && (

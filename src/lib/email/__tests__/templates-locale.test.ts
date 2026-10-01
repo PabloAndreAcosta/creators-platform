@@ -45,7 +45,8 @@ function templates(t: Translate, locale: Locale) {
     BookingConfirmation: createElement(BookingConfirmation, {
       customerName: "Pau", serviceName: "Salsa 101", scheduledAt: WHEN, scheduledEndAt: END,
       creatorName: "Joy Nation", location: "Hornsberg", bookingId: "b-1",
-      seller: { name: "Usha AB", orgNumber: "559401-8326", vatNote: "Moms ingår" }, t, locale,
+      seller: { name: "Usha AB", orgNumber: "559401-8326", vatNote: "Moms ingår" },
+      amountOre: 20000, t, locale,
     }),
     BookingCancellation: createElement(BookingCancellation, {
       recipientName: "Pau", serviceName: "Salsa 101", scheduledAt: WHEN, t, locale,

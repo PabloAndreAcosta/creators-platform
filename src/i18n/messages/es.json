@@ -4033,7 +4033,9 @@
     "planWelcomeBenefitsHeading": "Qué incluye",
     "planWelcomeValidUntil": "El nivel es válido hasta",
     "planWelcomeNextSteps": "Las herramientas están en tu panel. Empieza ahí.",
-    "planWelcomeCta": "Ir a mi panel"
+    "planWelcomeCta": "Ir a mi panel",
+    "receiptAmount": "Pagado: {amount} SEK",
+    "receiptFree": "Gratis"
   },
   "adminPage": {
     "partnersLabel": "Programa de partners",
