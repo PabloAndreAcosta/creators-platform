@@ -485,7 +485,6 @@
     "bankidRequiredError": "You must verify with Mobile BankID before creating an account.",
     "changeRole": "Change role",
     "createAccount": "Create account",
-    "trialPeriod": "{role} — 14 days free trial",
     "identityVerified": "Identity verified with BankID",
     "creatingAccount": "Creating account...",
     "passwordLooksGood": "Password looks good",
@@ -515,7 +514,10 @@
     "businessTypeNote": "Companies can verify their org. number and appear as the seller with the org. number on the receipt. You can change this later.",
     "signupCreditTitle": "{amount} kr for new accounts",
     "signupCreditNote": "To use on a purchase from {minSpend} kr. Valid for 12 months.",
-    "marketingConsent": "Yes, send me email about offers and news from Usha. You can change this any time in settings."
+    "marketingConsent": "Yes, send me email about offers and news from Usha. You can change this any time in settings.",
+    "signupTaglineCreator": "{role} — free to get started. You pay commission only when you sell.",
+    "signupTaglineVenue": "{role} — a free account. You pay only what you agreed per night.",
+    "signupTaglineCustomer": "{role} — a free account, no subscription. You pay for what you attend."
   },
   "landing": {
     "whatsOn": {

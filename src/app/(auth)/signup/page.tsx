@@ -106,6 +106,15 @@ export default function SignupPage() {
     { value: "customer", label: t("roleCustomer"), description: t("roleCustomerDesc"), icon: Search },
   ];
 
+  // Vad rollen faktiskt kostar, per roll. Speglar COMMISSION_RATES och
+  // lib/stripe/config.ts — publik- och venue-nivåerna är avvecklade, så för
+  // dem finns ingenting att teckna alls.
+  const TAGLINE: Record<Role, string> = {
+    creator: "signupTaglineCreator",
+    venue: "signupTaglineVenue",
+    customer: "signupTaglineCustomer",
+  };
+
   const BANKID_ERRORS: Record<string, string> = {
     failed: t("bankidFailed"),
     aborted: t("bankidAborted"),
@@ -601,7 +610,12 @@ export default function SignupPage() {
           </div>
           <h1 className="text-2xl font-bold">{t("createAccount")}</h1>
           <p className="mt-1 text-sm text-[var(--usha-muted)]">
-            {t("trialPeriod", { role: ROLES.find((r) => r.value === selectedRole)?.label ?? "" })}
+            {/* Här stod "14 dagars gratis provperiod". Ingen provperiod sätts
+                någonstans i koden — gratisnivån är permanent och kostar noll,
+                för alla tre rollerna. Texten skrämde alltså en ny kreatör med
+                en faktura som aldrig kommer. Nu säger den vad rollen faktiskt
+                betalar. */}
+            {t(TAGLINE[selectedRole ?? "creator"], { role: ROLES.find((r) => r.value === selectedRole)?.label ?? "" })}
           </p>
           {bankidVerified && (
             <p className="mt-1 flex items-center justify-center gap-1 text-xs text-green-400">
