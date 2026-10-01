@@ -4033,7 +4033,9 @@
     "planWelcomeBenefitsHeading": "What is included",
     "planWelcomeValidUntil": "The tier runs until",
     "planWelcomeNextSteps": "The tools are in your dashboard. Start there.",
-    "planWelcomeCta": "Go to my dashboard"
+    "planWelcomeCta": "Go to my dashboard",
+    "receiptAmount": "Paid: {amount} SEK",
+    "receiptFree": "Free"
   },
   "adminPage": {
     "partnersLabel": "Partner programme",

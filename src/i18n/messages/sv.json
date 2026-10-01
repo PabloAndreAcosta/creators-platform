@@ -4033,7 +4033,9 @@
     "planWelcomeBenefitsHeading": "Det här ingår",
     "planWelcomeValidUntil": "Nivån gäller till",
     "planWelcomeNextSteps": "Verktygen finns i din översikt. Börja där.",
-    "planWelcomeCta": "Till min översikt"
+    "planWelcomeCta": "Till min översikt",
+    "receiptAmount": "Betalat: {amount} kr",
+    "receiptFree": "Gratis"
   },
   "adminPage": {
     "partnersLabel": "Partnerprogram",
