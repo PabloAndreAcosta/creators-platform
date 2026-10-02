@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyCronAuth } from "@/lib/cron/auth";
 import { runSettlementPayouts } from "@/lib/settlements/run-payouts";
 import { getResend, getFromEmail } from "@/lib/email/resend";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { stuckPayouts, trolligOrsak, FASTNAD_EFTER_DAGAR, type PayoutRow } from "@/lib/settlements/stuck";
 
 /**
  * Vem som ska veta att pengar lämnat bolaget.
@@ -30,6 +32,47 @@ function esc(v: string) {
  * räknar jobbet ut allt och skriver en rad med status "dry_run" utan att flytta
  * pengar, så att beloppen går att jämföra mot Stripe innan det blir skarpt.
  */
+/**
+ * Mejlar om avräkningar som väntat för länge. Tyst när allt flyter — samma
+ * princip som resten av jobbet: ett larm varje natt slutar läsas.
+ */
+async function larmaOmFastnade(): Promise<void> {
+  const { data } = await createAdminClient()
+    .from("event_settlement_payouts")
+    .select("listing_id, status, amount_ore, created_at, error")
+    .in("status", ["pending", "failed"]);
+
+  const fastnade = stuckPayouts((data as PayoutRow[] | null) ?? []);
+  if (fastnade.length === 0) return;
+
+  const summa = fastnade.reduce((n, f) => n + f.amountOre, 0);
+  const orsak = fastnade.map((f) => trolligOrsak(f.error)).find(Boolean);
+
+  const rader = fastnade
+    .map(
+      (f) =>
+        `<tr><td style="padding:6px 10px">${esc(f.listingId)}</td>` +
+        `<td style="padding:6px 10px;text-align:right;white-space:nowrap">${kr(f.amountOre)}</td>` +
+        `<td style="padding:6px 10px">${f.dagar} dygn</td>` +
+        `<td style="padding:6px 10px;color:#666;font-size:12px">${esc(f.error ?? "")}</td></tr>`
+    )
+    .join("");
+
+  const { error: mailError } = await getResend().emails.send({
+    from: getFromEmail(),
+    to: recipients(),
+    subject: `Usha: ${kr(summa)} i avräkning har fastnat`,
+    html:
+      `<h2>Avräkningar som inte gått igenom</h2>` +
+      `<p>${fastnade.length} utbetalning${fastnade.length === 1 ? "" : "ar"} har väntat ` +
+      `mer än ${FASTNAD_EFTER_DAGAR} dygn. Partnern har alltså inte fått sina pengar.</p>` +
+      (orsak ? `<p><strong>Trolig orsak:</strong> ${esc(orsak)}</p>` : "") +
+      `<table style="border-collapse:collapse;font-family:system-ui,sans-serif;font-size:14px">${rader}</table>`,
+  });
+
+  if (mailError) console.error("[settlement-payouts] kunde inte larma om fastnade:", mailError);
+}
+
 export async function GET(req: NextRequest) {
   if (!verifyCronAuth(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -94,6 +137,14 @@ export async function GET(req: NextRequest) {
 
       if (mailError) console.error("[settlement-payouts] kunde inte skicka besked:", mailError);
     }
+
+    // En uppskjuten rad tas om i morgon och larmar inte — rimligt, så länge
+    // saldot faktiskt blir tillgängligt. Står Stripe på automatiska
+    // utbetalningar sveps det till banken löpande, och då blir "i morgon"
+    // aldrig. Raden ligger kvar som pending i evighet och partnern får inte
+    // betalt, utan att någon får veta. Det här är kontrollen som skiljer
+    // "uppskjuten i natt" från "fastnad". Se lib/settlements/stuck.ts.
+    await larmaOmFastnade();
 
     return NextResponse.json(result);
   } catch (error) {
