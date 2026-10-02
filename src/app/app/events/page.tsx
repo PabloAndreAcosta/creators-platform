@@ -21,15 +21,24 @@ export default async function EventsPage(
 
     if (user) {
       const admin = createAdminClient();
-      // Events this user co-organizes (accepted can_manage collaborator) — shown
-      // alongside their own so they can administer them from the Events tab.
+      // Kvällar den här användaren är med på. Tidigare togs bara can_manage
+      // med, och följden var att en medkreatör med BARA statistikrätt aldrig
+      // såg kvällen i listan — behörigheten fanns men gick inte att nå, för
+      // det finns ingen annan väg in till statistiken än via den här fliken.
+      // Se lib/listings/stats-access.ts, som redan skiljer "full" från
+      // "numbers"; här var det bara navigationen som saknades.
       const { data: coRows } = await admin
         .from("listing_collaborators")
-        .select("listing_id")
+        .select("listing_id, can_manage, can_view_stats")
         .eq("user_id", user.id)
         .eq("status", "accepted")
-        .eq("can_manage", true);
+        .or("can_manage.eq.true,can_view_stats.eq.true");
       const coIds = (coRows ?? []).map((r) => r.listing_id);
+      // Den som bara får läsa siffror ska inte erbjudas redigera, sälja i
+      // dörren eller se bokningar — knappar som ändå nekas är värre än inga.
+      const endastStatistik = new Set(
+        (coRows ?? []).filter((r) => !r.can_manage).map((r) => r.listing_id)
+      );
 
       const [listingsRes, coRes, profileRes] = await Promise.all([
         supabase
@@ -50,7 +59,9 @@ export default async function EventsPage(
       // Own events first, then co-organized (deduped in case of overlap).
       const own = listingsRes.data || [];
       const ownIds = new Set(own.map((l) => l.id));
-      const co = (coRes.data || []).filter((l) => !ownIds.has(l.id)).map((l) => ({ ...l, co_organized: true }));
+      const co = (coRes.data || [])
+        .filter((l) => !ownIds.has(l.id))
+        .map((l) => ({ ...l, co_organized: true, stats_only: endastStatistik.has(l.id) }));
 
       // Kronologiskt, inte efter skapandetid. En serie skapas i en klump med
       // nästan identiska tidsstämplar, så åtta måndagar hamnade i praktiken i
