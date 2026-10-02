@@ -675,6 +675,21 @@ function SeriesGroup({
                         <span className="text-[11px] text-[var(--usha-muted)]">{t("badgePast")}</span>
                       )}
                     </Link>
+                    {/* Statistiken för ett passerat tillfälle gick inte att nå.
+                        Seriekortet visar NÄSTA kväll, och dess meny pekar på den
+                        kvällen — så fort en kväll passerat flyttades menyn till
+                        nästa, och gårdagens siffror blev oåtkomliga. Raderna här
+                        länkade bara till redigering. Nu bär varje tillfälle sin
+                        egen statistiklänk, vilket är hela skälet att man öppnar
+                        listan över passerade kvällar. */}
+                    <Link
+                      href={`/app/events/${o.id}/stats`}
+                      title={t("statistics")}
+                      aria-label={t("statistics")}
+                      className="flex shrink-0 items-center border-l border-[var(--usha-border)] px-3 text-[var(--usha-muted)] transition hover:text-[var(--usha-gold)]"
+                    >
+                      <BarChart3 size={15} />
+                    </Link>
                     {o.slug && (
                       <a
                         href={`/event/${o.slug}`}
