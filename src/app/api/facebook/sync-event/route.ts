@@ -14,6 +14,20 @@ export async function POST(req: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Facebook-synk säljs som Premium. Grinden saknades, så funktionen var
+  // gratis för alla medan prislistan tog betalt för den.
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  {
+    const { requirePremium } = await import("@/lib/tiers/gate");
+    const nivå = await requirePremium(supabase, user.id);
+    if (nivå) {
+      return NextResponse.json(
+        { error: "premium_required", feature: "facebook_sync", tier: nivå },
+        { status: 402 }
+      );
+    }
+  }
+
   if (!user) return NextResponse.json({ error: "Ej inloggad" }, { status: 401 });
 
   const { listing_id } = await req.json();

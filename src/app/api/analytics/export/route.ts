@@ -11,6 +11,19 @@ export async function GET(req: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Statistikexport säljs som Premium och var ogrindad.
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  {
+    const { requirePremium } = await import("@/lib/tiers/gate");
+    const nivå = await requirePremium(supabase, user.id);
+    if (nivå) {
+      return NextResponse.json(
+        { error: "premium_required", feature: "analytics_export", tier: nivå },
+        { status: 402 }
+      );
+    }
+  }
+
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

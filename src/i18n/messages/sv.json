@@ -801,9 +801,8 @@
       "kreatorPremium1": "Obegränsat antal event och tjänster",
       "kreatorPremium2": "3 % provision i stället för 8 %",
       "kreatorPremium3": "Allt i Guld",
-      "kreatorPremium4": "Facebook-synk",
-      "kreatorPremium5": "Kalender läs + skriv",
-      "kreatorPremium6": "Statistikexport"
+      "kreatorPremium4": "Facebook-synk: publicera kvällen automatiskt",
+      "kreatorPremium5": "Statistikexport till CSV"
     },
     "faq": {
       "title": "Frågor &",
