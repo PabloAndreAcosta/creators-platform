@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Calendar, MapPin, Users, ScanLine, BarChart3 } from "lucide-react";
 import { collabRoleLabel } from "@/lib/collaborators";
+import { creatorBalance } from "@/lib/payouts/creator-balance";
 import { GagePanel, type GageView } from "@/components/gage-panel";
 import { StripeConnectButton } from "@/components/stripe-connect-button";
 
@@ -109,6 +110,21 @@ export default async function MyCollaborationsPage() {
     .map((c) => ({ ...c, listing: listingsById.get(c.listing_id) }))
     .filter((c) => c.listing);
 
+  // Ersättning jag tjänat in men kanske inte fått. Läses med min EGEN klient,
+  // inte service-role: RLS på creator_earnings släpper bara igenom mina egna
+  // rader, och det är precis den gränsen som ska gälla här.
+  const { data: earningRows } = await supabase
+    .from("creator_earnings")
+    .select("amount_ore, paid_at, note, listing_id, created_at")
+    .order("created_at", { ascending: false });
+  const earnings = earningRows ?? [];
+  const { data: debtRows } = await admin
+    .from("creator_debts")
+    .select("amount_ore")
+    .eq("partner_profile_id", user.id);
+  const saldo = creatorBalance(earnings, debtRows ?? []);
+  const kr = (ore: number) => `${Math.round(ore / 100).toLocaleString("sv-SE")} kr`;
+
   const hasAnyGage = items.some((c) => gageByListing.has(c.listing_id));
   const canScanAny = (collabs ?? []).some((c) => (c as { can_scan?: boolean }).can_scan);
 
@@ -129,6 +145,70 @@ export default async function MyCollaborationsPage() {
           </Link>
         )}
       </div>
+
+      {earnings.length > 0 && (
+        <section className="mb-8 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5">
+          <h2 className="mb-1 text-sm font-semibold uppercase tracking-wide text-[var(--usha-gold)]">
+            Din ersättning
+          </h2>
+          {/* Beloppen är FÖRE skatt och sociala avgifter. Vad som landar på
+              kontot beror på utbetalningsvägen — egenanställning, eget bolag
+              eller faktura — och den kedjan känner vi inte till här. Att visa
+              ett nettobelopp vore att låtsas veta något vi inte vet. */}
+          <p className="mb-4 text-xs text-[var(--usha-muted)]">
+            Före skatt och sociala avgifter. Vad som når ditt konto beror på hur
+            ersättningen betalas ut.
+          </p>
+
+          <div className="mb-4 flex flex-wrap gap-6">
+            <div>
+              <p className="text-2xl font-bold text-[var(--usha-gold)]">{kr(saldo.payableOre)}</p>
+              <p className="text-xs text-[var(--usha-muted)]">Att få ut</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold">{kr(saldo.earnedOre)}</p>
+              <p className="text-xs text-[var(--usha-muted)]">Intjänat totalt</p>
+            </div>
+            {saldo.paidOre > 0 && (
+              <div>
+                <p className="text-2xl font-bold">{kr(saldo.paidOre)}</p>
+                <p className="text-xs text-[var(--usha-muted)]">Redan utbetalt</p>
+              </div>
+            )}
+            {saldo.debtOre > 0 && (
+              <div>
+                <p className="text-2xl font-bold">−{kr(saldo.debtOre)}</p>
+                <p className="text-xs text-[var(--usha-muted)]">Avgår, återbetalning</p>
+              </div>
+            )}
+          </div>
+
+          <ul className="space-y-2">
+            {earnings.map((e, i) => {
+              const l = listingsById.get(e.listing_id ?? "");
+              return (
+                <li
+                  key={i}
+                  className="flex items-start justify-between gap-3 rounded-xl border border-[var(--usha-border)] px-3 py-2.5 text-sm"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate font-medium">{l?.title ?? "Ersättning"}</p>
+                    {e.note && (
+                      <p className="mt-0.5 text-xs leading-relaxed text-[var(--usha-muted)]">{e.note}</p>
+                    )}
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <p className="font-semibold">{kr(e.amount_ore)}</p>
+                    <p className="text-[11px] text-[var(--usha-muted)]">
+                      {e.paid_at ? "Utbetalt" : "Inte utbetalt än"}
+                    </p>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
 
       {invites.length > 0 && (
         <div className="mb-8">
