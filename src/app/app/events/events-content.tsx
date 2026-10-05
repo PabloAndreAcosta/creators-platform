@@ -77,6 +77,13 @@ interface ListingData {
   user_id: string;
   slug: string | null;
   series_id?: string | null;
+  /** Kvällen tillhör någon annan; jag är medkreatör. */
+  co_organized?: boolean;
+  /**
+   * Jag får läsa siffrorna men inte röra kvällen. Då visas bara statistik —
+   * knappar som ändå nekas är värre än inga knappar alls.
+   */
+  stats_only?: boolean;
 }
 
 interface EventsContentProps {
@@ -416,7 +423,38 @@ function EventCard({
               <MoreVertical size={16} />
             </button>
 
-            {showMenu && (
+            {showMenu && listing.stats_only && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setShowMenu(false)} />
+                {/* Medkreatör med enbart läsrätt. Hela menyn nedanför kräver
+                    can_manage och hade nekats i varje steg — en knapp som
+                    alltid svarar nej är sämre än ingen knapp. */}
+                <div className="absolute bottom-full right-0 z-20 mb-1 min-w-[160px] rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] py-1 shadow-xl">
+                  <Link
+                    href={`/app/events/${listing.id}/stats`}
+                    className="flex w-full items-center gap-2 px-4 py-2 text-xs hover:bg-[var(--usha-card-hover)]"
+                    onClick={() => setShowMenu(false)}
+                  >
+                    <BarChart3 size={12} />
+                    {t("statistics")}
+                  </Link>
+                  {listing.slug && (
+                    <a
+                      href={`/event/${listing.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex w-full items-center gap-2 px-4 py-2 text-xs hover:bg-[var(--usha-card-hover)]"
+                      onClick={() => setShowMenu(false)}
+                    >
+                      <Eye size={12} />
+                      {t("preview")}
+                    </a>
+                  )}
+                </div>
+              </>
+            )}
+
+            {showMenu && !listing.stats_only && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setShowMenu(false)} />
                 <div className="absolute bottom-full right-0 z-20 mb-1 min-w-[160px] rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)] py-1 shadow-xl">
@@ -648,7 +686,11 @@ function SeriesGroup({
                 <li key={o.id}>
                   <div className="flex items-stretch gap-2 rounded-lg border border-[var(--usha-border)] bg-[var(--usha-card)]">
                     <Link
-                      href={`/app/events/${o.id}/edit`}
+                      href={
+                        o.stats_only
+                          ? `/app/events/${o.id}/stats`
+                          : `/app/events/${o.id}/edit`
+                      }
                       className="flex min-w-0 flex-1 items-center gap-2 px-3 py-2.5"
                     >
                       <span
@@ -674,6 +716,21 @@ function SeriesGroup({
                       {(o.event_date ?? "") < today && (
                         <span className="text-[11px] text-[var(--usha-muted)]">{t("badgePast")}</span>
                       )}
+                    </Link>
+                    {/* Statistiken för ett passerat tillfälle gick inte att nå.
+                        Seriekortet visar NÄSTA kväll, och dess meny pekar på den
+                        kvällen — så fort en kväll passerat flyttades menyn till
+                        nästa, och gårdagens siffror blev oåtkomliga. Raderna här
+                        länkade bara till redigering. Nu bär varje tillfälle sin
+                        egen statistiklänk, vilket är hela skälet att man öppnar
+                        listan över passerade kvällar. */}
+                    <Link
+                      href={`/app/events/${o.id}/stats`}
+                      title={t("statistics")}
+                      aria-label={t("statistics")}
+                      className="flex shrink-0 items-center border-l border-[var(--usha-border)] px-3 text-[var(--usha-muted)] transition hover:text-[var(--usha-gold)]"
+                    >
+                      <BarChart3 size={15} />
                     </Link>
                     {o.slug && (
                       <a
