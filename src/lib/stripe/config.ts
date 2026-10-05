@@ -95,10 +95,17 @@ export const PLANS: Record<PlanKey, Plan> = {
     // profiladress var grindad men stod som gratis i den gamla kommentaren.
     // Stegen är nu byggda så att de stämmer: gratis säljer, Guld samarbetar,
     // Premium automatiserar.
+    //
+    // VIDEO ÄR MEDVETET INGEN STEGE ÄNNU. Att begränsa antalet YouTube- eller
+    // Vimeo-länkar vore godtyckligt: materialet ligger hos dem, kostar oss
+    // ingenting, och de sätter sina egna gränser. En stege blir meningsfull
+    // först när vi hostar videon själva i en egen spelare — då betalar vi
+    // leveransen, och då slipper deltagaren skickas till en annan app.
+    // Spelaren finns inte: "Se video" öppnar i dag bara länken i en ny flik.
+    // Lägg inte in ett videolöfte i nivåerna förrän den är byggd.
     features: [
       "Upp till 7 aktiva event eller tjänster",
       "5% provision (istället för 8%)",
-      "Upp till 7 videor eller kurser",
       "Medarrangör: dela administrationen av ett event",
       "Låt någon annan skanna biljetter i dörren",
       "Live-dashboard under kvällen",
@@ -117,7 +124,6 @@ export const PLANS: Record<PlanKey, Plan> = {
     features: [
       "Obegränsat antal event och tjänster",
       "3% provision (istället för 8%)",
-      "Obegränsat antal videor och kurser",
       "Allt i Guld",
       "Facebook-synk",
       "Kalender läs + skriv",
@@ -190,7 +196,7 @@ export const GRATIS_PLAN = {
     "8% provision — ingen månadskostnad",
     "Sälj biljetter: QR, incheckning i dörren, väntelista",
     "Klippkort, rabattkoder och flera biljettyper",
-    "3 videor eller kurser via YouTube eller Vimeo",
+    "Obegränsat med video via YouTube eller Vimeo",
     "Synlig på marknadsplatsen och i kalendern",
   ],
 };
