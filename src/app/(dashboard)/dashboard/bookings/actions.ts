@@ -126,22 +126,17 @@ export async function createBooking(formData: FormData) {
     }
   }
 
-  // Early bird: block gratis users during Gold-exclusive window
-  if (listing?.release_to_gold_at) {
-    const releaseDate = new Date(listing.release_to_gold_at);
-    if (isGoldExclusive(releaseDate)) {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("tier")
-        .eq("id", user.id)
-        .single();
-      const tier = profile?.tier ?? "gratis";
-      if (!BETA_MODE && tier !== "guld" && tier !== "premium") {
-        const hours = Math.ceil((releaseDate.getTime() - Date.now()) / (60 * 60 * 1000));
-        return { error: `Detta event är exklusivt för Guld/Premium-medlemmar i ${hours} timmar till.` };
-      }
-    }
-  }
+  // TIDIG TILLGÅNG BORTTAGEN 2026-10-05.
+  //
+  // Förturen byggdes för Publik Guld och Premium — publiknivåer som avvecklades
+  // 2026-09-29. Kvar blev en spärr som stängde ute gratisanvändare till förmån
+  // för KREATÖRER som råkade ha en betald nivå, vilket aldrig var meningen: en
+  // kreatörsprenumeration ska ge verktyg att sälja med, inte förtur att köpa
+  // andras biljetter.
+  //
+  // Kolumnen release_to_gold_at ligger kvar (ett enda event har någonsin haft
+  // ett datum, inget aktivt) så att historiken inte skrivs om, men ingenting
+  // läser den längre.
 
   // Idempotency for fixed-date events (tickets): a user should hold ONE ticket
   // per event. A fast double-tap or a retry was creating duplicate bookings —

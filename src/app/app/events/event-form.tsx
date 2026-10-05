@@ -95,11 +95,6 @@ export default function EventForm({
   const router = useRouter();
 
   const CATEGORIES = EVENT_CATEGORIES.map((value) => ({ value, label: tCat(value) }));
-  const TIERS = [
-    { value: "", label: t("tierAll") },
-    { value: "guld", label: t("tierGold") },
-    { value: "premium", label: t("tierPremium") },
-  ];
   const LISTING_TYPES: { value: ListingType; label: string }[] = [
     { value: "event", label: t("typeEvent") },
     { value: "table_reservation", label: t("typeTable") },
@@ -777,23 +772,10 @@ export default function EventForm({
             />
           </div>
 
-          <div>
-            <label htmlFor="event_tier" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-              {t("availability")}
-            </label>
-            <select
-              id="event_tier"
-              name="event_tier"
-              defaultValue={event?.event_tier ?? ""}
-              className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
-            >
-              {TIERS.map((tier) => (
-                <option key={tier.value} value={tier.value}>
-                  {tier.label}
-                </option>
-              ))}
-            </select>
-          </div>
+          {/* "Tillgänglighet" (alla / bara Guld / bara Premium) togs bort
+              2026-10-05. Valet grindade publiknivåer som inte finns längre och
+              gav i praktiken betalande KREATÖRER förtur att köpa andras
+              biljetter. Se lib/listings/early-bird.ts. */}
         </div>
 
         {/* Listing type */}
