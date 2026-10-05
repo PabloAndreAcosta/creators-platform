@@ -11,6 +11,7 @@ import type { MemberTier } from "@/types/database";
 import { PLANS, type PlanKey } from "@/lib/stripe/config";
 import { sendBookingConfirmationEmail } from "@/lib/email/send-booking";
 import { sendSubscriptionWelcomeEmail } from "@/lib/email/send-welcome";
+import { recordRefundDebt } from "@/lib/payouts/record-debt";
 import { sendTrialEndingEmail as sendTrialEndingEmailService } from "@/lib/email/send-trial-ending";
 import { createNotification } from "@/lib/notifications/create";
 import { notifyOwnerTicketSold, notifyOwnerSoldOut } from "@/lib/notifications/event-owner";
@@ -995,6 +996,16 @@ export async function POST(req: NextRequest) {
                 stripe_refund_id: charge.refunds?.data?.[0]?.id ?? null,
               })
               .eq("id", refundedBooking.id);
+
+            // Har partnern redan fått betalt för kvällen blir returen en skuld
+            // som kvittas mot nästa underlag. Sker återbetalningen innan
+            // avräkningen betalats ut gör funktionen ingenting — då räknar
+            // avräkningen bort den själv. Se lib/payouts/record-debt.ts.
+            await recordRefundDebt(getSupabaseAdmin() as never, {
+              listingId: refundedBooking.listing_id,
+              bookingId: refundedBooking.id,
+              refundedOre: charge.amount_refunded,
+            }).catch((e) => console.error("recordRefundDebt failed:", e));
 
             // External refund on an active ticket → release the seat(s) and
             // notify the waitlist, mirroring the in-app path.
