@@ -801,9 +801,8 @@
       "kreatorPremium1": "Eventos y servicios ilimitados",
       "kreatorPremium2": "3 % de comisión en lugar del 8 %",
       "kreatorPremium3": "Todo lo de Gold",
-      "kreatorPremium4": "Sincronización con Facebook",
-      "kreatorPremium5": "Calendario lectura + escritura",
-      "kreatorPremium6": "Exportación de estadísticas"
+      "kreatorPremium4": "Sincronización con Facebook: publica la noche automáticamente",
+      "kreatorPremium5": "Exportación de estadísticas a CSV"
     },
     "faq": {
       "title": "Preguntas y",
