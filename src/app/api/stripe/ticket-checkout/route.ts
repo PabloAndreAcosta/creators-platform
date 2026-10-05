@@ -131,17 +131,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Early bird: block gratis users during Gold-exclusive window
-    if (listing.release_to_gold_at) {
-      const releaseDate = new Date(listing.release_to_gold_at);
-      if (isGoldExclusive(releaseDate) && userTier !== 'guld' && userTier !== 'premium') {
-        const hours = Math.ceil((releaseDate.getTime() - Date.now()) / (60 * 60 * 1000));
-        return NextResponse.json(
-          { error: `This event is exclusive to Gold/Premium members for another ${hours} hours.` },
-          { status: 403 }
-        );
-      }
-    }
+    // TIDIG TILLGÅNG BORTTAGEN 2026-10-05.
+    //
+    // Förturen byggdes för Publik Guld och Premium — publiknivåer som avvecklades
+    // 2026-09-29. Kvar blev en spärr som stängde ute gratisanvändare till förmån
+    // för KREATÖRER som råkade ha en betald nivå, vilket aldrig var meningen: en
+    // kreatörsprenumeration ska ge verktyg att sälja med, inte förtur att köpa
+    // andras biljetter.
+    //
+    // Kolumnen release_to_gold_at ligger kvar (ett enda event har någonsin haft
+    // ett datum, inget aktivt) så att historiken inte skrivs om, men ingenting
+    // läser den längre.
 
     // Timed automation: block when not buyable (sold out / not released yet)
     // and use the effective price (early-bird price during the window).

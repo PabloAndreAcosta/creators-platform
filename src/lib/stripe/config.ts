@@ -88,15 +88,21 @@ export const PLANS: Record<PlanKey, Plan> = {
     interval: "month",
     description: "Väx din verksamhet",
     popular: true,
-    // Bara sådant som faktiskt är grindat på nivån i koden. Prioriterad
-    // synlighet fanns inte — rankningen tittar aldrig på tier. Egen
-    // profiladress finns för alla, betald eller ej, och är alltså ingen förmån.
+    // Bara sådant som faktiskt är grindat på nivån i koden.
+    //
+    // Genomgången 2026-10-05 visade att listan ljög åt båda hållen: sex
+    // "förmåner" var ogrindade och fanns gratis för alla, medan egen
+    // profiladress var grindad men stod som gratis i den gamla kommentaren.
+    // Stegen är nu byggda så att de stämmer: gratis säljer, Guld samarbetar,
+    // Premium automatiserar.
     features: [
-      "Upp till 15 aktiva tjänster",
-      "5% kommission (istället för 8%)",
-      "Låt någon annan skanna biljetter i dörren",
+      "Upp till 7 aktiva event eller tjänster",
+      "5% provision (istället för 8%)",
+      "Upp till 7 videor eller kurser",
       "Medarrangör: dela administrationen av ett event",
-      "Sälj digitalt material",
+      "Låt någon annan skanna biljetter i dörren",
+      "Live-dashboard under kvällen",
+      "Egen profiladress",
     ],
     stripePriceId: process.env.STRIPE_KREATOR_GULD_PRICE_ID || "",
   },
@@ -109,11 +115,11 @@ export const PLANS: Record<PlanKey, Plan> = {
     interval: "month",
     description: "Full kontroll och maximal synlighet",
     features: [
-      "Obegränsat antal tjänster",
-      "3% kommission (istället för 8%)",
-      "Låt någon annan skanna biljetter i dörren",
-      "Medarrangör: dela administrationen av ett event",
-      "Facebook-sync",
+      "Obegränsat antal event och tjänster",
+      "3% provision (istället för 8%)",
+      "Obegränsat antal videor och kurser",
+      "Allt i Guld",
+      "Facebook-synk",
       "Kalender läs + skriv",
       "Statistikexport",
     ],
@@ -180,10 +186,12 @@ export const GRATIS_PLAN = {
   currency: "SEK",
   description: "Perfekt för att komma igång",
   features: [
-    "Skapa profil + tjänster/events (upp till 3 aktiva)",
-    "Synlig på marknadsplatsen",
-    "8% kommission på bokningar",
-    "Grundläggande statistik",
+    "Upp till 3 aktiva event eller tjänster",
+    "8% provision — ingen månadskostnad",
+    "Sälj biljetter: QR, incheckning i dörren, väntelista",
+    "Klippkort, rabattkoder och flera biljettyper",
+    "3 videor eller kurser via YouTube eller Vimeo",
+    "Synlig på marknadsplatsen och i kalendern",
   ],
 };
 

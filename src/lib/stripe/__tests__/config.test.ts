@@ -109,8 +109,19 @@ describe('nivåerna lovar bara sådant som är byggt', () => {
   });
 
   it('ingen plan säljer något alla redan har', () => {
-    // Egen profiladress (/[slug]) finns för varje profil, betald eller ej.
+    // RÄTTAT 2026-10-05. Testet förbjöd tidigare "Egen profiladress" med
+    // motiveringen att den finns för alla. Det var fel: dashboard/profile/
+    // actions.ts kräver guld eller premium för att sätta en slug, och har
+    // gjort det hela tiden. Påståendet i prislistan var alltså sant och
+    // kommentaren i config.ts var det som ljög.
+    //
+    // Kvar i listan är det som verkligen är ogrindat. Genomgången 2026-10-05
+    // flyttade sex sådana påståenden ur Guld och Premium: medarrangör,
+    // delegerad skanning, digitalt material, Facebook-synk, kalender och
+    // export var alla gratis för alla. De tre första är nu grindade på
+    // riktigt via nivåtaken; de tre sista står kvar som Premium-löften och
+    // behöver grindas eller strykas — se PR-beskrivningen.
     const alla = Object.values(PLANS).flatMap((p) => p.features).join(' ');
-    expect(alla).not.toMatch(/Egen profiladress/);
+    expect(alla).not.toMatch(/Prioriterad support|Exklusivt innehåll|VIP/);
   });
 });

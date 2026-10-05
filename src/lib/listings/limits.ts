@@ -16,7 +16,12 @@ import { createClient } from "@/lib/supabase/server";
  */
 const TIER_LIMITS: Record<MemberTier, number | null> = {
   gratis: 3,
-  guld: 15,
+  // Sju, inte femton. En kreatör med en kväll i veckan publicerar en månad
+  // framåt och landar på fyra till fem kommande — över gratisnivåns tre, men
+  // långt under femton. Taket ska kännas som nästa steg, inte som ett tak man
+  // aldrig når. Den som kör veckovis ska uppmuntras uppåt; den som kör två
+  // serier samtidigt ska hamna på Premium.
+  guld: 7,
   premium: null, // obegränsat
 };
 

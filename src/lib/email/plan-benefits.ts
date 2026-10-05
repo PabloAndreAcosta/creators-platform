@@ -18,7 +18,15 @@ import type { Locale } from "@/i18n/config";
  * faller testet tills sidan och mejlet följt med.
  */
 const BENEFIT_KEYS: Partial<Record<PlanKey, readonly string[]>> = {
-  kreator_guld: ["kreatorGold1", "kreatorGold2", "kreatorGold3", "kreatorGold4", "kreatorGold5"],
+  kreator_guld: [
+    "kreatorGold1",
+    "kreatorGold2",
+    "kreatorGold3",
+    "kreatorGold4",
+    "kreatorGold5",
+    "kreatorGold6",
+    "kreatorGold7",
+  ],
   kreator_premium: [
     "kreatorPremium1",
     "kreatorPremium2",
