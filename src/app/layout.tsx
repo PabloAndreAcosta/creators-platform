@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import { IntlProvider } from "@/components/intl-provider";
+import { pickMessages, PUBLIC_NAMESPACES } from "@/lib/i18n/client-namespaces";
 import { ToastProvider } from "@/components/ui/toaster";
 import { ConnectionStatus } from "@/components/ConnectionStatus";
 import { GoogleAnalytics } from "@/components/google-analytics";
@@ -70,7 +71,12 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const locale = await getLocale();
-  const messages = await getMessages();
+  // Bara de namespace publika sidors klientkomponenter behöver: 35 kB i
+  // stället för 179. Allt som går till providern serialiseras in i HTML:en,
+  // och en besökare på en danskväll behöver inte dashboardens texter.
+  // /app, (dashboard) och (auth) sätter sina egna i sina layouter — en
+  // nästlad provider ersätter föräldern, den slår inte ihop.
+  const messages = pickMessages(await getMessages(), PUBLIC_NAMESPACES);
   const cookieStore = await cookies();
   const themeCookie = cookieStore.get("usha-theme")?.value;
   // Light by default (cookieless). Only an explicit "dark" choice renders dark

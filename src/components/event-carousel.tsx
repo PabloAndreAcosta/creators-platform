@@ -21,7 +21,10 @@ interface CarouselEvent {
 }
 
 export function EventCarousel({ events }: { events: CarouselEvent[] }) {
-  const t = useTranslations();
+  // Namngivet namespace, inte roten. Ett anrop utan argument tvingar
+  // providern att bära HELA språkfilen för varje besökare — den här
+  // komponenten använder bara listingCard.*.
+  const t = useTranslations("listingCard");
   const ta = useTranslations("a11y");
   const dateLocale = DATE_LOCALES[useLocale()] ?? "en-GB";
   const [current, setCurrent] = useState(0);
@@ -61,7 +64,7 @@ export function EventCarousel({ events }: { events: CarouselEvent[] }) {
           {/* Content overlay */}
           <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-8">
             <span className="mb-2 inline-block rounded-full bg-[var(--usha-gold)] px-2.5 py-0.5 text-[10px] font-bold uppercase text-black">
-              {t("listingCard.carouselPromoted")}
+              {t("carouselPromoted")}
             </span>
             <h2 className="text-xl font-bold text-white sm:text-2xl md:text-3xl">
               {event.title}
@@ -86,9 +89,9 @@ export function EventCarousel({ events }: { events: CarouselEvent[] }) {
             </div>
             <div className="mt-3 flex items-center gap-3">
               <span className="rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-sm font-bold text-black">
-                {event.price ? t("listingCard.price", { price: event.price }) : t("listingCard.free")}
+                {event.price ? t("price", { price: event.price }) : t("free")}
               </span>
-              <span className="text-sm text-white/60">{t("listingCard.carouselMoreInfo")}</span>
+              <span className="text-sm text-white/60">{t("carouselMoreInfo")}</span>
             </div>
           </div>
         </div>
