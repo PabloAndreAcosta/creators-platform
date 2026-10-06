@@ -37,7 +37,9 @@ export type MoveBlock =
   | "in_the_past"
   | "same_occurrence"
   | "no_matching_type"
-  | "sold_out";
+  | "sold_out"
+  | "source_settled"
+  | "target_settled";
 
 /**
  * Får bokningen flyttas hit? Returnerar null när allt är i sin ordning,
@@ -55,10 +57,28 @@ export function blockingReason(args: {
   /** Biljettyper på målkvällen. */
   targetTypes: readonly TicketTypeLike[];
   quantity: number;
+  /** Har kvällen bokningen ligger på redan betalats ut till partnern? */
+  fromSettled?: boolean;
+  /** Har målkvällen redan betalats ut? */
+  toSettled?: boolean;
 }): MoveBlock | null {
-  const { from, to, today, ticketTypeName, targetTypes, quantity } = args;
+  const { from, to, today, ticketTypeName, targetTypes, quantity, fromSettled, toSettled } = args;
 
   if (to.id === from.id) return "same_occurrence";
+
+  // Avräkningen räknar en kvälls intäkt genom att fråga bookings på
+  // listing_id, så pengarna följer med en flytt av sig själva — så länge
+  // ingen av kvällarna är stängd.
+  //
+  // En utbetald kväll räknas aldrig om (run-payouts hoppar över status
+  // "paid"). Därför:
+  //   - flytt FRÅN en utbetald kväll = partnern har redan fått sin andel av
+  //     biljetten, och får den igen när målkvällen räknas. Dubbelbetalning.
+  //   - flytt TILL en utbetald kväll = biljetten landar i en stängd bok och
+  //     partnern får aldrig sin andel.
+  // Båda tyst, båda i riktiga pengar. Återbetala och sälj om i stället.
+  if (fromSettled) return "source_settled";
+  if (toSettled) return "target_settled";
   // Flytt sker inom en serie. Utan den gränsen vore det inte en ombokning utan
   // ett byte av vara: ett annat pris, en annan lokal, kanske en annan arrangör.
   if (!from.series_id || !to.series_id || from.series_id !== to.series_id) return "not_same_series";
