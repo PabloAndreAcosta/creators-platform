@@ -1767,7 +1767,10 @@
     "payB2BErrorRetry": "Please try again.",
     "payB2BLoading": "Loading...",
     "payB2BWithPrice": "Pay {price} SEK",
-    "payB2BButton": "Pay"
+    "payB2BButton": "Pay",
+    "errorSelectOccurrence": "Choose which night to move the ticket to.",
+    "noOtherOccurrences": "There are no other nights to move to.",
+    "rescheduleOccurrenceLabel": "New night"
   },
   "listingsPage": {
     "back": "Back",

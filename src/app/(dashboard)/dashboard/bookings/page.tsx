@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { stockholmToday } from "@/lib/time";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
@@ -70,9 +71,9 @@ export default async function BookingsPage() {
     listingIds.length > 0
       ? supabase
           .from("listings")
-          .select("id, title, listing_type, price")
+          .select("id, title, listing_type, price, event_date, series_id")
           .in("id", listingIds)
-      : { data: [] as { id: string; title: string; listing_type: string | null; price: number | null }[] },
+      : { data: [] as { id: string; title: string; listing_type: string | null; price: number | null; event_date: string | null; series_id: string | null }[] },
     profileIds.length > 0
       ? supabase
           .from("profiles")
@@ -93,6 +94,49 @@ export default async function BookingsPage() {
   const profileMap = Object.fromEntries(
     (profiles ?? []).map((p) => [p.id, p.full_name || t("fallbackPersonName")])
   );
+
+  // Kommande kvällar per serie, för ombokning av biljetter. En biljett bor på
+  // en kväll (listings.event_date) — det är den dörren läser — så den flyttas
+  // genom att peka om till en annan kväll i serien, inte genom att skriva
+  // scheduled_at.
+  const seriesIds = [
+    ...new Set(
+      (listings ?? [])
+        .filter((l) => (l as { event_date?: string | null }).event_date)
+        .map((l) => (l as { series_id?: string | null }).series_id)
+        .filter((id): id is string => !!id)
+    ),
+  ];
+  const { data: occurrenceRows } = seriesIds.length
+    ? await supabase
+        .from("listings")
+        .select("id, title, event_date, event_time, series_id")
+        .in("series_id", seriesIds)
+        .eq("is_active", true)
+        .eq("is_public", true)
+        .gte("event_date", stockholmToday())
+        .order("event_date", { ascending: true })
+    : { data: [] as { id: string; title: string; event_date: string | null; event_time: string | null; series_id: string | null }[] };
+
+  const occurrencesBySeries: Record<string, { id: string; date: string; time: string | null }[]> = {};
+  for (const o of occurrenceRows ?? []) {
+    const sid = (o as { series_id?: string | null }).series_id;
+    if (!sid || !o.event_date) continue;
+    (occurrencesBySeries[sid] ??= []).push({
+      id: o.id,
+      date: o.event_date,
+      time: (o as { event_time?: string | null }).event_time ?? null,
+    });
+  }
+
+  /** Kvällar den här bokningen kan flyttas till, tom lista = inte en biljett. */
+  const occurrencesFor = (listingId: string) => {
+    const l = (listings ?? []).find((x) => x.id === listingId) as
+      | { event_date?: string | null; series_id?: string | null }
+      | undefined;
+    if (!l?.event_date || !l.series_id) return [];
+    return occurrencesBySeries[l.series_id] ?? [];
+  };
 
   // Fetch existing reviews for outgoing completed bookings
   const completedBookingIds = (outgoing ?? [])
@@ -297,7 +341,12 @@ export default async function BookingsPage() {
                               total={(booking as { minutes_total?: number | null }).minutes_total!}
                             />
                           )}
-                        <RescheduleButton bookingId={booking.id} currentDate={booking.scheduled_at} />
+                        <RescheduleButton
+                          bookingId={booking.id}
+                          currentDate={booking.scheduled_at}
+                          occurrences={occurrencesFor(booking.listing_id)}
+                          currentListingId={booking.listing_id}
+                        />
                         {/* Comp a paid service/b2b booking (free intro etc.) — hides
                             the customer's "Betala" button. Only while unpaid. */}
                         {!(booking as { stripe_payment_id?: string | null }).stripe_payment_id &&
@@ -407,7 +456,12 @@ export default async function BookingsPage() {
                     {(booking.status === "pending" ||
                       booking.status === "confirmed") && (
                       <>
-                        <RescheduleButton bookingId={booking.id} currentDate={booking.scheduled_at} />
+                        <RescheduleButton
+                          bookingId={booking.id}
+                          currentDate={booking.scheduled_at}
+                          occurrences={occurrencesFor(booking.listing_id)}
+                          currentListingId={booking.listing_id}
+                        />
                         <CancelButton
                           bookingId={booking.id}
                           isPaid={!!(booking as { stripe_payment_id?: string | null }).stripe_payment_id}

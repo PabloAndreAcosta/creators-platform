@@ -1767,7 +1767,10 @@
     "payB2BErrorRetry": "Inténtalo de nuevo.",
     "payB2BLoading": "Cargando...",
     "payB2BWithPrice": "Pagar {price} SEK",
-    "payB2BButton": "Pagar"
+    "payB2BButton": "Pagar",
+    "errorSelectOccurrence": "Elige a qué noche mover la entrada.",
+    "noOtherOccurrences": "No hay más noches a las que mover.",
+    "rescheduleOccurrenceLabel": "Nueva noche"
   },
   "listingsPage": {
     "back": "Atrás",

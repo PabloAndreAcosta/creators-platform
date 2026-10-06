@@ -1767,7 +1767,10 @@
     "payB2BErrorRetry": "Försök igen.",
     "payB2BLoading": "Laddar...",
     "payB2BWithPrice": "Betala {price} SEK",
-    "payB2BButton": "Betala"
+    "payB2BButton": "Betala",
+    "errorSelectOccurrence": "Välj vilken kväll biljetten ska flyttas till.",
+    "noOtherOccurrences": "Det finns inga fler kvällar att flytta till.",
+    "rescheduleOccurrenceLabel": "Ny kväll"
   },
   "listingsPage": {
     "back": "Tillbaka",
