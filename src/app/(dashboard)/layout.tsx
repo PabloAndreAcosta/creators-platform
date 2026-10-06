@@ -5,7 +5,9 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { LogOut } from "lucide-react";
 import { SubscriptionProvider } from "@/lib/subscription/context";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale, getMessages } from "next-intl/server";
+import { IntlProvider } from "@/components/intl-provider";
+import { pickMessages, DASHBOARD_NAMESPACES } from "@/lib/i18n/client-namespaces";
 import type { MemberTier, MemberRole } from "@/types/database";
 
 export default async function DashboardLayout({
@@ -48,7 +50,13 @@ export default async function DashboardLayout({
     hasActiveSubscription = true;
   }
 
+  // Egen provider för den här delen: en nästlad NextIntlClientProvider
+  // ERSÄTTER förälderns messages, den slår inte ihop dem. Rotlayouten bär bara
+  // de publika sidornas namespace, så den här grenen måste bära sina egna.
+  const messages = pickMessages(await getMessages(), DASHBOARD_NAMESPACES);
+
   return (
+    <IntlProvider locale={await getLocale()} messages={messages}>
     <SubscriptionProvider value={{ tier, role, hasActiveSubscription, plan }}>
       <div className="min-h-screen bg-[var(--usha-black)]">
         <header className="border-b border-[var(--usha-border)]">
@@ -80,5 +88,6 @@ export default async function DashboardLayout({
         <main className="mx-auto max-w-6xl px-6 py-10">{children}</main>
       </div>
     </SubscriptionProvider>
+    </IntlProvider>
   );
 }

@@ -1,6 +1,9 @@
 export const dynamic = 'force-dynamic';
 
 import { redirect } from "next/navigation";
+import { getLocale, getMessages } from "next-intl/server";
+import { IntlProvider } from "@/components/intl-provider";
+import { pickMessages, APP_NAMESPACES } from "@/lib/i18n/client-namespaces";
 import { createClient } from "@/lib/supabase/server";
 import { AppShell } from "@/components/mobile/app-shell";
 import { SubscriptionProvider } from "@/lib/subscription/context";
@@ -70,11 +73,18 @@ export default async function MobileAppLayout({
     // Continue with defaults if profile/subscription queries fail
   }
 
+  // Egen provider för den här delen: en nästlad NextIntlClientProvider
+  // ERSÄTTER förälderns messages, den slår inte ihop dem. Rotlayouten bär bara
+  // de publika sidornas namespace, så den här grenen måste bära sina egna.
+  const messages = pickMessages(await getMessages(), APP_NAMESPACES);
+
   return (
-    <SubscriptionProvider value={{ tier, role, hasActiveSubscription, plan }}>
-      <AppShell userName={userName} initialRole={initialRole}>
-        {children}
-      </AppShell>
-    </SubscriptionProvider>
+    <IntlProvider locale={await getLocale()} messages={messages}>
+      <SubscriptionProvider value={{ tier, role, hasActiveSubscription, plan }}>
+        <AppShell userName={userName} initialRole={initialRole}>
+          {children}
+        </AppShell>
+      </SubscriptionProvider>
+    </IntlProvider>
   );
 }

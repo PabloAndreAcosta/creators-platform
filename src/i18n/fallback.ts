@@ -34,8 +34,34 @@ export function onIntlError(error: IntlError): void {
     // Expected-but-undesirable: a translation is missing. Warn, don't throw.
     if (process.env.NODE_ENV !== "production") {
       console.warn(`[i18n] missing message: ${error.message}`);
+    } else {
+      // I produktion var det här HELT tyst: besökaren fick ett snällifierat
+      // nyckelnamn och ingen fick veta. Sedan klientproviders bara bär sin egen
+      // grupps namespace är ett saknat meddelande dessutom en rimlig signal på
+      // att en lista i lib/i18n/client-namespaces har hamnat fel — den sortens
+      // fel får inte upptäckas av en användare.
+      reportMissingMessage(error);
     }
   } else {
     console.error("[i18n]", error);
   }
+}
+
+/**
+ * Rapportera till Sentry utan att låta i18n bli beroende av att Sentry finns.
+ * Import i funktionen: fallback.ts körs både på servern och i webbläsaren, och
+ * en toppnivå-import skulle dra in Sentry i varje bundle som rör översättningar.
+ */
+function reportMissingMessage(error: IntlError): void {
+  void import("@sentry/nextjs")
+    .then((Sentry) => {
+      Sentry.captureMessage(`[i18n] saknat meddelande: ${error.message}`, {
+        level: "warning",
+        tags: { area: "i18n", code: error.code },
+      });
+    })
+    .catch(() => {
+      // Sentry inte laddbart (t.ex. i ett test) — logga hellre än att tiga.
+      console.warn(`[i18n] missing message: ${error.message}`);
+    });
 }

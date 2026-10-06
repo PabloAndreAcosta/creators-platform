@@ -17,6 +17,7 @@ import { splitBilingualDescription, buildPreviewDescription } from "@/lib/listin
 import { buildMapsHref } from "@/lib/listings/maps";
 import { canReceivePayments } from "@/lib/payments/beta-gate";
 import { safeJsonLd } from "@/lib/json-ld";
+import { pickMessages, PUBLIC_NAMESPACES } from "@/lib/i18n/client-namespaces";
 import { stockholmEventISO } from "@/lib/time";
 import { getTranslations, getLocale, getMessages } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
@@ -450,7 +451,14 @@ export default async function EventPage(props: Params) {
   const t = await getTranslations({ locale: eventLocale, namespace: "eventPage" });
   // Rot-översättare för delade nycklar (categories.*, common.*).
   const tRoot = await getTranslations({ locale: eventLocale });
-  const messages = await getMessages({ locale: eventLocale });
+  // Egen provider här bara för att värden kan låsa evenemangets språk — då
+  // måste texterna hämtas i DET språket, inte besökarens. Samma publika urval
+  // som rotlayouten; testet i lib/i18n garanterar att det täcker den här
+  // sidans klientkomponenter.
+  const messages = pickMessages(
+    await getMessages({ locale: eventLocale }),
+    PUBLIC_NAMESPACES
+  );
   const locale = eventLocale;
   const tFollow = await getTranslations({ locale, namespace: "emailFollow" });
   const image = listing.image_url ?? FALLBACK_IMAGE;
