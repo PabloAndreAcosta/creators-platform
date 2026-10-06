@@ -3,6 +3,7 @@ import { useTranslations } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Ticket } from "lucide-react";
 import { safeJsonLd } from "@/lib/json-ld";
+import { getSocialLinks } from "@/lib/follows/social-links";
 import { LandingStats } from "@/components/landing-stats";
 import { LandingInstall } from "@/components/landing-install";
 import { InstallPrompt } from "@/components/install-prompt";
@@ -50,7 +51,8 @@ export async function generateMetadata(): Promise<Metadata> {
 // Organisationen och sajten i ett graf-objekt. WebSite med SearchAction är det
 // som kan ge en sökruta direkt i Googles resultat; utan den kan en sökande bara
 // klicka in på startsidan och leta vidare själv.
-const ORGANIZATION_JSONLD = {
+function organizationJsonLd(sameAs: string[]) {
+  return {
   "@context": "https://schema.org",
   "@graph": [
     {
@@ -62,7 +64,24 @@ const ORGANIZATION_JSONLD = {
       logo: "https://usha.se/icon-192.png",
       description:
         "Kuraterad, BankID-verifierad marknadsplats som förenar kreatörer, platser och publik.",
-      sameAs: ["https://www.facebook.com/438136616060981"],
+      // Organisationsnumret är offentligt hos Bolagsverket och gör entiteten
+      // entydig: en modell eller sökmotor kan knyta "Usha" till rätt bolag i
+      // stället för att gissa bland likalydande namn.
+      identifier: {
+        "@type": "PropertyValue",
+        // INTE schema.org/leiCode — en LEI är ett annat, 20 tecken långt
+        // system. Svenskt organisationsnummer har ingen egen schema.org-term,
+        // så propertyID är en ren etikett.
+        propertyID: "SE-organisationsnummer",
+        name: "Organisationsnummer",
+        value: "559401-8326",
+      },
+      vatID: "SE559401832601",
+      areaServed: { "@type": "Country", name: "SE" },
+      // Läses ur app_config.social_links, samma källa som "Följ oss"-raden.
+      // Hårdkodat här stod bara Facebook, så den dagen Instagram tändes i
+      // databasen syntes den i sidfoten men inte för en sökmotor.
+      sameAs,
     },
     {
       "@type": "WebSite",
@@ -81,7 +100,8 @@ const ORGANIZATION_JSONLD = {
       },
     },
   ],
-};
+  };
+}
 
 /* ─────────────── HERO (the cycle) ─────────────── */
 function Hero() {
@@ -215,7 +235,17 @@ function HomeCta() {
 }
 
 /* ─────────────── PAGE (Server Component) ─────────────── */
-export default function Home() {
+export default async function Home() {
+  // Facebook-sidan låg hårdkodad här. Den ligger kvar som fallback eftersom
+  // den är verifierad, men Instagram och TikTok hämtas nu ur databasen så de
+  // syns för sökmotorer samma dag de tänds — utan deploy.
+  const links = await getSocialLinks();
+  const sameAs = [
+    links.facebook ?? "https://www.facebook.com/438136616060981",
+    links.instagram,
+    links.tiktok,
+  ].filter((u): u is string => !!u);
+
   return (
     // overflow-x-clip: decorative blur glows are wider than a phone screen; without
     // clipping they overflow horizontally, which widens the layout viewport and
@@ -223,7 +253,7 @@ export default function Home() {
     <main className="overflow-x-clip">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: safeJsonLd(ORGANIZATION_JSONLD) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(organizationJsonLd(sameAs)) }}
       />
       {/* Non-blocking: logged-in users go to /app after render; anonymous
           visitors and crawlers always get the full landing HTML. */}
