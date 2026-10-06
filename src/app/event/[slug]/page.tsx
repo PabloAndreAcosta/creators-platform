@@ -101,12 +101,6 @@ async function getListing(slug: string) {
 
   if (!listing) return null;
 
-  const { data: host } = await supabase
-    .from("profiles")
-    .select("id, full_name, slug, avatar_url, bankid_verified_at, company_verified_at")
-    .eq("id", listing.user_id)
-    .maybeSingle();
-
   // Lokalen, när kopplingen är godkänd och lokalen är någon annan än
   // arrangören. Innan detta nämndes lokalen bara som text i platsraden medan
   // arrangören fick en klickbar profil — den som skannade en QR-kod i baren
@@ -116,15 +110,6 @@ async function getListing(slug: string) {
     listing.venue_confirmed_at && listing.venue_profile_id !== listing.user_id
       ? listing.venue_profile_id
       : null;
-  const { data: venue } = venueId
-    ? await supabase
-        .from("profiles")
-        .select("id, full_name, slug, avatar_url, is_public")
-        .eq("id", venueId)
-        .maybeSingle()
-    : { data: null };
-  // En lokal som gömt sin profil ska inte länkas fram av ett evenemang.
-  const venueLink = venue?.is_public ? venue : null;
 
   const today = new Date().toISOString().slice(0, 10);
   const cardColumns = "id, title, slug, image_url, event_date, event_location, price, series_slug";
@@ -135,7 +120,22 @@ async function getListing(slug: string) {
   // nytta: kan du inte den 7:e finns den 14:e.
   const seriesSlug = (listing as { series_slug?: string | null }).series_slug ?? null;
 
-  const [{ data: moreDatesRows }, { data: moreRows }] = await Promise.all([
+  // Värden, lokalen, seriens övriga kvällar och "fler produktioner" hänger
+  // alla på listing men inte på varandra. De låg som fyra turer i följd mot
+  // Supabase; nu är de ett steg. Det var den enskilt dyraste delen av sidan.
+  const [{ data: host }, { data: venue }, { data: moreDatesRows }, { data: moreRows }] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("id, full_name, slug, avatar_url, bankid_verified_at, company_verified_at")
+      .eq("id", listing.user_id)
+      .maybeSingle(),
+    venueId
+      ? supabase
+          .from("profiles")
+          .select("id, full_name, slug, avatar_url, is_public")
+          .eq("id", venueId)
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
     seriesSlug
       ? supabase
           .from("listings")
@@ -161,6 +161,9 @@ async function getListing(slug: string) {
       .order("event_date", { ascending: true, nullsFirst: false })
       .limit(12),
   ]);
+
+  // En lokal som gömt sin profil ska inte länkas fram av ett evenemang.
+  const venueLink = venue?.is_public ? venue : null;
 
   const more = ((moreRows ?? []) as EventCard[])
     .filter((m) => !seriesSlug || m.series_slug !== seriesSlug)
@@ -286,6 +289,31 @@ function formatTime(timeStr: string | null, endTimeStr: string | null) {
   return start;
 }
 
+/**
+ * Köparens kvarvarande välkomstavdrag i öre, 0 om hen inte är inloggad.
+ *
+ * Låg tidigare inline överst i sidan och körde auth.getUser() en andra gång
+ * innan något annat hann börja. Som egen funktion kan den ligga i samma
+ * Promise.all som allt annat.
+ */
+async function buyerCreditOre(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string | null
+): Promise<number> {
+  if (!userId) return 0;
+  const [{ data: credit }, ledger] = await Promise.all([
+    supabase
+      .from("account_credits")
+      .select("amount_ore, used_at, expires_at")
+      .eq("user_id", userId)
+      .maybeSingle(),
+    getCreditLedgerBalance(supabase, userId),
+  ]);
+  const gone =
+    !!credit?.used_at || (!!credit?.expires_at && new Date(credit.expires_at) < new Date());
+  return (credit && !gone ? credit.amount_ore : 0) + ledger;
+}
+
 export default async function EventPage(props: Params) {
   const params = await props.params;
   const { slug } = await params;
@@ -294,24 +322,16 @@ export default async function EventPage(props: Params) {
   // hen leta rätt på raden igen.
   const preselectTicketTypeId = (await props.searchParams)?.tt ?? null;
 
-  // Välkomstavdraget, om köparen har kvar sitt. Visas i biljettrutan så att
-  // det syns FÖRE kassan — ett avdrag som dyker upp först i Stripe övertygar
-  // ingen att köpa.
-  let signupCreditOre = 0;
-  {
-    const sb = await createClient();
-    const { data: { user: buyer } } = await sb.auth.getUser();
-    if (buyer) {
-      const { data: credit } = await sb
-        .from("account_credits")
-        .select("amount_ore, used_at, expires_at")
-        .eq("user_id", buyer.id)
-        .maybeSingle();
-      const gone = !!credit?.used_at || (!!credit?.expires_at && new Date(credit.expires_at) < new Date());
-      signupCreditOre = (credit && !gone ? credit.amount_ore : 0) + (await getCreditLedgerBalance(sb, buyer.id));
-    }
-  }
-  let data = await getListing(slug);
+  // Sidan låg på ~3 s till första byte för att den gjorde ett tiotal turer till
+  // Supabase i följd, inklusive auth.getUser() TVÅ gånger. Frågorna är nu
+  // grupperade efter vad de faktiskt beror på: först användare och annons
+  // samtidigt, sedan allt som bara behöver annonsen i ett enda steg.
+  const supabase = await createClient();
+  const [{ data: { user } }, data] = await Promise.all([
+    supabase.auth.getUser(),
+    getListing(slug),
+  ]);
+
   if (!data) {
     const resolved = await resolveSlugToOccurrence(slug);
     if (resolved) redirect(`/event/${resolved}`);
@@ -319,8 +339,6 @@ export default async function EventPage(props: Params) {
   }
 
   const { listing, host, venue, more, moreDates } = data;
-  const crew = await getCrew(listing.id);
-  const supabase = await createClient();
 
   // Klippkort på serien ("5 kvällar") säljs som ett alternativ bredvid
   // kvällens biljetter. Kortet är en egen annons (package) kopplad till en
@@ -334,25 +352,60 @@ export default async function EventPage(props: Params) {
       ? seriesIdRaw
       : null;
   type PassRow = { id: string; title: string; price: number | null; session_count: number | null; pass_covers: string | null; pass_reference_price: number | null };
-  const { data: passRows } = seriesIdForPass
-    ? await supabase
+
+  // Allt härunder beror bara på annonsen (och på user, som redan är hämtad),
+  // aldrig på varandra. Ett steg i stället för sex. Löftena namnges först så
+  // att TypeScript behåller varje typ — en bred Promise.all på ett
+  // arrayliteral faller tillbaka på en union och gör allt till any.
+  const followTargets = [listing.user_id, ...(venue ? [venue.id] : [])];
+
+  const crewP = getCrew(listing.id);
+
+  const passesP = seriesIdForPass
+    ? supabase
         .from("listings")
         .select("id, title, price, session_count, pass_covers, pass_reference_price")
         .or(`pass_series_id.eq.${seriesIdForPass},pass_series_ids.cs.{${seriesIdForPass}}`)
         .eq("is_active", true)
         .eq("is_public", true)
         .order("price", { ascending: true })
-    : { data: [] as PassRow[] };
-  const passes = ((passRows ?? []) as PassRow[])
-    .filter((p) => (p.session_count ?? 0) > 0)
-    .map((p) => ({ id: p.id, title: p.title, price: p.price ?? 0, sessionCount: p.session_count ?? 0, covers: p.pass_covers, referencePrice: p.pass_reference_price }));
+        .then((r) => r.data as PassRow[] | null)
+    : Promise.resolve([] as PassRow[]);
 
   // Ticket types (price tiers). Empty → single-price event (unchanged).
-  const { data: ticketTypes } = await supabase
+  const ticketTypesP = supabase
     .from("ticket_types")
     .select("id, name, price, capacity, tickets_sold, ticket_type_pools(pool_id, ticket_pools(id, capacity))")
     .eq("listing_id", listing.id)
-    .order("sort_order", { ascending: true });
+    .order("sort_order", { ascending: true })
+    .then((r) => r.data);
+
+  // Följ arrangören (och lokalen) härifrån, där publiken faktiskt är. Profilen
+  // hade knappen; eventsidan hade den inte, och det är hit man kommer från
+  // Facebook, QR-koden i dörren och biljetten.
+  const followerCountP = supabase
+    .from("follows")
+    .select("id", { count: "exact", head: true })
+    .eq("followed_id", listing.user_id)
+    .then((r) => r.count);
+
+  const myFollowsP = user
+    ? supabase
+        .from("follows")
+        .select("followed_id")
+        .eq("follower_id", user.id)
+        .in("followed_id", followTargets)
+        .then((r) => (r.data ?? []) as { followed_id: string }[])
+    : Promise.resolve([] as { followed_id: string }[]);
+
+  const [crew, passRows, ticketTypes, hostFollowerCount, myFollows, signupCreditOre] =
+    await Promise.all([crewP, passesP, ticketTypesP, followerCountP, myFollowsP, buyerCreditOre(supabase, user?.id ?? null)]);
+
+  const followingIds = new Set(myFollows.map((f) => f.followed_id));
+
+  const passes = ((passRows ?? []) as PassRow[])
+    .filter((p) => (p.session_count ?? 0) > 0)
+    .map((p) => ({ id: p.id, title: p.title, price: p.price ?? 0, sessionCount: p.session_count ?? 0, covers: p.pass_covers, referencePrice: p.pass_reference_price }));
 
   // Pottmedlemmar ärver pottens tak och pottens sålda antal, annars ser de
   // obegränsade ut för köparen och nekas först i kassan.
@@ -389,10 +442,6 @@ export default async function EventPage(props: Params) {
       0;
     return { ...p, savings: passSavings({ price: p.price, sessionCount: p.sessionCount }, reference) };
   });
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
 
   // Per-event language: if the host pinned a language, the WHOLE page (server
   // text + client components) renders in it for every visitor; else follow the
@@ -455,17 +504,6 @@ export default async function EventPage(props: Params) {
   const isHost = !!user && user.id === listing.user_id;
   const returnPath = `/event/${slug}`;
 
-  // Följ arrangören (och lokalen) härifrån, där publiken faktiskt är. Profilen
-  // hade knappen; eventsidan hade den inte, och det är hit man kommer från
-  // Facebook, QR-koden i dörren och biljetten.
-  const followTargets = [listing.user_id, ...(venue ? [venue.id] : [])];
-  const [{ count: hostFollowerCount }, { data: myFollows }] = await Promise.all([
-    supabase.from("follows").select("id", { count: "exact", head: true }).eq("followed_id", listing.user_id),
-    user
-      ? supabase.from("follows").select("followed_id").eq("follower_id", user.id).in("followed_id", followTargets)
-      : Promise.resolve({ data: [] as { followed_id: string }[] }),
-  ]);
-  const followingIds = new Set((myFollows ?? []).map((f) => f.followed_id));
   const hostDisplayName = listing.organizer_name || host?.full_name || t("organizer");
 
   const prepareCards = (items: EventCard[]): PreparedCard[] =>
