@@ -526,9 +526,9 @@
       "seeAll": "Se allt"
     },
     "meta": {
-      "title": "Usha Platform — Där kreatörer, platser och publik möts",
-      "description": "Kretsloppet som får Sveriges kreativa liv att snurra – kreatörer hittar uppdrag, platser fyller sin kalender, publiken upptäcker upplevelser. Tryggt med BankID och Stripe.",
-      "ogDescription": "Kretsloppet där kreatörer, platser och publik förstärker varandra. Tryggt med BankID och Stripe."
+      "title": "Usha Platform — Skapa event, sälj biljetter, checka in i dörren",
+      "description": "Verktygen för dig som håller i kvällen: biljetter, klippkort, incheckning i dörren och avräkning med lokalen. Publiken hittar vad som händer. Tryggt med BankID och Stripe.",
+      "ogDescription": "Sälj biljetter till dina kvällar, checka in i dörren och gör upp med lokalen. Tryggt med BankID och Stripe."
     },
     "nav": {
       "ecosystem": "Ekosystemet",
