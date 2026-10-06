@@ -16,6 +16,7 @@ import { getSaleState } from "@/lib/listings/sale-state";
 import { splitBilingualDescription, buildPreviewDescription } from "@/lib/listings/description";
 import { buildMapsHref } from "@/lib/listings/maps";
 import { canReceivePayments } from "@/lib/payments/beta-gate";
+import { cache } from "react";
 import { safeJsonLd } from "@/lib/json-ld";
 import { pickMessages, PUBLIC_NAMESPACES } from "@/lib/i18n/client-namespaces";
 import { stockholmEventISO } from "@/lib/time";
@@ -62,7 +63,9 @@ interface EventCard {
 // (recurring instances are often created with slug=null), so fall back to the
 // occurrence `id` — getListing() resolves either. Returns null only when the
 // series has no active occurrence at all.
-async function resolveSlugToOccurrence(slug: string): Promise<string | null> {
+// Samma skäl som getListing: både generateMetadata och sidan faller tillbaka
+// hit när en serie-slug ska lösas till rätt kväll.
+const resolveSlugToOccurrence = cache(async (slug: string): Promise<string | null> => {
   const supabase = await createClient();
   const today = new Date().toISOString().slice(0, 10);
   const { data: upcoming } = await supabase
@@ -87,9 +90,20 @@ async function resolveSlugToOccurrence(slug: string): Promise<string | null> {
     .limit(1)
     .maybeSingle();
   return latest ? latest.slug ?? latest.id : null;
-}
+});
 
-async function getListing(slug: string) {
+/**
+ * OBS: cache() per request, inte cachning mellan besökare.
+ *
+ * generateMetadata och själva sidan anropar BÅDA den här funktionen, och Next
+ * kör dem i samma request. Supabase-anrop dedupliceras inte som fetch gör, så
+ * utan cache() kördes hela frågeuppsättningen — annonsen, värden, lokalen,
+ * seriens kvällar och fler produktioner — två gånger per sidvisning.
+ *
+ * cache() ligger i Nexts react-server-build och nollställs mellan requests, så
+ * en besökare kan aldrig få en annans data.
+ */
+const getListing = cache(async (slug: string) => {
   const supabase = await createClient();
   const { data: listing } = await supabase
     .from("listings")
@@ -171,7 +185,7 @@ async function getListing(slug: string) {
     .slice(0, 3);
 
   return { listing, host, venue: venueLink, more, moreDates: (moreDatesRows ?? []) as EventCard[] };
-}
+});
 
 async function getCrew(listingId: string) {
   const admin = createAdminClient(
