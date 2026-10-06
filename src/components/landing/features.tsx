@@ -2,7 +2,7 @@ import { useTranslations } from "next-intl";
 import {
   Sparkles, Ticket, QrCode, Users, ScanLine, Banknote, Radio, BarChart3,
   Fingerprint, CreditCard, Store, Newspaper, CalendarCheck, BookOpen, Gift,
-  KeyRound, Building2, Layers, BellRing, Repeat, Receipt,
+  KeyRound, Building2, Layers, BellRing, Receipt,
   type LucideIcon,
 } from "lucide-react";
 
@@ -12,13 +12,25 @@ import {
 // "Nyhet" är reserverat för det som FAKTISKT är nytt. Crew och gage bar märket
 // sedan i juni; ett nyhetsmärke som aldrig går ut slutar betyda något, så det
 // sitter nu på lokalteam och lokalsidan i stället.
-type Item = { key: string; icon: LucideIcon; isNew?: boolean };
+type Item = { key: string; icon: LucideIcon; isNew?: boolean; tier?: "guld" };
 
+// BORTTAGET UR HERON 2026-10-06: "Betala ditt crew" (gage).
+//
+// Funktionen finns byggd men går inte att använda av någon. Den kräver att
+// BÅDE betalaren och mottagaren har Stripe anslutet OCH att mottagaren har ett
+// verifierat bolag — betagrinden blev skarp 1 oktober. I dag har fem konton
+// Stripe, ett har verifierat bolag (en lokal, inte en crew-medlem), och noll
+// gage-avtal har någonsin skapats.
+//
+// Att betala en gästinstruktör 368 kr tog oss i praktiken två dygn, en extern
+// tjänst och ett nytt konto. Raden låg dessutom i delningsbilden, alltså det
+// FÖRSTA någon ser när länken delas. Den sätts tillbaka den dag flödet
+// fungerar utan förkunskaper.
 const HERO: Item[] = [
   { key: "create", icon: Sparkles },
   { key: "tickets", icon: Ticket },
   { key: "scan", icon: QrCode },
-  { key: "gage", icon: Banknote },
+  { key: "waitlist", icon: BellRing },
 ];
 
 const GROUPS: { heading: string; items: Item[] }[] = [
@@ -27,8 +39,8 @@ const GROUPS: { heading: string; items: Item[] }[] = [
     items: [
       { key: "venueTeam", icon: KeyRound, isNew: true },
       { key: "crew", icon: Users },
-      { key: "delegateScan", icon: ScanLine },
-      { key: "live", icon: Radio },
+      { key: "delegateScan", icon: ScanLine, tier: "guld" },
+      { key: "live", icon: Radio, tier: "guld" },
     ],
   },
   // Det här blocket är skälet att stanna, inte bara att prova: fyra sätt att
@@ -38,8 +50,7 @@ const GROUPS: { heading: string; items: Item[] }[] = [
     heading: "sellMore",
     items: [
       { key: "passes", icon: Layers },
-      { key: "membership", icon: Repeat, isNew: true },
-      { key: "waitlist", icon: BellRing },
+      { key: "courses", icon: BookOpen },
       { key: "settlement", icon: Receipt },
     ],
   },
@@ -58,7 +69,6 @@ const GROUPS: { heading: string; items: Item[] }[] = [
       { key: "marketplace", icon: Store },
       { key: "feed", icon: Newspaper },
       { key: "calendar", icon: CalendarCheck },
-      { key: "courses", icon: BookOpen },
       { key: "rewards", icon: Gift },
     ],
   },
@@ -88,6 +98,14 @@ export function Features() {
               {f.isNew && (
                 <span className="absolute right-3 top-3 rounded-full bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-black">
                   {t("features.newBadge")}
+                </span>
+              )}
+              {/* Kräver Guld. Att visa funktionen utan att säga det vore att
+                  sälja den två gånger — en gång som allmän förmån och en gång
+                  i prislistan. */}
+              {f.tier === "guld" && !f.isNew && (
+                <span className="absolute right-3 top-3 rounded-full border border-[var(--usha-gold)]/40 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[var(--usha-gold)]">
+                  {t("features.goldBadge")}
                 </span>
               )}
               <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--usha-gold)]/20 to-[var(--usha-accent)]/20">
