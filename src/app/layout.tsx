@@ -61,6 +61,13 @@ export async function generateMetadata(): Promise<Metadata> {
       title,
       description: ogDescription,
     },
+    // fb:app_id is what Meta's Sharing Debugger asks for. It is not needed to
+    // render a preview card, but without it the domain gets no insights in
+    // Business Suite. The app id is public by nature (it travels in every
+    // OAuth redirect), unlike FACEBOOK_APP_SECRET which must never land here.
+    ...(process.env.FACEBOOK_APP_ID
+      ? { other: { "fb:app_id": process.env.FACEBOOK_APP_ID } }
+      : {}),
   };
 }
 
