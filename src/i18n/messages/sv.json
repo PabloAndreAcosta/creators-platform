@@ -711,7 +711,8 @@
         "payInsight": "Betalt & insikt",
         "growReach": "Nå ut & väx",
         "sellMore": "Sälj mer än en kväll i taget"
-      }
+      },
+      "goldBadge": "Guld"
     },
     "onboarding": {
       "title": "Kom igång på",
@@ -3812,9 +3813,9 @@
     "free": "Gratis"
   },
   "meta": {
-    "siteTitle": "Usha Platform — Skapa event, sälj biljetter, betala ditt crew",
-    "siteDescription": "Plattformen för kreatörer och upplevelser: skapa event på minuter, sälj biljetter, skanna vid dörren och betala ditt crew — tryggt med BankID och Stripe.",
-    "siteOgDescription": "Skapa event, sälj biljetter, skanna vid dörren och betala ditt crew — allt i en app."
+    "siteTitle": "Usha Platform — Skapa event, sälj biljetter, checka in i dörren",
+    "siteDescription": "Plattformen för kreatörer och upplevelser: skapa event på minuter, sälj biljetter med QR och checka in gästerna i dörren — tryggt med BankID och Stripe.",
+    "siteOgDescription": "Skapa event, sälj biljetter och checka in i dörren — allt i en app."
   },
   "platserPage": {
     "detail": {

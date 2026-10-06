@@ -711,7 +711,8 @@
         "payInsight": "Payments & insight",
         "growReach": "Reach & grow",
         "sellMore": "Sell more than one night at a time"
-      }
+      },
+      "goldBadge": "Gold"
     },
     "onboarding": {
       "title": "Get started in",
@@ -3812,9 +3813,9 @@
     "free": "Free"
   },
   "meta": {
-    "siteTitle": "Usha Platform — Create events, sell tickets, pay your crew",
-    "siteDescription": "The platform for creators and experiences: create events in minutes, sell tickets, scan at the door and pay your crew — secured with BankID and Stripe.",
-    "siteOgDescription": "Create events, sell tickets, scan at the door and pay your crew — all in one app."
+    "siteTitle": "Usha Platform — Create events, sell tickets, check in at the door",
+    "siteDescription": "The platform for creators and experiences: create events in minutes, sell tickets with QR and check guests in at the door — secure with BankID and Stripe.",
+    "siteOgDescription": "Create events, sell tickets and check in at the door — all in one app."
   },
   "platserPage": {
     "detail": {

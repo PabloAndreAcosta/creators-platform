@@ -711,7 +711,8 @@
         "payInsight": "Pagos e información",
         "growReach": "Alcance y crecimiento",
         "sellMore": "Vende más de una noche a la vez"
-      }
+      },
+      "goldBadge": "Gold"
     },
     "onboarding": {
       "title": "Empieza en",
@@ -3812,9 +3813,9 @@
     "free": "Gratis"
   },
   "meta": {
-    "siteTitle": "Usha Platform — Crea eventos, vende entradas, paga a tu equipo",
-    "siteDescription": "La plataforma para creadores y experiencias: crea eventos en minutos, vende entradas, escanea en la puerta y paga a tu equipo, con la seguridad de BankID y Stripe.",
-    "siteOgDescription": "Crea eventos, vende entradas, escanea en la puerta y paga a tu equipo, todo en una app."
+    "siteTitle": "Usha Platform — Crea eventos, vende entradas, registra en la puerta",
+    "siteDescription": "La plataforma para creadores y experiencias: crea eventos en minutos, vende entradas con QR y registra a los asistentes en la puerta, con BankID y Stripe.",
+    "siteOgDescription": "Crea eventos, vende entradas y registra en la puerta: todo en una app."
   },
   "platserPage": {
     "detail": {
