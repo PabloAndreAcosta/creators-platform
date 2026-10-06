@@ -17,6 +17,7 @@ import { splitBilingualDescription, buildPreviewDescription } from "@/lib/listin
 import { buildMapsHref } from "@/lib/listings/maps";
 import { canReceivePayments } from "@/lib/payments/beta-gate";
 import { safeJsonLd } from "@/lib/json-ld";
+import { stockholmEventISO } from "@/lib/time";
 import { getTranslations, getLocale, getMessages } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
 import { SocialShareButton } from "@/components/social-share-button";
@@ -495,21 +496,12 @@ export default async function EventPage(props: Params) {
   // kan läsa maskinellt.
   //
   // Tidszonen skrivs ut (+02:00/+01:00) i stället för att utelämnas: utan
-  // offset tolkas tiden som besökarens lokala, och en kväll 17:00 i Stockholm
-  // blir fel för alla andra.
-  const tzOffset = (() => {
-    const d = new Date(`${listing.event_date}T12:00:00Z`);
-    const namn = new Intl.DateTimeFormat("en-US", {
-      timeZone: "Europe/Stockholm",
-      timeZoneName: "longOffset",
-    }).formatToParts(d).find((x) => x.type === "timeZoneName")?.value;
-    return namn?.replace("GMT", "") || "+01:00";
-  })();
-  const isoStart = listing.event_time
-    ? `${listing.event_date}T${listing.event_time.slice(0, 8)}${tzOffset}`
-    : listing.event_date;
+  // offset tolkas tiden som UTC, och en kväll 17:00 i Stockholm presenteras
+  // som 19:00. Regeln bor i lib/time så att kalendern och seriesidan använder
+  // exakt samma — de hade var sin naiv variant och visade fel tid.
+  const isoStart = stockholmEventISO(listing.event_date, listing.event_time);
   const isoEnd = listing.event_end_time
-    ? `${listing.event_date}T${listing.event_end_time.slice(0, 8)}${tzOffset}`
+    ? stockholmEventISO(listing.event_date, listing.event_end_time)
     : undefined;
 
   // En Offer per biljettyp. Det är hela poängen för en aggregator: "från 50 kr"

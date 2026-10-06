@@ -60,3 +60,32 @@ export function stockholmToday(now: Date = new Date()): string {
     day: "2-digit",
   }).format(now);
 }
+
+/**
+ * Stockholms UTC-offset ("+02:00" / "+01:00") vid ett givet lokalt datum.
+ *
+ * Beräknas vid själva datumet, så sommar- och vintertid blir rätt.
+ */
+export function stockholmOffset(date: string): string {
+  const d = new Date(`${date}T12:00:00Z`);
+  if (isNaN(d.getTime())) return "+01:00";
+  const name = new Intl.DateTimeFormat("en-US", {
+    timeZone: TZ,
+    timeZoneName: "longOffset",
+  })
+    .formatToParts(d)
+    .find((x) => x.type === "timeZoneName")?.value;
+  return name?.replace("GMT", "") || "+01:00";
+}
+
+/**
+ * Evenemangsdatum + klockslag → ISO 8601 MED tidszon, för schema.org.
+ *
+ * Utan offset tolkar konsumenten (Google, Bing, språkmodeller) tiden som UTC,
+ * och en kväll som börjar 17:00 i Stockholm presenteras som 19:00. Saknas
+ * klockslag returneras bara datumet, vilket schema.org tillåter.
+ */
+export function stockholmEventISO(date: string, time?: string | null): string {
+  if (!time) return date;
+  return `${date}T${time.slice(0, 8)}${stockholmOffset(date)}`;
+}

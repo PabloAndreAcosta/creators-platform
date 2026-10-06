@@ -10,6 +10,7 @@ import { fetchUpcomingListings } from "@/lib/calendar/visibility";
 import { bucketFor, groupUpcoming, type CalendarBucket, type CalendarEntry } from "@/lib/calendar/upcoming";
 import { createClient } from "@/lib/supabase/server";
 import { safeJsonLd } from "@/lib/json-ld";
+import { stockholmEventISO } from "@/lib/time";
 import { absoluteUrl } from "@/lib/seo/metadata";
 import { FollowButton } from "@/components/follow-button";
 import { FollowUs } from "@/components/follow-us";
@@ -76,8 +77,8 @@ export default async function KalenderPage() {
       item: {
         "@type": "Event",
         name: e.title,
-        startDate: e.time ? `${e.date}T${e.time}` : e.date,
-        ...(e.endTime ? { endDate: `${e.date}T${e.endTime}` } : {}),
+        startDate: stockholmEventISO(e.date, e.time),
+        ...(e.endTime ? { endDate: stockholmEventISO(e.date, e.endTime) } : {}),
         eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
         eventStatus: "https://schema.org/EventScheduled",
         url: absoluteUrl(e.href),
