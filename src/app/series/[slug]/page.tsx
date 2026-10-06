@@ -2,6 +2,7 @@ export const revalidate = 60; // ISR: revalidate every 60 seconds
 
 import { createClient } from "@/lib/supabase/server";
 import { safeJsonLd } from "@/lib/json-ld";
+import { stockholmEventISO } from "@/lib/time";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -256,11 +257,11 @@ export default async function SeriesPage(props: Props) {
         }
       : {}),
     subEvent: occurrences
-      .filter((o) => o.event_date)
+      .filter((o): o is typeof o & { event_date: string } => !!o.event_date)
       .map((o) => ({
         "@type": "Event",
         name: series.title,
-        startDate: o.event_time ? `${o.event_date}T${o.event_time}` : o.event_date,
+        startDate: stockholmEventISO(o.event_date, o.event_time),
         url: `${appUrl()}/listing/${o.slug || o.id}`,
         ...(o.event_location ? { location: { "@type": "Place", name: o.event_location } } : {}),
       })),
