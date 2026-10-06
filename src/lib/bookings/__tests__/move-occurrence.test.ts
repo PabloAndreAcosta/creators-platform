@@ -86,4 +86,37 @@ describe("blockingReason", () => {
   it("en bokning utan biljettyp kräver ingen matchning", () => {
     expect(blockingReason({ ...bas, ticketTypeName: null })).toBeNull();
   });
+
+  // Avräkningen räknar en kvälls intäkt ur bookings.listing_id, så pengarna
+  // följer med en flytt av sig själva — men en UTBETALD kväll räknas aldrig om.
+  describe("avräknade kvällar", () => {
+    it("nekar flytt FRÅN en utbetald kväll", () => {
+      // Lokalen har redan fått sin andel av biljetten. Räknas målkvällen om
+      // får den andelen igen: dubbelbetalning, tyst, i riktiga pengar.
+      expect(blockingReason({ ...bas, fromSettled: true })).toBe("source_settled");
+    });
+
+    it("nekar flytt TILL en utbetald kväll", () => {
+      // Biljetten landar i en stängd bok och lokalen får aldrig sin andel.
+      expect(blockingReason({ ...bas, toSettled: true })).toBe("target_settled");
+    });
+
+    it("källan vägs före målet när båda är utbetalda", () => {
+      expect(blockingReason({ ...bas, fromSettled: true, toSettled: true })).toBe("source_settled");
+    });
+
+    it("oavräknade kvällar flyttas fritt", () => {
+      expect(blockingReason({ ...bas, fromSettled: false, toSettled: false })).toBeNull();
+    });
+
+    it("avräkningen vägs före slutsålt — pengar före platser", () => {
+      expect(
+        blockingReason({
+          ...bas,
+          ticketTypeName: "Allt: practica + workshop + social",
+          fromSettled: true,
+        })
+      ).toBe("source_settled");
+    });
+  });
 });

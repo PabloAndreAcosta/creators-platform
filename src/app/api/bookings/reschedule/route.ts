@@ -17,6 +17,10 @@ const MOVE_ERRORS: Record<MoveBlock, string> = {
   in_the_past: "Den kvällen har redan varit.",
   no_matching_type: "Biljettypen finns inte på den kvällen.",
   sold_out: "Den kvällen är slutsåld för den biljettypen.",
+  source_settled:
+    "Kvällen är redan avräknad och utbetald till lokalen. Återbetala biljetten och sälj en ny i stället — annars betalas lokalens andel två gånger.",
+  target_settled:
+    "Den kvällen är redan avräknad och utbetald. En biljett som flyttas dit kommer aldrig med i lokalens andel.",
 };
 
 export async function POST(req: NextRequest) {
@@ -114,8 +118,20 @@ export async function POST(req: NextRequest) {
         .select("id, name, capacity, tickets_sold")
         .eq("listing_id", target.id);
 
+      // Är någon av kvällarna redan utbetald? En utbetald kväll räknas aldrig
+      // om, så en flytt över den gränsen ger antingen dubbelbetalning eller en
+      // biljett som aldrig når lokalens andel. Båda tyst, båda i riktiga pengar.
+      const { data: settled } = await admin
+        .from("event_settlement_payouts")
+        .select("listing_id, status")
+        .in("listing_id", [booking.listing_id, target.id])
+        .eq("status", "paid");
+      const paidFor = new Set((settled ?? []).map((r) => r.listing_id));
+
       const qty = booking.guest_count ?? 1;
       const block = blockingReason({
+        fromSettled: paidFor.has(booking.listing_id),
+        toSettled: paidFor.has(target.id),
         from: sourceListing!,
         to: target,
         today: stockholmToday(),
