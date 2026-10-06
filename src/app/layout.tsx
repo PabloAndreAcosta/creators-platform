@@ -61,13 +61,6 @@ export async function generateMetadata(): Promise<Metadata> {
       title,
       description: ogDescription,
     },
-    // fb:app_id is what Meta's Sharing Debugger asks for. It is not needed to
-    // render a preview card, but without it the domain gets no insights in
-    // Business Suite. The app id is public by nature (it travels in every
-    // OAuth redirect), unlike FACEBOOK_APP_SECRET which must never land here.
-    ...(process.env.FACEBOOK_APP_ID
-      ? { other: { "fb:app_id": process.env.FACEBOOK_APP_ID } }
-      : {}),
   };
 }
 
@@ -103,6 +96,14 @@ export default async function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Usha Platform" />
+        {/* fb:app_id must be `property`, not `name`. The Next.js metadata API's
+            `other` field always renders `name=`, which Meta's Open Graph parser
+            ignores — so the tag has to be written by hand here. The app id is
+            public by nature (it travels in every OAuth redirect); the secret
+            must never appear in markup. */}
+        {process.env.FACEBOOK_APP_ID ? (
+          <meta property="fb:app_id" content={process.env.FACEBOOK_APP_ID} />
+        ) : null}
         <script dangerouslySetInnerHTML={{ __html: `
           (function(){
             try {
