@@ -89,6 +89,13 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
   // Ett valt klippkort ersätter biljettvalet: ett kort, en order.
   const [selectedPassId, setSelectedPassId] = useState<string | null>(null);
   const selectedPass = passes.find((p) => p.id === selectedPassId) ?? null;
+  // Klippkorten låg utfällda mellan biljettyperna och köpknappen. Fyra höga
+  // kort betyder att den som bara vill ha en enkelbiljett skrollar förbi dem
+  // varje gång — på mobil hamnade köpknappen under vecket. Hopfällda som
+  // förval, men öppna om ett kort redan är valt (t.ex. via ?tt=).
+  const [passesOpen, setPassesOpen] = useState(!!selectedPassId);
+  // Bästa rabatten säljer sektionen utan att man behöver fälla ut den.
+  const bestDiscount = passes.reduce((m, p) => Math.max(m, p.savings?.percent ?? 0), 0);
   const effectivePrice = selectedPass ? selectedPass.price : selectedType ? selectedType.price : price;
   const typeSoldOut = selectedType && !selectedPass ? soldOut(selectedType) : false;
 
@@ -226,10 +233,42 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
           </button>
         );
       })}
+      {/* Klippkorten bakom en hopfällbar rad. Utfällda tog de fyra kortshöjder
+          mitt i köpflödet, och den som bara ville ha en enkelbiljett fick
+          skrolla förbi allihop. Raden säljer dem i stället med bästa rabatten
+          och antalet. */}
+      {passes.length > 0 && (
+        <button
+          type="button"
+          onClick={() => setPassesOpen((o) => !o)}
+          aria-expanded={passesOpen}
+          className="flex w-full items-center justify-between rounded-xl border border-[var(--usha-border)] px-4 py-3 text-left text-sm text-[var(--usha-white)] transition hover:border-[var(--usha-gold)]/40"
+        >
+          <span className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+            <span className="font-medium">{t("passesHeading")}</span>
+            {bestDiscount > 0 && (
+              <span className="text-xs text-[var(--usha-gold)]">
+                {t("passesSaveUpTo", { percent: bestDiscount })}
+              </span>
+            )}
+          </span>
+          <span className="flex shrink-0 items-center gap-2 text-[var(--usha-muted)]">
+            {/* Valt kort syns även hopfällt — annars försvinner valet ur sikte. */}
+            {selectedPass && !passesOpen && (
+              <span className="max-w-[9rem] truncate text-xs text-[var(--usha-gold)]">
+                {selectedPass.title}
+              </span>
+            )}
+            <span className={`transition-transform ${passesOpen ? "rotate-180" : ""}`} aria-hidden>
+              ▾
+            </span>
+          </span>
+        </button>
+      )}
       {/* Kortets rad staplas i stället för att delas i två kolumner: titlarna
           är långa och biljettspalten smal, så sida vid sida blev titeln fem
           rader hög medan priset svävade i mitten. */}
-      {passes.map((p) => (
+      {passesOpen && passes.map((p) => (
         <button
           type="button"
           key={p.id}

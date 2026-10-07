@@ -2396,7 +2396,9 @@
     "addToCalendar": "Añadir al calendario",
     "openInMaps": "Abrir en Maps",
     "creditApplied": "Tu saldo de bienvenida de {amount} kr está aplicado",
-    "creditMinSpend": "Tienes {amount} kr de saldo de bienvenida — válido desde {min} kr"
+    "creditMinSpend": "Tienes {amount} kr de saldo de bienvenida — válido desde {min} kr",
+    "passesHeading": "Bonos",
+    "passesSaveUpTo": "ahorra hasta un {percent} %"
   },
   "eventErrors": {
     "notReleased": "Las entradas aún no están disponibles.",
