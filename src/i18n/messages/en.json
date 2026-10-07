@@ -2396,7 +2396,9 @@
     "addToCalendar": "Add to calendar",
     "openInMaps": "Open in Maps",
     "creditApplied": "Your {amount} kr welcome credit is applied",
-    "creditMinSpend": "You have {amount} kr in welcome credit — valid from {min} kr"
+    "creditMinSpend": "You have {amount} kr in welcome credit — valid from {min} kr",
+    "passesHeading": "Punch cards",
+    "passesSaveUpTo": "save up to {percent}%"
   },
   "eventErrors": {
     "notReleased": "Tickets have not been released yet.",

@@ -2396,7 +2396,9 @@
     "addToCalendar": "Lägg till i kalendern",
     "openInMaps": "Öppna i Maps",
     "creditApplied": "Ditt välkomstavdrag på {amount} kr är avräknat",
-    "creditMinSpend": "Du har {amount} kr i välkomstavdrag — gäller köp från {min} kr"
+    "creditMinSpend": "Du har {amount} kr i välkomstavdrag — gäller köp från {min} kr",
+    "passesHeading": "Klippkort",
+    "passesSaveUpTo": "spara upp till {percent} %"
   },
   "eventErrors": {
     "notReleased": "Biljetterna har inte släppts än.",
