@@ -32,7 +32,7 @@ export type PayoutRoute = "transfer" | "credit";
 /** Kontant bara till bolag med fungerande Stripe-konto och över gränsen. */
 export function payoutRouteFor(input: {
   sumOre: number;
-  profile: { id?: string; company_verified_at: string | null; stripe_account_id: string | null; stripe_charges_enabled: boolean | null } | null;
+  profile: { id?: string; company_verified_at: string | null; stripe_account_id: string | null; stripe_charges_enabled: boolean | null; stripe_payouts_enabled: boolean | null } | null;
 }): PayoutRoute {
   if (input.sumOre < PAYOUT_MIN_ORE) return "credit";
   const p = input.profile ? { id: input.profile.id ?? "", ...input.profile } : null;
@@ -151,7 +151,7 @@ export async function runAffiliatePayouts(admin: SupabaseClient, now: Date = new
     if (sum <= 0) continue;
     const { data: profile } = await admin
       .from("profiles")
-      .select("company_verified_at, stripe_account_id, stripe_charges_enabled")
+      .select("company_verified_at, stripe_account_id, stripe_charges_enabled, stripe_payouts_enabled")
       .eq("id", profileId)
       .maybeSingle();
     const route = payoutRouteFor({ sumOre: sum, profile: profile ?? null });

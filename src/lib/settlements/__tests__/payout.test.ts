@@ -13,7 +13,7 @@ const okPartner: PartnerPayoutProfile = {
   id: "p1",
   stripe_account_id: "acct_123",
   company_verified_at: "2026-08-01T00:00:00Z",
-  stripe_charges_enabled: true,
+  stripe_charges_enabled: true, stripe_payouts_enabled: true,
 };
 
 describe("isPayoutDue", () => {
@@ -76,7 +76,7 @@ describe("payoutBlockedReason", () => {
   });
 
   it("stoppar konto som inte kan ta emot", () => {
-    expect(payoutBlockedReason({ ...okPartner, stripe_charges_enabled: false })).toMatch(/ta emot/);
+    expect(payoutBlockedReason({ ...okPartner, stripe_charges_enabled: false, stripe_payouts_enabled: false })).toMatch(/ta emot/);
   });
 
   it("stoppar saknad partner", () => {
@@ -165,5 +165,50 @@ describe("isDeferrable", () => {
     expect(isDeferrable({ code: "account_invalid" })).toBe(false);
     expect(isDeferrable(new Error("nätverket dog"))).toBe(false);
     expect(isDeferrable(null)).toBe(false);
+  });
+});
+
+// Grinden mot konton som kan TA EMOT men inte BETALA UT. Bacchi Syre hörde av
+// sig 8 oktober 2026: sju kvällar och 1 980 kr såg utbetalda ut hos oss, men
+// Maria såg ingenting komma in. En Stripe-överföring till ett konto utan
+// bankkonto lyckas och markeras betald — pengarna stannar i mottagarens
+// Stripe-saldo. Innan det här fanns ingen kontroll alls.
+describe("payoutBlockedReason: utbetalning till bank", () => {
+  const ok = {
+    id: "p1",
+    stripe_account_id: "acct_123",
+    company_verified_at: "2026-09-01T00:00:00Z",
+    stripe_charges_enabled: true,
+    stripe_payouts_enabled: true,
+  };
+
+  it("släpper igenom ett konto som både tar emot och betalar ut", () => {
+    expect(payoutBlockedReason(ok)).toBeNull();
+  });
+
+  it("blockerar när kontot inte kan betala ut", () => {
+    expect(payoutBlockedReason({ ...ok, stripe_payouts_enabled: false })).toBe(
+      "partnerns Stripe-konto kan inte betala ut till bank ännu"
+    );
+  });
+
+  it("blockerar när flaggan är osynkad (null) — gissar inte", () => {
+    expect(payoutBlockedReason({ ...ok, stripe_payouts_enabled: null })).toBe(
+      "partnerns Stripe-konto kan inte betala ut till bank ännu"
+    );
+  });
+
+  it("tar-emot-grinden vägs före betala-ut-grinden", () => {
+    // Ett konto som varken kan ta emot eller betala ut ska få det första
+    // skälet, annars pekar felmeddelandet på fel sak att åtgärda.
+    expect(
+      payoutBlockedReason({ ...ok, stripe_charges_enabled: false, stripe_payouts_enabled: false })
+    ).toBe("partnerns Stripe-konto kan inte ta emot ännu");
+  });
+
+  it("bolagsverifiering vägs före båda", () => {
+    expect(
+      payoutBlockedReason({ ...ok, company_verified_at: null, stripe_payouts_enabled: false })
+    ).toBe("partnerns bolag är inte verifierat");
   });
 });
