@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
   const admin = getSupabaseAdmin();
   const { data: profiles, error } = await admin
     .from("profiles")
-    .select("id, stripe_account_id, stripe_card_payments_enabled, stripe_charges_enabled, stripe_details_submitted")
+    .select("id, stripe_account_id, stripe_card_payments_enabled, stripe_charges_enabled, stripe_payouts_enabled, stripe_details_submitted")
     .not("stripe_account_id", "is", null);
 
   if (error) {
@@ -51,12 +51,17 @@ export async function GET(req: NextRequest) {
       const next = {
         stripe_card_payments_enabled: account.capabilities?.card_payments === "active",
         stripe_charges_enabled: !!account.charges_enabled,
+        // Kan kontot BETALA UT? charges_enabled säger bara att det kan ta
+        // emot. En överföring till ett konto utan bankkonto lyckas och
+        // fastnar i mottagarens Stripe-saldo.
+        stripe_payouts_enabled: !!account.payouts_enabled,
         stripe_details_submitted: !!account.details_submitted,
       };
 
       const unchanged =
         next.stripe_card_payments_enabled === p.stripe_card_payments_enabled &&
         next.stripe_charges_enabled === p.stripe_charges_enabled &&
+        next.stripe_payouts_enabled === p.stripe_payouts_enabled &&
         next.stripe_details_submitted === p.stripe_details_submitted;
       if (unchanged) continue;
 

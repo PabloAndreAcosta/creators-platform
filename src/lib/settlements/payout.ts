@@ -52,6 +52,12 @@ export interface PartnerPayoutProfile {
   stripe_account_id: string | null;
   company_verified_at: string | null;
   stripe_charges_enabled: boolean | null;
+  /**
+   * Kan kontot betala ut till bank? Null = osynkat, och då blockerar vi
+   * hellre än gissar. Sätts av connect-sync, account.updated-webhooken och
+   * /api/stripe/connect/status.
+   */
+  stripe_payouts_enabled: boolean | null;
 }
 
 /**
@@ -67,6 +73,13 @@ export function payoutBlockedReason(partner: PartnerPayoutProfile | null | undef
   if (!partner.company_verified_at) return "partnerns bolag är inte verifierat";
   if (!partner.stripe_account_id) return "partnern har inget anslutet Stripe-konto";
   if (!partner.stripe_charges_enabled) return "partnerns Stripe-konto kan inte ta emot ännu";
+  // charges_enabled säger bara att kontot kan TA EMOT. En överföring till ett
+  // konto utan bankkonto, eller med spärrade utbetalningar, LYCKAS i Stripe och
+  // markeras betald hos oss — men pengarna stannar i mottagarens Stripe-saldo
+  // och når aldrig banken. Bacchi hörde av sig 8 oktober efter sju kvällar och
+  // 1 980 kr som såg utbetalda ut på vår sida. Hellre blockerad med skäl än
+  // betald på låtsas.
+  if (!partner.stripe_payouts_enabled) return "partnerns Stripe-konto kan inte betala ut till bank ännu";
   return null;
 }
 

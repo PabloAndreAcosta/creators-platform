@@ -1141,6 +1141,7 @@ export async function POST(req: NextRequest) {
             .update({
               stripe_card_payments_enabled: cardPayments,
               stripe_charges_enabled: !!account.charges_enabled,
+              stripe_payouts_enabled: !!account.payouts_enabled,
               stripe_details_submitted: !!account.details_submitted,
             })
             .eq("stripe_account_id", account.id);
