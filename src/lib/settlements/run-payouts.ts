@@ -9,6 +9,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { passRedemptionRows } from "@/lib/passes/series-pass";
 import { getStripe } from "@/lib/stripe/client";
+import { destinationAccountId } from "./destination";
 import {
   decidePayout,
   isDeferrable,
@@ -29,7 +30,7 @@ export interface PayoutRunResult {
   failed: { listingId: string; title: string; error: string }[];
   totalOre: number;
   /** Kvällar som faktiskt fick pengar den här körningen, för beskedet efteråt. */
-  transfers: { title: string; eventDate: string; amountOre: number; transferId: string; partnerName: string }[];
+  transfers: { title: string; eventDate: string; amountOre: number; transferId: string; partnerName: string; destinationAccountId: string | null }[];
 }
 
 /**
@@ -153,6 +154,10 @@ export async function runSettlementPayouts(now: Date = new Date()): Promise<Payo
         listing_id: listing.id,
         partner_profile_id: partner.id,
         status: live ? "pending" : "dry_run",
+        // Avsedd mottagare. Skrivs redan nu så att även en överföring som
+        // fallerar lämnar spår efter vart den var på väg — det var precis
+        // den frågan vi inte kunde svara Bacchi på.
+        destination_account_id: partner.stripe_account_id ?? null,
         amount_ore: s.partnerOre,
         gross_ore: s.grossOre,
         refunded_ore: s.refundedOre,
@@ -178,6 +183,7 @@ export async function runSettlementPayouts(now: Date = new Date()): Promise<Payo
         .from("event_settlement_payouts")
         .update({
           status: "pending",
+          destination_account_id: partner.stripe_account_id ?? null,
           amount_ore: s.partnerOre,
           gross_ore: s.grossOre,
           refunded_ore: s.refundedOre,
@@ -231,7 +237,15 @@ export async function runSettlementPayouts(now: Date = new Date()): Promise<Payo
 
       await db
         .from("event_settlement_payouts")
-        .update({ status: "paid", stripe_transfer_id: transfer.id, paid_at: new Date().toISOString(), error: null })
+        .update({
+          status: "paid",
+          stripe_transfer_id: transfer.id,
+          // Stripes egen uppgift om mottagaren väger tyngre än vad vi läste
+          // ur profilen — det är den som gäller om de skiljer sig åt.
+          destination_account_id: destinationAccountId(transfer.destination) ?? partner.stripe_account_id ?? null,
+          paid_at: new Date().toISOString(),
+          error: null,
+        })
         .eq("listing_id", listing.id);
 
       result.paid += 1;
@@ -242,6 +256,7 @@ export async function runSettlementPayouts(now: Date = new Date()): Promise<Payo
         amountOre: s.partnerOre,
         transferId: transfer.id,
         partnerName: partner.company_name || partner.full_name || "partner",
+        destinationAccountId: destinationAccountId(transfer.destination) ?? partner.stripe_account_id ?? null,
       });
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e);

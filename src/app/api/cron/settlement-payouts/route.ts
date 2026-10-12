@@ -104,7 +104,11 @@ export async function GET(req: NextRequest) {
             `<td style="padding:6px 10px">${esc(t.title)}</td>` +
             `<td style="padding:6px 10px">${esc(t.partnerName)}</td>` +
             `<td style="padding:6px 10px;text-align:right;white-space:nowrap">${kr(t.amountOre)}</td>` +
-            `<td style="padding:6px 10px;color:#666;font-size:12px">${esc(t.transferId)}</td></tr>`
+            `<td style="padding:6px 10px;color:#666;font-size:12px">${esc(t.transferId)}<br>` +
+            // Mottagarkontot står med sedan Bacchi frågade var 1 980 kr tog
+            // vägen och ingen kunde svara. Nu finns svaret i inkorgen innan
+            // frågan ställs.
+            `${esc(t.destinationAccountId ?? "okänt konto")}</td></tr>`
         ),
         ...result.failed.map(
           (f) =>
@@ -132,6 +136,7 @@ export async function GET(req: NextRequest) {
               `väntar på att pengarna ska bli tillgängliga i Stripe. De tas om i morgon.</p>`
             : "") +
           `<p style="color:#666;font-size:12px">Beloppet är partnerns andel efter moms. ` +
+          `Sista kolumnen är Stripe-överföringen och mottagarkontot. ` +
           `Mejlet skickas bara när något förts över eller misslyckats.</p>`,
       });
 
