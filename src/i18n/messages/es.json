@@ -3982,6 +3982,8 @@
     "receiptSeller": "Vendedor: {name}",
     "receiptOrgNumber": "N.º de empresa: {number}",
     "bookingViewTicket": "Ver tu entrada",
+    "bookingFollowHeading": "¿Quieres saber cuándo sale la próxima noche?",
+    "bookingFollowBody": "En la página de tu entrada puedes elegir recibir un correo cuando {creator} publique algo nuevo. Tú decides, y puedes darte de baja cuando quieras.",
     "bookingCanceledSubject": "Reserva cancelada: {service}",
     "bookingCanceledIntro": "Se ha cancelado una reserva:",
     "bookingCanceledRebook": "Puedes reservar otra hora en la plataforma.",

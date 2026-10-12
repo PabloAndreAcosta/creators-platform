@@ -3982,6 +3982,8 @@
     "receiptSeller": "Säljare: {name}",
     "receiptOrgNumber": "Org.nr: {number}",
     "bookingViewTicket": "Visa din biljett",
+    "bookingFollowHeading": "Vill du veta när nästa kväll släpps?",
+    "bookingFollowBody": "På din biljettsida kan du välja att få ett mejl när {creator} lägger upp något nytt. Du väljer själv, och kan avsluta när du vill.",
     "bookingCanceledSubject": "Bokning avbokad: {service}",
     "bookingCanceledIntro": "En bokning har avbokats:",
     "bookingCanceledRebook": "Du kan boka en ny tid via plattformen.",

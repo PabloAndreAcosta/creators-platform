@@ -50,13 +50,21 @@ export async function POST(req: NextRequest) {
     if (!UUID.test(body.bookingId ?? "")) return NextResponse.json({ error: "invalid_input" }, { status: 400 });
     const { data: booking } = await admin
       .from("bookings")
-      .select("guest_email, creator_id, listing_id, listings(venue_profile_id, venue_confirmed_at)")
+      .select("guest_email, creator_id, listing_id, anonymized_at, listings(venue_profile_id, venue_confirmed_at)")
       .eq("id", body.bookingId!)
       .maybeSingle();
     const listing = (booking as { listings?: { venue_profile_id: string | null; venue_confirmed_at: string | null } | null } | null)?.listings ?? null;
     const allowed = new Set<string>([booking?.creator_id ?? ""]);
     if (listing?.venue_profile_id && listing.venue_confirmed_at) allowed.add(listing.venue_profile_id);
-    if (!booking?.guest_email || normalizeEmail(booking.guest_email) !== email || !allowed.has(followedId)) {
+    // En gallrad bokning bär en platshållaradress. Utan det här villkoret skulle
+    // den adressen gå att "bekräfta" och hamna i följarregistret som en riktig
+    // följare — ett aktivt ja från en person som inte längre finns i raden.
+    if (
+      !booking?.guest_email ||
+      booking.anonymized_at ||
+      normalizeEmail(booking.guest_email) !== email ||
+      !allowed.has(followedId)
+    ) {
       return NextResponse.json({ error: "forbidden" }, { status: 403 });
     }
 

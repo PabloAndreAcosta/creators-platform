@@ -209,6 +209,25 @@ export default function BookingConfirmation({
                             </tr>
                           </tbody>
                         </table>
+
+                        {/* Inbjudan att följa. Knappen som faktiskt skapar
+                            följningen sitter på biljettsidan, bakom gästens egen
+                            kapabilitetslänk — mejlet frågar, det bockar inte i
+                            något åt någon. Tystnad är aldrig ett ja. */}
+                        <table width="100%" cellPadding={0} cellSpacing={0} style={{ marginTop: 28 }}>
+                          <tbody>
+                            <tr>
+                              <td style={{ textAlign: "center" }}>
+                                <p style={{ margin: "0 0 6px", fontSize: 14, fontWeight: 600, color: "#e8e6e3" }}>
+                                  {t("bookingFollowHeading")}
+                                </p>
+                                <p style={{ margin: 0, fontSize: 13, lineHeight: 1.6, color: "#9b9690" }}>
+                                  {t("bookingFollowBody", { creator: creatorName })}
+                                </p>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </td>
                     </tr>
                     <tr>

@@ -3982,6 +3982,8 @@
     "receiptSeller": "Seller: {name}",
     "receiptOrgNumber": "Company reg. no: {number}",
     "bookingViewTicket": "View your ticket",
+    "bookingFollowHeading": "Want to know when the next night goes live?",
+    "bookingFollowBody": "On your ticket page you can choose to get an email when {creator} posts something new. It's your choice, and you can stop any time.",
     "bookingCanceledSubject": "Booking cancelled: {service}",
     "bookingCanceledIntro": "A booking has been cancelled:",
     "bookingCanceledRebook": "You can book a new time on the platform.",
