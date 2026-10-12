@@ -56,6 +56,7 @@
     "tickets": "Entradas",
     "payouts": "Pagos",
     "scan": "Escanear",
+    "followers": "Seguidores",
     "events": "Eventos",
     "sell": "Oferta",
     "venueRequests": "Solicitudes",
@@ -2830,6 +2831,8 @@
     "calendarDesc": "El tuyo y de quienes sigues",
     "scanLabel": "Escanear",
     "scanDesc": "Registrar entradas",
+    "followersLabel": "Seguidores",
+    "followersDesc": "Escribe a quienes te siguen",
     "gigsLabel": "Trabajos",
     "gigsDesc": "Trabajos que publicas y para los que buscas bailarines",
     "eventsLabel": "Eventos",
@@ -4363,5 +4366,14 @@
     "noPermission": "No tienes permiso para vender en la entrada de este evento.",
     "loadError": "No se pudieron cargar las entradas.",
     "connectionLost": "Sin conexión con el servidor."
+  },
+  "followersPage": {
+    "title": "Escribe a tus seguidores",
+    "recipients": "seguidores recibirán el correo",
+    "recipientsShort": "{count} destinatarios",
+    "emptyHeading": "Nadie se ha apuntado todavía",
+    "emptyBody": "Los seguidores llegan cuando alguien lo elige: en tu perfil, en la página de un evento o desde su entrada tras una compra. Nadie acaba aquí solo por haberte comprado algo. Comparte tu perfil y vendrán.",
+    "consentNote": "Todas las personas aquí confirmaron su dirección por correo y pueden darse de baja cuando quieran. Quien te sigue con cuenta recibe avisos en la app, no correos: seguir no es suscribirse.",
+    "pastHeading": "Envíos anteriores"
   }
 }

@@ -4,7 +4,7 @@ import { canAccessListingArea } from "@/lib/venues/listing-access";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
-import { BroadcastForm } from "./broadcast-form";
+import { BroadcastForm } from "@/components/broadcast-form";
 import { getTranslations, getLocale } from "next-intl/server";
 
 export const dynamic = "force-dynamic";
@@ -66,7 +66,7 @@ export default async function BroadcastPage(props: { params: Promise<{ id: strin
       </p>
 
       <div className="mt-6">
-        <BroadcastForm listingId={id} recipientCount={recipientCount} />
+        <BroadcastForm endpoint={`/api/events/${id}/broadcast`} recipientCount={recipientCount} />
       </div>
 
       {past && past.length > 0 && (

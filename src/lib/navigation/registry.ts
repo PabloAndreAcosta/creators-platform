@@ -18,7 +18,8 @@ import {
   Package, CalendarCheck, CalendarDays, ScanLine, Briefcase, BookOpen, Building2,
   Wallet, BarChart3, CreditCard, Tag, Search, Store, FileText, Heart, Trophy,
   ShoppingBag, Ticket, MessageCircle, BookMarked, Gift, Bell, User, Settings,
-  Users, Home, Sparkles, Box, LayoutGrid, KeyRound, Languages, Layers } from "lucide-react";
+  Users, Home, Sparkles, Box, LayoutGrid, KeyRound, Languages, Layers, Mail,
+} from "lucide-react";
 
 /** Kanoniska roller. Se roll-modellen: creator/venue säljer, customer köper. */
 export type NavRole = "customer" | "creator" | "venue";
@@ -99,6 +100,12 @@ export const APP_DESTINATIONS: AppDestination[] = [
   { path: "/app/calendar", labelKey: "calendarLabel", descKey: "calendarDesc", navLabelKey: "calendar", icon: CalendarDays,
     group: "createSell", roles: "all", surfaces: ["more", "sidebar"] },
   { path: "/app/scan", labelKey: "scanLabel", descKey: "scanDesc", navLabelKey: "scan", icon: ScanLine,
+    group: "createSell", roles: ["creator", "venue"], surfaces: ["more", "sidebar"] },
+  // Skriv till dem som följer dig. Utskicket fanns bara per kväll, vilket är
+  // bakvänt: följaren har sagt ja till avsändaren, väntelistan bara till en
+  // kväll. Rutten var byggd men saknade väg in.
+  { path: "/app/followers", labelKey: "followersLabel", descKey: "followersDesc",
+    navLabelKey: "followers", icon: Mail,
     group: "createSell", roles: ["creator", "venue"], surfaces: ["more", "sidebar"] },
   // Bara lokaler: arrangörer som vill koppla sitt evenemang hit. Utan en yta att
   // svara på blir kopplingen aldrig bekräftad, och då når den ingen.

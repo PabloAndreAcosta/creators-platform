@@ -105,10 +105,9 @@ const JOBS = [
   // delats. Måndag morgon, så att veckans fel hinner rättas före helgens
   // kvällar. Mejlar bara när den hittar något.
   { name: "weekly-check", desc: "Veckokontroll av evenemang", atHour: 7, onWeekday: 1 },
-  // Gallringen: gästers namn och mejl skrivs över 180 dagar efter kvällen,
-  // CSP-rapporter raderas efter 30. Lagringsbegränsning är ett krav, och utan
-  // ett jobb blir det aldrig gjort — uppgifter försvinner inte av sig själva.
-  // Kl 03 när ingen handlar, och en gång per dygn räcker gott.
+  // CSP-rapporter raderas efter 30 dagar. De är felsökning, inte underlag, och
+  // växte obegränsat. Gästbokningar rörs inte: namnet på en biljett är vem
+  // biljetten gäller. Kl 03 när ingen handlar.
   { name: "data-retention", desc: "Gallring av gästuppgifter och CSP-rapporter", atHour: 3 },
 ] as const;
 
