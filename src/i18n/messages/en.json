@@ -56,6 +56,7 @@
     "tickets": "Tickets",
     "payouts": "Payouts",
     "scan": "Scan",
+    "followers": "Followers",
     "events": "Events",
     "sell": "Offerings",
     "venueRequests": "Requests",
@@ -2830,6 +2831,8 @@
     "calendarDesc": "Yours & those you follow",
     "scanLabel": "Scan",
     "scanDesc": "Check in tickets",
+    "followersLabel": "Followers",
+    "followersDesc": "Write to the people who follow you",
     "gigsLabel": "Jobs",
     "gigsDesc": "Jobs you post and hire dancers for",
     "eventsLabel": "Events",
@@ -3982,6 +3985,8 @@
     "receiptSeller": "Seller: {name}",
     "receiptOrgNumber": "Company reg. no: {number}",
     "bookingViewTicket": "View your ticket",
+    "bookingFollowHeading": "Want to know when the next night goes live?",
+    "bookingFollowBody": "On your ticket page you can choose to get an email when {creator} posts something new. It's your choice, and you can stop any time.",
     "bookingCanceledSubject": "Booking cancelled: {service}",
     "bookingCanceledIntro": "A booking has been cancelled:",
     "bookingCanceledRebook": "You can book a new time on the platform.",
@@ -4361,5 +4366,14 @@
     "noPermission": "You do not have permission to sell at the door for this event.",
     "loadError": "Could not load the tickets.",
     "connectionLost": "No connection to the server."
+  },
+  "followersPage": {
+    "title": "Write to your followers",
+    "recipients": "followers will get the email",
+    "recipientsShort": "{count} recipients",
+    "emptyHeading": "Nobody has opted in yet",
+    "emptyBody": "Followers appear when someone chooses it themselves — on your profile, on an event page, or from their ticket after a purchase. Nobody lands here just for buying from you. Share your profile and they will come.",
+    "consentNote": "Everyone listed here confirmed their address by email and can stop any time. Account followers get in-app notifications, not emails — a follow click is not a subscription.",
+    "pastHeading": "Past sends"
   }
 }

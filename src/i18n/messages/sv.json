@@ -56,6 +56,7 @@
     "tickets": "Biljetter",
     "payouts": "Utbetalningar",
     "scan": "Skanna",
+    "followers": "Följare",
     "events": "Evenemang",
     "sell": "Utbud",
     "venueRequests": "Förfrågningar",
@@ -2830,6 +2831,8 @@
     "calendarDesc": "Din & följdas",
     "scanLabel": "Skanna",
     "scanDesc": "Checka in biljetter",
+    "followersLabel": "Följare",
+    "followersDesc": "Skriv till dem som följer dig",
     "gigsLabel": "Uppdrag",
     "gigsDesc": "Uppdrag du lägger ut och söker dansare till",
     "eventsLabel": "Evenemang",
@@ -3982,6 +3985,8 @@
     "receiptSeller": "Säljare: {name}",
     "receiptOrgNumber": "Org.nr: {number}",
     "bookingViewTicket": "Visa din biljett",
+    "bookingFollowHeading": "Vill du veta när nästa kväll släpps?",
+    "bookingFollowBody": "På din biljettsida kan du välja att få ett mejl när {creator} lägger upp något nytt. Du väljer själv, och kan avsluta när du vill.",
     "bookingCanceledSubject": "Bokning avbokad: {service}",
     "bookingCanceledIntro": "En bokning har avbokats:",
     "bookingCanceledRebook": "Du kan boka en ny tid via plattformen.",
@@ -4361,5 +4366,14 @@
     "noPermission": "Du har inte behörighet att sälja i entrén för det här eventet.",
     "loadError": "Kunde inte hämta biljetterna.",
     "connectionLost": "Ingen kontakt med servern."
+  },
+  "followersPage": {
+    "title": "Skriv till dina följare",
+    "recipients": "följare får mejlet",
+    "recipientsShort": "{count} mottagare",
+    "emptyHeading": "Ingen har tackat ja än",
+    "emptyBody": "Följare samlas när någon själv väljer det — på din profil, på en eventsida eller från sin biljett efter ett köp. Ingen hamnar här för att de handlat av dig. Dela din profil så kommer de.",
+    "consentNote": "Alla som står här har bekräftat sin adress i ett mejl och kan avsluta när de vill. Kontoföljare får notiser i appen, inte utskick — ett följ-klick är inte en prenumeration.",
+    "pastHeading": "Tidigare utskick"
   }
 }

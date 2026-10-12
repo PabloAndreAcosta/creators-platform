@@ -3,11 +3,18 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
+/**
+ * Skrivfältet för ett utskick. Samma formulär används för en kvälls väntelista
+ * och för kreatörens egna följare — det som skiljer är mottagarna, inte hur man
+ * skriver. Därför tar den emot `endpoint` i stället för ett listing-id.
+ *
+ * Test är alltid första knappen. Ett live-utskick går inte att ta tillbaka.
+ */
 export function BroadcastForm({
-  listingId,
+  endpoint,
   recipientCount,
 }: {
-  listingId: string;
+  endpoint: string;
   recipientCount: number;
 }) {
   const t = useTranslations("hostEvent");
@@ -26,7 +33,7 @@ export function BroadcastForm({
     setBusy(mode);
     setMsg(null);
     try {
-      const res = await fetch(`/api/events/${listingId}/broadcast`, {
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ subject, body, ctaLabel, ctaUrl, mode }),

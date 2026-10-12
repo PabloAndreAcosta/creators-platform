@@ -105,6 +105,10 @@ const JOBS = [
   // delats. Måndag morgon, så att veckans fel hinner rättas före helgens
   // kvällar. Mejlar bara när den hittar något.
   { name: "weekly-check", desc: "Veckokontroll av evenemang", atHour: 7, onWeekday: 1 },
+  // CSP-rapporter raderas efter 30 dagar. De är felsökning, inte underlag, och
+  // växte obegränsat. Gästbokningar rörs inte: namnet på en biljett är vem
+  // biljetten gäller. Kl 03 när ingen handlar.
+  { name: "data-retention", desc: "Gallring av gästuppgifter och CSP-rapporter", atHour: 3 },
 ] as const;
 
 async function runJob(env: Env, path: string): Promise<{ ok: boolean; detail: string }> {
