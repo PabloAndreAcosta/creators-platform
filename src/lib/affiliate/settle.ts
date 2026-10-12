@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getStripe } from "@/lib/stripe/client";
+import { destinationAccountId } from "@/lib/settlements/destination";
 import { payoutBlockedReason, payoutsEnabled } from "@/lib/settlements/payout";
 
 /**
@@ -187,7 +188,18 @@ export async function runAffiliatePayouts(admin: SupabaseClient, now: Date = new
           { amount: sum, currency: "sek", destination: profile!.stripe_account_id!, transfer_group: group, description: `Usha Partner ${period}`, metadata: { period, profile_id: profileId } },
           { idempotencyKey: group }
         ));
-      await admin.from("affiliate_payouts").update({ stripe_transfer_id: transfer.id, paid_at: now.toISOString() }).eq("profile_id", profileId).eq("period", period);
+      await admin
+        .from("affiliate_payouts")
+        .update({
+          stripe_transfer_id: transfer.id,
+          // Samma skäl som i avräkningen: utan mottagarkontot går det inte
+          // att svara på var pengarna hamnade om kontot byts senare.
+          destination_account_id:
+            destinationAccountId(transfer.destination) ?? profile!.stripe_account_id ?? null,
+          paid_at: now.toISOString(),
+        })
+        .eq("profile_id", profileId)
+        .eq("period", period);
       await admin.from("affiliate_rewards").update({ status: "paid", paid_at: now.toISOString(), payout_ref: transfer.id }).in("id", ids);
       result.transferred++; result.totalOre += sum;
     } catch (err) {
