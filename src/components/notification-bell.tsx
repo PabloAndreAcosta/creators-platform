@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { Bell, Check, CheckCheck, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { syncAppBadge } from "@/lib/badge/app-badge";
 import {
   NOTIFICATION_NS,
   renderNotification,
@@ -61,6 +62,9 @@ export function NotificationBell() {
       const data = await res.json();
       setNotifications(data.notifications ?? []);
       setUnreadCount(data.unreadCount ?? 0);
+      // Samma siffra som bjällran visar hamnar på appikonen när appen ligger
+      // på hemskärmen. Tyst no-op i en vanlig flik.
+      syncAppBadge(data.unreadCount ?? 0);
     } catch {
       // ignore
     }
@@ -76,6 +80,8 @@ export function NotificationBell() {
       });
       setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
       setUnreadCount(0);
+      // Ikonen ska slockna direkt, inte vid nästa pollning 30 sekunder senare.
+      syncAppBadge(0);
     } catch {
       // ignore
     } finally {

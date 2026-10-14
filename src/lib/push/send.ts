@@ -53,6 +53,21 @@ export async function sendPushToUser(userId: string, payload: PushPayload): Prom
 
     if (!subs?.length) return;
 
+    // Antal olästa följer med pushen så att siffran på appikonen blir rätt även
+    // när appen är stängd — service workern kan inte fråga sessionen själv.
+    // Misslyckas räkningen skickas pushen utan siffra hellre än inte alls.
+    let badge: number | undefined;
+    try {
+      const { count } = await admin
+        .from("notifications")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .eq("is_read", false);
+      if (typeof count === "number") badge = count;
+    } catch {
+      badge = undefined;
+    }
+
     // One render per distinct language, not per device — a user with three
     // phones on the same language shouldn't cost three formatter runs.
     const bodyByLocale = new Map<string, string>();
@@ -83,6 +98,7 @@ export async function sendPushToUser(userId: string, payload: PushPayload): Prom
         body,
         url: payload.url ?? "/app/notifications",
         tag: payload.tag,
+        badge,
       });
       bodyByLocale.set(cacheKey, json);
       return json;
