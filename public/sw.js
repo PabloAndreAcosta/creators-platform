@@ -1,4 +1,4 @@
-const CACHE_NAME = 'usha-v7';
+const CACHE_NAME = 'usha-v8';
 
 const STATIC_ASSETS = [
   '/',
@@ -120,7 +120,19 @@ self.addEventListener('push', (event) => {
     renotify: !!data.tag,
     data: { url: data.url || '/app/notifications' },
   };
-  event.waitUntil(self.registration.showNotification(title, options));
+  // Siffran på appikonen. Servern räknar olästa och skickar med talet, för
+  // service workern kan inte fråga sessionen. Saknas stödet (vanlig flik,
+  // äldre Safari) händer ingenting — notisen visas ändå.
+  const badgeCount = typeof data.badge === 'number' ? data.badge : null;
+  const tasks = [self.registration.showNotification(title, options)];
+  if (badgeCount !== null && self.navigator && self.navigator.setAppBadge) {
+    tasks.push(
+      badgeCount > 0
+        ? self.navigator.setAppBadge(Math.min(badgeCount, 99)).catch(() => {})
+        : self.navigator.clearAppBadge().catch(() => {})
+    );
+  }
+  event.waitUntil(Promise.all(tasks));
 });
 
 // Tapping a push opens (or focuses) the linked page.

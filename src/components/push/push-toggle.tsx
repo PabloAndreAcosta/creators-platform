@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { BellRing, Loader2 } from "lucide-react";
+import { badgeSupported } from "@/lib/badge/app-badge";
 
 // VAPID public key → Uint8Array for pushManager.subscribe.
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
@@ -14,6 +15,7 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
 }
 
 type State = "loading" | "unsupported" | "unconfigured" | "off" | "on" | "denied" | "busy";
+type TestState = "idle" | "sending" | "sent" | "nosub" | "failed";
 
 /**
  * Toggle for Web Push on this device. Enabling asks the browser for permission,
@@ -23,6 +25,7 @@ type State = "loading" | "unsupported" | "unconfigured" | "off" | "on" | "denied
 export function PushToggle() {
   const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
   const [state, setState] = useState<State>("loading");
+  const [test, setTest] = useState<TestState>("idle");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -82,15 +85,35 @@ export function PushToggle() {
     }
   }, []);
 
+  // Testnotis till en själv. En kanal som aldrig testats är en kanal vi inte
+  // vet fungerar — och en prenumeration kan tystna tyst, månader efter att den
+  // skapades. Knappen gör felvägen synlig på två sekunder.
+  const sendTest = useCallback(async () => {
+    setTest("sending");
+    try {
+      const res = await fetch("/api/push/test", { method: "POST" });
+      if (res.ok) {
+        setTest("sent");
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setTest(data?.error === "no_subscription" ? "nosub" : "failed");
+      }
+    } catch {
+      setTest("failed");
+    }
+  }, []);
+
   // Hide the row entirely where push can't work — keeps settings clean.
   if (state === "loading" || state === "unsupported" || state === "unconfigured") return null;
 
+  const badgeIsSupported = typeof navigator !== "undefined" && badgeSupported(navigator as never);
   const on = state === "on";
   const busy = state === "busy";
   const denied = state === "denied";
 
   return (
-    <div className="flex items-center gap-4 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-4">
+    <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-4">
+      <div className="flex items-center gap-4">
       <BellRing size={20} className="shrink-0 text-[var(--usha-gold)]" />
       <div className="flex-1">
         <p className="text-sm font-medium">Push-notiser på den här enheten</p>
@@ -120,6 +143,26 @@ export function PushToggle() {
           />
         )}
       </button>
+      </div>
+
+      {on && (
+        <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-[var(--usha-border)] pt-3">
+          <button
+            type="button"
+            onClick={sendTest}
+            disabled={test === "sending"}
+            className="rounded-lg border border-[var(--usha-border)] px-3 py-1.5 text-xs font-medium transition hover:border-[var(--usha-gold)]/40 disabled:opacity-50"
+          >
+            {test === "sending" ? "Skickar…" : "Skicka testnotis"}
+          </button>
+          <p className="text-xs text-[var(--usha-muted)]">
+            {test === "sent" && "Skickad. Kommer den inte fram inom någon minut är prenumerationen död — slå av och på igen."}
+            {test === "nosub" && "Ingen enhet är registrerad. Slå av och på igen så skapas prenumerationen om."}
+            {test === "failed" && "Gick inte att skicka. Försök igen om en stund."}
+            {test === "idle" && !badgeIsSupported && "Siffran på appikonen kräver att appen ligger på hemskärmen."}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
