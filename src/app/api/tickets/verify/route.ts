@@ -301,11 +301,14 @@ async function verifySeriesPass(opts: {
   else if (remaining <= 0) status = "already_used";
   else if (!today) status = "wrong_date";
   else {
+    // Bara SKANNADE klipp stänger dörren. Ett manuellt efterregistrerat klipp
+    // (is_manual) flyttar pengar i avräkningen och ska inte hindra entrén.
     const { data: clipped } = await admin
       .from("pass_redemptions")
       .select("id")
       .eq("booking_id", booking.id)
       .eq("listing_id", today.id)
+      .eq("is_manual", false)
       .maybeSingle();
     if (clipped) status = "already_used";
     else {

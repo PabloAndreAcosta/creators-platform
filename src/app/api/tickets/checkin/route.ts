@@ -234,8 +234,9 @@ async function checkInSeriesPass(opts: {
     return NextResponse.json({ success: false, error: t("passExpired") });
   }
 
-  // Ett klipp per kväll: unika nyckeln (booking, tillfälle) är spärren mot
-  // dubbelskanning, oavsett hur många telefoner som står i dörren.
+  // Ett SKANNAT klipp per kväll: det partiella unika indexet (booking,
+  // tillfälle) where not is_manual är spärren mot dubbelskanning, oavsett hur
+  // många telefoner som står i dörren. Manuella klipp ligger utanför det.
   const now = new Date().toISOString();
   const { error: clipError } = await admin
     .from("pass_redemptions")
@@ -247,6 +248,7 @@ async function checkInSeriesPass(opts: {
         .select("redeemed_at")
         .eq("booking_id", booking.id)
         .eq("listing_id", today.id)
+        .eq("is_manual", false)
         .maybeSingle();
       return NextResponse.json({ success: false, alreadyCheckedIn: true, checkedInAt: prev?.redeemed_at ?? now, title });
     }
