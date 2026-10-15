@@ -35,17 +35,30 @@ const isClient = (src: string) => /^\s*["']use client["']/.test(src);
 
 type Walk = { namespaces: Set<string>; rootCalls: string[] };
 
-/** Följ importkedjan från en ingångsfil och samla klientkomponenternas namespace. */
+/**
+ * Följ importkedjan från en ingångsfil och samla klientkomponenternas namespace.
+ *
+ * "use client" markerar GRÄNSEN, inte filen. Allt som en klientkomponent
+ * importerar blir också klientkod, även om det saknar egen direktivrad — så
+ * klient-läget måste ärvas nedåt i kedjan. Testet gjorde tidigare tvärtom och
+ * räknade bara filer med egen rad, vilket gjorde att en checklista utan
+ * direktiv men importerad av en "use client"-sida aldrig syntes här. Den
+ * saknade sitt namespace i produktion och besökaren fick råa nyckelnamn.
+ *
+ * Samma fil kan nås både som server- och klientkod, så besöksmärkningen bär
+ * med sig läget — annars skulle den första vägen dit avgöra för alltid.
+ */
 function walk(entry: string): Walk {
   const seen = new Set<string>();
   const namespaces = new Set<string>();
   const rootCalls: string[] = [];
-  const stack = [entry];
+  const stack: Array<{ file: string; client: boolean }> = [{ file: entry, client: false }];
 
   while (stack.length) {
-    const file = stack.pop()!;
-    if (seen.has(file)) continue;
-    seen.add(file);
+    const { file, client } = stack.pop()!;
+    const mark = `${client ? "c" : "s"}:${file}`;
+    if (seen.has(mark)) continue;
+    seen.add(mark);
 
     let raw: string;
     try {
@@ -54,8 +67,9 @@ function walk(entry: string): Walk {
       continue;
     }
     const src = stripComments(raw);
+    const inClient = client || isClient(raw);
 
-    if (isClient(raw)) {
+    if (inClient) {
       for (const m of src.matchAll(/useTranslations\(\s*["']([A-Za-z0-9_.]+)["']/g)) {
         namespaces.add(m[1].split(".")[0]);
       }
@@ -66,7 +80,7 @@ function walk(entry: string): Walk {
 
     for (const m of src.matchAll(/from\s+["']([^"']+)["']/g)) {
       const r = resolveSpec(m[1], file);
-      if (r && !seen.has(r)) stack.push(r);
+      if (r && !seen.has(`${inClient ? "c" : "s"}:${r}`)) stack.push({ file: r, client: inClient });
     }
   }
   return { namespaces, rootCalls };

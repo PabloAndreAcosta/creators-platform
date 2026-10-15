@@ -1,5 +1,21 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 
+/**
+ * En matchningsanledning som nyckel plus ev. värde, aldrig färdig text.
+ *
+ * Anledningarna var hårdkodad svenska ("Inom 14 dagar", "BankID-verifierad"),
+ * så en besökare med engelska eller spanska valt fick svenska etiketter mitt
+ * i sitt flöde. Samma regel som för notiser och mejl gäller här: servern
+ * skickar nyckel och parametrar, klienten sätter språket.
+ *
+ * `value` bär det som inte går att översätta — ett ortnamn, ett betyg, en
+ * dansstil — och fylls bara i för de nycklar som har ett.
+ */
+export interface MatchReason {
+  key: "style" | "inCity" | "within14" | "bankid" | "rating" | "popular";
+  value?: string;
+}
+
 export interface UserMatch {
   id: string;
   title: string;
@@ -20,7 +36,11 @@ export interface UserMatch {
   };
   bookingCount: number;
   score: number;
-  match_reasons: string[];
+  match_reasons: MatchReason[];
+  /** Seriens id, när kvällen tillhör en serie. Null för fristående utbud. */
+  series_id: string | null;
+  /** Hur många FLER tillfällen i samma serie som flödet slog ihop hit. */
+  more_occurrences: number;
 }
 
 const WEIGHTS = { style: 40, geo: 20, level: 15, recency: 10, trust: 10, pop: 5 };
@@ -67,7 +87,7 @@ export async function getUserMatches(userId: string, limit = 10): Promise<UserMa
 
   const { data: candidates } = await admin
     .from("listings")
-    .select("id, user_id, title, description, category, price, duration_minutes, event_tier, event_date, event_time, event_location, image_url, listing_type, created_at")
+    .select("id, user_id, title, description, category, price, duration_minutes, event_tier, event_date, event_time, event_location, image_url, listing_type, created_at, series_id")
     .eq("is_active", true)
     .eq("is_public", true)
     .limit(120);
@@ -98,17 +118,17 @@ export async function getUserMatches(userId: string, limit = 10): Promise<UserMa
 
   const scored: UserMatch[] = pool.map((l) => {
     const creator = creatorMap.get(l.user_id);
-    const reasons: string[] = [];
+    const reasons: MatchReason[] = [];
 
     // Style (Jaccard of user styles vs the listing's category)
     const listingStyles = new Set<string>([norm(l.category)].filter(Boolean));
     const styleScore = jaccard(userStyles, listingStyles);
-    if (styleScore > 0) reasons.push(pretty(l.category));
+    if (styleScore > 0) reasons.push({ key: "style", value: pretty(l.category) });
 
     // Geo (city-name match; distance decay needs user coords — future)
     let geoScore = 0.3;
     const loc = norm(l.event_location || "");
-    if (userCity && loc && loc.includes(userCity)) { geoScore = 1; reasons.push(`I ${l.event_location}`); }
+    if (userCity && loc && loc.includes(userCity)) { geoScore = 1; reasons.push({ key: "inCity", value: l.event_location ?? "" }); }
 
     // Level (neutral when unknown; slight alignment for courses when user set a level)
     const levelScore = hasSkill && (l.listing_type === "course" || l.listing_type === "kurs") ? 0.6 : 0.4;
@@ -118,18 +138,18 @@ export async function getUserMatches(userId: string, limit = 10): Promise<UserMa
     if (l.event_date) {
       const d = new Date(l.event_date);
       const days = Math.round((d.getTime() - today.getTime()) / 86400_000);
-      if (days >= 0 && days <= 14) { recencyScore = 1; reasons.push("Inom 14 dagar"); }
+      if (days >= 0 && days <= 14) { recencyScore = 1; reasons.push({ key: "within14" }); }
       else if (days > 14 && days <= 30) recencyScore = 0.6;
       else if (days >= 0) recencyScore = 0.45;
     }
 
     // Trust (BankID + good ratings)
     let trustScore = 0;
-    if (creator?.bankid_verified_at) { trustScore += 0.6; reasons.push("BankID-verifierad"); }
+    if (creator?.bankid_verified_at) { trustScore += 0.6; reasons.push({ key: "bankid" }); }
     const ra = ratingAgg.get(l.user_id);
     if (ra && ra.n > 0) {
       const avg = ra.sum / ra.n;
-      if (avg >= 4) { trustScore += 0.4; reasons.push(`${avg.toFixed(1)}★`); }
+      if (avg >= 4) { trustScore += 0.4; reasons.push({ key: "rating", value: avg.toFixed(1) }); }
       else trustScore += 0.15;
     }
     trustScore = Math.min(1, trustScore);
@@ -137,7 +157,7 @@ export async function getUserMatches(userId: string, limit = 10): Promise<UserMa
     // Popularity (log-scaled bookings in last 30d)
     const pop = popMap.get(l.id) ?? 0;
     const popScore = Math.min(1, Math.log(1 + pop) / Math.log(1 + 10));
-    if (pop >= 3) reasons.push("Populärt nu");
+    if (pop >= 3) reasons.push({ key: "popular" });
 
     const score =
       WEIGHTS.style * styleScore +
@@ -164,6 +184,8 @@ export async function getUserMatches(userId: string, limit = 10): Promise<UserMa
       bookingCount: pop,
       score,
       match_reasons: reasons.slice(0, 3),
+      series_id: (l as { series_id?: string | null }).series_id ?? null,
+      more_occurrences: 0,
     };
   });
 
@@ -171,5 +193,65 @@ export async function getUserMatches(userId: string, limit = 10): Promise<UserMa
     b.score !== a.score ? b.score - a.score : new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   );
 
-  return scored.slice(0, limit);
+  return collapseSeries(scored, today).slice(0, limit);
+}
+
+/**
+ * Slå ihop en series tillfällen till EN träff.
+ *
+ * Varje kväll är en egen rad i listings, så en serie med åtta tillfällen kunde
+ * lägga beslag på halva flödet med samma titel om och om igen. Den publika
+ * sidan grupperar redan ("15 okt. · 4 tillfällen till"); rekommendationerna
+ * ärvde ingenting av det.
+ *
+ * Vilket tillfälle som får representera serien avgörs av datumet, inte av
+ * poängen: det är nästa kommande kväll man vill bli erbjuden. Saknar serien
+ * kommande kvällar faller valet på den senast passerade, så att ett äldre
+ * utbud fortfarande går att bläddra fram (gamla kvällar är medvetet kvar).
+ * Gruppen behåller den HÖGSTA poängen bland sina tillfällen, så att
+ * ihopslagningen aldrig trycker ner en serie i rangordningen.
+ *
+ * Fristående utbud utan series_id grupperas aldrig — de är sig själva.
+ */
+export function collapseSeries(matches: readonly UserMatch[], today: Date): UserMatch[] {
+  const groups = new Map<string, UserMatch[]>();
+  const order: string[] = [];
+
+  for (const m of matches) {
+    // Nyckeln måste vara unik för ett fristående utbud, annars skulle alla
+    // utbud utan serie hamna i samma hög och nio av tio försvinna.
+    const key = m.series_id ? `s:${m.series_id}` : `l:${m.id}`;
+    const bucket = groups.get(key);
+    if (bucket) bucket.push(m);
+    else { groups.set(key, [m]); order.push(key); }
+  }
+
+  const out: UserMatch[] = [];
+  for (const key of order) {
+    const bucket = groups.get(key)!;
+    const best = { ...pickOccurrence(bucket, today) };
+    best.score = Math.max(...bucket.map((m) => m.score));
+    best.more_occurrences = bucket.length - 1;
+    out.push(best);
+  }
+
+  // Poängen kan ha lyfts av en syskonkväll, så ordningen måste sättas om.
+  out.sort((a, b) =>
+    b.score !== a.score ? b.score - a.score : new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
+  return out;
+}
+
+/** Nästa kommande tillfälle; annars det senast passerade. */
+function pickOccurrence(bucket: readonly UserMatch[], today: Date): UserMatch {
+  const t = today.getTime();
+  const dated = bucket.filter((m) => m.event_date);
+  if (dated.length === 0) return bucket[0];
+
+  const upcoming = dated
+    .filter((m) => new Date(m.event_date!).getTime() >= t)
+    .sort((a, b) => new Date(a.event_date!).getTime() - new Date(b.event_date!).getTime());
+  if (upcoming.length > 0) return upcoming[0];
+
+  return dated.sort((a, b) => new Date(b.event_date!).getTime() - new Date(a.event_date!).getTime())[0];
 }

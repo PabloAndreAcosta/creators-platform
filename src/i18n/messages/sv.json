@@ -307,7 +307,16 @@
     "emptyTitle": "Berätta vad du dansar",
     "emptyBody": "så hittar vi rätt event för dig",
     "emptyCta": "Kom igång",
-    "editPrefs": "Redigera preferenser"
+    "editPrefs": "Redigera preferenser",
+    "moreOccurrences": "{count, plural, one {# tillfälle till} other {# tillfällen till}}",
+    "reason": {
+      "style": "{value}",
+      "inCity": "I {value}",
+      "within14": "Inom 14 dagar",
+      "bankid": "BankID-verifierad",
+      "rating": "{value}★",
+      "popular": "Populärt nu"
+    }
   },
   "profile": {
     "partner": "Partnerprogram",

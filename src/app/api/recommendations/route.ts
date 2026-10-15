@@ -77,6 +77,8 @@ export async function GET(req: NextRequest) {
       bookingCount: r.bookingCount,
       creator: { id: r.creator.id, name: r.creator.name, avatar: r.creator.avatar },
       match_reasons: r.match_reasons,
+      series_id: r.series_id,
+      more_occurrences: r.more_occurrences,
       score: Math.round(r.score),
     }));
 
