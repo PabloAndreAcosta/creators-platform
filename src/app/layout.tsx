@@ -38,9 +38,16 @@ export async function generateMetadata(): Promise<Metadata> {
     // (Chrome) and the iOS "Add to Home Screen" standalone experience (Safari).
     // Do not re-add `manifest`, `appleWebApp` or `mobile-web-app-capable` here.
     icons: {
+      // Ordningen är medveten. SVG:n först — en webbläsare som klarar den
+      // väljer den och får ett märke som är skarpt i alla storlekar. .ico:n
+      // ligger sist som botten för gamla webbläsare och för de verktyg som
+      // hämtar /favicon.ico rakt av utan att läsa sidans <head>. Den filen
+      // saknades helt tidigare, så varje sådan förfrågan gav 404.
       icon: [
-        { url: "/icon-192.png" },
-        { url: "/icon-light-192.png", media: "(prefers-color-scheme: light)" },
+        { url: "/favicon.svg", type: "image/svg+xml" },
+        { url: "/icon-192.png", type: "image/png", sizes: "192x192" },
+        { url: "/icon-light-192.png", type: "image/png", sizes: "192x192", media: "(prefers-color-scheme: light)" },
+        { url: "/favicon.ico", sizes: "16x16 32x32" },
       ],
       // apple-touch-icon is declared manually in <head> (see RootLayout) so it
       // lands in <head> rather than <body> in production streaming.
