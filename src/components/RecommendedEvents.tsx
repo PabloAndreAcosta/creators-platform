@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Sparkles, Lock, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { isPastEvent } from '@/lib/listings/sale-state';
 import { MatchingOnboardingModal } from '@/components/matching/onboarding-modal';
 
 interface MatchReason {
@@ -204,6 +205,11 @@ function Section({ children, badge }: { children: React.ReactNode; badge?: strin
 function EventCard({ event }: { event: Recommendation }) {
   const t = useTranslations('recommendations');
   const locale = useLocale();
+  // En kväll som redan varit får aldrig en köpknapp. Den ligger kvar i flödet
+  // — gamla kvällar ska gå att bläddra i — men att erbjuda en biljett till den
+  // är ett löfte som inte går att hålla; kassan nekar ändå. Gränsen hämtas ur
+  // sale-state så korten räknar likadant som dörren.
+  const past = isPastEvent(event.event_date, new Date());
   const categoryStyle =
     CATEGORY_COLORS[event.category] ?? 'bg-[var(--usha-gold)]/10 text-[var(--usha-gold)]';
 
@@ -253,8 +259,11 @@ function EventCard({ event }: { event: Recommendation }) {
         {(event.event_date || event.event_location) && (
           <p className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-[var(--usha-muted)]">
             {event.event_date && (
-              <span className="font-medium text-[var(--usha-white)]">{formatEventDate(event.event_date, locale)}</span>
+              <span className={cn('font-medium', past ? 'text-[var(--usha-muted)]' : 'text-[var(--usha-white)]')}>
+                {formatEventDate(event.event_date, locale)}
+              </span>
             )}
+            {past && <span className="text-[var(--usha-muted)]">{t('past')}</span>}
             {event.event_location && <span>{event.event_location}</span>}
             {!!event.more_occurrences && event.more_occurrences > 0 && (
               <span className="text-[var(--usha-gold)]">
@@ -291,19 +300,25 @@ function EventCard({ event }: { event: Recommendation }) {
         </div>
 
         <div className="flex items-center justify-between pt-1">
-          <span className="text-base font-bold text-[var(--usha-white)]">
+          <span className={cn('text-base font-bold', past ? 'text-[var(--usha-muted)]' : 'text-[var(--usha-white)]')}>
             {sek(event.price)} <span className="text-xs text-[var(--usha-muted)] font-normal">SEK</span>
           </span>
+          {/* Samma destination i båda lägena — det är löftet som skiljer:
+              "Boka nu" mot ett neutralt "Visa". */}
           <Button
             size="sm"
-            className="bg-[var(--usha-gold)] hover:bg-[var(--usha-gold-light)] text-black text-xs font-semibold px-4"
+            variant={past ? 'outline' : undefined}
+            className={cn(
+              'text-xs font-semibold px-4',
+              !past && 'bg-[var(--usha-gold)] hover:bg-[var(--usha-gold-light)] text-black'
+            )}
             onClick={() => {
               // Go to the listing detail (resolves by id or slug) — the creator
               // profile route 404s for non-public creators and drops the listing.
               window.location.href = `/listing/${event.id}`;
             }}
           >
-            {t('bookNow')}
+            {past ? t('view') : t('bookNow')}
           </Button>
         </div>
       </div>

@@ -316,7 +316,9 @@
       "bankid": "BankID-verifierad",
       "rating": "{value}★",
       "popular": "Populärt nu"
-    }
+    },
+    "past": "Har varit",
+    "view": "Visa"
   },
   "profile": {
     "partner": "Partnerprogram",
