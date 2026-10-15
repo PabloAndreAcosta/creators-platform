@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { USHA_MARK_PNG } from "./og-logo";
 
 export const runtime = "edge";
 export const alt = "Usha Platform — Skapa event, sälj biljetter, checka in i dörren";
@@ -21,23 +22,15 @@ export default function OpengraphImage() {
           fontFamily: "sans-serif",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 24, marginBottom: 44 }}>
-          <div
-            style={{
-              width: 96,
-              height: 96,
-              borderRadius: 24,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: "linear-gradient(135deg, #c8a445, #ff6b35)",
-              fontSize: 56,
-              fontWeight: 800,
-              color: "#0a0a0b",
-            }}
-          >
-            U
-          </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 28, marginBottom: 44 }}>
+          {/* Det riktiga märket. Här stod tidigare en gradientfyrkant med
+              bokstaven U i systemtypsnitt — en efterlikning av loggan, utan
+              utropstecknet och med fel bokstavsform. Delningskortet är ofta
+              det första någon ser av Usha, så det är inte stället att visa
+              en ungefärlig logga. Botten är genomskinlig och kortet redan
+              mörkt, så märket behöver ingen platta under sig. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={USHA_MARK_PNG} alt="" width={138} height={96} />
           <div style={{ fontSize: 56, fontWeight: 800 }}>Usha Platform</div>
         </div>
         <div style={{ display: "flex", fontSize: 66, fontWeight: 800, lineHeight: 1.05, maxWidth: 1000 }}>
