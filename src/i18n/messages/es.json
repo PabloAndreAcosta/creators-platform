@@ -307,7 +307,16 @@
     "emptyTitle": "Cuéntanos qué bailas",
     "emptyBody": "y encontraremos los eventos ideales para ti",
     "emptyCta": "Empezar",
-    "editPrefs": "Editar preferencias"
+    "editPrefs": "Editar preferencias",
+    "moreOccurrences": "{count, plural, one {# fecha más} other {# fechas más}}",
+    "reason": {
+      "style": "{value}",
+      "inCity": "En {value}",
+      "within14": "En 14 días",
+      "bankid": "Verificado con BankID",
+      "rating": "{value}★",
+      "popular": "Popular ahora"
+    }
   },
   "profile": {
     "partner": "Programa de partners",

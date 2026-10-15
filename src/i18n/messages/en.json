@@ -307,7 +307,16 @@
     "emptyTitle": "Tell us what you dance",
     "emptyBody": "and we will find the right events for you",
     "emptyCta": "Get started",
-    "editPrefs": "Edit preferences"
+    "editPrefs": "Edit preferences",
+    "moreOccurrences": "{count, plural, one {# more date} other {# more dates}}",
+    "reason": {
+      "style": "{value}",
+      "inCity": "In {value}",
+      "within14": "Within 14 days",
+      "bankid": "BankID verified",
+      "rating": "{value}★",
+      "popular": "Popular now"
+    }
   },
   "profile": {
     "partner": "Partner programme",

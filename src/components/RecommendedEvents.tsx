@@ -1,12 +1,17 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Sparkles, Lock, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { MatchingOnboardingModal } from '@/components/matching/onboarding-modal';
+
+interface MatchReason {
+  key: string;
+  value?: string;
+}
 
 interface Recommendation {
   id: string;
@@ -17,7 +22,12 @@ interface Recommendation {
   category: string;
   eventTier: string;
   bookingCount: number;
-  match_reasons?: string[];
+  match_reasons?: MatchReason[];
+  /** Kvällens datum. API:et har alltid skickat det — kortet ritade det aldrig. */
+  event_date?: string | null;
+  event_location?: string | null;
+  /** Hur många fler tillfällen i samma serie som slogs ihop till det här kortet. */
+  more_occurrences?: number;
 }
 
 type State =
@@ -28,6 +38,17 @@ type State =
 
 function sek(amount: number): string {
   return amount.toLocaleString('sv-SE');
+}
+
+/**
+ * "15 okt." i användarens språk. Datumet lagras som ren kalenderdag, så det
+ * tolkas lokalt (T00:00) och aldrig via UTC — annars hamnar en kväll på fel
+ * dag för alla öster om Greenwich.
+ */
+function formatEventDate(date: string, locale?: string): string {
+  const d = new Date(`${date}T00:00`);
+  if (Number.isNaN(d.getTime())) return date;
+  return d.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -182,6 +203,7 @@ function Section({ children, badge }: { children: React.ReactNode; badge?: strin
 
 function EventCard({ event }: { event: Recommendation }) {
   const t = useTranslations('recommendations');
+  const locale = useLocale();
   const categoryStyle =
     CATEGORY_COLORS[event.category] ?? 'bg-[var(--usha-gold)]/10 text-[var(--usha-gold)]';
 
@@ -225,12 +247,29 @@ function EventCard({ event }: { event: Recommendation }) {
           {event.title}
         </h3>
 
+        {/* Datum och plats. Utan dem gick det inte att se VILKEN kväll kortet
+            gällde — och med seriegrupperingen står nu också hur många fler
+            tillfällen serien har, precis som på den publika sidan. */}
+        {(event.event_date || event.event_location) && (
+          <p className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-[var(--usha-muted)]">
+            {event.event_date && (
+              <span className="font-medium text-[var(--usha-white)]">{formatEventDate(event.event_date, locale)}</span>
+            )}
+            {event.event_location && <span>{event.event_location}</span>}
+            {!!event.more_occurrences && event.more_occurrences > 0 && (
+              <span className="text-[var(--usha-gold)]">
+                {t('moreOccurrences', { count: event.more_occurrences })}
+              </span>
+            )}
+          </p>
+        )}
+
         {/* Match reasons — transparency builds trust */}
         {event.match_reasons && event.match_reasons.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {event.match_reasons.map((r) => (
-              <span key={r} className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-[10px] font-medium text-[var(--usha-gold)]">
-                {r}
+              <span key={r.key + (r.value ?? '')} className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-[10px] font-medium text-[var(--usha-gold)]">
+                {t(`reason.${r.key}`, { value: r.value ?? '' })}
               </span>
             ))}
           </div>
