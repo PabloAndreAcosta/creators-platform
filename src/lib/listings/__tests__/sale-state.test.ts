@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getSaleState, type SaleInput } from "../sale-state";
+import { getSaleState, type SaleInput, isPastEvent } from "../sale-state";
 
 // Annas konfiguration: förköp 11 juli 11:00 → 14 juli 11:00 (Stockholm, UTC+2),
 // publikt släpp 10 aug. Ord. pris 333, förköp 222.
@@ -128,5 +128,38 @@ describe("getSaleState — passerade event", () => {
     const r = getSaleState({ price: 333 }, at("2030-01-01T00:00:00Z"));
     expect(r.state).toBe("on_sale");
     expect(r.buyable).toBe(true);
+  });
+});
+
+/**
+ * isPastEvent — samma gräns som getSaleState, nu exporterad för ytor som bara
+ * har ett datum att gå på (rekommendationskorten). Regeln får finnas på ett
+ * enda ställe, annars räknar en yta förr eller senare annorlunda än dörren.
+ */
+describe("isPastEvent", () => {
+  it("är falsk under hela eventdagen, även sent på kvällen", () => {
+    // 23:30 svensk tid på eventdagen — kvällen pågår.
+    expect(isPastEvent("2026-10-15", new Date("2026-10-15T21:30:00Z"))).toBe(false);
+  });
+
+  it("är sann efter midnatt svensk tid", () => {
+    // 00:30 den 16:e svensk tid = 22:30 UTC den 15:e (CEST, UTC+2).
+    expect(isPastEvent("2026-10-15", new Date("2026-10-15T22:30:00Z"))).toBe(true);
+  });
+
+  it("är falsk för datumlösa poster, till exempel tjänster", () => {
+    expect(isPastEvent(null, new Date("2030-01-01T00:00:00Z"))).toBe(false);
+    expect(isPastEvent(undefined, new Date("2030-01-01T00:00:00Z"))).toBe(false);
+  });
+
+  it("är falsk för en kommande kväll", () => {
+    expect(isPastEvent("2026-12-24", new Date("2026-10-15T12:00:00Z"))).toBe(false);
+  });
+
+  it("säger samma sak som getSaleState", () => {
+    const now = new Date("2026-10-16T10:00:00Z");
+    const past = getSaleState({ price: 100, event_date: "2026-10-15" }, now);
+    expect(past.state).toBe("past");
+    expect(isPastEvent("2026-10-15", now)).toBe(true);
   });
 });

@@ -316,7 +316,9 @@
       "bankid": "BankID verified",
       "rating": "{value}★",
       "popular": "Popular now"
-    }
+    },
+    "past": "Has passed",
+    "view": "View"
   },
   "profile": {
     "partner": "Partner programme",

@@ -41,6 +41,21 @@ function endOfEventDay(event_date: string | null | undefined): Date | null {
   return iso ? new Date(iso) : null;
 }
 
+/**
+ * Har kvällen varit? Samma gräns som getSaleState använder för "past":
+ * midnatt efter eventdagen i svensk tid, så ett pågående event aldrig
+ * stängs av i förtid. Datumlösa poster (tjänster) har aldrig varit.
+ *
+ * Exporterad för ytor som bara har ett datum att gå på och inte hela
+ * försäljningsbilden — rekommendationskorten, till exempel. Regeln ska
+ * finnas på ETT ställe; en yta som räknar ut "passerat" på egen hand
+ * kommer förr eller senare att räkna annorlunda än dörren.
+ */
+export function isPastEvent(event_date: string | null | undefined, now: Date): boolean {
+  const endsAt = endOfEventDay(event_date);
+  return !!endsAt && now > endsAt;
+}
+
 export function getSaleState(listing: SaleInput, now: Date): SaleResult {
   const price = listing.price ?? 0;
   const ebStart = asDate(listing.early_bird_start);
@@ -54,8 +69,7 @@ export function getSaleState(listing: SaleInput, now: Date): SaleResult {
   //    Passerade event ska ligga kvar och gå att bläddra i, men inte säljas.
   //    Gränsen är midnatt efter eventdagen (svensk tid), så ett pågående event
   //    aldrig stängs av i förtid. Tjänster utan event_date berörs inte.
-  const endsAt = endOfEventDay(listing.event_date);
-  if (endsAt && now > endsAt) {
+  if (isPastEvent(listing.event_date, now)) {
     return { state: "past", buyable: false, price, until: null };
   }
 
