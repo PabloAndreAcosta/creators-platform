@@ -78,6 +78,14 @@ const JOBS = [
   // det gör det inte om jobbet kör vid lunch. Körningen är idempotent
   // (UNIQUE(listing_id)), så att båda schemana pingar den är ofarligt.
   { name: "settlement-payouts", desc: "Avräkning mot partner för kvällar som varit" },
+  // Måste ligga EFTER settlement-payouts. Jobben körs sekventiellt i den här
+  // ordningen, och en komplettering bygger på att kvällens ordinarie avräkning
+  // redan är betald — kördes den först skulle den hoppa över kvällen och
+  // mellanskillnaden vänta ett dygn i onödan.
+  //
+  // Ingen atHour: en kväll som rättas mitt på dagen ska inte behöva vänta till
+  // natten. Körningen är idempotent och tyst när allt är i balans.
+  { name: "settlement-supplements", desc: "Efterbetalning när en avräknad kväll ändrats" },
   // Betanivåerna delades ut utan betalning och med slutdatum 2099. De bär
   // påhittade Stripe-id, så ingen webhook kan nedgradera dem — utan det här
   // jobbet löper de vidare efter betan utan att någon valt att betala. En gång
