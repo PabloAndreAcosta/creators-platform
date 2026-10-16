@@ -5,6 +5,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { canScanListing } from "@/lib/scan-access";
 import { isAdminById } from "@/lib/admin/check";
 import { buildEntryBuyUrl } from "@/lib/entry/buy-url";
+import { createLateCheckoutSession } from "@/lib/tickets/late-checkout";
+import { getStripeLocale } from "@/lib/i18n/stripe-locale";
 
 /**
  * QR-koden gästen scannar i dörren.
@@ -27,7 +29,9 @@ export async function GET(
   const admin = createAdminClient();
   const { data: listing } = await admin
     .from("listings")
-    .select("id, slug, user_id")
+    .select(
+      "id, slug, user_id, title, price, event_date, event_time, series_slug, service_fee_mode"
+    )
     .eq("id", listingId)
     .maybeSingle();
   if (!listing) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -53,11 +57,48 @@ export async function GET(
     ticketTypeId = tt.id;
   }
 
-  const url = buildEntryBuyUrl({
-    appUrl: process.env.NEXT_PUBLIC_APP_URL || "https://usha.se",
-    slug: listing.slug,
-    ticketTypeId,
-  });
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";
+
+  // EFTERKÖP: kvällen har varit, och gästen ska betala för den ändå.
+  //
+  // Den publika sidan nekar ett passerat event, och det ska den göra. Därför
+  // pekar koden här rakt in i Stripe i stället: betalningen skapas på
+  // serversidan av någon som stod i dörren, och gästen möter aldrig grinden.
+  // Fönstret kontrolleras i createLateCheckoutSession, inte här.
+  let url: string | null;
+  if (req.nextUrl.searchParams.get("efterkop") === "1") {
+    const { data: creator } = await admin
+      .from("profiles")
+      .select(
+        "stripe_account_id, stripe_card_payments_enabled, is_usha_owned_seller, " +
+          "company_name, org_number, full_name, company_verified_at, tier, creator_subcategory, terms_url"
+      )
+      .eq("id", listing.user_id)
+      .maybeSingle();
+    if (!creator) return NextResponse.json({ error: "Event not found" }, { status: 404 });
+
+    let tt: { id: string; name: string; price: number } | null = null;
+    if (ticketTypeId) {
+      const { data } = await admin
+        .from("ticket_types")
+        .select("id, name, price")
+        .eq("id", ticketTypeId)
+        .maybeSingle();
+      tt = (data as { id: string; name: string; price: number } | null) ?? null;
+    }
+
+    const result = await createLateCheckoutSession({
+      listing: listing as unknown as Parameters<typeof createLateCheckoutSession>[0]["listing"],
+      creator: creator as unknown as Parameters<typeof createLateCheckoutSession>[0]["creator"],
+      ticketType: tt,
+      appUrl,
+      locale: await getStripeLocale(),
+    });
+    if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status });
+    url = result.url;
+  } else {
+    url = buildEntryBuyUrl({ appUrl, slug: listing.slug, ticketTypeId });
+  }
   if (!url) return NextResponse.json({ error: "Event saknar publik sida" }, { status: 400 });
 
   // Stor och feltolerant: koden läses på en telefonskärm i dörrljus, ofta i
@@ -72,7 +113,12 @@ export async function GET(
   return new NextResponse(new Uint8Array(png), {
     headers: {
       "Content-Type": "image/png",
-      "Cache-Control": "private, max-age=300",
+      // Ett efterköp är en FÄRSK betalningslänk varje gång. Cachas den kan
+      // nästa gäst få upp föregående gästs session.
+      "Cache-Control":
+        req.nextUrl.searchParams.get("efterkop") === "1"
+          ? "private, no-store"
+          : "private, max-age=300",
     },
   });
 }

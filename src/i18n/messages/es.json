@@ -4376,7 +4376,9 @@
     "seats": "{n} plazas",
     "noPermission": "No tienes permiso para vender en la entrada de este evento.",
     "loadError": "No se pudieron cargar las entradas.",
-    "connectionLost": "Sin conexión con el servidor."
+    "connectionLost": "Sin conexión con el servidor.",
+    "lateOpen": "Esa noche ya pasó. Esto es un pago posterior — el invitado paga por esa noche, no por esta.",
+    "lateClosed": "El plazo de pago posterior ya cerró para esa noche."
   },
   "followersPage": {
     "title": "Escribe a tus seguidores",
