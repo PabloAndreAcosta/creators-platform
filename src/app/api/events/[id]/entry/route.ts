@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { canScanListing } from "@/lib/scan-access";
+import { efterkopLage } from "@/lib/tickets/late-purchase";
 import { isAdminById } from "@/lib/admin/check";
 
 /**
@@ -70,8 +71,18 @@ export async function GET(
 
   const { data: sales } = await salesQuery;
 
+  // Efterköpsläget avgörs på SERVERN, inte av entréenhetens klocka. En telefon
+  // som går några minuter fel skulle annars antingen stänga fönstret för
+  // tidigt eller visa det när det faktiskt gått ut.
+  const lage = efterkopLage(listing.event_date, new Date());
+
   return NextResponse.json({
     listing: { id: listing.id, title: listing.title, slug: listing.slug, isActive: listing.is_active },
+    efterkop: {
+      oppet: lage.kind === "oppet",
+      stangerVid: lage.kind === "oppet" ? lage.stangerVid.toISOString() : null,
+      stangt: lage.kind === "stangt",
+    },
     ticketTypes: ticketTypes ?? [],
     sales: sales ?? [],
     now: new Date().toISOString(),

@@ -185,8 +185,13 @@ export async function POST(req: NextRequest) {
         if (session.metadata?.type === "guest_ticket") {
           const listingId = session.metadata.listingId;
           const creatorId = session.metadata.creatorId;
-          const guestEmail = session.metadata.guestEmail;
-          const guestName = session.metadata.guestName || null;
+          // Adressen kommer normalt från vår egen kassa. Vid ett EFTERKÖP finns
+          // den inte: värden skapar betalningen utan att känna gästens adress,
+          // och Stripe frågar gästen själv. Då ligger den i customer_details.
+          // Utan den här reservvägen hade bokningen tyst uteblivit och gästen
+          // betalat utan att få någon biljett.
+          const guestEmail = session.metadata.guestEmail || session.customer_details?.email || null;
+          const guestName = session.metadata.guestName || session.customer_details?.name || null;
           const amountPaid = session.amount_total;
           const paymentIntentId = (session.payment_intent as string) || null;
 

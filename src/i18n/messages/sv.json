@@ -4376,7 +4376,9 @@
     "seats": "{n} platser",
     "noPermission": "Du har inte behörighet att sälja i entrén för det här eventet.",
     "loadError": "Kunde inte hämta biljetterna.",
-    "connectionLost": "Ingen kontakt med servern."
+    "connectionLost": "Ingen kontakt med servern.",
+    "lateOpen": "Kvällen har varit. Det här är ett efterköp — gästen betalar för kvällen som var, inte för ikväll.",
+    "lateClosed": "Efterköpsfönstret har stängt för den här kvällen."
   },
   "followersPage": {
     "title": "Skriv till dina följare",

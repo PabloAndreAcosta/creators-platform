@@ -1,0 +1,209 @@
+/**
+ * Kassan för ett efterköp: betalning för en kväll som redan varit.
+ *
+ * Skild från den publika gästkassan med flit. Den publika vägen SKA neka ett
+ * passerat event — det är den spärren som hindrar att någon köper sig in på
+ * något som inte finns kvar, och den rörs inte här. I stället skapas sessionen
+ * på serversidan, av någon som faktiskt stod i dörren, och QR-koden pekar rakt
+ * in i Stripe. Gästen möter alltså aldrig den publika grinden.
+ *
+ * Konsekvensen är värd att säga rakt ut: efterköpet kan inte nås av en gäst på
+ * egen hand. Det är avsikten. Länken finns bara så länge värden visar den.
+ */
+
+import type Stripe from "stripe";
+import { stripe } from "@/lib/stripe/client";
+import { getCreatorCommissionRate } from "@/lib/stripe/commission";
+import { computeServiceFeeOre, serviceFeeMode } from "@/lib/tickets/service-fee";
+import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
+import {
+  resolvePayeeFlow,
+  buildConnectPaymentIntentData,
+  buildPaymentMetadata,
+  buildTermsCustomText,
+  type PayeeContext,
+} from "@/lib/stripe/checkout";
+import { efterkopLage } from "./late-purchase";
+
+export interface LateCheckoutListing {
+  id: string;
+  title: string;
+  price: number | null;
+  user_id: string;
+  event_date: string | null;
+  event_time: string | null;
+  series_slug: string | null;
+  service_fee_mode: string | null;
+}
+
+export interface LateCheckoutTicketType {
+  id: string;
+  name: string;
+  price: number;
+}
+
+export interface LateCheckoutCreator {
+  stripe_account_id: string | null;
+  stripe_card_payments_enabled: boolean | null;
+  is_usha_owned_seller: boolean | null;
+  company_name: string | null;
+  org_number: string | null;
+  full_name: string | null;
+  company_verified_at: string | null;
+  tier: string | null;
+  creator_subcategory?: string | null;
+  terms_url?: string | null;
+}
+
+export type LateCheckoutResult =
+  | { ok: true; url: string; amountOre: number }
+  | { ok: false; status: number; error: string };
+
+/**
+ * Skapar betalningen för ett efterköp.
+ *
+ * Fönstret kontrolleras HÄR och inte bara i gränssnittet. Anroparen har redan
+ * vägt av vem som får be om det här; den här funktionen vaktar vad som är
+ * rimligt att be om.
+ */
+export async function createLateCheckoutSession(args: {
+  listing: LateCheckoutListing;
+  creator: LateCheckoutCreator;
+  ticketType: LateCheckoutTicketType | null;
+  appUrl: string;
+  locale?: Stripe.Checkout.SessionCreateParams.Locale;
+  now?: Date;
+}): Promise<LateCheckoutResult> {
+  const { listing, creator, ticketType, appUrl } = args;
+  const now = args.now ?? new Date();
+
+  const lage = efterkopLage(listing.event_date, now);
+  if (lage.kind !== "oppet") {
+    return {
+      ok: false,
+      status: 403,
+      error:
+        lage.kind === "stangt"
+          ? "Efterköpsfönstret har stängt för den här kvällen."
+          : "Kvällen har inte varit ännu — använd den vanliga försäljningen.",
+    };
+  }
+
+  const payee: PayeeContext = {
+    id: listing.user_id,
+    stripe_account_id: creator.stripe_account_id,
+    card_payments_enabled: creator.stripe_card_payments_enabled ?? false,
+    is_usha_owned_seller: creator.is_usha_owned_seller ?? false,
+    company_name: creator.company_name ?? null,
+    org_number: creator.org_number ?? null,
+    full_name: creator.full_name ?? null,
+  };
+  const flow = resolvePayeeFlow(payee);
+
+  if (flow === "third_party") {
+    if (!creator.stripe_account_id) {
+      return { ok: false, status: 400, error: "Kreatören har inget anslutet Stripe-konto." };
+    }
+    if (!canReceivePayments({ id: listing.user_id, company_verified_at: creator.company_verified_at })) {
+      return { ok: false, status: 403, error: PAYMENTS_BETA_BLOCKED_MESSAGE };
+    }
+  }
+
+  const price = ticketType ? ticketType.price : (listing.price ?? 0);
+  const amountInOre = Math.round(price * 100);
+  if (amountInOre <= 0) {
+    return { ok: false, status: 400, error: "Biljetten saknar pris." };
+  }
+
+  const commissionRate = getCreatorCommissionRate(
+    creator.tier ?? "gratis",
+    creator.creator_subcategory ?? null
+  );
+  const applicationFee = Math.round(amountInOre * commissionRate);
+  const feeMode = serviceFeeMode(listing.service_fee_mode);
+  const serviceFee = computeServiceFeeOre(amountInOre, 1);
+
+  const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
+    {
+      price_data: {
+        currency: "sek",
+        product_data: {
+          name: ticketType ? `${listing.title} – ${ticketType.name}` : listing.title,
+          // Kvällens datum i produktnamnet, inte bara i vår metadata. Gästen
+          // ska kunna se på Stripe-sidan och på kortutdraget VILKEN kväll hen
+          // betalar för — annars ser ett efterköp ut som en dubbeldebitering.
+          description: listing.event_date ? `Efterköp för kvällen ${listing.event_date}` : undefined,
+        },
+        unit_amount: amountInOre,
+      },
+      quantity: 1,
+    },
+  ];
+  if (serviceFee > 0 && feeMode === "buyer") {
+    lineItems.push({
+      price_data: { currency: "sek", product_data: { name: "Serviceavgift" }, unit_amount: serviceFee },
+      quantity: 1,
+    });
+  }
+
+  const customText = buildTermsCustomText(creator.terms_url ?? null);
+  const paymentIntentData = buildConnectPaymentIntentData({
+    flow,
+    payee,
+    applicationFeeOre: applicationFee + serviceFee,
+    metadata: buildPaymentMetadata({
+      flow,
+      payee,
+      eventId: listing.id,
+      eventDate: listing.event_date,
+      seriesSlug: listing.series_slug,
+      termsUrl: creator.terms_url ?? null,
+    }),
+  });
+
+  const session = await stripe.checkout.sessions.create({
+    ...(args.locale ? { locale: args.locale } : {}),
+    // Ingen customer_email: värden känner inte nödvändigtvis gästens adress,
+    // och att skriva in den åt någon annan är ett sätt att stava fel. Stripe
+    // frågar gästen själv, och webhooken plockar adressen ur customer_details.
+    line_items: lineItems,
+    mode: "payment",
+    // Kortare än den vanliga halvtimmen. Koden visas på en skärm i en lokal,
+    // och en session som lever kvar efter att värden gått därifrån är en
+    // betalningslänk på vift.
+    expires_at: Math.floor(now.getTime() / 1000) + 15 * 60,
+    ...(paymentIntentData ? { payment_intent_data: paymentIntentData } : {}),
+    ...(customText ? { custom_text: customText } : {}),
+    automatic_tax: { enabled: true },
+    success_url: `${appUrl}/biljett/klar?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${appUrl}/flode`,
+    metadata: {
+      // Samma typ som ett vanligt gästköp: webhooken ska skapa bokningen på
+      // precis samma sätt, på DEN HÄR kvällen. Då räknas den med i kvällens
+      // statistik, och den kompletterande avräkningen ser till att partnerns
+      // andel går iväg trots att kvällen redan reglerats.
+      type: "guest_ticket",
+      flow,
+      listingId: listing.id,
+      creatorId: listing.user_id,
+      guestName: "",
+      latePurchase: "true",
+      serviceFeeOre: String(serviceFee),
+      serviceFeeMode: feeMode,
+      platformFeeOre: String(applicationFee + serviceFee),
+      ticketTypeId: ticketType?.id ?? "",
+      ticketTypeName: ticketType?.name ?? "",
+      quantity: "1",
+      // Inget `reserved`: platsen har inte reserverats i förväg, så webhooken
+      // ska räkna upp biljetträknaren som vanligt. Kvällen är passerad och
+      // kapaciteten spelar ingen roll längre — men siffran ska stämma.
+      eventDate: listing.event_date || "",
+      eventTime: listing.event_time || "",
+    },
+  });
+
+  if (!session.url) {
+    return { ok: false, status: 502, error: "Stripe gav ingen betalningslänk." };
+  }
+  return { ok: true, url: session.url, amountOre: amountInOre + (feeMode === "buyer" ? serviceFee : 0) };
+}

@@ -47,6 +47,13 @@ export default function EntrancePage() {
   const [types, setTypes] = useState<TicketType[]>([]);
   const [selected, setSelected] = useState<TicketType | null>(null);
   const [sales, setSales] = useState<Sale[]>([]);
+  // Efterköpsläget kommer från servern. Entréenhetens egen klocka får inte
+  // avgöra om fönstret är öppet — se entry-rutten.
+  const [efterkop, setEfterkop] = useState<{ oppet: boolean; stangerVid: string | null; stangt: boolean }>({
+    oppet: false,
+    stangerVid: null,
+    stangt: false,
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -68,6 +75,7 @@ export default function EntrancePage() {
         setError(null);
         setTitle(data.listing.title);
         setTypes(data.ticketTypes);
+        if (data.efterkop) setEfterkop(data.efterkop);
         if (poll) {
           if (data.sales.length > 0) setSales((prev) => [...data.sales, ...prev].slice(0, 8));
         } else {
@@ -119,6 +127,20 @@ export default function EntrancePage() {
         <p className="mt-4 rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400">{error}</p>
       )}
 
+      {/* Kvällen har varit. Värden måste veta att det här INTE är vanlig
+          entréförsäljning, utan en betalning för något som redan hänt — annars
+          är det lätt att tro att man sålt en biljett till ikväll. */}
+      {efterkop.oppet && (
+        <p className="mt-4 rounded-lg border border-[var(--usha-gold)]/40 bg-[var(--usha-gold)]/10 px-3 py-2 text-sm text-[var(--usha-gold)]">
+          {t("lateOpen")}
+        </p>
+      )}
+      {efterkop.stangt && (
+        <p className="mt-4 rounded-lg border border-[var(--usha-border)] px-3 py-2 text-sm text-[var(--usha-muted)]">
+          {t("lateClosed")}
+        </p>
+      )}
+
       {!selected ? (
         <>
           <p className="mt-6 text-sm text-[var(--usha-muted)]">{t("pickTicket")}</p>
@@ -132,7 +154,7 @@ export default function EntrancePage() {
               <button
                 key={tt.id}
                 onClick={() => setSelected(tt)}
-                disabled={soldOut(tt)}
+                disabled={soldOut(tt) || efterkop.stangt}
                 className="flex w-full items-center justify-between rounded-xl border border-[var(--usha-border)] p-4 text-left transition hover:border-[var(--usha-gold)]/60 disabled:opacity-40"
               >
                 <span className="font-medium">{tt.name}</span>
@@ -148,7 +170,7 @@ export default function EntrancePage() {
           <div className="rounded-2xl bg-white p-4">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={`/api/events/${id}/entry/qr?tt=${encodeURIComponent(selected.id)}`}
+              src={`/api/events/${id}/entry/qr?tt=${encodeURIComponent(selected.id)}${efterkop.oppet ? "&efterkop=1" : ""}`}
               alt={t("qrAlt", { ticket: selected.name })}
               className="mx-auto block h-auto w-full max-w-[320px]"
             />
