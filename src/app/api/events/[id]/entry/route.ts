@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { canScanListing } from "@/lib/scan-access";
+import { canOperateEntrance } from "@/lib/scan-access";
 import { efterkopLage } from "@/lib/tickets/late-purchase";
-import { isAdminById } from "@/lib/admin/check";
 
 /**
  * Underlaget för entréförsäljningen: vilka biljetter som går att sälja, och
@@ -37,11 +36,9 @@ export async function GET(
     .maybeSingle();
   if (!listing) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const allowed =
-    listing.user_id === user.id ||
-    (await isAdminById(user.id)) ||
-    (await canScanListing(admin, user.id, listingId));
-  if (!allowed) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  if (!(await canOperateEntrance(admin, user.id, listing))) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   const { data: ticketTypes } = await admin
     .from("ticket_types")

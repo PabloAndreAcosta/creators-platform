@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { ArrowLeft, Loader2, CheckCircle2, RefreshCw } from "lucide-react";
+import { ArrowLeft, Loader2, CheckCircle2, RefreshCw, Link2, Check } from "lucide-react";
 
 /**
  * Entréförsäljning utan kortläsare.
@@ -49,6 +49,8 @@ export default function EntrancePage() {
   const [sales, setSales] = useState<Sale[]>([]);
   // Efterköpsläget kommer från servern. Entréenhetens egen klocka får inte
   // avgöra om fönstret är öppet — se entry-rutten.
+  // Länkknappen: "idle" → "hamtar" → "kopierad" (eller ett fel).
+  const [lank, setLank] = useState<"idle" | "hamtar" | "kopierad" | "fel">("idle");
   const [efterkop, setEfterkop] = useState<{ oppet: boolean; stangerVid: string | null; stangt: boolean }>({
     oppet: false,
     stangerVid: null,
@@ -101,6 +103,40 @@ export default function EntrancePage() {
   }, [load]);
 
   const soldOut = (tt: TicketType) => tt.capacity != null && tt.tickets_sold >= tt.capacity;
+
+  /**
+   * Hämtar en betallänk och lägger den i urklipp.
+   *
+   * Länken skapas FÖRST när knappen trycks, inte när sidan laddas. En
+   * betalningslänk som ligger och väntar i gränssnittet är en länk som kan
+   * hamna fel, och den har dessutom hunnit bli gammal när någon väl behöver
+   * den.
+   */
+  const kopieraLank = useCallback(async () => {
+    if (!selected) return;
+    setLank("hamtar");
+    try {
+      const res = await fetch(
+        `/api/events/${id}/entry/efterkop-lank?tt=${encodeURIComponent(selected.id)}`,
+        { method: "POST" }
+      );
+      if (!res.ok) { setLank("fel"); return; }
+      const data = await res.json();
+      // Skrivningen till urklipp kan nekas (saknad behörighet, osäker kontext).
+      // Då är länken ändå hämtad, så den visas i klartext att markera för hand
+      // i stället för att bara misslyckas.
+      try {
+        await navigator.clipboard.writeText(data.url);
+        setLank("kopierad");
+      } catch {
+        window.prompt(t("lateCopyManual"), data.url);
+        setLank("kopierad");
+      }
+      setTimeout(() => setLank("idle"), 4000);
+    } catch {
+      setLank("fel");
+    }
+  }, [id, selected, t]);
 
   if (loading) {
     return (
@@ -179,6 +215,30 @@ export default function EntrancePage() {
             {selected.name} · {t("priceSek", { price: selected.price })}
           </p>
           <p className="mt-1 text-center text-sm text-[var(--usha-muted)]">{t("guestScans")}</p>
+
+          {/* Bara vid efterköp. På en pågående kväll står gästen framför dig
+              och ska scanna — en länk att skicka vore en omväg. */}
+          {efterkop.oppet && (
+            <>
+              <button
+                onClick={kopieraLank}
+                disabled={lank === "hamtar"}
+                className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium transition hover:border-[var(--usha-gold)]/60 disabled:opacity-50"
+              >
+                {lank === "hamtar" ? (
+                  <Loader2 size={15} className="animate-spin" />
+                ) : lank === "kopierad" ? (
+                  <Check size={15} className="text-green-400" />
+                ) : (
+                  <Link2 size={15} />
+                )}
+                {lank === "kopierad" ? t("lateCopied") : t("lateCopyLink")}
+              </button>
+              <p className="mt-2 text-center text-xs text-[var(--usha-muted)]">
+                {lank === "fel" ? t("lateCopyError") : t("lateLinkHint")}
+              </p>
+            </>
+          )}
 
           <button
             onClick={() => setSelected(null)}

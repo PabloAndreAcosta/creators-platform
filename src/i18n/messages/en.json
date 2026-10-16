@@ -4378,7 +4378,12 @@
     "loadError": "Could not load the tickets.",
     "connectionLost": "No connection to the server.",
     "lateOpen": "This night has passed. This is a late payment — the guest pays for that night, not tonight.",
-    "lateClosed": "The late-payment window has closed for this night."
+    "lateClosed": "The late-payment window has closed for this night.",
+    "lateCopyLink": "Copy payment link",
+    "lateCopied": "Link copied",
+    "lateCopyError": "Could not get the link. Try again.",
+    "lateCopyManual": "Copy the link here:",
+    "lateLinkHint": "The link is valid for one hour. Send it to the guest who forgot to pay."
   },
   "followersPage": {
     "title": "Write to your followers",

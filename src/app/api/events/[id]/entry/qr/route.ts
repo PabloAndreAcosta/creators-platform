@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import QRCode from "qrcode";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { canScanListing } from "@/lib/scan-access";
-import { isAdminById } from "@/lib/admin/check";
+import { canOperateEntrance } from "@/lib/scan-access";
 import { buildEntryBuyUrl } from "@/lib/entry/buy-url";
 import { createLateCheckoutSession } from "@/lib/tickets/late-checkout";
 import { getStripeLocale } from "@/lib/i18n/stripe-locale";
@@ -36,11 +35,9 @@ export async function GET(
     .maybeSingle();
   if (!listing) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const allowed =
-    listing.user_id === user.id ||
-    (await isAdminById(user.id)) ||
-    (await canScanListing(admin, user.id, listingId));
-  if (!allowed) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  if (!(await canOperateEntrance(admin, user.id, listing))) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   // Biljettypen måste tillhöra det här eventet. Annars kunde en giltig
   // entrévärd få fram en kod som säljer någon annans biljett.
