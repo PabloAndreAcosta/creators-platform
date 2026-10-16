@@ -24,7 +24,7 @@ import {
   type PayeeContext,
 } from "@/lib/stripe/checkout";
 import { efterkopLage } from "./late-purchase";
-import { paymentMethodConfigParam } from "@/lib/stripe/method-config";
+import { excludedPaymentMethodsParam } from "@/lib/stripe/method-config";
 
 export interface LateCheckoutListing {
   id: string;
@@ -194,8 +194,8 @@ export async function createLateCheckoutSession(args: {
 
   const session = await stripe.checkout.sessions.create({
     ...(args.locale ? { locale: args.locale } : {}),
-    // Klarna bara över gränsen — se lib/stripe/method-config.
-    ...paymentMethodConfigParam(totalOre),
+    // Klarna döljs under gränsen — se lib/stripe/method-config.
+    ...excludedPaymentMethodsParam(totalOre),
     // Ingen customer_email: värden känner inte nödvändigtvis gästens adress,
     // och att skriva in den åt någon annan är ett sätt att stava fel. Stripe
     // frågar gästen själv, och webhooken plockar adressen ur customer_details.
