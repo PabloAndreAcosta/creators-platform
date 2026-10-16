@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { efterkopLage, efterkopOppet, EFTERKOP_FONSTER_TIMMAR } from "../late-purchase";
+import { sessionLivslangdMinuter } from "../late-checkout";
 
 /**
  * Efterköpsfönstret.
@@ -80,5 +81,37 @@ describe("efterkopOppet", () => {
 describe("fönstret", () => {
   it("är ett dygn", () => {
     expect(EFTERKOP_FONSTER_TIMMAR).toBe(24);
+  });
+});
+
+/**
+ * Sessionens livslängd.
+ *
+ * Första versionen av efterköpet bad Stripe om 15 minuter. Stripe accepterar
+ * bara 30 minuter till 24 timmar, så koden hade fallerat i det ögonblick en
+ * gäst faktiskt skulle betala — och felet var osynligt i både typkontroll och
+ * bygge. Därför har gränsen egna test.
+ */
+describe("sessionLivslangdMinuter", () => {
+  it("lyfter för korta värden till Stripes minimum", () => {
+    expect(sessionLivslangdMinuter(15)).toBe(30);
+    expect(sessionLivslangdMinuter(1)).toBe(30);
+    expect(sessionLivslangdMinuter(0)).toBe(30);
+    expect(sessionLivslangdMinuter(-5)).toBe(30);
+  });
+
+  it("låter rimliga värden passera", () => {
+    expect(sessionLivslangdMinuter(30)).toBe(30);
+    expect(sessionLivslangdMinuter(60)).toBe(60);
+  });
+
+  it("kapar vid ett dygn", () => {
+    expect(sessionLivslangdMinuter(10_000)).toBe(1440);
+  });
+
+  it("faller tillbaka på minimum när inget anges", () => {
+    expect(sessionLivslangdMinuter(undefined)).toBe(30);
+    expect(sessionLivslangdMinuter(NaN)).toBe(30);
+    expect(sessionLivslangdMinuter(Infinity)).toBe(30);
   });
 });

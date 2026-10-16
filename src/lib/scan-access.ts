@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { hasVenueCapabilityForListing } from "@/lib/venues/listing-access";
+import { isAdminById } from "@/lib/admin/check";
 
 const PAID_TIERS = new Set(["guld", "premium"]);
 // Account roles that count as creator/experience (both EN + SV spellings exist).
@@ -43,4 +44,27 @@ export async function canScanListing(
   if (data) return true;
 
   return hasVenueCapabilityForListing(admin, userId, listingId, "scan");
+}
+
+/**
+ * Får `userId` sköta entrén för kvällen — alltså sälja i dörren, visa
+ * QR-koder och skapa efterköp?
+ *
+ * Ägaren, en admin eller en crew-medlem med can_scan. Kontrollen låg tidigare
+ * utskriven på varje ruta som behövde den, i identiska kopior. En
+ * säkerhetskontroll som finns på tre ställen är en kontroll som förr eller
+ * senare skiljer sig åt på ett av dem, och just den här avgör vem som kan ta
+ * betalt i Ushas namn.
+ *
+ * Kräver en service-role-klient: RLS på listing_collaborators släpper bara
+ * igenom värden och personen själv.
+ */
+export async function canOperateEntrance(
+  admin: SupabaseClient,
+  userId: string,
+  listing: { id: string; user_id: string }
+): Promise<boolean> {
+  if (listing.user_id === userId) return true;
+  if (await isAdminById(userId)) return true;
+  return canScanListing(admin, userId, listing.id);
 }

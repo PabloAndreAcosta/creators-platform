@@ -4378,7 +4378,12 @@
     "loadError": "Kunde inte hämta biljetterna.",
     "connectionLost": "Ingen kontakt med servern.",
     "lateOpen": "Kvällen har varit. Det här är ett efterköp — gästen betalar för kvällen som var, inte för ikväll.",
-    "lateClosed": "Efterköpsfönstret har stängt för den här kvällen."
+    "lateClosed": "Efterköpsfönstret har stängt för den här kvällen.",
+    "lateCopyLink": "Kopiera betallänk",
+    "lateCopied": "Länken är kopierad",
+    "lateCopyError": "Länken kunde inte hämtas. Försök igen.",
+    "lateCopyManual": "Kopiera länken här:",
+    "lateLinkHint": "Länken gäller i en timme. Skicka den till gästen som glömde betala."
   },
   "followersPage": {
     "title": "Skriv till dina följare",

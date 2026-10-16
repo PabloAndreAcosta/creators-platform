@@ -4378,7 +4378,12 @@
     "loadError": "No se pudieron cargar las entradas.",
     "connectionLost": "Sin conexión con el servidor.",
     "lateOpen": "Esa noche ya pasó. Esto es un pago posterior — el invitado paga por esa noche, no por esta.",
-    "lateClosed": "El plazo de pago posterior ya cerró para esa noche."
+    "lateClosed": "El plazo de pago posterior ya cerró para esa noche.",
+    "lateCopyLink": "Copiar enlace de pago",
+    "lateCopied": "Enlace copiado",
+    "lateCopyError": "No se pudo obtener el enlace. Inténtalo de nuevo.",
+    "lateCopyManual": "Copia el enlace aquí:",
+    "lateLinkHint": "El enlace vale una hora. Envíalo al invitado que olvidó pagar."
   },
   "followersPage": {
     "title": "Escribe a tus seguidores",

@@ -55,8 +55,25 @@ export interface LateCheckoutCreator {
   terms_url?: string | null;
 }
 
+/**
+ * Hur länge betalningen får leva, i minuter.
+ *
+ * Stripe accepterar bara `expires_at` mellan 30 minuter och 24 timmar efter
+ * att sessionen skapats. Första versionen av efterköpet bad om 15 minuter —
+ * vettigt för en kod på en skärm, men Stripe avvisar det, och felet syntes
+ * inte förrän någon faktiskt skulle betala. Därför klamras värdet här, och
+ * därför är det en egen funktion med egna test i stället för ett uttryck
+ * inuti ett anrop ingen kan köra utan Stripe.
+ */
+export function sessionLivslangdMinuter(onskad: number | undefined): number {
+  const STRIPE_MIN = 30;
+  const STRIPE_MAX = 24 * 60;
+  if (!Number.isFinite(onskad ?? NaN)) return STRIPE_MIN;
+  return Math.min(Math.max(Math.round(onskad as number), STRIPE_MIN), STRIPE_MAX);
+}
+
 export type LateCheckoutResult =
-  | { ok: true; url: string; amountOre: number }
+  | { ok: true; url: string; amountOre: number; expiresAt: string }
   | { ok: false; status: number; error: string };
 
 /**
@@ -72,10 +89,21 @@ export async function createLateCheckoutSession(args: {
   ticketType: LateCheckoutTicketType | null;
   appUrl: string;
   locale?: Stripe.Checkout.SessionCreateParams.Locale;
+  /**
+   * Hur länge betalningen går att slutföra.
+   *
+   * Kort för en kod på en skärm i en lokal: en session som lever kvar sedan
+   * värden gått därifrån är en betalningslänk på vift. Längre när länken
+   * skickas till någon som inte står bredvid — då ska hen hinna öppna
+   * meddelandet och betala i lugn och ro.
+   */
+  expiresInMinutes?: number;
   now?: Date;
 }): Promise<LateCheckoutResult> {
   const { listing, creator, ticketType, appUrl } = args;
   const now = args.now ?? new Date();
+
+  const minuter = sessionLivslangdMinuter(args.expiresInMinutes);
 
   const lage = efterkopLage(listing.event_date, now);
   if (lage.kind !== "oppet") {
@@ -168,10 +196,7 @@ export async function createLateCheckoutSession(args: {
     // frågar gästen själv, och webhooken plockar adressen ur customer_details.
     line_items: lineItems,
     mode: "payment",
-    // Kortare än den vanliga halvtimmen. Koden visas på en skärm i en lokal,
-    // och en session som lever kvar efter att värden gått därifrån är en
-    // betalningslänk på vift.
-    expires_at: Math.floor(now.getTime() / 1000) + 15 * 60,
+    expires_at: Math.floor(now.getTime() / 1000) + minuter * 60,
     ...(paymentIntentData ? { payment_intent_data: paymentIntentData } : {}),
     ...(customText ? { custom_text: customText } : {}),
     automatic_tax: { enabled: true },
@@ -205,5 +230,10 @@ export async function createLateCheckoutSession(args: {
   if (!session.url) {
     return { ok: false, status: 502, error: "Stripe gav ingen betalningslänk." };
   }
-  return { ok: true, url: session.url, amountOre: amountInOre + (feeMode === "buyer" ? serviceFee : 0) };
+  return {
+    ok: true,
+    url: session.url,
+    amountOre: amountInOre + (feeMode === "buyer" ? serviceFee : 0),
+    expiresAt: new Date(now.getTime() + minuter * 60_000).toISOString(),
+  };
 }
