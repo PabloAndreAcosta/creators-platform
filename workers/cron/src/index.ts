@@ -86,6 +86,10 @@ const JOBS = [
   // Ingen atHour: en kväll som rättas mitt på dagen ska inte behöva vänta till
   // natten. Körningen är idempotent och tyst när allt är i balans.
   { name: "settlement-supplements", desc: "Efterbetalning när en avräknad kväll ändrats" },
+  // Varje timme, utan atHour: en gäst som betalat och inte fått någon biljett
+  // står ofta kvar i dörren. Ett dygns fördröjning vore meningslöst.
+  // Kontrollen är tyst när allt stämmer och larmar en gång per betalning.
+  { name: "orphan-payments", desc: "Betalningar som inte blivit biljetter" },
   // Betanivåerna delades ut utan betalning och med slutdatum 2099. De bär
   // påhittade Stripe-id, så ingen webhook kan nedgradera dem — utan det här
   // jobbet löper de vidare efter betan utan att någon valt att betala. En gång
