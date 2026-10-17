@@ -29,6 +29,11 @@ const PRIVATA_YTOR = [
   "/waitlist/",
   "/data-deletion/",
   "/onboarding",
+  // Dörrlänken är inget innehåll — den SKAPAR en betalning och skickar
+  // besökaren till Stripe. En crawler som följer den myntar en session per
+  // hämtning. Den hör alltså hemma här av ett helt annat skäl än de övriga:
+  // inte för att skydda uppgifter, utan för att adressen gör något.
+  "/dorr/",
 ];
 
 /**

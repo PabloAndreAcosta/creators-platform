@@ -37,11 +37,19 @@ export async function POST(req: NextRequest) {
     // let, inte const: main justerar antalet nedåt när potten inte räcker.
     let qty = clampQuantity(quantity);
 
-    if (!listingId || !email) {
-      return NextResponse.json(
-        { error: "listingId and email are required" },
-        { status: 400 }
-      );
+    // Mejladressen krävs INTE längre för ett betalt köp.
+    //
+    // Stripe frågar efter den på sin egen sida, så vårt fält var en dubblett —
+    // och det var den dubbletten som stod mellan gästen och Apple Pay-knappen.
+    // Att skriva en adress på en telefon i en mörk lokal tog en halv minut och
+    // gav felstavningar. Webhooken hämtar adressen ur customer_details när vår
+    // metadata saknar den.
+    //
+    // Gratisbiljetter är undantaget: där finns ingen Stripe-sida som kan fråga,
+    // och utan adress går biljetten ingenstans. Kravet ligger därför kvar i den
+    // grenen, där det hör hemma.
+    if (!listingId) {
+      return NextResponse.json({ error: "listingId is required" }, { status: 400 });
     }
 
     const supabase = await createClient();
@@ -99,6 +107,11 @@ export async function POST(req: NextRequest) {
 
     // Free tickets — create booking directly
     if (!effectivePrice || effectivePrice <= 0) {
+      // Ingen Stripe-sida som kan fråga: utan adress har vi ingenstans att
+      // skicka biljetten, och ingen duplikatspärr heller.
+      if (!email) {
+        return NextResponse.json({ error: "email is required for free tickets" }, { status: 400 });
+      }
       const { createClient: createAdmin } = await import("@supabase/supabase-js");
       const admin = createAdmin(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -298,7 +311,10 @@ export async function POST(req: NextRequest) {
     try {
       session = await stripe.checkout.sessions.create({
         locale: stripeLocale,
-        customer_email: email,
+        // Bara när vi råkar ha den (inloggad gäst som fyllt i, eller en
+        // gratisbiljett som växlat till betald). Utelämnad låter Stripe fråga
+        // själv, och plånböckerna fyller i den utan ett enda tecken.
+        ...(email ? { customer_email: email } : {}),
         // Klarna bara över gränsen — se lib/stripe/method-config.
         ...paymentMethodConfigParam(amountInOre * qty + (feeMode === "buyer" ? serviceFee : 0)),
         line_items: lineItems,
@@ -322,7 +338,7 @@ export async function POST(req: NextRequest) {
           flow,
           listingId: listing.id,
           creatorId: listing.user_id,
-          guestEmail: email,
+          guestEmail: email ?? "",
           guestName: name || "",
           serviceFeeOre: String(serviceFee),
           serviceFeeMode: feeMode,

@@ -417,7 +417,44 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
     </p>
   ) : null;
 
-  // Logged-out: guest checkout — buy with just an email, no account required.  // Logged-out: guest checkout — buy with just an email, no account required.
+  // Utloggad gäst.
+  //
+  // För ett BETALT köp frågar vi inte längre efter mejladress och namn. Stripe
+  // gör det på sin egen sida, så fälten var en dubblett — och det var den
+  // dubbletten som stod mellan gästen och Apple Pay-knappen. I dörren, på en
+  // telefon i dunkelt ljus, kostade den en halv minut och gav felstavningar.
+  // Med plånbok fylls adressen i utan ett enda tecken.
+  //
+  // GRATISBILJETTER är undantaget: där finns ingen Stripe-sida som kan fråga,
+  // och utan adress har biljetten ingenstans att ta vägen.
+  if (!isFree) {
+    return (
+      <div className="space-y-2">
+        {headerBlock}
+        {picker}
+        {qtyStepper}
+        {nameInputs}
+        {accountPrompt}
+        <button
+          type="button"
+          disabled={loading || typeSoldOut}
+          onClick={() =>
+            checkout("/api/stripe/guest-checkout", {
+              listingId: selectedPass?.id ?? listingId,
+              ticketTypeId: selectedPass ? undefined : selectedTypeId || undefined,
+              quantity: effectiveQty,
+              attendeeNames,
+            })
+          }
+          className={BTN}
+        >
+          {loading ? <Loader2 size={20} className="animate-spin" /> : <Ticket size={20} />}
+          {loading ? t("booking") : label}
+        </button>
+      </div>
+    );
+  }
+
   return (
     <form
       onSubmit={(e) => {
@@ -428,8 +465,6 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
     >
       {headerBlock}
       {picker}
-      {qtyStepper}
-      {nameInputs}
       {accountPrompt}
       <input
         type="email"
