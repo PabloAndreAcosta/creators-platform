@@ -26,25 +26,26 @@ describe("paymentMethodConfigFor", () => {
     expect(m.paymentMethodConfigParam(5_000)).toEqual({});
   });
 
-  it("väljer uppsättningen utan Klarna på biljettpriserna", async () => {
+  it("väljer uppsättningen utan Klarna på allt under tusen", async () => {
     process.env.STRIPE_PMC_WITHOUT_KLARNA = "pmc_test";
     const m = await LADDA();
     expect(m.paymentMethodConfigFor(5_000)).toBe("pmc_test");   // 50 kr practica
     expect(m.paymentMethodConfigFor(20_000)).toBe("pmc_test");  // 200 kr allt
+    expect(m.paymentMethodConfigFor(60_000)).toBe("pmc_test");  // 600 kr klippkort
   });
 
-  it("låter standarden gälla på klippkorten", async () => {
+  it("låter standarden gälla från tusen kronor", async () => {
     process.env.STRIPE_PMC_WITHOUT_KLARNA = "pmc_test";
     const m = await LADDA();
-    expect(m.paymentMethodConfigFor(60_000)).toBeUndefined();   // 600 kr
-    expect(m.paymentMethodConfigFor(100_000)).toBeUndefined();  // 1 000 kr
+    expect(m.paymentMethodConfigFor(100_000)).toBeUndefined();  // 1 000 kr klippkort
+    expect(m.paymentMethodConfigFor(150_000)).toBeUndefined();
   });
 
   it("ligger precis på gränsen", async () => {
     process.env.STRIPE_PMC_WITHOUT_KLARNA = "pmc_test";
     const m = await LADDA();
-    expect(m.paymentMethodConfigFor(49_999)).toBe("pmc_test");
-    expect(m.paymentMethodConfigFor(50_000)).toBeUndefined();
+    expect(m.paymentMethodConfigFor(99_999)).toBe("pmc_test");
+    expect(m.paymentMethodConfigFor(100_000)).toBeUndefined();
   });
 
   it("går att flytta med env", async () => {
@@ -65,13 +66,13 @@ describe("paymentMethodConfigFor", () => {
   it("faller tillbaka på 500 kr vid skräp i env", async () => {
     process.env.KLARNA_MIN_ORE = "inte ett tal";
     const m = await LADDA();
-    expect(m.KLARNA_MIN_ORE).toBe(50_000);
+    expect(m.KLARNA_MIN_ORE).toBe(100_000);
   });
 
   it("skickar aldrig undefined som värde till Stripe", async () => {
     process.env.STRIPE_PMC_WITHOUT_KLARNA = "pmc_test";
     const m = await LADDA();
-    expect("payment_method_configuration" in m.paymentMethodConfigParam(60_000)).toBe(false);
+    expect("payment_method_configuration" in m.paymentMethodConfigParam(150_000)).toBe(false);
   });
 
   it("döljer inget vid orimliga belopp", async () => {

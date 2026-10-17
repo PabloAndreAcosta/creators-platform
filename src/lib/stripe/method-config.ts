@@ -21,15 +21,20 @@
  */
 
 /**
- * Lägsta belopp i ÖRE där Klarna får visas. Standard 500 kr, vilket skiljer
- * biljetterna (50–200 kr) från klippkorten (600–1 000 kr).
+ * Lägsta belopp i ÖRE där Klarna får visas. Standard 1 000 kr (Pablo
+ * 2026-10-17).
+ *
+ * Gränsen ligger på det största klippkortet och inte mellan biljetter och
+ * klippkort. Det betyder att även sexhundrakortet betalas med kort eller
+ * plånbok — på det beloppet kostar Klarna 21:94 mot kortets 10:80, och
+ * delbetalning av 600 kr är sällan det som avgör ett köp.
  *
  * Noll stänger av gränsen: alla belopp är större än eller lika med noll, så
  * standardkonfigurationen gäller alltid.
  */
 export const KLARNA_MIN_ORE = (() => {
   const raw = Number(process.env.KLARNA_MIN_ORE);
-  return Number.isFinite(raw) && raw >= 0 ? raw : 50_000;
+  return Number.isFinite(raw) && raw >= 0 ? raw : 100_000;
 })();
 
 /** Konfigurationen utan Klarna. Tom tills den skapats i Dashboard. */
