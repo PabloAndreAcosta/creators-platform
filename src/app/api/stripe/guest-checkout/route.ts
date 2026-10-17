@@ -7,6 +7,7 @@ import type Stripe from "stripe";
 import { getStripeLocale } from "@/lib/i18n/stripe-locale";
 import { stripe } from "@/lib/stripe/client";
 import { computeServiceFeeOre, serviceFeeMode } from "@/lib/tickets/service-fee";
+import { excludedPaymentMethodsParam } from "@/lib/stripe/method-config";
 import { clampQuantity, createTicketAttendees, attendeeNamesToMeta } from "@/lib/tickets/attendees";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from '@/lib/supabase/admin';
@@ -298,6 +299,8 @@ export async function POST(req: NextRequest) {
       session = await stripe.checkout.sessions.create({
         locale: stripeLocale,
         customer_email: email,
+        // Klarna döljs under gränsen — se lib/stripe/method-config.
+        ...excludedPaymentMethodsParam(amountInOre * qty + (feeMode === "buyer" ? serviceFee : 0)),
         line_items: lineItems,
         mode: "payment",
         // Köparen matar in rabattkoden själv. Stripe äger kupongen och räknar
