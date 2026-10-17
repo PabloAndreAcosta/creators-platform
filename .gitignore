@@ -67,3 +67,13 @@ marketing/generated/
 /playwright/.cache/
 
 workers/cron/node_modules
+
+# Tillfälliga kontroll- och felsökningsskript.
+#
+# De måste ligga i repo-roten för att nå node_modules, och har därför två
+# gånger följt med i en commit när städningen inte hunnit före `git add`.
+# Repot är publikt; lösa skript hör inte hemma här.
+*-tmp.mjs
+kontroll-*.mjs
+probe.mjs
+e2e-*.mjs
