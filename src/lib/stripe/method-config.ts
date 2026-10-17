@@ -1,61 +1,71 @@
 /**
- * Vilka betalmetoder som ska döljas för ett visst belopp.
+ * Vilken uppsättning betalmetoder som ska visas för ett visst belopp.
  *
  * Bakgrund: Klarna kostar 2,99 % plus 4 kr. Den fasta fyran är försumbar på
  * ett klippkort för 1 000 kr och brutal på en practica-biljett för 50 kr, där
  * den äter elva procent av intäkten. Samtidigt är delbetalning värd något
  * just på de dyra köpen — det är där den kan vara skillnaden mellan ett köp
- * och inget köp.
+ * och inget köp. Därför en gräns i stället för av eller på.
  *
- * Därför en gräns i stället för av eller på.
+ * VARFÖR INTE excluded_payment_method_types: Stripe dokumenterar den
+ * parametern för precis det här, och den vore enklare — inget att skapa i
+ * Dashboard. Men den finns inte i det Stripe-bibliotek vi kör (17.7.0) och
+ * inte i den API-version klienten är låst till (2025-02-24.acacia). Stripe
+ * ignorerar okända parametrar TYST, så den hade sett ut att fungera och inte
+ * gjort någonting. Den vägen kan tas när biblioteket och API-versionen höjs,
+ * och inte tidigare.
  *
- * Genomförandet är `excluded_payment_method_types`, vilket är Stripes egen
- * rekommendation när en metod ska bort beroende på vad som ligger i köpet.
- * Övervägt och valt bort: en andra betalmetodkonfiguration i Dashboard. Den
- * hade fungerat men krävt att någon skapar den för hand, kopierar ett id och
- * sätter det i en env-variabel — tre steg som kan göras fel eller glömmas, och
- * som dessutom måste upprepas i varje ny miljö.
- *
- * Det här rör INTE vilka metoder som finns. Kort, Apple Pay, Google Pay och
- * Klarna slås fortsatt på och av i Stripe Dashboard. Här avgörs bara om
- * Klarna ska visas för just det här beloppet.
+ * payment_method_configuration finns däremot i versionen. Koden väljer bara
+ * VILKEN konfiguration sessionen ska använda; vilka metoder den innehåller
+ * bestäms i Dashboard, där de hör hemma.
  */
 
 /**
  * Lägsta belopp i ÖRE där Klarna får visas. Standard 500 kr, vilket skiljer
  * biljetterna (50–200 kr) från klippkorten (600–1 000 kr).
  *
- * Noll stänger av hela gränsen: alla belopp är större än eller lika med noll,
- * så Klarna visas alltid. Det är avstängningsknappen om något skulle bli fel.
+ * Noll stänger av gränsen: alla belopp är större än eller lika med noll, så
+ * standardkonfigurationen gäller alltid.
  */
 export const KLARNA_MIN_ORE = (() => {
   const raw = Number(process.env.KLARNA_MIN_ORE);
   return Number.isFinite(raw) && raw >= 0 ? raw : 50_000;
 })();
 
+/** Konfigurationen utan Klarna. Tom tills den skapats i Dashboard. */
+const UTAN_KLARNA = process.env.STRIPE_PMC_WITHOUT_KLARNA || "";
+
 /**
- * Metoder att utesluta för beloppet. Tom lista = visa allt som är påslaget.
+ * Konfigurations-id att skicka med sessionen, eller undefined för kontots
+ * standard.
  *
- * Orimliga belopp (NaN, Infinity) ger tom lista. Hellre visa en metod för
- * mycket än att en trasig siffra tyst tar bort ett betalsätt för alla.
+ * Saknas env-variabeln returneras undefined och allt beter sig som förut.
+ * Det är avsiktligt: koden ska kunna ligga i produktion innan konfigurationen
+ * finns, utan att påverka någon betalning. En gräns som kräver att två saker
+ * landar samtidigt är en gräns som landar fel.
+ *
+ * Observera att det här INTE är samma sak som att gränsen tyst inte
+ * fungerar — skillnaden mot det ignorerade excluded-anropet är att den här
+ * vägen är avsedd att vara overksam tills den konfigurerats, och att det
+ * syns genom att env-variabeln är tom.
  */
-export function excludedPaymentMethodsFor(totalOre: number): "klarna"[] {
-  if (!Number.isFinite(totalOre)) return [];
-  if (KLARNA_MIN_ORE <= 0) return [];
-  return totalOre < KLARNA_MIN_ORE ? ["klarna"] : [];
+export function paymentMethodConfigFor(totalOre: number): string | undefined {
+  if (!UTAN_KLARNA) return undefined;
+  if (!Number.isFinite(totalOre)) return undefined;
+  if (KLARNA_MIN_ORE <= 0) return undefined;
+  return totalOre < KLARNA_MIN_ORE ? UTAN_KLARNA : undefined;
 }
 
 /**
  * Färdig att spreada in i ett Stripe-anrop:
- * `...excludedPaymentMethodsParam(total)`.
+ * `...paymentMethodConfigParam(total)`.
  *
- * Nyckeln utelämnas helt när inget ska uteslutas. En tom array är inte samma
- * sak som ingen array för Stripe, och att skicka den vore att be om ett fel
- * på de flesta köp.
+ * Nyckeln utelämnas helt när standarden ska gälla. Stripe avvisar
+ * `payment_method_configuration: undefined`.
  */
-export function excludedPaymentMethodsParam(
+export function paymentMethodConfigParam(
   totalOre: number
-): { excluded_payment_method_types?: "klarna"[] } {
-  const excluded = excludedPaymentMethodsFor(totalOre);
-  return excluded.length > 0 ? { excluded_payment_method_types: excluded } : {};
+): { payment_method_configuration?: string } {
+  const id = paymentMethodConfigFor(totalOre);
+  return id ? { payment_method_configuration: id } : {};
 }
