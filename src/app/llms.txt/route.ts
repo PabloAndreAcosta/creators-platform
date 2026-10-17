@@ -59,7 +59,7 @@ En kreatör är inte bara en dansare. Det är alla som har något att lära ut e
 
 ## Vad man kan göra här
 
-- Köpa biljett till en kväll, kurs eller workshop. Betalning med kort, Apple Pay eller Google Pay — och Klarna på större köp.
+- Köpa biljett till en kväll, kurs eller workshop. Betalning med kort, Apple Pay eller Google Pay. Klarna från 1 000 kr.
 - Köpa klippkort som gäller på en hel serie kvällar.
 - Hitta kreatörer och lokaler per stad och kategori.
 - Som kreatör: lägga upp evenemang, sälja biljetter, checka in gäster i dörren med QR och göra upp med lokalen automatiskt.
