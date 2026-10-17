@@ -24,6 +24,7 @@ import {
   type PayeeContext,
 } from "@/lib/stripe/checkout";
 import { efterkopLage } from "./late-purchase";
+import { getSaleState } from "@/lib/listings/sale-state";
 import { paymentMethodConfigParam } from "@/lib/stripe/method-config";
 
 export interface LateCheckoutListing {
@@ -89,6 +90,18 @@ export async function createLateCheckoutSession(args: {
   creator: LateCheckoutCreator;
   ticketType: LateCheckoutTicketType | null;
   appUrl: string;
+  /**
+   * Vilken grind som gäller.
+   *
+   * "efterkop" — kvällen har varit och ligger innanför efterköpsfönstret.
+   * "dorr"     — kvällen säljs just nu; samma kontroll som den publika kassan
+   *              gör, så dörrgenvägen aldrig kan sälja något som är stängt.
+   *
+   * Två lägen i en funktion och inte två funktioner: pengarna räknas likadant
+   * i båda fallen, och två kopior av den räkningen blir förr eller senare två
+   * olika svar.
+   */
+  mode?: "efterkop" | "dorr";
   locale?: Stripe.Checkout.SessionCreateParams.Locale;
   /**
    * Hur länge betalningen går att slutföra.
@@ -106,16 +119,30 @@ export async function createLateCheckoutSession(args: {
 
   const minuter = sessionLivslangdMinuter(args.expiresInMinutes);
 
-  const lage = efterkopLage(listing.event_date, now);
-  if (lage.kind !== "oppet") {
-    return {
-      ok: false,
-      status: 403,
-      error:
-        lage.kind === "stangt"
-          ? "Efterköpsfönstret har stängt för den här kvällen."
-          : "Kvällen har inte varit ännu — använd den vanliga försäljningen.",
-    };
+  const mode = args.mode ?? "efterkop";
+
+  if (mode === "efterkop") {
+    const lage = efterkopLage(listing.event_date, now);
+    if (lage.kind !== "oppet") {
+      return {
+        ok: false,
+        status: 403,
+        error:
+          lage.kind === "stangt"
+            ? "Efterköpsfönstret har stängt för den här kvällen."
+            : "Kvällen har inte varit ännu — använd den vanliga försäljningen.",
+      };
+    }
+  } else {
+    // Samma grind som den publika kassan. Dörrgenvägen får aldrig vara en
+    // bakväg förbi "inte släppt än", "slutsålt" eller "har varit".
+    const sale = getSaleState(
+      { price: listing.price, event_date: listing.event_date },
+      now
+    );
+    if (!sale.buyable) {
+      return { ok: false, status: 403, error: "Biljetten går inte att köpa just nu." };
+    }
   }
 
   const payee: PayeeContext = {
@@ -161,7 +188,11 @@ export async function createLateCheckoutSession(args: {
           // Kvällens datum i produktnamnet, inte bara i vår metadata. Gästen
           // ska kunna se på Stripe-sidan och på kortutdraget VILKEN kväll hen
           // betalar för — annars ser ett efterköp ut som en dubbeldebitering.
-          description: listing.event_date ? `Efterköp för kvällen ${listing.event_date}` : undefined,
+          description: listing.event_date
+            ? mode === "efterkop"
+              ? `Efterköp för kvällen ${listing.event_date}`
+              : `Kvällen ${listing.event_date}`
+            : undefined,
         },
         unit_amount: amountInOre,
       },
@@ -217,7 +248,7 @@ export async function createLateCheckoutSession(args: {
       listingId: listing.id,
       creatorId: listing.user_id,
       guestName: "",
-      latePurchase: "true",
+      ...(mode === "efterkop" ? { latePurchase: "true" } : { doorPurchase: "true" }),
       serviceFeeOre: String(serviceFee),
       serviceFeeMode: feeMode,
       platformFeeOre: String(applicationFee + serviceFee),

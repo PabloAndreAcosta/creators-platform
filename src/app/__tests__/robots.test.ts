@@ -29,6 +29,16 @@ describe("robots.txt", () => {
     }
   });
 
+  it("spärrar dörrlänken, som SKAPAR en betalning", () => {
+    // /dorr/ är inte innehåll: adressen myntar en Stripe-session per hämtning
+    // och skickar besökaren till betalningen. En crawler som följer den fyller
+    // Stripe med skräpsessioner. Spärren är alltså inte sekretess utan en
+    // följd av att adressen gör något.
+    for (const rule of rules) {
+      expect(rule.disallow as string[]).toContain("/dorr/");
+    }
+  });
+
   it("ger AI-crawlerna exakt samma spärrlista som alla andra", () => {
     expect(rules[1].disallow).toEqual(rules[0].disallow);
   });
