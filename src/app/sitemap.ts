@@ -49,7 +49,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Tjänster och klippkort saknar datum och bor kvar på /listing.
   const { data: listings } = await supabase
     .from("listings")
-    .select("id, slug, updated_at, event_date, series_slug, user_id")
+    .select("id, slug, updated_at, event_date, series_slug, user_id, category, event_city")
     .eq("is_active", true)
     .eq("is_public", true)
     .order("updated_at", { ascending: false })
@@ -101,30 +101,46 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // City landing pages — only cities that actually have content, derived from
   // the real city column (not the raw address, which starts with the venue).
-  const { data: listingCities } = await supabase
-    .from("listings")
-    .select("event_city")
-    .eq("is_active", true)
-    .eq("is_public", true)
-    .not("event_city", "is", null);
-
+  // Städerna kommer ur listningarna vi redan hämtat — samma rader, ingen
+  // extra fråga. Kombinationen stad × kategori tas med den här vägen: det är
+  // där långsvansen bor ("dans i stockholm"), sidorna finns sedan tidigare,
+  // men de skickades aldrig in. Bara kombinationer som faktiskt har innehåll,
+  // eftersom en tom stad × kategori sätter noindex på sig själv och en
+  // noindexad adress i sitemapen bara ger en varning i Search Console.
   const upplevelserCitySet = new Set<string>();
-  (listingCities || []).forEach((l) => {
+  const upplevelserCityCategory = new Set<string>();
+  (listings || []).forEach((l) => {
     const c = l.event_city?.trim().toLowerCase();
-    if (c) upplevelserCitySet.add(c);
+    if (!c) return;
+    upplevelserCitySet.add(c);
+    // Stad × kategori räknas bara på det som fortfarande är framåt i tiden
+    // (eller saknar datum), precis som sidan själv gör när den avgör om den
+    // ska indexeras.
+    const kommande = !l.event_date || l.event_date >= todayStockholm();
+    const cat = l.category?.trim().toLowerCase();
+    if (cat && kommande) upplevelserCityCategory.add(`${c}|${cat}`);
   });
 
   const { data: creatorCities } = await supabase
     .from("profiles")
-    .select("location")
+    .select("location, category, categories")
     .eq("is_public", true)
     .not("location", "is", null);
 
   const creatorCitySet = new Set<string>();
+  const creatorCityCategory = new Set<string>();
   (creatorCities || []).forEach((p) => {
     const c = p.location?.trim().toLowerCase();
-    if (c) creatorCitySet.add(c);
+    if (!c) return;
+    creatorCitySet.add(c);
+    const cats: string[] = (p.categories?.length ? p.categories : p.category ? [p.category] : []) ?? [];
+    cats.forEach((cat) => {
+      const k = cat?.trim().toLowerCase();
+      if (k) creatorCityCategory.add(`${c}|${k}`);
+    });
   });
+
+  const delar = (nyckel: string) => nyckel.split("|").map(encodeURIComponent);
 
   const cityPages: MetadataRoute.Sitemap = [
     ...Array.from(upplevelserCitySet).map((city) => ({
@@ -132,11 +148,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "daily" as const,
       priority: 0.7,
     })),
+    ...Array.from(upplevelserCityCategory).map((nyckel) => {
+      const [city, category] = delar(nyckel);
+      return {
+        url: `${baseUrl}/upplevelser/${city}/${category}`,
+        changeFrequency: "daily" as const,
+        priority: 0.6,
+      };
+    }),
     ...Array.from(creatorCitySet).map((city) => ({
       url: `${baseUrl}/creators/stad/${encodeURIComponent(city)}`,
       changeFrequency: "daily" as const,
       priority: 0.7,
     })),
+    ...Array.from(creatorCityCategory).map((nyckel) => {
+      const [city, category] = delar(nyckel);
+      return {
+        url: `${baseUrl}/creators/stad/${city}/${category}`,
+        changeFrequency: "daily" as const,
+        priority: 0.6,
+      };
+    }),
   ];
 
   const all = [...staticPages, ...creatorPages, ...listingPages, ...seriesPages, ...venuePages, ...cityPages];
