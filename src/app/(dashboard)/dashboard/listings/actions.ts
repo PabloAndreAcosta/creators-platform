@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import { requirePaidSubscription, getSubscriptionStatus } from "@/lib/subscription/check";
 import { checkListingLimit } from "@/lib/listings/limits";
 import { generateUniqueListingSlug } from "@/lib/listings/slug";
+import { resolveEventCity } from "@/lib/listings/city";
 
 const CATEGORIES = ["dance", "music", "photo", "video", "design", "yoga", "fitness", "other"] as const;
 const VALID_LISTING_TYPES = [
@@ -38,7 +39,7 @@ function parseListingForm(formData: FormData) {
   // PlacesAutocomplete skickar med stad och lokalnamn, men de lästes aldrig
   // här — så allt som skapades från dashboarden saknade event_city och föll
   // ur stadsfiltret, sidfoten och "Upplevelser i Stockholm".
-  const eventCity = (formData.get("event_city") as string)?.trim() || null;
+  const eventCity = resolveEventCity(formData.get("event_city") as string, eventLocation);
   const eventVenue = (formData.get("event_venue") as string)?.trim() || null;
   const eventLat = eventLatRaw ? parseFloat(eventLatRaw) : null;
   const eventLng = eventLngRaw ? parseFloat(eventLngRaw) : null;

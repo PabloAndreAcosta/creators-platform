@@ -17,6 +17,7 @@ import { createNotification } from "@/lib/notifications/create";
 import { isSeller, isCreatorRole } from "@/lib/roles";
 import { ticketGateForNewEvent, ticketGateForListing } from "@/lib/capabilities/gate";
 import { stockholmLocalToUtcISO } from "@/lib/time";
+import { resolveEventCity } from "@/lib/listings/city";
 
 /** Tidsstyrd automatisering (Lucka 3) ur formuläret. Datetime-fält tolkas som
  *  svensk tid och lagras som UTC. Tomma fält → null (avstängt). */
@@ -105,7 +106,10 @@ function parseEventForm(formData: FormData) {
   const eventLatRaw = formData.get("event_lat") as string;
   const eventLngRaw = formData.get("event_lng") as string;
   const eventPlaceId = (formData.get("event_place_id") as string)?.trim() || null;
-  const eventCity = (formData.get("event_city") as string)?.trim() || null;
+  // Platsväljaren fyller i staden, men bara när den används. Skrivs adressen
+  // för hand faller kvällen ur /upplevelser/<stad>, så vi läser orten ur
+  // adressens postnummer i stället för att spara tomt.
+  const eventCity = resolveEventCity(formData.get("event_city") as string, eventLocation);
   const eventVenue = (formData.get("event_venue") as string)?.trim() || null;
   // Lokalen som profil, skilt från event_venue som bara är ett namn från Places.
   const venueProfileId = (formData.get("venue_profile_id") as string)?.trim() || null;
