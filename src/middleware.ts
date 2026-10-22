@@ -90,6 +90,8 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    // spel/: Usha Games skickas vidare till en egen Worker och behöver varken
+    // Supabase-session, språkcookie eller partnerkod.
+    "/((?!_next/static|_next/image|favicon.ico|spel(?:/|$)|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
