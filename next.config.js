@@ -1,8 +1,24 @@
 const createNextIntlPlugin = require('next-intl/plugin');
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
+// Usha Games (Skuggspelet) körs som en egen Cloudflare Worker och bor dolt
+// under usha.se/spel tills det får en egen domän. Sidor och API-anrop skickas
+// vidare hit; WebSocket kan Vercel inte skicka vidare, så spelets klient
+// ansluter då direkt till Workern. Repo: usha-ab/skuggspelet.
+const USHA_GAMES_ORIGIN = process.env.USHA_GAMES_ORIGIN || "https://usha-games.usha-korjournal.workers.dev";
+const USHA_GAMES_WS = USHA_GAMES_ORIGIN.replace(/^http/, "ws");
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async rewrites() {
+    return {
+      // beforeFiles: före sidorna, så att /spel aldrig tolkas som en kreatörs adress ([slug]).
+      beforeFiles: [
+        { source: "/spel", destination: `${USHA_GAMES_ORIGIN}/spel/` },
+        { source: "/spel/:path*", destination: `${USHA_GAMES_ORIGIN}/spel/:path*` },
+      ],
+    };
+  },
   async redirects() {
     return [
       // Kort adress till registreringen, för ytor där en query-sträng inte går
@@ -67,7 +83,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com data:",
               "img-src 'self' data: blob: https://*.supabase.co https://images.unsplash.com https://*.cdninstagram.com https://*.fbcdn.net https://*.tiktokcdn.com https://www.googletagmanager.com https://*.googleapis.com https://*.gstatic.com https://*.google-analytics.com",
-              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://maps.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://api.stripe.com https://api.signicat.com https://vitals.vercel-insights.com",
+              `connect-src 'self' ${USHA_GAMES_WS} https://*.supabase.co wss://*.supabase.co https://maps.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://api.stripe.com https://api.signicat.com https://vitals.vercel-insights.com`,
               "frame-src 'self' https://js.stripe.com https://checkout.stripe.com https://*.signicat.com",
               "media-src 'self'",
               "worker-src 'self' blob:",
