@@ -35,6 +35,11 @@ const nextConfig = {
       // egna adresser) utan att någon av dem behöver veta om den andra.
       { source: "/join", destination: "/signup?role=customer", permanent: false },
       { source: "/konto", destination: "/signup?role=customer", permanent: false },
+      // Appen heter Usha Games, så det är lätt att skriva usha.se/games. Query-strängen
+      // (t.ex. ?vuxen eller ?kod=) följer med. 307 av samma skäl som ovan: spelet kan
+      // flytta till en egen domän.
+      { source: "/games", destination: "/spel", permanent: false },
+      { source: "/games/:path*", destination: "/spel/:path*", permanent: false },
     ];
   },
   async headers() {
