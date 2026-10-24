@@ -94,6 +94,7 @@ function computeSeriesDates(start: string, interval: string, count: number): str
 function parseEventForm(formData: FormData) {
   const title = (formData.get("title") as string)?.trim();
   const description = (formData.get("description") as string)?.trim();
+  const tldr = (formData.get("tldr") as string)?.trim();
   const category = formData.get("category") as string;
   const priceRaw = formData.get("price") as string;
   const durationRaw = formData.get("duration_minutes") as string;
@@ -181,6 +182,7 @@ function parseEventForm(formData: FormData) {
     data: {
       title,
       description: description || null,
+      tldr: tldr || null,
       category,
       price,
       duration_minutes,

@@ -14,6 +14,7 @@ import { WaitlistForm } from "./waitlist-form";
 import { AccessCodeForm } from "./access-code-form";
 import { getSaleState } from "@/lib/listings/sale-state";
 import { splitBilingualDescription, buildPreviewDescription } from "@/lib/listings/description";
+import { buildTldr } from "@/lib/listings/tldr";
 import { buildMapsHref } from "@/lib/listings/maps";
 import { canReceivePayments } from "@/lib/payments/beta-gate";
 import { cache } from "react";
@@ -108,7 +109,7 @@ const getListing = cache(async (slug: string) => {
   const { data: listing } = await supabase
     .from("listings")
     .select(
-      "id, user_id, title, description, category, price, duration_minutes, image_url, image_url_square, series_id, event_date, event_time, event_end_time, event_location, event_place_id, event_lat, event_lng, event_city, event_venue, slug, series_slug, is_active, content_language, organizer_name, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, venue_profile_id, venue_confirmed_at"
+      "id, user_id, title, description, tldr, category, price, duration_minutes, image_url, image_url_square, series_id, event_date, event_time, event_end_time, event_location, event_place_id, event_lat, event_lng, event_city, event_venue, slug, series_slug, is_active, content_language, organizer_name, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, venue_profile_id, venue_confirmed_at"
     )
     .eq(isUUID(slug) ? "id" : "slug", slug)
     .eq("is_active", true)
@@ -502,6 +503,12 @@ export default async function EventPage(props: Params) {
       (host as { company_verified_at?: string | null } | null)?.company_verified_at ?? null,
   });
   const beskrivning = splitBilingualDescription(listing.description);
+  // Eget fält om det finns, annars det vi kan läsa ur texten. Fältet vinner
+  // alltid: det är skrivet för att vara en sammanfattning, punktlistan är en
+  // tolkning av något som skrevs i ett annat syfte.
+  const kort = buildTldr(beskrivning.primary);
+  const egenTldr = (listing.tldr ?? "").trim();
+  const sammanfattning = egenTldr ? [egenTldr] : kort.punkter;
   // Gratis biljetter rör inga pengar och berörs inte av spärren.
   const sellable = payeeCanReceive || isFree;
   const salePrices = ticketTypesForSale.map((tt) => tt.price);
@@ -779,6 +786,28 @@ export default async function EventPage(props: Params) {
             )}
           </div>
         )}
+
+        {/* SAMMANFATTNINGEN STÅR HÄR, MED TID OCH PLATS (2026-10-25).
+            Den är en uppgift om kvällen i samma klass som när och var — inte
+            en inledning till brödtexten. Därför eget fält i databasen, därför
+            här, och därför alltid öppen: beskrivningen är infälld, det här
+            är det man ska kunna läsa utan att trycka på något.
+            Saknar kvällen ett eget fält faller vi tillbaka på punktlistan ur
+            texten, så att äldre evenemang inte står tomma. */}
+        {sammanfattning.length > 0 && (
+          <div className="mt-5 rounded-xl border border-[var(--usha-gold)]/25 bg-[var(--usha-card)] px-4 py-4">
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--usha-gold)]">
+              {t("tldrHeading")}
+            </p>
+            <div className="space-y-2 text-base leading-relaxed text-[var(--usha-white)]">
+              {sammanfattning.map((rad, i) => (
+                <p key={i} className="[overflow-wrap:anywhere]">
+                  {rad}
+                </p>
+              ))}
+            </div>
+          </div>
+        )}
       </header>
 
       <div className="mx-auto max-w-4xl px-6 pb-10 pt-8 sm:px-10 sm:pb-16 sm:pt-10">
@@ -821,20 +850,34 @@ export default async function EventPage(props: Params) {
             innehålls min-content-bredd, och ett enda obrytbart stycke drar ut
             spåret förbi skärmkanten — då hamnar kartan och biljettrutan
             utanför till höger på mobil, medan texten ovanför ser ok ut. */}
+        {/* ORDNINGEN ÄR MEDVETEN (2026-10-25).
+            Mobil: biljetterna först, sedan sammanfattning och text, kartan
+            sist. Priset är sidans vanligaste fråga och låg tidigare under
+            hela beskrivningen — på en telefon i en dörrkö innebar det en
+            scroll genom allt annat. Kartan är sist eftersom den behövs när
+            man redan bestämt sig.
+            Desktop: samma sak men i två spalter, så det visuella intrycket
+            är oförändrat — därför col-start/row-start i stället för en
+            omskriven layout. */}
         <div className="grid gap-8 md:grid-cols-[1fr_280px] md:gap-12">
-          <div className="min-w-0">
+          <div className="order-2 min-w-0 md:order-none md:col-start-1 md:row-start-1">
             {listing.description ? (
               <div className="text-base leading-relaxed text-[var(--usha-white)] sm:text-lg">
-                <div className="whitespace-pre-wrap [overflow-wrap:anywhere]">
-                  {beskrivning.primary}
-                </div>
-                {/* Andra språket bakom en utfällning i stället för under
-                    förstasidestexten. Hela texten två gånger gör sidan dubbelt
-                    så lång, och den som söker sitt språk måste scrolla förbi
-                    ett stycke hen inte kan läsa. <details> klarar sig utan JS
-                    och är öppningsbar innan sidan hydrerat. */}
+                {/* Hela texten är infälld. Det som ska gå att läsa utan ett
+                    klick står längre upp, vid tid och plats. Punktlistan
+                    visas här bara när den INTE används som sammanfattning —
+                    annars hade den stått två gånger. */}
+                <details className="group rounded-xl border border-[var(--usha-border)]">
+                  <summary className="flex cursor-pointer items-center justify-between gap-2 px-4 py-3 text-sm font-medium text-[var(--usha-muted)] transition hover:text-[var(--usha-white)] [&::-webkit-details-marker]:hidden">
+                    {t("descriptionToggle")}
+                    <ChevronDown size={16} className="shrink-0 transition group-open:rotate-180" />
+                  </summary>
+                  <div className="whitespace-pre-wrap [overflow-wrap:anywhere] border-t border-[var(--usha-border)] px-4 py-4 text-base leading-relaxed sm:text-lg">
+                    {egenTldr ? beskrivning.primary : kort.rest || beskrivning.primary}
+                  </div>
+                </details>
                 {beskrivning.secondary && (
-                  <details className="group mt-6 rounded-xl border border-[var(--usha-border)]">
+                  <details className="group mt-3 rounded-xl border border-[var(--usha-border)]">
                     <summary className="flex cursor-pointer items-center justify-between gap-2 px-4 py-3 text-sm font-medium text-[var(--usha-muted)] transition hover:text-[var(--usha-white)] [&::-webkit-details-marker]:hidden">
                       {beskrivning.secondaryLabel}
                       <ChevronDown size={16} className="shrink-0 transition group-open:rotate-180" />
@@ -862,21 +905,10 @@ export default async function EventPage(props: Params) {
               </p>
             )}
 
-            {/* Kartan. Den som läst klart och bestämt sig ska inte behöva
-                googla adressen själv — särskilt inte på väg dit. */}
-            <EventMap
-              lat={listing.event_lat}
-              lng={listing.event_lng}
-              placeId={listing.event_place_id}
-              location={listing.event_location}
-              city="Stockholm"
-              locale={locale}
-              heading={t("mapHeading")}
-              linkLabel={t("openInMaps")}
-            />
+
           </div>
 
-          <aside className="min-w-0 space-y-4">
+          <aside className="order-1 min-w-0 space-y-4 md:order-none md:col-start-2 md:row-start-1">
             <div id="biljetter" className="scroll-mt-6 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
               {/* Prisrubriken hör ihop med biljettvalet, så under försäljning
                   renderas den av BookButton och följer det man klickat på.
@@ -967,6 +999,21 @@ export default async function EventPage(props: Params) {
               />
             </div>
           </aside>
+
+          <div className="order-3 min-w-0 md:col-span-2">
+  {/* Kartan. Den som läst klart och bestämt sig ska inte behöva
+      googla adressen själv — särskilt inte på väg dit. */}
+  <EventMap
+    lat={listing.event_lat}
+    lng={listing.event_lng}
+    placeId={listing.event_place_id}
+    location={listing.event_location}
+    city="Stockholm"
+    locale={locale}
+    heading={t("mapHeading")}
+    linkLabel={t("openInMaps")}
+  />
+          </div>
         </div>
 
         {host && (

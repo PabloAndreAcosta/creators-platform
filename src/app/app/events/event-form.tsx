@@ -17,6 +17,7 @@ interface EventData {
   id: string;
   title: string;
   description: string | null;
+  tldr?: string | null;
   category: string;
   price: number | null;
   duration_minutes: number | null;
@@ -306,6 +307,24 @@ export default function EventForm({
             rows={4}
             defaultValue={event?.description ?? ""}
             placeholder={t("descriptionPlaceholder")}
+            className="w-full resize-none rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+          />
+        </div>
+
+        {/* Sammanfattningen. Egen ruta på eventsidan, vid tid och plats, och
+            alltid öppen — beskrivningen är infälld. Därför eget fält och inte
+            en rad i texten. */}
+        <div>
+          <label htmlFor="tldr" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
+            {t("tldr")}
+          </label>
+          <textarea
+            id="tldr"
+            name="tldr"
+            rows={2}
+            maxLength={400}
+            defaultValue={event?.tldr ?? ""}
+            placeholder={t("tldrPlaceholder")}
             className="w-full resize-none rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
           />
         </div>

@@ -2206,7 +2206,9 @@
     "organiserHint": "Si eliges un local, el local será el propietario del evento y recibirá los ingresos. Tu nombre queda registrado como creador.",
     "ticketTypePoolPlaceholder": "Sesiones",
     "ticketTypePoolHint": "A qué sesiones da acceso la entrada. Escribe el nombre de la sesión, o varias separadas por comas para una entrada combinada. El aforo de la sesión va en el campo de capacidad de la entrada que solo cubre esa sesión.",
-    "ticketTypesPoolHelp": "¿Deben dos tipos de entrada compartir las mismas plazas? Dales el mismo nombre en el campo Grupo compartido y el mismo aforo."
+    "ticketTypesPoolHelp": "¿Deben dos tipos de entrada compartir las mismas plazas? Dales el mismo nombre en el campo Grupo compartido y el mismo aforo.",
+    "tldr": "Resumen (opcional)",
+    "tldrPlaceholder": "Se muestra junto a la hora y el lugar. Una o dos frases: qué es, qué nivel, cuánto cuesta."
   },
   "trainingBuddies": {
     "domains": {
@@ -2410,7 +2412,9 @@
     "creditApplied": "Tu saldo de bienvenida de {amount} kr está aplicado",
     "creditMinSpend": "Tienes {amount} kr de saldo de bienvenida — válido desde {min} kr",
     "passesHeading": "Bonos",
-    "passesSaveUpTo": "ahorra hasta un {percent} %"
+    "passesSaveUpTo": "ahorra hasta un {percent} %",
+    "descriptionToggle": "Leer la descripción completa",
+    "tldrHeading": "En resumen"
   },
   "eventErrors": {
     "notReleased": "Las entradas aún no están disponibles.",
