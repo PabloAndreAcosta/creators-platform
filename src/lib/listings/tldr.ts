@@ -17,6 +17,13 @@
  * att någon skriver om sina gamla beskrivningar.
  */
 
+/**
+ * En rad som arrangören själv skrivit som sammanfattning.
+ * "TLDR: öppen träning, ingen ledd workshop, 50 kr hela kvällen."
+ * Den vinner alltid över det vi kan gissa oss till ur brödtexten.
+ */
+const EGEN = /^\s*(?:tl;?dr|i korthet|kort(?:fattat)?|in short|en resumen)\s*[:–—-]\s*(.+)$/i;
+
 /** Punkttecken vi känner igen i början av en rad. */
 const PUNKT = /^\s*[•·▪‣*\-–—]\s+(.+)$/;
 
@@ -45,6 +52,20 @@ export function buildTldr(primary: string | null | undefined): Tldr {
   if (!text) return { punkter: [], rest: "" };
 
   const rader = text.split("\n");
+
+  // 1. Har arrangören skrivit en egen sammanfattning är det den som gäller.
+  for (const rad of rader) {
+    const egen = EGEN.exec(rad);
+    if (!egen) continue;
+    const rest = rader
+      .filter((r) => !EGEN.test(r))
+      .join("\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
+    return { punkter: [egen[1].trim()], rest };
+  }
+
+  // 2. Annars punktlistan, som oftast är kvällens upplägg.
   const punkter: string[] = [];
   for (const rad of rader) {
     const träff = PUNKT.exec(rad);

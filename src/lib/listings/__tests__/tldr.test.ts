@@ -61,3 +61,19 @@ describe("buildTldr", () => {
     expect(r.punkter).toEqual(["Practica 17–19", "Social 19–23"]);
   });
 });
+
+describe("egen sammanfattning", () => {
+  it("låter arrangörens TLDR-rad vinna över punktlistan", () => {
+    const r = buildTldr("TLDR: öppen träning, ingen ledd workshop.\n\n• Practica 17–19\n• Social 19–23");
+    expect(r.punkter).toEqual(["öppen träning, ingen ledd workshop."]);
+    expect(r.rest).toContain("Practica 17–19");
+    expect(r.rest).not.toContain("TLDR");
+  });
+
+  it("känner igen 'I korthet' och 'In short'", () => {
+    expect(buildTldr("I korthet – sex timmar dans för 50 kr.").punkter).toEqual([
+      "sex timmar dans för 50 kr.",
+    ]);
+    expect(buildTldr("In short: six hours of dancing.").punkter).toEqual(["six hours of dancing."]);
+  });
+});

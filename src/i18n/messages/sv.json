@@ -2411,7 +2411,8 @@
     "creditMinSpend": "Du har {amount} kr i välkomstavdrag — gäller köp från {min} kr",
     "passesHeading": "Klippkort",
     "passesSaveUpTo": "spara upp till {percent} %",
-    "descriptionToggle": "Läs hela beskrivningen"
+    "descriptionToggle": "Läs hela beskrivningen",
+    "tldrHeading": "I korthet"
   },
   "eventErrors": {
     "notReleased": "Biljetterna har inte släppts än.",

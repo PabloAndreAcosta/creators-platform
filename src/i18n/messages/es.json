@@ -2411,7 +2411,8 @@
     "creditMinSpend": "Tienes {amount} kr de saldo de bienvenida — válido desde {min} kr",
     "passesHeading": "Bonos",
     "passesSaveUpTo": "ahorra hasta un {percent} %",
-    "descriptionToggle": "Leer la descripción completa"
+    "descriptionToggle": "Leer la descripción completa",
+    "tldrHeading": "En resumen"
   },
   "eventErrors": {
     "notReleased": "Las entradas aún no están disponibles.",

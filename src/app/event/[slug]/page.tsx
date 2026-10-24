@@ -842,13 +842,18 @@ export default async function EventPage(props: Params) {
                     skrivs om och ingenting tas bort; resten ligger ett klick
                     bort. Se lib/listings/tldr.ts. */}
                 {kort.punkter.length > 0 && (
-                  <ul className="mb-5 space-y-2 border-l-2 border-[var(--usha-gold)]/40 pl-4">
-                    {kort.punkter.map((punkt, i) => (
-                      <li key={i} className="[overflow-wrap:anywhere]">
-                        {punkt}
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="mb-5 rounded-xl border border-[var(--usha-gold)]/25 bg-[var(--usha-card)] px-4 py-4">
+                    <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--usha-gold)]">
+                      {t("tldrHeading")}
+                    </p>
+                    <ul className="space-y-2">
+                      {kort.punkter.map((punkt, i) => (
+                        <li key={i} className="[overflow-wrap:anywhere]">
+                          {punkt}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 )}
                 {kort.rest && (
                   <details className="group rounded-xl border border-[var(--usha-border)]">
