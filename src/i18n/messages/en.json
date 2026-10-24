@@ -2410,7 +2410,8 @@
     "creditApplied": "Your {amount} kr welcome credit is applied",
     "creditMinSpend": "You have {amount} kr in welcome credit — valid from {min} kr",
     "passesHeading": "Punch cards",
-    "passesSaveUpTo": "save up to {percent}%"
+    "passesSaveUpTo": "save up to {percent}%",
+    "descriptionToggle": "Read the full description"
   },
   "eventErrors": {
     "notReleased": "Tickets have not been released yet.",
