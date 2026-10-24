@@ -37,16 +37,6 @@ export const KLARNA_MIN_ORE = (() => {
   return Number.isFinite(raw) && raw >= 0 ? raw : 100_000;
 })();
 
-/**
- * NÖDFALL: stäng av hela gränsen och gå tillbaka till kontots standard.
- *
- * Sätts till "1" om den egna konfigurationen visar sig sakna en betalmetod
- * gästen behöver. Då beter sig kassan exakt som före gränsen infördes:
- * Stripe visar de metoder som är aktiverade på kontot, Klarna inkluderad.
- * Dyrare på små köp, men en dyr betalning slår en omöjlig.
- */
-const NODFALL_AV = process.env.STRIPE_PMC_NODFALL === "1";
-
 /** Konfigurationen utan Klarna. Tom tills den skapats i Dashboard. */
 const UTAN_KLARNA = process.env.STRIPE_PMC_WITHOUT_KLARNA || "";
 
@@ -65,8 +55,6 @@ const UTAN_KLARNA = process.env.STRIPE_PMC_WITHOUT_KLARNA || "";
  * syns genom att env-variabeln är tom.
  */
 export function paymentMethodConfigFor(totalOre: number): string | undefined {
-  // NÖDFALL 2026-10-22: gränsen är avstängd i kod. Se NODFALL nedan.
-  if (NODFALL_AV) return undefined;
   if (!UTAN_KLARNA) return undefined;
   if (!Number.isFinite(totalOre)) return undefined;
   if (KLARNA_MIN_ORE <= 0) return undefined;
