@@ -27,9 +27,20 @@ interface ListingCardProps {
   };
   bookingCount?: number;
   isPromoted?: boolean;
+  /**
+   * Kortet sitter ihop med en utfällning under sig (SeriesCard). Då släpper
+   * det sin nedre rundning och sin nedre ram, så att kort och flik läses som
+   * ett objekt i stället för två.
+   */
+  attachedBelow?: boolean;
 }
 
-export async function ListingCard({ listing, bookingCount = 0, isPromoted }: ListingCardProps) {
+export async function ListingCard({
+  listing,
+  bookingCount = 0,
+  isPromoted,
+  attachedBelow,
+}: ListingCardProps) {
   const t = await getTranslations();
   const dateLocale = DATE_LOCALES[await getLocale()] ?? "en-GB";
   // Passerade event ligger kvar som bläddringsbart bibliotek, men säljs inte.
@@ -50,7 +61,7 @@ export async function ListingCard({ listing, bookingCount = 0, isPromoted }: Lis
   return (
     <Link
       href={`/listing/${listing.slug || listing.id}`}
-      className={`group relative overflow-hidden rounded-xl border bg-[var(--usha-card)] transition hover:border-[var(--usha-gold)]/30 ${isPromoted ? "border-[var(--usha-gold)]/20 ring-1 ring-[var(--usha-gold)]/10" : "border-[var(--usha-border)]"}`}
+      className={`group relative block overflow-hidden border bg-[var(--usha-card)] transition hover:border-[var(--usha-gold)]/30 ${attachedBelow ? "rounded-t-xl border-b-0" : "rounded-xl"} ${isPromoted ? "border-[var(--usha-gold)]/20 ring-1 ring-[var(--usha-gold)]/10" : "border-[var(--usha-border)]"}`}
     >
       {/* Badges — top-left overlay */}
       {(isPromoted || isHot || isPopular) && (

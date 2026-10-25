@@ -20,6 +20,11 @@ type Kort = Parameters<typeof ListingCard>[0]["listing"] & {
  *
  * <details> valt med flit: det fungerar utan JS och går att öppna innan sidan
  * hydrerat, vilket spelar roll på en telefon i en lokal med dålig täckning.
+ *
+ * Fliken ligger som syskon till kortet, inte inuti det — kortet är en <a>, och
+ * en <details> inne i en länk är ogiltig HTML. Den sitter i stället ihop med
+ * kortet visuellt: kortet släpper sin nedre rundning och ram (attachedBelow),
+ * fliken bär den nedre, och mellanrummet är borta. Ett objekt, inte två.
  */
 export async function SeriesCard({
   grupp,
@@ -41,8 +46,15 @@ export async function SeriesCard({
 
   return (
     <div>
-      <ListingCard listing={grupp.forsta} bookingCount={bookingCount} isPromoted={isPromoted} />
-      <details className="group mt-1.5 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)]">
+      <ListingCard
+        listing={grupp.forsta}
+        bookingCount={bookingCount}
+        isPromoted={isPromoted}
+        attachedBelow
+      />
+      <details
+        className={`group overflow-hidden rounded-b-xl border bg-[var(--usha-card)] ${isPromoted ? "border-[var(--usha-gold)]/20" : "border-[var(--usha-border)]"}`}
+      >
         <summary className="flex cursor-pointer items-center justify-between gap-2 px-3.5 py-2.5 text-xs font-medium text-[var(--usha-muted)] transition hover:text-[var(--usha-white)] [&::-webkit-details-marker]:hidden">
           {t("more", { count: grupp.fler })}
           <ChevronDown size={14} className="shrink-0 transition group-open:rotate-180" />
