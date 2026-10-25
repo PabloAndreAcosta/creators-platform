@@ -61,7 +61,7 @@ export async function ListingCard({
   return (
     <Link
       href={`/listing/${listing.slug || listing.id}`}
-      className={`group relative block overflow-hidden border bg-[var(--usha-card)] transition hover:border-[var(--usha-gold)]/30 ${attachedBelow ? "rounded-t-xl border-b-0" : "rounded-xl"} ${isPromoted ? "border-[var(--usha-gold)]/20 ring-1 ring-[var(--usha-gold)]/10" : "border-[var(--usha-border)]"}`}
+      className={`group relative flex flex-col overflow-hidden border bg-[var(--usha-card)] transition hover:border-[var(--usha-gold)]/30 ${attachedBelow ? "flex-1 rounded-t-xl border-b-0" : "rounded-xl"} ${isPromoted ? "border-[var(--usha-gold)]/20 ring-1 ring-[var(--usha-gold)]/10" : "border-[var(--usha-border)]"}`}
     >
       {/* Badges — top-left overlay */}
       {(isPromoted || isHot || isPopular) && (
@@ -86,7 +86,7 @@ export async function ListingCard({
 
       {/* Image */}
       {listing.image_url ? (
-        <div className="aspect-video overflow-hidden">
+        <div className="aspect-video shrink-0 overflow-hidden">
           <img
             src={listing.image_url}
             alt={listing.title}
@@ -95,13 +95,13 @@ export async function ListingCard({
           />
         </div>
       ) : (
-        <div className="flex aspect-video items-center justify-center bg-[var(--usha-gold)]/5">
+        <div className="flex aspect-video shrink-0 items-center justify-center bg-[var(--usha-gold)]/5">
           <Calendar size={24} className="text-[var(--usha-gold)]/30" />
         </div>
       )}
 
       {/* Content */}
-      <div className="p-3">
+      <div className="flex flex-1 flex-col p-3">
         <p className="truncate text-sm font-semibold">{listing.title}</p>
         <div className="mt-1 flex items-center gap-2 text-xs text-[var(--usha-muted)]">
           {listing.event_date && (
@@ -118,7 +118,7 @@ export async function ListingCard({
             </span>
           )}
         </div>
-        <div className="mt-2 flex items-center justify-between">
+        <div className="mb-2.5 mt-2 flex items-center justify-between">
           <span className="text-xs font-medium text-[var(--usha-gold)]">
             {displayPrice
               ? t(showFrom ? "listingCard.fromPrice" : "listingCard.price", { price: displayPrice })
@@ -131,7 +131,7 @@ export async function ListingCard({
           )}
         </div>
         {isPast ? (
-          <div className="mt-2.5 w-full rounded-lg border border-[var(--usha-border)] px-3 py-2 text-center text-xs font-semibold text-[var(--usha-muted)]">
+          <div className="mt-auto w-full rounded-lg border border-[var(--usha-border)] px-3 py-2 text-center text-xs font-semibold text-[var(--usha-muted)]">
             {t("eventPage.badgePast")}
           </div>
         ) : (
@@ -141,7 +141,7 @@ export async function ListingCard({
             price={displayPrice}
             hasTicketTypes={hasTicketTypes}
             fromPrice={showFrom}
-            className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-3 py-2 text-xs font-semibold text-black transition hover:opacity-90"
+            className="mt-auto flex w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-3 py-2 text-xs font-semibold text-black transition hover:opacity-90"
           />
         )}
       </div>

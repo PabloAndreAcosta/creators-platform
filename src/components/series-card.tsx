@@ -45,7 +45,7 @@ export async function SeriesCard({
   const ovriga = grupp.alla.slice(1);
 
   return (
-    <div>
+    <div className="flex h-full flex-col">
       <ListingCard
         listing={grupp.forsta}
         bookingCount={bookingCount}
