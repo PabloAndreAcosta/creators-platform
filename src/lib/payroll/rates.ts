@@ -117,3 +117,20 @@ export function employerFee(input: FeeInput): Fee {
 
   return { feeOre: Math.round(grossOre * r.full), basis: "full" };
 }
+
+/**
+ * För UPPSKATTNINGAR (offerter, scenarier): ett utbetalningsår utan inlagda
+ * satser räknas med senast kända år, samma dag. Födelseåret flyttas lika
+ * mycket så att åldersreglerna fortfarande träffar rätt. Lönekörningen ska
+ * aldrig använda den här — där ska ett saknat år stoppa.
+ */
+export function projectedRateInput(paidOn: string, birthYear: number): {
+  paidOn: string;
+  birthYear: number;
+  projected: boolean;
+} {
+  const year = Number(paidOn.slice(0, 4));
+  if (year in RATES_BY_YEAR) return { paidOn, birthYear, projected: false };
+  const latest = Math.max(...Object.keys(RATES_BY_YEAR).map(Number));
+  return { paidOn: `${latest}${paidOn.slice(4)}`, birthYear: birthYear - (year - latest), projected: true };
+}

@@ -300,6 +300,15 @@ export async function updateBookingStatus(
     await notifyWaitlistSeatFreed(createAdminClient(), booking.listing_id, seats);
   }
 
+  // Ett genomfört uppdrag på lönevägen får en skuggrad: vad lönen hade blivit.
+  // Inga pengar rör sig, och ett fel här får inte stoppa själva slutförandet.
+  if (status === "completed") {
+    const { recordAssignmentShadowLine } = await import("@/lib/assignments/record-shadow");
+    await recordAssignmentShadowLine(bookingId).catch((err) =>
+      console.error("Skuggrad för lön misslyckades:", err)
+    );
+  }
+
   // Send email notifications (non-blocking)
   const { data: bookingListing } = await supabase.from("listings").select("title").eq("id", booking.listing_id).single();
   const serviceName = bookingListing?.title || "Tjänst";

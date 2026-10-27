@@ -19,7 +19,7 @@
  */
 
 import { wageFromLabourBudget, type Wage } from "@/lib/payroll/wage";
-import { RATES_BY_YEAR } from "@/lib/payroll/rates";
+import { projectedRateInput } from "@/lib/payroll/rates";
 import type { AssignmentRoute } from "./route";
 
 /** Moms på uppdrag som Usha säljer i eget namn. Undervisning, DJ, uppträdande. */
@@ -29,7 +29,7 @@ export const ASSIGNMENT_VAT_RATE = 0.25;
  * Födelseår när vi inte vet något. Ger full arbetsgivaravgift — den lägsta
  * nettolönen för alla under 67 — så att uppskattningen aldrig lovar för mycket.
  */
-const ASSUMED_BIRTH_YEAR = 1990;
+export const ASSUMED_BIRTH_YEAR = 1990;
 
 export interface QuoteInput {
   priceKr: number;
@@ -78,17 +78,12 @@ export function quoteAssignment(input: QuoteInput): AssignmentQuote {
   const commissionOre = Math.round(exVatOre * commissionRate);
 
   // Ett gig långt fram kan ligga i ett år vars satser ännu inte finns. En
-  // offert är en uppskattning, så den räknas då med senast kända års satser —
-  // lönekörningen gör aldrig så, den stannar.
-  const year = Number(paidOn.slice(0, 4));
-  const latest = Math.max(...Object.keys(RATES_BY_YEAR).map(Number));
-  const shift = year in RATES_BY_YEAR ? 0 : year - latest;
-  const birthYear = input.birthYear ?? ASSUMED_BIRTH_YEAR;
-
+  // offert är en uppskattning, så den räknas då med senast kända års satser.
+  const rated = projectedRateInput(paidOn, input.birthYear ?? ASSUMED_BIRTH_YEAR);
   const wage = wageFromLabourBudget({
     labourBudgetOre: exVatOre - commissionOre,
-    birthYear: birthYear - shift,
-    paidOn: shift === 0 ? paidOn : `${latest}${paidOn.slice(4)}`,
+    birthYear: rated.birthYear,
+    paidOn: rated.paidOn,
   });
   return {
     route,
@@ -96,7 +91,7 @@ export function quoteAssignment(input: QuoteInput): AssignmentQuote {
     vatOre,
     commissionOre,
     wage,
-    estimated: input.birthYear == null || shift !== 0,
+    estimated: input.birthYear == null || rated.projected,
   };
 }
 

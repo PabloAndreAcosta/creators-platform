@@ -22,6 +22,7 @@ import { splitEventRevenue } from "@/lib/settlements/split";
 import { shadowRun, budgetPerPassForAkassa, SAMEKONOMI_FEE_RATE, type ShadowPass } from "@/lib/payroll/shadow";
 import { SCENARIOS } from "@/lib/payroll/scenarios";
 import { lasStatus } from "@/lib/payroll/las";
+import { monthlyCost, breakEvenMonthlyBudgetOre, OWN_REGIME_COSTS, FORTNOX_LON_COSTS } from "@/lib/payroll/costs";
 
 const pctIdx = process.argv.indexOf("--creator-percent");
 const CREATOR_PERCENT = pctIdx > -1 ? Number(process.argv[pctIdx + 1]) : 50;
@@ -140,6 +141,53 @@ async function main() {
   out.push("| Pass i månaden | Kreatörens andel per pass |", "|---|---|");
   for (const n of [4, 8, 12, 16]) {
     out.push(`| ${n} | ${kr(budgetPerPassForAkassa(1990, "2026-11-25", n))} |`);
+  }
+  out.push("");
+
+  // ── Uppdrag som faktiskt genomförts ───────────────────────────────────
+  const { data: lines, error: linesErr } = await db
+    .from("payroll_shadow_lines")
+    .select("pass_date, paid_on, price_ore, gross_ore, employer_fee_ore, withholding_ore, net_ore, sam_net_ore, estimated")
+    .order("pass_date");
+  if (linesErr) throw linesErr;
+  out.push(`## D. Genomförda uppdrag på lönevägen (${lines?.length ?? 0} st)`, "");
+  if (!lines || lines.length === 0) {
+    out.push("Inga än. En rad skrivs när ett uppdrag till en kreatör utan bolag markeras genomfört.", "");
+  } else {
+    out.push("| Pass | Pris | Bruttolön | Arbetsgivaravgift | Skatt | Netto egen regi | Netto via SAM | Uppskattning |");
+    out.push("|---|---|---|---|---|---|---|---|");
+    for (const l of lines) {
+      out.push(
+        `| ${l.pass_date} | ${kr(l.price_ore)} | ${kr(l.gross_ore)} | ${kr(l.employer_fee_ore)} | ${kr(l.withholding_ore)} | ${kr(l.net_ore)} | ${kr(l.sam_net_ore)} | ${l.estimated ? "ja" : "nej"} |`,
+      );
+    }
+    out.push("");
+  }
+
+  // ── Kostnader utöver lönen ────────────────────────────────────────────
+  const last = real.months[real.months.length - 1];
+  out.push("## E. Vad egen regi kostar utöver lönen", "");
+  if (last) {
+    const c = monthlyCost(OWN_REGIME_COSTS, {
+      grossOre: last.ownGrossOre,
+      employees: 1,
+      payouts: last.passes,
+      signings: 0,
+    });
+    out.push(`Senaste månaden (${last.month}), om en kreatör haft alla pass:`, "");
+    out.push("| Post | Kostnad | Källa |", "|---|---|---|");
+    for (const l of c.lines) out.push(`| ${l.label} | ${kr(l.ore)} | ${l.source} |`);
+    out.push(`| **Summa egen regi** | **${kr(c.totalOre)}** | |`);
+    out.push(`| SAMekonomis avgift samma månad | ${kr(last.samFeeOre)} | verifierad |`, "");
+  }
+  out.push("Brytpunkt — månadsvolym (kreatörernas andel) där egen regi blir billigare än 2 %:", "");
+  out.push("| Typpass | Pass per kreatör/mån | Egen motor | Med Fortnox Lön |", "|---|---|---|---|");
+  for (const [pass, per] of [[45_000, 4], [100_000, 4], [200_000, 8]] as const) {
+    const opts = { samFeeRate: SAMEKONOMI_FEE_RATE, budgetPerPassOre: pass, passesPerEmployee: per };
+    const own = breakEvenMonthlyBudgetOre(OWN_REGIME_COSTS, opts);
+    const fx = breakEvenMonthlyBudgetOre([...OWN_REGIME_COSTS, ...FORTNOX_LON_COSTS], opts);
+    const show = (v: number) => (Number.isFinite(v) ? kr(v) : "aldrig");
+    out.push(`| ${kr(pass)} | ${per} | ${show(own)} | ${show(fx)} |`);
   }
   out.push("");
   process.stdout.write(out.join("\n"));
