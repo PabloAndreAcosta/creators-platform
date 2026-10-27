@@ -5,7 +5,7 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 // under usha.se/spel tills det får en egen domän. Sidor och API-anrop skickas
 // vidare hit; WebSocket kan Vercel inte skicka vidare, så spelets klient
 // ansluter då direkt till Workern. Repo: usha-ab/skuggspelet.
-const USHA_GAMES_ORIGIN = process.env.USHA_GAMES_ORIGIN || "https://usha-games.usha-korjournal.workers.dev";
+const USHA_GAMES_ORIGIN = process.env.USHA_GAMES_ORIGIN || "https://usha-games.pablo-acosta-856.workers.dev";
 const USHA_GAMES_WS = USHA_GAMES_ORIGIN.replace(/^http/, "ws");
 
 /** @type {import('next').NextConfig} */
