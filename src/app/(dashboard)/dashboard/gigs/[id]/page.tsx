@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowLeft, Calendar, MapPin } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { GigApplicationActions } from "./application-actions";
+import { loadAssignmentRoutes } from "@/lib/assignments/load";
 
 export default async function GigDetailPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -39,6 +40,8 @@ export default async function GigDetailPage(props: { params: Promise<{ id: strin
       : { data: [] };
 
   const applicantMap = Object.fromEntries((applicants ?? []).map((p) => [p.id, p]));
+  // Giget är tittarens eget (kontrollerat ovan), så de sökandes väg får visas.
+  const routes = await loadAssignmentRoutes(applicantIds);
 
   const STATUS_LABELS: Record<string, { text: string; className: string }> = {
     pending: { text: t("statusPending"), className: "bg-yellow-500/10 text-yellow-400" },
@@ -77,6 +80,10 @@ export default async function GigDetailPage(props: { params: Promise<{ id: strin
         )}
       </div>
 
+      <p className="mb-6 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 text-sm text-[var(--usha-muted)]">
+        {t("employerNote")}
+      </p>
+
       <h2 className="mb-4 text-lg font-bold">{t("applicationsCount", { count: applications?.length ?? 0 })}</h2>
       {!applications || applications.length === 0 ? (
         <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-8 text-center text-sm text-[var(--usha-muted)]">
@@ -103,6 +110,16 @@ export default async function GigDetailPage(props: { params: Promise<{ id: strin
                       <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${status.className}`}>
                         {status.text}
                       </span>
+                      {routes.get(a.applicant_id) === "payroll" && (
+                        <span className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-xs font-medium text-[var(--usha-gold)]">
+                          {t("routePayroll")}
+                        </span>
+                      )}
+                      {routes.get(a.applicant_id) === "own_company" && (
+                        <span className="rounded-full bg-[var(--usha-border)] px-2 py-0.5 text-xs font-medium text-[var(--usha-muted)]">
+                          {t("routeCompany")}
+                        </span>
+                      )}
                     </div>
                     {(styles.length > 0 || years != null) && (
                       <div className="mb-2 flex flex-wrap items-center gap-2 text-xs text-[var(--usha-muted)]">

@@ -18,6 +18,7 @@ import { PayB2BButton } from "./pay-b2b-button";
 import { RedeemSessionButton, DanceCounter } from "./redeem-session-button";
 import { RedeemMinutesButton, MinutesCounter } from "./redeem-minutes-button";
 import { calculateDiscountedPrice } from "@/lib/stripe/commission";
+import { loadAssignmentRoutes } from "@/lib/assignments/load";
 
 const STATUS_LABELS: Record<string, { labelKey: string; className: string }> = {
   pending: { labelKey: "statusPending", className: "bg-yellow-500/10 text-yellow-400" },
@@ -93,6 +94,13 @@ export default async function BookingsPage() {
   );
   const profileMap = Object.fromEntries(
     (profiles ?? []).map((p) => [p.id, p.full_name || t("fallbackPersonName")])
+  );
+  // Uppdrag till en kreatör utan bolag betalas som lön via Usha, inte direkt.
+  // Bara kreatörer man själv bokat slås upp.
+  const assignmentRoutes = await loadAssignmentRoutes(
+    (outgoing ?? [])
+      .filter((b) => listingMetaMap[b.listing_id]?.listing_type === "b2b_offering")
+      .map((b) => b.creator_id)
   );
 
   // Kommande kvällar per serie, för ombokning av biljetter. En biljett bor på
@@ -437,8 +445,19 @@ export default async function BookingsPage() {
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
                     {booking.status === "confirmed" &&
+                      listingMetaMap[booking.listing_id]?.listing_type === "b2b_offering" &&
+                      assignmentRoutes.get(booking.creator_id) === "payroll" && (
+                        <span className="max-w-xs rounded-lg bg-[var(--usha-gold)]/10 px-3 py-1.5 text-xs text-[var(--usha-gold)]">
+                          {t("assignmentPayrollPending")}
+                        </span>
+                      )}
+                    {booking.status === "confirmed" &&
                       ["b2b_offering", "service"].includes(
                         listingMetaMap[booking.listing_id]?.listing_type ?? ""
+                      ) &&
+                      !(
+                        listingMetaMap[booking.listing_id]?.listing_type === "b2b_offering" &&
+                        assignmentRoutes.get(booking.creator_id) === "payroll"
                       ) &&
                       !(booking as { stripe_payment_id?: string | null }).stripe_payment_id &&
                       (listingMetaMap[booking.listing_id]?.price ?? 0) > 0 && (

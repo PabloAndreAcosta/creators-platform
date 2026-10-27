@@ -1782,7 +1782,8 @@
     "payB2BButton": "Pay",
     "errorSelectOccurrence": "Choose which night to move the ticket to.",
     "noOtherOccurrences": "There are no other nights to move to.",
-    "rescheduleOccurrenceLabel": "New night"
+    "rescheduleOccurrenceLabel": "New night",
+    "assignmentPayrollPending": "The creator is employed via Usha. Payment opens once payroll is live — do not pay directly."
   },
   "listingsPage": {
     "back": "Back",
@@ -2828,7 +2829,7 @@
     "homeLabel": "Home",
     "toolsLabel": "Tools",
     "openGigsLabel": "Jobs",
-    "openGigsDesc": "Jobs to apply for as a dancer",
+    "openGigsDesc": "Assignments to apply for — no company needed, Usha pays you a salary",
     "productsLabel": "Products",
     "productsDesc": "Downloads the buyer gets instantly",
     "recommendationsLabel": "For you",
@@ -2849,7 +2850,7 @@
     "followersLabel": "Followers",
     "followersDesc": "Write to the people who follow you",
     "gigsLabel": "Jobs",
-    "gigsDesc": "Jobs you post and hire dancers for",
+    "gigsDesc": "Assignments you post and find creators for",
     "eventsLabel": "Events",
     "eventsDesc": "Something happening at a set time",
     "coursesLabel": "Courses",
@@ -3374,15 +3375,17 @@
     "submit": "Send application"
   },
   "gigsPage": {
-    "title": "Gigs",
-    "subtitle": "Event requests from arrangers looking for taxi dancers. Apply with a short message.",
-    "onlyTaxiDancers": "Only taxi dancers can apply to gigs.",
-    "readMore": "Learn more",
+    "title": "Assignments",
+    "subtitle": "Venues and organisers looking for creators for a session. Apply with a short message.",
     "emptyState": "No open gigs right now. Check back soon.",
     "arranger": "Arranger",
     "price": "{price} SEK",
     "perks": "Perks: {perks}",
-    "applied": "Applied"
+    "applied": "Applied",
+    "onlyCreators": "Assignments are open to creators. Switch to a creator account to apply.",
+    "payrollIntro": "You don’t need your own company. If you get the assignment, Usha employs you for the session: tax, employer contributions and holiday pay are handled for you, and you are paid the next day.",
+    "youGetPayroll": "You receive about {net} kr (gross pay {gross} kr, tax already deducted).",
+    "youGetCompany": "To your company: {amount} kr after Usha’s commission."
   },
   "joinEvent": {
     "joinErrorTitle": "Couldn't join",
@@ -3568,10 +3571,10 @@
   },
   "dashGigsPage": {
     "back": "Back",
-    "title": "Gigs",
-    "subtitle": "Post events and let taxi dancers apply.",
-    "newGig": "New gig",
-    "emptyState": "You don't have any gigs yet. Create your first one to start collecting applications from taxi dancers.",
+    "title": "Assignments",
+    "subtitle": "Post a session and let creators apply. If they have no company, Usha employs them — you never become the employer.",
+    "newGig": "New assignment",
+    "emptyState": "You have no assignments yet. Post your first one to start collecting applications from creators.",
     "statusOpen": "Open",
     "statusFilled": "Filled",
     "statusClosed": "Closed",
@@ -3621,7 +3624,10 @@
     "statusPending": "Pending",
     "statusAccepted": "Accepted",
     "statusDeclined": "Declined",
-    "statusWithdrawn": "Withdrawn"
+    "statusWithdrawn": "Withdrawn",
+    "routePayroll": "Employed via Usha",
+    "routeCompany": "Own company",
+    "employerNote": "You never become the employer. If the applicant has no company, Usha employs them for the session and handles tax and contributions. Never pay an applicant without a company directly."
   },
   "gigForm": {
     "errorPublishTitle": "Could not publish gig",

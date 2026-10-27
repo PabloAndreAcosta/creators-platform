@@ -4,6 +4,7 @@ import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from '@/lib/supabase/admin';
 import { calculateDiscountedPrice, getCreatorCommissionRate } from "@/lib/stripe/commission";
+import { assignmentRoute, ASSIGNMENT_PAYROLL_NOT_LIVE_MESSAGE } from "@/lib/assignments/route";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
 import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, buildTermsCustomText, type PayeeContext } from "@/lib/stripe/checkout";
 
@@ -119,12 +120,27 @@ export async function POST(req: NextRequest) {
 
     const { data: creator } = await createAdminClient()
       .from("profiles")
-      .select("stripe_account_id, tier, creator_subcategory, company_verified_at, stripe_card_payments_enabled, is_usha_owned_seller, company_name, org_number, full_name, terms_url")
+      .select("stripe_account_id, tier, creator_subcategory, is_company, company_verified_at, stripe_card_payments_enabled, is_usha_owned_seller, company_name, org_number, full_name, terms_url")
       .eq("id", listing.user_id)
       .single();
 
     if (!creator) {
       return NextResponse.json({ error: "Event not found" }, { status: 404 });
+    }
+
+    // Ett uppdrag till en kreatör utan bolag får aldrig betalas direkt till
+    // kreatören: beställaren blir då arbetsgivare. Det säljs av Usha och betalas
+    // som lön, och den vägen är inte i drift än. Kontrollen ligger FÖRE
+    // betagrinden, så att NEXT_PUBLIC_PAYMENTS_OPEN aldrig kan öppna den.
+    if (
+      listing.listing_type === "b2b_offering" &&
+      assignmentRoute({
+        is_company: creator.is_company ?? null,
+        company_verified_at: creator.company_verified_at,
+        is_usha_owned_seller: creator.is_usha_owned_seller,
+      }) === "payroll"
+    ) {
+      return NextResponse.json({ error: ASSIGNMENT_PAYROLL_NOT_LIVE_MESSAGE }, { status: 409 });
     }
 
     // Resolve flow first — Usha's own events (principal) need no connected account.
