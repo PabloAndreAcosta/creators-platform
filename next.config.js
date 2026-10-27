@@ -2,10 +2,10 @@ const createNextIntlPlugin = require('next-intl/plugin');
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 // Usha Games (Skuggspelet) körs som en egen Cloudflare Worker och bor dolt
-// under usha.se/spel tills det får en egen domän. Sidor och API-anrop skickas
+// under usha.se/spel; egen domän sedan 2026-10-27: ushagames.se. Sidor och API-anrop skickas
 // vidare hit; WebSocket kan Vercel inte skicka vidare, så spelets klient
 // ansluter då direkt till Workern. Repo: usha-ab/skuggspelet.
-const USHA_GAMES_ORIGIN = process.env.USHA_GAMES_ORIGIN || "https://usha-games.pablo-acosta-856.workers.dev";
+const USHA_GAMES_ORIGIN = process.env.USHA_GAMES_ORIGIN || "https://ushagames.se";
 const USHA_GAMES_WS = USHA_GAMES_ORIGIN.replace(/^http/, "ws");
 
 /** @type {import('next').NextConfig} */
