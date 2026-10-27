@@ -16,7 +16,7 @@
  */
 
 import { wageFromLabourBudget, type Wage } from "./wage";
-import { RATES_BY_YEAR } from "./rates";
+import { projectedRateInput } from "./rates";
 import { lasStatus, type LasStatus } from "./las";
 
 /** SAMekonomis avgift: 2 % av fakturabeloppet exkl. moms. */
@@ -108,8 +108,6 @@ function nextDay(iso: string): string {
   return d.toISOString().slice(0, 10);
 }
 
-const LATEST_RATE_YEAR = Math.max(...Object.keys(RATES_BY_YEAR).map(Number));
-
 export function shadowRun(
   creator: ShadowCreator,
   passes: readonly ShadowPass[],
@@ -125,9 +123,11 @@ export function shadowRun(
   for (const p of sorted) {
     const paidOn = nextDay(p.date);
     const month = paidOn.slice(0, 7);
-    const projected = options.projectMissingYears === true && !(Number(paidOn.slice(0, 4)) in RATES_BY_YEAR);
-    // Samma dag i senast kända år, så att datumgränser inom året fortfarande gäller.
-    const rateDate = projected ? `${LATEST_RATE_YEAR}${paidOn.slice(4)}` : paidOn;
+    const rated =
+      options.projectMissingYears === true
+        ? projectedRateInput(paidOn, creator.birthYear)
+        : { paidOn, birthYear: creator.birthYear, projected: false };
+    const projected = rated.projected;
     const mtd = monthGross.get(month) ?? { sam: 0, own: 0 };
 
     // Kvitta skuld från tidigare sena återbetalningar innan lönen räknas.
@@ -136,9 +136,8 @@ export function shadowRun(
     const budgetOre = p.labourBudgetOre - debtDeductedOre;
 
     const base = {
-      // Åldern räknas mot satsåret, så födelseåret flyttas lika mycket.
-      birthYear: creator.birthYear - (Number(paidOn.slice(0, 4)) - Number(rateDate.slice(0, 4))),
-      paidOn: rateDate,
+      birthYear: rated.birthYear,
+      paidOn: rated.paidOn,
       withholdingRate: creator.withholdingRate,
     };
     // SAMekonomi tar sin avgift först; resten går till löneberäkning.
