@@ -87,8 +87,10 @@ export async function applyToGig(gigId: string, message: string) {
   const ctx = await getViewer();
   if ("error" in ctx) return { error: ctx.error };
 
-  if (ctx.role !== "creator" || ctx.subcategory !== "taxi_dancer") {
-    return { error: "Endast taxidansare kan ansöka till gigs." };
+  // Uppdrag är öppna för alla kreatörer. Den som saknar bolag anställs via
+  // Usha för passet (src/lib/assignments), så beställaren blir aldrig arbetsgivare.
+  if (ctx.role !== "creator") {
+    return { error: "Endast kreatörer kan ansöka till uppdrag." };
   }
 
   const { data: gig } = await ctx.supabase

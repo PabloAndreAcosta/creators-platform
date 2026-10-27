@@ -1782,7 +1782,8 @@
     "payB2BButton": "Betala",
     "errorSelectOccurrence": "Välj vilken kväll biljetten ska flyttas till.",
     "noOtherOccurrences": "Det finns inga fler kvällar att flytta till.",
-    "rescheduleOccurrenceLabel": "Ny kväll"
+    "rescheduleOccurrenceLabel": "Ny kväll",
+    "assignmentPayrollPending": "Kreatören anställs via Usha. Betalningen öppnar när lönehanteringen är i drift — betala inte direkt."
   },
   "listingsPage": {
     "back": "Tillbaka",
@@ -2828,7 +2829,7 @@
     "homeLabel": "Hem",
     "toolsLabel": "Verktyg",
     "openGigsLabel": "Uppdrag",
-    "openGigsDesc": "Uppdrag att söka som dansare",
+    "openGigsDesc": "Uppdrag att söka — utan eget bolag får du lön via Usha",
     "productsLabel": "Produkter",
     "productsDesc": "Nedladdningsbart köparen får direkt",
     "recommendationsLabel": "För dig",
@@ -2849,7 +2850,7 @@
     "followersLabel": "Följare",
     "followersDesc": "Skriv till dem som följer dig",
     "gigsLabel": "Uppdrag",
-    "gigsDesc": "Uppdrag du lägger ut och söker dansare till",
+    "gigsDesc": "Uppdrag du lägger ut och söker kreatörer till",
     "eventsLabel": "Evenemang",
     "eventsDesc": "Något som händer en bestämd tid",
     "coursesLabel": "Kurser",
@@ -3374,15 +3375,17 @@
     "submit": "Skicka ansökan"
   },
   "gigsPage": {
-    "title": "Gigs",
-    "subtitle": "Eventförfrågningar från arrangörer som söker taxidansare. Ansök med ett kort meddelande.",
-    "onlyTaxiDancers": "Endast taxidansare kan ansöka till gigs.",
-    "readMore": "Läs mer",
+    "title": "Uppdrag",
+    "subtitle": "Lokaler och arrangörer som söker kreatörer för ett pass. Ansök med ett kort meddelande.",
     "emptyState": "Inga öppna gigs just nu. Kolla tillbaka snart.",
     "arranger": "Arrangör",
     "price": "{price} SEK",
     "perks": "Förmåner: {perks}",
-    "applied": "Ansökt"
+    "applied": "Ansökt",
+    "onlyCreators": "Uppdrag kan sökas av kreatörer. Byt till ett kreatörskonto för att ansöka.",
+    "payrollIntro": "Du behöver inget eget bolag. Får du uppdraget anställs du av Usha för passet: skatt, arbetsgivaravgift och semesterersättning sköts åt dig, och lönen kommer dagen efter.",
+    "youGetPayroll": "Du får ca {net} kr i handen (bruttolön {gross} kr, skatten är redan dragen).",
+    "youGetCompany": "Till ditt bolag: {amount} kr efter Ushas provision."
   },
   "joinEvent": {
     "joinErrorTitle": "Kunde inte gå med",
@@ -3568,10 +3571,10 @@
   },
   "dashGigsPage": {
     "back": "Tillbaka",
-    "title": "Gigs",
-    "subtitle": "Posta event och låt taxidansare ansöka.",
-    "newGig": "Nytt gig",
-    "emptyState": "Du har inga gigs än. Skapa ett första för att börja samla ansökningar från taxidansare.",
+    "title": "Uppdrag",
+    "subtitle": "Lägg ut ett pass och låt kreatörer ansöka. Har de inget bolag anställer Usha dem — ni blir aldrig arbetsgivare.",
+    "newGig": "Nytt uppdrag",
+    "emptyState": "Du har inga uppdrag än. Lägg ut ett första för att börja samla ansökningar från kreatörer.",
     "statusOpen": "Öppet",
     "statusFilled": "Tillsatt",
     "statusClosed": "Stängt",
@@ -3621,7 +3624,10 @@
     "statusPending": "Väntande",
     "statusAccepted": "Accepterad",
     "statusDeclined": "Avböjd",
-    "statusWithdrawn": "Tillbakadragen"
+    "statusWithdrawn": "Tillbakadragen",
+    "routePayroll": "Anställs via Usha",
+    "routeCompany": "Eget bolag",
+    "employerNote": "Ni blir aldrig arbetsgivare. Har den sökande inget bolag anställer Usha hen för passet och sköter skatt och avgifter. Betala aldrig en sökande utan bolag direkt."
   },
   "gigForm": {
     "errorPublishTitle": "Kunde inte publicera gig",

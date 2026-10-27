@@ -1782,7 +1782,8 @@
     "payB2BButton": "Pagar",
     "errorSelectOccurrence": "Elige a qué noche mover la entrada.",
     "noOtherOccurrences": "No hay más noches a las que mover.",
-    "rescheduleOccurrenceLabel": "Nueva noche"
+    "rescheduleOccurrenceLabel": "Nueva noche",
+    "assignmentPayrollPending": "El creador está contratado vía Usha. El pago se abrirá cuando la nómina esté activa — no pagues directamente."
   },
   "listingsPage": {
     "back": "Atrás",
@@ -2828,7 +2829,7 @@
     "homeLabel": "Inicio",
     "toolsLabel": "Herramientas",
     "openGigsLabel": "Trabajos",
-    "openGigsDesc": "Trabajos a los que postularte como bailarín",
+    "openGigsDesc": "Encargos a los que postularte — sin empresa, Usha te paga un salario",
     "productsLabel": "Productos",
     "productsDesc": "Descargas que el comprador recibe al instante",
     "recommendationsLabel": "Para ti",
@@ -2849,7 +2850,7 @@
     "followersLabel": "Seguidores",
     "followersDesc": "Escribe a quienes te siguen",
     "gigsLabel": "Trabajos",
-    "gigsDesc": "Trabajos que publicas y para los que buscas bailarines",
+    "gigsDesc": "Encargos que publicas y para los que buscas creadores",
     "eventsLabel": "Eventos",
     "eventsDesc": "Algo que ocurre a una hora fija",
     "coursesLabel": "Cursos",
@@ -3374,15 +3375,17 @@
     "submit": "Enviar solicitud"
   },
   "gigsPage": {
-    "title": "Gigs",
-    "subtitle": "Solicitudes de eventos de organizadores que buscan bailarines de taxi. Postula con un mensaje breve.",
-    "onlyTaxiDancers": "Solo los bailarines de taxi pueden postularse a los gigs.",
-    "readMore": "Saber más",
+    "title": "Encargos",
+    "subtitle": "Locales y organizadores que buscan creadores para una sesión. Postúlate con un mensaje breve.",
     "emptyState": "No hay gigs abiertos ahora mismo. Vuelve pronto.",
     "arranger": "Organizador",
     "price": "{price} SEK",
     "perks": "Beneficios: {perks}",
-    "applied": "Postulado"
+    "applied": "Postulado",
+    "onlyCreators": "Los encargos están abiertos a creadores. Cambia a una cuenta de creador para postularte.",
+    "payrollIntro": "No necesitas tu propia empresa. Si consigues el encargo, Usha te contrata para la sesión: impuestos, cotizaciones y pago de vacaciones se gestionan por ti, y cobras al día siguiente.",
+    "youGetPayroll": "Recibes unos {net} kr (salario bruto {gross} kr, impuestos ya descontados).",
+    "youGetCompany": "A tu empresa: {amount} kr tras la comisión de Usha."
   },
   "joinEvent": {
     "joinErrorTitle": "No se pudo unir",
@@ -3568,10 +3571,10 @@
   },
   "dashGigsPage": {
     "back": "Volver",
-    "title": "Gigs",
-    "subtitle": "Publica eventos y deja que los taxi dancers postulen.",
-    "newGig": "Nuevo gig",
-    "emptyState": "Aún no tienes gigs. Crea el primero para empezar a recibir solicitudes de taxi dancers.",
+    "title": "Encargos",
+    "subtitle": "Publica una sesión y deja que los creadores se postulen. Si no tienen empresa, Usha los contrata: nunca os convertís en empleador.",
+    "newGig": "Nuevo encargo",
+    "emptyState": "Aún no tienes encargos. Publica el primero para empezar a recibir solicitudes de creadores.",
     "statusOpen": "Abierto",
     "statusFilled": "Cubierto",
     "statusClosed": "Cerrado",
@@ -3621,7 +3624,10 @@
     "statusPending": "Pendiente",
     "statusAccepted": "Aceptada",
     "statusDeclined": "Rechazada",
-    "statusWithdrawn": "Retirada"
+    "statusWithdrawn": "Retirada",
+    "routePayroll": "Contratado vía Usha",
+    "routeCompany": "Empresa propia",
+    "employerNote": "Nunca os convertís en empleador. Si el solicitante no tiene empresa, Usha lo contrata para la sesión y gestiona impuestos y cotizaciones. Nunca pagues directamente a un solicitante sin empresa."
   },
   "gigForm": {
     "errorPublishTitle": "No se pudo publicar el evento",

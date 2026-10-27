@@ -4,6 +4,10 @@ import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { Calendar, MapPin, Briefcase } from "lucide-react";
 import { ApplyToGigButton } from "./apply-button";
+import { assignmentRoute } from "@/lib/assignments/route";
+import { quoteAssignment, creatorReceivesOre } from "@/lib/assignments/quote";
+import { getCreatorCommissionRate } from "@/lib/stripe/commission";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export default async function GigsFeedPage() {
   const t = await getTranslations("gigsPage");
@@ -21,7 +25,26 @@ export default async function GigsFeedPage() {
 
   const role = (profile as { role?: string | null } | null)?.role ?? null;
   const subcategory = (profile as { creator_subcategory?: string | null } | null)?.creator_subcategory ?? null;
-  const canApply = role === "creator" && subcategory === "taxi_dancer";
+  const canApply = role === "creator";
+
+  // Egna bolagsfält och nivå avgör vad ett gig ger i handen. Bolagsfälten är
+  // kolumnlåsta i profiles, så de läses med service-rollen — bara för en själv.
+  const { data: own } = canApply
+    ? await createAdminClient()
+        .from("profiles")
+        .select("tier, is_company, company_verified_at, is_usha_owned_seller")
+        .eq("id", user.id)
+        .single()
+    : { data: null };
+  const route = own
+    ? assignmentRoute({
+        is_company: own.is_company ?? null,
+        company_verified_at: own.company_verified_at ?? null,
+        is_usha_owned_seller: own.is_usha_owned_seller ?? null,
+      })
+    : null;
+  const commissionRate = getCreatorCommissionRate(own?.tier ?? "gratis", subcategory);
+  const kr = (ore: number) => Math.round(ore / 100).toLocaleString("sv-SE");
 
   const today = new Date().toISOString().slice(0, 10);
   const { data: gigs } = await supabase
@@ -31,7 +54,7 @@ export default async function GigsFeedPage() {
     .gte("event_date", today)
     .order("event_date", { ascending: true });
 
-  // Build a set of gig_ids the user has already applied to (only for taxi_dancers)
+  // Build a set of gig_ids the user has already applied to
   let appliedGigIds = new Set<string>();
   if (canApply && gigs && gigs.length > 0) {
     const { data: myApps } = await supabase
@@ -70,7 +93,13 @@ export default async function GigsFeedPage() {
 
       {!canApply && (
         <div className="mb-6 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 text-sm text-[var(--usha-muted)]">
-          {t("onlyTaxiDancers")} <Link href="/taxidansare" className="text-[var(--usha-gold)] hover:underline">{t("readMore")}</Link>.
+          {t("onlyCreators")}
+        </div>
+      )}
+
+      {canApply && route === "payroll" && (
+        <div className="mb-6 rounded-xl border border-[var(--usha-gold)]/30 bg-[var(--usha-gold)]/5 p-4 text-sm text-[var(--usha-muted)]">
+          {t("payrollIntro")}
         </div>
       )}
 
@@ -110,6 +139,22 @@ export default async function GigsFeedPage() {
                     {g.perks && (
                       <p className="mt-2 text-xs text-[var(--usha-accent)]">{t("perks", { perks: g.perks })}</p>
                     )}
+                    {route && (() => {
+                      const q = quoteAssignment({
+                        priceKr: g.proposed_price,
+                        route,
+                        commissionRate,
+                        // Lönen betalas dagen efter passet.
+                        paidOn: g.event_date,
+                      });
+                      return (
+                        <p className="mt-2 text-xs text-[var(--usha-muted)]">
+                          {q.route === "payroll"
+                            ? t("youGetPayroll", { net: kr(creatorReceivesOre(q)), gross: kr(q.wage.grossOre) })
+                            : t("youGetCompany", { amount: kr(creatorReceivesOre(q)) })}
+                        </p>
+                      );
+                    })()}
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
                     {canApply && !alreadyApplied && <ApplyToGigButton gigId={g.id} />}
