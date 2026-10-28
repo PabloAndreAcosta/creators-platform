@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { isPassBooking, passRemaining, passBookingFields, passSavings, passSeriesIds, redemptionSlice, pickOccurrence } from "../series-pass";
+import { isPassBooking, passRemaining, passBookingFields, passSavings, passSeriesIds, redemptionSlice, nextRedemptionSlice, storedOrLegacySlice, pickOccurrence } from "../series-pass";
 
 describe("klippkort på serie", () => {
   it("känner igen ett klippkort och räknar kvarvarande klipp", () => {
@@ -98,5 +98,35 @@ describe("rabatten på ett klippkort", () => {
 
   it("delar aldrig med noll", () => {
     expect(passSavings({ price: 800, sessionCount: 0 }, 2000)).toEqual({ perSession: 800, percent: 60 });
+  });
+});
+
+describe("klippets frysta värde", () => {
+  const card = { amount_paid: 60000, platform_fee_amount: 6000, credit_applied_ore: 0, sessions_total: 5 };
+
+  it("ger samma 1/N som förr när antalet klipp är oförändrat", () => {
+    expect(nextRedemptionSlice(card, [])).toEqual(redemptionSlice(card));
+  });
+
+  it("delar resten på de nya klippen när kortet räknats om", () => {
+    // Sabinas kort: 600 kr, två klipp à 120 kr tagna, tre kvar blir sex.
+    const taken = [redemptionSlice(card), redemptionSlice(card)];
+    const converted = { ...card, sessions_total: 8 };
+    expect(nextRedemptionSlice(converted, taken)).toEqual({ amount_paid: 6000, platform_fee_amount: 600, credit_applied_ore: 0 });
+  });
+
+  it("summerar exakt till kortets pris trots avrundning", () => {
+    const b = { amount_paid: 1000, platform_fee_amount: null, credit_applied_ore: 0, sessions_total: 3 };
+    const clips: ReturnType<typeof nextRedemptionSlice>[] = [];
+    for (let i = 0; i < 3; i++) clips.push(nextRedemptionSlice(b, clips));
+    expect(clips.reduce((a, c) => a + c.amount_paid, 0)).toBe(1000);
+    expect(clips[0].platform_fee_amount).toBeNull();
+  });
+
+  it("läser den frysta andelen och faller tillbaka på 1/N för äldre rader", () => {
+    expect(storedOrLegacySlice({ amount_paid_ore: 6000, platform_fee_ore: 600, credit_ore: null }, card))
+      .toEqual({ amount_paid: 6000, platform_fee_amount: 600, credit_applied_ore: 0 });
+    expect(storedOrLegacySlice({ amount_paid_ore: null, platform_fee_ore: null, credit_ore: null }, card))
+      .toEqual(redemptionSlice(card));
   });
 });
