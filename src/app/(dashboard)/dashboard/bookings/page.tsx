@@ -100,7 +100,7 @@ export default async function BookingsPage() {
   // Bara kreatörer man själv bokat slås upp.
   // När lönevägen är i drift betalas uppdraget till Usha som vanligt, så då
   // ska knappen synas. Annars förklaras varför den saknas.
-  const payrollLive = payrollRouteLive();
+  const payrollLive = (creatorId: string) => payrollRouteLive({ customerId: user.id, creatorId });
   const assignmentRoutes = await loadAssignmentRoutes(
     (outgoing ?? [])
       .filter((b) => listingMetaMap[b.listing_id]?.listing_type === "b2b_offering")
@@ -449,7 +449,7 @@ export default async function BookingsPage() {
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
                     {booking.status === "confirmed" &&
-                      !payrollLive &&
+                      !payrollLive(booking.creator_id) &&
                       listingMetaMap[booking.listing_id]?.listing_type === "b2b_offering" &&
                       assignmentRoutes.get(booking.creator_id) === "payroll" && (
                         <span className="max-w-xs rounded-lg bg-[var(--usha-gold)]/10 px-3 py-1.5 text-xs text-[var(--usha-gold)]">
@@ -461,7 +461,7 @@ export default async function BookingsPage() {
                         listingMetaMap[booking.listing_id]?.listing_type ?? ""
                       ) &&
                       !(
-                        !payrollLive &&
+                        !payrollLive(booking.creator_id) &&
                         listingMetaMap[booking.listing_id]?.listing_type === "b2b_offering" &&
                         assignmentRoutes.get(booking.creator_id) === "payroll"
                       ) &&

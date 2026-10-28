@@ -3383,7 +3383,7 @@
     "perks": "Beneficios: {perks}",
     "applied": "Postulado",
     "onlyCreators": "Los encargos están abiertos a creadores. Cambia a una cuenta de creador para postularte.",
-    "payrollIntro": "No necesitas tu propia empresa. Si consigues el encargo, Usha te contrata para la sesión: impuestos, cotizaciones y pago de vacaciones se gestionan por ti, y cobras al día siguiente.",
+    "payrollIntro": "No necesitas tu propia empresa. Si consigues el encargo, te contrata para la sesión el socio de nóminas de Usha: impuestos, cotizaciones y vacaciones se gestionan por ti, y el salario se paga después de la sesión.",
     "youGetPayroll": "Recibes unos {net} kr (salario bruto {gross} kr, impuestos ya descontados).",
     "youGetCompany": "A tu empresa: {amount} kr tras la comisión de Usha."
   },
@@ -4437,6 +4437,7 @@
     "statusVoided": "Anulada (reembolsada)",
     "statusSubmitted": "Enviada ({ref})",
     "statusPending": "Pendiente",
-    "statusShadow": "Prueba (no pagada vía Usha)"
+    "statusShadow": "Prueba (no pagada vía Usha)",
+    "pilotOn": "Piloto: la vía de nómina está activa para encargos donde comprador y creador están entre {n} cuentas de prueba."
   }
 }

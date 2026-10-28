@@ -3,7 +3,7 @@ import { requireAdmin } from "@/lib/admin/guard";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { AdminNav } from "@/components/admin/admin-nav";
 import { adminDestinationsFor } from "@/lib/navigation/registry";
-import { payrollRouteLive } from "@/lib/assignments/route";
+import { payrollRouteLiveForAll, payrollPilotIds } from "@/lib/assignments/route";
 import { loadPendingUnderlag } from "@/lib/assignments/load-underlag";
 import { markSubmitted } from "./actions";
 
@@ -21,7 +21,8 @@ export default async function AdminPayrollPage({ searchParams }: { searchParams:
   const { notice } = await searchParams;
   const access = await requireAdmin("full");
   const t = await getTranslations("adminPayroll");
-  const live = payrollRouteLive();
+  const live = payrollRouteLiveForAll();
+  const pilotCount = payrollPilotIds().length;
   const { rows, totalOre } = await loadPendingUnderlag();
 
   const { data: recent } = await createAdminClient()
@@ -51,6 +52,7 @@ export default async function AdminPayrollPage({ searchParams }: { searchParams:
         className={`mb-6 rounded-xl border px-4 py-3 text-sm ${live ? "border-green-500/20 bg-green-500/10 text-green-400" : "border-[var(--usha-gold)]/30 bg-[var(--usha-gold)]/5 text-[var(--usha-muted)]"}`}
       >
         {live ? t("liveOn") : t("liveOff")}
+        {!live && pilotCount > 0 && <p className="mt-1 font-medium">{t("pilotOn", { n: pilotCount })}</p>}
       </div>
 
       {notice && notices[notice] && (

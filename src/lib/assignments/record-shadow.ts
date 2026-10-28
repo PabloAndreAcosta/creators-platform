@@ -16,7 +16,7 @@ export async function recordAssignmentShadowLine(bookingId: string): Promise<"wr
   const db = createAdminClient();
   const { data: booking } = await db
     .from("bookings")
-    .select("id, creator_id, scheduled_at, agreed_price, status, stripe_payment_id, amount_paid, listing:listings(listing_type, price)")
+    .select("id, creator_id, customer_id, scheduled_at, agreed_price, status, stripe_payment_id, amount_paid, listing:listings(listing_type, price)")
     .eq("id", bookingId)
     .single();
   if (!booking || booking.status !== "completed") return "skipped";
@@ -49,7 +49,10 @@ export async function recordAssignmentShadowLine(bookingId: string): Promise<"wr
   // Betalades uppdraget till Usha är raden ett riktigt underlag, räknat på det
   // som faktiskt betalades. Annars är den ren skuggräkning på avtalat pris.
   const paidOre = booking.amount_paid ?? 0;
-  const live = payrollRouteLive() && !!booking.stripe_payment_id && paidOre > 0;
+  const live =
+    payrollRouteLive({ customerId: booking.customer_id, creatorId: booking.creator_id }) &&
+    !!booking.stripe_payment_id &&
+    paidOre > 0;
   const priceKr = live ? paidOre / 100 : (booking.agreed_price ?? listing.price ?? 0);
   const row = buildShadowLine({
     bookingId: booking.id,

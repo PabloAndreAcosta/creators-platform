@@ -3383,7 +3383,7 @@
     "perks": "Perks: {perks}",
     "applied": "Applied",
     "onlyCreators": "Assignments are open to creators. Switch to a creator account to apply.",
-    "payrollIntro": "You don’t need your own company. If you get the assignment, Usha employs you for the session: tax, employer contributions and holiday pay are handled for you, and you are paid the next day.",
+    "payrollIntro": "You don’t need your own company. If you get the assignment, you are employed for the session through Usha’s payroll partner: tax, employer contributions and holiday pay are handled for you, and your salary is paid after the session.",
     "youGetPayroll": "You receive about {net} kr (gross pay {gross} kr, tax already deducted).",
     "youGetCompany": "To your company: {amount} kr after Usha’s commission."
   },
@@ -4437,6 +4437,7 @@
     "statusVoided": "Voided (refunded)",
     "statusSubmitted": "Sent ({ref})",
     "statusPending": "Pending",
-    "statusShadow": "Shadow (not paid via Usha)"
+    "statusShadow": "Shadow (not paid via Usha)",
+    "pilotOn": "Pilot: the payroll route is live for assignments where both buyer and creator are among {n} test accounts."
   }
 }

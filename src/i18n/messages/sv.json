@@ -3383,7 +3383,7 @@
     "perks": "Förmåner: {perks}",
     "applied": "Ansökt",
     "onlyCreators": "Uppdrag kan sökas av kreatörer. Byt till ett kreatörskonto för att ansöka.",
-    "payrollIntro": "Du behöver inget eget bolag. Får du uppdraget anställs du av Usha för passet: skatt, arbetsgivaravgift och semesterersättning sköts åt dig, och lönen kommer dagen efter.",
+    "payrollIntro": "Du behöver inget eget bolag. Får du uppdraget anställs du för passet via Ushas lönepartner: skatt, arbetsgivaravgift och semesterersättning sköts åt dig, och lönen betalas ut efter passet.",
     "youGetPayroll": "Du får ca {net} kr i handen (bruttolön {gross} kr, skatten är redan dragen).",
     "youGetCompany": "Till ditt bolag: {amount} kr efter Ushas provision."
   },
@@ -4437,6 +4437,7 @@
     "statusVoided": "Struken (återbetald)",
     "statusSubmitted": "Skickad ({ref})",
     "statusPending": "Väntar",
-    "statusShadow": "Skugga (ej betald via Usha)"
+    "statusShadow": "Skugga (ej betald via Usha)",
+    "pilotOn": "Pilot: lönevägen är skarp för uppdrag där både beställare och kreatör finns bland {n} testkonton."
   }
 }

@@ -139,7 +139,7 @@ export async function POST(req: NextRequest) {
         company_verified_at: creator.company_verified_at,
         is_usha_owned_seller: creator.is_usha_owned_seller,
       }) === "payroll";
-    if (isPayrollAssignment && !payrollRouteLive()) {
+    if (isPayrollAssignment && !payrollRouteLive({ customerId: user.id, creatorId: listing.user_id })) {
       return NextResponse.json({ error: ASSIGNMENT_PAYROLL_NOT_LIVE_MESSAGE }, { status: 409 });
     }
 

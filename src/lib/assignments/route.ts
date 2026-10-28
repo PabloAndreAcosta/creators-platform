@@ -39,13 +39,38 @@ export function assignmentRoute(creator: RouteInput): AssignmentRoute {
 }
 
 /**
- * Lönevägen är byggd men inte i drift: lönekörning, AGI och utbetalning finns
- * bara i skuggläge (src/lib/payroll). Tills dess bokas uppdraget men betalas
- * inte i appen. Flaggan är en egen variabel och inte NEXT_PUBLIC_PAYMENTS_OPEN —
- * att öppna betalningar för privatpersoner får aldrig råka öppna lönevägen.
+ * Lönevägen är byggd men inte i drift. Tills den slås på för alla bokas
+ * uppdraget men betalas inte i appen. Flaggan är en egen variabel och inte
+ * NEXT_PUBLIC_PAYMENTS_OPEN — att öppna betalningar för privatpersoner får
+ * aldrig råka öppna lönevägen.
  */
-export function payrollRouteLive(): boolean {
+export function payrollRouteLiveForAll(): boolean {
   return process.env.ASSIGNMENT_PAYROLL_LIVE === "true";
+}
+
+/**
+ * Konton som får köra lönevägen skarpt innan den är öppen för alla — för att
+ * testa hela kedjan med riktiga pengar på egna konton.
+ */
+export function payrollPilotIds(): string[] {
+  return (process.env.ASSIGNMENT_PAYROLL_PILOT_IDS ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+/**
+ * Gäller lönevägen för just det här uppdraget?
+ *
+ * I piloten krävs att BÅDE beställaren och kreatören står på listan. Ett
+ * pilotkonto som bokar en riktig kreatör, eller tvärtom, ska aldrig kunna
+ * flytta pengar åt någon som inte valt att vara med i ett test.
+ */
+export function payrollRouteLive(parties?: { customerId?: string | null; creatorId?: string | null }): boolean {
+  if (payrollRouteLiveForAll()) return true;
+  const pilot = payrollPilotIds();
+  if (!parties || pilot.length === 0) return false;
+  return !!parties.customerId && !!parties.creatorId && pilot.includes(parties.customerId) && pilot.includes(parties.creatorId);
 }
 
 export const ASSIGNMENT_PAYROLL_NOT_LIVE_MESSAGE =
