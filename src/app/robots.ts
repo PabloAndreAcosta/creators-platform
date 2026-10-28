@@ -34,8 +34,8 @@ const PRIVATA_YTOR = [
   // hämtning. Den hör alltså hemma här av ett helt annat skäl än de övriga:
   // inte för att skydda uppgifter, utan för att adressen gör något.
   "/dorr/",
-  // Usha Games ligger dolt här tills det får en egen domän. Spelrummen är
-  // privata, och spelet ska inte dyka upp som en del av Usha i sökresultat.
+  // Usha Games har flyttat till ushagames.se; /spel skickar bara vidare dit.
+  // Spelet ska inte dyka upp som en del av Usha i sökresultat.
   // "$" och "/spel/" i stället för prefixet "/spel": annars stängs också
   // kreatörsadresser som börjar på "spel" (t.ex. /spelmannen).
   "/spel$",
