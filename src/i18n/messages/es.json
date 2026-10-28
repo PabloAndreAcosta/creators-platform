@@ -3366,7 +3366,7 @@
     "errorTitle": "No se pudo enviar la solicitud",
     "successTitle": "Solicitud enviada",
     "successBody": "El organizador recibe una notificación y responderá pronto.",
-    "modalTitle": "Postularme al gig",
+    "modalTitle": "Postularme al encargo",
     "messageLabel": "Mensaje para el organizador",
     "optional": "(opcional)",
     "messagePlaceholder": "Cuéntale un poco sobre ti, tus estilos o por qué encajas en este evento.",
@@ -3377,7 +3377,7 @@
   "gigsPage": {
     "title": "Encargos",
     "subtitle": "Locales y organizadores que buscan creadores para una sesión. Postúlate con un mensaje breve.",
-    "emptyState": "No hay gigs abiertos ahora mismo. Vuelve pronto.",
+    "emptyState": "No hay encargos abiertos ahora mismo. Vuelve pronto.",
     "arranger": "Organizador",
     "price": "{price} SEK",
     "perks": "Beneficios: {perks}",
@@ -3615,7 +3615,7 @@
     "declineButton": "Rechazar"
   },
   "gigDetail": {
-    "backToGigs": "Todos los gigs",
+    "backToGigs": "Todos los encargos",
     "perks": "Beneficios: {perks}",
     "applicationsCount": "Solicitudes ({count})",
     "noApplications": "Aún no hay solicitudes.",
