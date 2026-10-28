@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isPassBooking, passExpired, passRemaining, passSeriesIds, pickOccurrence, seriesOccurrences } from "@/lib/passes/series-pass";
+import { isPassBooking, passExpired, passRemaining, passSeriesIds, pickOccurrence, seriesOccurrences, sliceColumns, sliceForNextClip } from "@/lib/passes/series-pass";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
   // Fetch booking and verify the scanner is the creator of this listing
   const { data: booking, error: bookingError } = await admin
     .from("bookings")
-    .select("id, status, creator_id, checked_in_at, listing_id, guest_count, sessions_total, sessions_redeemed, pass_expires_at, listings(title)")
+    .select("id, status, creator_id, checked_in_at, listing_id, guest_count, sessions_total, sessions_redeemed, pass_expires_at, amount_paid, platform_fee_amount, credit_applied_ore, listings(title)")
     .eq("id", bookingId)
     .single();
 
@@ -196,6 +196,9 @@ async function checkInSeriesPass(opts: {
     listing_id: string;
     sessions_total: number | null;
     sessions_redeemed: number | null;
+    amount_paid: number | null;
+    platform_fee_amount: number | null;
+    credit_applied_ore: number | null;
   };
   t: Awaited<ReturnType<typeof getTranslations>>;
 }) {
@@ -237,10 +240,13 @@ async function checkInSeriesPass(opts: {
   // Ett SKANNAT klipp per kväll: det partiella unika indexet (booking,
   // tillfälle) where not is_manual är spärren mot dubbelskanning, oavsett hur
   // många telefoner som står i dörren. Manuella klipp ligger utanför det.
+  // Klippets andel av kortet fryses på raden, så att avräkningen inte ändras
+  // i efterhand om kortets antal klipp räknas om.
+  const slice = await sliceForNextClip(admin, booking.id, booking);
   const now = new Date().toISOString();
   const { error: clipError } = await admin
     .from("pass_redemptions")
-    .insert({ booking_id: booking.id, listing_id: today.id, scanned_by: userId, redeemed_at: now });
+    .insert({ booking_id: booking.id, listing_id: today.id, scanned_by: userId, redeemed_at: now, ...sliceColumns(slice) });
   if (clipError) {
     if (clipError.code === "23505") {
       const { data: prev } = await admin

@@ -94,6 +94,59 @@ export function redemptionSlice(b: PassMoney) {
   };
 }
 
+export interface PassSlice {
+  amount_paid: number;
+  platform_fee_amount: number | null;
+  credit_applied_ore: number;
+}
+
+/**
+ * Nästa klipps andel av kortet: det som är kvar av pengarna delat på de klipp
+ * som är kvar. Så länge antalet klipp är oförändrat blir det samma 1/N som
+ * förr, men ändras antalet — som när torsdagarna gick från 200 till 100 kr och
+ * korten fick dubbelt så många klipp — följer värdet med utan att redan
+ * avräknade kvällar räknas om. Sista klippet tar avrundningsresten, så klippen
+ * summerar exakt till kortets pris.
+ */
+export function nextRedemptionSlice(b: PassMoney, prior: readonly PassSlice[]): PassSlice {
+  const left = Math.max(1, (b.sessions_total ?? 1) - prior.length);
+  const rest = (total: number | null | undefined, taken: number) =>
+    Math.max(0, Math.round(((total ?? 0) - taken) / left));
+  const sum = (pick: (s: PassSlice) => number | null) => prior.reduce((acc, s) => acc + (pick(s) ?? 0), 0);
+  return {
+    amount_paid: rest(b.amount_paid, sum((s) => s.amount_paid)),
+    platform_fee_amount: b.platform_fee_amount == null ? null : rest(b.platform_fee_amount, sum((s) => s.platform_fee_amount)),
+    credit_applied_ore: rest(b.credit_applied_ore, sum((s) => s.credit_applied_ore)),
+  };
+}
+
+interface StoredSlice {
+  amount_paid_ore: number | null;
+  platform_fee_ore: number | null;
+  credit_ore: number | null;
+}
+
+/** Ett klipps andel: den frysta om raden har en, annars 1/N som förr. */
+export function storedOrLegacySlice(r: StoredSlice, b: PassMoney): PassSlice {
+  if (r.amount_paid_ore == null) return redemptionSlice(b);
+  return { amount_paid: r.amount_paid_ore, platform_fee_amount: r.platform_fee_ore, credit_applied_ore: r.credit_ore ?? 0 };
+}
+
+/** Kolumnerna en ny rad i pass_redemptions får för sin frysta andel. */
+export function sliceColumns(s: PassSlice) {
+  return { amount_paid_ore: s.amount_paid, platform_fee_ore: s.platform_fee_amount, credit_ore: s.credit_applied_ore };
+}
+
+/** Andelen för kortets nästa klipp, räknad mot de klipp som redan tagits. */
+export async function sliceForNextClip(admin: SupabaseClient, bookingId: string, b: PassMoney): Promise<PassSlice> {
+  const { data } = await admin
+    .from("pass_redemptions")
+    .select("amount_paid_ore, platform_fee_ore, credit_ore")
+    .eq("booking_id", bookingId);
+  const prior = ((data ?? []) as StoredSlice[]).map((r) => storedOrLegacySlice(r, b));
+  return nextRedemptionSlice(b, prior);
+}
+
 /**
  * Vad kortet sparar mot att betala kväll för kväll. Jämförelsen görs mot
  * kvällens ordinarie biljett för det kortet täcker, så procenten är sann och
@@ -164,8 +217,9 @@ export async function seriesOccurrences(
 
 /**
  * Avräkningsrader för ett tillfälle: varje inlöst klipp räknas som en biljett
- * värd 1/N av kortet. Återbetalda kort räknas inte alls — pengarna gick
- * tillbaka, och en delad återbetalning över flera kvällar är inte byggd.
+ * värd klippets frysta andel av kortet (1/N för äldre rader). Återbetalda kort
+ * räknas inte alls — pengarna gick tillbaka, och en delad återbetalning över
+ * flera kvällar är inte byggd.
  */
 export async function passRedemptionRows(
   admin: SupabaseClient,
@@ -173,14 +227,15 @@ export async function passRedemptionRows(
 ): Promise<SettlementBookingRow[]> {
   const { data } = await admin
     .from("pass_redemptions")
-    .select("booking:bookings!booking_id(status, amount_paid, platform_fee_amount, credit_applied_ore, sessions_total)")
+    .select("amount_paid_ore, platform_fee_ore, credit_ore, booking:bookings!booking_id(status, amount_paid, platform_fee_amount, credit_applied_ore, sessions_total)")
     .eq("listing_id", occurrenceId);
 
+  type Row = StoredSlice & { booking: (PassMoney & { status: string | null }) | (PassMoney & { status: string | null })[] | null };
   const rows: SettlementBookingRow[] = [];
-  for (const r of (data ?? []) as unknown as { booking: (PassMoney & { status: string | null }) | (PassMoney & { status: string | null })[] | null }[]) {
+  for (const r of (data ?? []) as unknown as Row[]) {
     const b = Array.isArray(r.booking) ? r.booking[0] : r.booking;
     if (!b || b.status === "canceled") continue;
-    rows.push({ status: "completed", guest_count: 1, refund_amount: null, ...redemptionSlice(b) });
+    rows.push({ status: "completed", guest_count: 1, refund_amount: null, ...storedOrLegacySlice(r, b) });
   }
   return rows;
 }
