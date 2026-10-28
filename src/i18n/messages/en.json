@@ -3366,7 +3366,7 @@
     "errorTitle": "Couldn't send application",
     "successTitle": "Application sent",
     "successBody": "The organizer gets a notification and will respond shortly.",
-    "modalTitle": "Apply to the gig",
+    "modalTitle": "Apply to the assignment",
     "messageLabel": "Message to the organizer",
     "optional": "(optional)",
     "messagePlaceholder": "Tell them a bit about yourself, your styles, or why you're a great fit for this event.",
@@ -3377,7 +3377,7 @@
   "gigsPage": {
     "title": "Assignments",
     "subtitle": "Venues and organisers looking for creators for a session. Apply with a short message.",
-    "emptyState": "No open gigs right now. Check back soon.",
+    "emptyState": "No open assignments right now. Check back soon.",
     "arranger": "Arranger",
     "price": "{price} SEK",
     "perks": "Perks: {perks}",
@@ -3615,7 +3615,7 @@
     "declineButton": "Decline"
   },
   "gigDetail": {
-    "backToGigs": "All gigs",
+    "backToGigs": "All assignments",
     "perks": "Perks: {perks}",
     "applicationsCount": "Applications ({count})",
     "noApplications": "No applications yet.",
@@ -3630,7 +3630,7 @@
     "employerNote": "You never become the employer. If the applicant has no company, Usha employs them for the session and handles tax and contributions. Never pay an applicant without a company directly."
   },
   "gigForm": {
-    "errorPublishTitle": "Could not publish gig",
+    "errorPublishTitle": "Could not publish the assignment",
     "titleLabel": "Title",
     "titlePlaceholder": "e.g. Tango night at Berns 2026-06-14",
     "descriptionLabel": "Description",
@@ -3647,7 +3647,7 @@
     "perksOptional": "(optional)",
     "perksPlaceholder": "e.g. free entry, drinks package, meal, parking, hotel",
     "submitPending": "Publishing...",
-    "submit": "Publish gig"
+    "submit": "Publish assignment"
   },
   "listingForm": {
     "passSeriesLabel": "Valid as a ticket for series",

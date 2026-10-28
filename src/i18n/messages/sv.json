@@ -3366,7 +3366,7 @@
     "errorTitle": "Kunde inte skicka ansökan",
     "successTitle": "Ansökan skickad",
     "successBody": "Arrangören får meddelande och svarar inom kort.",
-    "modalTitle": "Ansök till giget",
+    "modalTitle": "Ansök till uppdraget",
     "messageLabel": "Meddelande till arrangören",
     "optional": "(valfritt)",
     "messagePlaceholder": "Berätta kort om dig själv, dina stilar, eller varför du passar för det här eventet.",
@@ -3377,7 +3377,7 @@
   "gigsPage": {
     "title": "Uppdrag",
     "subtitle": "Lokaler och arrangörer som söker kreatörer för ett pass. Ansök med ett kort meddelande.",
-    "emptyState": "Inga öppna gigs just nu. Kolla tillbaka snart.",
+    "emptyState": "Inga öppna uppdrag just nu. Kolla tillbaka snart.",
     "arranger": "Arrangör",
     "price": "{price} SEK",
     "perks": "Förmåner: {perks}",
@@ -3615,7 +3615,7 @@
     "declineButton": "Avböj"
   },
   "gigDetail": {
-    "backToGigs": "Alla gigs",
+    "backToGigs": "Alla uppdrag",
     "perks": "Förmåner: {perks}",
     "applicationsCount": "Ansökningar ({count})",
     "noApplications": "Inga ansökningar än.",
@@ -3630,7 +3630,7 @@
     "employerNote": "Ni blir aldrig arbetsgivare. Har den sökande inget bolag anställer Usha hen för passet och sköter skatt och avgifter. Betala aldrig en sökande utan bolag direkt."
   },
   "gigForm": {
-    "errorPublishTitle": "Kunde inte publicera gig",
+    "errorPublishTitle": "Kunde inte publicera uppdraget",
     "titleLabel": "Titel",
     "titlePlaceholder": "t.ex. Tango-kväll på Berns 2026-06-14",
     "descriptionLabel": "Beskrivning",
@@ -3647,7 +3647,7 @@
     "perksOptional": "(valfritt)",
     "perksPlaceholder": "t.ex. gratis entré, dryckespaket, måltid, parkering, hotell",
     "submitPending": "Publicerar...",
-    "submit": "Publicera gig"
+    "submit": "Publicera uppdrag"
   },
   "listingForm": {
     "passSeriesLabel": "Gäller som biljett på serie",
