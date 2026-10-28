@@ -4,7 +4,7 @@ import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from '@/lib/supabase/admin';
 import { calculateDiscountedPrice, getCreatorCommissionRate } from "@/lib/stripe/commission";
-import { assignmentRoute, ASSIGNMENT_PAYROLL_NOT_LIVE_MESSAGE } from "@/lib/assignments/route";
+import { assignmentRoute, payrollRouteLive, ASSIGNMENT_PAYROLL_NOT_LIVE_MESSAGE } from "@/lib/assignments/route";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
 import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, buildTermsCustomText, type PayeeContext } from "@/lib/stripe/checkout";
 
@@ -132,14 +132,14 @@ export async function POST(req: NextRequest) {
     // kreatören: beställaren blir då arbetsgivare. Det säljs av Usha och betalas
     // som lön, och den vägen är inte i drift än. Kontrollen ligger FÖRE
     // betagrinden, så att NEXT_PUBLIC_PAYMENTS_OPEN aldrig kan öppna den.
-    if (
+    const isPayrollAssignment =
       listing.listing_type === "b2b_offering" &&
       assignmentRoute({
         is_company: creator.is_company ?? null,
         company_verified_at: creator.company_verified_at,
         is_usha_owned_seller: creator.is_usha_owned_seller,
-      }) === "payroll"
-    ) {
+      }) === "payroll";
+    if (isPayrollAssignment && !payrollRouteLive({ customerId: user.id, creatorId: listing.user_id })) {
       return NextResponse.json({ error: ASSIGNMENT_PAYROLL_NOT_LIVE_MESSAGE }, { status: 409 });
     }
 
@@ -153,7 +153,9 @@ export async function POST(req: NextRequest) {
       org_number: creator.org_number ?? null,
       full_name: creator.full_name ?? null,
     };
-    const flow = resolvePayeeFlow(payee);
+    // Uppdrag på lönevägen säljs av Usha i eget namn: hela beloppet stannar på
+    // plattformskontot, och kreatören får lön via SAMekonomi efter passet.
+    const flow = isPayrollAssignment ? "usha_principal" : resolvePayeeFlow(payee);
 
     if (flow === "third_party") {
       if (!creator.stripe_account_id) {
@@ -209,6 +211,7 @@ export async function POST(req: NextRequest) {
         userId: user.id,
         creatorId: listing.user_id,
         listingId: listing.id,
+        ...(isPayrollAssignment ? { assignment: "payroll" } : {}),
       },
     });
 

@@ -3383,7 +3383,7 @@
     "perks": "Perks: {perks}",
     "applied": "Applied",
     "onlyCreators": "Assignments are open to creators. Switch to a creator account to apply.",
-    "payrollIntro": "You don’t need your own company. If you get the assignment, Usha employs you for the session: tax, employer contributions and holiday pay are handled for you, and you are paid the next day.",
+    "payrollIntro": "You don’t need your own company. If you get the assignment, you are employed for the session through Usha’s payroll partner: tax, employer contributions and holiday pay are handled for you, and your salary is paid after the session.",
     "youGetPayroll": "You receive about {net} kr (gross pay {gross} kr, tax already deducted).",
     "youGetCompany": "To your company: {amount} kr after Usha’s commission."
   },
@@ -4082,7 +4082,9 @@
     "promoDesc": "Create promo codes and follow how they're used.",
     "navLabel": "Admin",
     "accessLabel": "Permissions",
-    "accessDesc": "Give partners access to individual admin tools."
+    "accessDesc": "Give partners access to individual admin tools.",
+    "payrollLabel": "Payroll basis",
+    "payrollDesc": "Completed assignments to send to SAMekonomi as salary."
   },
   "adminCreators": {
     "previewProfile": "Preview the profile as it looks publicly",
@@ -4403,5 +4405,39 @@
     "emptyBody": "Followers appear when someone chooses it themselves — on your profile, on an event page, or from their ticket after a purchase. Nobody lands here just for buying from you. Share your profile and they will come.",
     "consentNote": "Everyone listed here confirmed their address by email and can stop any time. Account followers get in-app notifications, not emails — a follow click is not a subscription.",
     "pastHeading": "Past sends"
+  },
+  "adminPayroll": {
+    "title": "Payroll basis",
+    "intro": "Assignments completed by creators without a company and paid to Usha. One row per creator, with exactly the fields SAMekonomi’s collective invoice requires. Enter their invoice number once the row is added.",
+    "liveOn": "The payroll route is live: assignments for creators without a company are paid to Usha and appear here after the session.",
+    "liveOff": "The payroll route is off (ASSIGNMENT_PAYROLL_LIVE). Assignments can be booked but not paid, and only shadow calculations appear here.",
+    "noticeSubmitted": "Marked as sent. These assignments will not be included again.",
+    "noticeMissing": "Enter SAMekonomi’s invoice number.",
+    "noticeBlocked": "The row cannot be sent: personal number missing or nothing pending.",
+    "pendingTitle": "To send to SAMekonomi ({total})",
+    "downloadCsv": "Download as file",
+    "pendingEmpty": "Nothing pending. A row appears when a paid assignment for a creator without a company is marked completed.",
+    "fieldName": "Name",
+    "fieldPnr": "Personal number",
+    "pnrMissing": "Missing — the creator must verify with BankID",
+    "fieldTitle": "Position/title/occupation",
+    "fieldDescription": "Description of work",
+    "fieldAmount": "Amount excl. VAT",
+    "debtDeducted": "({sum} minus debt {debt} from a refund)",
+    "referencePlaceholder": "SAMekonomi invoice number",
+    "markSubmitted": "Mark as sent",
+    "recentTitle": "Latest rows",
+    "recentEmpty": "No rows yet.",
+    "colDate": "Session",
+    "colPrice": "Price",
+    "colBudget": "To payroll",
+    "colNetSam": "Net via SAM",
+    "colNetOwn": "Net in-house",
+    "colStatus": "Status",
+    "statusVoided": "Voided (refunded)",
+    "statusSubmitted": "Sent ({ref})",
+    "statusPending": "Pending",
+    "statusShadow": "Shadow (not paid via Usha)",
+    "pilotOn": "Pilot: the payroll route is live for assignments where both buyer and creator are among {n} test accounts."
   }
 }

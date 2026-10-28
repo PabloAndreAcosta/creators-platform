@@ -3383,7 +3383,7 @@
     "perks": "Förmåner: {perks}",
     "applied": "Ansökt",
     "onlyCreators": "Uppdrag kan sökas av kreatörer. Byt till ett kreatörskonto för att ansöka.",
-    "payrollIntro": "Du behöver inget eget bolag. Får du uppdraget anställs du av Usha för passet: skatt, arbetsgivaravgift och semesterersättning sköts åt dig, och lönen kommer dagen efter.",
+    "payrollIntro": "Du behöver inget eget bolag. Får du uppdraget anställs du för passet via Ushas lönepartner: skatt, arbetsgivaravgift och semesterersättning sköts åt dig, och lönen betalas ut efter passet.",
     "youGetPayroll": "Du får ca {net} kr i handen (bruttolön {gross} kr, skatten är redan dragen).",
     "youGetCompany": "Till ditt bolag: {amount} kr efter Ushas provision."
   },
@@ -4082,7 +4082,9 @@
     "promoDesc": "Skapa och följ upp rabattkoder.",
     "navLabel": "Admin",
     "accessLabel": "Behörigheter",
-    "accessDesc": "Ge partners tillgång till enskilda adminverktyg."
+    "accessDesc": "Ge partners tillgång till enskilda adminverktyg.",
+    "payrollLabel": "Löneunderlag",
+    "payrollDesc": "Genomförda uppdrag som ska till SAMekonomi som lön."
   },
   "adminCreators": {
     "previewProfile": "Förhandsgranska profilen så som den ser ut publikt",
@@ -4403,5 +4405,39 @@
     "emptyBody": "Följare samlas när någon själv väljer det — på din profil, på en eventsida eller från sin biljett efter ett köp. Ingen hamnar här för att de handlat av dig. Dela din profil så kommer de.",
     "consentNote": "Alla som står här har bekräftat sin adress i ett mejl och kan avsluta när de vill. Kontoföljare får notiser i appen, inte utskick — ett följ-klick är inte en prenumeration.",
     "pastHeading": "Tidigare utskick"
+  },
+  "adminPayroll": {
+    "title": "Löneunderlag",
+    "intro": "Uppdrag som kreatörer utan bolag genomfört och som betalats till Usha. En rad per kreatör, med exakt de fält SAMekonomis samlingsfaktura kräver. Fyll i deras fakturanummer när raden är inlagd.",
+    "liveOn": "Lönevägen är i drift: uppdrag till kreatörer utan bolag betalas till Usha och hamnar här efter passet.",
+    "liveOff": "Lönevägen är avstängd (ASSIGNMENT_PAYROLL_LIVE). Uppdrag kan bokas men inte betalas, och här syns bara skuggräkning.",
+    "noticeSubmitted": "Markerat som skickat. Uppdragen följer inte med i nästa underlag.",
+    "noticeMissing": "Fyll i SAMekonomis fakturanummer.",
+    "noticeBlocked": "Raden kan inte skickas: personnummer saknas eller inget väntar längre.",
+    "pendingTitle": "Att skicka till SAMekonomi ({total})",
+    "downloadCsv": "Ladda ner som fil",
+    "pendingEmpty": "Inget väntar. En rad dyker upp när ett betalt uppdrag till en kreatör utan bolag markeras genomfört.",
+    "fieldName": "Namn",
+    "fieldPnr": "Personnummer",
+    "pnrMissing": "Saknas — kreatören måste verifiera sig med BankID",
+    "fieldTitle": "Befattning/titel/yrke",
+    "fieldDescription": "Beskriv ditt arbete",
+    "fieldAmount": "Belopp exkl. moms",
+    "debtDeducted": "({sum} minus skuld {debt} från återbetalning)",
+    "referencePlaceholder": "SAMekonomis fakturanummer",
+    "markSubmitted": "Markera som skickad",
+    "recentTitle": "Senaste raderna",
+    "recentEmpty": "Inga rader än.",
+    "colDate": "Pass",
+    "colPrice": "Pris",
+    "colBudget": "Till lön",
+    "colNetSam": "Netto via SAM",
+    "colNetOwn": "Netto egen regi",
+    "colStatus": "Status",
+    "statusVoided": "Struken (återbetald)",
+    "statusSubmitted": "Skickad ({ref})",
+    "statusPending": "Väntar",
+    "statusShadow": "Skugga (ej betald via Usha)",
+    "pilotOn": "Pilot: lönevägen är skarp för uppdrag där både beställare och kreatör finns bland {n} testkonton."
   }
 }

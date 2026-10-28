@@ -1012,6 +1012,13 @@ export async function POST(req: NextRequest) {
               refundedOre: charge.amount_refunded,
             }).catch((e) => console.error("recordRefundDebt failed:", e));
 
+            // Uppdrag på lönevägen: stryk underlaget, eller gör returen till en
+            // skuld om lönen redan gått via SAMekonomi.
+            const { recordAssignmentRefund } = await import("@/lib/assignments/record-shadow");
+            await recordAssignmentRefund(refundedBooking.id, charge.amount_refunded).catch((e) =>
+              console.error("recordAssignmentRefund failed:", e)
+            );
+
             // External refund on an active ticket → release the seat(s) and
             // notify the waitlist, mirroring the in-app path.
             if (!alreadyCanceled && refundedBooking.booking_type === "ticket") {

@@ -32,6 +32,21 @@ describe("payrollRouteLive", () => {
     expect(payrollRouteLive()).toBe(false);
   });
 
+  it("piloten kräver att både beställare och kreatör står på listan", () => {
+    delete process.env.ASSIGNMENT_PAYROLL_LIVE;
+    process.env.ASSIGNMENT_PAYROLL_PILOT_IDS = "kund-test, kreator-test";
+    expect(payrollRouteLive({ customerId: "kund-test", creatorId: "kreator-test" })).toBe(true);
+    expect(payrollRouteLive({ customerId: "kund-test", creatorId: "riktig-kreator" })).toBe(false);
+    expect(payrollRouteLive({ customerId: "riktig-kund", creatorId: "kreator-test" })).toBe(false);
+    expect(payrollRouteLive()).toBe(false);
+  });
+
+  it("flaggan för alla går före piloten", () => {
+    process.env.ASSIGNMENT_PAYROLL_LIVE = "true";
+    delete process.env.ASSIGNMENT_PAYROLL_PILOT_IDS;
+    expect(payrollRouteLive({ customerId: "vem-som-helst", creatorId: "vem-som-helst" })).toBe(true);
+  });
+
   it("öppnas inte av att betalningar öppnas för alla", () => {
     process.env.NEXT_PUBLIC_PAYMENTS_OPEN = "true";
     delete process.env.ASSIGNMENT_PAYROLL_LIVE;
