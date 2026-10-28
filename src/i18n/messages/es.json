@@ -4082,7 +4082,9 @@
     "promoDesc": "Crea códigos de descuento y sigue su uso.",
     "navLabel": "Admin",
     "accessLabel": "Permisos",
-    "accessDesc": "Da a los socios acceso a herramientas concretas."
+    "accessDesc": "Da a los socios acceso a herramientas concretas.",
+    "payrollLabel": "Base de nómina",
+    "payrollDesc": "Encargos realizados que se envían a SAMekonomi como salario."
   },
   "adminCreators": {
     "previewProfile": "Ver el perfil tal como se muestra públicamente",
@@ -4403,5 +4405,38 @@
     "emptyBody": "Los seguidores llegan cuando alguien lo elige: en tu perfil, en la página de un evento o desde su entrada tras una compra. Nadie acaba aquí solo por haberte comprado algo. Comparte tu perfil y vendrán.",
     "consentNote": "Todas las personas aquí confirmaron su dirección por correo y pueden darse de baja cuando quieran. Quien te sigue con cuenta recibe avisos en la app, no correos: seguir no es suscribirse.",
     "pastHeading": "Envíos anteriores"
+  },
+  "adminPayroll": {
+    "title": "Base de nómina",
+    "intro": "Encargos realizados por creadores sin empresa y pagados a Usha. Una fila por creador, con exactamente los campos que exige la factura colectiva de SAMekonomi. Introduce su número de factura cuando la fila esté añadida.",
+    "liveOn": "La vía de nómina está activa: los encargos de creadores sin empresa se pagan a Usha y aparecen aquí después de la sesión.",
+    "liveOff": "La vía de nómina está desactivada (ASSIGNMENT_PAYROLL_LIVE). Los encargos se pueden reservar pero no pagar, y aquí solo aparecen cálculos de prueba.",
+    "noticeSubmitted": "Marcado como enviado. Estos encargos no se incluirán de nuevo.",
+    "noticeMissing": "Introduce el número de factura de SAMekonomi.",
+    "noticeBlocked": "La fila no se puede enviar: falta el número personal o ya no hay nada pendiente.",
+    "pendingTitle": "Para enviar a SAMekonomi ({total})",
+    "downloadCsv": "Descargar como archivo",
+    "pendingEmpty": "Nada pendiente. Aparece una fila cuando un encargo pagado de un creador sin empresa se marca como realizado.",
+    "fieldName": "Nombre",
+    "fieldPnr": "Número personal",
+    "pnrMissing": "Falta: el creador debe verificarse con BankID",
+    "fieldTitle": "Cargo/título/profesión",
+    "fieldDescription": "Descripción del trabajo",
+    "fieldAmount": "Importe sin IVA",
+    "debtDeducted": "({sum} menos deuda {debt} por un reembolso)",
+    "referencePlaceholder": "Número de factura de SAMekonomi",
+    "markSubmitted": "Marcar como enviado",
+    "recentTitle": "Últimas filas",
+    "recentEmpty": "Aún no hay filas.",
+    "colDate": "Sesión",
+    "colPrice": "Precio",
+    "colBudget": "A nómina",
+    "colNetSam": "Neto vía SAM",
+    "colNetOwn": "Neto propio",
+    "colStatus": "Estado",
+    "statusVoided": "Anulada (reembolsada)",
+    "statusSubmitted": "Enviada ({ref})",
+    "statusPending": "Pendiente",
+    "statusShadow": "Prueba (no pagada vía Usha)"
   }
 }
