@@ -18,6 +18,7 @@ import { EmailFollowForm } from "@/components/email-follow-form";
 import { FollowUs } from "@/components/follow-us";
 import { getTranslations, getLocale } from "next-intl/server";
 import { canonicalSeriesSlug } from "@/lib/listings/series-aliases";
+import { seriesRepresentative } from "@/lib/listings/series-representative";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -90,7 +91,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 
   if (occurrences.length === 0) return { title: t("metaTitleFallback") };
 
-  const s = occurrences[0];
+  const s = seriesRepresentative(occurrences, new Date().toISOString().slice(0, 10))!;
   const title = t("metaTitle", { title: s.title });
   // Samma behandling som eventsidan: plats först, dekorativ inledning och
   // andraspråk bort. Utan det inleds förhandsvisningen med brödtextens början
@@ -196,7 +197,8 @@ export default async function SeriesPage(props: Props) {
   } = await supabase.auth.getUser();
   const isLoggedIn = !!user;
 
-  const series = occurrences[0];
+  // Inte den första kvällen: en inställd premiär satte annars "INSTÄLLT" på hela serien.
+  const series = seriesRepresentative(occurrences, new Date().toISOString().slice(0, 10))!;
 
   const locale = await resolveLocale(series);
   const t = await getTranslations({ locale, namespace: "seriesPage" });
@@ -260,7 +262,7 @@ export default async function SeriesPage(props: Props) {
       .filter((o): o is typeof o & { event_date: string } => !!o.event_date)
       .map((o) => ({
         "@type": "Event",
-        name: series.title,
+        name: o.title,
         startDate: stockholmEventISO(o.event_date, o.event_time),
         url: `${appUrl()}/listing/${o.slug || o.id}`,
         ...(o.event_location ? { location: { "@type": "Place", name: o.event_location } } : {}),
