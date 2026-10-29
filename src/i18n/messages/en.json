@@ -4705,11 +4705,11 @@
     "volunteerCta": "See volunteer shifts",
     "instructorTitle": "Teach at open evenings",
     "instructorBody": "Join evenings that are open to instructors and sell mini sessions – from 15 minutes up to four hours. You set your hourly rate. Usha takes a {free}% commission ({gold}% with Gold, {premium}% with Premium).",
-    "instructorReq": "Your own company with F-tax, verified in the app, and a Gold or Premium membership.",
+    "instructorReq": "Your own company with F-tax and a Gold or Premium membership. Without a company: salary via Usha’s payroll partner – coming soon.",
     "instructorCta": "See open evenings",
     "assignmentsTitle": "Take assignments",
-    "assignmentsBody": "Venues and organisers post sessions. You apply and see beforehand what the assignment pays. With your own company you invoice through it, minus Usha’s commission. Salary via Usha for those without a company – coming soon.",
-    "assignmentsReq": "Creator account and Mobile BankID.",
+    "assignmentsBody": "Venues and organisers post sessions. You apply and see beforehand what the assignment pays. With your own company you invoice through it, minus Usha’s commission. Without a company you are employed for the session through Usha’s payroll partner, which handles tax, contributions and holiday pay – coming soon.",
+    "assignmentsReq": "Creator account and Mobile BankID. Your own company, or salary via Usha’s payroll partner.",
     "assignmentsCta": "See assignments"
   }
 }

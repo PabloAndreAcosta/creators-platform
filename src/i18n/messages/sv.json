@@ -4705,11 +4705,11 @@
     "volunteerCta": "Se volontärpassen",
     "instructorTitle": "Lär ut på öppna kvällar",
     "instructorBody": "Gå med på kvällar som är öppna för instruktörer och sälj minisessioner – från 15 minuter upp till fyra timmar. Du sätter ditt timpris. Usha tar {free} % i provision ({gold} % med Guld, {premium} % med Premium).",
-    "instructorReq": "Eget företag med F-skatt, verifierat i appen, och Guld- eller Premium-medlemskap.",
+    "instructorReq": "Eget företag med F-skatt och Guld- eller Premium-medlemskap. Utan företag: lön via Ushas lönepartner – kommer snart.",
     "instructorCta": "Se öppna kvällar",
     "assignmentsTitle": "Ta uppdrag",
-    "assignmentsBody": "Lokaler och arrangörer lägger ut pass. Du ansöker och ser innan vad uppdraget ger. Med eget företag fakturerar du via ditt bolag, minus Ushas provision. Lön via Usha för dig utan företag – kommer snart.",
-    "assignmentsReq": "Kreatörskonto och Mobilt BankID.",
+    "assignmentsBody": "Lokaler och arrangörer lägger ut pass. Du ansöker och ser innan vad uppdraget ger. Med eget företag fakturerar du via ditt bolag, minus Ushas provision. Utan företag anställs du för passet via Ushas lönepartner, som sköter skatt, avgifter och semesterersättning – kommer snart.",
+    "assignmentsReq": "Kreatörskonto och Mobilt BankID. Eget företag, eller lön via Ushas lönepartner.",
     "assignmentsCta": "Se uppdragen"
   }
 }
