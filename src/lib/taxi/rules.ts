@@ -4,7 +4,8 @@
  * En taxidansare är VOLONTÄR. Hen får ingen lön, bara fri entré och en
  * matkupong (burgare + alkoholfri dryck) per kväll. Passen ligger mellan
  * 17 och 23 och är minst två timmar, och dansaren väljer själv vilka pass
- * hen tar. Alkoholfritt under passet, och den som anmäler sig ska ha fyllt 18.
+ * hen tar. Alkoholfritt under passet. Den som anmäler sig ska ha verifierat
+ * sig med Mobilt BankID och ha fyllt 18.
  *
  * Avbokning ska ske senast kl. 10 samma dag. Sen avbokning eller uteblivet
  * pass (ingen incheckning) ger en varning. Tre varningar inom sex månader hos
@@ -19,6 +20,7 @@
  */
 
 import { stockholmEventISO, stockholmToday } from "@/lib/time";
+import { ageOnDate } from "@/lib/bankid/birth-date";
 
 export const TAXI_WINDOW = { from: "17:00", to: "23:00" } as const;
 export const MIN_SHIFT_MINUTES = 120;
@@ -135,21 +137,21 @@ export function canCheckIn(shift: { starts_at: string; ends_at: string }, now: D
   return t >= ms(shift.starts_at) - CHECKIN_EARLY_MINUTES * MIN && t <= ms(shift.ends_at);
 }
 
+export type DancerEligibility = "ok" | "bankid" | "bankidAgain" | "age";
+
 /**
- * Ålder på ett datum ur ett BankID-personnummer (ÅÅÅÅMMDD-NNNN eller
- * ÅÅÅÅMMDDNNNN). Samordningsnummer har dag + 60. Okänt format → null, och då
- * får dansaren intyga åldern själv.
+ * Får den här personen ta taxipass? Kräver Mobilt BankID (inte bara ett
+ * äldre konto som släppts igenom utan), och att BankID-födelsedatumet ger
+ * minst 18 år på kvällens datum. Verifierade före 2026-10-29 saknar
+ * födelsedatum och får verifiera sig en gång till.
  */
-export function ageOn(personalNumber: string | null | undefined, date: string): number | null {
-  const m = (personalNumber ?? "").replace(/\D/g, "").match(/^(\d{4})(\d{2})(\d{2})\d{4}$/);
-  if (!m) return null;
-  const y = Number(m[1]);
-  const mo = Number(m[2]);
-  const d = Number(m[3]) > 60 ? Number(m[3]) - 60 : Number(m[3]);
-  const [ty, tm, td] = date.split("-").map(Number);
-  let age = ty - y;
-  if (tm < mo || (tm === mo && td < d)) age--;
-  return age;
+export function dancerEligibility(
+  p: { bankid_verified_at: string | null; bankid_birth_date: string | null },
+  eventDate: string,
+): DancerEligibility {
+  if (!p.bankid_verified_at) return "bankid";
+  if (!p.bankid_birth_date) return "bankidAgain";
+  return ageOnDate(p.bankid_birth_date, eventDate) >= MIN_AGE ? "ok" : "age";
 }
 
 /** Kvällen har inte passerat i Stockholm. */

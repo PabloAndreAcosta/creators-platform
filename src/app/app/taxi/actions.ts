@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { loadEvening, loadShifts, loadStrikeFacts } from "@/lib/taxi/data";
-import { ageOn, canCheckIn, isLateCancel, strikeStatus, MIN_AGE } from "@/lib/taxi/rules";
+import { canCheckIn, dancerEligibility, isLateCancel, strikeStatus } from "@/lib/taxi/rules";
 
 const back = (listingId: string, notice: string) => redirect(`/app/taxi/${listingId}?notice=${notice}`);
 
@@ -18,8 +18,9 @@ async function viewer() {
 }
 
 /**
- * Anmälan till ett eller flera pass. Volontärvillkoren, åldern och
- * avbokningsregeln måste bekräftas; samtycke till bilder är ett eget val.
+ * Anmälan till ett eller flera pass. Kräver Mobilt BankID och 18 år.
+ * Volontärvillkoren och reglerna måste bekräftas; samtycke till bilder är ett
+ * eget val.
  */
 export async function signUpForShifts(formData: FormData) {
   const listingId = String(formData.get("listingId") ?? "");
@@ -29,7 +30,6 @@ export async function signUpForShifts(formData: FormData) {
   const shiftIds = formData.getAll("shiftId").map(String).filter(Boolean);
   const volunteer = formData.get("volunteer") === "on";
   const rules = formData.get("rules") === "on";
-  const ageConfirmed = formData.get("age") === "on";
   const photoConsent = formData.get("photo") === "yes";
   if (shiftIds.length === 0) back(listingId, "noShift");
   if (!volunteer || !rules) back(listingId, "mustAccept");
@@ -40,15 +40,15 @@ export async function signUpForShifts(formData: FormData) {
   const db = createAdminClient();
   const { data: profile } = await db
     .from("profiles")
-    .select("bankid_personal_number")
+    .select("bankid_verified_at, bankid_birth_date")
     .eq("id", user.id)
     .single();
-  const { data: cleared } = await db.rpc("is_bankid_cleared", { uid: user.id });
-  if (!cleared) back(listingId, "bankid");
-
-  // BankID-personnumret avgör när det finns; annars får dansaren intyga.
-  const age = ageOn(profile?.bankid_personal_number, evening!.event_date);
-  if (age !== null ? age < MIN_AGE : !ageConfirmed) back(listingId, "age");
+  // Mobilt BankID och 18 år, ur BankID-födelsedatumet. Ingen egen försäkran.
+  const eligibility = dancerEligibility(
+    { bankid_verified_at: profile?.bankid_verified_at ?? null, bankid_birth_date: profile?.bankid_birth_date ?? null },
+    evening!.event_date,
+  );
+  if (eligibility !== "ok") back(listingId, eligibility);
 
   if (strikeStatus(await loadStrikeFacts(user.id, evening!), new Date()).suspendedUntil) back(listingId, "blocked");
 

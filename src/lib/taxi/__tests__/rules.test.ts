@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
-  validateShift, cancelDeadline, isLateCancel, isStrike, strikeStatus, canCheckIn, ageOn, type SignupFacts,
+  validateShift, cancelDeadline, isLateCancel, isStrike, strikeStatus, canCheckIn, dancerEligibility, type SignupFacts,
 } from "../rules";
 
 const shift = { starts_at: "2026-11-12T19:00:00+01:00", ends_at: "2026-11-12T21:00:00+01:00" };
@@ -94,15 +94,16 @@ describe("incheckning", () => {
   });
 });
 
-describe("ageOn", () => {
-  it("räknar ålder på kvällens datum", () => {
-    expect(ageOn("20081112-1234", "2026-11-12")).toBe(18);
-    expect(ageOn("20081113-1234", "2026-11-12")).toBe(17);
-    expect(ageOn("200811121234", "2026-11-12")).toBe(18);
+describe("dancerEligibility", () => {
+  const verified = { bankid_verified_at: "2026-10-01T10:00:00Z" };
+  it("kräver Mobilt BankID", () => {
+    expect(dancerEligibility({ bankid_verified_at: null, bankid_birth_date: null }, "2026-11-12")).toBe("bankid");
   });
-  it("samordningsnummer och okänt format", () => {
-    expect(ageOn("20081172-1234", "2026-11-12")).toBe(18);
-    expect(ageOn(null, "2026-11-12")).toBeNull();
-    expect(ageOn("081112-1234", "2026-11-12")).toBeNull();
+  it("verifierad utan födelsedatum får verifiera igen", () => {
+    expect(dancerEligibility({ ...verified, bankid_birth_date: null }, "2026-11-12")).toBe("bankidAgain");
+  });
+  it("18 år räknas på kvällens datum", () => {
+    expect(dancerEligibility({ ...verified, bankid_birth_date: "2008-11-12" }, "2026-11-12")).toBe("ok");
+    expect(dancerEligibility({ ...verified, bankid_birth_date: "2008-11-13" }, "2026-11-12")).toBe("age");
   });
 });

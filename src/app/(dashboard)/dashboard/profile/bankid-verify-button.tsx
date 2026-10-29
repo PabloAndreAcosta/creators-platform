@@ -6,19 +6,21 @@ import { ShieldCheck, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
 
 interface Props {
-  role: "creator" | "venue";
+  role: "creator" | "venue" | "customer";
   label: string;
   className: string;
+  /** Vart man kommer tillbaka efter verifieringen. Annars ?bankid_next eller profilen. */
+  next?: string;
 }
 
-export function BankIdVerifyButton({ role, label, className }: Props) {
+export function BankIdVerifyButton({ role, label, className, next: nextProp }: Props) {
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
 
   async function handleClick() {
     setLoading(true);
-    const rawNext = searchParams.get("bankid_next") || "";
+    const rawNext = nextProp || searchParams.get("bankid_next") || "";
     const next = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : null;
     try {
       const res = await fetch("/api/auth/bankid/start", {

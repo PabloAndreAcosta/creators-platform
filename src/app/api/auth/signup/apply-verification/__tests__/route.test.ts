@@ -158,6 +158,8 @@ describe("POST /api/auth/signup/apply-verification", () => {
       bankid_verified_at: validVerifiedData.verifiedAt,
       bankid_personal_number: validVerifiedData.hashedNin,
       bankid_name: validVerifiedData.name,
+      // Födelsedatumet följer med från samma signerade kaka, för åldersgränser.
+      bankid_birth_date: validVerifiedData.dateOfBirth,
     });
     expect(res.cookies.get("bankid_verified")?.value).toBe("");
     expect(res.cookies.get("bankid_verified")?.maxAge).toBe(0);

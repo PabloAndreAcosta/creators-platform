@@ -7,7 +7,7 @@ import { buildUnderlag, type UnderlagCreator } from "./underlag";
  *
  * Sidan, CSV-filen och "markera som skickad" går alla genom den här, så att
  * det som visas, det som laddas ned och det som bokförs aldrig kan skilja sig.
- * Innehåller personnummer: bara för helt admin (sidan kräver "full").
+ * Innehåller namn och löner: bara för hel admin (sidan kräver "full").
  */
 export async function loadPendingUnderlag(onlyCreatorId?: string) {
   const db = createAdminClient();
@@ -24,7 +24,7 @@ export async function loadPendingUnderlag(onlyCreatorId?: string) {
   const ids = [...new Set((lines ?? []).map((l) => l.creator_id))];
   const [{ data: profiles }, { data: debts }] = await Promise.all([
     ids.length
-      ? db.from("profiles").select("id, full_name, bankid_name, bankid_personal_number, category, creator_subcategory").in("id", ids)
+      ? db.from("profiles").select("id, full_name, bankid_name, bankid_verified_at, category, creator_subcategory").in("id", ids)
       : Promise.resolve({ data: [] as never[] }),
     ids.length
       ? db.from("creator_debts").select("partner_profile_id, amount_ore").in("partner_profile_id", ids)
@@ -37,7 +37,7 @@ export async function loadPendingUnderlag(onlyCreatorId?: string) {
       id: p.id,
       // Namnet från BankID är det juridiska — det SAMekonomi matchar mot.
       name: p.bankid_name || p.full_name,
-      personalNumber: p.bankid_personal_number,
+      verified: !!p.bankid_verified_at,
       category: p.category,
       subcategory: p.creator_subcategory,
     });

@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { ChevronLeft, HeartHandshake, Utensils } from "lucide-react";
+import { ChevronLeft, HeartHandshake, ShieldCheck, Utensils } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { loadEvening, loadShifts, loadStrikeFacts } from "@/lib/taxi/data";
-import { canCheckIn, isLateCancel, strikeStatus, STRIKE_LIMIT, ageOn } from "@/lib/taxi/rules";
+import { canCheckIn, dancerEligibility, isLateCancel, strikeStatus, STRIKE_LIMIT, type DancerEligibility } from "@/lib/taxi/rules";
+import { BankIdVerifyButton } from "@/app/(dashboard)/dashboard/profile/bankid-verify-button";
 import { signUpForShifts, cancelShift, checkIn, redeemVoucher } from "../actions";
 
 export const dynamic = "force-dynamic";
@@ -45,7 +46,8 @@ export default async function TaxiEveningPage(props: {
   let strikes = 0;
   let suspendedUntil: string | null = null;
   let voucherAt: string | null = null;
-  let needsAgeConfirm = true;
+  let eligibility: DancerEligibility = "bankid";
+  let role: "creator" | "venue" | "customer" = "customer";
   if (user) {
     const shiftIds = shifts.map((s) => s.id);
     const [{ data: rows }, facts, { data: voucher }, { data: profile }] = await Promise.all([
@@ -54,14 +56,18 @@ export default async function TaxiEveningPage(props: {
         : Promise.resolve({ data: [] }),
       loadStrikeFacts(user.id, evening),
       db.from("taxi_vouchers").select("redeemed_at").eq("listing_id", id).eq("dancer_id", user.id).maybeSingle(),
-      db.from("profiles").select("bankid_personal_number").eq("id", user.id).single(),
+      db.from("profiles").select("role, bankid_verified_at, bankid_birth_date").eq("id", user.id).single(),
     ]);
     mine = rows ?? [];
     const st = strikeStatus(facts, now);
     strikes = st.active;
     suspendedUntil = st.suspendedUntil;
     voucherAt = voucher?.redeemed_at ?? null;
-    needsAgeConfirm = ageOn(profile?.bankid_personal_number, evening.event_date) === null;
+    eligibility = dancerEligibility(
+      { bankid_verified_at: profile?.bankid_verified_at ?? null, bankid_birth_date: profile?.bankid_birth_date ?? null },
+      evening.event_date,
+    );
+    if (profile?.role === "creator" || profile?.role === "venue") role = profile.role;
   }
   const booked = mine.filter((m) => m.status === "booked");
   const bookedIds = new Set(booked.map((m) => m.shift_id));
@@ -72,7 +78,7 @@ export default async function TaxiEveningPage(props: {
 
   const notices = [
     "signedUp", "cancelled", "cancelledLate", "checkedIn", "voucherRedeemed", "noShift", "mustAccept",
-    "notFound", "bankid", "age", "blocked", "closed", "full", "checkInClosed", "voucherNeedsCheckIn",
+    "notFound", "bankid", "bankidAgain", "age", "blocked", "closed", "full", "checkInClosed", "voucherNeedsCheckIn",
   ];
   const btn = "rounded-lg px-3 py-1.5 text-xs font-bold";
   const gold = `${btn} bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] text-black`;
@@ -166,6 +172,17 @@ export default async function TaxiEveningPage(props: {
           <Link href={`/login?next=/app/taxi/${id}`} className={gold}>
             {t("loginToSignUp")}
           </Link>
+        ) : eligibility === "bankid" || eligibility === "bankidAgain" ? (
+          <div className="rounded-xl border border-[var(--usha-gold)]/30 bg-[var(--usha-gold)]/5 p-4 text-sm">
+            <p className="flex items-center gap-2 font-semibold">
+              <ShieldCheck size={16} className="text-[var(--usha-gold)]" />
+              {t("bankidTitle")}
+            </p>
+            <p className="mt-1 mb-3 text-[var(--usha-muted)]">{t(eligibility === "bankid" ? "bankidBody" : "bankidAgainBody")}</p>
+            <BankIdVerifyButton role={role} label={t("bankidButton")} className={`${gold} inline-flex items-center gap-2`} next={`/app/taxi/${id}`} />
+          </div>
+        ) : eligibility === "age" ? (
+          <p className="rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">{t("notice_age")}</p>
         ) : blocked ? (
           <p className="rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
             {t("blockedBody", { date: suspendedUntil!.slice(0, 10) })}
@@ -195,9 +212,6 @@ export default async function TaxiEveningPage(props: {
             <div className="space-y-2">
               <label className="flex items-start gap-2"><input type="checkbox" name="volunteer" required className="mt-1" /> {t("ackVolunteer")}</label>
               <label className="flex items-start gap-2"><input type="checkbox" name="rules" required className="mt-1" /> {t("ackRules")}</label>
-              {needsAgeConfirm && (
-                <label className="flex items-start gap-2"><input type="checkbox" name="age" required className="mt-1" /> {t("ackAge")}</label>
-              )}
             </div>
             <button className={gold}>{t("signUp")}</button>
           </form>

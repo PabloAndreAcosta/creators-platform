@@ -5,8 +5,12 @@
  * går inte att skicka utan fyra fält: personnummer, belopp exkl. moms,
  * "Beskriv ditt arbete" och "Befattning/titel/yrke". Två tomma fält stoppade
  * den första fakturan i veckor (felet syns bara inne i radens dialog). Därför
- * räknas alla fyra fram här, och en kreatör som saknar personnummer flaggas i
- * stället för att följa med som en rad som inte går att skicka.
+ * räknas tre av dem fram här.
+ *
+ * Personnumret har Usha INTE: BankID-numret sparas bara som hash. Det fylls i
+ * i SAMekonomi, som känner igen sina medlemmar på det. En kreatör som inte
+ * verifierat sig med BankID flaggas, så att ingen lön går till en identitet
+ * vi aldrig bekräftat.
  *
  * Beloppet är lönebudgeten — det SAMekonomi fakturerar Usha för, och som de
  * drar sina 2 %, arbetsgivaravgift och skatt ur. Skuld från återbetalningar
@@ -27,8 +31,8 @@ export interface UnderlagLine {
 export interface UnderlagCreator {
   id: string;
   name: string | null;
-  /** BankID-verifierat personnummer, eller null. */
-  personalNumber: string | null;
+  /** Har verifierat sig med Mobilt BankID. */
+  verified: boolean;
   category: string | null;
   subcategory: string | null;
 }
@@ -36,7 +40,6 @@ export interface UnderlagCreator {
 export interface UnderlagRow {
   creatorId: string;
   name: string;
-  personalNumber: string | null;
   title: string;
   description: string;
   firstDate: string;
@@ -47,7 +50,7 @@ export interface UnderlagRow {
   debtDeductedOre: number;
   /** Det som ska stå på raden i samlingsfakturan, exkl. moms. */
   amountOre: number;
-  /** Raden kan inte skickas: personnummer saknas. */
+  /** Raden kan inte skickas: kreatören har inte verifierat sig med BankID. */
   blocked: boolean;
 }
 
@@ -89,7 +92,6 @@ export function buildUnderlag(
     rows.push({
       creatorId,
       name: c?.name || "Okänd kreatör",
-      personalNumber: c?.personalNumber ?? null,
       title,
       description: `${list.length === 1 ? "Uppdrag" : `${list.length} uppdrag`} via Usha, ${period}`,
       firstDate,
@@ -98,7 +100,7 @@ export function buildUnderlag(
       sumOre,
       debtDeductedOre: debt.deductedOre,
       amountOre: debt.payableOre,
-      blocked: !c?.personalNumber,
+      blocked: !c?.verified,
     });
   }
   rows.sort((a, b) => a.name.localeCompare(b.name, "sv"));
@@ -109,11 +111,12 @@ export function buildUnderlag(
 export function underlagCsv(rows: readonly UnderlagRow[]): string {
   const esc = (v: string) => (/[;"\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
   const kr = (ore: number) => (ore / 100).toFixed(2).replace(".", ",");
-  const head = ["Namn", "Personnummer", "Befattning/titel/yrke", "Beskriv ditt arbete", "Från", "Till", "Belopp exkl. moms (kr)"];
+  // Personnumret har vi inte (bara som hash) — kolumnen finns så att den fylls i.
+  const head = ["Namn", "Personnummer (fyll i)", "Befattning/titel/yrke", "Beskriv ditt arbete", "Från", "Till", "Belopp exkl. moms (kr)"];
   const body = rows
     .filter((r) => !r.blocked && r.amountOre > 0)
     .map((r) =>
-      [r.name, r.personalNumber ?? "", r.title, r.description, r.firstDate, r.lastDate, kr(r.amountOre)].map(esc).join(";"),
+      [r.name, "", r.title, r.description, r.firstDate, r.lastDate, kr(r.amountOre)].map(esc).join(";"),
     );
   // BOM så att Excel läser å, ä och ö rätt.
   return "﻿" + [head.join(";"), ...body].join("\r\n") + "\r\n";
