@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
+import { canPostGigs } from "@/lib/gigs/can-post";
 import Link from "next/link";
 import { ArrowLeft, Plus, Calendar, MapPin, Users } from "lucide-react";
 
@@ -19,7 +20,7 @@ export default async function GigsDashboardPage() {
     .single();
 
   const role = (profile as { role?: string | null } | null)?.role ?? null;
-  if (role !== "venue") {
+  if (!canPostGigs(role)) {
     redirect("/dashboard");
   }
 

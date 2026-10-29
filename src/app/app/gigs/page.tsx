@@ -51,6 +51,7 @@ export default async function GigsFeedPage() {
     .from("gigs")
     .select("id, arranger_id, title, description, event_date, event_time, venue, venue_address, proposed_price, perks, created_at")
     .eq("status", "open")
+    .neq("arranger_id", user.id)
     .gte("event_date", today)
     .order("event_date", { ascending: true });
 
