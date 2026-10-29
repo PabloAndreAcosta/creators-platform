@@ -2415,7 +2415,8 @@
     "passesHeading": "Bonos",
     "passesSaveUpTo": "ahorra hasta un {percent} %",
     "descriptionToggle": "Leer la descripción completa",
-    "tldrHeading": "En resumen"
+    "tldrHeading": "En resumen",
+    "volunteerShifts": "Turnos de voluntarios"
   },
   "eventErrors": {
     "notReleased": "Las entradas aún no están disponibles.",
