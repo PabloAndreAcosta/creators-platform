@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { Music, ShieldCheck, Wallet, Calendar, GraduationCap, MapPin } from "lucide-react";
+import { Music, ShieldCheck, Wallet, Calendar, GraduationCap, MapPin, HeartHandshake } from "lucide-react";
 import { SiteNav } from "@/components/landing/site-nav";
 import { Footer } from "@/components/landing/footer";
 
@@ -28,6 +28,24 @@ export default async function TaxiDancerLandingPage() {
     <div className="min-h-screen bg-[var(--usha-black)]">
       <SiteNav />
 
+      {/* Volontärpassen är vägen in i dag. Sidan nedan beskriver betalda
+          taxidansare, som kräver eget bolag för att få betalt via plattformen. */}
+      <div className="mx-auto max-w-5xl px-6 pt-24">
+        <Link
+          href="/taxi"
+          className="flex items-center justify-between gap-3 rounded-2xl border border-[var(--usha-gold)]/40 bg-[var(--usha-gold)]/5 p-4 transition hover:border-[var(--usha-gold)]/70"
+        >
+          <span className="flex items-center gap-3">
+            <HeartHandshake size={20} className="shrink-0 text-[var(--usha-gold)]" />
+            <span>
+              <span className="block text-sm font-semibold">{t("volunteerBannerTitle")}</span>
+              <span className="block text-xs text-[var(--usha-muted)]">{t("volunteerBannerBody")}</span>
+            </span>
+          </span>
+          <span className="shrink-0 text-xs font-semibold text-[var(--usha-gold)]">{t("volunteerBannerCta")}</span>
+        </Link>
+      </div>
+
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-[var(--usha-border)]">
         <div className="mx-auto max-w-5xl px-6 pb-20 pt-28 text-center sm:pb-28 sm:pt-32">
@@ -48,7 +66,7 @@ export default async function TaxiDancerLandingPage() {
               {t("hero.ctaFind")}
             </Link>
             <Link
-              href="/signup"
+              href="/taxi"
               className="flex min-h-[48px] items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] px-8 py-3 text-sm font-medium text-[var(--usha-white)] transition hover:border-[var(--usha-gold)]/40"
             >
               {t("hero.ctaBecome")}

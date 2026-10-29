@@ -3960,7 +3960,10 @@
       "readMore": "Read more:",
       "refundPolicy": "Refund policy",
       "terms": "Terms of service"
-    }
+    },
+    "volunteerBannerTitle": "Dance as a volunteer at our evenings",
+    "volunteerBannerBody": "Taxi dancers and instructors at The Lab: free entry and a meal voucher. Pick your shifts between 17:00 and 23:00.",
+    "volunteerBannerCta": "See shifts →"
   },
   "seriesPage": {
     "metaTitle": "{title} – Usha Platform",

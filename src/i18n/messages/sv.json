@@ -3960,7 +3960,10 @@
       "readMore": "Läs mer:",
       "refundPolicy": "Återbetalningspolicy",
       "terms": "Användarvillkor"
-    }
+    },
+    "volunteerBannerTitle": "Dansa som volontär på våra kvällar",
+    "volunteerBannerBody": "Taxidansare och instruktörer på The Lab: fri entré och en matkupong. Välj dina pass mellan 17 och 23.",
+    "volunteerBannerCta": "Se passen →"
   },
   "seriesPage": {
     "metaTitle": "{title} – Usha Platform",
