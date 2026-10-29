@@ -83,7 +83,7 @@ export default async function AdminPayrollPage({ searchParams }: { searchParams:
                 <dt className="text-[var(--usha-muted)]">{t("fieldName")}</dt>
                 <dd className="font-medium">{r.name}</dd>
                 <dt className="text-[var(--usha-muted)]">{t("fieldPnr")}</dt>
-                <dd className="font-mono">{r.personalNumber ?? <span className="text-red-400">{t("pnrMissing")}</span>}</dd>
+                <dd>{r.blocked ? <span className="text-red-400">{t("notVerified")}</span> : <span className="text-[var(--usha-muted)]">{t("pnrFillIn")}</span>}</dd>
                 <dt className="text-[var(--usha-muted)]">{t("fieldTitle")}</dt>
                 <dd>{r.title}</dd>
                 <dt className="text-[var(--usha-muted)]">{t("fieldDescription")}</dt>

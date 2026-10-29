@@ -6,14 +6,19 @@ export async function POST(req: NextRequest) {
   try {
     const { role, subcategory, mode, next } = await req.json();
 
-    if (!role || !["creator", "venue"].includes(role)) {
+    const resolvedMode: "signup" | "add" = mode === "add" ? "add" : "signup";
+
+    // Vid registrering avgör rollen vilket konto som skapas. När ett befintligt
+    // konto verifierar sig ("add") används rollen inte alls — callbacken skriver
+    // bara BankID-fälten — så där får även Publik-konton verifiera sig, t.ex.
+    // taxidansare som måste ha Mobilt BankID.
+    const allowedRoles = resolvedMode === "add" ? ["creator", "venue", "customer"] : ["creator", "venue"];
+    if (!role || !allowedRoles.includes(role)) {
       return NextResponse.json(
         { error: "Ogiltig roll" },
         { status: 400 }
       );
     }
-
-    const resolvedMode: "signup" | "add" = mode === "add" ? "add" : "signup";
 
     const resolvedSubcategory =
       role === "creator" && subcategory === "taxi_dancer"

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { birthDateOrNull } from "@/lib/bankid/birth-date";
 import { getBankIdSessionResult } from "@/lib/signicat/client";
 import { signCookieValue, verifyCookieValue, hashPersonalNumber } from "@/lib/signicat/crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -99,6 +100,7 @@ export async function GET(req: NextRequest) {
           bankid_personal_number: hashedNin,
           bankid_verified_at: new Date().toISOString(),
           bankid_name: name,
+          bankid_birth_date: birthDateOrNull(dateOfBirth),
         })
         .eq("id", currentUserId);
 

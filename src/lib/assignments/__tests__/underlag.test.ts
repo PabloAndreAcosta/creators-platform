@@ -4,7 +4,7 @@ import { buildUnderlag, underlagCsv, refundDebtOre, titleFor, type UnderlagCreat
 const creator = (id: string, over: Partial<UnderlagCreator> = {}): UnderlagCreator => ({
   id,
   name: `Kreatör ${id}`,
-  personalNumber: "19900101-1234",
+  verified: true,
   category: "dance",
   subcategory: "general",
   ...over,
@@ -35,8 +35,8 @@ describe("buildUnderlag", () => {
     expect(b.amountOre).toBe(0);
   });
 
-  it("utan personnummer blockeras raden och räknas inte i summan", () => {
-    const u = buildUnderlag(lines, new Map([["a", creator("a", { personalNumber: null })], ["b", creator("b")]]), new Map());
+  it("utan BankID-verifiering blockeras raden och räknas inte i summan", () => {
+    const u = buildUnderlag(lines, new Map([["a", creator("a", { verified: false })], ["b", creator("b")]]), new Map());
     expect(u.rows.find((r) => r.creatorId === "a")!.blocked).toBe(true);
     expect(u.totalOre).toBe(30_000);
   });
@@ -57,7 +57,7 @@ describe("underlagCsv", () => {
         { id: "x", creator_id: "a", pass_date: "2026-11-05", labour_budget_ore: 73_650 },
         { id: "y", creator_id: "b", pass_date: "2026-11-05", labour_budget_ore: 10_000 },
       ],
-      new Map([["a", creator("a", { name: 'Ana "DJ"; Söder' })], ["b", creator("b", { personalNumber: null })]]),
+      new Map([["a", creator("a", { name: 'Ana "DJ"; Söder' })], ["b", creator("b", { verified: false })]]),
       new Map(),
     );
     const csv = underlagCsv(u.rows);

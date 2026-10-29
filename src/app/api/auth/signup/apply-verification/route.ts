@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { birthDateOrNull } from "@/lib/bankid/birth-date";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { verifyCookieValue } from "@/lib/signicat/crypto";
@@ -72,10 +73,12 @@ export async function POST(req: NextRequest) {
   // let a stale/replayed bankid_verified cookie flip an established account's
   // role (e.g. a venue back to creator). BankID verification proves identity —
   // it must never change the account's role.
-  const updatePayload: Record<string, string> = {
+  const updatePayload: Record<string, string | null> = {
     bankid_verified_at: data.verifiedAt,
     bankid_personal_number: data.hashedNin,
     bankid_name: data.name,
+    // Födelsedatumet behövs för åldersgränser; personnumret sparas bara som hash.
+    bankid_birth_date: birthDateOrNull(data.dateOfBirth),
   };
 
   const { error: updateError } = await admin

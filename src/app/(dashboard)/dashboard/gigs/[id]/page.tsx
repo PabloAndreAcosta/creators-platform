@@ -86,7 +86,7 @@ export default async function GigDetailPage(props: { params: Promise<{ id: strin
       </div>
 
       <p className="mb-6 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 text-sm text-[var(--usha-muted)]">
-        {t("employerNote")}
+        {gig.proposed_price > 0 ? t("employerNote") : t("volunteerNote")}
       </p>
 
       <h2 className="mb-4 text-lg font-bold">{t("applicationsCount", { count: applications?.length ?? 0 })}</h2>
@@ -115,12 +115,12 @@ export default async function GigDetailPage(props: { params: Promise<{ id: strin
                       <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${status.className}`}>
                         {status.text}
                       </span>
-                      {routes.get(a.applicant_id) === "payroll" && (
+                      {gig.proposed_price > 0 && routes.get(a.applicant_id) === "payroll" && (
                         <span className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-xs font-medium text-[var(--usha-gold)]">
                           {t("routePayroll")}
                         </span>
                       )}
-                      {routes.get(a.applicant_id) === "own_company" && (
+                      {gig.proposed_price > 0 && routes.get(a.applicant_id) === "own_company" && (
                         <span className="rounded-full bg-[var(--usha-border)] px-2 py-0.5 text-xs font-medium text-[var(--usha-muted)]">
                           {t("routeCompany")}
                         </span>
