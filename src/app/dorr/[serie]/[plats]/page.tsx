@@ -12,6 +12,7 @@ import { stockholmToday } from "@/lib/time";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createLateCheckoutSession } from "@/lib/tickets/late-checkout";
 import { getStripeLocale } from "@/lib/i18n/stripe-locale";
+import { hamtaKvallar } from "@/lib/entrance/door-occurrences";
 
 /**
  * Dörrlänk: /dorr/<serie>/<plats>
@@ -124,25 +125,4 @@ async function dorrGenvag(
   });
 
   return result.ok ? result.url : null;
-}
-
-async function hamtaKvallar(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  kanonisk: string,
-  rå: string
-): Promise<(DoorOccurrence & { id: string })[]> {
-  const fraga = (slug: string) =>
-    supabase
-      .from("listings")
-      .select("id, slug, title, event_date")
-      .eq("series_slug", slug)
-      .eq("is_active", true)
-      .eq("is_public", true)
-      .order("event_date", { ascending: true });
-
-  const { data } = await fraga(kanonisk);
-  const rader = (data as (DoorOccurrence & { id: string })[] | null) ?? [];
-  if (rader.length > 0 || kanonisk === rå) return rader;
-  const { data: fallback } = await fraga(rå);
-  return (fallback as (DoorOccurrence & { id: string })[] | null) ?? [];
 }
