@@ -4664,7 +4664,24 @@
     "notice_voucherTooManyTries": "Demasiados intentos. Espera un momento.",
     "notice_voucherSaved": "Código del restaurante guardado.",
     "notice_voucherCodeInvalid": "El código debe tener 4–6 cifras.",
-    "notice_voucherMaxInvalid": "Indica un tope entre 1 y 1000 kr."
+    "notice_voucherMaxInvalid": "Indica un tope entre 1 y 1000 kr.",
+    "rolesTitle": "Roles esta noche",
+    "roleApproved": "Aprobado",
+    "rolePending": "Solicitud enviada: esperando al organizador",
+    "roleDeclined": "No aprobado",
+    "applyForRole": "Solicitar",
+    "applyMessagePlaceholder": "Algo sobre ti (opcional)",
+    "applyFirst": "Solicita un rol arriba. Cuando el organizador te apruebe podrás reservar turnos.",
+    "notice_notApproved": "Debes estar aprobado para el rol antes de reservar el turno.",
+    "notice_applicationSent": "Solicitud enviada. Podrás reservar turnos cuando el organizador te apruebe.",
+    "notice_applicationExists": "Ya has solicitado ese rol.",
+    "notice_applicationDeclined": "El organizador no te ha aprobado para ese rol.",
+    "applicationsTitle": "Solicitudes ({n} pendientes)",
+    "approvedNone": "Nadie aprobado todavía.",
+    "approve": "Aprobar",
+    "decline": "Rechazar",
+    "notice_applicationApproved": "Aprobado: la persona ya puede reservar turnos en el rol.",
+    "notice_applicationDeclinedOrg": "Solicitud rechazada."
   },
   "instruktorerPage": {
     "meta": {

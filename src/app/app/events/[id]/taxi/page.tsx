@@ -5,11 +5,12 @@ import { ChevronLeft, HeartHandshake } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { DEFAULT_VOUCHER_MAX_ORE, voucherScopeId } from "@/lib/taxi/voucher";
+import { approvalScopeKey } from "@/lib/taxi/approvals";
 import { isAdminById } from "@/lib/admin/check";
 import { loadEvening, loadShifts, loadStrikeFacts } from "@/lib/taxi/data";
 import { isStrike, strikeStatus, TAXI_WINDOW, STRIKE_LIMIT, type StrikeStatus, TAXI_MAX_PER_EVENING } from "@/lib/taxi/rules";
 import { DEFAULT_CAPACITY, ROLE_LABEL_MAX, VOLUNTEER_ROLES, shiftRoleName } from "@/lib/taxi/roles";
-import { createShift, deleteShift, organiserCheck, setVoucherSettings } from "./actions";
+import { createShift, deleteShift, organiserCheck, setVoucherSettings, decideApplication } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -61,6 +62,17 @@ export default async function EventTaxiPage(props: {
     .select("code, max_ore")
     .eq("scope_id", voucherScopeId(evening))
     .maybeSingle();
+  // Ansökningar i kvällens avgränsning (serien eller arrangören).
+  const { data: applications } = await db
+    .from("volunteer_approvals")
+    .select("id, role, status, message, created_at, volunteer:profiles!volunteer_id(full_name)")
+    .eq("scope_key", approvalScopeKey(evening))
+    .order("created_at");
+  type App = { id: string; role: string; status: string; message: string | null; volunteer: { full_name: string | null } | { full_name: string | null }[] | null };
+  const appName = (a: App) => (Array.isArray(a.volunteer) ? a.volunteer[0] : a.volunteer)?.full_name || "–";
+  const pendingApps = ((applications ?? []) as App[]).filter((a) => a.status === "pending");
+  const approvedCount = new Map<string, number>();
+  for (const a of (applications ?? []) as App[]) if (a.status === "approved") approvedCount.set(a.role, (approvedCount.get(a.role) ?? 0) + 1);
   const voucherTotalOre = (vouchers ?? []).reduce((a, v) => a + (v.amount_ore ?? 0), 0);
   const now = new Date();
   const strikesOf = new Map<string, StrikeStatus>();
@@ -69,7 +81,7 @@ export default async function EventTaxiPage(props: {
   );
 
   const notices = [
-    "shiftCreated", "shiftsCreatedSeries", "shiftExists", "shift_role", "shift_taxiCapacity", "voucherSaved", "voucherCodeInvalid", "voucherMaxInvalid", "shiftDeleted", "shiftHasSignups", "checkedIn", "notFound",
+    "shiftCreated", "shiftsCreatedSeries", "shiftExists", "shift_role", "shift_taxiCapacity", "voucherSaved", "applicationApproved", "applicationDeclinedOrg", "voucherCodeInvalid", "voucherMaxInvalid", "shiftDeleted", "shiftHasSignups", "checkedIn", "notFound",
     "shift_time", "shift_window", "shift_length", "shift_capacity",
   ];
   const btn = "rounded-lg px-2.5 py-1 text-xs font-semibold";
@@ -110,6 +122,46 @@ export default async function EventTaxiPage(props: {
           {t("shareLink")} <span className="font-mono text-[var(--usha-white)]">usha.se/app/taxi/{id}</span>
         </p>
       </div>
+
+      {/* Ansökningar: vem som helst får inte ta pass. Godkänn per roll. */}
+      <section className="mt-6 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 text-sm">
+        <p className="font-semibold">{t("applicationsTitle", { n: pendingApps.length })}</p>
+        <p className="mt-1 text-xs text-[var(--usha-muted)]">
+          {approvedCount.size === 0
+            ? t("approvedNone")
+            : [...approvedCount.entries()].map(([r, n]) => `${t(`roles.${r}`)}: ${n}`).join(" · ")}
+        </p>
+        {pendingApps.length > 0 && (
+          <ul className="mt-3 space-y-2">
+            {pendingApps.map((a) => (
+              <li key={a.id} className="flex flex-wrap items-start justify-between gap-2 border-t border-[var(--usha-border)] pt-2">
+                <div className="min-w-0">
+                  <p className="font-medium">{appName(a)} <span className="font-normal text-[var(--usha-muted)]">· {t(`roles.${a.role}`)}</span></p>
+                  {a.message && <p className="mt-0.5 text-xs italic text-[var(--usha-muted)]">&ldquo;{a.message}&rdquo;</p>}
+                </div>
+                <div className="flex gap-2">
+                  {(["approve", "decline"] as const).map((d) => (
+                    <form key={d} action={decideApplication}>
+                      <input type="hidden" name="listingId" value={id} />
+                      <input type="hidden" name="approvalId" value={a.id} />
+                      <input type="hidden" name="decision" value={d} />
+                      <button
+                        className={
+                          d === "approve"
+                            ? "rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-3 py-1 text-xs font-bold text-black"
+                            : "rounded-lg border border-[var(--usha-border)] px-3 py-1 text-xs"
+                        }
+                      >
+                        {t(d === "approve" ? "approve" : "decline")}
+                      </button>
+                    </form>
+                  ))}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       {/* Matkupongen: restaurangkoden och taket, och kvällens summa att stämma
           av mot restaurangens nota. */}

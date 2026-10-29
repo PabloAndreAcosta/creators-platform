@@ -5,10 +5,11 @@ import { ChevronLeft, HeartHandshake, ShieldCheck, Utensils } from "lucide-react
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { DEFAULT_VOUCHER_MAX_ORE, voucherScopeId } from "@/lib/taxi/voucher";
+import { approvalScopeKey, approvedRoles, type ApprovalStatus } from "@/lib/taxi/approvals";
 import { loadEvening, loadShifts, loadStrikeFacts } from "@/lib/taxi/data";
 import { canCheckIn, dancerEligibility, isLateCancel, strikeStatus, taxiEveningFull, STRIKE_LIMIT, TAXI_MAX_PER_EVENING, type DancerEligibility } from "@/lib/taxi/rules";
 import { BankIdVerifyButton } from "@/app/(dashboard)/dashboard/profile/bankid-verify-button";
-import { signUpForShifts, cancelShift, checkIn, redeemVoucher } from "../actions";
+import { signUpForShifts, cancelShift, checkIn, redeemVoucher, applyForRole } from "../actions";
 import { shiftRoleName } from "@/lib/taxi/roles";
 
 export const dynamic = "force-dynamic";
@@ -87,11 +88,23 @@ export default async function TaxiEveningPage(props: {
     ? await db.from("taxi_signups").select("dancer_id").eq("status", "booked").in("shift_id", taxiShiftIds)
     : { data: [] as { dancer_id: string }[] };
   const taxiFull = taxiEveningFull(new Set((taxiBooked ?? []).map((r) => r.dancer_id)), user?.id ?? "");
+  // Ansökningar per roll i kvällens avgränsning (serien eller arrangören).
+  const { data: approvalRows } = user
+    ? await db
+        .from("volunteer_approvals")
+        .select("role, status")
+        .eq("scope_key", approvalScopeKey(evening))
+        .eq("volunteer_id", user.id)
+    : { data: [] as { role: string; status: ApprovalStatus }[] };
+  const statusOf = new Map((approvalRows ?? []).map((r) => [r.role, r.status as ApprovalStatus]));
+  const approved = approvedRoles(approvalRows ?? []);
+  const eveningRoles = [...new Set(shifts.map((s) => s.role))];
   const open = shifts.filter(
     (s) =>
       Date.parse(s.starts_at) > now.getTime() &&
       s.booked < s.capacity &&
       !bookedIds.has(s.id) &&
+      approved.has(s.role) &&
       !(s.role === "taxi_dancer" && taxiFull),
   );
   const anyCheckedIn = booked.some((m) => m.checked_in_at);
@@ -99,7 +112,7 @@ export default async function TaxiEveningPage(props: {
 
   const notices = [
     "signedUp", "cancelled", "cancelledLate", "checkedIn", "voucherRedeemed", "noShift", "mustAccept",
-    "notFound", "overlap", "eveningFull", "bankid", "bankidAgain", "age", "blocked", "closed", "full", "checkInClosed", "voucherNeedsCheckIn", "voucherNoCode", "voucherWrongCode", "voucherBadAmount", "voucherTooManyTries",
+    "notFound", "overlap", "notApproved", "applicationSent", "applicationExists", "applicationDeclined", "eveningFull", "bankid", "bankidAgain", "age", "blocked", "closed", "full", "checkInClosed", "voucherNeedsCheckIn", "voucherNoCode", "voucherWrongCode", "voucherBadAmount", "voucherTooManyTries",
   ];
   const btn = "rounded-lg px-3 py-1.5 text-xs font-bold";
   const gold = `${btn} bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] text-black`;
@@ -221,9 +234,43 @@ export default async function TaxiEveningPage(props: {
           </p>
         ) : shifts.length === 0 ? (
           <p className="text-sm text-[var(--usha-muted)]">{t("noShifts")}</p>
-        ) : open.length === 0 ? (
-          <p className="text-sm text-[var(--usha-muted)]">{t("noOpenShifts")}</p>
         ) : (
+          <div className="space-y-4">
+            {/* Roller kvällen har pass i. Man ansöker en gång per roll hos
+                arrangören; först när ansökan är godkänd går passen att boka. */}
+            <div className="space-y-2 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 text-sm">
+              <p className="font-medium">{t("rolesTitle")}</p>
+              {eveningRoles.map((r) => {
+                const st = statusOf.get(r);
+                return (
+                  <div key={r} className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--usha-border)] pt-2 first:border-t-0 first:pt-0">
+                    <span>{t(`roles.${r}`)}</span>
+                    {st === "approved" ? (
+                      <span className="text-xs font-semibold text-green-400">{t("roleApproved")}</span>
+                    ) : st === "pending" ? (
+                      <span className="text-xs text-[var(--usha-muted)]">{t("rolePending")}</span>
+                    ) : st === "declined" ? (
+                      <span className="text-xs text-red-400">{t("roleDeclined")}</span>
+                    ) : (
+                      <form action={applyForRole} className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+                        <input type="hidden" name="listingId" value={id} />
+                        <input type="hidden" name="role" value={r} />
+                        <input
+                          name="message"
+                          maxLength={500}
+                          placeholder={t("applyMessagePlaceholder")}
+                          className="rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-3 py-1.5 text-xs"
+                        />
+                        <button className={`${btn} border border-[var(--usha-gold)]/50 text-[var(--usha-gold)]`}>{t("applyForRole")}</button>
+                      </form>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            {open.length === 0 ? (
+              <p className="text-sm text-[var(--usha-muted)]">{approved.size === 0 ? t("applyFirst") : t("noOpenShifts")}</p>
+            ) : (
           <form action={signUpForShifts} className="space-y-4 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 text-sm">
             <input type="hidden" name="listingId" value={id} />
             <fieldset className="space-y-2">
@@ -251,6 +298,8 @@ export default async function TaxiEveningPage(props: {
             </div>
             <button className={gold}>{t("signUp")}</button>
           </form>
+            )}
+          </div>
         )}
       </section>
     </div>
