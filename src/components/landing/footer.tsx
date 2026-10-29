@@ -17,6 +17,7 @@ export function Footer() {
     ],
     [t("footer.platform")]: [
       { label: t("nav.forCreators"), href: "/for-kreatorer" },
+      { label: t("footer.instructors"), href: "/instruktorer" },
       { label: t("nav.forVenues"), href: "/for-platser" },
       { label: t("nav.forAudience"), href: "/for-publik" },
       { label: t("nav.sellTickets"), href: "/salj-biljetter" },

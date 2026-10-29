@@ -852,7 +852,8 @@
       "privacy": "Integritetspolicy",
       "cookies": "Cookiepolicy",
       "copyright": "© 2026 Usha AB. Alla rättigheter förbehållna.",
-      "builtWith": "Byggd med kärlek i Sverige"
+      "builtWith": "Byggd med kärlek i Sverige",
+      "instructors": "Instruktörer"
     },
     "doors": {
       "heading": "Var börjar du?",
@@ -1481,7 +1482,8 @@
     "hosted": {
       "heading": "Evenemang hos oss",
       "by": "Arrangeras av {name}"
-    }
+    },
+    "instructorBadge": "Instruktör"
   },
   "dashProfile": {
     "page": {
@@ -1551,12 +1553,12 @@
       "danceLanguagesLabel": "Språk",
       "danceLanguagesPlaceholder": "t.ex. svenska, engelska, spanska",
       "experienceYearsLabel": "Erfarenhet (år)",
-      "coachingToggleTitle": "Jag erbjuder coachning",
-      "coachingToggleHint": "Privatlektioner i pardans. Visa pris och specialiteter på din profil.",
-      "coachingRateLabel": "Timpris coachning (SEK)",
-      "coachingSpecialtiesLabel": "Specialiteter",
-      "coachingSpecialtiesPlaceholder": "t.ex. nybörjar-bugg, avancerad salsa, bröllopskoreografi",
-      "coachingBioLabel": "Bio för coachning",
+      "coachingToggleTitle": "Jag undervisar, coachar eller tränar andra",
+      "coachingToggleHint": "Du syns i instruktörskatalogen och på din profil med titel, inriktning och timpris.",
+      "coachingRateLabel": "Timpris (kr, det eleven betalar)",
+      "coachingSpecialtiesLabel": "Vad du lär ut",
+      "coachingSpecialtiesPlaceholder": "t.ex. kizomba för nybörjare, styrketräning, bröllopsdans",
+      "coachingBioLabel": "Om din undervisning",
       "coachingBioPlaceholder": "Beskriv din pedagogiska stil, vem du coachar, eller vad lektionerna brukar innehålla.",
       "publicToggleTitle": "Publik profil",
       "publicToggleHint": "Gör din profil synlig i marketplace så att kunder kan hitta dig.",
@@ -1573,7 +1575,22 @@
       "avatarUpdatedTitle": "Avatar uppdaterad",
       "genericErrorTitle": "Något gick fel",
       "profileSaveFailedTitle": "Kunde inte spara profil",
-      "profileSavedTitle": "Profil sparad"
+      "profileSavedTitle": "Profil sparad",
+      "instructorTitle": "Instruktör, coach eller PT",
+      "instructorSubtitle": "Erbjud privatlektioner och coachning. Slå på det här så hittar elever dig på usha.se/instruktorer.",
+      "coachingTitleLabel": "Titel",
+      "coachingTitlePlaceholder": "Skriv din egen eller välj ett förslag",
+      "coachingTitlePresets": {
+        "instructor": "Instruktör",
+        "coach": "Coach",
+        "pt": "Personlig tränare",
+        "teacher": "Lärare"
+      },
+      "coachingFormatsLabel": "Var sker lektionerna?",
+      "coachingFormats": {
+        "in_person": "På plats",
+        "online": "Online"
+      }
     },
     "bankid": {
       "verifiedTitle": "Identitet verifierad med BankID",
@@ -4604,5 +4621,61 @@
     "notice_shift_taxiCapacity": "Ett taxidansarpass kan ha högst 2 platser.",
     "taxiEveningFullNote": "Kvällen har redan {n} taxidansare – taxidansarpassen är fulla, men andra roller är öppna.",
     "taxiEveningCount": "Taxidansare i kväll: {n} av högst {max}. Högst 2 per pass."
+  },
+  "instruktorerPage": {
+    "meta": {
+      "title": "Instruktörer, coacher och PT – Usha Platform",
+      "description": "Hitta en instruktör, coach eller personlig tränare nära dig, eller erbjud dina egna lektioner på Usha."
+    },
+    "hero": {
+      "titleLead": "Lär dig av",
+      "titleHighlight": "rätt person",
+      "body": "Instruktörer, coacher och personliga tränare som erbjuder privatlektioner, kurser och workshops. Sök på stil, stad och språk, eller börja undervisa själv.",
+      "ctaFind": "Hitta instruktör",
+      "ctaBecome": "Bli instruktör på Usha"
+    },
+    "directory": {
+      "heading": "Instruktörer",
+      "q": "Sök",
+      "qPlaceholder": "Stil, inriktning eller namn",
+      "city": "Stad",
+      "language": "Språk",
+      "format": "Format",
+      "formatAny": "På plats eller online",
+      "maxRate": "Max kr/tim",
+      "search": "Sök",
+      "clear": "Rensa",
+      "empty": "Här listas instruktörer så snart de första har slagit på det i sin profil.",
+      "noMatch": "Ingen instruktör matchar sökningen. Prova med färre filter."
+    },
+    "formats": {
+      "in_person": "På plats",
+      "online": "Online"
+    },
+    "defaultTitle": "Instruktör",
+    "rate": "{price} kr/tim",
+    "offer": {
+      "heading": "Det här får du som instruktör",
+      "body": "Ett kreatörskonto på Usha ger dig hela verktygslådan. Du väljer själv vad du kallar dig och vad du erbjuder.",
+      "lessonsTitle": "Privatlektioner",
+      "lessonsBody": "Elever bokar och betalar direkt på din profil.",
+      "eventsTitle": "Kurser och evenemang",
+      "eventsBody": "Lägg upp workshops, kurser och kvällar och sälj biljetter.",
+      "passTitle": "Klippkort och paket",
+      "passBody": "Sälj flera tillfällen på en gång, till ett pris du sätter.",
+      "openNightsTitle": "Öppna kvällar",
+      "openNightsBody": "Gå med på öppna kvällar som The Lab och sälj korta coachningspass på plats.",
+      "paidTitle": "Betalt direkt",
+      "paidBody": "Pengarna går till ditt eget Stripe-konto. Usha sköter betalningen.",
+      "trustTitle": "Verifierad med BankID",
+      "trustBody": "Alla kreatörer identifierar sig med Mobilt BankID, så eleverna vet vem de bokar."
+    },
+    "steps": {
+      "heading": "Så kommer du igång",
+      "s1": "Skapa ett kreatörskonto och verifiera dig med Mobilt BankID.",
+      "s2": "Slå på Instruktör i profilen och välj din titel: Instruktör, Coach, PT eller något eget.",
+      "s3": "Fyll i vad du lär ut, var du finns, språk och timpris. Då syns du här.",
+      "s4": "Lägg upp lektioner, kurser eller klippkort och koppla Stripe för att få betalt."
+    }
   }
 }

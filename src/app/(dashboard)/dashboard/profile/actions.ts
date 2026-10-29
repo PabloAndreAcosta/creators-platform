@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { BETA_MODE } from "@/lib/beta";
+import { parseCoachingFormats, parseCoachingTitle } from "@/lib/coaching/instructors";
 
 const VALID_CATEGORIES = ["dance", "music", "performance", "photo", "video", "design", "yoga", "fitness", "other"] as const;
 
@@ -102,46 +103,59 @@ export async function updateProfile(formData: FormData) {
   const primaryRate = primaryCategory && cleanRates[primaryCategory] != null ? cleanRates[primaryCategory] : null;
   const primaryWebsite = websites[0] || null;
 
-  // Taxi dancer fields — only included if profile is currently taxi_dancer.
+  // Dansfälten bara för taxidansare; instruktörsdelen för alla kreatörer.
   // creator_subcategory itself is NOT editable here (set at signup only).
   const { data: currentProfile } = await supabase
     .from("profiles")
-    .select("creator_subcategory")
+    .select("creator_subcategory, role")
     .eq("id", user.id)
     .single();
 
   const isTaxiDancer = currentProfile?.creator_subcategory === "taxi_dancer";
+  const isCreator = currentProfile?.role === "creator";
+  const parseList = (key: string): string[] => {
+    try {
+      const v = JSON.parse((formData.get(key) as string) || "[]");
+      return Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : [];
+    } catch {
+      return [];
+    }
+  };
 
   let danceUpdate: Record<string, unknown> = {};
   if (isTaxiDancer) {
-    let dance_styles: string[] = [];
-    let dance_languages: string[] = [];
-    let coaching_specialties: string[] = [];
-    try { dance_styles = JSON.parse(formData.get("dance_styles") as string || "[]"); } catch { dance_styles = []; }
-    try { dance_languages = JSON.parse(formData.get("dance_languages") as string || "[]"); } catch { dance_languages = []; }
-    try { coaching_specialties = JSON.parse(formData.get("coaching_specialties") as string || "[]"); } catch { coaching_specialties = []; }
-
+    const dance_styles = parseList("dance_styles");
     const danceExperienceRaw = formData.get("dance_experience_years") as string | null;
     const danceExperienceYears =
       danceExperienceRaw && Number.isFinite(Number(danceExperienceRaw)) && Number(danceExperienceRaw) >= 0
         ? Number(danceExperienceRaw)
         : null;
+    danceUpdate = {
+      dance_styles: dance_styles.length ? dance_styles : null,
+      dance_experience_years: danceExperienceYears,
+    };
+  }
 
+  // Instruktör, coach, PT … — vilken kreatör som helst kan erbjuda lektioner.
+  // Språken hör till både taxidansaren och instruktören.
+  if (isCreator) {
+    const dance_languages = parseList("dance_languages");
+    const coaching_specialties = parseList("coaching_specialties");
     const offersCoaching = formData.get("offers_coaching") === "on";
-
     const coachingRateRaw = formData.get("coaching_hourly_rate_sek") as string | null;
     const coachingHourlyRate =
       offersCoaching && coachingRateRaw && Number.isFinite(Number(coachingRateRaw)) && Number(coachingRateRaw) >= 0
         ? Number(coachingRateRaw)
         : null;
-
     const coachingBio = (formData.get("coaching_bio") as string)?.trim() || null;
+    const formats = parseCoachingFormats(parseList("coaching_formats"));
 
     danceUpdate = {
-      dance_styles: dance_styles.length ? dance_styles : null,
+      ...danceUpdate,
       dance_languages: dance_languages.length ? dance_languages : null,
-      dance_experience_years: danceExperienceYears,
       offers_coaching: offersCoaching,
+      coaching_title: offersCoaching ? parseCoachingTitle(formData.get("coaching_title")) : null,
+      coaching_formats: offersCoaching && formats.length ? formats : null,
       coaching_hourly_rate_sek: offersCoaching ? coachingHourlyRate : null,
       coaching_specialties: offersCoaching && coaching_specialties.length ? coaching_specialties : null,
       coaching_bio: offersCoaching ? coachingBio : null,
@@ -179,7 +193,7 @@ export async function updateProfile(formData: FormData) {
       location: primaryLocation,
       hourly_rate: primaryRate,
       website: primaryWebsite,
-      // Taxi dancer fields (only when current subcategory is taxi_dancer)
+      // Dans- och instruktörsfält (se ovan)
       ...danceUpdate,
     } as any)
     .eq("id", user.id);

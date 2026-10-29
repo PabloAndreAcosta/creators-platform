@@ -100,7 +100,7 @@ export default async function CreatorProfilePage(props: Props) {
     createAdminClient()
       .from("profiles")
       .select(
-        "id, full_name, avatar_url, bio, category, location, hourly_rate, website, company_verified_at, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3, bankid_verified_at, bankid_name, offers_coaching, coaching_hourly_rate_sek, coaching_specialties, slug, is_public, share_token"
+        "id, full_name, avatar_url, bio, category, location, hourly_rate, website, company_verified_at, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3, bankid_verified_at, bankid_name, offers_coaching, coaching_hourly_rate_sek, coaching_specialties, coaching_title, slug, is_public, share_token"
       )
       .eq(column, params.id)
       .maybeSingle(),
@@ -378,6 +378,15 @@ export default async function CreatorProfilePage(props: Props) {
               )}
             </h1>
             <div className="mb-4 flex flex-wrap items-center gap-2 text-sm text-[var(--usha-muted)]">
+              {/* Instruktörens egen titel (Coach, PT …) — leder till katalogen. */}
+              {(profile as { offers_coaching?: boolean | null }).offers_coaching && (
+                <Link
+                  href="/instruktorer"
+                  className="rounded-full bg-[var(--usha-gold)]/10 px-3 py-0.5 font-medium text-[var(--usha-gold)] hover:bg-[var(--usha-gold)]/20"
+                >
+                  {(profile as { coaching_title?: string | null }).coaching_title || t("instructorBadge")}
+                </Link>
+              )}
               {creatorCategories.map((cat) => (
                 <span key={cat} className="rounded-full border border-[var(--usha-border)] px-3 py-0.5">
                   {CATEGORY_LABELS[cat] || cat}
