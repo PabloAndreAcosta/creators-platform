@@ -70,7 +70,8 @@
     "shop": "Tienda",
     "buddies": "Compañeros",
     "volunteerShifts": "Turnos de voluntarios",
-    "students": "Alumnos"
+    "students": "Alumnos",
+    "work": "Trabaja con Usha"
   },
   "pendingTodos": {
     "heading": "Te esperan",
@@ -2938,7 +2939,9 @@
     "taxiLabel": "Turnos de voluntariado",
     "taxiDesc": "Ayuda como voluntario: entrada gratis y vale de comida",
     "studentsLabel": "Alumnos",
-    "studentsDesc": "Tus compradores, clases restantes y notas"
+    "studentsDesc": "Tus compradores, clases restantes y notas",
+    "workLabel": "Trabaja con Usha",
+    "workDesc": "Voluntario, instructor o encargos"
   },
   "sellPage": {
     "heading": "Oferta",
@@ -4722,5 +4725,25 @@
     "saveNote": "Guardar",
     "privacyNote": "Las notas son privadas y el alumno nunca las ve. Los datos de contacto son solo para lo relacionado con la compra. Para escribir a muchos a la vez, escribe a quienes eligieron seguirte:",
     "followersLink": "Seguidores"
+  },
+  "work": {
+    "metaTitle": "Trabaja con Usha – baila, enseña, acepta encargos",
+    "metaDescription": "Tres caminos: voluntario en nuestras noches, instructor que vende tiempo en noches abiertas, o encargos de locales y organizadores.",
+    "title": "Trabaja con Usha",
+    "intro": "Tres caminos, paso a paso. Empieza donde estés: muchos empiezan como voluntarios y luego dan el siguiente paso.",
+    "step": "Paso {n}",
+    "requirementsLabel": "Requisitos:",
+    "volunteerTitle": "Voluntario en nuestras noches",
+    "volunteerBody": "Baila como taxi dancer, sé instructor o ayuda en la puerta. Eliges tus turnos entre las 17 y las 23 y recibes entrada gratis y un vale de comida.",
+    "volunteerReq": "Cuenta gratuita, BankID móvil y 18 años o más.",
+    "volunteerCta": "Ver turnos de voluntarios",
+    "instructorTitle": "Enseña en noches abiertas",
+    "instructorBody": "Únete a noches abiertas a instructores y vende minisesiones, desde 15 minutos hasta cuatro horas. Tú fijas tu tarifa por hora. Usha cobra una comisión del {free} % ({gold} % con Oro, {premium} % con Premium).",
+    "instructorReq": "Empresa propia con F-skatt y membresía Oro o Premium. Sin empresa: salario a través del socio de nóminas de Usha, próximamente.",
+    "instructorCta": "Ver noches abiertas",
+    "assignmentsTitle": "Acepta encargos",
+    "assignmentsBody": "Locales y organizadores publican sesiones. Te postulas y ves de antemano lo que paga el encargo. Con empresa propia facturas a través de ella, menos la comisión de Usha. Sin empresa te contrata para la sesión el socio de nóminas de Usha, que gestiona impuestos, cotizaciones y vacaciones: próximamente.",
+    "assignmentsReq": "Cuenta de creador y BankID móvil. Empresa propia, o salario a través del socio de nóminas de Usha.",
+    "assignmentsCta": "Ver encargos"
   }
 }
