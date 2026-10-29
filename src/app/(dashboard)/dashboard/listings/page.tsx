@@ -22,6 +22,8 @@ export default async function ListingsPage() {
     .from("listings")
     .select("*")
     .eq("user_id", user.id)
+    // Uppdragens dolda listingar är bara ett fäste för bokningen.
+    .eq("from_gig", false)
     // Samma ordning som publiken ser, annars flyttar man ett kort i listan och
     // ser ingen skillnad på sin egen sida.
     .order("sort_order", { ascending: true, nullsFirst: false })

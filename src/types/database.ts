@@ -220,12 +220,14 @@ export interface Database {
           min_guests: number;
           max_guests: number | null;
           experience_details: ExperienceDetails;
+          from_gig: boolean;
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["listings"]["Row"], "id" | "created_at" | "updated_at" | "is_active" | "is_public" | "listing_type" | "min_guests" | "experience_details" | "early_bird_start" | "early_bird_end" | "early_bird_price" | "public_sale_at" | "capacity" | "tickets_sold" | "image_url_square" | "content_language" | "organizer_name"> & {
+        Insert: Omit<Database["public"]["Tables"]["listings"]["Row"], "id" | "created_at" | "updated_at" | "is_active" | "from_gig" | "is_public" | "listing_type" | "min_guests" | "experience_details" | "early_bird_start" | "early_bird_end" | "early_bird_price" | "public_sale_at" | "capacity" | "tickets_sold" | "image_url_square" | "content_language" | "organizer_name"> & {
           id?: string;
           is_active?: boolean;
+          from_gig?: boolean;
           is_public?: boolean;
           early_bird_start?: string | null;
           early_bird_end?: string | null;

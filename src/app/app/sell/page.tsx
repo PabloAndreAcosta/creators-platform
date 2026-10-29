@@ -39,7 +39,7 @@ export default async function SellPage() {
       // Antalen. En tom ruta ska säga att den är tom, inte se likadan ut som en
       // med tio poster i — det var halva förvirringen med fem likadana rader.
       const [listings, products, gigsOut, gigsOpen] = await Promise.all([
-        supabase.from("listings").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+        supabase.from("listings").select("id", { count: "exact", head: true }).eq("user_id", user.id).eq("from_gig", false),
         supabase.from("digital_products").select("id", { count: "exact", head: true }).eq("creator_id", user.id),
         supabase.from("gigs").select("id", { count: "exact", head: true }).eq("arranger_id", user.id),
         supabase.from("gigs").select("id", { count: "exact", head: true }).eq("status", "open"),

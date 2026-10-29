@@ -248,6 +248,7 @@ export async function acceptApplication(applicationId: string) {
       price: app.gigs.proposed_price,
       listing_type: "b2b_offering",
       is_active: false,
+      from_gig: true,
     })
     .select("id")
     .single();
