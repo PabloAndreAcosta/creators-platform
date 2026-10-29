@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import UschjaLogo from "@/components/UschjaLogo";
+import { AuthBrand } from "@/components/auth-brand";
 import { useLocale, useTranslations } from "next-intl";
 import { authUrlWithNext, callbackUrlWithNext } from "@/lib/auth/next-path";
 import { createClient } from "@/lib/supabase/client";
@@ -390,9 +390,7 @@ export default function SignupPage() {
       <div className="flex min-h-screen items-center justify-center px-6">
         <div className="w-full max-w-md">
           <div className="mb-8 text-center">
-            <div className="mx-auto mb-4 flex justify-center">
-              <UschjaLogo size={56} />
-            </div>
+            <AuthBrand />
             <h1 className="text-2xl font-bold">{t("chooseRole")}</h1>
             <p className="mt-1 text-sm text-[var(--usha-muted)]">{t("howToUse")}</p>
           </div>
@@ -434,9 +432,7 @@ export default function SignupPage() {
       <div className="flex min-h-screen items-center justify-center px-6">
         <div className="w-full max-w-md">
           <div className="mb-8 text-center">
-            <div className="mx-auto mb-4 flex justify-center">
-              <UschjaLogo size={56} />
-            </div>
+            <AuthBrand />
             <h1 className="text-2xl font-bold">{t("chooseSubcategory")}</h1>
           </div>
 
@@ -490,9 +486,7 @@ export default function SignupPage() {
       <div className="flex min-h-screen items-center justify-center px-6">
         <div className="w-full max-w-md">
           <div className="mb-8 text-center">
-            <div className="mx-auto mb-4 flex justify-center">
-              <UschjaLogo size={56} />
-            </div>
+            <AuthBrand />
             <h1 className="text-2xl font-bold">{t("chooseBusinessType")}</h1>
           </div>
 
@@ -607,9 +601,7 @@ export default function SignupPage() {
     <div className="flex min-h-screen items-center justify-center px-6">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex justify-center">
-            <UschjaLogo size={56} />
-          </div>
+          <AuthBrand />
           <h1 className="text-2xl font-bold">{t("createAccount")}</h1>
           {bankidVerified && (
             <p className="mt-1 flex items-center justify-center gap-1 text-xs text-green-400">
