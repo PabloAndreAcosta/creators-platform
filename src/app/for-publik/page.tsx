@@ -4,6 +4,7 @@ import { SiteNav } from "@/components/landing/site-nav";
 import { PerspectiveHero } from "@/components/landing/perspective-hero";
 import { LoopSection } from "@/components/landing/loop-section";
 import { Pricing } from "@/components/landing/pricing";
+import { getSignupCreditEnabled } from "@/lib/credits/flag";
 import { AudienceFeatures } from "@/components/landing/audience-features";
 import { PerspectiveLinks } from "@/components/landing/perspective-links";
 import { Trust } from "@/components/landing/trust";
@@ -22,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function ForAudiencePage() {
+export default async function ForAudiencePage() {
   return (
     <main>
       <RedirectIfAuthed />
@@ -32,7 +33,7 @@ export default function ForAudiencePage() {
       <PerspectiveHero ns="forAudience" ctaHref="/upplevelser" wedge />
       <LoopSection ns="forAudience" />
       <AudienceFeatures />
-      <Pricing role="customer" />
+      <Pricing role="customer" signupCredit={await getSignupCreditEnabled()} />
       <PerspectiveLinks exclude="audience" />
       <Trust />
       <Footer />

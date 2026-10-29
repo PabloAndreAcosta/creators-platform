@@ -3,7 +3,9 @@ import { CATEGORIES, CATEGORY_LABELS } from "@/lib/categories";
 import Link from "next/link";
 import { BuyTicketCta } from "@/components/buy-ticket-cta";
 import { MapPin, Search, Music } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
+import { stockholmToday } from "@/lib/time";
+import { isCancelled } from "@/lib/entrance/door-link";
 
 interface SearchPageProps {
   searchParams: Promise<{ q?: string; category?: string; subcategory?: string }>;
@@ -30,6 +32,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     category: string;
     price: number | null;
     user_id: string;
+    event_date: string | null;
     profiles: { full_name: string | null } | null;
   }> = [];
 
@@ -50,6 +53,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       );
     }
     const pattern = sanitized ? `%${sanitized}%` : null;
+    const today = stockholmToday();
 
     let creatorsQuery = supabase
       .from("profiles")
@@ -58,8 +62,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
     let listingsQuery = supabase
       .from("listings")
-      .select("id, title, category, price, user_id, profiles!user_id(full_name)")
-      .eq("is_active", true);
+      .select("id, title, category, price, user_id, event_date, profiles!user_id(full_name)")
+      .eq("is_active", true)
+      // Passerade kvällar ska inte gå att "köpa biljett" till. Tjänster utan
+      // datum följer med.
+      .or(`event_date.is.null,event_date.gte.${today}`);
 
     if (pattern) {
       creatorsQuery = creatorsQuery.or(
@@ -82,8 +89,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       // related column.
       let scopedListingsQuery = supabase
         .from("listings")
-        .select("id, title, category, price, user_id, profiles!user_id!inner(full_name, creator_subcategory)")
+        .select("id, title, category, price, user_id, event_date, profiles!user_id!inner(full_name, creator_subcategory)")
         .eq("is_active", true)
+        .or(`event_date.is.null,event_date.gte.${today}`)
         .eq("profiles.creator_subcategory", "taxi_dancer");
       if (pattern) {
         scopedListingsQuery = scopedListingsQuery.or(
@@ -102,10 +110,22 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     ]);
 
     creators = creatorsRes.data ?? [];
-    listings = (listingsRes.data as unknown as typeof listings) ?? [];
+    // Inställda kvällar markeras i titeln ("INSTÄLLT: …"); de ska inte säljas.
+    // Kommande kvällar först i datumordning, tjänster utan datum efter.
+    listings = ((listingsRes.data as unknown as typeof listings) ?? [])
+      .filter((l) => !isCancelled(l.title))
+      .sort((a, b) => {
+        if (a.event_date && b.event_date) return a.event_date.localeCompare(b.event_date);
+        return a.event_date ? -1 : b.event_date ? 1 : 0;
+      });
   }
 
   const totalResults = creators.length + listings.length;
+  const locale = await getLocale();
+  const dateLabel = (date: string) =>
+    new Intl.DateTimeFormat(locale, { weekday: "short", day: "numeric", month: "short", timeZone: "Europe/Stockholm" }).format(
+      new Date(`${date.slice(0, 10)}T12:00:00Z`),
+    );
 
   return (
     <div className="px-4 py-6 md:px-8">
@@ -316,8 +336,13 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                   className="flex items-center justify-between rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 transition-colors hover:bg-[var(--usha-card-hover)]"
                 >
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{l.title}</p>
+                    {/* Två rader titel i stället för en avklippt: torsdagarna
+                        i en serie heter nästan likadant och skiljs annars inte åt. */}
+                    <p className="line-clamp-2 text-sm font-medium">{l.title}</p>
                     <p className="text-xs text-[var(--usha-muted)]">
+                      {l.event_date && (
+                        <span className="font-medium text-[var(--usha-white)]">{dateLabel(l.event_date)} &middot; </span>
+                      )}
                       {creator?.full_name || t("creatorFallback")} &middot;{" "}
                       {CATEGORY_LABELS[l.category] || l.category}
                     </p>
