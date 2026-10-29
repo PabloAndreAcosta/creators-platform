@@ -3907,61 +3907,63 @@
   },
   "taxidansarePage": {
     "meta": {
-      "title": "Bailarines de alquiler en Usha Platform: contrata a uno o conviértete en uno",
-      "description": "Encuentra bailarines de alquiler profesionales para baile en pareja (bugg, foxtrot, salsa, tango) o conviértete en pareja de baile remunerada a través de Usha Platform. Bailarines verificados con BankID, pago seguro, paquetes y clases particulares.",
-      "ogTitle": "Bailarines de alquiler en Usha Platform: contrata a uno o conviértete en uno",
-      "ogDescription": "Encuentra bailarines de alquiler verificados con BankID para baile en pareja, o conviértete en pareja de baile remunerada a través de Usha Platform."
+      "title": "Hazte taxi dancer en Usha — baila como voluntario",
+      "description": "Como taxi dancer bailas con los invitados en nuestras noches de baile, sobre todo con quienes son nuevos. Eres voluntario y recibes entrada gratis y un vale de comida. BankID móvil y 18 años.",
+      "ogTitle": "Hazte taxi dancer en Usha — baila como voluntario",
+      "ogDescription": "Baila con los invitados en nuestras noches como voluntario. Entrada gratis y un vale de comida."
     },
     "hero": {
-      "titleLead": "Bailarines de alquiler.",
-      "titleHighlight": "Contrata a uno o conviértete en uno.",
-      "body": "Baile en pareja en tus términos: bugg, foxtrot, salsa, tango, lindy hop. Encuentra bailarines de alquiler verificados con BankID para una noche, un evento o clases particulares. O conviértete en uno y cobra directamente a través de la plataforma.",
-      "ctaFind": "Encontrar bailarines de alquiler",
-      "ctaBecome": "Ser bailarín de alquiler",
-      "note": "Como bailarín de alquiler necesitas verificarte con BankID móvil. Edad mínima 18 años."
+      "titleLead": "Taxi dancers.",
+      "titleHighlight": "Baila con todos.",
+      "body": "Como taxi dancer bailas con los invitados en nuestras noches, sobre todo con quienes son nuevos o están a un lado. Eres voluntario y eliges tus turnos.",
+      "ctaFind": "Encontrar taxi dancers",
+      "ctaBecome": "Hazte taxi dancer",
+      "note": "Los taxi dancers se verifican con BankID móvil. Edad mínima 18 años."
     },
     "value": {
-      "heading": "¿Por qué Usha Platform para el baile de alquiler?",
-      "paidTitle": "Cobra directamente",
-      "paidBody": "Usha recibe el pago y transfiere tu parte a tu cuenta de Stripe tras la reserva. La comisión es del 8 % en el plan gratuito, 5 % en Gold y 3 % en Premium.",
+      "heading": "¿Por qué ser taxi dancer con nosotros?",
+      "paidTitle": "Entrada gratis y vale de comida",
+      "paidBody": "Eres voluntario y no cobras. Recibes entrada gratis y un vale de comida por noche: una hamburguesa y una bebida sin alcohol.",
       "bankidTitle": "Verificado con BankID",
-      "bankidBody": "Todos los bailarines de alquiler confirman identidad y edad con BankID móvil. Genera confianza entre cliente, organizador y bailarín.",
-      "packagesTitle": "Paquetes + coaching",
-      "packagesBody": "Vende paquetes de baile prepagados que se canjean poco a poco en los eventos, u ofrece clases particulares con reserva por calendario. Ambos flujos están incluidos."
+      "bankidBody": "Todos los taxi dancers confirman identidad y edad con BankID móvil. Genera confianza entre invitados, organizador y bailarines.",
+      "packagesTitle": "Elige tus turnos",
+      "packagesBody": "Los turnos son entre las 17 y las 23 y duran al menos dos horas. Apúntate, registra tu entrada al llegar y cancela como tarde a las 10:00 del mismo día si surge algo."
     },
     "how": {
       "heading": "Cómo funciona",
-      "customersBadge": "Para clientes",
-      "customersTitle": "Reserva un bailarín de alquiler",
-      "customersStep1": "Busca un bailarín de alquiler con el filtro o el enlace de arriba.",
-      "customersStep2": "Elige <em>paquete de baile</em> (prepagado, se canjea en los eventos) o <em>coaching</em> (una hora concreta).",
-      "customersStep3": "Paga de forma segura con Stripe.",
-      "customersStep4": "Quedad en la pista o en el estudio. El bailarín marca cada baile como canjeado en la app.",
-      "organizersBadge": "Para organizadores",
-      "organizersTitle": "Reserva para un evento",
-      "organizersStep1": "Envía una solicitud de evento desde el perfil del bailarín de alquiler: fecha, hora, local, remuneración.",
-      "organizersStep2": "Añade ventajas (entrada, bebidas, hotel) que hagan atractiva la oferta.",
-      "organizersStep3": "El bailarín de alquiler acepta o rechaza en poco tiempo.",
-      "organizersStep4": "Paga a través de la plataforma cuando se acepte la solicitud. Nosotros transferimos el caché al bailarín."
+      "customersBadge": "Para invitados",
+      "customersTitle": "Baila con un taxi dancer",
+      "customersStep1": "Ven a la noche como siempre.",
+      "customersStep2": "Los taxi dancers están en la pista: pide un <em>baile</em>, sea cual sea tu nivel.",
+      "customersStep3": "El taxi dance forma parte de la noche.",
+      "customersStep4": "Todos los taxi dancers están verificados con BankID y tienen 18 años o más.",
+      "organizersBadge": "Para taxi dancers",
+      "organizersTitle": "Cómo hacerte taxi dancer",
+      "organizersStep1": "Crea una cuenta en Usha y verifícate con BankID móvil.",
+      "organizersStep2": "Elige los turnos que puedas entre las 17 y las 23.",
+      "organizersStep3": "Registra tu entrada en la app al llegar.",
+      "organizersStep4": "Cancela como tarde a las 10:00 del mismo día si surge algo."
     },
     "dancers": {
-      "heading": "¿Eres una pareja de baile con experiencia?",
-      "body": "Crea un perfil, describe tus estilos, fija tus precios. Ofrece también clases particulares si quieres: muchos bailarines de alquiler en Usha Platform hacen ambas cosas.",
-      "calendarTitle": "Tu propio calendario",
-      "calendarBody": "Decide tú mismo cuándo estás disponible para reservas.",
+      "heading": "¿Tienes experiencia como pareja de baile?",
+      "body": "Crea un perfil, describe tus estilos y coge turnos como taxi dancer en nuestras noches.",
+      "calendarTitle": "Tú eliges",
+      "calendarBody": "Decides qué noches y turnos coges.",
       "qrTitle": "Tu propio código QR",
-      "qrBody": "Comparte tu perfil en carteles, tarjetas de visita o digitalmente.",
-      "commissionTitle": "Comisión reducida",
-      "commissionBody": "8 % en el nivel gratuito, 5 % en Oro, 3 % en Premium.",
-      "cta": "Crear perfil de bailarín de alquiler"
+      "qrBody": "Comparte tu perfil en carteles, tarjetas o en línea.",
+      "commissionTitle": "Voluntario",
+      "commissionBody": "Entrada gratis y un vale de comida por noche, sin sueldo.",
+      "cta": "Ver turnos"
     },
     "positioning": {
       "heading": "Qué es el baile de alquiler y qué no es",
-      "body": "Un bailarín de alquiler es una pareja de baile remunerada para baile en pareja (bugg, foxtrot, salsa, tango, lindy hop, entre otros) en ocasiones de baile públicas o privadas, o un instructor que da clases particulares. El servicio no incluye contacto sexual ni íntimo. Un uso distinto infringe los términos de servicio de Usha Platform y conlleva la suspensión.",
+      "body": "Un taxi dancer es una pareja de baile para bailes en pareja – kizomba, swing, salsa, tango y más – en nuestras noches de baile. No incluye contacto sexual ni íntimo. Un uso fuera de esto infringe las condiciones de uso de Usha Platform y conlleva la suspensión.",
       "readMore": "Más información:",
-      "refundPolicy": "Política de reembolso",
       "terms": "Términos de servicio"
-    }
+    },
+    "volunteerBannerTitle": "Baila como voluntario en nuestras noches",
+    "volunteerBannerBody": "Taxi dancers e instructores en The Lab: entrada gratis y un vale de comida. Elige tus turnos entre las 17 y las 23.",
+    "volunteerBannerCta": "Ver turnos →"
   },
   "seriesPage": {
     "metaTitle": "{title} – Usha Platform",
