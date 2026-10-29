@@ -2897,8 +2897,8 @@
     "venueTeamDesc": "Bjud in personer som hjälper till med lokalen",
     "sellLabel": "Utbud",
     "sellDesc": "Allt du säljer, samlat",
-    "taxiLabel": "Taxipass",
-    "taxiDesc": "Dansa som volontär – fri entré och matkupong"
+    "taxiLabel": "Volontärpass",
+    "taxiDesc": "Hjälp till som volontär – fri entré och matkupong"
   },
   "sellPage": {
     "heading": "Utbud",
@@ -3019,7 +3019,7 @@
     "hideOccurrences": "Dölj",
     "badgePast": "Passerat",
     "sellAtDoor": "Sälj i entrén",
-    "taxiPass": "Taxipass"
+    "taxiPass": "Volontärpass"
   },
   "calendarPage": {
     "dayMon": "Mån",
@@ -4467,11 +4467,11 @@
   },
   "taxiPass": {
     "allEvenings": "Alla kvällar",
-    "eveningTitle": "Taxipass – {title}",
-    "listTitle": "Taxipass",
-    "listIntro": "Kvällar som söker taxidansare. Du är volontär: fri entré och en matkupong, ingen lön. Mobilt BankID krävs.",
-    "listEmpty": "Inga kvällar söker taxidansare just nu.",
-    "volunteerTitle": "Taxidansare är volontärer",
+    "eveningTitle": "Volontärpass – {title}",
+    "listTitle": "Volontärpass",
+    "listIntro": "Kvällar som söker volontärer: taxidansare, dörrvärdar, foto och allmän hjälp. Fri entré och en matkupong, ingen lön. Mobilt BankID krävs.",
+    "listEmpty": "Inga kvällar söker volontärer just nu.",
+    "volunteerTitle": "Du är volontär",
     "volunteerBody": "Du får ingen lön. Du får fri entré och en matkupong per kväll: en burgare och en alkoholfri dryck.",
     "ruleAge": "Du ska ha fyllt 18 år och verifiera dig med Mobilt BankID.",
     "ruleAlcohol": "Alkoholfritt under passet.",
@@ -4492,7 +4492,7 @@
     "signUpTitle": "Anmäl dig",
     "strikes": "Du har {n} av {limit} varningar de senaste sex månaderna.",
     "loginToSignUp": "Logga in för att anmäla dig",
-    "blockedBody": "Du har fått tre varningar inom sex månader och är avstängd från taxipass här till och med {date}. Därefter börjar räkningen om från noll.",
+    "blockedBody": "Du har fått tre varningar inom sex månader och är avstängd från volontärpass här till och med {date}. Därefter börjar räkningen om från noll.",
     "noShifts": "Arrangören har inte lagt upp några pass än.",
     "noOpenShifts": "Alla pass är fulla, har börjat eller redan dina.",
     "chooseShifts": "Välj pass",
@@ -4512,16 +4512,16 @@
     "notice_mustAccept": "Bekräfta volontärvillkoren och reglerna.",
     "notice_notFound": "Hittade inte kvällen eller passet.",
     "notice_bankid": "Du behöver verifiera dig med Mobilt BankID först.",
-    "notice_age": "Du behöver ha fyllt 18 år för att vara taxidansare.",
-    "notice_blocked": "Du är avstängd från taxipass här just nu.",
+    "notice_age": "Du behöver ha fyllt 18 år för att vara volontär.",
+    "notice_blocked": "Du är avstängd från volontärpass här just nu.",
     "notice_closed": "Passet har redan börjat.",
     "notice_full": "Passet blev fullt.",
     "notice_checkInClosed": "Incheckningen öppnar 30 minuter före passet och stänger när det slutar.",
     "notice_voucherNeedsCheckIn": "Checka in på ett pass först.",
     "backToEvents": "Mina evenemang",
-    "organiserTitle": "Taxipass – {title}",
-    "organiserVolunteerTitle": "Taxidansare är volontärer",
-    "organiserVolunteerBody": "De får ingen lön – fri entré och en matkupong (burgare + alkoholfri dryck) per kväll. Det står tydligt för dem när de anmäler sig, tillsammans med reglerna för ålder, alkohol och avbokning (senast kl. 10 samma dag). Dansarna checkar bara in.",
+    "organiserTitle": "Volontärpass – {title}",
+    "organiserVolunteerTitle": "Volontärer får ingen lön",
+    "organiserVolunteerBody": "Fri entré och en matkupong (burgare + alkoholfri dryck) per kväll. Det står tydligt för dem när de anmäler sig, tillsammans med reglerna för ålder, alkohol och avbokning (senast kl. 10 samma dag). De checkar bara in.",
     "shareLink": "Länk att dela:",
     "start": "Start",
     "end": "Slut",
@@ -4532,7 +4532,7 @@
     "bookedOf": "{n} av {cap} anmälda",
     "deleteShift": "Ta bort",
     "noSignups": "Inga anmälda än.",
-    "colDancer": "Dansare",
+    "colDancer": "Volontär",
     "colIn": "In",
     "colStatus": "Status",
     "colPhoto": "Bilder",
@@ -4566,6 +4566,17 @@
     "bankidBody": "Taxidansare och volontärer måste verifiera sig med Mobilt BankID innan de kan anmäla sig. Det bekräftar vem du är och att du fyllt 18. Det tar en halv minut och görs en gång.",
     "bankidAgainBody": "Du har verifierat dig tidigare, men vi behöver göra det en gång till för att kunna se att du fyllt 18.",
     "bankidButton": "Verifiera med Mobilt BankID",
-    "notice_bankidAgain": "Verifiera dig med Mobilt BankID en gång till, så vi kan se din ålder."
+    "notice_bankidAgain": "Verifiera dig med Mobilt BankID en gång till, så vi kan se din ålder.",
+    "role": "Roll",
+    "roles": {
+      "taxi_dancer": "Taxidansare",
+      "door_host": "Dörrvärd",
+      "photographer": "Foto & film",
+      "helper": "Allmän hjälp"
+    },
+    "wholeSeries": "Lägg upp passet på alla kommande kvällar i serien",
+    "notice_shiftsCreatedSeries": "Passet är upplagt på seriens kommande kvällar.",
+    "notice_shiftExists": "Passet fanns redan på kvällen.",
+    "notice_shift_role": "Välj en roll för passet."
   }
 }
