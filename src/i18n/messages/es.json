@@ -4629,6 +4629,7 @@
       "taxi_dancer": "Taxi dancer",
       "instructor": "Instructor",
       "door_host": "Anfitrión de puerta",
+      "cashier": "Caja",
       "photographer": "Foto y vídeo",
       "helper": "Ayuda general"
     },
@@ -4640,7 +4641,11 @@
     "notice_eveningFull": "La noche ya tiene cuatro taxi dancers. Aún puedes coger otros turnos.",
     "notice_shift_taxiCapacity": "Un turno de taxi dancer puede tener como máximo 2 plazas.",
     "taxiEveningFullNote": "La noche ya tiene {n} taxi dancers: esos turnos están llenos, pero otros roles siguen abiertos.",
-    "taxiEveningCount": "Taxi dancers esta noche: {n} de un máximo de {max}. Máximo 2 por turno."
+    "taxiEveningCount": "Taxi dancers esta noche: {n} de un máximo de {max}. Máximo 2 por turno.",
+    "rolesLegend": "Roles del turno: marca uno o varios",
+    "capacityFor": "Plazas para {role}",
+    "spotsShort": "plazas",
+    "roleLabelHint": "El nombre propio solo se aplica si eliges un rol."
   },
   "instruktorerPage": {
     "meta": {

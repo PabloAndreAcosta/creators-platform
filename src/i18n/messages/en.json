@@ -4629,6 +4629,7 @@
       "taxi_dancer": "Taxi dancer",
       "instructor": "Instructor",
       "door_host": "Door host",
+      "cashier": "Cashier",
       "photographer": "Photo & video",
       "helper": "General help"
     },
@@ -4640,7 +4641,11 @@
     "notice_eveningFull": "The evening already has four taxi dancers. You can still take other shifts.",
     "notice_shift_taxiCapacity": "A taxi dancer shift can have at most 2 spots.",
     "taxiEveningFullNote": "The evening already has {n} taxi dancers – taxi dancer shifts are full, but other roles are open.",
-    "taxiEveningCount": "Taxi dancers tonight: {n} of at most {max}. At most 2 per shift."
+    "taxiEveningCount": "Taxi dancers tonight: {n} of at most {max}. At most 2 per shift.",
+    "rolesLegend": "Roles for the shift – tick one or more",
+    "capacityFor": "Spots for {role}",
+    "spotsShort": "spots",
+    "roleLabelHint": "A custom name only applies when one role is chosen."
   },
   "instruktorerPage": {
     "meta": {
