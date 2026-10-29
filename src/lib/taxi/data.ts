@@ -1,5 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { SignupFacts } from "./rules";
+import type { ShiftKind, SignupFacts } from "./rules";
 
 /**
  * Inläsning för taxipassen. Allt via service-role: tabellerna är stängda för
@@ -18,6 +18,7 @@ export interface Evening {
 
 export interface ShiftRow {
   id: string;
+  kind: ShiftKind;
   starts_at: string;
   ends_at: string;
   capacity: number;
@@ -38,16 +39,17 @@ export async function loadShifts(listingId: string): Promise<ShiftRow[]> {
   const db = createAdminClient();
   const { data: shifts } = await db
     .from("taxi_shifts")
-    .select("id, starts_at, ends_at, capacity")
+    .select("id, kind, starts_at, ends_at, capacity")
     .eq("listing_id", listingId)
-    .order("starts_at");
+    .order("starts_at")
+    .order("kind", { ascending: false });
   const ids = (shifts ?? []).map((s) => s.id);
   const { data: booked } = ids.length
     ? await db.from("taxi_signups").select("shift_id").in("shift_id", ids).eq("status", "booked")
     : { data: [] as { shift_id: string }[] };
   const count = new Map<string, number>();
   for (const b of booked ?? []) count.set(b.shift_id, (count.get(b.shift_id) ?? 0) + 1);
-  return (shifts ?? []).map((s) => ({ ...s, booked: count.get(s.id) ?? 0 }));
+  return (shifts ?? []).map((s) => ({ ...s, kind: s.kind as ShiftKind, booked: count.get(s.id) ?? 0 }));
 }
 
 /**

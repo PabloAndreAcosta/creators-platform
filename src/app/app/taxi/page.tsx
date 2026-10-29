@@ -38,7 +38,7 @@ export default async function TaxiEveningsPage() {
               <p className="text-sm text-[var(--usha-muted)]">{e.event_date}</p>
               <p className="mt-2 text-xs text-[var(--usha-muted)]">
                 {e.shifts
-                  .map((s) => `${time(s.starts_at)}–${time(s.ends_at)} (${t("spotsLeft", { n: Math.max(0, s.capacity - s.booked) })})`)
+                  .map((s) => `${time(s.starts_at)}–${time(s.ends_at)} ${t(`kind_${s.kind}`)} (${t("spotsLeft", { n: Math.max(0, s.capacity - s.booked) })})`)
                   .join(" · ")}
               </p>
             </Link>

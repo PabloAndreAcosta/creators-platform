@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdminById } from "@/lib/admin/check";
 import { loadEvening, loadShifts, loadStrikeFacts } from "@/lib/taxi/data";
-import { isStrike, strikeStatus, TAXI_WINDOW, STRIKE_LIMIT, type StrikeStatus } from "@/lib/taxi/rules";
+import { isStrike, strikeStatus, TAXI_WINDOW, STRIKE_LIMIT, TAXI_MAX_PER_EVENING, type StrikeStatus } from "@/lib/taxi/rules";
 import { createShift, deleteShift, organiserCheck } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -62,7 +62,7 @@ export default async function EventTaxiPage(props: {
 
   const notices = [
     "shiftCreated", "shiftDeleted", "shiftHasSignups", "checkedIn", "notFound",
-    "shift_time", "shift_window", "shift_length", "shift_capacity",
+    "shift_time", "shift_window", "shift_length", "shift_capacity", "shift_taxiCapacity",
   ];
   const btn = "rounded-lg px-2.5 py-1 text-xs font-semibold";
   const input = "rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-3 py-1.5 text-sm";
@@ -89,6 +89,16 @@ export default async function EventTaxiPage(props: {
         </p>
         <p className="mt-1 text-[var(--usha-muted)]">{t("organiserVolunteerBody")}</p>
         <p className="mt-2 text-[var(--usha-muted)]">
+          {t("taxiEveningCount", {
+            n: new Set(
+              (signups ?? [])
+                .filter((x) => x.status === "booked" && shifts.find((sh) => sh.id === x.shift_id)?.kind === "taxi")
+                .map((x) => x.dancer_id),
+            ).size,
+            max: TAXI_MAX_PER_EVENING,
+          })}
+        </p>
+        <p className="mt-2 text-[var(--usha-muted)]">
           {t("shareLink")} <span className="font-mono text-[var(--usha-white)]">usha.se/app/taxi/{id}</span>
         </p>
       </div>
@@ -104,8 +114,15 @@ export default async function EventTaxiPage(props: {
           <input type="time" name="end" step={900} min={TAXI_WINDOW.from} max={TAXI_WINDOW.to} defaultValue="19:00" required className={input} />
         </label>
         <label className="flex flex-col gap-1">
+          {t("kindLabel")}
+          <select name="kind" defaultValue="taxi" className={input}>
+            <option value="taxi">{t("kind_taxi")}</option>
+            <option value="instructor">{t("kind_instructor")}</option>
+          </select>
+        </label>
+        <label className="flex flex-col gap-1">
           {t("capacity")}
-          <input type="number" name="capacity" min={1} max={50} defaultValue={4} required className={`${input} w-20`} />
+          <input type="number" name="capacity" min={1} max={50} defaultValue={2} required className={`${input} w-20`} />
         </label>
         <button className="rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-xs font-bold text-black">
           {t("addShift")}
@@ -121,7 +138,7 @@ export default async function EventTaxiPage(props: {
             <section key={s.id} className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 text-sm">
               <div className="mb-3 flex items-center justify-between">
                 <p className="font-semibold">
-                  {time(s.starts_at)}–{time(s.ends_at)}
+                  {time(s.starts_at)}–{time(s.ends_at)} · {t(`kind_${s.kind}`)}
                   <span className="ml-2 font-normal text-[var(--usha-muted)]">{t("bookedOf", { n: s.booked, cap: s.capacity })}</span>
                 </p>
                 {s.booked === 0 && (

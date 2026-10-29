@@ -24,6 +24,10 @@ import { ageOnDate } from "@/lib/bankid/birth-date";
 
 export const TAXI_WINDOW = { from: "17:00", to: "23:00" } as const;
 export const MIN_SHIFT_MINUTES = 120;
+/** Högst så många taxidansare på samma pass. */
+export const TAXI_MAX_PER_SHIFT = 2;
+/** Högst så många olika taxidansare under en kväll, oavsett vilka pass de tar. */
+export const TAXI_MAX_PER_EVENING = 4;
 export const STRIKE_LIMIT = 3;
 /** Varningar räknas inom så här många månader, och avstängningen varar lika länge. */
 export const STRIKE_WINDOW_MONTHS = 6;
@@ -37,7 +41,20 @@ export const CHECKIN_EARLY_MINUTES = 30;
 const MIN = 60_000;
 const ms = (iso: string) => Date.parse(iso);
 
-export type ShiftError = "time" | "window" | "length" | "capacity";
+export type ShiftError = "time" | "window" | "length" | "capacity" | "taxiCapacity";
+
+/** Vad passet går ut på. Båda är volontärer på samma villkor. */
+export const SHIFT_KINDS = ["taxi", "instructor"] as const;
+export type ShiftKind = (typeof SHIFT_KINDS)[number];
+
+export function isShiftKind(v: unknown): v is ShiftKind {
+  return typeof v === "string" && (SHIFT_KINDS as readonly string[]).includes(v);
+}
+
+/** Två pass överlappar i tid. Ingen kan vara på två ställen samtidigt. */
+export function overlaps(a: { starts_at: string; ends_at: string }, b: { starts_at: string; ends_at: string }): boolean {
+  return ms(a.starts_at) < ms(b.ends_at) && ms(b.starts_at) < ms(a.ends_at);
+}
 
 /** Kontrollerar ett pass som arrangören lägger upp. Tider som "HH:MM". */
 export function validateShift(input: {
@@ -45,11 +62,13 @@ export function validateShift(input: {
   startTime: string;
   endTime: string;
   capacity: number;
+  kind?: "taxi" | "instructor";
 }): { ok: true; startsAt: string; endsAt: string } | { ok: false; error: ShiftError } {
   const hhmm = /^([01]\d|2[0-3]):[0-5]\d$/;
   if (!hhmm.test(input.startTime) || !hhmm.test(input.endTime)) return { ok: false, error: "time" };
   if (input.startTime < TAXI_WINDOW.from || input.endTime > TAXI_WINDOW.to) return { ok: false, error: "window" };
   if (!Number.isInteger(input.capacity) || input.capacity < 1 || input.capacity > 50) return { ok: false, error: "capacity" };
+  if ((input.kind ?? "taxi") === "taxi" && input.capacity > TAXI_MAX_PER_SHIFT) return { ok: false, error: "taxiCapacity" };
   const startsAt = stockholmEventISO(input.eventDate, `${input.startTime}:00`);
   const endsAt = stockholmEventISO(input.eventDate, `${input.endTime}:00`);
   if ((ms(endsAt) - ms(startsAt)) / MIN < MIN_SHIFT_MINUTES) return { ok: false, error: "length" };
@@ -157,4 +176,12 @@ export function dancerEligibility(
 /** Kvällen har inte passerat i Stockholm. */
 export function isUpcoming(eventDate: string, now: Date): boolean {
   return eventDate >= stockholmToday(now);
+}
+
+/**
+ * Kvällens taxitak: högst fyra olika taxidansare. Den som redan har ett
+ * taxipass samma kväll räknas redan och får ta fler pass.
+ */
+export function taxiEveningFull(bookedTaxiDancerIds: ReadonlySet<string>, dancerId: string): boolean {
+  return !bookedTaxiDancerIds.has(dancerId) && bookedTaxiDancerIds.size >= TAXI_MAX_PER_EVENING;
 }

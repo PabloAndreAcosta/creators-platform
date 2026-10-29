@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { loadEvening, loadShifts, loadStrikeFacts } from "@/lib/taxi/data";
-import { canCheckIn, dancerEligibility, isLateCancel, strikeStatus } from "@/lib/taxi/rules";
+import { canCheckIn, dancerEligibility, isLateCancel, overlaps, strikeStatus, taxiEveningFull } from "@/lib/taxi/rules";
 
 const back = (listingId: string, notice: string) => redirect(`/app/taxi/${listingId}?notice=${notice}`);
 
@@ -58,6 +58,31 @@ export async function signUpForShifts(formData: FormData) {
     const s = shifts.find((x) => x.id === id);
     if (!s || Date.parse(s.starts_at) <= now) back(listingId, "closed");
     if (s!.booked >= s!.capacity) back(listingId, "full");
+  }
+
+  // Kvällens taxitak: högst fyra olika taxidansare, oavsett pass.
+  if (shifts.some((x) => shiftIds.includes(x.id) && x.kind === "taxi")) {
+    const taxiIds = shifts.filter((x) => x.kind === "taxi").map((x) => x.id);
+    const { data: taxiBooked } = await db
+      .from("taxi_signups")
+      .select("dancer_id")
+      .eq("status", "booked")
+      .in("shift_id", taxiIds);
+    if (taxiEveningFull(new Set((taxiBooked ?? []).map((r) => r.dancer_id)), user.id)) back(listingId, "eveningFull");
+  }
+
+  // Ingen kan vara på två pass samtidigt — t.ex. taxi och instruktör 17–19.
+  const { data: mineBooked } = await db
+    .from("taxi_signups")
+    .select("shift_id")
+    .eq("dancer_id", user.id)
+    .eq("status", "booked")
+    .in("shift_id", shifts.map((x) => x.id));
+  const chosen = shifts.filter((x) => shiftIds.includes(x.id) || (mineBooked ?? []).some((m) => m.shift_id === x.id));
+  for (let i = 0; i < chosen.length; i++) {
+    for (let j = i + 1; j < chosen.length; j++) {
+      if (overlaps(chosen[i], chosen[j])) back(listingId, "overlap");
+    }
   }
 
   const ackAt = new Date().toISOString();

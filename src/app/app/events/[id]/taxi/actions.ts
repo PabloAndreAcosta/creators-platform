@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdminById } from "@/lib/admin/check";
 import { loadEvening } from "@/lib/taxi/data";
-import { validateShift } from "@/lib/taxi/rules";
+import { isShiftKind, validateShift } from "@/lib/taxi/rules";
 
 /** Arrangören (kvällens ägare) eller hel admin. */
 async function assertOrganiser(listingId: string) {
@@ -26,7 +26,9 @@ const page = (listingId: string, notice: string) => redirect(`/app/events/${list
 export async function createShift(formData: FormData) {
   const listingId = String(formData.get("listingId") ?? "");
   const { user, evening } = await assertOrganiser(listingId);
+  const kindRaw = formData.get("kind");
   const v = validateShift({
+    kind: isShiftKind(kindRaw) ? kindRaw : "taxi",
     eventDate: evening.event_date,
     startTime: String(formData.get("start") ?? ""),
     endTime: String(formData.get("end") ?? ""),
@@ -36,6 +38,7 @@ export async function createShift(formData: FormData) {
   if (v.ok) {
     const { error } = await createAdminClient().from("taxi_shifts").insert({
       listing_id: listingId,
+      kind: isShiftKind(kindRaw) ? kindRaw : "taxi",
       starts_at: v.startsAt,
       ends_at: v.endsAt,
       capacity: Number(formData.get("capacity")),

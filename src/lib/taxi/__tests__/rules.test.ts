@@ -1,14 +1,14 @@
 import { describe, it, expect } from "vitest";
 import {
-  validateShift, cancelDeadline, isLateCancel, isStrike, strikeStatus, canCheckIn, dancerEligibility, type SignupFacts,
+  validateShift, overlaps, isShiftKind, taxiEveningFull, cancelDeadline, isLateCancel, isStrike, strikeStatus, canCheckIn, dancerEligibility, type SignupFacts,
 } from "../rules";
 
 const shift = { starts_at: "2026-11-12T19:00:00+01:00", ends_at: "2026-11-12T21:00:00+01:00" };
 
 describe("validateShift", () => {
-  const base = { eventDate: "2026-11-12", capacity: 4 };
+  const base = { eventDate: "2026-11-12", capacity: 2 };
   it("godkänner två timmar inom 17–23", () => {
-    const r = validateShift({ ...base, startTime: "17:00", endTime: "19:00" });
+    const r = validateShift({ ...base, capacity: 2, startTime: "17:00", endTime: "19:00" });
     expect(r).toEqual({ ok: true, startsAt: "2026-11-12T17:00:00+01:00", endsAt: "2026-11-12T19:00:00+01:00" });
   });
   it("vägrar kortare än två timmar", () => {
@@ -26,7 +26,7 @@ describe("validateShift", () => {
     expect(validateShift({ ...base, capacity: 0, startTime: "17:00", endTime: "19:00" })).toEqual({ ok: false, error: "capacity" });
   });
   it("räknar sommartid rätt", () => {
-    const r = validateShift({ ...base, eventDate: "2026-06-11", startTime: "17:00", endTime: "19:00" });
+    const r = validateShift({ ...base, kind: "instructor", eventDate: "2026-06-11", startTime: "17:00", endTime: "19:00" });
     expect(r.ok && r.startsAt).toBe("2026-06-11T17:00:00+02:00");
   });
 });
@@ -105,5 +105,34 @@ describe("dancerEligibility", () => {
   it("18 år räknas på kvällens datum", () => {
     expect(dancerEligibility({ ...verified, bankid_birth_date: "2008-11-12" }, "2026-11-12")).toBe("ok");
     expect(dancerEligibility({ ...verified, bankid_birth_date: "2008-11-13" }, "2026-11-12")).toBe("age");
+  });
+});
+
+describe("roller och överlapp", () => {
+  it("känner igen rollerna", () => {
+    expect(isShiftKind("taxi")).toBe(true);
+    expect(isShiftKind("instructor")).toBe(true);
+    expect(isShiftKind("dj")).toBe(false);
+  });
+  it("pass som delar tid överlappar, pass som bara möts gör det inte", () => {
+    const a = { starts_at: "2026-11-12T17:00:00+01:00", ends_at: "2026-11-12T19:00:00+01:00" };
+    expect(overlaps(a, { starts_at: "2026-11-12T17:00:00+01:00", ends_at: "2026-11-12T19:00:00+01:00" })).toBe(true);
+    expect(overlaps(a, { starts_at: "2026-11-12T18:00:00+01:00", ends_at: "2026-11-12T20:00:00+01:00" })).toBe(true);
+    expect(overlaps(a, { starts_at: "2026-11-12T19:00:00+01:00", ends_at: "2026-11-12T21:00:00+01:00" })).toBe(false);
+  });
+});
+
+describe("taxitak", () => {
+  const base = { eventDate: "2026-11-12", startTime: "17:00", endTime: "19:00" };
+  it("högst två taxidansare per pass, instruktörer har inget sådant tak", () => {
+    expect(validateShift({ ...base, kind: "taxi", capacity: 2 }).ok).toBe(true);
+    expect(validateShift({ ...base, kind: "taxi", capacity: 3 })).toEqual({ ok: false, error: "taxiCapacity" });
+    expect(validateShift({ ...base, kind: "instructor", capacity: 3 }).ok).toBe(true);
+  });
+  it("högst fyra olika taxidansare per kväll, men den som redan är med får ta fler pass", () => {
+    const fyra = new Set(["a", "b", "c", "d"]);
+    expect(taxiEveningFull(fyra, "e")).toBe(true);
+    expect(taxiEveningFull(fyra, "a")).toBe(false);
+    expect(taxiEveningFull(new Set(["a", "b", "c"]), "e")).toBe(false);
   });
 });
