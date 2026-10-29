@@ -7,7 +7,7 @@ import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Calendar, ChevronDown, Clock, MapPin, Ticket, Users, Pencil } from "lucide-react";
+import { Calendar, ChevronDown, Clock, MapPin, Ticket, Users, Pencil, Heart } from "lucide-react";
 import { EVENT_CATEGORY_LABELS } from "@/app/app/events/constants";
 import { BookButton } from "./book-button";
 import { WaitlistForm } from "./waitlist-form";
@@ -836,6 +836,15 @@ export default async function EventPage(props: Params) {
             >
               <Ticket size={15} />
               {t("manageCodes")}
+            </Link>
+            {/* Volontärpassen (taxidansare, instruktörer m.fl.) fanns bara i
+                menyn under Evenemang — inte här, där arrangören letade. */}
+            <Link
+              href={`/app/events/${listing.id}/taxi`}
+              className="inline-flex items-center gap-2 rounded-full border border-[var(--usha-border)] px-4 py-2 text-sm font-medium text-[var(--usha-white)] transition hover:border-[var(--usha-gold)]/60"
+            >
+              <Heart size={15} />
+              {t("volunteerShifts")}
             </Link>
             <Link
               href={`/app/events/${listing.id}/edit`}
