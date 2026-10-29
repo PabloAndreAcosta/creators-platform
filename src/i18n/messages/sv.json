@@ -3610,7 +3610,8 @@
     "emailLabel": "E-postadress",
     "emailPlaceholder": "din@email.com",
     "submit": "Skicka återställningslänk",
-    "submitting": "Skickar..."
+    "submitting": "Skickar...",
+    "sendFailed": "Mejlet kunde inte skickas. Försök igen om en stund."
   },
   "gigApplicationActions": {
     "confirmAccept": "Acceptera denna ansökan? Andra ansökningar avböjs och en bokning skapas.",
@@ -4102,7 +4103,11 @@
     "planWelcomeNextSteps": "Verktygen finns i din översikt. Börja där.",
     "planWelcomeCta": "Till min översikt",
     "receiptAmount": "Betalat: {amount} kr",
-    "receiptFree": "Gratis"
+    "receiptFree": "Gratis",
+    "passwordResetSubject": "Välj ett nytt lösenord för Usha",
+    "passwordResetIntro": "Du har bett om att få byta lösenord. Tryck på knappen och välj ett nytt. Länken fungerar på vilken enhet som helst.",
+    "passwordResetCta": "Välj nytt lösenord",
+    "passwordResetFooter": "Bad du inte om detta? Ignorera mejlet, så händer inget – ditt lösenord är oförändrat."
   },
   "adminPage": {
     "partnersLabel": "Partnerprogram",

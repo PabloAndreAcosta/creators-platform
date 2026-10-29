@@ -14,6 +14,8 @@ export default function ResetPasswordPage() {
   const [done, setDone] = useState(false);
   const [hasSession, setHasSession] = useState(false);
   const [checking, setChecking] = useState(true);
+  /** Kod från Ushas eget återställningsmejl. Används först när man sparar. */
+  const [tokenHash, setTokenHash] = useState<string | null>(null);
 
   useEffect(() => {
     // An expired or already-consumed recovery link (e.g. burned by an email
@@ -28,6 +30,17 @@ export default function ResetPasswordPage() {
     );
     if (hashParams.get("error") || queryParams.get("error")) {
       setHasSession(false);
+      setChecking(false);
+      return;
+    }
+
+    // Länken från Ushas eget mejl bär koden i adressen. Den verifieras inte
+    // här — en länkskanner som öppnar sidan ska inte kunna förbruka den — utan
+    // först när det nya lösenordet sparas.
+    const hash = queryParams.get("token_hash");
+    if (hash && queryParams.get("type") === "recovery") {
+      setTokenHash(hash);
+      setHasSession(true);
       setChecking(false);
       return;
     }
@@ -63,6 +76,15 @@ export default function ResetPasswordPage() {
     }
 
     const supabase = createClient();
+    if (tokenHash) {
+      const { error: otpError } = await supabase.auth.verifyOtp({ type: "recovery", token_hash: tokenHash });
+      if (otpError) {
+        // Utgången eller redan använd: visa "begär ny länk".
+        setHasSession(false);
+        setLoading(false);
+        return;
+      }
+    }
     const { error } = await supabase.auth.updateUser({ password });
 
     if (error) {

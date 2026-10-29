@@ -3610,7 +3610,8 @@
     "emailLabel": "Email address",
     "emailPlaceholder": "you@email.com",
     "submit": "Send reset link",
-    "submitting": "Sending..."
+    "submitting": "Sending...",
+    "sendFailed": "The email could not be sent. Please try again shortly."
   },
   "gigApplicationActions": {
     "confirmAccept": "Accept this application? Other applications will be declined and a booking will be created.",
@@ -4102,7 +4103,11 @@
     "planWelcomeNextSteps": "The tools are in your dashboard. Start there.",
     "planWelcomeCta": "Go to my dashboard",
     "receiptAmount": "Paid: {amount} SEK",
-    "receiptFree": "Free"
+    "receiptFree": "Free",
+    "passwordResetSubject": "Choose a new password for Usha",
+    "passwordResetIntro": "You asked to change your password. Tap the button and choose a new one. The link works on any device.",
+    "passwordResetCta": "Choose new password",
+    "passwordResetFooter": "Didn’t ask for this? Ignore this email and nothing happens – your password is unchanged."
   },
   "adminPage": {
     "partnersLabel": "Partner programme",

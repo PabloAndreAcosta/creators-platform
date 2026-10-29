@@ -93,8 +93,17 @@ export default function LoginPage() {
     return `${base} border-green-500/40 focus:border-green-500/60`;
   }
 
-  async function handleLogin(e: React.FormEvent) {
+  async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    // Läs det som faktiskt står i fälten, inte bara state. Webbläsarens
+    // autofyll (Chrome, iOS-nyckelringen) skriver in lösenordet utan att skicka
+    // någon input-händelse förrän man rör sidan — då var state tomt och
+    // formuläret sa "Lösenord krävs" fast prickarna syntes.
+    const fd = new FormData(e.currentTarget);
+    const email = String(fd.get("email") ?? "").trim();
+    const password = String(fd.get("password") ?? "");
+    setEmail(email);
+    setPassword(password);
     const eErr = validateEmail(email);
     const pErr = validatePassword(password);
     setEmailError(eErr);
@@ -229,11 +238,14 @@ export default function LoginPage() {
             <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">{t("email")}</label>
             <input
               type="email"
+              name="email"
               value={email}
               onChange={(e) => handleEmailChange(e.target.value)}
-              onBlur={() => {
+              onBlur={(e) => {
+                // Fältets eget värde: autofyll kan ha ändrat det utan onChange.
+                setEmail(e.target.value);
                 setEmailTouched(true);
-                setEmailError(validateEmail(email));
+                setEmailError(validateEmail(e.target.value));
               }}
               placeholder="din@email.com"
               autoCapitalize="none"
@@ -248,11 +260,13 @@ export default function LoginPage() {
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
+                name="password"
                 value={password}
                 onChange={(e) => handlePasswordChange(e.target.value)}
-                onBlur={() => {
+                onBlur={(e) => {
+                  setPassword(e.target.value);
                   setPasswordTouched(true);
-                  setPasswordError(validatePassword(password));
+                  setPasswordError(validatePassword(e.target.value));
                 }}
                 placeholder="••••••••"
                 autoComplete="current-password"

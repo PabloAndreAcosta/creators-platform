@@ -3610,7 +3610,8 @@
     "emailLabel": "Correo electrónico",
     "emailPlaceholder": "tu@email.com",
     "submit": "Enviar enlace de restablecimiento",
-    "submitting": "Enviando..."
+    "submitting": "Enviando...",
+    "sendFailed": "No se pudo enviar el correo. Inténtalo de nuevo en un momento."
   },
   "gigApplicationActions": {
     "confirmAccept": "¿Aceptar esta solicitud? Las demás solicitudes serán rechazadas y se creará una reserva.",
@@ -4102,7 +4103,11 @@
     "planWelcomeNextSteps": "Las herramientas están en tu panel. Empieza ahí.",
     "planWelcomeCta": "Ir a mi panel",
     "receiptAmount": "Pagado: {amount} SEK",
-    "receiptFree": "Gratis"
+    "receiptFree": "Gratis",
+    "passwordResetSubject": "Elige una nueva contraseña para Usha",
+    "passwordResetIntro": "Has pedido cambiar tu contraseña. Pulsa el botón y elige una nueva. El enlace funciona en cualquier dispositivo.",
+    "passwordResetCta": "Elegir nueva contraseña",
+    "passwordResetFooter": "¿No lo pediste? Ignora este correo y no pasará nada: tu contraseña no cambia."
   },
   "adminPage": {
     "partnersLabel": "Programa de partners",
