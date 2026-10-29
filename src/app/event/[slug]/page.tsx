@@ -44,7 +44,7 @@ const FALLBACK_IMAGE =
 interface Params {
   params: Promise<{ slug: string }>;
   /** `?tt=<biljettyp>` förväljer en biljettyp — se "Lägg till" på biljettsidan. */
-  searchParams?: Promise<{ tt?: string }>;
+  searchParams?: Promise<{ tt?: string; kort?: string }>;
 }
 
 function isUUID(str: string) {
@@ -341,6 +341,8 @@ export default async function EventPage(props: Params) {
   // typen förvald, så att första skärmen visar rätt pris i stället för att be
   // hen leta rätt på raden igen.
   const preselectTicketTypeId = (await props.searchParams)?.tt ?? null;
+  // Från dörrskärmens klippkortskod: kortet ska vara valt när gästen landar.
+  const preselectPassId = (await props.searchParams)?.kort ?? null;
 
   // Sidan låg på ~3 s till första byte för att den gjorde ett tiotal turer till
   // Supabase i följd, inklusive auth.getUser() TVÅ gånger. Frågorna är nu
@@ -968,6 +970,7 @@ export default async function EventPage(props: Params) {
                   ticketTypes={ticketTypesForSale}
                   passes={passesForSale}
                   preselectTicketTypeId={preselectTicketTypeId}
+                  preselectPassId={preselectPassId}
                   creditOre={signupCreditOre}
                   signupCreditEnabled={signupCreditEnabled}
                   header={{

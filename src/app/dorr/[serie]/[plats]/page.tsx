@@ -12,7 +12,7 @@ import { stockholmToday } from "@/lib/time";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createLateCheckoutSession } from "@/lib/tickets/late-checkout";
 import { getStripeLocale } from "@/lib/i18n/stripe-locale";
-import { hamtaKvallar } from "@/lib/entrance/door-occurrences";
+import { hamtaKort, hamtaKvallar, KORT_PREFIX } from "@/lib/entrance/door-occurrences";
 
 /**
  * Dörrlänk: /dorr/<serie>/<plats>
@@ -42,6 +42,18 @@ export default async function DoorLinkPage({ params }: Params) {
   // Serien har tagit slut, eller allt som återstår är inställt. Seriesidan
   // säger det bättre än en 404 gör.
   if (!kvall) redirect(`/series/${kanonisk}`);
+
+  // Klippkort säljs på kvällens eventsida, inte via genvägen nedan. Gästen
+  // landar med kortet förvalt; hittas det inte, på biljettrutan ändå.
+  if (plats.startsWith(KORT_PREFIX)) {
+    const prefix = plats.slice(KORT_PREFIX.length).toLowerCase();
+    const kort = prefix
+      ? (await hamtaKort(supabase, (kvall as { series_id?: string | null }).series_id ?? null)).find((k) =>
+          k.id.startsWith(prefix)
+        )
+      : undefined;
+    redirect(kort ? `/event/${kvall.slug}?kort=${kort.id}#biljetter` : doorTarget(kvall.slug, null));
+  }
 
   const { data: typer } = await supabase
     .from("ticket_types")

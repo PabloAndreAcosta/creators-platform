@@ -12,6 +12,8 @@ interface Ticket {
   id: string;
   name: string;
   price: number;
+  /** Rad under namnet, t.ex. "81 kr per kväll" på ett klippkort. */
+  sub: string | null;
   url: string;
   svg: string;
 }
@@ -23,11 +25,13 @@ export function DoorScreen({
   dateLabel,
   isToday,
   tickets,
+  passes,
 }: {
   title: string | null;
   dateLabel: string | null;
   isToday: boolean;
   tickets: Ticket[];
+  passes: Ticket[];
 }) {
   const [open, setOpen] = useState<Ticket | null>(null);
   const [left, setLeft] = useState(0);
@@ -157,18 +161,11 @@ export function DoorScreen({
             </p>
             <div className="dorr-val">
               {tickets.map((t, i) => (
-                <button
-                  key={t.id}
-                  type="button"
-                  className={`dorr-biljett${i === 0 ? " dorr-framhavd" : ""}`}
-                  onClick={() => setOpen(t)}
-                >
-                  <span className="dorr-namn">{t.name}</span>
-                  <span className="dorr-pris">
-                    {t.price}
-                    <span>KR</span>
-                  </span>
-                </button>
+                <TicketButton key={t.id} t={t} highlight={i === 0} onOpen={setOpen} />
+              ))}
+              {passes.length > 0 && <p className="dorr-grupp">Klippkort – gäller alla kvällar i serien</p>}
+              {passes.map((t) => (
+                <TicketButton key={t.id} t={t} highlight={false} onOpen={setOpen} />
               ))}
             </div>
             <p className="dorr-fot">
@@ -185,7 +182,9 @@ export function DoorScreen({
       {open && (
         <div className="dorr-kod" role="dialog" aria-modal="true" aria-label={open.name}>
           <h2 className="dorr-kod-namn">{open.name}</h2>
-          <div className="dorr-kod-pris">{open.price} kr</div>
+          <div className="dorr-kod-pris">
+            {open.price} kr{open.sub && <span className="dorr-kod-sub"> · {open.sub}</span>}
+          </div>
           <div className="dorr-papper" dangerouslySetInnerHTML={{ __html: open.svg }} />
           <p className="dorr-adress">{open.url.replace(/^https?:\/\//, "")}</p>
           <button ref={backRef} type="button" className="dorr-tillbaka" onClick={close}>
@@ -195,6 +194,21 @@ export function DoorScreen({
         </div>
       )}
     </div>
+  );
+}
+
+function TicketButton({ t, highlight, onOpen }: { t: Ticket; highlight: boolean; onOpen: (t: Ticket) => void }) {
+  return (
+    <button type="button" className={`dorr-biljett${highlight ? " dorr-framhavd" : ""}`} onClick={() => onOpen(t)}>
+      <span className="dorr-text">
+        <span className="dorr-namn">{t.name}</span>
+        {t.sub && <span className="dorr-sub">{t.sub}</span>}
+      </span>
+      <span className="dorr-pris">
+        {t.price}
+        <span>KR</span>
+      </span>
+    </button>
   );
 }
 
@@ -210,22 +224,26 @@ const CSS = `
 .dorr * { box-sizing: border-box; }
 .dorr-skarm { min-height: 100%; display: flex; flex-direction: column; max-width: 720px; margin: 0 auto;
   padding: clamp(16px,3vw,28px); padding-left: max(clamp(16px,3vw,28px), env(safe-area-inset-left,0px));
-  padding-right: max(clamp(16px,3vw,28px), env(safe-area-inset-right,0px)); gap: clamp(14px,2.4vw,22px); }
-.dorr-topp { display: flex; flex-direction: column; gap: 8px; }
-.dorr-toppror { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  padding-right: max(clamp(16px,3vw,28px), env(safe-area-inset-right,0px)); gap: clamp(14px,2.4vw,22px); justify-content: center; }
+.dorr-topp { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
+.dorr-toppror { display: flex; justify-content: center; }
 .dorr-kvall { font-weight: 900; font-size: clamp(22px,4.4vw,34px); letter-spacing: -0.02em; line-height: 1.05; margin: 0; text-wrap: balance; }
-.dorr-dagar { display: flex; gap: 8px; }
+.dorr-dagar { display: flex; justify-content: center; gap: 8px; }
 .dorr-dag { display: inline-block; border: 1px solid var(--gold-dim); color: var(--gold); background: var(--surface);
   font-size: clamp(12px,2vw,14px); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 7px 16px; border-radius: 999px; }
-.dorr-vaken { flex: none; margin-left: auto; display: inline-flex; align-items: center; gap: 7px; color: var(--muted);
+.dorr-vaken { position: fixed; top: max(19px, env(safe-area-inset-top,0px)); left: max(16px, env(safe-area-inset-left,0px)); display: inline-flex; align-items: center; gap: 7px; color: var(--muted);
   font-size: clamp(10px,1.6vw,12px); font-weight: 500; letter-spacing: 0.04em; white-space: nowrap; }
 .dorr-vaken::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); }
-.dorr-helskarm { flex: none; background: transparent; border: 1px solid var(--line); color: var(--muted); font: inherit;
+.dorr-helskarm { position: fixed; top: max(12px, env(safe-area-inset-top,0px)); right: max(12px, env(safe-area-inset-right,0px)); background: transparent; border: 1px solid var(--line); color: var(--muted); font: inherit;
   font-size: clamp(11px,1.8vw,13px); font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; padding: 7px 15px; border-radius: 999px; cursor: pointer; white-space: nowrap; }
 .dorr-helskarm:hover { background: var(--surface); color: var(--text); }
-.dorr-instruktion { font-size: clamp(14px,2.4vw,17px); margin: 0; }
+.dorr-instruktion { font-size: clamp(14px,2.4vw,17px); margin: 0; text-align: center; text-wrap: balance; }
 .dorr-instruktion b { color: var(--gold); font-weight: 600; }
-.dorr-val { display: flex; flex-direction: column; gap: clamp(10px,1.8vw,14px); flex: 1; }
+.dorr-val { display: flex; flex-direction: column; gap: clamp(10px,1.8vw,14px); }
+.dorr-grupp { margin: clamp(6px,1.2vw,10px) 0 0; font-size: clamp(11px,1.9vw,13px); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); text-align: center; }
+.dorr-text { display: flex; flex-direction: column; min-width: 0; }
+.dorr-sub { margin-top: 3px; font-size: clamp(12px,2.1vw,15px); color: var(--muted); font-variant-numeric: tabular-nums; }
+.dorr-kod-sub { color: var(--muted); font-weight: 500; font-size: 0.7em; }
 .dorr-biljett { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 16px; width: 100%; text-align: left;
   background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: clamp(16px,2.8vw,24px) clamp(18px,3vw,26px);
   color: inherit; font: inherit; cursor: pointer; transition: background 120ms ease; }

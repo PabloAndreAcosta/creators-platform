@@ -3,7 +3,7 @@ import QRCode from "qrcode";
 import { createClient } from "@/lib/supabase/server";
 import { canonicalSeriesSlug } from "@/lib/listings/series-aliases";
 import { pickOccurrence } from "@/lib/entrance/door-link";
-import { hamtaKvallar, platsFor, type DoorScreenTicket } from "@/lib/entrance/door-occurrences";
+import { hamtaKort, hamtaKvallar, platsFor, platsForKort, type DoorScreenTicket } from "@/lib/entrance/door-occurrences";
 import { stockholmToday } from "@/lib/time";
 import { DoorScreen } from "./door-screen";
 
@@ -40,7 +40,7 @@ export default async function DoorScreenPage({ params }: Params) {
   const kvall = pickOccurrence(kvallar, stockholmToday()) as (typeof kvallar)[number] | null;
 
   if (!kvall) {
-    return <DoorScreen title={null} dateLabel={null} isToday={false} tickets={[]} />;
+    return <DoorScreen title={null} dateLabel={null} isToday={false} tickets={[]} passes={[]} />;
   }
 
   const { data: typer } = await supabase
@@ -53,18 +53,31 @@ export default async function DoorScreenPage({ params }: Params) {
   const kopbara = alla.filter((t) => t.capacity == null || (t.tickets_sold ?? 0) < t.capacity);
 
   const bas = (process.env.NEXT_PUBLIC_APP_URL || "https://usha.se").replace(/\/$/, "");
+  // Felkorrigering M: tål reflexer på en skärm i en bar utan att mönstret
+  // blir så tätt att en gammal telefonkamera tappar det.
+  const qr = (url: string) =>
+    QRCode.toString(url, { type: "svg", errorCorrectionLevel: "M", margin: 4, color: { dark: "#0B0A0D", light: "#FFFFFF" } });
+
   const tickets = await Promise.all(
     kopbara.map(async (t) => {
       const url = `${bas}/dorr/${kanonisk}/${platsFor(t, alla)}`;
-      // Felkorrigering M: tål reflexer på en skärm i en bar utan att mönstret
-      // blir så tätt att en gammal telefonkamera tappar det.
-      const svg = await QRCode.toString(url, {
-        type: "svg",
-        errorCorrectionLevel: "M",
-        margin: 4,
-        color: { dark: "#0B0A0D", light: "#FFFFFF" },
-      });
-      return { id: t.id, name: t.name, price: t.price, url, svg };
+      return { id: t.id, name: t.name, price: t.price, sub: null, url, svg: await qr(url) };
+    })
+  );
+
+  // Klippkorten säljs på kvällens eventsida; koden tar gästen dit med kortet valt.
+  const kort = await hamtaKort(supabase, kvall.series_id ?? null);
+  const passes = await Promise.all(
+    kort.map(async (k) => {
+      const url = `${bas}/dorr/${kanonisk}/${platsForKort(k.id)}`;
+      return {
+        id: k.id,
+        name: k.title.replace(/^.*?–\s*/, ""),
+        price: k.price,
+        sub: `${Math.round(k.price / k.session_count)} kr per kväll`,
+        url,
+        svg: await qr(url),
+      };
     })
   );
 
@@ -81,6 +94,7 @@ export default async function DoorScreenPage({ params }: Params) {
       dateLabel={dateLabel}
       isToday={datum === stockholmToday()}
       tickets={tickets}
+      passes={passes}
     />
   );
 }
