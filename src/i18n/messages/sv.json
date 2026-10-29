@@ -2242,7 +2242,9 @@
     "ticketTypePoolHint": "Vilka pass biljetten ger tillträde till. Skriv passets namn, eller flera med komma för en kombinationsbiljett. Passets storlek skriver du i kapacitetsfältet på den biljett som bara gäller det passet.",
     "ticketTypesPoolHelp": "Ska två biljettyper dela på samma platser? Ge dem samma namn i fältet Delad pott och samma kapacitet.",
     "tldr": "Sammanfattning (valfri)",
-    "tldrPlaceholder": "Visas öppet vid tid och plats. En eller två meningar: vad kvällen är, vilken nivå, vad det kostar."
+    "tldrPlaceholder": "Visas öppet vid tid och plats. En eller två meningar: vad kvällen är, vilken nivå, vad det kostar.",
+    "isPractica": "Practica (ingen bokad DJ)",
+    "isPracticaHint": "Gästerna kan önska DJ:s och rösta, och en DJ får ta pass som volontär den här kvällen."
   },
   "trainingBuddies": {
     "domains": {
@@ -4633,6 +4635,7 @@
       "instructor": "Instruktör",
       "door_host": "Dörrvärd",
       "cashier": "Kassa",
+      "dj": "DJ",
       "photographer": "Foto & film",
       "helper": "Allmän hjälp"
     },
@@ -4681,7 +4684,19 @@
     "approve": "Godkänn",
     "decline": "Avslå",
     "notice_applicationApproved": "Godkänd – personen kan nu boka pass i rollen.",
-    "notice_applicationDeclinedOrg": "Ansökan är avslagen."
+    "notice_applicationDeclinedOrg": "Ansökan är avslagen.",
+    "djWishesOrgTitle": "DJ-önskemål",
+    "djWishesOrgBody": "Gästernas önskemål till practicorna. Vid {goal} röster har ni lovat att försöka boka DJ:n.",
+    "djWishesNone": "Inga önskemål än.",
+    "djStatus_open": "öppen",
+    "djStatus_booking": "försöker boka",
+    "djStatus_booked": "bokad",
+    "djStatus_hidden": "dold",
+    "djAction_booking": "Försöker boka",
+    "djAction_booked": "Bokad",
+    "djAction_hidden": "Dölj",
+    "notice_djWishUpdated": "Önskemålet är uppdaterat.",
+    "notice_shift_djPractica": "En DJ kan bara ta volontärpass på en practica. Annars ska DJ:n avlönas."
   },
   "instruktorerPage": {
     "meta": {
@@ -4778,5 +4793,17 @@
     "assignmentsBody": "Lokaler och arrangörer lägger ut pass. Du ansöker och ser innan vad uppdraget ger. Med eget företag fakturerar du via ditt bolag, minus Ushas provision. Utan företag anställs du för passet via Ushas lönepartner, som sköter skatt, avgifter och semesterersättning – kommer snart.",
     "assignmentsReq": "Kreatörskonto och Mobilt BankID. Eget företag, eller lön via Ushas lönepartner.",
     "assignmentsCta": "Se uppdragen"
+  },
+  "djWishes": {
+    "title": "Önska DJ till practican",
+    "body": "Ingen DJ är bokad – här önskar du vem du vill höra. När en DJ når {goal} röster lovar vi att försöka boka hen.",
+    "vote": "Rösta",
+    "voted": "Du har röstat",
+    "booking": "Vi försöker boka",
+    "booked": "Bokad!",
+    "namePlaceholder": "DJ:ns namn",
+    "linkPlaceholder": "Länk (Instagram, SoundCloud) – valfritt",
+    "add": "Önska",
+    "loginToVote": "Logga in för att önska och rösta →"
   }
 }

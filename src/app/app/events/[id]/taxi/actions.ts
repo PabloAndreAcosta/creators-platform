@@ -7,7 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdminById } from "@/lib/admin/check";
 import { loadEvening } from "@/lib/taxi/data";
 import { validateShift } from "@/lib/taxi/rules";
-import { parseRoleLabel, parseVolunteerRole, type VolunteerRole } from "@/lib/taxi/roles";
+import { parseRoleLabel, parseVolunteerRole, volunteerRoleAllowed, type VolunteerRole } from "@/lib/taxi/roles";
 import { isCancelled } from "@/lib/entrance/door-link";
 import { stockholmToday } from "@/lib/time";
 import { isValidVoucherCode, voucherScopeId } from "@/lib/taxi/voucher";
@@ -35,6 +35,8 @@ export async function createShift(formData: FormData) {
   // samma pass. Varje roll har sitt eget antal platser.
   const roles = [...new Set(formData.getAll("role").map(parseVolunteerRole).filter((r): r is VolunteerRole => !!r))];
   if (roles.length === 0) page(listingId, "shift_role");
+  // En DJ tar bara volontärpass på en practica; annars ska DJ:n avlönas.
+  if (roles.some((r) => !volunteerRoleAllowed(r, evening))) page(listingId, "shift_djPractica");
   // Eget namn gäller bara när ett pass för en enda roll läggs upp.
   const roleLabel = roles.length === 1 ? parseRoleLabel(formData.get("roleLabel")) : null;
   const startTime = String(formData.get("start") ?? "");
@@ -48,24 +50,28 @@ export async function createShift(formData: FormData) {
   // Samma pass på seriens alla kommande kvällar, så The Lab inte behöver
   // läggas upp kväll för kväll. Bara kvällens ägares egna, ej inställda
   // kvällar, och en kväll som redan har exakt det passet hoppas över.
-  const evenings: { id: string; event_date: string }[] = [{ id: listingId, event_date: evening.event_date }];
+  const evenings: { id: string; event_date: string; is_practica: boolean }[] = [
+    { id: listingId, event_date: evening.event_date, is_practica: evening.is_practica },
+  ];
   const db = createAdminClient();
   if (formData.get("wholeSeries") === "on" && evening.series_id) {
     const { data: siblings } = await db
       .from("listings")
-      .select("id, title, event_date")
+      .select("id, title, event_date, is_practica")
       .eq("series_id", evening.series_id)
       .eq("user_id", evening.user_id)
       .neq("id", listingId)
       .gte("event_date", stockholmToday());
     for (const l of siblings ?? []) {
-      if (l.event_date && !isCancelled(l.title)) evenings.push({ id: l.id, event_date: String(l.event_date).slice(0, 10) });
+      if (l.event_date && !isCancelled(l.title))
+        evenings.push({ id: l.id, event_date: String(l.event_date).slice(0, 10), is_practica: !!l.is_practica });
     }
   }
 
   const rows = [];
   for (const e of evenings) {
     for (const role of roles) {
+      if (!volunteerRoleAllowed(role, e)) continue;
       const capacity = capacityOf(role);
       const r = validateShift({ eventDate: e.event_date, startTime, endTime, capacity, role });
       if (!r.ok) continue;
@@ -158,4 +164,20 @@ export async function decideApplication(formData: FormData) {
   if (error) throw error;
   revalidatePath(`/app/events/${listingId}/taxi`);
   page(listingId, decision === "approved" ? "applicationApproved" : "applicationDeclinedOrg");
+}
+
+/** Arrangören markerar ett DJ-önskemål: försöker boka, bokad eller dold. */
+export async function setDjWishStatus(formData: FormData) {
+  const listingId = String(formData.get("listingId") ?? "");
+  const { evening } = await assertOrganiser(listingId);
+  const status = String(formData.get("status"));
+  if (!["open", "booking", "booked", "hidden"].includes(status)) page(listingId, "notFound");
+  const { error } = await createAdminClient()
+    .from("dj_wishes")
+    .update({ status })
+    .eq("id", String(formData.get("wishId")))
+    .eq("scope_key", approvalScopeKey(evening));
+  if (error) throw error;
+  revalidatePath(`/app/events/${listingId}/taxi`);
+  page(listingId, "djWishUpdated");
 }

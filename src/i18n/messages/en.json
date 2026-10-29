@@ -2242,7 +2242,9 @@
     "ticketTypePoolHint": "Which sessions the ticket admits to. Write the session name, or several separated by commas for a combined ticket. Put the session size in the capacity field on the ticket that only covers that session.",
     "ticketTypesPoolHelp": "Should two ticket types share the same seats? Give them the same name in the Shared pool field and the same capacity.",
     "tldr": "Summary (optional)",
-    "tldrPlaceholder": "Shown next to the time and place. One or two sentences: what it is, what level, what it costs."
+    "tldrPlaceholder": "Shown next to the time and place. One or two sentences: what it is, what level, what it costs.",
+    "isPractica": "Practica (no DJ booked)",
+    "isPracticaHint": "Guests can request DJs and vote, and a DJ may take a volunteer shift this evening."
   },
   "trainingBuddies": {
     "domains": {
@@ -4633,6 +4635,7 @@
       "instructor": "Instructor",
       "door_host": "Door host",
       "cashier": "Cashier",
+      "dj": "DJ",
       "photographer": "Photo & video",
       "helper": "General help"
     },
@@ -4681,7 +4684,19 @@
     "approve": "Approve",
     "decline": "Decline",
     "notice_applicationApproved": "Approved – the person can now book shifts in the role.",
-    "notice_applicationDeclinedOrg": "Application declined."
+    "notice_applicationDeclinedOrg": "Application declined.",
+    "djWishesOrgTitle": "DJ requests",
+    "djWishesOrgBody": "Guests’ requests for the practicas. At {goal} votes you have promised to try to book the DJ.",
+    "djWishesNone": "No requests yet.",
+    "djStatus_open": "open",
+    "djStatus_booking": "trying to book",
+    "djStatus_booked": "booked",
+    "djStatus_hidden": "hidden",
+    "djAction_booking": "Trying to book",
+    "djAction_booked": "Booked",
+    "djAction_hidden": "Hide",
+    "notice_djWishUpdated": "The request is updated.",
+    "notice_shift_djPractica": "A DJ can only take volunteer shifts at a practica. Otherwise the DJ must be paid."
   },
   "instruktorerPage": {
     "meta": {
@@ -4778,5 +4793,17 @@
     "assignmentsBody": "Venues and organisers post sessions. You apply and see beforehand what the assignment pays. With your own company you invoice through it, minus Usha’s commission. Without a company you are employed for the session through Usha’s payroll partner, which handles tax, contributions and holiday pay – coming soon.",
     "assignmentsReq": "Creator account and Mobile BankID. Your own company, or salary via Usha’s payroll partner.",
     "assignmentsCta": "See assignments"
+  },
+  "djWishes": {
+    "title": "Request a DJ for the practica",
+    "body": "No DJ is booked – request who you want to hear. When a DJ reaches {goal} votes we promise to try to book them.",
+    "vote": "Vote",
+    "voted": "You voted",
+    "booking": "We’re trying to book",
+    "booked": "Booked!",
+    "namePlaceholder": "DJ name",
+    "linkPlaceholder": "Link (Instagram, SoundCloud) – optional",
+    "add": "Request",
+    "loginToVote": "Log in to request and vote →"
   }
 }

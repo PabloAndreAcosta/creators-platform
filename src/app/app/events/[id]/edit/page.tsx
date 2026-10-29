@@ -24,7 +24,7 @@ export default async function EditEventPage(props: { params: Promise<{ id: strin
   const admin = createAdminClient();
   const { data: event } = await admin
     .from("listings")
-    .select("id, user_id, title, description, tldr, category, price, duration_minutes, event_tier, image_url, event_date, event_time, event_end_time, event_location, event_lat, event_lng, event_place_id, event_city, event_venue, venue_profile_id, venue_confirmed_at, listing_type, open_to_instructors, is_public, content_language, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, min_guests, max_guests, experience_details")
+    .select("id, user_id, title, description, tldr, category, price, duration_minutes, event_tier, image_url, event_date, event_time, event_end_time, event_location, event_lat, event_lng, event_place_id, event_city, event_venue, venue_profile_id, venue_confirmed_at, listing_type, open_to_instructors, is_practica, is_public, content_language, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, min_guests, max_guests, experience_details")
     .eq("id", params.id)
     .single();
 

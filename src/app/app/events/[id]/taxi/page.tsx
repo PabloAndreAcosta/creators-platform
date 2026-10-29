@@ -6,11 +6,13 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { DEFAULT_VOUCHER_MAX_ORE, voucherScopeId } from "@/lib/taxi/voucher";
 import { approvalScopeKey } from "@/lib/taxi/approvals";
+import { rankWishes, DJ_WISH_GOAL } from "@/lib/taxi/dj-wishes";
+import { loadDjWishes } from "@/lib/taxi/dj-wishes-data";
 import { isAdminById } from "@/lib/admin/check";
 import { loadEvening, loadShifts, loadStrikeFacts } from "@/lib/taxi/data";
 import { isStrike, strikeStatus, TAXI_WINDOW, STRIKE_LIMIT, type StrikeStatus, TAXI_MAX_PER_EVENING } from "@/lib/taxi/rules";
 import { DEFAULT_CAPACITY, ROLE_LABEL_MAX, VOLUNTEER_ROLES, shiftRoleName } from "@/lib/taxi/roles";
-import { createShift, deleteShift, organiserCheck, setVoucherSettings, decideApplication } from "./actions";
+import { createShift, deleteShift, organiserCheck, setVoucherSettings, decideApplication, setDjWishStatus } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -73,6 +75,9 @@ export default async function EventTaxiPage(props: {
   const pendingApps = ((applications ?? []) as App[]).filter((a) => a.status === "pending");
   const approvedCount = new Map<string, number>();
   for (const a of (applications ?? []) as App[]) if (a.status === "approved") approvedCount.set(a.role, (approvedCount.get(a.role) ?? 0) + 1);
+  const djWishes = evening.is_practica
+    ? rankWishes((await loadDjWishes(approvalScopeKey(evening), null)).wishes)
+    : [];
   const voucherTotalOre = (vouchers ?? []).reduce((a, v) => a + (v.amount_ore ?? 0), 0);
   const now = new Date();
   const strikesOf = new Map<string, StrikeStatus>();
@@ -81,7 +86,7 @@ export default async function EventTaxiPage(props: {
   );
 
   const notices = [
-    "shiftCreated", "shiftsCreatedSeries", "shiftExists", "shift_role", "shift_taxiCapacity", "voucherSaved", "applicationApproved", "applicationDeclinedOrg", "voucherCodeInvalid", "voucherMaxInvalid", "shiftDeleted", "shiftHasSignups", "checkedIn", "notFound",
+    "shiftCreated", "shiftsCreatedSeries", "shiftExists", "shift_role", "shift_taxiCapacity", "voucherSaved", "djWishUpdated", "shift_djPractica", "applicationApproved", "applicationDeclinedOrg", "voucherCodeInvalid", "voucherMaxInvalid", "shiftDeleted", "shiftHasSignups", "checkedIn", "notFound",
     "shift_time", "shift_window", "shift_length", "shift_capacity",
   ];
   const btn = "rounded-lg px-2.5 py-1 text-xs font-semibold";
@@ -162,6 +167,41 @@ export default async function EventTaxiPage(props: {
           </ul>
         )}
       </section>
+
+      {evening.is_practica && (
+        <section className="mt-6 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 text-sm">
+          <p className="font-semibold">{t("djWishesOrgTitle")}</p>
+          <p className="mt-1 text-xs text-[var(--usha-muted)]">{t("djWishesOrgBody", { goal: DJ_WISH_GOAL })}</p>
+          {djWishes.length === 0 ? (
+            <p className="mt-2 text-xs text-[var(--usha-muted)]">{t("djWishesNone")}</p>
+          ) : (
+            <ul className="mt-3 space-y-2">
+              {djWishes.map((w) => (
+                <li key={w.id} className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--usha-border)] pt-2">
+                  <span>
+                    <span className="font-medium">{w.name}</span>{" "}
+                    <span className="text-xs text-[var(--usha-muted)]">
+                      {w.votes} / {DJ_WISH_GOAL} · {t(`djStatus_${w.status}`)}
+                    </span>
+                  </span>
+                  <span className="flex gap-1.5">
+                    {(["booking", "booked", "hidden"] as const)
+                      .filter((st) => st !== w.status)
+                      .map((st) => (
+                        <form key={st} action={setDjWishStatus}>
+                          <input type="hidden" name="listingId" value={id} />
+                          <input type="hidden" name="wishId" value={w.id} />
+                          <input type="hidden" name="status" value={st} />
+                          <button className="rounded-lg border border-[var(--usha-border)] px-2 py-0.5 text-[11px]">{t(`djAction_${st}`)}</button>
+                        </form>
+                      ))}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      )}
 
       {/* Matkupongen: restaurangkoden och taket, och kvällens summa att stämma
           av mot restaurangens nota. */}
