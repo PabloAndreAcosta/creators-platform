@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { BadgeCheck, CalendarDays, GraduationCap, MapPin, Search, Ticket, Wallet } from "lucide-react";
+import { Award, BadgeCheck, CalendarDays, GraduationCap, MapPin, Search, Ticket, Wallet } from "lucide-react";
 import { SiteNav } from "@/components/landing/site-nav";
 import { Footer } from "@/components/landing/footer";
 import { createClient } from "@/lib/supabase/server";
@@ -51,7 +51,7 @@ export default async function InstructorsPage(props: Props) {
     supabase
       .from("profiles")
       .select(
-        "id, slug, full_name, avatar_url, coaching_title, coaching_bio, coaching_hourly_rate_sek, coaching_specialties, coaching_formats, dance_styles, dance_languages, locations, location"
+        "id, slug, full_name, avatar_url, coaching_title, coaching_bio, coaching_hourly_rate_sek, coaching_specialties, coaching_formats, coaching_credentials, dance_styles, dance_languages, locations, location"
       )
       .eq("is_public", true)
       .eq("offers_coaching", true)
@@ -177,7 +177,15 @@ export default async function InstructorsPage(props: Props) {
                     )}
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-semibold">{r.full_name}</p>
-                      <p className="text-sm text-[var(--usha-gold)]">{r.coaching_title || t("defaultTitle")}</p>
+                      <p className="text-sm text-[var(--usha-gold)]">
+                        {r.coaching_title || t("defaultTitle")}
+                        {(r.coaching_credentials?.length ?? 0) > 0 && (
+                          <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
+                            <Award size={10} />
+                            {t("credentialsBadge", { n: r.coaching_credentials!.length })}
+                          </span>
+                        )}
+                      </p>
                       {tags.length > 0 && (
                         <div className="mt-2 flex flex-wrap gap-1.5">
                           {tags.map((tag) => (

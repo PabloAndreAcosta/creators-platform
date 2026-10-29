@@ -1485,7 +1485,8 @@
       "heading": "Eventos en nuestro local",
       "by": "Organizado por {name}"
     },
-    "instructorBadge": "Instructor"
+    "instructorBadge": "Instructor",
+    "credentialsHeading": "Méritos"
   },
   "dashProfile": {
     "page": {
@@ -1593,6 +1594,9 @@
         "in_person": "Presencial",
         "online": "En línea"
       },
+      "coachingCredentialsLabel": "Méritos (opcional)",
+      "coachingCredentialsPlaceholder": "p. ej. Entrenador personal certificado, 2019 o Seguro de responsabilidad",
+      "coachingCredentialsHint": "Formación, certificados, seguro o experiencia. No es obligatorio, pero ayuda a los alumnos a elegir.",
       "cancellationTitle": "Plazo de cancelación",
       "cancellationSubtitle": "Hasta cuándo tus clientes pueden cancelar y recuperar su dinero. Después solo tú puedes cancelar. Se aplica a servicios y eventos y se muestra antes de la compra.",
       "cancellationAnytime": "Sin límite, hasta el inicio",
@@ -4687,6 +4691,7 @@
       "s2": "Activa Instructor en tu perfil y elige tu título: Instructor, Coach, PT o el tuyo propio.",
       "s3": "Indica qué enseñas, dónde estás, idiomas y tarifa por hora. Así apareces aquí.",
       "s4": "Publica clases, cursos o bonos y conecta Stripe para cobrar."
-    }
+    },
+    "credentialsBadge": "{n, plural, one {# mérito} other {# méritos}}"
   }
 }
