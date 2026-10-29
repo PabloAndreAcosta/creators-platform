@@ -22,6 +22,8 @@ import { safeJsonLd } from "@/lib/json-ld";
 import { pickMessages, PUBLIC_NAMESPACES } from "@/lib/i18n/client-namespaces";
 import { stockholmEventISO } from "@/lib/time";
 import { loadShifts } from "@/lib/taxi/data";
+import { approvalScopeKey } from "@/lib/taxi/approvals";
+import { DjWishes } from "./dj-wishes";
 import { getSignupCreditEnabled } from "@/lib/credits/flag";
 import { getTranslations, getLocale, getMessages } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
@@ -111,7 +113,7 @@ const getListing = cache(async (slug: string) => {
   const { data: listing } = await supabase
     .from("listings")
     .select(
-      "id, user_id, title, description, tldr, category, price, duration_minutes, image_url, image_url_square, series_id, event_date, event_time, event_end_time, event_location, event_place_id, event_lat, event_lng, event_city, event_venue, slug, series_slug, is_active, content_language, organizer_name, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, venue_profile_id, venue_confirmed_at"
+      "id, user_id, title, description, tldr, category, price, duration_minutes, image_url, image_url_square, series_id, is_practica, event_date, event_time, event_end_time, event_location, event_place_id, event_lat, event_lng, event_city, event_venue, slug, series_slug, is_active, content_language, organizer_name, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, venue_profile_id, venue_confirmed_at"
     )
     .eq(isUUID(slug) ? "id" : "slug", slug)
     .eq("is_active", true)
@@ -880,6 +882,14 @@ export default async function EventPage(props: Params) {
             </span>
             <span className="shrink-0 text-xs font-semibold text-[var(--usha-gold)]">{t("volunteerCtaAction")}</span>
           </Link>
+        )}
+        {listing.is_practica && (
+          <DjWishes
+            listingId={listing.id}
+            scopeKey={approvalScopeKey({ series_id: listing.series_id ?? null, user_id: listing.user_id })}
+            viewerId={user?.id ?? null}
+            backPath={returnPath}
+          />
         )}
         {/* min-w-0 på båda grid-barnen: ett grid-spår tar annars minst sitt
             innehålls min-content-bredd, och ett enda obrytbart stycke drar ut

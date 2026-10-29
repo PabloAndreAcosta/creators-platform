@@ -118,6 +118,7 @@ function parseEventForm(formData: FormData) {
   const eventLng = eventLngRaw ? parseFloat(eventLngRaw) : null;
   const listingType = (formData.get("listing_type") as string) || "event";
   const openToInstructors = formData.get("open_to_instructors") === "on";
+  const isPractica = formData.get("is_practica") === "on";
   const serviceFeeMode = formData.get("service_fee_mode") === "absorb" ? "absorb" : "buyer";
   const minGuestsRaw = formData.get("min_guests") as string;
   const maxGuestsRaw = formData.get("max_guests") as string;
@@ -200,6 +201,7 @@ function parseEventForm(formData: FormData) {
       event_place_id: eventPlaceId,
       listing_type: listingType,
       open_to_instructors: openToInstructors,
+      is_practica: isPractica,
       service_fee_mode: serviceFeeMode,
       min_guests,
       max_guests,

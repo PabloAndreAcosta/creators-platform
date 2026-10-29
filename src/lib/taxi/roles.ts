@@ -3,7 +3,7 @@
  * varningar, matkupong) är desamma för alla. Speglar CHECK-villkoret på
  * taxi_shifts.role — en ny roll läggs till på båda ställena.
  */
-export const VOLUNTEER_ROLES = ["taxi_dancer", "instructor", "door_host", "cashier", "photographer", "helper"] as const;
+export const VOLUNTEER_ROLES = ["taxi_dancer", "instructor", "door_host", "cashier", "dj", "photographer", "helper"] as const;
 export type VolunteerRole = (typeof VOLUNTEER_ROLES)[number];
 
 export function parseVolunteerRole(value: unknown): VolunteerRole | null {
@@ -33,6 +33,12 @@ export const DEFAULT_CAPACITY: Record<VolunteerRole, number> = {
   instructor: 2,
   door_host: 1,
   cashier: 1,
+  dj: 1,
   photographer: 1,
   helper: 2,
 };
+
+/** En DJ får bara ta pass som volontär på en practica — annars avlönas DJ:n. */
+export function volunteerRoleAllowed(role: VolunteerRole, evening: { is_practica: boolean }): boolean {
+  return role !== "dj" || evening.is_practica;
+}

@@ -15,6 +15,8 @@ export interface Evening {
   event_time: string | null;
   user_id: string;
   series_id: string | null;
+  /** Ingen bokad DJ — då får en DJ ta pass som volontär. */
+  is_practica: boolean;
 }
 
 export interface ShiftRow {
@@ -30,7 +32,7 @@ export interface ShiftRow {
 export async function loadEvening(listingId: string): Promise<Evening | null> {
   const { data } = await createAdminClient()
     .from("listings")
-    .select("id, title, slug, event_date, event_time, user_id, series_id")
+    .select("id, title, slug, event_date, event_time, user_id, series_id, is_practica")
     .eq("id", listingId)
     .maybeSingle();
   if (!data?.event_date) return null;
@@ -92,7 +94,7 @@ export async function loadUpcomingEvenings(today: string): Promise<(Evening & { 
   if (ids.length === 0) return [];
   const { data: listings } = await db
     .from("listings")
-    .select("id, title, slug, event_date, event_time, user_id, series_id")
+    .select("id, title, slug, event_date, event_time, user_id, series_id, is_practica")
     .in("id", ids)
     .gte("event_date", today)
     .order("event_date");

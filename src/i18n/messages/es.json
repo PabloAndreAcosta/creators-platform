@@ -2242,7 +2242,9 @@
     "ticketTypePoolHint": "A qué sesiones da acceso la entrada. Escribe el nombre de la sesión, o varias separadas por comas para una entrada combinada. El aforo de la sesión va en el campo de capacidad de la entrada que solo cubre esa sesión.",
     "ticketTypesPoolHelp": "¿Deben dos tipos de entrada compartir las mismas plazas? Dales el mismo nombre en el campo Grupo compartido y el mismo aforo.",
     "tldr": "Resumen (opcional)",
-    "tldrPlaceholder": "Se muestra junto a la hora y el lugar. Una o dos frases: qué es, qué nivel, cuánto cuesta."
+    "tldrPlaceholder": "Se muestra junto a la hora y el lugar. Una o dos frases: qué es, qué nivel, cuánto cuesta.",
+    "isPractica": "Práctica (sin DJ reservado)",
+    "isPracticaHint": "Los invitados pueden pedir DJs y votar, y un DJ puede coger un turno voluntario esta noche."
   },
   "trainingBuddies": {
     "domains": {
@@ -4633,6 +4635,7 @@
       "instructor": "Instructor",
       "door_host": "Anfitrión de puerta",
       "cashier": "Caja",
+      "dj": "DJ",
       "photographer": "Foto y vídeo",
       "helper": "Ayuda general"
     },
@@ -4681,7 +4684,19 @@
     "approve": "Aprobar",
     "decline": "Rechazar",
     "notice_applicationApproved": "Aprobado: la persona ya puede reservar turnos en el rol.",
-    "notice_applicationDeclinedOrg": "Solicitud rechazada."
+    "notice_applicationDeclinedOrg": "Solicitud rechazada.",
+    "djWishesOrgTitle": "Peticiones de DJ",
+    "djWishesOrgBody": "Peticiones de los invitados para las prácticas. Con {goal} votos habéis prometido intentar reservar al DJ.",
+    "djWishesNone": "Aún no hay peticiones.",
+    "djStatus_open": "abierta",
+    "djStatus_booking": "intentando reservar",
+    "djStatus_booked": "reservado",
+    "djStatus_hidden": "oculta",
+    "djAction_booking": "Intentando reservar",
+    "djAction_booked": "Reservado",
+    "djAction_hidden": "Ocultar",
+    "notice_djWishUpdated": "Petición actualizada.",
+    "notice_shift_djPractica": "Un DJ solo puede coger turnos voluntarios en una práctica. Si no, el DJ debe cobrar."
   },
   "instruktorerPage": {
     "meta": {
@@ -4778,5 +4793,17 @@
     "assignmentsBody": "Locales y organizadores publican sesiones. Te postulas y ves de antemano lo que paga el encargo. Con empresa propia facturas a través de ella, menos la comisión de Usha. Sin empresa te contrata para la sesión el socio de nóminas de Usha, que gestiona impuestos, cotizaciones y vacaciones: próximamente.",
     "assignmentsReq": "Cuenta de creador y BankID móvil. Empresa propia, o salario a través del socio de nóminas de Usha.",
     "assignmentsCta": "Ver encargos"
+  },
+  "djWishes": {
+    "title": "Pide un DJ para la práctica",
+    "body": "No hay DJ reservado: pide a quién quieres escuchar. Cuando un DJ llegue a {goal} votos prometemos intentar reservarlo.",
+    "vote": "Votar",
+    "voted": "Has votado",
+    "booking": "Intentamos reservarlo",
+    "booked": "¡Reservado!",
+    "namePlaceholder": "Nombre del DJ",
+    "linkPlaceholder": "Enlace (Instagram, SoundCloud), opcional",
+    "add": "Pedir",
+    "loginToVote": "Inicia sesión para pedir y votar →"
   }
 }

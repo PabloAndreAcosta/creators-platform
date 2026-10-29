@@ -36,6 +36,7 @@ interface EventData {
   venue_confirmed_at?: string | null;
   listing_type: ListingType | null;
   open_to_instructors: boolean | null;
+  is_practica?: boolean | null;
   service_fee_mode?: string | null;
   is_public?: boolean | null;
   content_language?: string | null;
@@ -127,6 +128,7 @@ export default function EventForm({
   const [occurrences, setOccurrences] = useState(4);
   const [fbAutoPost, setFbAutoPost] = useState(true);
   const [openToInstructors, setOpenToInstructors] = useState(event?.open_to_instructors ?? false);
+  const [isPractica, setIsPractica] = useState(event?.is_practica ?? false);
   const [unlisted, setUnlisted] = useState(event?.is_public === false);
   // Tickster-style service fee: organizer chooses who pays Usha's per-ticket fee.
   const [serviceFeeMode, setServiceFeeMode] = useState<"buyer" | "absorb">(
@@ -544,6 +546,22 @@ export default function EventForm({
           <p className="text-xs text-[var(--usha-muted)]">
             {t("openToInstructorsHint")}
           </p>
+        </div>
+
+        {/* Practica: ingen bokad DJ. Gästerna kan önska DJ:s, och en DJ får ta
+            pass som volontär bara på en practica. */}
+        <div className="space-y-2 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
+          <label className="flex cursor-pointer items-center gap-2.5 text-sm">
+            <input
+              type="checkbox"
+              name="is_practica"
+              checked={isPractica}
+              onChange={(e) => setIsPractica(e.target.checked)}
+              className="h-4 w-4 accent-[var(--usha-gold)]"
+            />
+            <span className="font-medium">{t("isPractica")}</span>
+          </label>
+          <p className="text-xs text-[var(--usha-muted)]">{t("isPracticaHint")}</p>
         </div>
 
         {/* Vem evenemanget läggs upp i namnet på. Visas bara för den som
