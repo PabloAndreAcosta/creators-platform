@@ -69,7 +69,8 @@
     "profile": "Profil",
     "shop": "Butik",
     "buddies": "Träningsvänner",
-    "volunteerShifts": "Volontärpass"
+    "volunteerShifts": "Volontärpass",
+    "students": "Elever"
   },
   "pendingTodos": {
     "heading": "Väntar på dig",
@@ -244,7 +245,7 @@
     "q3": "Hur får jag mina utbetalningar?",
     "a3": "Koppla ditt Stripe-konto under Utbetalningar. Pengarna går sedan dit automatiskt när de blivit tillgängliga.",
     "q4": "Kan jag avboka en bokning?",
-    "a4": "Ja, du kan avboka under Mina Bokningar så länge bokningen inte redan är slutförd.",
+    "a4": "Ja, under Mina bokningar fram till den avbokningstid kreatören eller arrangören har satt. Tiden visas på sidan innan du köper.",
     "q5": "Vad är Early Bird / Guld-exklusivt?",
     "a5": "Guld- och Premium-medlemmar får tillgång till vissa event före alla andra. När klockan räknat ned släpps eventet för alla.",
     "q6": "Var hittar jag en guide?",
@@ -1232,7 +1233,9 @@
     "ownerPreview": "Förhandsvisning — så ser besökare sidan",
     "instructorsHeading": "Boka en instruktör på plats",
     "instructorFallback": "Instruktör",
-    "thatIsYou": "Det här är du"
+    "thatIsYou": "Det här är du",
+    "cancellationNote": "Avbokning med full återbetalning fram till {hours, plural, =168 {en vecka} one {# timme} other {# timmar}} före start.",
+    "cancellationNoteAnytime": "Avbokning med full återbetalning fram till start."
   },
   "seriesCard": {
     "more": "{count, plural, =1 {# tillfälle till} other {# tillfällen till}}",
@@ -1483,7 +1486,8 @@
       "heading": "Evenemang hos oss",
       "by": "Arrangeras av {name}"
     },
-    "instructorBadge": "Instruktör"
+    "instructorBadge": "Instruktör",
+    "credentialsHeading": "Meriter"
   },
   "dashProfile": {
     "page": {
@@ -1590,7 +1594,14 @@
       "coachingFormats": {
         "in_person": "På plats",
         "online": "Online"
-      }
+      },
+      "coachingCredentialsLabel": "Meriter (frivilligt)",
+      "coachingCredentialsPlaceholder": "t.ex. Certifierad PT, GIH 2019 eller Ansvarsförsäkring",
+      "coachingCredentialsHint": "Utbildning, certifikat, försäkring eller erfarenhet. Inget krav, men det hjälper elever att välja.",
+      "cancellationTitle": "Avbokningstid",
+      "cancellationSubtitle": "Hur sent dina kunder själva får avboka och få pengarna tillbaka. Efter det kan bara du avboka. Gäller både tjänster och evenemang och visas för köparen före köpet.",
+      "cancellationAnytime": "Ingen gräns, fram till start",
+      "cancellationHours": "Senast {hours, plural, =168 {en vecka} one {# timme} other {# timmar}} före start"
     },
     "bankid": {
       "verifiedTitle": "Identitet verifierad med BankID",
@@ -1801,7 +1812,10 @@
     "errorSelectOccurrence": "Välj vilken kväll biljetten ska flyttas till.",
     "noOtherOccurrences": "Det finns inga fler kvällar att flytta till.",
     "rescheduleOccurrenceLabel": "Ny kväll",
-    "assignmentPayrollPending": "Kreatören anställs via Usha. Betalningen öppnar när lönehanteringen är i drift — betala inte direkt."
+    "assignmentPayrollPending": "Kreatören anställs via Usha. Betalningen öppnar när lönehanteringen är i drift — betala inte direkt.",
+    "cancelUntil": "Avboka senast {when}",
+    "cancelDeadlinePassed": "Avbokningstiden har gått ut. Kontakta arrangören om du inte kan komma.",
+    "cancelPackageInUse": "Kortet är påbörjat och kan inte avbokas här. Kontakta arrangören."
   },
   "listingsPage": {
     "back": "Tillbaka",
@@ -2437,7 +2451,9 @@
     "volunteerShifts": "Volontärpass",
     "volunteerCtaTitle": "Bli volontär den här kvällen",
     "volunteerCtaBody": "Taxidansare, instruktörer m.fl. – fri entré och en matkupong. Mobilt BankID krävs.",
-    "volunteerCtaAction": "Se passen →"
+    "volunteerCtaAction": "Se passen →",
+    "cancellationNote": "Avbokning med full återbetalning fram till {hours, plural, =168 {en vecka} one {# timme} other {# timmar}} före start.",
+    "cancellationNoteAnytime": "Avbokning med full återbetalning fram till start."
   },
   "eventErrors": {
     "notReleased": "Biljetterna har inte släppts än.",
@@ -2920,7 +2936,9 @@
     "sellLabel": "Utbud",
     "sellDesc": "Allt du säljer, samlat",
     "taxiLabel": "Volontärpass",
-    "taxiDesc": "Hjälp till som volontär – fri entré och matkupong"
+    "taxiDesc": "Hjälp till som volontär – fri entré och matkupong",
+    "studentsLabel": "Elever",
+    "studentsDesc": "Dina köpare, klipp kvar och anteckningar"
   },
   "sellPage": {
     "heading": "Utbud",
@@ -3784,12 +3802,12 @@
     "heading": "Återbetalningspolicy",
     "lastUpdated": "Senast uppdaterad: 2026-05-01",
     "overviewTitle": "Översikt",
-    "overviewBody": "Usha Platform förmedlar bokningar mellan kunder, kreatörer och arrangörer. När du avbokar en betald bokning innan den är slutförd får du en full återbetalning till samma kort som användes vid betalningen.",
+    "overviewBody": "Usha Platform förmedlar bokningar mellan kunder, kreatörer och arrangörer. När en betald bokning avbokas får du full återbetalning till samma kort som användes vid betalningen.",
     "cancellationTitle": "Avbokning",
-    "cancellationPendingLabel": "Pågående bokning (status: väntande):",
-    "cancellationPendingBody": "Kund eller kreatör kan avboka när som helst. Eventuell betalning återbetalas i sin helhet.",
-    "cancellationConfirmedLabel": "Bekräftad bokning (status: bekräftad):",
-    "cancellationConfirmedBody": "Kund eller kreatör kan avboka. Eventuell betalning återbetalas i sin helhet.",
+    "cancellationPendingLabel": "Före avbokningstiden:",
+    "cancellationPendingBody": "Du kan avboka själv fram till den avbokningstid kreatören eller arrangören har satt. Tiden visas på sidan innan du köper. Har ingen tid satts kan du avboka fram till start. Kreatören eller arrangören kan alltid avboka. Betalningen återbetalas i sin helhet.",
+    "cancellationConfirmedLabel": "Efter avbokningstiden:",
+    "cancellationConfirmedBody": "Efter avbokningstiden kan du inte avboka själv. Kontakta kreatören eller arrangören. Avbokar de, återbetalas betalningen i sin helhet. Ett påbörjat klippkort kan bara avbokas av den som sålt det.",
     "cancellationCompletedLabel": "Slutförd bokning (status: slutförd):",
     "cancellationCompletedBody1": "Bokningen kan inte avbokas via plattformen. Kontakta motparten direkt eller",
     "cancellationCompletedBody2": "för en manuell utredning.",
@@ -4676,6 +4694,26 @@
       "s2": "Slå på Instruktör i profilen och välj din titel: Instruktör, Coach, PT eller något eget.",
       "s3": "Fyll i vad du lär ut, var du finns, språk och timpris. Då syns du här.",
       "s4": "Lägg upp lektioner, kurser eller klippkort och koppla Stripe för att få betalt."
-    }
+    },
+    "credentialsBadge": "{n, plural, one {# merit} other {# meriter}}"
+  },
+  "studentsPage": {
+    "title": "Elever",
+    "subtitle": "{n, plural, one {# person har köpt av dig} other {# personer har köpt av dig}}",
+    "searchPlaceholder": "Sök namn, e-post eller vad de köpt",
+    "search": "Sök",
+    "empty": "Här samlas alla som köper av dig – biljetter, lektioner och klippkort – med en rad per person.",
+    "noMatch": "Ingen matchar sökningen.",
+    "unnamed": "Utan namn",
+    "stats": "{n, plural, one {# köp} other {# köp}} · {kr} kr",
+    "last": "senast {date}",
+    "next": "nästa {date}",
+    "message": "Meddelande",
+    "passLeft": "{title}: {n} kvar",
+    "passExpires": "går ut {date}",
+    "notePlaceholder": "Egen anteckning, t.ex. nivå, mål eller vad ni tränat. Syns bara för dig.",
+    "saveNote": "Spara",
+    "privacyNote": "Anteckningarna är privata och syns aldrig för eleven. Kontaktuppgifter används bara för det köpet gäller. Vill du skriva till många på en gång, gör det till dem som valt att följa dig:",
+    "followersLink": "Följare"
   }
 }

@@ -8,6 +8,7 @@ import { Camera, Loader2, X, Plus, Instagram, ExternalLink } from "lucide-react"
 import Image from "next/image";
 import { CATEGORIES } from "@/lib/categories";
 import { COACHING_FORMATS, COACHING_TITLE_MAX, COACHING_TITLE_PRESETS } from "@/lib/coaching/instructors";
+import { CANCELLATION_HOUR_OPTIONS } from "@/lib/bookings/cancellation";
 import { useTranslations } from "next-intl";
 
 interface Profile {
@@ -46,6 +47,8 @@ interface Profile {
   coaching_bio?: string | null;
   coaching_title?: string | null;
   coaching_formats?: string[] | null;
+  coaching_credentials?: string[] | null;
+  cancellation_hours?: number | null;
   // Legacy fields (backward compat during migration)
   category?: string | null;
   location?: string | null;
@@ -97,6 +100,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
   const isCreatorRole = !isCustomer && profile.role === "creator";
   const [coachingTitle, setCoachingTitle] = useState<string>(profile.coaching_title ?? "");
   const [coachingFormats, setCoachingFormats] = useState<string[]>(profile.coaching_formats ?? []);
+  const [coachingCredentials, setCoachingCredentials] = useState<string[]>(profile.coaching_credentials ?? []);
 
   function toggleCategory(value: string) {
     setSelectedCategories((prev) => {
@@ -206,6 +210,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
       formData.set("dance_languages", JSON.stringify(danceLanguages));
       formData.set("coaching_specialties", JSON.stringify(coachingSpecialties));
       formData.set("coaching_formats", JSON.stringify(coachingFormats));
+      formData.set("coaching_credentials", JSON.stringify(coachingCredentials));
     }
 
     startTransition(async () => {
@@ -858,6 +863,15 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
               />
 
               <TagInput
+                label={t("coachingCredentialsLabel")}
+                placeholder={t("coachingCredentialsPlaceholder")}
+                removeLabel={t("removeAria")}
+                values={coachingCredentials}
+                onChange={(v) => setCoachingCredentials(v.slice(0, 10))}
+              />
+              <p className="-mt-2 text-xs text-[var(--usha-muted)]">{t("coachingCredentialsHint")}</p>
+
+              <TagInput
                 label={t("danceLanguagesLabel")}
                 placeholder={t("danceLanguagesPlaceholder")}
                 removeLabel={t("removeAria")}
@@ -878,6 +892,24 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Avbokningstid — gäller alla köp hos den här säljaren */}
+      {!isCustomer && (
+        <div className="space-y-3 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
+          <div>
+            <h2 className="text-lg font-semibold">{t("cancellationTitle")}</h2>
+            <p className="mt-1 text-sm text-[var(--usha-muted)]">{t("cancellationSubtitle")}</p>
+          </div>
+          <select name="cancellation_hours" defaultValue={profile.cancellation_hours ?? ""} className={inputClass}>
+            <option value="">{t("cancellationAnytime")}</option>
+            {CANCELLATION_HOUR_OPTIONS.map((h) => (
+              <option key={h} value={h}>
+                {t("cancellationHours", { hours: h })}
+              </option>
+            ))}
+          </select>
         </div>
       )}
 
