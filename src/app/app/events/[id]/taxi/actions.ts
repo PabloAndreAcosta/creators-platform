@@ -34,7 +34,7 @@ export async function createShift(formData: FormData) {
   const startTime = String(formData.get("start") ?? "");
   const endTime = String(formData.get("end") ?? "");
   const capacity = Number(formData.get("capacity"));
-  const v = validateShift({ eventDate: evening.event_date, startTime, endTime, capacity });
+  const v = validateShift({ eventDate: evening.event_date, startTime, endTime, capacity, role: role! });
   if (!v.ok) page(listingId, `shift_${v.error}`);
 
   // Samma pass på seriens alla kommande kvällar, så The Lab inte behöver
@@ -57,7 +57,7 @@ export async function createShift(formData: FormData) {
 
   const rows = [];
   for (const e of evenings) {
-    const r = validateShift({ eventDate: e.event_date, startTime, endTime, capacity });
+    const r = validateShift({ eventDate: e.event_date, startTime, endTime, capacity, role: role! });
     if (!r.ok) continue;
     const { count } = await db
       .from("taxi_shifts")

@@ -4576,6 +4576,7 @@
     "role": "Roll",
     "roles": {
       "taxi_dancer": "Taxidansare",
+      "instructor": "Instruktör",
       "door_host": "Dörrvärd",
       "photographer": "Foto & film",
       "helper": "Allmän hjälp"
@@ -4583,6 +4584,11 @@
     "wholeSeries": "Lägg upp passet på alla kommande kvällar i serien",
     "notice_shiftsCreatedSeries": "Passet är upplagt på seriens kommande kvällar.",
     "notice_shiftExists": "Passet fanns redan på kvällen.",
-    "notice_shift_role": "Välj en roll för passet."
+    "notice_shift_role": "Välj en roll för passet.",
+    "notice_overlap": "Du kan inte ta två pass som överlappar i tid.",
+    "notice_eveningFull": "Kvällen har redan fyra taxidansare. Du kan fortfarande ta andra pass.",
+    "notice_shift_taxiCapacity": "Ett taxidansarpass kan ha högst 2 platser.",
+    "taxiEveningFullNote": "Kvällen har redan {n} taxidansare – taxidansarpassen är fulla, men andra roller är öppna.",
+    "taxiEveningCount": "Taxidansare i kväll: {n} av högst {max}. Högst 2 per pass."
   }
 }

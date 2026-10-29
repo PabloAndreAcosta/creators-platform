@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdminById } from "@/lib/admin/check";
 import { loadEvening, loadShifts, loadStrikeFacts } from "@/lib/taxi/data";
-import { isStrike, strikeStatus, TAXI_WINDOW, STRIKE_LIMIT, type StrikeStatus } from "@/lib/taxi/rules";
+import { isStrike, strikeStatus, TAXI_WINDOW, STRIKE_LIMIT, type StrikeStatus, TAXI_MAX_PER_EVENING } from "@/lib/taxi/rules";
 import { VOLUNTEER_ROLES } from "@/lib/taxi/roles";
 import { createShift, deleteShift, organiserCheck } from "./actions";
 
@@ -62,7 +62,7 @@ export default async function EventTaxiPage(props: {
   );
 
   const notices = [
-    "shiftCreated", "shiftsCreatedSeries", "shiftExists", "shift_role", "shiftDeleted", "shiftHasSignups", "checkedIn", "notFound",
+    "shiftCreated", "shiftsCreatedSeries", "shiftExists", "shift_role", "shift_taxiCapacity", "shiftDeleted", "shiftHasSignups", "checkedIn", "notFound",
     "shift_time", "shift_window", "shift_length", "shift_capacity",
   ];
   const btn = "rounded-lg px-2.5 py-1 text-xs font-semibold";
@@ -89,6 +89,16 @@ export default async function EventTaxiPage(props: {
           {t("organiserVolunteerTitle")}
         </p>
         <p className="mt-1 text-[var(--usha-muted)]">{t("organiserVolunteerBody")}</p>
+        <p className="mt-2 text-[var(--usha-muted)]">
+          {t("taxiEveningCount", {
+            n: new Set(
+              (signups ?? [])
+                .filter((x) => x.status === "booked" && shifts.find((sh) => sh.id === x.shift_id)?.role === "taxi_dancer")
+                .map((x) => x.dancer_id),
+            ).size,
+            max: TAXI_MAX_PER_EVENING,
+          })}
+        </p>
         <p className="mt-2 text-[var(--usha-muted)]">
           {t("shareLink")} <span className="font-mono text-[var(--usha-white)]">usha.se/app/taxi/{id}</span>
         </p>

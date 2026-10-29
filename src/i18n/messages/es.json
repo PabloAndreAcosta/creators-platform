@@ -4576,6 +4576,7 @@
     "role": "Rol",
     "roles": {
       "taxi_dancer": "Taxi dancer",
+      "instructor": "Instructor",
       "door_host": "Anfitrión de puerta",
       "photographer": "Foto y vídeo",
       "helper": "Ayuda general"
@@ -4583,6 +4584,11 @@
     "wholeSeries": "Añadir el turno a todas las próximas noches de la serie",
     "notice_shiftsCreatedSeries": "El turno se ha añadido a las próximas noches de la serie.",
     "notice_shiftExists": "La noche ya tenía ese turno.",
-    "notice_shift_role": "Elige un rol para el turno."
+    "notice_shift_role": "Elige un rol para el turno.",
+    "notice_overlap": "No puedes coger dos turnos que se solapen en el tiempo.",
+    "notice_eveningFull": "La noche ya tiene cuatro taxi dancers. Aún puedes coger otros turnos.",
+    "notice_shift_taxiCapacity": "Un turno de taxi dancer puede tener como máximo 2 plazas.",
+    "taxiEveningFullNote": "La noche ya tiene {n} taxi dancers: esos turnos están llenos, pero otros roles siguen abiertos.",
+    "taxiEveningCount": "Taxi dancers esta noche: {n} de un máximo de {max}. Máximo 2 por turno."
   }
 }
