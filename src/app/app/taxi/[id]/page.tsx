@@ -8,6 +8,7 @@ import { loadEvening, loadShifts, loadStrikeFacts } from "@/lib/taxi/data";
 import { canCheckIn, dancerEligibility, isLateCancel, strikeStatus, taxiEveningFull, STRIKE_LIMIT, TAXI_MAX_PER_EVENING, type DancerEligibility } from "@/lib/taxi/rules";
 import { BankIdVerifyButton } from "@/app/(dashboard)/dashboard/profile/bankid-verify-button";
 import { signUpForShifts, cancelShift, checkIn, redeemVoucher } from "../actions";
+import { shiftRoleName } from "@/lib/taxi/roles";
 
 export const dynamic = "force-dynamic";
 
@@ -133,7 +134,7 @@ export default async function TaxiEveningPage(props: {
               return (
                 <div key={m.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 text-sm">
                   <div>
-                    <p className="font-medium">{t(`roles.${s.role}`)} · {time(s.starts_at)}–{time(s.ends_at)}</p>
+                    <p className="font-medium">{shiftRoleName(s, t)} · {time(s.starts_at)}–{time(s.ends_at)}</p>
                     <p className="text-xs text-[var(--usha-muted)]">
                       {m.checked_in_at ? t("checkedInAt", { time: time(m.checked_in_at) }) : t("notCheckedIn")}
                     </p>
@@ -215,7 +216,7 @@ export default async function TaxiEveningPage(props: {
               {open.map((s) => (
                 <label key={s.id} className="flex items-center gap-2">
                   <input type="checkbox" name="shiftId" value={s.id} />
-                  <span className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-xs text-[var(--usha-gold)]">{t(`roles.${s.role}`)}</span>
+                  <span className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-xs text-[var(--usha-gold)]">{shiftRoleName(s, t)}</span>
                   {time(s.starts_at)}–{time(s.ends_at)}
                   <span className="text-xs text-[var(--usha-muted)]">{t("spotsLeft", { n: s.capacity - s.booked })}</span>
                 </label>

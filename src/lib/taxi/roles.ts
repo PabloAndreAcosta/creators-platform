@@ -9,3 +9,20 @@ export type VolunteerRole = (typeof VOLUNTEER_ROLES)[number];
 export function parseVolunteerRole(value: unknown): VolunteerRole | null {
   return (VOLUNTEER_ROLES as readonly unknown[]).includes(value) ? (value as VolunteerRole) : null;
 }
+
+export const ROLE_LABEL_MAX = 40;
+
+/** Arrangörens egna namn på passet. Tomt = rollens vanliga namn. */
+export function parseRoleLabel(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const label = value.replace(/\s+/g, " ").trim().slice(0, ROLE_LABEL_MAX).trim();
+  return label || null;
+}
+
+/** Det namn passet visas med: arrangörens eget, annars rollens. */
+export function shiftRoleName(
+  shift: { role: VolunteerRole; role_label?: string | null },
+  t: (key: string) => string,
+): string {
+  return shift.role_label || t(`roles.${shift.role}`);
+}

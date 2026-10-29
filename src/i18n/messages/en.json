@@ -4579,6 +4579,8 @@
     "bankidButton": "Verify with Mobile BankID",
     "notice_bankidAgain": "Verify with Mobile BankID once more so we can see your age.",
     "role": "Role",
+    "roleLabel": "Custom name (optional)",
+    "roleLabelPlaceholder": "e.g. Cloakroom or DJ host",
     "roles": {
       "taxi_dancer": "Taxi dancer",
       "instructor": "Instructor",
