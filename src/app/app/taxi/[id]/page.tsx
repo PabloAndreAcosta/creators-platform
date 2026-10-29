@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { ChevronLeft, HeartHandshake, ShieldCheck, Utensils } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { DEFAULT_VOUCHER_MAX_ORE, voucherScopeId } from "@/lib/taxi/voucher";
 import { loadEvening, loadShifts, loadStrikeFacts } from "@/lib/taxi/data";
 import { canCheckIn, dancerEligibility, isLateCancel, strikeStatus, taxiEveningFull, STRIKE_LIMIT, TAXI_MAX_PER_EVENING, type DancerEligibility } from "@/lib/taxi/rules";
 import { BankIdVerifyButton } from "@/app/(dashboard)/dashboard/profile/bankid-verify-button";
@@ -47,6 +48,12 @@ export default async function TaxiEveningPage(props: {
   let strikes = 0;
   let suspendedUntil: string | null = null;
   let voucherAt: string | null = null;
+  const { data: voucherSettings } = await createAdminClient()
+    .from("volunteer_voucher_settings")
+    .select("max_ore")
+    .eq("scope_id", voucherScopeId(evening))
+    .maybeSingle();
+  const voucherMaxKr = Math.round((voucherSettings?.max_ore ?? DEFAULT_VOUCHER_MAX_ORE) / 100);
   let eligibility: DancerEligibility = "bankid";
   let role: "creator" | "venue" | "customer" = "customer";
   if (user) {
@@ -92,7 +99,7 @@ export default async function TaxiEveningPage(props: {
 
   const notices = [
     "signedUp", "cancelled", "cancelledLate", "checkedIn", "voucherRedeemed", "noShift", "mustAccept",
-    "notFound", "overlap", "eveningFull", "bankid", "bankidAgain", "age", "blocked", "closed", "full", "checkInClosed", "voucherNeedsCheckIn",
+    "notFound", "overlap", "eveningFull", "bankid", "bankidAgain", "age", "blocked", "closed", "full", "checkInClosed", "voucherNeedsCheckIn", "voucherNoCode", "voucherWrongCode", "voucherBadAmount", "voucherTooManyTries",
   ];
   const btn = "rounded-lg px-3 py-1.5 text-xs font-bold";
   const gold = `${btn} bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] text-black`;
@@ -168,9 +175,20 @@ export default async function TaxiEveningPage(props: {
           {voucherAt ? (
             <p className="mt-1 text-[var(--usha-muted)]">{t("voucherRedeemedAt", { time: time(voucherAt) })}</p>
           ) : (
-            <form action={redeemVoucher} className="mt-2">
+            <form action={redeemVoucher} className="mt-2 space-y-2">
               <input type="hidden" name="listingId" value={id} />
-              <p className="mb-2 text-[var(--usha-muted)]">{t("voucherHint")}</p>
+              <p className="text-[var(--usha-muted)]">{t("voucherHint")}</p>
+              {/* Fylls i av restaurangens personal, inte av volontären. */}
+              <div className="grid gap-2 sm:grid-cols-2">
+                <label className="flex flex-col gap-1 text-xs text-[var(--usha-muted)]">
+                  {t("voucherAmountLabel", { max: voucherMaxKr })}
+                  <input name="amount" inputMode="decimal" required defaultValue={voucherMaxKr} className="rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-3 py-2 text-sm" />
+                </label>
+                <label className="flex flex-col gap-1 text-xs text-[var(--usha-muted)]">
+                  {t("voucherCodeLabel")}
+                  <input name="code" type="password" inputMode="numeric" autoComplete="off" required maxLength={6} className="rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-3 py-2 text-sm" />
+                </label>
+              </div>
               <button className={gold}>{t("voucherRedeem")}</button>
             </form>
           )}
