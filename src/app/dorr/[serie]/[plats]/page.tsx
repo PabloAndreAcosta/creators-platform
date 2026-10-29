@@ -12,6 +12,7 @@ import { stockholmToday } from "@/lib/time";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createLateCheckoutSession } from "@/lib/tickets/late-checkout";
 import { getStripeLocale } from "@/lib/i18n/stripe-locale";
+import { hamtaKort, hamtaKvallar, KORT_PREFIX } from "@/lib/entrance/door-occurrences";
 
 /**
  * Dörrlänk: /dorr/<serie>/<plats>
@@ -41,6 +42,18 @@ export default async function DoorLinkPage({ params }: Params) {
   // Serien har tagit slut, eller allt som återstår är inställt. Seriesidan
   // säger det bättre än en 404 gör.
   if (!kvall) redirect(`/series/${kanonisk}`);
+
+  // Klippkort säljs på kvällens eventsida, inte via genvägen nedan. Gästen
+  // landar med kortet förvalt; hittas det inte, på biljettrutan ändå.
+  if (plats.startsWith(KORT_PREFIX)) {
+    const prefix = plats.slice(KORT_PREFIX.length).toLowerCase();
+    const kort = prefix
+      ? (await hamtaKort(supabase, (kvall as { series_id?: string | null }).series_id ?? null)).find((k) =>
+          k.id.startsWith(prefix)
+        )
+      : undefined;
+    redirect(kort ? `/event/${kvall.slug}?kort=${kort.id}#biljetter` : doorTarget(kvall.slug, null));
+  }
 
   const { data: typer } = await supabase
     .from("ticket_types")
@@ -124,25 +137,4 @@ async function dorrGenvag(
   });
 
   return result.ok ? result.url : null;
-}
-
-async function hamtaKvallar(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  kanonisk: string,
-  rå: string
-): Promise<(DoorOccurrence & { id: string })[]> {
-  const fraga = (slug: string) =>
-    supabase
-      .from("listings")
-      .select("id, slug, title, event_date")
-      .eq("series_slug", slug)
-      .eq("is_active", true)
-      .eq("is_public", true)
-      .order("event_date", { ascending: true });
-
-  const { data } = await fraga(kanonisk);
-  const rader = (data as (DoorOccurrence & { id: string })[] | null) ?? [];
-  if (rader.length > 0 || kanonisk === rå) return rader;
-  const { data: fallback } = await fraga(rå);
-  return (fallback as (DoorOccurrence & { id: string })[] | null) ?? [];
 }

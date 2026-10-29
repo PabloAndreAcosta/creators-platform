@@ -43,6 +43,8 @@ interface Props {
    * workshopen redan vald, inte behöva hitta raden igen i dörren.
    */
   preselectTicketTypeId?: string | null;
+  /** Förvalt klippkort, från `?kort=` (dörrskärmens klippkortskod). */
+  preselectPassId?: string | null;
   /** Köparens outnyttjade välkomstavdrag i öre. 0 = inget att visa. */
   creditOre?: number;
   /** Delas välkomstavdraget ut till nya konton just nu? Styr löftet till utloggade. */
@@ -72,7 +74,7 @@ function soldOut(tt: TicketType) {
   return tt.capacity != null && tt.tickets_sold >= tt.capacity;
 }
 
-export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], passes = [], header, preselectTicketTypeId, creditOre = 0, signupCreditEnabled = false }: Props) {
+export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], passes = [], header, preselectTicketTypeId, preselectPassId, creditOre = 0, signupCreditEnabled = false }: Props) {
   const { toast } = useToast();
   const t = useTranslations("eventPage");
   const pathname = usePathname();
@@ -89,7 +91,9 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
   });
   const selectedType = hasTypes ? ticketTypes.find((tt) => tt.id === selectedTypeId) ?? null : null;
   // Ett valt klippkort ersätter biljettvalet: ett kort, en order.
-  const [selectedPassId, setSelectedPassId] = useState<string | null>(null);
+  const [selectedPassId, setSelectedPassId] = useState<string | null>(
+    () => passes.find((p) => p.id === preselectPassId)?.id ?? null
+  );
   const selectedPass = passes.find((p) => p.id === selectedPassId) ?? null;
   // Klippkorten låg utfällda mellan biljettyperna och köpknappen. Fyra höga
   // kort betyder att den som bara vill ha en enkelbiljett skrollar förbi dem
