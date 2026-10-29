@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { loadLinkedEvents } from "@/lib/gigs/linked-events";
+import { GigEventLine } from "@/components/gigs/gig-event-line";
 import Link from "next/link";
 import { Calendar, MapPin, Briefcase } from "lucide-react";
 import { ApplyToGigButton } from "./apply-button";
@@ -49,7 +51,7 @@ export default async function GigsFeedPage() {
   const today = new Date().toISOString().slice(0, 10);
   const { data: gigs } = await supabase
     .from("gigs")
-    .select("id, arranger_id, title, description, event_date, event_time, venue, venue_address, proposed_price, perks, created_at")
+    .select("id, arranger_id, title, description, event_date, event_time, venue, venue_address, proposed_price, perks, created_at, listing_id, pass_type")
     .eq("status", "open")
     .neq("arranger_id", user.id)
     .gte("event_date", today)
@@ -79,6 +81,8 @@ export default async function GigsFeedPage() {
           .in("id", arrangerIds)
       : { data: [] };
   const arrangerMap = Object.fromEntries((arrangers ?? []).map((p) => [p.id, p.full_name]));
+  const linkedEvents = await loadLinkedEvents(supabase, gigs ?? []);
+  const tf = await getTranslations("gigForm");
 
   return (
     <div className="px-4 py-6 md:px-8">
@@ -117,6 +121,7 @@ export default async function GigsFeedPage() {
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0 flex-1">
                     <h2 className="text-lg font-semibold">{g.title}</h2>
+                    <GigEventLine passType={g.pass_type} event={g.listing_id ? linkedEvents[g.listing_id] : undefined} t={tf} />
                     <p className="mt-0.5 text-xs text-[var(--usha-muted)]">
                       {arrangerMap[g.arranger_id] || t("arranger")}
                     </p>

@@ -3650,7 +3650,22 @@
     "submit": "Publicar evento",
     "back": "Volver",
     "pageTitle": "Nuevo encargo",
-    "pageIntro": "Publica una sesión y los creadores podrán postularse. Eliges a uno de los candidatos y pagas a través de Usha. Si el creador no tiene empresa, Usha lo contrata para la sesión: nunca os convertís en empleador."
+    "pageIntro": "Publica una sesión y los creadores podrán postularse. Eliges a uno de los candidatos y pagas a través de Usha. Si el creador no tiene empresa, Usha lo contrata para la sesión: nunca os convertís en empleador.",
+    "passTypeLabel": "¿Qué tipo de turno?",
+    "passType": {
+      "taxi_dancer": "Taxi dancer",
+      "instructor": "Instructor",
+      "other": "Otro"
+    },
+    "linkEventLabel": "Vincular a uno de tus eventos",
+    "linkEventNone": "Ninguno — escribe fecha y lugar tú mismo",
+    "linkEventSeries": "{name} ({count} noches)",
+    "linkEventPickDates": "Elige las noches del turno. Se publica un trabajo por noche.",
+    "linkEventFilled": "Fecha, hora y lugar se toman de la noche ({venue}).",
+    "pickAtLeastOne": "Elige al menos una noche.",
+    "proposedPricePerEvening": "Precio por noche, IVA incl. (SEK)",
+    "submitMany": "Publicar {count} trabajos",
+    "linkedEvent": "La noche: {title}"
   },
   "listingForm": {
     "passSeriesLabel": "Válido como entrada para la serie",
