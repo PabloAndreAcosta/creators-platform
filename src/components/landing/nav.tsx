@@ -178,7 +178,7 @@ export function Nav() {
               <a
                 href="/signup"
                 onClick={() => setMobileOpen(false)}
-                className="rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2.5 text-center text-sm font-bold text-black transition hover:opacity-90"
+                className="self-start rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-sm font-semibold text-black transition hover:opacity-90 sm:hidden"
               >
                 {t("nav.getStarted")}
               </a>
