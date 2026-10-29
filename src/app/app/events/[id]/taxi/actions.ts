@@ -7,6 +7,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdminById } from "@/lib/admin/check";
 import { loadEvening } from "@/lib/taxi/data";
 import { validateShift } from "@/lib/taxi/rules";
+import { parseVolunteerRole } from "@/lib/taxi/roles";
+import { isCancelled } from "@/lib/entrance/door-link";
+import { stockholmToday } from "@/lib/time";
 
 /** Arrangören (kvällens ägare) eller hel admin. */
 async function assertOrganiser(listingId: string) {
@@ -26,25 +29,53 @@ const page = (listingId: string, notice: string) => redirect(`/app/events/${list
 export async function createShift(formData: FormData) {
   const listingId = String(formData.get("listingId") ?? "");
   const { user, evening } = await assertOrganiser(listingId);
-  const v = validateShift({
-    eventDate: evening.event_date,
-    startTime: String(formData.get("start") ?? ""),
-    endTime: String(formData.get("end") ?? ""),
-    capacity: Number(formData.get("capacity")),
-  });
+  const role = parseVolunteerRole(formData.get("role"));
+  if (!role) page(listingId, "shift_role");
+  const startTime = String(formData.get("start") ?? "");
+  const endTime = String(formData.get("end") ?? "");
+  const capacity = Number(formData.get("capacity"));
+  const v = validateShift({ eventDate: evening.event_date, startTime, endTime, capacity });
   if (!v.ok) page(listingId, `shift_${v.error}`);
-  if (v.ok) {
-    const { error } = await createAdminClient().from("taxi_shifts").insert({
-      listing_id: listingId,
-      starts_at: v.startsAt,
-      ends_at: v.endsAt,
-      capacity: Number(formData.get("capacity")),
-      created_by: user.id,
-    });
+
+  // Samma pass på seriens alla kommande kvällar, så The Lab inte behöver
+  // läggas upp kväll för kväll. Bara kvällens ägares egna, ej inställda
+  // kvällar, och en kväll som redan har exakt det passet hoppas över.
+  const evenings: { id: string; event_date: string }[] = [{ id: listingId, event_date: evening.event_date }];
+  const db = createAdminClient();
+  if (formData.get("wholeSeries") === "on" && evening.series_id) {
+    const { data: siblings } = await db
+      .from("listings")
+      .select("id, title, event_date")
+      .eq("series_id", evening.series_id)
+      .eq("user_id", evening.user_id)
+      .neq("id", listingId)
+      .gte("event_date", stockholmToday());
+    for (const l of siblings ?? []) {
+      if (l.event_date && !isCancelled(l.title)) evenings.push({ id: l.id, event_date: String(l.event_date).slice(0, 10) });
+    }
+  }
+
+  const rows = [];
+  for (const e of evenings) {
+    const r = validateShift({ eventDate: e.event_date, startTime, endTime, capacity });
+    if (!r.ok) continue;
+    const { count } = await db
+      .from("taxi_shifts")
+      .select("id", { count: "exact", head: true })
+      .eq("listing_id", e.id)
+      .eq("role", role!)
+      .eq("starts_at", r.startsAt)
+      .eq("ends_at", r.endsAt);
+    if ((count ?? 0) > 0) continue;
+    rows.push({ listing_id: e.id, starts_at: r.startsAt, ends_at: r.endsAt, capacity, role: role!, created_by: user.id });
+  }
+  if (rows.length > 0) {
+    const { error } = await db.from("taxi_shifts").insert(rows);
     if (error) throw error;
   }
-  revalidatePath(`/app/events/${listingId}/taxi`);
-  page(listingId, "shiftCreated");
+  for (const e of evenings) revalidatePath(`/app/events/${e.id}/taxi`);
+  revalidatePath("/app/taxi");
+  page(listingId, rows.length > 1 ? "shiftsCreatedSeries" : rows.length === 1 ? "shiftCreated" : "shiftExists");
 }
 
 /** Ett pass med anmälningar tas inte bort — det vore att stryka någons åtagande tyst. */

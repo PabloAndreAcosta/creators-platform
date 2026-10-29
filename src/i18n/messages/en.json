@@ -2897,8 +2897,8 @@
     "venueTeamDesc": "Invite people who help run the venue",
     "sellLabel": "Offerings",
     "sellDesc": "Everything you sell, in one place",
-    "taxiLabel": "Taxi shifts",
-    "taxiDesc": "Dance as a volunteer – free entry and a meal voucher"
+    "taxiLabel": "Volunteer shifts",
+    "taxiDesc": "Help out as a volunteer – free entry and a meal voucher"
   },
   "sellPage": {
     "heading": "Offerings",
@@ -3019,7 +3019,7 @@
     "hideOccurrences": "Hide",
     "badgePast": "Past",
     "sellAtDoor": "Sell at the door",
-    "taxiPass": "Taxi shifts"
+    "taxiPass": "Volunteer shifts"
   },
   "calendarPage": {
     "dayMon": "Mon",
@@ -4467,11 +4467,11 @@
   },
   "taxiPass": {
     "allEvenings": "All evenings",
-    "eveningTitle": "Taxi shifts – {title}",
-    "listTitle": "Taxi shifts",
-    "listIntro": "Evenings looking for taxi dancers. You volunteer: free entry and a meal voucher, no pay. Mobile BankID required.",
-    "listEmpty": "No evenings are looking for taxi dancers right now.",
-    "volunteerTitle": "Taxi dancers are volunteers",
+    "eveningTitle": "Volunteer shifts – {title}",
+    "listTitle": "Volunteer shifts",
+    "listIntro": "Evenings looking for volunteers: taxi dancers, door hosts, photo and general help. Free entry and a meal voucher, no pay. Mobile BankID required.",
+    "listEmpty": "No evenings are looking for volunteers right now.",
+    "volunteerTitle": "You are a volunteer",
     "volunteerBody": "You are not paid. You get free entry and one meal voucher per evening: a burger and a non-alcoholic drink.",
     "ruleAge": "You must be 18 or older and verify with Mobile BankID.",
     "ruleAlcohol": "No alcohol during your shift.",
@@ -4492,7 +4492,7 @@
     "signUpTitle": "Sign up",
     "strikes": "You have {n} of {limit} warnings in the last six months.",
     "loginToSignUp": "Log in to sign up",
-    "blockedBody": "You have three warnings within six months and are suspended from taxi shifts here until {date}. After that the count starts again from zero.",
+    "blockedBody": "You have three warnings within six months and are suspended from volunteer shifts here until {date}. After that the count starts again from zero.",
     "noShifts": "The organiser has not added any shifts yet.",
     "noOpenShifts": "All shifts are full, have started or are already yours.",
     "chooseShifts": "Choose shifts",
@@ -4512,16 +4512,16 @@
     "notice_mustAccept": "Confirm the volunteer terms and the rules.",
     "notice_notFound": "Could not find the evening or shift.",
     "notice_bankid": "You need to verify with Mobile BankID first.",
-    "notice_age": "You must be 18 or older to be a taxi dancer.",
-    "notice_blocked": "You are currently suspended from taxi shifts here.",
+    "notice_age": "You must be 18 or older to volunteer.",
+    "notice_blocked": "You are currently suspended from volunteer shifts here.",
     "notice_closed": "The shift has already started.",
     "notice_full": "The shift is full.",
     "notice_checkInClosed": "Check-in opens 30 minutes before the shift and closes when it ends.",
     "notice_voucherNeedsCheckIn": "Check in to a shift first.",
     "backToEvents": "My events",
-    "organiserTitle": "Taxi shifts – {title}",
-    "organiserVolunteerTitle": "Taxi dancers are volunteers",
-    "organiserVolunteerBody": "They are not paid – free entry and one meal voucher (burger + non-alcoholic drink) per evening. This is stated clearly when they sign up, along with the rules on age, alcohol and cancellation (by 10:00 on the day). Dancers only check in.",
+    "organiserTitle": "Volunteer shifts – {title}",
+    "organiserVolunteerTitle": "Volunteers are not paid",
+    "organiserVolunteerBody": "Free entry and one meal voucher (burger + non-alcoholic drink) per evening. This is stated clearly when they sign up, along with the rules on age, alcohol and cancellation (by 10:00 on the day). They only check in.",
     "shareLink": "Link to share:",
     "start": "Start",
     "end": "End",
@@ -4532,7 +4532,7 @@
     "bookedOf": "{n} of {cap} signed up",
     "deleteShift": "Remove",
     "noSignups": "No sign-ups yet.",
-    "colDancer": "Dancer",
+    "colDancer": "Volunteer",
     "colIn": "In",
     "colStatus": "Status",
     "colPhoto": "Photos",
@@ -4566,6 +4566,17 @@
     "bankidBody": "Taxi dancers and volunteers must verify with Mobile BankID before signing up. It confirms who you are and that you are 18 or older. It takes half a minute and is done once.",
     "bankidAgainBody": "You have verified before, but we need to do it once more to see that you are 18 or older.",
     "bankidButton": "Verify with Mobile BankID",
-    "notice_bankidAgain": "Verify with Mobile BankID once more so we can see your age."
+    "notice_bankidAgain": "Verify with Mobile BankID once more so we can see your age.",
+    "role": "Role",
+    "roles": {
+      "taxi_dancer": "Taxi dancer",
+      "door_host": "Door host",
+      "photographer": "Photo & video",
+      "helper": "General help"
+    },
+    "wholeSeries": "Add the shift to every upcoming evening in the series",
+    "notice_shiftsCreatedSeries": "The shift has been added to the series' upcoming evenings.",
+    "notice_shiftExists": "The evening already had that shift.",
+    "notice_shift_role": "Choose a role for the shift."
   }
 }

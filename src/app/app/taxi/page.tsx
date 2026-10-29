@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 const time = (iso: string) =>
   new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Stockholm", hour: "2-digit", minute: "2-digit" }).format(new Date(iso));
 
-/** Kommande kvällar som söker taxidansare. Länken i inläggen kan peka hit. */
+/** Kommande kvällar som söker volontärer (taxidansare, dörrvärdar …). Länken i inläggen kan peka hit. */
 export default async function TaxiEveningsPage() {
   const t = await getTranslations("taxiPass");
   const evenings = await loadUpcomingEvenings(stockholmToday());
@@ -38,7 +38,7 @@ export default async function TaxiEveningsPage() {
               <p className="text-sm text-[var(--usha-muted)]">{e.event_date}</p>
               <p className="mt-2 text-xs text-[var(--usha-muted)]">
                 {e.shifts
-                  .map((s) => `${time(s.starts_at)}–${time(s.ends_at)} (${t("spotsLeft", { n: Math.max(0, s.capacity - s.booked) })})`)
+                  .map((s) => `${t(`roles.${s.role}`)} ${time(s.starts_at)}–${time(s.ends_at)} (${t("spotsLeft", { n: Math.max(0, s.capacity - s.booked) })})`)
                   .join(" · ")}
               </p>
             </Link>

@@ -2897,8 +2897,8 @@
     "venueTeamDesc": "Invita a quienes ayudan con el local",
     "sellLabel": "Oferta",
     "sellDesc": "Todo lo que vendes, en un sitio",
-    "taxiLabel": "Turnos de taxi dancer",
-    "taxiDesc": "Baila como voluntario: entrada gratis y vale de comida"
+    "taxiLabel": "Turnos de voluntariado",
+    "taxiDesc": "Ayuda como voluntario: entrada gratis y vale de comida"
   },
   "sellPage": {
     "heading": "Oferta",
@@ -3019,7 +3019,7 @@
     "hideOccurrences": "Ocultar",
     "badgePast": "Pasado",
     "sellAtDoor": "Vender en la entrada",
-    "taxiPass": "Turnos taxi"
+    "taxiPass": "Voluntariado"
   },
   "calendarPage": {
     "dayMon": "Lun",
@@ -4467,11 +4467,11 @@
   },
   "taxiPass": {
     "allEvenings": "Todas las noches",
-    "eveningTitle": "Turnos de taxi dancer – {title}",
-    "listTitle": "Turnos de taxi dancer",
-    "listIntro": "Noches que buscan taxi dancers. Eres voluntario: entrada gratis y un vale de comida, sin sueldo. Se requiere BankID móvil.",
-    "listEmpty": "Ninguna noche busca taxi dancers ahora mismo.",
-    "volunteerTitle": "Los taxi dancers son voluntarios",
+    "eveningTitle": "Turnos de voluntariado – {title}",
+    "listTitle": "Turnos de voluntariado",
+    "listIntro": "Noches que buscan voluntarios: taxi dancers, anfitriones de puerta, foto y ayuda general. Entrada gratis y un vale de comida, sin sueldo. Se requiere BankID móvil.",
+    "listEmpty": "Ninguna noche busca voluntarios ahora mismo.",
+    "volunteerTitle": "Eres voluntario",
     "volunteerBody": "No cobras. Recibes entrada gratis y un vale de comida por noche: una hamburguesa y una bebida sin alcohol.",
     "ruleAge": "Debes tener 18 años o más y verificarte con BankID móvil.",
     "ruleAlcohol": "Sin alcohol durante el turno.",
@@ -4512,16 +4512,16 @@
     "notice_mustAccept": "Confirma las condiciones de voluntariado y las normas.",
     "notice_notFound": "No se encontró la noche o el turno.",
     "notice_bankid": "Primero debes verificarte con BankID móvil.",
-    "notice_age": "Debes tener 18 años o más para ser taxi dancer.",
+    "notice_age": "Debes tener 18 años o más para ser voluntario.",
     "notice_blocked": "Ahora mismo estás suspendido de los turnos aquí.",
     "notice_closed": "El turno ya ha empezado.",
     "notice_full": "El turno está lleno.",
     "notice_checkInClosed": "La entrada se abre 30 minutos antes del turno y se cierra cuando termina.",
     "notice_voucherNeedsCheckIn": "Registra primero tu entrada en un turno.",
     "backToEvents": "Mis eventos",
-    "organiserTitle": "Turnos de taxi dancer – {title}",
-    "organiserVolunteerTitle": "Los taxi dancers son voluntarios",
-    "organiserVolunteerBody": "No cobran: entrada gratis y un vale de comida (hamburguesa + bebida sin alcohol) por noche. Se les indica claramente al apuntarse, junto con las normas de edad, alcohol y cancelación (como tarde a las 10:00 del mismo día). Solo registran la entrada.",
+    "organiserTitle": "Turnos de voluntariado – {title}",
+    "organiserVolunteerTitle": "Los voluntarios no cobran",
+    "organiserVolunteerBody": "Entrada gratis y un vale de comida (hamburguesa + bebida sin alcohol) por noche. Se les indica claramente al apuntarse, junto con las normas de edad, alcohol y cancelación (como tarde a las 10:00 del mismo día). Solo registran la entrada.",
     "shareLink": "Enlace para compartir:",
     "start": "Inicio",
     "end": "Fin",
@@ -4532,7 +4532,7 @@
     "bookedOf": "{n} de {cap} apuntados",
     "deleteShift": "Eliminar",
     "noSignups": "Aún no hay apuntados.",
-    "colDancer": "Bailarín",
+    "colDancer": "Voluntario",
     "colIn": "Entrada",
     "colStatus": "Estado",
     "colPhoto": "Fotos",
@@ -4566,6 +4566,17 @@
     "bankidBody": "Los taxi dancers y voluntarios deben verificarse con BankID móvil antes de apuntarse. Confirma quién eres y que tienes 18 años o más. Lleva medio minuto y se hace una vez.",
     "bankidAgainBody": "Ya te verificaste antes, pero necesitamos hacerlo una vez más para ver que tienes 18 años o más.",
     "bankidButton": "Verificar con BankID móvil",
-    "notice_bankidAgain": "Verifícate con BankID móvil una vez más para que podamos ver tu edad."
+    "notice_bankidAgain": "Verifícate con BankID móvil una vez más para que podamos ver tu edad.",
+    "role": "Rol",
+    "roles": {
+      "taxi_dancer": "Taxi dancer",
+      "door_host": "Anfitrión de puerta",
+      "photographer": "Foto y vídeo",
+      "helper": "Ayuda general"
+    },
+    "wholeSeries": "Añadir el turno a todas las próximas noches de la serie",
+    "notice_shiftsCreatedSeries": "El turno se ha añadido a las próximas noches de la serie.",
+    "notice_shiftExists": "La noche ya tenía ese turno.",
+    "notice_shift_role": "Elige un rol para el turno."
   }
 }

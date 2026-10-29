@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { SignupFacts } from "./rules";
+import type { VolunteerRole } from "./roles";
 
 /**
  * Inläsning för taxipassen. Allt via service-role: tabellerna är stängda för
@@ -21,6 +22,7 @@ export interface ShiftRow {
   starts_at: string;
   ends_at: string;
   capacity: number;
+  role: VolunteerRole;
   booked: number;
 }
 
@@ -38,7 +40,7 @@ export async function loadShifts(listingId: string): Promise<ShiftRow[]> {
   const db = createAdminClient();
   const { data: shifts } = await db
     .from("taxi_shifts")
-    .select("id, starts_at, ends_at, capacity")
+    .select("id, starts_at, ends_at, capacity, role")
     .eq("listing_id", listingId)
     .order("starts_at");
   const ids = (shifts ?? []).map((s) => s.id);
@@ -47,7 +49,7 @@ export async function loadShifts(listingId: string): Promise<ShiftRow[]> {
     : { data: [] as { shift_id: string }[] };
   const count = new Map<string, number>();
   for (const b of booked ?? []) count.set(b.shift_id, (count.get(b.shift_id) ?? 0) + 1);
-  return (shifts ?? []).map((s) => ({ ...s, booked: count.get(s.id) ?? 0 }));
+  return (shifts ?? []).map((s) => ({ ...s, role: s.role as VolunteerRole, booked: count.get(s.id) ?? 0 }));
 }
 
 /**

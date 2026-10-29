@@ -7,6 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdminById } from "@/lib/admin/check";
 import { loadEvening, loadShifts, loadStrikeFacts } from "@/lib/taxi/data";
 import { isStrike, strikeStatus, TAXI_WINDOW, STRIKE_LIMIT, type StrikeStatus } from "@/lib/taxi/rules";
+import { VOLUNTEER_ROLES } from "@/lib/taxi/roles";
 import { createShift, deleteShift, organiserCheck } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -61,7 +62,7 @@ export default async function EventTaxiPage(props: {
   );
 
   const notices = [
-    "shiftCreated", "shiftDeleted", "shiftHasSignups", "checkedIn", "notFound",
+    "shiftCreated", "shiftsCreatedSeries", "shiftExists", "shift_role", "shiftDeleted", "shiftHasSignups", "checkedIn", "notFound",
     "shift_time", "shift_window", "shift_length", "shift_capacity",
   ];
   const btn = "rounded-lg px-2.5 py-1 text-xs font-semibold";
@@ -96,6 +97,16 @@ export default async function EventTaxiPage(props: {
       <form action={createShift} className="mt-6 flex flex-wrap items-end gap-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 text-sm">
         <input type="hidden" name="listingId" value={id} />
         <label className="flex flex-col gap-1">
+          {t("role")}
+          <select name="role" defaultValue="taxi_dancer" className={input}>
+            {VOLUNTEER_ROLES.map((r) => (
+              <option key={r} value={r}>
+                {t(`roles.${r}`)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="flex flex-col gap-1">
           {t("start")}
           <input type="time" name="start" step={900} min={TAXI_WINDOW.from} max={TAXI_WINDOW.to} defaultValue="17:00" required className={input} />
         </label>
@@ -110,6 +121,12 @@ export default async function EventTaxiPage(props: {
         <button className="rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-xs font-bold text-black">
           {t("addShift")}
         </button>
+        {evening.series_id && (
+          <label className="flex w-full items-center gap-2 text-xs">
+            <input type="checkbox" name="wholeSeries" defaultChecked />
+            {t("wholeSeries")}
+          </label>
+        )}
         <p className="w-full text-xs text-[var(--usha-muted)]">{t("shiftHint")}</p>
       </form>
 
@@ -121,6 +138,7 @@ export default async function EventTaxiPage(props: {
             <section key={s.id} className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 text-sm">
               <div className="mb-3 flex items-center justify-between">
                 <p className="font-semibold">
+                  <span className="mr-2 rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-xs text-[var(--usha-gold)]">{t(`roles.${s.role}`)}</span>
                   {time(s.starts_at)}–{time(s.ends_at)}
                   <span className="ml-2 font-normal text-[var(--usha-muted)]">{t("bookedOf", { n: s.booked, cap: s.capacity })}</span>
                 </p>
