@@ -69,7 +69,8 @@
     "profile": "Profil",
     "shop": "Butik",
     "buddies": "Träningsvänner",
-    "volunteerShifts": "Volontärpass"
+    "volunteerShifts": "Volontärpass",
+    "students": "Elever"
   },
   "pendingTodos": {
     "heading": "Väntar på dig",
@@ -2935,7 +2936,9 @@
     "sellLabel": "Utbud",
     "sellDesc": "Allt du säljer, samlat",
     "taxiLabel": "Volontärpass",
-    "taxiDesc": "Hjälp till som volontär – fri entré och matkupong"
+    "taxiDesc": "Hjälp till som volontär – fri entré och matkupong",
+    "studentsLabel": "Elever",
+    "studentsDesc": "Dina köpare, klipp kvar och anteckningar"
   },
   "sellPage": {
     "heading": "Utbud",
@@ -4693,5 +4696,24 @@
       "s4": "Lägg upp lektioner, kurser eller klippkort och koppla Stripe för att få betalt."
     },
     "credentialsBadge": "{n, plural, one {# merit} other {# meriter}}"
+  },
+  "studentsPage": {
+    "title": "Elever",
+    "subtitle": "{n, plural, one {# person har köpt av dig} other {# personer har köpt av dig}}",
+    "searchPlaceholder": "Sök namn, e-post eller vad de köpt",
+    "search": "Sök",
+    "empty": "Här samlas alla som köper av dig – biljetter, lektioner och klippkort – med en rad per person.",
+    "noMatch": "Ingen matchar sökningen.",
+    "unnamed": "Utan namn",
+    "stats": "{n, plural, one {# köp} other {# köp}} · {kr} kr",
+    "last": "senast {date}",
+    "next": "nästa {date}",
+    "message": "Meddelande",
+    "passLeft": "{title}: {n} kvar",
+    "passExpires": "går ut {date}",
+    "notePlaceholder": "Egen anteckning, t.ex. nivå, mål eller vad ni tränat. Syns bara för dig.",
+    "saveNote": "Spara",
+    "privacyNote": "Anteckningarna är privata och syns aldrig för eleven. Kontaktuppgifter används bara för det köpet gäller. Vill du skriva till många på en gång, gör det till dem som valt att följa dig:",
+    "followersLink": "Följare"
   }
 }
