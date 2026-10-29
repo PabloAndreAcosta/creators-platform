@@ -729,6 +729,22 @@ export async function deleteEvent(id: string) {
 
   if (!user) return { error: "Ej inloggad" };
 
+  // En listing med bokningar tas aldrig bort: databasen raderar då bokningarna,
+  // klippen och avräkningsunderlaget med den (ON DELETE CASCADE), och köparens
+  // biljett eller klippkort försvinner utan ett spår. Inaktivera i stället.
+  // Räknas med service-rollen: köparens bokning syns inte alltid för ägaren
+  // genom RLS. Bara på en listing som faktiskt är ägarens.
+  const admin = createAdminClient();
+  const { data: own } = await admin.from("listings").select("id").eq("id", id).eq("user_id", user.id).maybeSingle();
+  if (!own) return { error: "Hittades inte." };
+  const { count: bookingCount } = await admin
+    .from("bookings")
+    .select("id", { count: "exact", head: true })
+    .eq("listing_id", id);
+  if ((bookingCount ?? 0) > 0) {
+    return { error: "Evenemanget har bokningar och kan inte tas bort – då skulle gästernas biljetter och klipp försvinna. Inaktivera det i stället." };
+  }
+
   const { error } = await supabase
     .from("listings")
     .delete()
