@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdminById } from "@/lib/admin/check";
 import { loadEvening, loadShifts, loadStrikeFacts } from "@/lib/taxi/data";
-import { isShort, isStrike, strikeCount, workedMinutes, TAXI_WINDOW, STRIKE_LIMIT } from "@/lib/taxi/rules";
+import { isStrike, strikeStatus, TAXI_WINDOW, STRIKE_LIMIT, type StrikeStatus } from "@/lib/taxi/rules";
 import { createShift, deleteShift, organiserCheck } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -42,7 +42,7 @@ export default async function EventTaxiPage(props: {
     shiftIds.length
       ? db
           .from("taxi_signups")
-          .select("id, shift_id, dancer_id, status, late_cancel, checked_in_at, checked_out_at, photo_consent")
+          .select("id, shift_id, dancer_id, status, late_cancel, cancelled_at, checked_in_at, photo_consent")
           .in("shift_id", shiftIds)
           .order("created_at")
       : Promise.resolve({ data: [] as never[] }),
@@ -55,13 +55,13 @@ export default async function EventTaxiPage(props: {
   const nameOf = new Map((profiles ?? []).map((p) => [p.id, p.full_name || "–"]));
   const voucherOf = new Map((vouchers ?? []).map((v) => [v.dancer_id, v.redeemed_at]));
   const now = new Date();
-  const strikesOf = new Map<string, number>();
+  const strikesOf = new Map<string, StrikeStatus>();
   await Promise.all(
-    dancerIds.map(async (d) => strikesOf.set(d, strikeCount(await loadStrikeFacts(d, evening), now))),
+    dancerIds.map(async (d) => strikesOf.set(d, strikeStatus(await loadStrikeFacts(d, evening), now))),
   );
 
   const notices = [
-    "shiftCreated", "shiftDeleted", "shiftHasSignups", "checkedIn", "checkedOut", "notFound",
+    "shiftCreated", "shiftDeleted", "shiftHasSignups", "checkedIn", "notFound",
     "shift_time", "shift_window", "shift_length", "shift_capacity",
   ];
   const btn = "rounded-lg px-2.5 py-1 text-xs font-semibold";
@@ -141,7 +141,6 @@ export default async function EventTaxiPage(props: {
                       <tr>
                         <th className="py-1 pr-3">{t("colDancer")}</th>
                         <th className="py-1 pr-3">{t("colIn")}</th>
-                        <th className="py-1 pr-3">{t("colOut")}</th>
                         <th className="py-1 pr-3">{t("colStatus")}</th>
                         <th className="py-1 pr-3">{t("colPhoto")}</th>
                         <th className="py-1 pr-3">{t("colVoucher")}</th>
@@ -150,26 +149,24 @@ export default async function EventTaxiPage(props: {
                     </thead>
                     <tbody>
                       {rows.map((r) => {
-                        const worked = workedMinutes(r, s);
                         const status =
                           r.status === "cancelled"
                             ? r.late_cancel ? t("stLateCancel") : t("stCancelled")
                             : isStrike({ ...r, status: "booked", ends_at: s.ends_at }, now)
                               ? t("stNoShow")
-                              : isShort(r, s)
-                                ? t("stShort", { min: worked ?? 0 })
-                                : worked !== null
-                                  ? t("stDone", { min: worked })
-                                  : r.checked_in_at ? t("stOnShift") : t("stBooked");
-                        const strikes = strikesOf.get(r.dancer_id) ?? 0;
+                              : r.checked_in_at ? t("stCheckedIn") : t("stBooked");
+                        const st = strikesOf.get(r.dancer_id);
                         return (
                           <tr key={r.id} className="border-t border-[var(--usha-border)]">
                             <td className="py-1.5 pr-3">
                               {nameOf.get(r.dancer_id)}
-                              {strikes > 0 && <span className="ml-1 text-red-400">({t("strikesShort", { n: strikes, limit: STRIKE_LIMIT })})</span>}
+                              {st?.suspendedUntil ? (
+                                <span className="ml-1 text-red-400">({t("suspendedShort", { date: st.suspendedUntil.slice(0, 10) })})</span>
+                              ) : st && st.active > 0 ? (
+                                <span className="ml-1 text-red-400">({t("strikesShort", { n: st.active, limit: STRIKE_LIMIT })})</span>
+                              ) : null}
                             </td>
                             <td className="py-1.5 pr-3 tabular-nums">{r.checked_in_at ? time(r.checked_in_at) : "–"}</td>
-                            <td className="py-1.5 pr-3 tabular-nums">{r.checked_out_at ? time(r.checked_out_at) : "–"}</td>
                             <td className="py-1.5 pr-3">{status}</td>
                             <td className="py-1.5 pr-3">{r.photo_consent ? t("photoOk") : t("photoNoShort")}</td>
                             <td className="py-1.5 pr-3">{voucherOf.get(r.dancer_id) ? time(voucherOf.get(r.dancer_id)!) : "–"}</td>
@@ -178,16 +175,7 @@ export default async function EventTaxiPage(props: {
                                 <form action={organiserCheck} className="inline">
                                   <input type="hidden" name="listingId" value={id} />
                                   <input type="hidden" name="signupId" value={r.id} />
-                                  <input type="hidden" name="kind" value="in" />
                                   <button className={`${btn} border border-[var(--usha-border)]`}>{t("checkIn")}</button>
-                                </form>
-                              )}
-                              {r.status === "booked" && r.checked_in_at && !r.checked_out_at && (
-                                <form action={organiserCheck} className="inline">
-                                  <input type="hidden" name="listingId" value={id} />
-                                  <input type="hidden" name="signupId" value={r.id} />
-                                  <input type="hidden" name="kind" value="out" />
-                                  <button className={`${btn} border border-[var(--usha-border)]`}>{t("checkOut")}</button>
                                 </form>
                               )}
                             </td>

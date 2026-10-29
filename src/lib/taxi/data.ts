@@ -57,11 +57,12 @@ export async function loadShifts(listingId: string): Promise<ShiftRow[]> {
 export async function loadStrikeFacts(dancerId: string, evening: Pick<Evening, "series_id" | "user_id">): Promise<SignupFacts[]> {
   const { data } = await createAdminClient()
     .from("taxi_signups")
-    .select("status, late_cancel, checked_in_at, shift:taxi_shifts(ends_at, listing:listings(series_id, user_id))")
+    .select("status, late_cancel, cancelled_at, checked_in_at, shift:taxi_shifts(ends_at, listing:listings(series_id, user_id))")
     .eq("dancer_id", dancerId);
   type Row = {
     status: "booked" | "cancelled";
     late_cancel: boolean;
+    cancelled_at: string | null;
     checked_in_at: string | null;
     shift: { ends_at: string; listing: { series_id: string | null; user_id: string } | null } | null;
   };
@@ -71,7 +72,13 @@ export async function loadStrikeFacts(dancerId: string, evening: Pick<Evening, "
       if (!l) return false;
       return evening.series_id ? l.series_id === evening.series_id : l.user_id === evening.user_id;
     })
-    .map((r) => ({ status: r.status, late_cancel: r.late_cancel, checked_in_at: r.checked_in_at, ends_at: r.shift!.ends_at }));
+    .map((r) => ({
+      status: r.status,
+      late_cancel: r.late_cancel,
+      cancelled_at: r.cancelled_at,
+      checked_in_at: r.checked_in_at,
+      ends_at: r.shift!.ends_at,
+    }));
 }
 
 /** Kommande kvällar som har minst ett taxipass. */

@@ -6,11 +6,14 @@
  * 17 och 23 och är minst två timmar, och dansaren väljer själv vilka pass
  * hen tar. Alkoholfritt under passet, och den som anmäler sig ska ha fyllt 18.
  *
- * Avbokning ska ske före dygnets slut dagen före kvällen. Sen avbokning
- * eller uteblivet pass ger en varning; tre varningar hos samma arrangör (eller
- * i samma serie, t.ex. The Lab) och man kan inte längre anmäla sig där.
- * Varningarna räknas fram ur passen — det finns ingen räknare som kan glida
- * isär från det som faktiskt hände.
+ * Avbokning ska ske senast kl. 10 samma dag. Sen avbokning eller uteblivet
+ * pass (ingen incheckning) ger en varning. Tre varningar inom sex månader hos
+ * samma arrangör (eller i samma serie, t.ex. The Lab) ger sex månaders
+ * avstängning, och efter den börjar räkningen om från noll. Varningar äldre än
+ * sex månader räknas inte heller. Allt räknas fram ur passen — det finns ingen
+ * räknare som kan glida isär från det som faktiskt hände.
+ *
+ * Dansaren checkar bara in. Utcheckning behövs inte.
  *
  * Rena funktioner. Tider in som ISO, Stockholmstid räknas här.
  */
@@ -20,13 +23,14 @@ import { stockholmEventISO, stockholmToday } from "@/lib/time";
 export const TAXI_WINDOW = { from: "17:00", to: "23:00" } as const;
 export const MIN_SHIFT_MINUTES = 120;
 export const STRIKE_LIMIT = 3;
+/** Varningar räknas inom så här många månader, och avstängningen varar lika länge. */
+export const STRIKE_WINDOW_MONTHS = 6;
+export const SUSPENSION_MONTHS = 6;
+/** Sista avbokning utan varning: den här tiden samma dag. */
+export const CANCEL_DEADLINE_TIME = "10:00";
 export const MIN_AGE = 18;
 /** Incheckning öppnar så här långt innan passet. */
 export const CHECKIN_EARLY_MINUTES = 30;
-/** Utcheckning går att göra så här länge efter passets slut. */
-export const CHECKOUT_LATE_MINUTES = 60;
-/** Ett pass räknas som fullföljt om högst så här mycket fattas. */
-export const SHORT_TOLERANCE_MINUTES = 15;
 
 const MIN = 60_000;
 const ms = (iso: string) => Date.parse(iso);
@@ -50,12 +54,9 @@ export function validateShift(input: {
   return { ok: true, startsAt, endsAt };
 }
 
-/**
- * Sista stund att avboka utan varning: dygnets slut dagen före kvällen, alltså
- * när kvällens datum börjar i Stockholm.
- */
+/** Sista stund att avboka utan varning: kl. 10 samma dag, Stockholmstid. */
 export function cancelDeadline(eventDate: string): string {
-  return stockholmEventISO(eventDate, "00:00:00");
+  return stockholmEventISO(eventDate, `${CANCEL_DEADLINE_TIME}:00`);
 }
 
 export function isLateCancel(eventDate: string, now: Date): boolean {
@@ -65,58 +66,73 @@ export function isLateCancel(eventDate: string, now: Date): boolean {
 export interface SignupFacts {
   status: "booked" | "cancelled";
   late_cancel: boolean;
+  cancelled_at: string | null;
   checked_in_at: string | null;
   /** Passets slut. */
   ends_at: string;
 }
 
-/** Sen avbokning eller ett pass som tog slut utan incheckning. */
+/**
+ * När anmälan blev en varning, eller null: en sen avbokning räknas från
+ * avbokningen, ett uteblivet pass från passets slut.
+ */
+export function strikeAt(s: SignupFacts, now: Date): string | null {
+  if (s.status === "cancelled") return s.late_cancel ? s.cancelled_at ?? s.ends_at : null;
+  if (!s.checked_in_at && now.getTime() > ms(s.ends_at)) return s.ends_at;
+  return null;
+}
+
 export function isStrike(s: SignupFacts, now: Date): boolean {
-  if (s.status === "cancelled") return s.late_cancel;
-  return !s.checked_in_at && now.getTime() > ms(s.ends_at);
+  return strikeAt(s, now) !== null;
 }
 
-export function strikeCount(signups: readonly SignupFacts[], now: Date): number {
-  return signups.filter((s) => isStrike(s, now)).length;
+function addMonths(iso: string, months: number): string {
+  const d = new Date(iso);
+  d.setUTCMonth(d.getUTCMonth() + months);
+  return d.toISOString();
 }
 
-export function isBlocked(signups: readonly SignupFacts[], now: Date): boolean {
-  return strikeCount(signups, now) >= STRIKE_LIMIT;
+export interface StrikeStatus {
+  /** Varningar som räknas just nu: inom sex månader och efter senaste nollställning. */
+  active: number;
+  /** Avstängd till och med, eller null. */
+  suspendedUntil: string | null;
+}
+
+/**
+ * Går igenom varningarna i tidsordning. Så fort tre ligger inom sex månader
+ * börjar en avstängning på sex månader från den tredje, och allt före
+ * avstängningens slut är därefter glömt.
+ */
+export function strikeStatus(signups: readonly SignupFacts[], now: Date): StrikeStatus {
+  const times = signups
+    .map((s) => strikeAt(s, now))
+    .filter((t): t is string => t !== null)
+    .sort();
+  let resetAt = -Infinity;
+  let suspendedUntil: string | null = null;
+  let window: string[] = [];
+  for (const t of times) {
+    if (ms(t) < resetAt) continue;
+    window = window.filter((w) => ms(w) > ms(addMonths(t, -STRIKE_WINDOW_MONTHS)));
+    window.push(t);
+    if (window.length >= STRIKE_LIMIT) {
+      suspendedUntil = addMonths(t, SUSPENSION_MONTHS);
+      resetAt = ms(suspendedUntil);
+      window = [];
+    }
+  }
+  const from = Math.max(resetAt, ms(addMonths(now.toISOString(), -STRIKE_WINDOW_MONTHS)));
+  const active = times.filter((t) => ms(t) >= from && ms(t) <= now.getTime()).length;
+  return {
+    active,
+    suspendedUntil: suspendedUntil && ms(suspendedUntil) > now.getTime() ? suspendedUntil : null,
+  };
 }
 
 export function canCheckIn(shift: { starts_at: string; ends_at: string }, now: Date): boolean {
   const t = now.getTime();
   return t >= ms(shift.starts_at) - CHECKIN_EARLY_MINUTES * MIN && t <= ms(shift.ends_at);
-}
-
-export function canCheckOut(
-  signup: { checked_in_at: string | null; checked_out_at: string | null },
-  shift: { ends_at: string },
-  now: Date,
-): boolean {
-  return !!signup.checked_in_at && !signup.checked_out_at && now.getTime() <= ms(shift.ends_at) + CHECKOUT_LATE_MINUTES * MIN;
-}
-
-/** Minuter mellan in- och utcheckning, räknat inom passets tid. */
-export function workedMinutes(
-  signup: { checked_in_at: string | null; checked_out_at: string | null },
-  shift: { starts_at: string; ends_at: string },
-): number | null {
-  if (!signup.checked_in_at || !signup.checked_out_at) return null;
-  const from = Math.max(ms(signup.checked_in_at), ms(shift.starts_at));
-  const to = Math.min(ms(signup.checked_out_at), ms(shift.ends_at));
-  return Math.max(0, Math.round((to - from) / MIN));
-}
-
-/** Passet fullföljdes inte: kortare än passet minus toleransen. */
-export function isShort(
-  signup: { checked_in_at: string | null; checked_out_at: string | null },
-  shift: { starts_at: string; ends_at: string },
-): boolean {
-  const worked = workedMinutes(signup, shift);
-  if (worked === null) return false;
-  const length = (ms(shift.ends_at) - ms(shift.starts_at)) / MIN;
-  return worked < length - SHORT_TOLERANCE_MINUTES;
 }
 
 /**

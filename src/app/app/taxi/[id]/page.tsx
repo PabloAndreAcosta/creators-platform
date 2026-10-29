@@ -5,8 +5,8 @@ import { ChevronLeft, HeartHandshake, Utensils } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { loadEvening, loadShifts, loadStrikeFacts } from "@/lib/taxi/data";
-import { canCheckIn, canCheckOut, isLateCancel, strikeCount, STRIKE_LIMIT, ageOn } from "@/lib/taxi/rules";
-import { signUpForShifts, cancelShift, checkIn, checkOut, redeemVoucher } from "../actions";
+import { canCheckIn, isLateCancel, strikeStatus, STRIKE_LIMIT, ageOn } from "@/lib/taxi/rules";
+import { signUpForShifts, cancelShift, checkIn, redeemVoucher } from "../actions";
 
 export const dynamic = "force-dynamic";
 
@@ -41,36 +41,38 @@ export default async function TaxiEveningPage(props: {
     shift_id: string;
     status: string;
     checked_in_at: string | null;
-    checked_out_at: string | null;
   }[] = [];
   let strikes = 0;
+  let suspendedUntil: string | null = null;
   let voucherAt: string | null = null;
   let needsAgeConfirm = true;
   if (user) {
     const shiftIds = shifts.map((s) => s.id);
     const [{ data: rows }, facts, { data: voucher }, { data: profile }] = await Promise.all([
       shiftIds.length
-        ? db.from("taxi_signups").select("id, shift_id, status, checked_in_at, checked_out_at").eq("dancer_id", user.id).in("shift_id", shiftIds)
+        ? db.from("taxi_signups").select("id, shift_id, status, checked_in_at").eq("dancer_id", user.id).in("shift_id", shiftIds)
         : Promise.resolve({ data: [] }),
       loadStrikeFacts(user.id, evening),
       db.from("taxi_vouchers").select("redeemed_at").eq("listing_id", id).eq("dancer_id", user.id).maybeSingle(),
       db.from("profiles").select("bankid_personal_number").eq("id", user.id).single(),
     ]);
     mine = rows ?? [];
-    strikes = strikeCount(facts, now);
+    const st = strikeStatus(facts, now);
+    strikes = st.active;
+    suspendedUntil = st.suspendedUntil;
     voucherAt = voucher?.redeemed_at ?? null;
     needsAgeConfirm = ageOn(profile?.bankid_personal_number, evening.event_date) === null;
   }
   const booked = mine.filter((m) => m.status === "booked");
   const bookedIds = new Set(booked.map((m) => m.shift_id));
-  const blocked = strikes >= STRIKE_LIMIT;
+  const blocked = suspendedUntil !== null;
   const open = shifts.filter((s) => Date.parse(s.starts_at) > now.getTime() && s.booked < s.capacity && !bookedIds.has(s.id));
   const anyCheckedIn = booked.some((m) => m.checked_in_at);
   const late = isLateCancel(evening.event_date, now);
 
   const notices = [
-    "signedUp", "cancelled", "cancelledLate", "checkedIn", "checkedOut", "voucherRedeemed", "noShift", "mustAccept",
-    "notFound", "bankid", "age", "blocked", "closed", "full", "checkInClosed", "checkOutClosed", "voucherNeedsCheckIn",
+    "signedUp", "cancelled", "cancelledLate", "checkedIn", "voucherRedeemed", "noShift", "mustAccept",
+    "notFound", "bankid", "age", "blocked", "closed", "full", "checkInClosed", "voucherNeedsCheckIn",
   ];
   const btn = "rounded-lg px-3 py-1.5 text-xs font-bold";
   const gold = `${btn} bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] text-black`;
@@ -115,15 +117,11 @@ export default async function TaxiEveningPage(props: {
                     <p className="font-medium">{time(s.starts_at)}–{time(s.ends_at)}</p>
                     <p className="text-xs text-[var(--usha-muted)]">
                       {m.checked_in_at ? t("checkedInAt", { time: time(m.checked_in_at) }) : t("notCheckedIn")}
-                      {m.checked_out_at ? ` · ${t("checkedOutAt", { time: time(m.checked_out_at) })}` : ""}
                     </p>
                   </div>
                   <div className="flex gap-2">
                     {!m.checked_in_at && canCheckIn(s, now) && (
                       <form action={checkIn}><input type="hidden" name="signupId" value={m.id} /><button className={gold}>{t("checkIn")}</button></form>
-                    )}
-                    {canCheckOut(m, s, now) && (
-                      <form action={checkOut}><input type="hidden" name="signupId" value={m.id} /><button className={gold}>{t("checkOut")}</button></form>
                     )}
                     {!m.checked_in_at && Date.parse(s.starts_at) > now.getTime() && (
                       <form action={cancelShift}>
@@ -169,7 +167,9 @@ export default async function TaxiEveningPage(props: {
             {t("loginToSignUp")}
           </Link>
         ) : blocked ? (
-          <p className="rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">{t("blockedBody")}</p>
+          <p className="rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
+            {t("blockedBody", { date: suspendedUntil!.slice(0, 10) })}
+          </p>
         ) : shifts.length === 0 ? (
           <p className="text-sm text-[var(--usha-muted)]">{t("noShifts")}</p>
         ) : open.length === 0 ? (

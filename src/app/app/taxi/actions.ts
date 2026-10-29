@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { loadEvening, loadShifts, loadStrikeFacts } from "@/lib/taxi/data";
-import { ageOn, canCheckIn, canCheckOut, isBlocked, isLateCancel, MIN_AGE } from "@/lib/taxi/rules";
+import { ageOn, canCheckIn, isLateCancel, strikeStatus, MIN_AGE } from "@/lib/taxi/rules";
 
 const back = (listingId: string, notice: string) => redirect(`/app/taxi/${listingId}?notice=${notice}`);
 
@@ -50,7 +50,7 @@ export async function signUpForShifts(formData: FormData) {
   const age = ageOn(profile?.bankid_personal_number, evening!.event_date);
   if (age !== null ? age < MIN_AGE : !ageConfirmed) back(listingId, "age");
 
-  if (isBlocked(await loadStrikeFacts(user.id, evening!), new Date())) back(listingId, "blocked");
+  if (strikeStatus(await loadStrikeFacts(user.id, evening!), new Date()).suspendedUntil) back(listingId, "blocked");
 
   const shifts = await loadShifts(listingId);
   const now = Date.now();
@@ -93,7 +93,7 @@ export async function signUpForShifts(formData: FormData) {
 async function ownSignup(signupId: string, userId: string) {
   const { data } = await createAdminClient()
     .from("taxi_signups")
-    .select("id, dancer_id, status, late_cancel, checked_in_at, checked_out_at, shift:taxi_shifts(id, listing_id, starts_at, ends_at)")
+    .select("id, dancer_id, status, late_cancel, checked_in_at, shift:taxi_shifts(id, listing_id, starts_at, ends_at)")
     .eq("id", signupId)
     .maybeSingle();
   type Row = {
@@ -101,14 +101,13 @@ async function ownSignup(signupId: string, userId: string) {
     dancer_id: string;
     status: string;
     checked_in_at: string | null;
-    checked_out_at: string | null;
     shift: { id: string; listing_id: string; starts_at: string; ends_at: string };
   };
   const row = data as unknown as Row | null;
   return row && row.dancer_id === userId ? row : null;
 }
 
-/** Avbokning. Efter dygnets slut dagen före blir den en varning. */
+/** Avbokning. Efter kl. 10 samma dag blir den en varning. */
 export async function cancelShift(formData: FormData) {
   const user = await viewer();
   if (!user) redirect("/login");
@@ -133,17 +132,6 @@ export async function checkIn(formData: FormData) {
   await createAdminClient().from("taxi_signups").update({ checked_in_at: new Date().toISOString() }).eq("id", s!.id);
   revalidatePath(`/app/taxi/${s!.shift.listing_id}`);
   back(s!.shift.listing_id, "checkedIn");
-}
-
-export async function checkOut(formData: FormData) {
-  const user = await viewer();
-  if (!user) redirect("/login");
-  const s = await ownSignup(String(formData.get("signupId")), user.id);
-  if (!s) redirect("/app/taxi");
-  if (!canCheckOut(s!, s!.shift, new Date())) back(s!.shift.listing_id, "checkOutClosed");
-  await createAdminClient().from("taxi_signups").update({ checked_out_at: new Date().toISOString() }).eq("id", s!.id);
-  revalidatePath(`/app/taxi/${s!.shift.listing_id}`);
-  back(s!.shift.listing_id, "checkedOut");
 }
 
 /**

@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
-  validateShift, cancelDeadline, isLateCancel, isStrike, strikeCount, isBlocked,
-  canCheckIn, canCheckOut, workedMinutes, isShort, ageOn,
+  validateShift, cancelDeadline, isLateCancel, isStrike, strikeStatus, canCheckIn, ageOn, type SignupFacts,
 } from "../rules";
 
 const shift = { starts_at: "2026-11-12T19:00:00+01:00", ends_at: "2026-11-12T21:00:00+01:00" };
@@ -33,54 +32,65 @@ describe("validateShift", () => {
 });
 
 describe("avbokning", () => {
-  it("fristen är när kvällens datum börjar i Stockholm", () => {
-    expect(cancelDeadline("2026-11-12")).toBe("2026-11-12T00:00:00+01:00");
+  it("fristen är kl. 10 samma dag i Stockholm", () => {
+    expect(cancelDeadline("2026-11-12")).toBe("2026-11-12T10:00:00+01:00");
   });
-  it("23.59 dagen före är i tid, 00.00 samma dag är sent", () => {
-    expect(isLateCancel("2026-11-12", new Date("2026-11-11T22:59:00Z"))).toBe(false);
-    expect(isLateCancel("2026-11-12", new Date("2026-11-11T23:00:00Z"))).toBe(true);
+  it("09.59 samma dag är i tid, 10.00 är sent", () => {
+    expect(isLateCancel("2026-11-12", new Date("2026-11-12T08:59:00Z"))).toBe(false);
+    expect(isLateCancel("2026-11-12", new Date("2026-11-12T09:00:00Z"))).toBe(true);
   });
 });
+
+/** Ett uteblivet pass som slutade vid tiden t. */
+const noShow = (t: string): SignupFacts => ({ status: "booked", late_cancel: false, cancelled_at: null, checked_in_at: null, ends_at: t });
+const lateCancel = (t: string): SignupFacts => ({ status: "cancelled", late_cancel: true, cancelled_at: t, checked_in_at: null, ends_at: t });
 
 describe("varningar", () => {
   const now = new Date("2026-11-13T12:00:00Z");
-  const booked = { status: "booked" as const, late_cancel: false, checked_in_at: null, ends_at: shift.ends_at };
-  it("uteblivet pass och sen avbokning ger varning, i tid avbokat gör det inte", () => {
-    expect(isStrike(booked, now)).toBe(true);
-    expect(isStrike({ ...booked, checked_in_at: shift.starts_at }, now)).toBe(false);
-    expect(isStrike({ ...booked, status: "cancelled", late_cancel: true }, now)).toBe(true);
-    expect(isStrike({ ...booked, status: "cancelled", late_cancel: false }, now)).toBe(false);
+  it("uteblivet pass och sen avbokning ger varning, i tid avbokat och incheckat gör det inte", () => {
+    expect(isStrike(noShow(shift.ends_at), now)).toBe(true);
+    expect(isStrike({ ...noShow(shift.ends_at), checked_in_at: shift.starts_at }, now)).toBe(false);
+    expect(isStrike(lateCancel("2026-11-12T11:00:00Z"), now)).toBe(true);
+    expect(isStrike({ ...lateCancel("2026-11-11T11:00:00Z"), late_cancel: false }, now)).toBe(false);
   });
   it("ett pass som inte är slut än är ingen varning", () => {
-    expect(isStrike(booked, new Date("2026-11-12T19:30:00Z"))).toBe(false);
+    expect(isStrike(noShow(shift.ends_at), new Date("2026-11-12T19:30:00Z"))).toBe(false);
   });
-  it("tre varningar spärrar", () => {
-    expect(strikeCount([booked, booked], now)).toBe(2);
-    expect(isBlocked([booked, booked], now)).toBe(false);
-    expect(isBlocked([booked, booked, booked], now)).toBe(true);
+  it("två varningar räknas men stänger inte av", () => {
+    const st = strikeStatus([noShow("2026-09-01T20:00:00Z"), lateCancel("2026-10-01T10:00:00Z")], now);
+    expect(st).toEqual({ active: 2, suspendedUntil: null });
+  });
+  it("tre inom sex månader ger sex månaders avstängning från den tredje", () => {
+    const st = strikeStatus(
+      [noShow("2026-06-01T20:00:00Z"), noShow("2026-09-01T20:00:00Z"), lateCancel("2026-11-12T10:30:00Z")],
+      now,
+    );
+    expect(st.suspendedUntil).toBe("2027-05-12T10:30:00.000Z");
+  });
+  it("tre varningar utspridda över mer än sex månader stänger inte av, och gamla räknas inte", () => {
+    const st = strikeStatus(
+      [noShow("2026-01-10T20:00:00Z"), noShow("2026-06-01T20:00:00Z"), noShow("2026-09-01T20:00:00Z")],
+      now,
+    );
+    expect(st).toEqual({ active: 2, suspendedUntil: null });
+  });
+  it("efter avstängningen är räknaren noll", () => {
+    const strikes = [noShow("2026-01-01T20:00:00Z"), noShow("2026-02-01T20:00:00Z"), noShow("2026-03-01T20:00:00Z")];
+    expect(strikeStatus(strikes, new Date("2026-08-01T12:00:00Z")).suspendedUntil).toBe("2026-09-01T20:00:00.000Z");
+    expect(strikeStatus(strikes, new Date("2026-09-02T12:00:00Z"))).toEqual({ active: 0, suspendedUntil: null });
+    // En ny varning efter avstängningen börjar om på ett.
+    expect(strikeStatus([...strikes, noShow("2026-10-01T20:00:00Z")], new Date("2026-10-02T12:00:00Z"))).toEqual({
+      active: 1,
+      suspendedUntil: null,
+    });
   });
 });
 
-describe("in- och utcheckning", () => {
-  it("incheckning öppnar 30 minuter före och stänger vid passets slut", () => {
+describe("incheckning", () => {
+  it("öppnar 30 minuter före och stänger vid passets slut", () => {
     expect(canCheckIn(shift, new Date("2026-11-12T17:29:00Z"))).toBe(false);
     expect(canCheckIn(shift, new Date("2026-11-12T17:30:00Z"))).toBe(true);
     expect(canCheckIn(shift, new Date("2026-11-12T20:01:00Z"))).toBe(false);
-  });
-  it("utcheckning kräver incheckning och går upp till en timme efter", () => {
-    const s = { checked_in_at: "2026-11-12T18:00:00Z", checked_out_at: null };
-    expect(canCheckOut({ ...s, checked_in_at: null }, shift, new Date("2026-11-12T19:00:00Z"))).toBe(false);
-    expect(canCheckOut(s, shift, new Date("2026-11-12T21:00:00Z"))).toBe(true);
-    expect(canCheckOut(s, shift, new Date("2026-11-12T21:01:00Z"))).toBe(false);
-  });
-  it("arbetad tid räknas inom passet och korta pass flaggas", () => {
-    const full = { checked_in_at: "2026-11-12T17:50:00Z", checked_out_at: "2026-11-12T20:10:00Z" };
-    expect(workedMinutes(full, shift)).toBe(120);
-    expect(isShort(full, shift)).toBe(false);
-    const kort = { checked_in_at: "2026-11-12T18:00:00Z", checked_out_at: "2026-11-12T19:00:00Z" };
-    expect(workedMinutes(kort, shift)).toBe(60);
-    expect(isShort(kort, shift)).toBe(true);
-    expect(isShort({ checked_in_at: "2026-11-12T18:00:00Z", checked_out_at: "2026-11-12T19:46:00Z" }, shift)).toBe(false);
   });
 });
 

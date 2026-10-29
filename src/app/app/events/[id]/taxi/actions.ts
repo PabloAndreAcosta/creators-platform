@@ -64,23 +64,21 @@ export async function deleteShift(formData: FormData) {
   page(listingId, "shiftDeleted");
 }
 
-/** Arrangören kan checka in eller ut åt en dansare, t.ex. om telefonen dog. */
+/** Arrangören kan checka in åt en dansare, t.ex. om telefonen dog. */
 export async function organiserCheck(formData: FormData) {
   const listingId = String(formData.get("listingId") ?? "");
   await assertOrganiser(listingId);
   const db = createAdminClient();
   const signupId = String(formData.get("signupId"));
-  const kind = String(formData.get("kind"));
   const { data: s } = await db
     .from("taxi_signups")
-    .select("id, checked_in_at, shift:taxi_shifts!inner(listing_id)")
+    .select("id, shift:taxi_shifts!inner(listing_id)")
     .eq("id", signupId)
     .eq("shift.listing_id", listingId)
     .maybeSingle();
   if (!s) page(listingId, "notFound");
   const now = new Date().toISOString();
-  if (kind === "in") await db.from("taxi_signups").update({ checked_in_at: now }).eq("id", signupId).is("checked_in_at", null);
-  if (kind === "out" && s!.checked_in_at) await db.from("taxi_signups").update({ checked_out_at: now }).eq("id", signupId).is("checked_out_at", null);
+  await db.from("taxi_signups").update({ checked_in_at: now }).eq("id", signupId).is("checked_in_at", null);
   revalidatePath(`/app/events/${listingId}/taxi`);
-  page(listingId, kind === "in" ? "checkedIn" : "checkedOut");
+  page(listingId, "checkedIn");
 }
