@@ -70,6 +70,7 @@
     "shop": "Butik",
     "buddies": "Träningsvänner",
     "volunteerShifts": "Volontärpass",
+    "students": "Elever",
     "work": "Jobba med Usha"
   },
   "pendingTodos": {
@@ -1486,7 +1487,8 @@
       "heading": "Evenemang hos oss",
       "by": "Arrangeras av {name}"
     },
-    "instructorBadge": "Instruktör"
+    "instructorBadge": "Instruktör",
+    "credentialsHeading": "Meriter"
   },
   "dashProfile": {
     "page": {
@@ -1594,6 +1596,9 @@
         "in_person": "På plats",
         "online": "Online"
       },
+      "coachingCredentialsLabel": "Meriter (frivilligt)",
+      "coachingCredentialsPlaceholder": "t.ex. Certifierad PT, GIH 2019 eller Ansvarsförsäkring",
+      "coachingCredentialsHint": "Utbildning, certifikat, försäkring eller erfarenhet. Inget krav, men det hjälper elever att välja.",
       "cancellationTitle": "Avbokningstid",
       "cancellationSubtitle": "Hur sent dina kunder själva får avboka och få pengarna tillbaka. Efter det kan bara du avboka. Gäller både tjänster och evenemang och visas för köparen före köpet.",
       "cancellationAnytime": "Ingen gräns, fram till start",
@@ -2933,6 +2938,8 @@
     "sellDesc": "Allt du säljer, samlat",
     "taxiLabel": "Volontärpass",
     "taxiDesc": "Hjälp till som volontär – fri entré och matkupong",
+    "studentsLabel": "Elever",
+    "studentsDesc": "Dina köpare, klipp kvar och anteckningar",
     "workLabel": "Jobba med Usha",
     "workDesc": "Volontär, instruktör eller uppdrag"
   },
@@ -3885,7 +3892,9 @@
     "errorCheckoutRetry": "Kunde inte starta köpet. Försök igen.",
     "minutesShort": "{minutes} min",
     "loginToBuy": "Logga in för att köpa",
-    "buyMinutes": "Köp {minutes} min · {price} kr"
+    "buyMinutes": "Köp {minutes} min · {price} kr",
+    "hoursShort": "{hours} h",
+    "buyDuration": "Köp {duration} · {price} kr"
   },
   "myPosts": {
     "title": "Mina inlägg",
@@ -4623,6 +4632,7 @@
       "taxi_dancer": "Taxidansare",
       "instructor": "Instruktör",
       "door_host": "Dörrvärd",
+      "cashier": "Kassa",
       "photographer": "Foto & film",
       "helper": "Allmän hjälp"
     },
@@ -4634,7 +4644,11 @@
     "notice_eveningFull": "Kvällen har redan fyra taxidansare. Du kan fortfarande ta andra pass.",
     "notice_shift_taxiCapacity": "Ett taxidansarpass kan ha högst 2 platser.",
     "taxiEveningFullNote": "Kvällen har redan {n} taxidansare – taxidansarpassen är fulla, men andra roller är öppna.",
-    "taxiEveningCount": "Taxidansare i kväll: {n} av högst {max}. Högst 2 per pass."
+    "taxiEveningCount": "Taxidansare i kväll: {n} av högst {max}. Högst 2 per pass.",
+    "rolesLegend": "Roller för passet – kryssa i en eller flera",
+    "capacityFor": "Platser för {role}",
+    "spotsShort": "platser",
+    "roleLabelHint": "Eget namn gäller bara när en roll är vald."
   },
   "instruktorerPage": {
     "meta": {
@@ -4690,7 +4704,27 @@
       "s2": "Slå på Instruktör i profilen och välj din titel: Instruktör, Coach, PT eller något eget.",
       "s3": "Fyll i vad du lär ut, var du finns, språk och timpris. Då syns du här.",
       "s4": "Lägg upp lektioner, kurser eller klippkort och koppla Stripe för att få betalt."
-    }
+    },
+    "credentialsBadge": "{n, plural, one {# merit} other {# meriter}}"
+  },
+  "studentsPage": {
+    "title": "Elever",
+    "subtitle": "{n, plural, one {# person har köpt av dig} other {# personer har köpt av dig}}",
+    "searchPlaceholder": "Sök namn, e-post eller vad de köpt",
+    "search": "Sök",
+    "empty": "Här samlas alla som köper av dig – biljetter, lektioner och klippkort – med en rad per person.",
+    "noMatch": "Ingen matchar sökningen.",
+    "unnamed": "Utan namn",
+    "stats": "{n, plural, one {# köp} other {# köp}} · {kr} kr",
+    "last": "senast {date}",
+    "next": "nästa {date}",
+    "message": "Meddelande",
+    "passLeft": "{title}: {n} kvar",
+    "passExpires": "går ut {date}",
+    "notePlaceholder": "Egen anteckning, t.ex. nivå, mål eller vad ni tränat. Syns bara för dig.",
+    "saveNote": "Spara",
+    "privacyNote": "Anteckningarna är privata och syns aldrig för eleven. Kontaktuppgifter används bara för det köpet gäller. Vill du skriva till många på en gång, gör det till dem som valt att följa dig:",
+    "followersLink": "Följare"
   },
   "work": {
     "metaTitle": "Jobba med Usha – dansa, lär ut, ta uppdrag",

@@ -7,7 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdminById } from "@/lib/admin/check";
 import { loadEvening } from "@/lib/taxi/data";
 import { validateShift } from "@/lib/taxi/rules";
-import { parseRoleLabel, parseVolunteerRole } from "@/lib/taxi/roles";
+import { parseRoleLabel, parseVolunteerRole, type VolunteerRole } from "@/lib/taxi/roles";
 import { isCancelled } from "@/lib/entrance/door-link";
 import { stockholmToday } from "@/lib/time";
 
@@ -29,14 +29,19 @@ const page = (listingId: string, notice: string) => redirect(`/app/events/${list
 export async function createShift(formData: FormData) {
   const listingId = String(formData.get("listingId") ?? "");
   const { user, evening } = await assertOrganiser(listingId);
-  const role = parseVolunteerRole(formData.get("role"));
-  if (!role) page(listingId, "shift_role");
-  const roleLabel = parseRoleLabel(formData.get("roleLabel"));
+  // Flera roller på samma tider i ett svep — taxidansare, värd och kassa får
+  // samma pass. Varje roll har sitt eget antal platser.
+  const roles = [...new Set(formData.getAll("role").map(parseVolunteerRole).filter((r): r is VolunteerRole => !!r))];
+  if (roles.length === 0) page(listingId, "shift_role");
+  // Eget namn gäller bara när ett pass för en enda roll läggs upp.
+  const roleLabel = roles.length === 1 ? parseRoleLabel(formData.get("roleLabel")) : null;
   const startTime = String(formData.get("start") ?? "");
   const endTime = String(formData.get("end") ?? "");
-  const capacity = Number(formData.get("capacity"));
-  const v = validateShift({ eventDate: evening.event_date, startTime, endTime, capacity, role: role! });
-  if (!v.ok) page(listingId, `shift_${v.error}`);
+  const capacityOf = (r: VolunteerRole) => Number(formData.get(`capacity_${r}`) ?? formData.get("capacity"));
+  for (const r of roles) {
+    const v = validateShift({ eventDate: evening.event_date, startTime, endTime, capacity: capacityOf(r), role: r });
+    if (!v.ok) page(listingId, `shift_${v.error}`);
+  }
 
   // Samma pass på seriens alla kommande kvällar, så The Lab inte behöver
   // läggas upp kväll för kväll. Bara kvällens ägares egna, ej inställda
@@ -58,18 +63,21 @@ export async function createShift(formData: FormData) {
 
   const rows = [];
   for (const e of evenings) {
-    const r = validateShift({ eventDate: e.event_date, startTime, endTime, capacity, role: role! });
-    if (!r.ok) continue;
-    const dup = db
-      .from("taxi_shifts")
-      .select("id", { count: "exact", head: true })
-      .eq("listing_id", e.id)
-      .eq("role", role!)
-      .eq("starts_at", r.startsAt)
-      .eq("ends_at", r.endsAt);
-    const { count } = await (roleLabel ? dup.eq("role_label", roleLabel) : dup.is("role_label", null));
-    if ((count ?? 0) > 0) continue;
-    rows.push({ listing_id: e.id, starts_at: r.startsAt, ends_at: r.endsAt, capacity, role: role!, role_label: roleLabel, created_by: user.id });
+    for (const role of roles) {
+      const capacity = capacityOf(role);
+      const r = validateShift({ eventDate: e.event_date, startTime, endTime, capacity, role });
+      if (!r.ok) continue;
+      const dup = db
+        .from("taxi_shifts")
+        .select("id", { count: "exact", head: true })
+        .eq("listing_id", e.id)
+        .eq("role", role)
+        .eq("starts_at", r.startsAt)
+        .eq("ends_at", r.endsAt);
+      const { count } = await (roleLabel ? dup.eq("role_label", roleLabel) : dup.is("role_label", null));
+      if ((count ?? 0) > 0) continue;
+      rows.push({ listing_id: e.id, starts_at: r.startsAt, ends_at: r.endsAt, capacity, role, role_label: roleLabel, created_by: user.id });
+    }
   }
   if (rows.length > 0) {
     const { error } = await db.from("taxi_shifts").insert(rows);

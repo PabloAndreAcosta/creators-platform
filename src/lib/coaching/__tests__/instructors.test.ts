@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { matchesInstructor, parseCoachingFormats, parseCoachingTitle, type InstructorRow } from "../instructors";
+import { matchesInstructor, parseCoachingCredentials, parseCoachingFormats, parseCoachingTitle, type InstructorRow } from "../instructors";
 
 const row = (over: Partial<InstructorRow> = {}): InstructorRow => ({
   id: "1",
@@ -50,5 +50,16 @@ describe("matchesInstructor", () => {
   it("utan angivet format visas instruktören för båda", () => {
     expect(matchesInstructor(row(), { format: "online" })).toBe(false);
     expect(matchesInstructor(row({ coaching_formats: null }), { format: "online" })).toBe(true);
+  });
+});
+
+describe("parseCoachingCredentials", () => {
+  it("trimmar, tar bort tomma och dubbletter, max tio", () => {
+    expect(parseCoachingCredentials([" Certifierad PT ", "", "Certifierad PT", 3, "Ansvarsförsäkring"])).toEqual([
+      "Certifierad PT",
+      "Ansvarsförsäkring",
+    ]);
+    expect(parseCoachingCredentials(Array.from({ length: 15 }, (_, i) => `M${i}`))).toHaveLength(10);
+    expect(parseCoachingCredentials("inte en lista")).toEqual([]);
   });
 });

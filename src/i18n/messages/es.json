@@ -70,6 +70,7 @@
     "shop": "Tienda",
     "buddies": "Compañeros",
     "volunteerShifts": "Turnos de voluntarios",
+    "students": "Alumnos",
     "work": "Trabaja con Usha"
   },
   "pendingTodos": {
@@ -1486,7 +1487,8 @@
       "heading": "Eventos en nuestro local",
       "by": "Organizado por {name}"
     },
-    "instructorBadge": "Instructor"
+    "instructorBadge": "Instructor",
+    "credentialsHeading": "Méritos"
   },
   "dashProfile": {
     "page": {
@@ -1594,6 +1596,9 @@
         "in_person": "Presencial",
         "online": "En línea"
       },
+      "coachingCredentialsLabel": "Méritos (opcional)",
+      "coachingCredentialsPlaceholder": "p. ej. Entrenador personal certificado, 2019 o Seguro de responsabilidad",
+      "coachingCredentialsHint": "Formación, certificados, seguro o experiencia. No es obligatorio, pero ayuda a los alumnos a elegir.",
       "cancellationTitle": "Plazo de cancelación",
       "cancellationSubtitle": "Hasta cuándo tus clientes pueden cancelar y recuperar su dinero. Después solo tú puedes cancelar. Se aplica a servicios y eventos y se muestra antes de la compra.",
       "cancellationAnytime": "Sin límite, hasta el inicio",
@@ -2933,6 +2938,8 @@
     "sellDesc": "Todo lo que vendes, en un sitio",
     "taxiLabel": "Turnos de voluntariado",
     "taxiDesc": "Ayuda como voluntario: entrada gratis y vale de comida",
+    "studentsLabel": "Alumnos",
+    "studentsDesc": "Tus compradores, clases restantes y notas",
     "workLabel": "Trabaja con Usha",
     "workDesc": "Voluntario, instructor o encargos"
   },
@@ -3885,7 +3892,9 @@
     "errorCheckoutRetry": "No se pudo iniciar la compra. Inténtalo de nuevo.",
     "minutesShort": "{minutes} min",
     "loginToBuy": "Inicia sesión para comprar",
-    "buyMinutes": "Comprar {minutes} min · {price} kr"
+    "buyMinutes": "Comprar {minutes} min · {price} kr",
+    "hoursShort": "{hours} h",
+    "buyDuration": "Comprar {duration} · {price} kr"
   },
   "myPosts": {
     "title": "Mis publicaciones",
@@ -4623,6 +4632,7 @@
       "taxi_dancer": "Taxi dancer",
       "instructor": "Instructor",
       "door_host": "Anfitrión de puerta",
+      "cashier": "Caja",
       "photographer": "Foto y vídeo",
       "helper": "Ayuda general"
     },
@@ -4634,7 +4644,11 @@
     "notice_eveningFull": "La noche ya tiene cuatro taxi dancers. Aún puedes coger otros turnos.",
     "notice_shift_taxiCapacity": "Un turno de taxi dancer puede tener como máximo 2 plazas.",
     "taxiEveningFullNote": "La noche ya tiene {n} taxi dancers: esos turnos están llenos, pero otros roles siguen abiertos.",
-    "taxiEveningCount": "Taxi dancers esta noche: {n} de un máximo de {max}. Máximo 2 por turno."
+    "taxiEveningCount": "Taxi dancers esta noche: {n} de un máximo de {max}. Máximo 2 por turno.",
+    "rolesLegend": "Roles del turno: marca uno o varios",
+    "capacityFor": "Plazas para {role}",
+    "spotsShort": "plazas",
+    "roleLabelHint": "El nombre propio solo se aplica si eliges un rol."
   },
   "instruktorerPage": {
     "meta": {
@@ -4690,7 +4704,27 @@
       "s2": "Activa Instructor en tu perfil y elige tu título: Instructor, Coach, PT o el tuyo propio.",
       "s3": "Indica qué enseñas, dónde estás, idiomas y tarifa por hora. Así apareces aquí.",
       "s4": "Publica clases, cursos o bonos y conecta Stripe para cobrar."
-    }
+    },
+    "credentialsBadge": "{n, plural, one {# mérito} other {# méritos}}"
+  },
+  "studentsPage": {
+    "title": "Alumnos",
+    "subtitle": "{n, plural, one {# persona te ha comprado} other {# personas te han comprado}}",
+    "searchPlaceholder": "Busca nombre, correo o lo que compraron",
+    "search": "Buscar",
+    "empty": "Aquí se reúnen todos los que te compran – entradas, clases y bonos – una fila por persona.",
+    "noMatch": "Nadie coincide con la búsqueda.",
+    "unnamed": "Sin nombre",
+    "stats": "{n, plural, one {# compra} other {# compras}} · {kr} SEK",
+    "last": "última {date}",
+    "next": "próxima {date}",
+    "message": "Mensaje",
+    "passLeft": "{title}: quedan {n}",
+    "passExpires": "caduca {date}",
+    "notePlaceholder": "Nota privada, p. ej. nivel, objetivos o lo que habéis trabajado. Solo tú la ves.",
+    "saveNote": "Guardar",
+    "privacyNote": "Las notas son privadas y el alumno nunca las ve. Los datos de contacto son solo para lo relacionado con la compra. Para escribir a muchos a la vez, escribe a quienes eligieron seguirte:",
+    "followersLink": "Seguidores"
   },
   "work": {
     "metaTitle": "Trabaja con Usha – baila, enseña, acepta encargos",

@@ -104,6 +104,11 @@ export const APP_DESTINATIONS: AppDestination[] = [
   // Skriv till dem som följer dig. Utskicket fanns bara per kväll, vilket är
   // bakvänt: följaren har sagt ja till avsändaren, väntelistan bara till en
   // kväll. Rutten var byggd men saknade väg in.
+  // Elevregistret: alla som köpt av mig, per person, med klipp kvar och egna
+  // anteckningar. Instruktörens verktyg, men lika användbart för en venue.
+  { path: "/app/students", labelKey: "studentsLabel", descKey: "studentsDesc",
+    navLabelKey: "students", icon: Users,
+    group: "createSell", roles: ["creator", "venue"], surfaces: ["more", "sidebar"] },
   { path: "/app/followers", labelKey: "followersLabel", descKey: "followersDesc",
     navLabelKey: "followers", icon: Mail,
     group: "createSell", roles: ["creator", "venue"], surfaces: ["more", "sidebar"] },

@@ -3,7 +3,7 @@
  * varningar, matkupong) är desamma för alla. Speglar CHECK-villkoret på
  * taxi_shifts.role — en ny roll läggs till på båda ställena.
  */
-export const VOLUNTEER_ROLES = ["taxi_dancer", "instructor", "door_host", "photographer", "helper"] as const;
+export const VOLUNTEER_ROLES = ["taxi_dancer", "instructor", "door_host", "cashier", "photographer", "helper"] as const;
 export type VolunteerRole = (typeof VOLUNTEER_ROLES)[number];
 
 export function parseVolunteerRole(value: unknown): VolunteerRole | null {
@@ -26,3 +26,13 @@ export function shiftRoleName(
 ): string {
   return shift.role_label || t(`roles.${shift.role}`);
 }
+
+/** Platser som föreslås per roll i formuläret. Taxidansare har ett eget tak (2). */
+export const DEFAULT_CAPACITY: Record<VolunteerRole, number> = {
+  taxi_dancer: 2,
+  instructor: 2,
+  door_host: 1,
+  cashier: 1,
+  photographer: 1,
+  helper: 2,
+};
