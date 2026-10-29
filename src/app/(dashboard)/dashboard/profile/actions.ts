@@ -3,7 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { BETA_MODE } from "@/lib/beta";
-import { parseCoachingFormats, parseCoachingTitle } from "@/lib/coaching/instructors";
+import { parseCoachingCredentials, parseCoachingFormats, parseCoachingTitle } from "@/lib/coaching/instructors";
 
 const VALID_CATEGORIES = ["dance", "music", "performance", "photo", "video", "design", "yoga", "fitness", "other"] as const;
 
@@ -159,6 +159,8 @@ export async function updateProfile(formData: FormData) {
       coaching_hourly_rate_sek: offersCoaching ? coachingHourlyRate : null,
       coaching_specialties: offersCoaching && coaching_specialties.length ? coaching_specialties : null,
       coaching_bio: offersCoaching ? coachingBio : null,
+      // Meriterande, inget krav.
+      coaching_credentials: offersCoaching ? parseCoachingCredentials(parseList("coaching_credentials")) : null,
     };
   }
 

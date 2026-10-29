@@ -1483,7 +1483,8 @@
       "heading": "Events at our place",
       "by": "Hosted by {name}"
     },
-    "instructorBadge": "Instructor"
+    "instructorBadge": "Instructor",
+    "credentialsHeading": "Credentials"
   },
   "dashProfile": {
     "page": {
@@ -1590,7 +1591,10 @@
       "coachingFormats": {
         "in_person": "In person",
         "online": "Online"
-      }
+      },
+      "coachingCredentialsLabel": "Credentials (optional)",
+      "coachingCredentialsPlaceholder": "e.g. Certified PT, 2019 or Liability insurance",
+      "coachingCredentialsHint": "Education, certificates, insurance or experience. Not required, but it helps students choose."
     },
     "bankid": {
       "verifiedTitle": "Identity verified with BankID",
@@ -4676,6 +4680,7 @@
       "s2": "Turn on Instructor in your profile and choose your title: Instructor, Coach, PT or your own.",
       "s3": "Add what you teach, where you are, languages and hourly rate. Then you show up here.",
       "s4": "Post lessons, courses or passes and connect Stripe to get paid."
-    }
+    },
+    "credentialsBadge": "{n, plural, one {# credential} other {# credentials}}"
   }
 }

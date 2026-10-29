@@ -1483,7 +1483,8 @@
       "heading": "Evenemang hos oss",
       "by": "Arrangeras av {name}"
     },
-    "instructorBadge": "Instruktör"
+    "instructorBadge": "Instruktör",
+    "credentialsHeading": "Meriter"
   },
   "dashProfile": {
     "page": {
@@ -1590,7 +1591,10 @@
       "coachingFormats": {
         "in_person": "På plats",
         "online": "Online"
-      }
+      },
+      "coachingCredentialsLabel": "Meriter (frivilligt)",
+      "coachingCredentialsPlaceholder": "t.ex. Certifierad PT, GIH 2019 eller Ansvarsförsäkring",
+      "coachingCredentialsHint": "Utbildning, certifikat, försäkring eller erfarenhet. Inget krav, men det hjälper elever att välja."
     },
     "bankid": {
       "verifiedTitle": "Identitet verifierad med BankID",
@@ -4676,6 +4680,7 @@
       "s2": "Slå på Instruktör i profilen och välj din titel: Instruktör, Coach, PT eller något eget.",
       "s3": "Fyll i vad du lär ut, var du finns, språk och timpris. Då syns du här.",
       "s4": "Lägg upp lektioner, kurser eller klippkort och koppla Stripe för att få betalt."
-    }
+    },
+    "credentialsBadge": "{n, plural, one {# merit} other {# meriter}}"
   }
 }

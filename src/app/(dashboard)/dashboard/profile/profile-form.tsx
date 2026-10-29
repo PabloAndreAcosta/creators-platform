@@ -46,6 +46,7 @@ interface Profile {
   coaching_bio?: string | null;
   coaching_title?: string | null;
   coaching_formats?: string[] | null;
+  coaching_credentials?: string[] | null;
   // Legacy fields (backward compat during migration)
   category?: string | null;
   location?: string | null;
@@ -97,6 +98,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
   const isCreatorRole = !isCustomer && profile.role === "creator";
   const [coachingTitle, setCoachingTitle] = useState<string>(profile.coaching_title ?? "");
   const [coachingFormats, setCoachingFormats] = useState<string[]>(profile.coaching_formats ?? []);
+  const [coachingCredentials, setCoachingCredentials] = useState<string[]>(profile.coaching_credentials ?? []);
 
   function toggleCategory(value: string) {
     setSelectedCategories((prev) => {
@@ -206,6 +208,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
       formData.set("dance_languages", JSON.stringify(danceLanguages));
       formData.set("coaching_specialties", JSON.stringify(coachingSpecialties));
       formData.set("coaching_formats", JSON.stringify(coachingFormats));
+      formData.set("coaching_credentials", JSON.stringify(coachingCredentials));
     }
 
     startTransition(async () => {
@@ -856,6 +859,15 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
                 values={coachingSpecialties}
                 onChange={setCoachingSpecialties}
               />
+
+              <TagInput
+                label={t("coachingCredentialsLabel")}
+                placeholder={t("coachingCredentialsPlaceholder")}
+                removeLabel={t("removeAria")}
+                values={coachingCredentials}
+                onChange={(v) => setCoachingCredentials(v.slice(0, 10))}
+              />
+              <p className="-mt-2 text-xs text-[var(--usha-muted)]">{t("coachingCredentialsHint")}</p>
 
               <TagInput
                 label={t("danceLanguagesLabel")}
