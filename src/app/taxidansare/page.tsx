@@ -183,7 +183,7 @@ export default async function TaxiDancerLandingPage() {
 
         <div className="mt-10 text-center">
           <Link
-            href="/signup"
+            href="/taxi"
             className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-8 py-3 text-sm font-bold text-black transition hover:opacity-90"
           >
             {t("dancers.cta")}
@@ -198,10 +198,6 @@ export default async function TaxiDancerLandingPage() {
           <p>{t("positioning.body")}</p>
           <p className="mt-3">
             {t("positioning.readMore")}{" "}
-            <Link href="/refund-policy" className="text-[var(--usha-gold)] hover:underline">
-              {t("positioning.refundPolicy")}
-            </Link>{" "}
-            ·{" "}
             <Link href="/terms" className="text-[var(--usha-gold)] hover:underline">
               {t("positioning.terms")}
             </Link>
