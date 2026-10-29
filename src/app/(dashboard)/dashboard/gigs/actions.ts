@@ -30,7 +30,7 @@ export async function createGig(formData: FormData) {
   if ("error" in ctx) return { error: ctx.error };
 
   if (ctx.role !== "venue") {
-    return { error: "Endast arrangörer kan skapa gigs." };
+    return { error: "Endast lokaler och arrangörer kan lägga ut uppdrag." };
   }
 
   const title = (formData.get("title") as string)?.trim();
@@ -61,7 +61,7 @@ export async function createGig(formData: FormData) {
     perks,
   });
 
-  if (error) return { error: "Kunde inte skapa gig: " + error.message };
+  if (error) return { error: "Kunde inte skapa uppdraget: " + error.message };
 
   revalidatePath("/dashboard/gigs");
   revalidatePath("/app/gigs");
@@ -78,7 +78,7 @@ export async function closeGig(gigId: string) {
     .eq("id", gigId)
     .eq("arranger_id", ctx.user.id);
 
-  if (error) return { error: "Kunde inte stänga gig" };
+  if (error) return { error: "Kunde inte stänga uppdraget" };
   revalidatePath("/dashboard/gigs");
   return { success: true };
 }
@@ -99,9 +99,9 @@ export async function applyToGig(gigId: string, message: string) {
     .eq("id", gigId)
     .single();
 
-  if (!gig) return { error: "Giget hittades inte" };
+  if (!gig) return { error: "Uppdraget hittades inte" };
   if ((gig as { status?: string }).status !== "open") {
-    return { error: "Giget är inte öppet för ansökningar längre" };
+    return { error: "Uppdraget är inte öppet för ansökningar längre" };
   }
 
   const { error } = await ctx.supabase.from("gig_applications").insert({
@@ -111,7 +111,7 @@ export async function applyToGig(gigId: string, message: string) {
   });
 
   if (error) {
-    if (error.code === "23505") return { error: "Du har redan ansökt till detta gig" };
+    if (error.code === "23505") return { error: "Du har redan ansökt till det här uppdraget" };
     return { error: "Kunde inte skicka ansökan: " + error.message };
   }
 
@@ -177,13 +177,13 @@ export async function acceptApplication(applicationId: string) {
   };
 
   if (app.gigs.arranger_id !== ctx.user.id) {
-    return { error: "Inte din gig" };
+    return { error: "Det här är inte ditt uppdrag" };
   }
   if (app.status !== "pending") {
     return { error: "Ansökan kan inte längre accepteras" };
   }
   if (app.gigs.status !== "open") {
-    return { error: "Giget är inte längre öppet" };
+    return { error: "Uppdraget är inte längre öppet" };
   }
 
   // Create a synthetic listing for the booking — we need a listing_id since
@@ -268,7 +268,7 @@ export async function declineApplication(applicationId: string) {
 
   if (!app) return { error: "Ansökan hittades inte" };
   const arrangerId = (app as unknown as { gigs: { arranger_id: string } }).gigs.arranger_id;
-  if (arrangerId !== ctx.user.id) return { error: "Inte din gig" };
+  if (arrangerId !== ctx.user.id) return { error: "Det här är inte ditt uppdrag" };
 
   const { error } = await ctx.supabase
     .from("gig_applications")
