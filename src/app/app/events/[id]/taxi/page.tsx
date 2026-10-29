@@ -4,11 +4,12 @@ import { getTranslations } from "next-intl/server";
 import { ChevronLeft, HeartHandshake } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { DEFAULT_VOUCHER_MAX_ORE, voucherScopeId } from "@/lib/taxi/voucher";
 import { isAdminById } from "@/lib/admin/check";
 import { loadEvening, loadShifts, loadStrikeFacts } from "@/lib/taxi/data";
 import { isStrike, strikeStatus, TAXI_WINDOW, STRIKE_LIMIT, type StrikeStatus, TAXI_MAX_PER_EVENING } from "@/lib/taxi/rules";
 import { DEFAULT_CAPACITY, ROLE_LABEL_MAX, VOLUNTEER_ROLES, shiftRoleName } from "@/lib/taxi/roles";
-import { createShift, deleteShift, organiserCheck } from "./actions";
+import { createShift, deleteShift, organiserCheck, setVoucherSettings } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -47,7 +48,7 @@ export default async function EventTaxiPage(props: {
           .in("shift_id", shiftIds)
           .order("created_at")
       : Promise.resolve({ data: [] as never[] }),
-    db.from("taxi_vouchers").select("dancer_id, redeemed_at").eq("listing_id", id),
+    db.from("taxi_vouchers").select("dancer_id, redeemed_at, amount_ore").eq("listing_id", id),
   ]);
   const dancerIds = [...new Set((signups ?? []).map((s) => s.dancer_id))];
   const { data: profiles } = dancerIds.length
@@ -55,6 +56,12 @@ export default async function EventTaxiPage(props: {
     : { data: [] as { id: string; full_name: string | null }[] };
   const nameOf = new Map((profiles ?? []).map((p) => [p.id, p.full_name || "–"]));
   const voucherOf = new Map((vouchers ?? []).map((v) => [v.dancer_id, v.redeemed_at]));
+  const { data: voucherSettings } = await db
+    .from("volunteer_voucher_settings")
+    .select("code, max_ore")
+    .eq("scope_id", voucherScopeId(evening))
+    .maybeSingle();
+  const voucherTotalOre = (vouchers ?? []).reduce((a, v) => a + (v.amount_ore ?? 0), 0);
   const now = new Date();
   const strikesOf = new Map<string, StrikeStatus>();
   await Promise.all(
@@ -62,7 +69,7 @@ export default async function EventTaxiPage(props: {
   );
 
   const notices = [
-    "shiftCreated", "shiftsCreatedSeries", "shiftExists", "shift_role", "shift_taxiCapacity", "shiftDeleted", "shiftHasSignups", "checkedIn", "notFound",
+    "shiftCreated", "shiftsCreatedSeries", "shiftExists", "shift_role", "shift_taxiCapacity", "voucherSaved", "voucherCodeInvalid", "voucherMaxInvalid", "shiftDeleted", "shiftHasSignups", "checkedIn", "notFound",
     "shift_time", "shift_window", "shift_length", "shift_capacity",
   ];
   const btn = "rounded-lg px-2.5 py-1 text-xs font-semibold";
@@ -103,6 +110,29 @@ export default async function EventTaxiPage(props: {
           {t("shareLink")} <span className="font-mono text-[var(--usha-white)]">usha.se/app/taxi/{id}</span>
         </p>
       </div>
+
+      {/* Matkupongen: restaurangkoden och taket, och kvällens summa att stämma
+          av mot restaurangens nota. */}
+      <section className="mt-6 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 text-sm">
+        <p className="font-semibold">{t("voucherOrgTitle")}</p>
+        <p className="mt-1 text-xs text-[var(--usha-muted)]">{t("voucherOrgBody")}</p>
+        <form action={setVoucherSettings} className="mt-3 flex flex-wrap items-end gap-3">
+          <input type="hidden" name="listingId" value={id} />
+          <label className="flex flex-col gap-1">
+            {t("voucherOrgCode")}
+            <input name="code" inputMode="numeric" pattern="[0-9]{4,6}" required defaultValue={voucherSettings?.code ?? ""} className={`${input} w-28 font-mono`} />
+          </label>
+          <label className="flex flex-col gap-1">
+            {t("voucherOrgMax")}
+            <input name="maxKr" inputMode="decimal" required defaultValue={Math.round((voucherSettings?.max_ore ?? DEFAULT_VOUCHER_MAX_ORE) / 100)} className={`${input} w-24`} />
+          </label>
+          <button className="rounded-lg border border-[var(--usha-border)] px-4 py-2 text-xs font-semibold hover:border-[var(--usha-gold)]/40">{t("voucherOrgSave")}</button>
+        </form>
+        {!voucherSettings && <p className="mt-2 text-xs text-red-400">{t("voucherOrgMissing")}</p>}
+        <p className="mt-3 text-xs">
+          {t("voucherOrgSummary", { n: (vouchers ?? []).length, total: Math.round(voucherTotalOre / 100) })}
+        </p>
+      </section>
 
       <form action={createShift} className="mt-6 flex flex-wrap items-end gap-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 text-sm">
         <input type="hidden" name="listingId" value={id} />

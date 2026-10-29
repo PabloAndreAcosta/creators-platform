@@ -10,6 +10,7 @@ import { validateShift } from "@/lib/taxi/rules";
 import { parseRoleLabel, parseVolunteerRole, type VolunteerRole } from "@/lib/taxi/roles";
 import { isCancelled } from "@/lib/entrance/door-link";
 import { stockholmToday } from "@/lib/time";
+import { isValidVoucherCode, voucherScopeId } from "@/lib/taxi/voucher";
 
 /** Arrangören (kvällens ägare) eller hel admin. */
 async function assertOrganiser(listingId: string) {
@@ -122,4 +123,23 @@ export async function organiserCheck(formData: FormData) {
   await db.from("taxi_signups").update({ checked_in_at: now }).eq("id", signupId).is("checked_in_at", null);
   revalidatePath(`/app/events/${listingId}/taxi`);
   page(listingId, "checkedIn");
+}
+
+/** Restaurangkoden och taket för matkupongen. Gäller hela serien. */
+export async function setVoucherSettings(formData: FormData) {
+  const listingId = String(formData.get("listingId") ?? "");
+  const { user, evening } = await assertOrganiser(listingId);
+  const code = String(formData.get("code") ?? "").trim();
+  if (!isValidVoucherCode(code)) page(listingId, "voucherCodeInvalid");
+  const maxKr = Number(String(formData.get("maxKr") ?? "").replace(",", "."));
+  if (!Number.isFinite(maxKr) || maxKr < 1 || maxKr > 1000) page(listingId, "voucherMaxInvalid");
+  const { error } = await createAdminClient()
+    .from("volunteer_voucher_settings")
+    .upsert(
+      { scope_id: voucherScopeId(evening), code, max_ore: Math.round(maxKr * 100), updated_by: user.id, updated_at: new Date().toISOString() },
+      { onConflict: "scope_id" },
+    );
+  if (error) throw error;
+  revalidatePath(`/app/events/${listingId}/taxi`);
+  page(listingId, "voucherSaved");
 }

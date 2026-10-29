@@ -1,6 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { rateLimit } from "@/lib/rate-limit";
+import { codesMatch, parseVoucherAmount, voucherScopeId } from "@/lib/taxi/voucher";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -160,14 +162,32 @@ export async function checkIn(formData: FormData) {
 }
 
 /**
- * Matkupongen löses in i baren: dansaren visar skärmen, personalen trycker.
- * En per kväll, och bara för den som checkat in på något pass den kvällen.
+ * Matkupongen löses in av restaurangen: personalen slår in beloppet (högst
+ * taket) och restaurangkoden på volontärens telefon. Utan rätt kod går det
+ * inte — annars kunde vem som helst trycka. En kupong per kväll, och bara
+ * för den som checkat in på något pass den kvällen.
  */
 export async function redeemVoucher(formData: FormData) {
   const listingId = String(formData.get("listingId") ?? "");
   const user = await viewer();
   if (!user) redirect("/login");
+  const evening = await loadEvening(listingId);
+  if (!evening) back(listingId, "notFound");
+
+  // Fyrsiffriga koder går att gissa; några försök per volontär och kväll.
+  if (!rateLimit(`voucher:${user.id}:${listingId}`, 5, 10 * 60_000).allowed) back(listingId, "voucherTooManyTries");
+
   const db = createAdminClient();
+  const { data: settings } = await db
+    .from("volunteer_voucher_settings")
+    .select("code, max_ore")
+    .eq("scope_id", voucherScopeId(evening!))
+    .maybeSingle();
+  if (!settings) back(listingId, "voucherNoCode");
+  if (!codesMatch(String(formData.get("code") ?? ""), settings!.code)) back(listingId, "voucherWrongCode");
+  const amountOre = parseVoucherAmount(String(formData.get("amount") ?? ""), settings!.max_ore);
+  if (amountOre === null) back(listingId, "voucherBadAmount");
+
   const { data: checkedIn } = await db
     .from("taxi_signups")
     .select("id, shift:taxi_shifts!inner(listing_id)")
@@ -176,7 +196,7 @@ export async function redeemVoucher(formData: FormData) {
     .not("checked_in_at", "is", null)
     .limit(1);
   if (!checkedIn?.length) back(listingId, "voucherNeedsCheckIn");
-  const { error } = await db.from("taxi_vouchers").insert({ listing_id: listingId, dancer_id: user.id });
+  const { error } = await db.from("taxi_vouchers").insert({ listing_id: listingId, dancer_id: user.id, amount_ore: amountOre });
   if (error && error.code !== "23505") throw error;
   revalidatePath(`/app/taxi/${listingId}`);
   back(listingId, "voucherRedeemed");
