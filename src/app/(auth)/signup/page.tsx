@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import UschjaLogo from "@/components/UschjaLogo";
 import { useLocale, useTranslations } from "next-intl";
 import { authUrlWithNext, callbackUrlWithNext } from "@/lib/auth/next-path";
 import { createClient } from "@/lib/supabase/client";
@@ -51,6 +52,16 @@ function FieldError({ message }: { message: string }) {
  */
 function WelcomeCredit() {
   const t = useTranslations("auth");
+  // Rutan lovar 50 kr. Den visas bara när avdraget faktiskt delas ut —
+  // samma app_config-värde som triggern läser (lib/credits/flag.ts).
+  const [enabled, setEnabled] = useState(false);
+  useEffect(() => {
+    fetch("/api/config/signup-credit")
+      .then((r) => r.json())
+      .then((d) => setEnabled(d?.enabled === true))
+      .catch(() => setEnabled(false));
+  }, []);
+  if (!enabled) return null;
   return (
     <div className="mb-6 flex items-start gap-3 rounded-xl border border-[var(--usha-gold)]/30 bg-[var(--usha-gold)]/5 px-4 py-3 text-left">
       <Gift size={18} className="mt-0.5 shrink-0 text-[var(--usha-gold)]" />
@@ -105,15 +116,6 @@ export default function SignupPage() {
     { value: "venue", label: t("roleExperience"), description: t("roleExperienceDesc"), icon: Store },
     { value: "customer", label: t("roleCustomer"), description: t("roleCustomerDesc"), icon: Search },
   ];
-
-  // Vad rollen faktiskt kostar, per roll. Speglar COMMISSION_RATES och
-  // lib/stripe/config.ts — publik- och venue-nivåerna är avvecklade, så för
-  // dem finns ingenting att teckna alls.
-  const TAGLINE: Record<Role, string> = {
-    creator: "signupTaglineCreator",
-    venue: "signupTaglineVenue",
-    customer: "signupTaglineCustomer",
-  };
 
   const BANKID_ERRORS: Record<string, string> = {
     failed: t("bankidFailed"),
@@ -388,8 +390,8 @@ export default function SignupPage() {
       <div className="flex min-h-screen items-center justify-center px-6">
         <div className="w-full max-w-md">
           <div className="mb-8 text-center">
-            <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
-              <span className="text-lg font-bold text-black">U</span>
+            <div className="mx-auto mb-4 flex justify-center">
+              <UschjaLogo size={56} />
             </div>
             <h1 className="text-2xl font-bold">{t("chooseRole")}</h1>
             <p className="mt-1 text-sm text-[var(--usha-muted)]">{t("howToUse")}</p>
@@ -432,8 +434,8 @@ export default function SignupPage() {
       <div className="flex min-h-screen items-center justify-center px-6">
         <div className="w-full max-w-md">
           <div className="mb-8 text-center">
-            <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
-              <span className="text-lg font-bold text-black">U</span>
+            <div className="mx-auto mb-4 flex justify-center">
+              <UschjaLogo size={56} />
             </div>
             <h1 className="text-2xl font-bold">{t("chooseSubcategory")}</h1>
           </div>
@@ -488,8 +490,8 @@ export default function SignupPage() {
       <div className="flex min-h-screen items-center justify-center px-6">
         <div className="w-full max-w-md">
           <div className="mb-8 text-center">
-            <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
-              <span className="text-lg font-bold text-black">U</span>
+            <div className="mx-auto mb-4 flex justify-center">
+              <UschjaLogo size={56} />
             </div>
             <h1 className="text-2xl font-bold">{t("chooseBusinessType")}</h1>
           </div>
@@ -605,18 +607,10 @@ export default function SignupPage() {
     <div className="flex min-h-screen items-center justify-center px-6">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">
-            <span className="text-lg font-bold text-black">U</span>
+          <div className="mx-auto mb-4 flex justify-center">
+            <UschjaLogo size={56} />
           </div>
           <h1 className="text-2xl font-bold">{t("createAccount")}</h1>
-          <p className="mt-1 text-sm text-[var(--usha-muted)]">
-            {/* Här stod "14 dagars gratis provperiod". Ingen provperiod sätts
-                någonstans i koden — gratisnivån är permanent och kostar noll,
-                för alla tre rollerna. Texten skrämde alltså en ny kreatör med
-                en faktura som aldrig kommer. Nu säger den vad rollen faktiskt
-                betalar. */}
-            {t(TAGLINE[selectedRole ?? "creator"], { role: ROLES.find((r) => r.value === selectedRole)?.label ?? "" })}
-          </p>
           {bankidVerified && (
             <p className="mt-1 flex items-center justify-center gap-1 text-xs text-green-400">
               <ShieldCheck size={12} /> {t("identityVerified")}

@@ -45,6 +45,8 @@ interface Props {
   preselectTicketTypeId?: string | null;
   /** Köparens outnyttjade välkomstavdrag i öre. 0 = inget att visa. */
   creditOre?: number;
+  /** Delas välkomstavdraget ut till nya konton just nu? Styr löftet till utloggade. */
+  signupCreditEnabled?: boolean;
   /**
    * Prisrubriken ovanför väljaren. Den renderades tidigare av sidan, på
    * servern, och kunde därför bara visa grundpriset — valde man Workshop för
@@ -70,7 +72,7 @@ function soldOut(tt: TicketType) {
   return tt.capacity != null && tt.tickets_sold >= tt.capacity;
 }
 
-export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], passes = [], header, preselectTicketTypeId, creditOre = 0 }: Props) {
+export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], passes = [], header, preselectTicketTypeId, creditOre = 0, signupCreditEnabled = false }: Props) {
   const { toast } = useToast();
   const t = useTranslations("eventPage");
   const pathname = usePathname();
@@ -123,7 +125,7 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
   const totalAfterCredit = total - credit / 100;
   // Välkomstavdraget nämns bara när det faktiskt skulle gälla. Ett löfte om
   // 50 kr på en 120-kronorsbiljett vore en lögn — gränsen ligger på 150.
-  const qualifiesForSignupCredit = total * 100 >= SIGNUP_CREDIT_MIN_SPEND_ORE;
+  const qualifiesForSignupCredit = signupCreditEnabled && total * 100 >= SIGNUP_CREDIT_MIN_SPEND_ORE;
   const label = selectedPass
     ? t("buyPass", { price: credit > 0 ? totalAfterCredit : total })
     : isFree

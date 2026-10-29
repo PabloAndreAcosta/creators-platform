@@ -22,6 +22,7 @@ import { safeJsonLd } from "@/lib/json-ld";
 import { pickMessages, PUBLIC_NAMESPACES } from "@/lib/i18n/client-namespaces";
 import { stockholmEventISO } from "@/lib/time";
 import { loadShifts } from "@/lib/taxi/data";
+import { getSignupCreditEnabled } from "@/lib/credits/flag";
 import { getTranslations, getLocale, getMessages } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
 import { SocialShareButton } from "@/components/social-share-button";
@@ -532,6 +533,7 @@ export default async function EventPage(props: Params) {
     sale.state === "before" && saleUntil ? t("releasesAt", { date: saleUntil }) :
     sale.state === "sold_out" && saleUntil ? t("releasesAt", { date: saleUntil }) : null;
   const isHost = !!user && user.id === listing.user_id;
+  const signupCreditEnabled = await getSignupCreditEnabled();
   const returnPath = `/event/${slug}`;
 
   // Volontärpass för kvällen (taxidansare, instruktörer m.fl.). Visas för
@@ -957,6 +959,7 @@ export default async function EventPage(props: Params) {
                   passes={passesForSale}
                   preselectTicketTypeId={preselectTicketTypeId}
                   creditOre={signupCreditOre}
+                  signupCreditEnabled={signupCreditEnabled}
                   header={{
                     badge: saleBadge ?? t("ticket"),
                     listPrice: listing.price ?? null,
