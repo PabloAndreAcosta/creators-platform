@@ -7,6 +7,7 @@ import { Footer } from "@/components/landing/footer";
 import { createClient } from "@/lib/supabase/server";
 import { loadUpcomingEvenings } from "@/lib/taxi/data";
 import { stockholmToday } from "@/lib/time";
+import { shiftRoleName } from "@/lib/taxi/roles";
 
 export const dynamic = "force-dynamic";
 
@@ -107,7 +108,7 @@ export default async function TaxiLandingPage() {
                   <p className="text-sm text-[var(--usha-muted)]">{e.event_date}</p>
                   <p className="mt-2 text-xs text-[var(--usha-muted)]">
                     {e.shifts
-                      .map((s) => `${t(`roles.${s.role}`)} ${time(s.starts_at)}–${time(s.ends_at)} (${t("spotsLeft", { n: Math.max(0, s.capacity - s.booked) })})`)
+                      .map((s) => `${shiftRoleName(s, t)} ${time(s.starts_at)}–${time(s.ends_at)} (${t("spotsLeft", { n: Math.max(0, s.capacity - s.booked) })})`)
                       .join(" · ")}
                   </p>
                 </Link>

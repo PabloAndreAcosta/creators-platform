@@ -7,7 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdminById } from "@/lib/admin/check";
 import { loadEvening, loadShifts, loadStrikeFacts } from "@/lib/taxi/data";
 import { isStrike, strikeStatus, TAXI_WINDOW, STRIKE_LIMIT, type StrikeStatus, TAXI_MAX_PER_EVENING } from "@/lib/taxi/rules";
-import { VOLUNTEER_ROLES } from "@/lib/taxi/roles";
+import { ROLE_LABEL_MAX, VOLUNTEER_ROLES, shiftRoleName } from "@/lib/taxi/roles";
 import { createShift, deleteShift, organiserCheck } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -117,6 +117,10 @@ export default async function EventTaxiPage(props: {
           </select>
         </label>
         <label className="flex flex-col gap-1">
+          {t("roleLabel")}
+          <input type="text" name="roleLabel" maxLength={ROLE_LABEL_MAX} placeholder={t("roleLabelPlaceholder")} className={input} />
+        </label>
+        <label className="flex flex-col gap-1">
           {t("start")}
           <input type="time" name="start" step={900} min={TAXI_WINDOW.from} max={TAXI_WINDOW.to} defaultValue="17:00" required className={input} />
         </label>
@@ -148,7 +152,7 @@ export default async function EventTaxiPage(props: {
             <section key={s.id} className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 text-sm">
               <div className="mb-3 flex items-center justify-between">
                 <p className="font-semibold">
-                  <span className="mr-2 rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-xs text-[var(--usha-gold)]">{t(`roles.${s.role}`)}</span>
+                  <span className="mr-2 rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-xs text-[var(--usha-gold)]">{shiftRoleName(s, t)}</span>
                   {time(s.starts_at)}–{time(s.ends_at)}
                   <span className="ml-2 font-normal text-[var(--usha-muted)]">{t("bookedOf", { n: s.booked, cap: s.capacity })}</span>
                 </p>

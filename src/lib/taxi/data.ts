@@ -23,6 +23,7 @@ export interface ShiftRow {
   ends_at: string;
   capacity: number;
   role: VolunteerRole;
+  role_label: string | null;
   booked: number;
 }
 
@@ -40,7 +41,7 @@ export async function loadShifts(listingId: string): Promise<ShiftRow[]> {
   const db = createAdminClient();
   const { data: shifts } = await db
     .from("taxi_shifts")
-    .select("id, starts_at, ends_at, capacity, role")
+    .select("id, starts_at, ends_at, capacity, role, role_label")
     .eq("listing_id", listingId)
     .order("starts_at");
   const ids = (shifts ?? []).map((s) => s.id);

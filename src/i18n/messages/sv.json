@@ -4586,6 +4586,8 @@
     "bankidButton": "Verifiera med Mobilt BankID",
     "notice_bankidAgain": "Verifiera dig med Mobilt BankID en gång till, så vi kan se din ålder.",
     "role": "Roll",
+    "roleLabel": "Eget namn (valfritt)",
+    "roleLabelPlaceholder": "t.ex. Garderob eller DJ-värd",
     "roles": {
       "taxi_dancer": "Taxidansare",
       "instructor": "Instruktör",

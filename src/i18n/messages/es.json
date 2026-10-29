@@ -4586,6 +4586,8 @@
     "bankidButton": "Verificar con BankID móvil",
     "notice_bankidAgain": "Verifícate con BankID móvil una vez más para que podamos ver tu edad.",
     "role": "Rol",
+    "roleLabel": "Nombre propio (opcional)",
+    "roleLabelPlaceholder": "p. ej. Guardarropa o anfitrión DJ",
     "roles": {
       "taxi_dancer": "Taxi dancer",
       "instructor": "Instructor",
