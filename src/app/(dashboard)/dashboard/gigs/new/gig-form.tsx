@@ -306,6 +306,7 @@ export function GigForm({
           {group && slots.length > 1 ? t("proposedPricePerShift") : t("proposedPriceLabel")}
         </label>
         <input id="proposed_price" name="proposed_price" type="number" min={0} required placeholder={t("proposedPricePlaceholder")} className={inputClass} />
+        <p className="mt-1 text-xs text-[var(--usha-muted)]">{t("proposedPriceVolunteerHint")}</p>
       </div>
 
       <div>

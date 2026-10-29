@@ -140,6 +140,9 @@ export const APP_DESTINATIONS: AppDestination[] = [
     group: "explore", roles: "all", surfaces: ["more"] },
   { path: "/app/recommendations", labelKey: "recommendationsLabel", descKey: "recommendationsDesc", icon: Sparkles,
     group: "explore", roles: "all", surfaces: ["more"] },
+  // Taxipass: volontärpass som taxidansare. Länken i inläggen pekar hit.
+  { path: "/app/taxi", labelKey: "taxiLabel", descKey: "taxiDesc", icon: Heart,
+    group: "explore", roles: "all", surfaces: ["more"] },
   { path: "/app/training-buddies", labelKey: "trainingBuddiesLabel", descKey: "trainingBuddiesDesc", navLabelKey: "buddies", icon: Users,
     group: "explore", roles: "all", surfaces: ["more", "sidebar"] },
   { path: "/marketplace", labelKey: "marketplaceLabel", descKey: "marketplaceDesc", icon: Store,
@@ -257,6 +260,8 @@ export const CONTEXTUAL_ROUTES: Record<string, string> = {
   "/app/events/[id]/bookings": "Nås från knappraden på eventsidan.",
   "/app/events/[id]/edit": "Nås genom att öppna ett event i listan.",
   "/app/events/[id]/crew": "Nås från knappraden på eventsidan.",
+  "/app/events/[id]/taxi": "Taxipassen för kvällen — nås från knappraden på eventsidan.",
+  "/app/taxi/[id]": "En kvälls taxipass — nås från Taxipass-listan och via länken i inlägg.",
   "/app/events/[id]/live": "Nås från knappraden på eventsidan.",
   "/app/events/[id]/waitlist": "Nås från knappraden på eventsidan.",
   "/app/events/[id]/stats": "Nås från knappraden på eventsidan.",

@@ -27,6 +27,7 @@ import {
   Eye,
   ChevronDown,
   Layers,
+  Heart,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -519,6 +520,14 @@ function EventCard({
                   >
                     <Users size={12} />
                     {t("crew")}
+                  </Link>
+                  <Link
+                    href={`/app/events/${listing.id}/taxi`}
+                    className="flex w-full items-center gap-2 px-4 py-2 text-xs hover:bg-[var(--usha-card-hover)]"
+                    onClick={() => setShowMenu(false)}
+                  >
+                    <Heart size={12} />
+                    {t("taxiPass")}
                   </Link>
                   <button
                     onClick={() => {

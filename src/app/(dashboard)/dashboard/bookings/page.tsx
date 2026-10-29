@@ -451,6 +451,7 @@ export default async function BookingsPage() {
                     {booking.status === "confirmed" &&
                       !payrollLive(booking.creator_id) &&
                       listingMetaMap[booking.listing_id]?.listing_type === "b2b_offering" &&
+                      ((booking as { agreed_price?: number | null }).agreed_price ?? 0) > 0 &&
                       assignmentRoutes.get(booking.creator_id) === "payroll" && (
                         <span className="max-w-xs rounded-lg bg-[var(--usha-gold)]/10 px-3 py-1.5 text-xs text-[var(--usha-gold)]">
                           {t("assignmentPayrollPending")}

@@ -102,7 +102,9 @@ export default async function GigsFeedPage() {
         </div>
       )}
 
-      {canApply && route === "payroll" && (
+      {/* Lön nämns bara när det finns betalda uppdrag. Volontäruppdrag (0 kr)
+          ska aldrig tala om anställning eller lönepartner. */}
+      {canApply && route === "payroll" && (gigs ?? []).some((g) => g.proposed_price > 0) && (
         <div className="mb-6 rounded-xl border border-[var(--usha-gold)]/30 bg-[var(--usha-gold)]/5 p-4 text-sm text-[var(--usha-muted)]">
           {t("payrollIntro")}
         </div>
@@ -145,7 +147,10 @@ export default async function GigsFeedPage() {
                     {g.perks && (
                       <p className="mt-2 text-xs text-[var(--usha-accent)]">{t("perks", { perks: g.perks })}</p>
                     )}
-                    {route && (() => {
+                    {route && g.proposed_price === 0 && (
+                      <p className="mt-2 text-xs text-[var(--usha-muted)]">{t("volunteerGig")}</p>
+                    )}
+                    {route && g.proposed_price > 0 && (() => {
                       const q = quoteAssignment({
                         priceKr: g.proposed_price,
                         route,
