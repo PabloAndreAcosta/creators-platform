@@ -32,7 +32,7 @@ export default async function NewGigPage() {
   const today = new Date().toISOString().slice(0, 10);
   const { data: ownListings } = await supabase
     .from("listings")
-    .select("id, title, event_date, event_time, event_venue, event_location, series_id")
+    .select("id, title, event_date, event_time, event_end_time, event_venue, event_location, series_id")
     .eq("user_id", user.id)
     .eq("is_active", true)
     .not("event_date", "is", null)
@@ -45,6 +45,7 @@ export default async function NewGigPage() {
       title: l.title,
       date: String(l.event_date).slice(0, 10),
       time: l.event_time ? String(l.event_time).slice(0, 5) : null,
+      endTime: l.event_end_time ? String(l.event_end_time).slice(0, 5) : null,
       venue: l.event_venue ?? null,
       address: l.event_location ?? null,
       seriesId: l.series_id ?? null,

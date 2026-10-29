@@ -3660,12 +3660,18 @@
     "linkEventLabel": "Vincular a uno de tus eventos",
     "linkEventNone": "Ninguno — escribe fecha y lugar tú mismo",
     "linkEventSeries": "{name} ({count} noches)",
-    "linkEventPickDates": "Elige las noches del turno. Se publica un trabajo por noche.",
+    "linkEventPickDates": "Elige un turno para cada noche. Se publica un trabajo por turno.",
     "linkEventFilled": "Fecha, hora y lugar se toman de la noche ({venue}).",
-    "pickAtLeastOne": "Elige al menos una noche.",
-    "proposedPricePerEvening": "Precio por noche, IVA incl. (SEK)",
+    "pickAtLeastOne": "Elige un turno en al menos una noche.",
     "submitMany": "Publicar {count} trabajos",
-    "linkedEvent": "La noche: {title}"
+    "linkedEvent": "La noche: {title}",
+    "shiftsLabel": "Horarios de turno",
+    "shiftAdd": "Añadir horario",
+    "shiftRemove": "Quitar horario",
+    "shiftInvalid": "El final debe ser después del inicio",
+    "shiftNone": "Sin turno",
+    "shiftAll": "Todos los turnos",
+    "proposedPricePerShift": "Precio por turno, IVA incl. (SEK)"
   },
   "listingForm": {
     "passSeriesLabel": "Válido como entrada para la serie",

@@ -3660,12 +3660,18 @@
     "linkEventLabel": "Koppla till ett av dina evenemang",
     "linkEventNone": "Inget — skriv datum och plats själv",
     "linkEventSeries": "{name} ({count} kvällar)",
-    "linkEventPickDates": "Välj vilka kvällar passet gäller. Ett uppdrag läggs ut per kväll.",
+    "linkEventPickDates": "Välj pass för varje kväll. Ett uppdrag läggs ut per pass.",
     "linkEventFilled": "Datum, tid och plats hämtas från kvällen ({venue}).",
-    "pickAtLeastOne": "Välj minst en kväll.",
-    "proposedPricePerEvening": "Pris per kväll, inkl. moms (SEK)",
+    "pickAtLeastOne": "Välj ett pass på minst en kväll.",
     "submitMany": "Publicera {count} uppdrag",
-    "linkedEvent": "Kvällen: {title}"
+    "linkedEvent": "Kvällen: {title}",
+    "shiftsLabel": "Passtider",
+    "shiftAdd": "Lägg till passtid",
+    "shiftRemove": "Ta bort passtid",
+    "shiftInvalid": "Slutet måste vara efter starten",
+    "shiftNone": "Inget pass",
+    "shiftAll": "Alla pass",
+    "proposedPricePerShift": "Pris per pass, inkl. moms (SEK)"
   },
   "listingForm": {
     "passSeriesLabel": "Gäller som biljett på serie",
