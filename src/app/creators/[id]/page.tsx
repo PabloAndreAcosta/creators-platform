@@ -9,7 +9,7 @@ import type { Metadata } from "next";
 import type { ExperienceDetails } from "@/types/database";
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin, Clock, Globe, ArrowLeft, Calendar, MessageCircle, Users, Instagram, Mail, Phone, ShieldCheck, ChevronDown } from "lucide-react";
+import { MapPin, Clock, Globe, ArrowLeft, Calendar, MessageCircle, Users, Instagram, Mail, Phone, ShieldCheck, ChevronDown, Award } from "lucide-react";
 import BookingForm from "./booking-form";
 import { BuyTicketButton } from "@/components/buy-ticket-button";
 import { CreatorReviews } from "@/components/creator-reviews";
@@ -100,7 +100,7 @@ export default async function CreatorProfilePage(props: Props) {
     createAdminClient()
       .from("profiles")
       .select(
-        "id, full_name, avatar_url, bio, category, location, hourly_rate, website, company_verified_at, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3, bankid_verified_at, bankid_name, offers_coaching, coaching_hourly_rate_sek, coaching_specialties, coaching_title, slug, is_public, share_token"
+        "id, full_name, avatar_url, bio, category, location, hourly_rate, website, company_verified_at, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3, bankid_verified_at, bankid_name, offers_coaching, coaching_hourly_rate_sek, coaching_specialties, coaching_title, coaching_credentials, slug, is_public, share_token"
       )
       .eq(column, params.id)
       .maybeSingle(),
@@ -404,6 +404,21 @@ export default async function CreatorProfilePage(props: Props) {
                 {profile.bio}
               </p>
             )}
+            {/* Instruktörens meriter — frivilliga, säljaren skriver dem själv. */}
+            {(profile as { offers_coaching?: boolean | null }).offers_coaching &&
+              ((profile as { coaching_credentials?: string[] | null }).coaching_credentials ?? []).length > 0 && (
+                <div className="mb-5 max-w-2xl">
+                  <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--usha-muted)]">{t("credentialsHeading")}</p>
+                  <ul className="space-y-1 text-sm">
+                    {((profile as { coaching_credentials?: string[] | null }).coaching_credentials ?? []).map((c) => (
+                      <li key={c} className="flex items-start gap-2">
+                        <Award size={14} className="mt-0.5 shrink-0 text-[var(--usha-gold)]" />
+                        {c}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             {Object.keys(creatorRates).length > 0 && (
               <div className="mb-4 flex flex-wrap gap-2">
                 {Object.entries(creatorRates).map(([cat, rate]) => (

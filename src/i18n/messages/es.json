@@ -1233,7 +1233,9 @@
     "ownerPreview": "Vista previa — así ven la página los visitantes",
     "instructorsHeading": "Reserva un instructor en el lugar",
     "instructorFallback": "Instructor",
-    "thatIsYou": "Eres tú"
+    "thatIsYou": "Eres tú",
+    "cancellationNote": "Cancelación con reembolso completo hasta {hours, plural, =168 {una semana} one {# hora} other {# horas}} antes del inicio.",
+    "cancellationNoteAnytime": "Cancelación con reembolso completo hasta el inicio."
   },
   "seriesCard": {
     "more": "{count, plural, =1 {# fecha más} other {# fechas más}}",
@@ -1484,7 +1486,8 @@
       "heading": "Eventos en nuestro local",
       "by": "Organizado por {name}"
     },
-    "instructorBadge": "Instructor"
+    "instructorBadge": "Instructor",
+    "credentialsHeading": "Méritos"
   },
   "dashProfile": {
     "page": {
@@ -1591,7 +1594,14 @@
       "coachingFormats": {
         "in_person": "Presencial",
         "online": "En línea"
-      }
+      },
+      "coachingCredentialsLabel": "Méritos (opcional)",
+      "coachingCredentialsPlaceholder": "p. ej. Entrenador personal certificado, 2019 o Seguro de responsabilidad",
+      "coachingCredentialsHint": "Formación, certificados, seguro o experiencia. No es obligatorio, pero ayuda a los alumnos a elegir.",
+      "cancellationTitle": "Plazo de cancelación",
+      "cancellationSubtitle": "Hasta cuándo tus clientes pueden cancelar y recuperar su dinero. Después solo tú puedes cancelar. Se aplica a servicios y eventos y se muestra antes de la compra.",
+      "cancellationAnytime": "Sin límite, hasta el inicio",
+      "cancellationHours": "Como mínimo {hours, plural, =168 {una semana} one {# hora} other {# horas}} antes del inicio"
     },
     "bankid": {
       "verifiedTitle": "Identidad verificada con BankID",
@@ -1802,7 +1812,10 @@
     "errorSelectOccurrence": "Elige a qué noche mover la entrada.",
     "noOtherOccurrences": "No hay más noches a las que mover.",
     "rescheduleOccurrenceLabel": "Nueva noche",
-    "assignmentPayrollPending": "El creador está contratado vía Usha. El pago se abrirá cuando la nómina esté activa — no pagues directamente."
+    "assignmentPayrollPending": "El creador está contratado vía Usha. El pago se abrirá cuando la nómina esté activa — no pagues directamente.",
+    "cancelUntil": "Cancela antes de {when}",
+    "cancelDeadlinePassed": "El plazo de cancelación ha vencido. Contacta con el organizador si no puedes ir.",
+    "cancelPackageInUse": "El bono ya está en uso y no se puede cancelar aquí. Contacta con el organizador."
   },
   "listingsPage": {
     "back": "Atrás",
@@ -2438,7 +2451,9 @@
     "volunteerShifts": "Turnos de voluntarios",
     "volunteerCtaTitle": "Hazte voluntario esta noche",
     "volunteerCtaBody": "Taxi dancers, instructores y más: entrada gratis y un vale de comida. Se requiere BankID móvil.",
-    "volunteerCtaAction": "Ver turnos →"
+    "volunteerCtaAction": "Ver turnos →",
+    "cancellationNote": "Cancelación con reembolso completo hasta {hours, plural, =168 {una semana} one {# hora} other {# horas}} antes del inicio.",
+    "cancellationNoteAnytime": "Cancelación con reembolso completo hasta el inicio."
   },
   "eventErrors": {
     "notReleased": "Las entradas aún no están disponibles.",
@@ -4679,7 +4694,8 @@
       "s2": "Activa Instructor en tu perfil y elige tu título: Instructor, Coach, PT o el tuyo propio.",
       "s3": "Indica qué enseñas, dónde estás, idiomas y tarifa por hora. Así apareces aquí.",
       "s4": "Publica clases, cursos o bonos y conecta Stripe para cobrar."
-    }
+    },
+    "credentialsBadge": "{n, plural, one {# mérito} other {# méritos}}"
   },
   "studentsPage": {
     "title": "Alumnos",

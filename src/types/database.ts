@@ -139,8 +139,9 @@ export interface Database {
           coaching_bio: string | null;
           coaching_title: string | null;
           coaching_formats: string[] | null;
+          coaching_credentials: string[] | null;
         };
-        Insert: Omit<Database["public"]["Tables"]["profiles"]["Row"], "created_at" | "updated_at" | "is_public" | "tier" | "role" | "creator_subcategory" | "dance_styles" | "dance_languages" | "dance_experience_years" | "offers_coaching" | "coaching_hourly_rate_sek" | "coaching_specialties" | "coaching_bio" | "coaching_title" | "coaching_formats"> & {
+        Insert: Omit<Database["public"]["Tables"]["profiles"]["Row"], "created_at" | "updated_at" | "is_public" | "tier" | "role" | "creator_subcategory" | "dance_styles" | "dance_languages" | "dance_experience_years" | "offers_coaching" | "coaching_hourly_rate_sek" | "coaching_specialties" | "coaching_bio" | "coaching_title" | "coaching_formats" | "coaching_credentials"> & {
           is_public?: boolean;
           tier?: MemberTier | null;
           role?: MemberRole;
@@ -154,6 +155,7 @@ export interface Database {
           coaching_bio?: string | null;
           coaching_title?: string | null;
           coaching_formats?: string[] | null;
+          coaching_credentials?: string[] | null;
         };
         Update: Partial<Database["public"]["Tables"]["profiles"]["Insert"]>;
       };

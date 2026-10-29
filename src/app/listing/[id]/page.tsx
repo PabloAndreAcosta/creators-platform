@@ -123,7 +123,7 @@ export default async function ListingDetailPage(props: Props) {
   // Fetch creator profile
   const { data: creator } = await supabase
     .from("profiles")
-    .select("id, full_name, avatar_url, category, company_verified_at, slug")
+    .select("id, full_name, avatar_url, category, company_verified_at, slug, cancellation_hours")
     .eq("id", listing.user_id)
     .single();
 
@@ -455,6 +455,12 @@ export default async function ListingDetailPage(props: Props) {
                   hasConnect={hasConnect}
                   payeeCanReceive={payeeCanReceive}
                 />
+                {/* Säljarens avbokningstid, så köparen vet villkoret före bokningen. */}
+                <p className="text-center text-[11px] text-[var(--usha-muted)]">
+                  {(creator as { cancellation_hours?: number | null }).cancellation_hours != null
+                    ? t("cancellationNote", { hours: (creator as { cancellation_hours: number }).cancellation_hours })
+                    : t("cancellationNoteAnytime")}
+                </p>
               </div>
             </div>
 

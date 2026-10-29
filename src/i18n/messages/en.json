@@ -1233,7 +1233,9 @@
     "ownerPreview": "Preview — this is how visitors see the page",
     "instructorsHeading": "Book an instructor on site",
     "instructorFallback": "Instructor",
-    "thatIsYou": "That's you"
+    "thatIsYou": "That's you",
+    "cancellationNote": "Free cancellation with full refund until {hours, plural, =168 {one week} one {# hour} other {# hours}} before start.",
+    "cancellationNoteAnytime": "Free cancellation with full refund until start."
   },
   "seriesCard": {
     "more": "{count, plural, =1 {# more date} other {# more dates}}",
@@ -1484,7 +1486,8 @@
       "heading": "Events at our place",
       "by": "Hosted by {name}"
     },
-    "instructorBadge": "Instructor"
+    "instructorBadge": "Instructor",
+    "credentialsHeading": "Credentials"
   },
   "dashProfile": {
     "page": {
@@ -1591,7 +1594,14 @@
       "coachingFormats": {
         "in_person": "In person",
         "online": "Online"
-      }
+      },
+      "coachingCredentialsLabel": "Credentials (optional)",
+      "coachingCredentialsPlaceholder": "e.g. Certified PT, 2019 or Liability insurance",
+      "coachingCredentialsHint": "Education, certificates, insurance or experience. Not required, but it helps students choose.",
+      "cancellationTitle": "Cancellation deadline",
+      "cancellationSubtitle": "How late your customers can cancel themselves and get their money back. After that only you can cancel. Applies to services and events and is shown to buyers before they pay.",
+      "cancellationAnytime": "No limit, until start",
+      "cancellationHours": "At least {hours, plural, =168 {one week} one {# hour} other {# hours}} before start"
     },
     "bankid": {
       "verifiedTitle": "Identity verified with BankID",
@@ -1802,7 +1812,10 @@
     "errorSelectOccurrence": "Choose which night to move the ticket to.",
     "noOtherOccurrences": "There are no other nights to move to.",
     "rescheduleOccurrenceLabel": "New night",
-    "assignmentPayrollPending": "The creator is employed via Usha. Payment opens once payroll is live — do not pay directly."
+    "assignmentPayrollPending": "The creator is employed via Usha. Payment opens once payroll is live — do not pay directly.",
+    "cancelUntil": "Cancel by {when}",
+    "cancelDeadlinePassed": "The cancellation deadline has passed. Contact the organiser if you can't make it.",
+    "cancelPackageInUse": "This pass is already in use and can't be cancelled here. Contact the organiser."
   },
   "listingsPage": {
     "back": "Back",
@@ -2438,7 +2451,9 @@
     "volunteerShifts": "Volunteer shifts",
     "volunteerCtaTitle": "Volunteer this evening",
     "volunteerCtaBody": "Taxi dancers, instructors and more – free entry and a meal voucher. Mobile BankID required.",
-    "volunteerCtaAction": "See shifts →"
+    "volunteerCtaAction": "See shifts →",
+    "cancellationNote": "Free cancellation with full refund until {hours, plural, =168 {one week} one {# hour} other {# hours}} before start.",
+    "cancellationNoteAnytime": "Free cancellation with full refund until start."
   },
   "eventErrors": {
     "notReleased": "Tickets have not been released yet.",
@@ -4679,7 +4694,8 @@
       "s2": "Turn on Instructor in your profile and choose your title: Instructor, Coach, PT or your own.",
       "s3": "Add what you teach, where you are, languages and hourly rate. Then you show up here.",
       "s4": "Post lessons, courses or passes and connect Stripe to get paid."
-    }
+    },
+    "credentialsBadge": "{n, plural, one {# credential} other {# credentials}}"
   },
   "studentsPage": {
     "title": "Students",

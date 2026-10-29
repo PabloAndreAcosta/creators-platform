@@ -1233,7 +1233,9 @@
     "ownerPreview": "Förhandsvisning — så ser besökare sidan",
     "instructorsHeading": "Boka en instruktör på plats",
     "instructorFallback": "Instruktör",
-    "thatIsYou": "Det här är du"
+    "thatIsYou": "Det här är du",
+    "cancellationNote": "Avbokning med full återbetalning fram till {hours, plural, =168 {en vecka} one {# timme} other {# timmar}} före start.",
+    "cancellationNoteAnytime": "Avbokning med full återbetalning fram till start."
   },
   "seriesCard": {
     "more": "{count, plural, =1 {# tillfälle till} other {# tillfällen till}}",
@@ -1484,7 +1486,8 @@
       "heading": "Evenemang hos oss",
       "by": "Arrangeras av {name}"
     },
-    "instructorBadge": "Instruktör"
+    "instructorBadge": "Instruktör",
+    "credentialsHeading": "Meriter"
   },
   "dashProfile": {
     "page": {
@@ -1591,7 +1594,14 @@
       "coachingFormats": {
         "in_person": "På plats",
         "online": "Online"
-      }
+      },
+      "coachingCredentialsLabel": "Meriter (frivilligt)",
+      "coachingCredentialsPlaceholder": "t.ex. Certifierad PT, GIH 2019 eller Ansvarsförsäkring",
+      "coachingCredentialsHint": "Utbildning, certifikat, försäkring eller erfarenhet. Inget krav, men det hjälper elever att välja.",
+      "cancellationTitle": "Avbokningstid",
+      "cancellationSubtitle": "Hur sent dina kunder själva får avboka och få pengarna tillbaka. Efter det kan bara du avboka. Gäller både tjänster och evenemang och visas för köparen före köpet.",
+      "cancellationAnytime": "Ingen gräns, fram till start",
+      "cancellationHours": "Senast {hours, plural, =168 {en vecka} one {# timme} other {# timmar}} före start"
     },
     "bankid": {
       "verifiedTitle": "Identitet verifierad med BankID",
@@ -1802,7 +1812,10 @@
     "errorSelectOccurrence": "Välj vilken kväll biljetten ska flyttas till.",
     "noOtherOccurrences": "Det finns inga fler kvällar att flytta till.",
     "rescheduleOccurrenceLabel": "Ny kväll",
-    "assignmentPayrollPending": "Kreatören anställs via Usha. Betalningen öppnar när lönehanteringen är i drift — betala inte direkt."
+    "assignmentPayrollPending": "Kreatören anställs via Usha. Betalningen öppnar när lönehanteringen är i drift — betala inte direkt.",
+    "cancelUntil": "Avboka senast {when}",
+    "cancelDeadlinePassed": "Avbokningstiden har gått ut. Kontakta arrangören om du inte kan komma.",
+    "cancelPackageInUse": "Kortet är påbörjat och kan inte avbokas här. Kontakta arrangören."
   },
   "listingsPage": {
     "back": "Tillbaka",
@@ -2438,7 +2451,9 @@
     "volunteerShifts": "Volontärpass",
     "volunteerCtaTitle": "Bli volontär den här kvällen",
     "volunteerCtaBody": "Taxidansare, instruktörer m.fl. – fri entré och en matkupong. Mobilt BankID krävs.",
-    "volunteerCtaAction": "Se passen →"
+    "volunteerCtaAction": "Se passen →",
+    "cancellationNote": "Avbokning med full återbetalning fram till {hours, plural, =168 {en vecka} one {# timme} other {# timmar}} före start.",
+    "cancellationNoteAnytime": "Avbokning med full återbetalning fram till start."
   },
   "eventErrors": {
     "notReleased": "Biljetterna har inte släppts än.",
@@ -4679,7 +4694,8 @@
       "s2": "Slå på Instruktör i profilen och välj din titel: Instruktör, Coach, PT eller något eget.",
       "s3": "Fyll i vad du lär ut, var du finns, språk och timpris. Då syns du här.",
       "s4": "Lägg upp lektioner, kurser eller klippkort och koppla Stripe för att få betalt."
-    }
+    },
+    "credentialsBadge": "{n, plural, one {# merit} other {# meriter}}"
   },
   "studentsPage": {
     "title": "Elever",

@@ -16,6 +16,22 @@ export function parseCoachingTitle(value: unknown): string | null {
   return title || null;
 }
 
+export const COACHING_CREDENTIALS_MAX = 10;
+const CREDENTIAL_MAX_LENGTH = 120;
+
+/** Meriter: frivilliga rader som "Certifierad PT, GIH 2019" eller "Ansvarsförsäkring". */
+export function parseCoachingCredentials(value: unknown): string[] {
+  const list = Array.isArray(value) ? value : [];
+  const out: string[] = [];
+  for (const v of list) {
+    if (typeof v !== "string") continue;
+    const line = v.replace(/\s+/g, " ").trim().slice(0, CREDENTIAL_MAX_LENGTH).trim();
+    if (line && !out.includes(line)) out.push(line);
+    if (out.length >= COACHING_CREDENTIALS_MAX) break;
+  }
+  return out;
+}
+
 export function parseCoachingFormats(value: unknown): CoachingFormat[] {
   const list = Array.isArray(value) ? value : [];
   return COACHING_FORMATS.filter((f) => list.includes(f));
@@ -31,6 +47,7 @@ export interface InstructorRow {
   coaching_hourly_rate_sek: number | null;
   coaching_specialties: string[] | null;
   coaching_formats: string[] | null;
+  coaching_credentials?: string[] | null;
   dance_styles: string[] | null;
   dance_languages: string[] | null;
   locations: string[] | null;

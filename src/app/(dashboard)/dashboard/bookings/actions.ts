@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import { handleCapacityReached, autoPromoteFromQueue, addToQueue, getQueuePosition } from "@/lib/bookings/queue";
 import { requirePaidSubscription } from "@/lib/subscription/check";
+import { bookingStartsAt, cancellationDeadline, customerCancelBlock } from "@/lib/bookings/cancellation";
 import { refundBookingCharge } from "@/lib/tickets/refund";
 import { voidRewardsForBooking } from "@/lib/affiliate/rewards";
 import { stockholmLocalToUtcISO } from "@/lib/time";
@@ -215,7 +216,7 @@ export async function updateBookingStatus(
   // Verify the user is the creator or customer of this booking
   const { data: booking } = await supabase
     .from("bookings")
-    .select("creator_id, customer_id, status, listing_id, scheduled_at, stripe_payment_id, amount_paid, booking_type, ticket_type_id, guest_count")
+    .select("creator_id, customer_id, status, listing_id, scheduled_at, stripe_payment_id, amount_paid, booking_type, ticket_type_id, guest_count, sessions_redeemed, minutes_redeemed")
     .eq("id", bookingId)
     .single();
 
@@ -246,6 +247,36 @@ export async function updateBookingStatus(
     booking.status !== "confirmed"
   ) {
     return { error: "Denna bokning kan inte avbokas." };
+  }
+
+  // Säljarens avbokningstid gäller köparen. Säljaren själv kan alltid avboka.
+  if (status === "canceled" && isCustomer && !isCreator) {
+    const admin = createAdminClient();
+    const [{ data: l }, { data: seller }] = await Promise.all([
+      admin.from("listings").select("listing_type, event_date, event_time").eq("id", booking.listing_id).maybeSingle(),
+      admin.from("profiles").select("cancellation_hours").eq("id", booking.creator_id).maybeSingle(),
+    ]);
+    const deadline = cancellationDeadline(
+      bookingStartsAt({
+        scheduledAt: booking.scheduled_at,
+        listingType: l?.listing_type ?? null,
+        eventDate: l?.event_date ?? null,
+        eventTime: l?.event_time ?? null,
+      }),
+      (seller as { cancellation_hours?: number | null } | null)?.cancellation_hours ?? null
+    );
+    const block = customerCancelBlock({
+      now: new Date(),
+      deadline,
+      sessionsRedeemed: (booking as { sessions_redeemed?: number | null }).sessions_redeemed ?? null,
+      minutesRedeemed: (booking as { minutes_redeemed?: number | null }).minutes_redeemed ?? null,
+    });
+    if (block === "deadlinePassed") {
+      return { error: "Avbokningstiden har gått ut. Kontakta arrangören om du inte kan komma." };
+    }
+    if (block === "packageInUse") {
+      return { error: "Kortet är redan påbörjat och kan inte avbokas här. Kontakta arrangören." };
+    }
   }
 
   // Auto-refund paid bookings BEFORE canceling (so we don't cancel without
