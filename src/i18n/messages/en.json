@@ -3388,7 +3388,8 @@
     "onlyCreators": "Assignments are open to creators. Switch to a creator account to apply.",
     "payrollIntro": "You don’t need your own company. If you get the assignment, you are employed for the session through Usha’s payroll partner: tax, employer contributions and holiday pay are handled for you, and your salary is paid after the session.",
     "youGetPayroll": "You receive about {net} kr (gross pay {gross} kr, tax already deducted).",
-    "youGetCompany": "To your company: {amount} kr after Usha’s commission."
+    "youGetCompany": "To your company: {amount} kr after Usha’s commission.",
+    "volunteerGig": "Volunteer assignment – no pay."
   },
   "joinEvent": {
     "joinErrorTitle": "Couldn't join",
@@ -3630,7 +3631,8 @@
     "statusWithdrawn": "Withdrawn",
     "routePayroll": "Employed via Usha",
     "routeCompany": "Own company",
-    "employerNote": "You never become the employer. If the applicant has no company, Usha employs them for the session and handles tax and contributions. Never pay an applicant without a company directly."
+    "employerNote": "You never become the employer. If the applicant has no company, Usha employs them for the session and handles tax and contributions. Never pay an applicant without a company directly.",
+    "volunteerNote": "This is a volunteer assignment without pay. Nobody is employed and nothing is paid out."
   },
   "gigForm": {
     "errorPublishTitle": "Could not publish the assignment",
@@ -3668,7 +3670,8 @@
     "pickAtLeastOne": "Pick at least one evening.",
     "proposedPricePerEvening": "Price per evening, incl. VAT (SEK)",
     "submitMany": "Publish {count} jobs",
-    "linkedEvent": "The evening: {title}"
+    "linkedEvent": "The evening: {title}",
+    "proposedPriceVolunteerHint": "Set 0 for a volunteer assignment without pay."
   },
   "listingForm": {
     "passSeriesLabel": "Valid as a ticket for series",

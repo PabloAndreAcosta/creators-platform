@@ -3388,7 +3388,8 @@
     "onlyCreators": "Uppdrag kan sökas av kreatörer. Byt till ett kreatörskonto för att ansöka.",
     "payrollIntro": "Du behöver inget eget bolag. Får du uppdraget anställs du för passet via Ushas lönepartner: skatt, arbetsgivaravgift och semesterersättning sköts åt dig, och lönen betalas ut efter passet.",
     "youGetPayroll": "Du får ca {net} kr i handen (bruttolön {gross} kr, skatten är redan dragen).",
-    "youGetCompany": "Till ditt bolag: {amount} kr efter Ushas provision."
+    "youGetCompany": "Till ditt bolag: {amount} kr efter Ushas provision.",
+    "volunteerGig": "Volontäruppdrag – ingen lön."
   },
   "joinEvent": {
     "joinErrorTitle": "Kunde inte gå med",
@@ -3630,7 +3631,8 @@
     "statusWithdrawn": "Tillbakadragen",
     "routePayroll": "Anställs via Usha",
     "routeCompany": "Eget bolag",
-    "employerNote": "Ni blir aldrig arbetsgivare. Har den sökande inget bolag anställer Usha hen för passet och sköter skatt och avgifter. Betala aldrig en sökande utan bolag direkt."
+    "employerNote": "Ni blir aldrig arbetsgivare. Har den sökande inget bolag anställer Usha hen för passet och sköter skatt och avgifter. Betala aldrig en sökande utan bolag direkt.",
+    "volunteerNote": "Det här är ett volontäruppdrag utan lön. Ingen anställs och ingenting betalas ut."
   },
   "gigForm": {
     "errorPublishTitle": "Kunde inte publicera uppdraget",
@@ -3668,7 +3670,8 @@
     "pickAtLeastOne": "Välj minst en kväll.",
     "proposedPricePerEvening": "Pris per kväll, inkl. moms (SEK)",
     "submitMany": "Publicera {count} uppdrag",
-    "linkedEvent": "Kvällen: {title}"
+    "linkedEvent": "Kvällen: {title}",
+    "proposedPriceVolunteerHint": "Sätt 0 för ett volontäruppdrag utan lön."
   },
   "listingForm": {
     "passSeriesLabel": "Gäller som biljett på serie",

@@ -3388,7 +3388,8 @@
     "onlyCreators": "Los encargos están abiertos a creadores. Cambia a una cuenta de creador para postularte.",
     "payrollIntro": "No necesitas tu propia empresa. Si consigues el encargo, te contrata para la sesión el socio de nóminas de Usha: impuestos, cotizaciones y vacaciones se gestionan por ti, y el salario se paga después de la sesión.",
     "youGetPayroll": "Recibes unos {net} kr (salario bruto {gross} kr, impuestos ya descontados).",
-    "youGetCompany": "A tu empresa: {amount} kr tras la comisión de Usha."
+    "youGetCompany": "A tu empresa: {amount} kr tras la comisión de Usha.",
+    "volunteerGig": "Encargo voluntario: sin sueldo."
   },
   "joinEvent": {
     "joinErrorTitle": "No se pudo unir",
@@ -3630,7 +3631,8 @@
     "statusWithdrawn": "Retirada",
     "routePayroll": "Contratado vía Usha",
     "routeCompany": "Empresa propia",
-    "employerNote": "Nunca os convertís en empleador. Si el solicitante no tiene empresa, Usha lo contrata para la sesión y gestiona impuestos y cotizaciones. Nunca pagues directamente a un solicitante sin empresa."
+    "employerNote": "Nunca os convertís en empleador. Si el solicitante no tiene empresa, Usha lo contrata para la sesión y gestiona impuestos y cotizaciones. Nunca pagues directamente a un solicitante sin empresa.",
+    "volunteerNote": "Es un encargo voluntario sin sueldo. No se contrata a nadie ni se paga nada."
   },
   "gigForm": {
     "errorPublishTitle": "No se pudo publicar el evento",
@@ -3668,7 +3670,8 @@
     "pickAtLeastOne": "Elige al menos una noche.",
     "proposedPricePerEvening": "Precio por noche, IVA incl. (SEK)",
     "submitMany": "Publicar {count} trabajos",
-    "linkedEvent": "La noche: {title}"
+    "linkedEvent": "La noche: {title}",
+    "proposedPriceVolunteerHint": "Pon 0 para un encargo voluntario sin sueldo."
   },
   "listingForm": {
     "passSeriesLabel": "Válido como entrada para la serie",

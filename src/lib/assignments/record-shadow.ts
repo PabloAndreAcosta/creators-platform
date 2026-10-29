@@ -54,6 +54,8 @@ export async function recordAssignmentShadowLine(bookingId: string): Promise<"wr
     !!booking.stripe_payment_id &&
     paidOre > 0;
   const priceKr = live ? paidOre / 100 : (booking.agreed_price ?? listing.price ?? 0);
+  // Ett volontäruppdrag (0 kr) är ingen lön och ska aldrig hamna i underlaget.
+  if (priceKr <= 0) return "skipped";
   const row = buildShadowLine({
     bookingId: booking.id,
     creatorId: booking.creator_id,
