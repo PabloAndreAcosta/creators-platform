@@ -69,7 +69,8 @@
     "profile": "Profile",
     "shop": "Shop",
     "buddies": "Training buddies",
-    "volunteerShifts": "Volunteer shifts"
+    "volunteerShifts": "Volunteer shifts",
+    "work": "Work with Usha"
   },
   "pendingTodos": {
     "heading": "Waiting for you",
@@ -2931,7 +2932,9 @@
     "sellLabel": "Offerings",
     "sellDesc": "Everything you sell, in one place",
     "taxiLabel": "Volunteer shifts",
-    "taxiDesc": "Help out as a volunteer – free entry and a meal voucher"
+    "taxiDesc": "Help out as a volunteer – free entry and a meal voucher",
+    "workLabel": "Work with Usha",
+    "workDesc": "Volunteer, instructor or assignments"
   },
   "sellPage": {
     "heading": "Offerings",
@@ -4688,5 +4691,25 @@
       "s3": "Add what you teach, where you are, languages and hourly rate. Then you show up here.",
       "s4": "Post lessons, courses or passes and connect Stripe to get paid."
     }
+  },
+  "work": {
+    "metaTitle": "Work with Usha – dance, teach, take assignments",
+    "metaDescription": "Three ways in: volunteer at our evenings, teach by selling time at open evenings, or take assignments from venues and organisers.",
+    "title": "Work with Usha",
+    "intro": "Three ways in, step by step. Start where you are – many begin as volunteers and then take the next step.",
+    "step": "Step {n}",
+    "requirementsLabel": "Requirements:",
+    "volunteerTitle": "Volunteer at our evenings",
+    "volunteerBody": "Dance as a taxi dancer, be an instructor or help at the door. You choose your shifts between 17:00 and 23:00 and get free entry and a meal voucher.",
+    "volunteerReq": "Free account, Mobile BankID and 18 or older.",
+    "volunteerCta": "See volunteer shifts",
+    "instructorTitle": "Teach at open evenings",
+    "instructorBody": "Join evenings that are open to instructors and sell mini sessions – from 15 minutes up to four hours. You set your hourly rate. Usha takes a {free}% commission ({gold}% with Gold, {premium}% with Premium).",
+    "instructorReq": "Your own company with F-tax, verified in the app, and a Gold or Premium membership.",
+    "instructorCta": "See open evenings",
+    "assignmentsTitle": "Take assignments",
+    "assignmentsBody": "Venues and organisers post sessions. You apply and see beforehand what the assignment pays. With your own company you invoice through it, minus Usha’s commission. Salary via Usha for those without a company – coming soon.",
+    "assignmentsReq": "Creator account and Mobile BankID.",
+    "assignmentsCta": "See assignments"
   }
 }

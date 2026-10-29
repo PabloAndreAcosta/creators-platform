@@ -69,7 +69,8 @@
     "profile": "Profil",
     "shop": "Butik",
     "buddies": "Träningsvänner",
-    "volunteerShifts": "Volontärpass"
+    "volunteerShifts": "Volontärpass",
+    "work": "Jobba med Usha"
   },
   "pendingTodos": {
     "heading": "Väntar på dig",
@@ -2931,7 +2932,9 @@
     "sellLabel": "Utbud",
     "sellDesc": "Allt du säljer, samlat",
     "taxiLabel": "Volontärpass",
-    "taxiDesc": "Hjälp till som volontär – fri entré och matkupong"
+    "taxiDesc": "Hjälp till som volontär – fri entré och matkupong",
+    "workLabel": "Jobba med Usha",
+    "workDesc": "Volontär, instruktör eller uppdrag"
   },
   "sellPage": {
     "heading": "Utbud",
@@ -4688,5 +4691,25 @@
       "s3": "Fyll i vad du lär ut, var du finns, språk och timpris. Då syns du här.",
       "s4": "Lägg upp lektioner, kurser eller klippkort och koppla Stripe för att få betalt."
     }
+  },
+  "work": {
+    "metaTitle": "Jobba med Usha – dansa, lär ut, ta uppdrag",
+    "metaDescription": "Tre vägar in: volontär på våra kvällar, instruktör som säljer tid på öppna kvällar, eller uppdrag hos lokaler och arrangörer.",
+    "title": "Jobba med Usha",
+    "intro": "Tre vägar in, steg för steg. Börja där du är – många börjar som volontär och tar sedan nästa steg.",
+    "step": "Steg {n}",
+    "requirementsLabel": "Krav:",
+    "volunteerTitle": "Volontär på våra kvällar",
+    "volunteerBody": "Dansa som taxidansare, var instruktör eller hjälp till i dörren. Du väljer själv dina pass mellan 17 och 23 och får fri entré och en matkupong.",
+    "volunteerReq": "Gratis konto, Mobilt BankID och fyllda 18 år.",
+    "volunteerCta": "Se volontärpassen",
+    "instructorTitle": "Lär ut på öppna kvällar",
+    "instructorBody": "Gå med på kvällar som är öppna för instruktörer och sälj minisessioner – från 15 minuter upp till fyra timmar. Du sätter ditt timpris. Usha tar {free} % i provision ({gold} % med Guld, {premium} % med Premium).",
+    "instructorReq": "Eget företag med F-skatt, verifierat i appen, och Guld- eller Premium-medlemskap.",
+    "instructorCta": "Se öppna kvällar",
+    "assignmentsTitle": "Ta uppdrag",
+    "assignmentsBody": "Lokaler och arrangörer lägger ut pass. Du ansöker och ser innan vad uppdraget ger. Med eget företag fakturerar du via ditt bolag, minus Ushas provision. Lön via Usha för dig utan företag – kommer snart.",
+    "assignmentsReq": "Kreatörskonto och Mobilt BankID.",
+    "assignmentsCta": "Se uppdragen"
   }
 }

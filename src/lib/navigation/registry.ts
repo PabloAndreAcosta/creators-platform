@@ -141,8 +141,12 @@ export const APP_DESTINATIONS: AppDestination[] = [
   { path: "/app/recommendations", labelKey: "recommendationsLabel", descKey: "recommendationsDesc", icon: Sparkles,
     group: "explore", roles: "all", surfaces: ["more"] },
   // Taxipass: volontärpass som taxidansare. Länken i inläggen pekar hit.
-  { path: "/app/taxi", labelKey: "taxiLabel", descKey: "taxiDesc", navLabelKey: "volunteerShifts", icon: Heart,
+  // Jobba med Usha: trappan volontär → instruktör → uppdrag. Ersätter
+  // Volontärpass i sidomenyn; passen nås därifrån och från Mer.
+  { path: "/app/jobba", labelKey: "workLabel", descKey: "workDesc", navLabelKey: "work", icon: Briefcase,
     group: "explore", roles: "all", surfaces: ["more", "sidebar"] },
+  { path: "/app/taxi", labelKey: "taxiLabel", descKey: "taxiDesc", navLabelKey: "volunteerShifts", icon: Heart,
+    group: "explore", roles: "all", surfaces: ["more"] },
   { path: "/app/training-buddies", labelKey: "trainingBuddiesLabel", descKey: "trainingBuddiesDesc", navLabelKey: "buddies", icon: Users,
     group: "explore", roles: "all", surfaces: ["more", "sidebar"] },
   { path: "/marketplace", labelKey: "marketplaceLabel", descKey: "marketplaceDesc", icon: Store,
