@@ -1,14 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
-import { isRateLimitError } from "@/lib/auth/rate-limit-error";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 export default function ForgotPasswordPage() {
   const t = useTranslations("forgotPassword");
+  const locale = useLocale();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -19,15 +18,19 @@ export default function ForgotPasswordPage() {
     setError("");
     setLoading(true);
 
-    const supabase = createClient();
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-
-    if (error) {
-      setError(isRateLimitError(error) ? t("tooManyAttempts") : error.message);
-    } else {
-      setSent(true);
+    // Usha skickar länken själv (api/auth/password-reset): den fungerar på
+    // alla enheter och bränns inte av Gmails länkkontroll.
+    try {
+      const res = await fetch("/api/auth/password-reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, locale }),
+      });
+      if (res.status === 429) setError(t("tooManyAttempts"));
+      else if (!res.ok) setError(t("sendFailed"));
+      else setSent(true);
+    } catch {
+      setError(t("sendFailed"));
     }
     setLoading(false);
   }
