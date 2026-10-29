@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -189,7 +190,10 @@ export async function acceptApplication(applicationId: string) {
   // Create a synthetic listing for the booking — we need a listing_id since
   // bookings.listing_id is NOT NULL. The listing references the taxi_dancer
   // who applied so payouts route to them via Stripe Connect.
-  const { data: listing, error: listingError } = await ctx.supabase
+  // Listingen ägs av den sökande, så RLS släpper aldrig igenom lokalens egen
+  // klient. Därför service-role — först efter kontrollerna ovan, som säger att
+  // uppdraget är lokalens och ansökan väntar.
+  const { data: listing, error: listingError } = await createAdminClient()
     .from("listings")
     .insert({
       user_id: app.applicant_id,
