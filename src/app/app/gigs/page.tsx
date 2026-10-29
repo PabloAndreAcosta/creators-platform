@@ -51,7 +51,7 @@ export default async function GigsFeedPage() {
   const today = new Date().toISOString().slice(0, 10);
   const { data: gigs } = await supabase
     .from("gigs")
-    .select("id, arranger_id, title, description, event_date, event_time, venue, venue_address, proposed_price, perks, created_at, listing_id, pass_type")
+    .select("id, arranger_id, title, description, event_date, event_time, event_end_time, venue, venue_address, proposed_price, perks, created_at, listing_id, pass_type")
     .eq("status", "open")
     .neq("arranger_id", user.id)
     .gte("event_date", today)
@@ -131,7 +131,7 @@ export default async function GigsFeedPage() {
                       <span className="flex items-center gap-1">
                         <Calendar size={12} />
                         {g.event_date}
-                        {g.event_time ? ` ${g.event_time.slice(0, 5)}` : ""}
+                        {g.event_time ? ` ${g.event_time.slice(0, 5)}${g.event_end_time ? `–${g.event_end_time.slice(0, 5)}` : ""}` : ""}
                       </span>
                       {g.venue && (
                         <span className="flex items-center gap-1">

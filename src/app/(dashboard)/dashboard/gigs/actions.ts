@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { canPostGigs } from "@/lib/gigs/can-post";
 import { parsePassType } from "@/lib/gigs/pass-types";
+import { parseSlots } from "@/lib/gigs/shifts";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -42,7 +43,7 @@ export async function createGig(formData: FormData) {
   const pass_type = parsePassType(formData.get("pass_type"));
   const proposedPriceRaw = formData.get("proposed_price") as string;
   const proposed_price = proposedPriceRaw ? parseInt(proposedPriceRaw, 10) : NaN;
-  const listingIds = formData.getAll("listing_ids").map(String).filter(Boolean);
+  const rawSlots = formData.get("slots");
 
   if (!title) return { error: "Titel krävs" };
   if (!Number.isFinite(proposed_price) || proposed_price < 0) {
@@ -54,30 +55,39 @@ export async function createGig(formData: FormData) {
     listing_id: string | null;
     event_date: string;
     event_time: string | null;
+    event_end_time: string | null;
     venue: string | null;
     venue_address: string | null;
   }>;
 
-  if (listingIds.length > 0) {
-    // Ett uppdrag per vald kväll. Datum, tid och lokal tas från kvällen, och
-    // bara arrangörens egna kvällar räknas — ett id man inte äger faller bort.
+  if (rawSlots) {
+    // Ett uppdrag per valt pass. Datum och lokal tas från kvällen, tiden från
+    // passet, och bara arrangörens egna kvällar räknas.
+    const slots = parseSlots(rawSlots);
+    if (!slots) return { error: "Passtiderna gick inte att läsa. Kontrollera att varje pass slutar efter att det börjar." };
+    const listingIds = Array.from(new Set(slots.map((s) => s.listing_id)));
     const { data: events } = await ctx.supabase
       .from("listings")
-      .select("id, event_date, event_time, event_venue, event_location")
+      .select("id, event_date, event_venue, event_location")
       .eq("user_id", ctx.user.id)
       .in("id", listingIds)
       .not("event_date", "is", null);
     if (!events || events.length !== listingIds.length) {
       return { error: "Någon av kvällarna hittades inte bland dina evenemang" };
     }
-    rows = events.map((e) => ({
-      ...shared,
-      listing_id: e.id,
-      event_date: String(e.event_date).slice(0, 10),
-      event_time: e.event_time ?? null,
-      venue: e.event_venue ?? null,
-      venue_address: e.event_location ?? null,
-    }));
+    const byId = new Map(events.map((e) => [e.id, e]));
+    rows = slots.map((slot) => {
+      const e = byId.get(slot.listing_id)!;
+      return {
+        ...shared,
+        listing_id: e.id,
+        event_date: String(e.event_date).slice(0, 10),
+        event_time: slot.start,
+        event_end_time: slot.end,
+        venue: e.event_venue ?? null,
+        venue_address: e.event_location ?? null,
+      };
+    });
   } else {
     const event_date = (formData.get("event_date") as string)?.trim();
     if (!event_date) return { error: "Eventdatum krävs" };
@@ -86,6 +96,7 @@ export async function createGig(formData: FormData) {
       listing_id: null,
       event_date,
       event_time: (formData.get("event_time") as string)?.trim() || null,
+      event_end_time: null,
       venue: (formData.get("venue") as string)?.trim() || null,
       venue_address: (formData.get("venue_address") as string)?.trim() || null,
     }];

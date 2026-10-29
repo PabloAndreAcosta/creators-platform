@@ -19,7 +19,7 @@ export default async function GigDetailPage(props: { params: Promise<{ id: strin
 
   const { data: gig } = await supabase
     .from("gigs")
-    .select("id, arranger_id, title, description, event_date, event_time, venue, venue_address, proposed_price, perks, status, created_at, listing_id, pass_type")
+    .select("id, arranger_id, title, description, event_date, event_time, event_end_time, venue, venue_address, proposed_price, perks, status, created_at, listing_id, pass_type")
     .eq("id", params.id)
     .single();
 
@@ -67,7 +67,7 @@ export default async function GigDetailPage(props: { params: Promise<{ id: strin
           <span className="flex items-center gap-1">
             <Calendar size={12} />
             {gig.event_date}
-            {gig.event_time ? ` ${gig.event_time.slice(0, 5)}` : ""}
+            {gig.event_time ? ` ${gig.event_time.slice(0, 5)}${gig.event_end_time ? `–${gig.event_end_time.slice(0, 5)}` : ""}` : ""}
           </span>
           {gig.venue && (
             <span className="flex items-center gap-1">

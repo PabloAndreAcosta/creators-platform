@@ -26,7 +26,7 @@ export default async function GigsDashboardPage() {
 
   const { data: gigs } = await supabase
     .from("gigs")
-    .select("id, title, event_date, event_time, venue, proposed_price, status, created_at")
+    .select("id, title, event_date, event_time, event_end_time, venue, proposed_price, status, created_at")
     .eq("arranger_id", user.id)
     .order("event_date", { ascending: true });
 
@@ -116,7 +116,7 @@ export default async function GigsDashboardPage() {
                       <span className="flex items-center gap-1">
                         <Calendar size={12} />
                         {g.event_date}
-                        {g.event_time ? ` ${g.event_time.slice(0, 5)}` : ""}
+                        {g.event_time ? ` ${g.event_time.slice(0, 5)}${g.event_end_time ? `–${g.event_end_time.slice(0, 5)}` : ""}` : ""}
                       </span>
                       {g.venue && (
                         <span className="flex items-center gap-1">

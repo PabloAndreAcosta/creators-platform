@@ -4,7 +4,8 @@ import TimeSelect from "@/components/time-select";
 import { useMemo, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { useToast } from "@/components/ui/toaster";
-import { PASS_TYPES, type PassType } from "@/lib/gigs/pass-types";
+import { FORM_PASS_TYPES, type PassType } from "@/lib/gigs/pass-types";
+import { defaultShifts, isValidShift, shiftLabel, type Shift } from "@/lib/gigs/shifts";
 
 const inputClass =
   "w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40";
@@ -15,6 +16,7 @@ export type OwnEvent = {
   title: string;
   date: string;
   time: string | null;
+  endTime: string | null;
   venue: string | null;
   address: string | null;
   seriesId: string | null;
@@ -53,13 +55,25 @@ export function GigForm({
   const groups = useMemo(() => groupEvents(events), [events]);
   const [passType, setPassType] = useState<PassType | null>(null);
   const [groupKey, setGroupKey] = useState("");
-  const [picked, setPicked] = useState<Set<string>>(new Set());
+  // Passtiderna gäller hela serien; varje kväll väljer bland dem. Kommer ihåg
+  // per serie i webbläsaren, så samma pass slipper skrivas in nästa gång.
+  const [shifts, setShifts] = useState<Shift[]>([]);
+  // listing-id → "" (inget pass), "all" eller passets index som sträng.
+  const [choice, setChoice] = useState<Record<string, string>>({});
   const [title, setTitle] = useState("");
   const [titleTouched, setTitleTouched] = useState(false);
 
   const group = groups.find((g) => g.key === groupKey) ?? null;
 
-  // Titeln skrivs åt arrangören tills hen själv ändrar den: "Taxidansare – The Lab Torsdag".
+  const slots = group
+    ? group.events.flatMap((e) => {
+        const c = choice[e.id] ?? "";
+        const picks = c === "all" ? shifts : c === "" ? [] : [shifts[Number(c)]].filter(Boolean);
+        return picks.filter(isValidShift).map((sh) => ({ listing_id: e.id, start: sh.start, end: sh.end }));
+      })
+    : [];
+
+  // Titeln skrivs åt arrangören tills hen själv ändrar den: "Instruktör – The Lab Torsdag".
   function suggestTitle(type: PassType | null, g: EventGroup | null) {
     if (titleTouched) return;
     const parts = [type && type !== "other" ? t(`passType.${type}`) : null, g?.name ?? null].filter(Boolean);
@@ -74,25 +88,51 @@ export function GigForm({
   function chooseGroup(key: string) {
     setGroupKey(key);
     const g = groups.find((x) => x.key === key) ?? null;
-    // Alla kvällar förvalda: vanligast är att samma pass behövs varje gång.
-    setPicked(new Set(g?.events.map((e) => e.id) ?? []));
+    const first = g?.events[0];
+    let initial: Shift[] = [];
+    try {
+      const saved = g ? JSON.parse(localStorage.getItem(`usha.gigShifts.${g.key}`) ?? "null") : null;
+      if (Array.isArray(saved)) initial = saved.filter(isValidShift);
+    } catch {
+      // Ingen lagring (privat fönster) — då gäller standardpasset.
+    }
+    if (initial.length === 0 && first) initial = defaultShifts(first.time, first.endTime);
+    setShifts(initial);
+    // Första passet förvalt på varje kväll; "Inget pass" väljs bort per kväll.
+    setChoice(Object.fromEntries((g?.events ?? []).map((e) => [e.id, initial.length > 0 ? "0" : ""])));
     suggestTitle(passType, g);
   }
 
-  function toggle(id: string) {
-    setPicked((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+  function updateShifts(next: Shift[]) {
+    setShifts(next);
+    if (!group) return;
+    try {
+      localStorage.setItem(`usha.gigShifts.${group.key}`, JSON.stringify(next.filter(isValidShift)));
+    } catch {
+      // Bara en bekvämlighet.
+    }
+  }
+
+  function removeShift(index: number) {
+    updateShifts(shifts.filter((_, i) => i !== index));
+    // Val som pekade på passet nollställs; senare pass flyttar ett steg.
+    setChoice((prev) =>
+      Object.fromEntries(
+        Object.entries(prev).map(([id, c]) => {
+          if (c === "" || c === "all") return [id, c];
+          const n = Number(c);
+          return [id, n === index ? "" : n > index ? String(n - 1) : c];
+        })
+      )
+    );
   }
 
   function handleSubmit(formData: FormData) {
-    if (group && picked.size === 0) {
+    if (group && slots.length === 0) {
       toast.error(t("errorPublishTitle"), t("pickAtLeastOne"));
       return;
     }
+    if (group) formData.set("slots", JSON.stringify(slots));
     startTransition(async () => {
       const result = await action(formData);
       if (result && "error" in result && result.error) {
@@ -109,7 +149,7 @@ export function GigForm({
       <fieldset>
         <legend className="mb-1.5 block text-sm text-[var(--usha-muted)]">{t("passTypeLabel")}</legend>
         <div className="flex flex-wrap gap-2">
-          {PASS_TYPES.map((type) => (
+          {FORM_PASS_TYPES.map((type) => (
             <label
               key={type}
               className={`cursor-pointer rounded-full border px-4 py-2 text-sm transition ${
@@ -147,30 +187,62 @@ export function GigForm({
           </select>
 
           {group && (
-            <div className="mt-3 space-y-2">
-              {group.events.length > 1 && <p className="text-xs text-[var(--usha-muted)]">{t("linkEventPickDates")}</p>}
-              <div className="flex flex-wrap gap-2">
-                {group.events.map((e) => (
-                  <label
-                    key={e.id}
-                    className={`cursor-pointer rounded-lg border px-3 py-2 text-sm transition ${
-                      picked.has(e.id)
-                        ? "border-[var(--usha-gold)] bg-[var(--usha-gold)]/10 text-[var(--usha-white)]"
-                        : "border-[var(--usha-border)] text-[var(--usha-muted)]"
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      name="listing_ids"
-                      value={e.id}
-                      checked={picked.has(e.id)}
-                      onChange={() => toggle(e.id)}
-                      className="sr-only"
-                    />
-                    {dateLabel(e.date)}
-                    {e.time ? ` ${e.time}` : ""}
-                  </label>
-                ))}
+            <div className="mt-4 space-y-4">
+              <div>
+                <p className="mb-2 text-xs text-[var(--usha-muted)]">{t("shiftsLabel")}</p>
+                <div className="space-y-2">
+                  {shifts.map((sh, i) => (
+                    <div key={i} className="flex flex-wrap items-center gap-2">
+                      <div className="w-36">
+                        <TimeSelect compact value={sh.start} onChange={(v) => updateShifts(shifts.map((x, j) => (j === i ? { ...x, start: v } : x)))} />
+                      </div>
+                      <span className="text-[var(--usha-muted)]">–</span>
+                      <div className="w-36">
+                        <TimeSelect compact value={sh.end} onChange={(v) => updateShifts(shifts.map((x, j) => (j === i ? { ...x, end: v } : x)))} />
+                      </div>
+                      {shifts.length > 1 && (
+                        <button type="button" onClick={() => removeShift(i)} className="px-2 text-sm text-[var(--usha-muted)] hover:text-[var(--usha-white)]" aria-label={t("shiftRemove")}>
+                          ×
+                        </button>
+                      )}
+                      {sh.start && sh.end && !isValidShift(sh) && <span className="text-xs text-red-400">{t("shiftInvalid")}</span>}
+                    </div>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => updateShifts([...shifts, { start: "", end: "" }])}
+                  className="mt-2 text-sm text-[var(--usha-gold)] hover:opacity-80"
+                >
+                  + {t("shiftAdd")}
+                </button>
+              </div>
+
+              <div>
+                <p className="mb-2 text-xs text-[var(--usha-muted)]">{t("linkEventPickDates")}</p>
+                <div className="space-y-2">
+                  {group.events.map((e) => (
+                    <div key={e.id} className="flex items-center gap-3">
+                      <span className="w-32 shrink-0 text-sm">{dateLabel(e.date)}</span>
+                      <select
+                        value={choice[e.id] ?? ""}
+                        onChange={(ev) => setChoice((prev) => ({ ...prev, [e.id]: ev.target.value }))}
+                        className={inputClass}
+                        aria-label={dateLabel(e.date)}
+                      >
+                        <option value="">{t("shiftNone")}</option>
+                        {shifts.map((sh, i) =>
+                          isValidShift(sh) ? (
+                            <option key={i} value={String(i)}>
+                              {shiftLabel(sh)}
+                            </option>
+                          ) : null
+                        )}
+                        {shifts.filter(isValidShift).length > 1 && <option value="all">{t("shiftAll")}</option>}
+                      </select>
+                    </div>
+                  ))}
+                </div>
               </div>
               <p className="text-xs text-[var(--usha-muted)]">
                 {t("linkEventFilled", { venue: group.events[0].venue ?? group.events[0].address ?? "–" })}
@@ -231,7 +303,7 @@ export function GigForm({
 
       <div>
         <label htmlFor="proposed_price" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-          {group && picked.size > 1 ? t("proposedPricePerEvening") : t("proposedPriceLabel")}
+          {group && slots.length > 1 ? t("proposedPricePerShift") : t("proposedPriceLabel")}
         </label>
         <input id="proposed_price" name="proposed_price" type="number" min={0} required placeholder={t("proposedPricePlaceholder")} className={inputClass} />
         <p className="mt-1 text-xs text-[var(--usha-muted)]">{t("proposedPriceVolunteerHint")}</p>
@@ -250,8 +322,8 @@ export function GigForm({
         >
           {isPending
             ? t("submitPending")
-            : group && picked.size > 1
-              ? t("submitMany", { count: picked.size })
+            : group && slots.length > 1
+              ? t("submitMany", { count: slots.length })
               : t("submit")}
         </button>
       </div>
