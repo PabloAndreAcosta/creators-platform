@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { rateLimit } from "@/lib/rate-limit";
 import { codesMatch, parseVoucherAmount, voucherScopeId } from "@/lib/taxi/voucher";
+import { approvalScopeKey, approvedRoles, cleanMessage, unapprovedRolesAmong } from "@/lib/taxi/approvals";
+import { parseVolunteerRole } from "@/lib/taxi/roles";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -56,6 +58,14 @@ export async function signUpForShifts(formData: FormData) {
 
   const shifts = await loadShifts(listingId);
   const now = Date.now();
+  // Bara roller arrangören har godkänt personen för.
+  const { data: approvals } = await db
+    .from("volunteer_approvals")
+    .select("role, status")
+    .eq("scope_key", approvalScopeKey(evening!))
+    .eq("volunteer_id", user.id);
+  const chosenRoles = shifts.filter((x) => shiftIds.includes(x.id)).map((x) => x.role);
+  if (unapprovedRolesAmong(chosenRoles, approvedRoles(approvals ?? [])).length > 0) back(listingId, "notApproved");
   for (const id of shiftIds) {
     const s = shifts.find((x) => x.id === id);
     if (!s || Date.parse(s.starts_at) <= now) back(listingId, "closed");
@@ -200,4 +210,47 @@ export async function redeemVoucher(formData: FormData) {
   if (error && error.code !== "23505") throw error;
   revalidatePath(`/app/taxi/${listingId}`);
   back(listingId, "voucherRedeemed");
+}
+
+/**
+ * Ansökan om att få ta pass i en roll hos arrangören (eller i serien). Kräver
+ * samma sak som en anmälan: Mobilt BankID och 18 år. Arrangören godkänner.
+ */
+export async function applyForRole(formData: FormData) {
+  const listingId = String(formData.get("listingId") ?? "");
+  const user = await viewer();
+  if (!user) redirect(`/login?next=/app/taxi/${listingId}`);
+  const evening = await loadEvening(listingId);
+  if (!evening) back(listingId, "notFound");
+  const role = parseVolunteerRole(formData.get("role"));
+  if (!role) back(listingId, "notFound");
+
+  const db = createAdminClient();
+  const { data: profile } = await db.from("profiles").select("bankid_verified_at, bankid_birth_date").eq("id", user.id).single();
+  const eligibility = dancerEligibility(
+    { bankid_verified_at: profile?.bankid_verified_at ?? null, bankid_birth_date: profile?.bankid_birth_date ?? null },
+    evening!.event_date,
+  );
+  if (eligibility !== "ok") back(listingId, eligibility);
+
+  const scope = approvalScopeKey(evening!);
+  const { data: existing } = await db
+    .from("volunteer_approvals")
+    .select("status")
+    .eq("scope_key", scope)
+    .eq("role", role!)
+    .eq("volunteer_id", user.id)
+    .maybeSingle();
+  // En avslagen ansökan öppnas inte igen härifrån — det avgör arrangören.
+  if (existing) back(listingId, existing.status === "declined" ? "applicationDeclined" : "applicationExists");
+  const { error } = await db.from("volunteer_approvals").insert({
+    scope_key: scope,
+    role: role!,
+    volunteer_id: user.id,
+    message: cleanMessage(formData.get("message")),
+  });
+  if (error && error.code !== "23505") throw error;
+  revalidatePath(`/app/taxi/${listingId}`);
+  revalidatePath(`/app/events/${listingId}/taxi`);
+  back(listingId, "applicationSent");
 }

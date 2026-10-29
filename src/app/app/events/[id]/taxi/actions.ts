@@ -11,6 +11,7 @@ import { parseRoleLabel, parseVolunteerRole, type VolunteerRole } from "@/lib/ta
 import { isCancelled } from "@/lib/entrance/door-link";
 import { stockholmToday } from "@/lib/time";
 import { isValidVoucherCode, voucherScopeId } from "@/lib/taxi/voucher";
+import { approvalScopeKey } from "@/lib/taxi/approvals";
 
 /** Arrangören (kvällens ägare) eller hel admin. */
 async function assertOrganiser(listingId: string) {
@@ -142,4 +143,19 @@ export async function setVoucherSettings(formData: FormData) {
   if (error) throw error;
   revalidatePath(`/app/events/${listingId}/taxi`);
   page(listingId, "voucherSaved");
+}
+
+/** Godkänn eller avslå en ansökan. Bara ansökningar i kvällens avgränsning. */
+export async function decideApplication(formData: FormData) {
+  const listingId = String(formData.get("listingId") ?? "");
+  const { user, evening } = await assertOrganiser(listingId);
+  const decision = formData.get("decision") === "approve" ? "approved" : "declined";
+  const { error } = await createAdminClient()
+    .from("volunteer_approvals")
+    .update({ status: decision, decided_by: user.id, decided_at: new Date().toISOString() })
+    .eq("id", String(formData.get("approvalId")))
+    .eq("scope_key", approvalScopeKey(evening));
+  if (error) throw error;
+  revalidatePath(`/app/events/${listingId}/taxi`);
+  page(listingId, decision === "approved" ? "applicationApproved" : "applicationDeclinedOrg");
 }

@@ -4664,7 +4664,24 @@
     "notice_voucherTooManyTries": "Too many attempts. Wait a moment and try again.",
     "notice_voucherSaved": "The restaurant code is saved.",
     "notice_voucherCodeInvalid": "The code must be 4–6 digits.",
-    "notice_voucherMaxInvalid": "Enter a cap between 1 and 1000 kr."
+    "notice_voucherMaxInvalid": "Enter a cap between 1 and 1000 kr.",
+    "rolesTitle": "Roles this evening",
+    "roleApproved": "Approved",
+    "rolePending": "Application sent – waiting for the organiser",
+    "roleDeclined": "Not approved",
+    "applyForRole": "Apply",
+    "applyMessagePlaceholder": "A little about you (optional)",
+    "applyFirst": "Apply for a role above. Once the organiser approves you, you can book shifts.",
+    "notice_notApproved": "You need to be approved for the role before booking the shift.",
+    "notice_applicationSent": "Application sent. You can book shifts once the organiser approves you.",
+    "notice_applicationExists": "You have already applied for that role.",
+    "notice_applicationDeclined": "The organiser has not approved you for that role.",
+    "applicationsTitle": "Applications ({n} waiting)",
+    "approvedNone": "Nobody approved yet.",
+    "approve": "Approve",
+    "decline": "Decline",
+    "notice_applicationApproved": "Approved – the person can now book shifts in the role.",
+    "notice_applicationDeclinedOrg": "Application declined."
   },
   "instruktorerPage": {
     "meta": {
