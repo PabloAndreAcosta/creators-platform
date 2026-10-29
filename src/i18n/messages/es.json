@@ -244,7 +244,7 @@
     "q3": "¿Cómo recibo mis pagos?",
     "a3": "Conecta tu cuenta de Stripe en Pagos. El dinero llega allí automáticamente cuando esté disponible.",
     "q4": "¿Puedo cancelar una reserva?",
-    "a4": "Sí, puedes cancelar en Mis reservas siempre que la reserva no se haya completado ya.",
+    "a4": "Sí, en Mis reservas hasta el plazo de cancelación fijado por el creador u organizador. Se muestra en la página antes de comprar.",
     "q5": "¿Qué es el acceso anticipado / exclusivo de Guld?",
     "a5": "Los miembros Guld y Premium tienen acceso a ciertos eventos antes que los demás. Cuando termina la cuenta atrás, el evento queda disponible para todos.",
     "q6": "¿Dónde encuentro una guía?",
@@ -1232,7 +1232,9 @@
     "ownerPreview": "Vista previa — así ven la página los visitantes",
     "instructorsHeading": "Reserva un instructor en el lugar",
     "instructorFallback": "Instructor",
-    "thatIsYou": "Eres tú"
+    "thatIsYou": "Eres tú",
+    "cancellationNote": "Cancelación con reembolso completo hasta {hours, plural, =168 {una semana} one {# hora} other {# horas}} antes del inicio.",
+    "cancellationNoteAnytime": "Cancelación con reembolso completo hasta el inicio."
   },
   "seriesCard": {
     "more": "{count, plural, =1 {# fecha más} other {# fechas más}}",
@@ -1594,7 +1596,11 @@
       },
       "coachingCredentialsLabel": "Méritos (opcional)",
       "coachingCredentialsPlaceholder": "p. ej. Entrenador personal certificado, 2019 o Seguro de responsabilidad",
-      "coachingCredentialsHint": "Formación, certificados, seguro o experiencia. No es obligatorio, pero ayuda a los alumnos a elegir."
+      "coachingCredentialsHint": "Formación, certificados, seguro o experiencia. No es obligatorio, pero ayuda a los alumnos a elegir.",
+      "cancellationTitle": "Plazo de cancelación",
+      "cancellationSubtitle": "Hasta cuándo tus clientes pueden cancelar y recuperar su dinero. Después solo tú puedes cancelar. Se aplica a servicios y eventos y se muestra antes de la compra.",
+      "cancellationAnytime": "Sin límite, hasta el inicio",
+      "cancellationHours": "Como mínimo {hours, plural, =168 {una semana} one {# hora} other {# horas}} antes del inicio"
     },
     "bankid": {
       "verifiedTitle": "Identidad verificada con BankID",
@@ -1805,7 +1811,10 @@
     "errorSelectOccurrence": "Elige a qué noche mover la entrada.",
     "noOtherOccurrences": "No hay más noches a las que mover.",
     "rescheduleOccurrenceLabel": "Nueva noche",
-    "assignmentPayrollPending": "El creador está contratado vía Usha. El pago se abrirá cuando la nómina esté activa — no pagues directamente."
+    "assignmentPayrollPending": "El creador está contratado vía Usha. El pago se abrirá cuando la nómina esté activa — no pagues directamente.",
+    "cancelUntil": "Cancela antes de {when}",
+    "cancelDeadlinePassed": "El plazo de cancelación ha vencido. Contacta con el organizador si no puedes ir.",
+    "cancelPackageInUse": "El bono ya está en uso y no se puede cancelar aquí. Contacta con el organizador."
   },
   "listingsPage": {
     "back": "Atrás",
@@ -2441,7 +2450,9 @@
     "volunteerShifts": "Turnos de voluntarios",
     "volunteerCtaTitle": "Hazte voluntario esta noche",
     "volunteerCtaBody": "Taxi dancers, instructores y más: entrada gratis y un vale de comida. Se requiere BankID móvil.",
-    "volunteerCtaAction": "Ver turnos →"
+    "volunteerCtaAction": "Ver turnos →",
+    "cancellationNote": "Cancelación con reembolso completo hasta {hours, plural, =168 {una semana} one {# hora} other {# horas}} antes del inicio.",
+    "cancellationNoteAnytime": "Cancelación con reembolso completo hasta el inicio."
   },
   "eventErrors": {
     "notReleased": "Las entradas aún no están disponibles.",
@@ -3788,12 +3799,12 @@
     "heading": "Política de reembolsos",
     "lastUpdated": "Última actualización: 2026-05-01",
     "overviewTitle": "Resumen",
-    "overviewBody": "Usha Platform intermedia reservas entre clientes, creadores y organizadores. Cuando cancelas una reserva pagada antes de que se complete, recibes un reembolso íntegro a la misma tarjeta que se utilizó para el pago.",
+    "overviewBody": "Usha Platform intermedia reservas entre clientes, creadores y organizadores. Cuando se cancela una reserva pagada recibes el reembolso completo en la tarjeta usada.",
     "cancellationTitle": "Cancelación",
-    "cancellationPendingLabel": "Reserva en curso (estado: pendiente):",
-    "cancellationPendingBody": "El cliente o el creador puede cancelar en cualquier momento. Cualquier pago se reembolsa en su totalidad.",
-    "cancellationConfirmedLabel": "Reserva confirmada (estado: confirmada):",
-    "cancellationConfirmedBody": "El cliente o el creador puede cancelar. Cualquier pago se reembolsa en su totalidad.",
+    "cancellationPendingLabel": "Antes del plazo de cancelación:",
+    "cancellationPendingBody": "Puedes cancelar tú hasta el plazo fijado por el creador u organizador. Se muestra en la página antes de comprar. Si no hay plazo puedes cancelar hasta el inicio. El creador u organizador siempre puede cancelar. El pago se reembolsa en su totalidad.",
+    "cancellationConfirmedLabel": "Después del plazo de cancelación:",
+    "cancellationConfirmedBody": "Pasado el plazo no puedes cancelar tú. Contacta con el creador u organizador. Si cancelan, el pago se reembolsa en su totalidad. Un bono ya usado solo puede cancelarlo quien lo vendió.",
     "cancellationCompletedLabel": "Reserva completada (estado: completada):",
     "cancellationCompletedBody1": "La reserva no puede cancelarse a través de la plataforma. Contacta directamente con la otra parte o con",
     "cancellationCompletedBody2": "para una revisión manual.",
