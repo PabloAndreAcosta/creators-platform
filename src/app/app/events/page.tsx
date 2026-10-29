@@ -45,6 +45,7 @@ export default async function EventsPage(
           .from("listings")
           .select("*")
           .eq("user_id", user.id)
+          .eq("from_gig", false)
           .order("created_at", { ascending: false }),
         coIds.length
           ? admin.from("listings").select("*").in("id", coIds).order("created_at", { ascending: false })
