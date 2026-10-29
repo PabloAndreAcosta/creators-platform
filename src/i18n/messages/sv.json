@@ -4696,7 +4696,13 @@
     "djAction_booked": "Bokad",
     "djAction_hidden": "Dölj",
     "notice_djWishUpdated": "Önskemålet är uppdaterat.",
-    "notice_shift_djPractica": "En DJ kan bara ta volontärpass på en practica. Annars ska DJ:n avlönas."
+    "notice_shift_djPractica": "En DJ kan bara ta volontärpass på en practica. Annars ska DJ:n avlönas.",
+    "payLabel": "Ersättning per person (kr)",
+    "payHint": "0 = volontärpass. Betalt pass = din totala kostnad; utan bolag går den som lön via Ushas lönepartner.",
+    "paidShiftOrg": "Betalt: {pay} kr/person",
+    "paidShiftNet": "Betalt pass: {pay} kr – ca {net} kr i handen efter skatt",
+    "paidShiftCompany": "Betalt pass: {pay} kr – faktureras via ditt bolag",
+    "notice_shift_payInvalid": "Ange en ersättning mellan 0 och 10 000 kr."
   },
   "instruktorerPage": {
     "meta": {

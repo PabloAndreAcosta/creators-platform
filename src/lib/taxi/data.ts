@@ -20,6 +20,8 @@ export interface Evening {
 }
 
 export interface ShiftRow {
+  /** Arrangörens kostnad per person, öre. 0 = volontärpass. */
+  pay_ore: number;
   id: string;
   starts_at: string;
   ends_at: string;
@@ -43,7 +45,7 @@ export async function loadShifts(listingId: string): Promise<ShiftRow[]> {
   const db = createAdminClient();
   const { data: shifts } = await db
     .from("taxi_shifts")
-    .select("id, starts_at, ends_at, capacity, role, role_label")
+    .select("id, starts_at, ends_at, capacity, role, role_label, pay_ore")
     .eq("listing_id", listingId)
     .order("starts_at");
   const ids = (shifts ?? []).map((s) => s.id);

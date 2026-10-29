@@ -38,7 +38,10 @@ export const DEFAULT_CAPACITY: Record<VolunteerRole, number> = {
   helper: 2,
 };
 
-/** En DJ får bara ta pass som volontär på en practica — annars avlönas DJ:n. */
-export function volunteerRoleAllowed(role: VolunteerRole, evening: { is_practica: boolean }): boolean {
-  return role !== "dj" || evening.is_practica;
+/**
+ * En DJ får bara ta ett obetalt pass på en practica — annars ska DJ:n
+ * avlönas. Ett betalt pass (payOre > 0) är alltid tillåtet.
+ */
+export function volunteerRoleAllowed(role: VolunteerRole, evening: { is_practica: boolean }, payOre = 0): boolean {
+  return role !== "dj" || payOre > 0 || evening.is_practica;
 }

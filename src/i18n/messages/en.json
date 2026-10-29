@@ -4696,7 +4696,13 @@
     "djAction_booked": "Booked",
     "djAction_hidden": "Hide",
     "notice_djWishUpdated": "The request is updated.",
-    "notice_shift_djPractica": "A DJ can only take volunteer shifts at a practica. Otherwise the DJ must be paid."
+    "notice_shift_djPractica": "A DJ can only take volunteer shifts at a practica. Otherwise the DJ must be paid.",
+    "payLabel": "Pay per person (kr)",
+    "payHint": "0 = volunteer shift. A paid shift = your total cost; without a company it is paid as salary via Usha’s payroll partner.",
+    "paidShiftOrg": "Paid: {pay} kr/person",
+    "paidShiftNet": "Paid shift: {pay} kr – about {net} kr after tax",
+    "paidShiftCompany": "Paid shift: {pay} kr – invoiced through your company",
+    "notice_shift_payInvalid": "Enter pay between 0 and 10 000 kr."
   },
   "instruktorerPage": {
     "meta": {

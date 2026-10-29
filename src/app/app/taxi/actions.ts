@@ -5,6 +5,7 @@ import { rateLimit } from "@/lib/rate-limit";
 import { codesMatch, parseVoucherAmount, voucherScopeId } from "@/lib/taxi/voucher";
 import { approvalScopeKey, approvedRoles, cleanMessage, unapprovedRolesAmong } from "@/lib/taxi/approvals";
 import { parseVolunteerRole } from "@/lib/taxi/roles";
+import { recordShiftPayrollLine } from "@/lib/taxi/record-shift-pay";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -167,6 +168,8 @@ export async function checkIn(formData: FormData) {
   if (!s || s.status !== "booked" || s.checked_in_at) redirect("/app/taxi");
   if (!canCheckIn(s!.shift, new Date())) back(s!.shift.listing_id, "checkInClosed");
   await createAdminClient().from("taxi_signups").update({ checked_in_at: new Date().toISOString() }).eq("id", s!.id);
+  // Betalt pass: löneraden skrivs vid incheckningen. Fel här stoppar inte den.
+  await recordShiftPayrollLine(s!.id).catch((e) => console.error("recordShiftPayrollLine failed:", e));
   revalidatePath(`/app/taxi/${s!.shift.listing_id}`);
   back(s!.shift.listing_id, "checkedIn");
 }

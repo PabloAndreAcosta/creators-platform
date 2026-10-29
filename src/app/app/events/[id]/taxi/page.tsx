@@ -86,7 +86,7 @@ export default async function EventTaxiPage(props: {
   );
 
   const notices = [
-    "shiftCreated", "shiftsCreatedSeries", "shiftExists", "shift_role", "shift_taxiCapacity", "voucherSaved", "djWishUpdated", "shift_djPractica", "applicationApproved", "applicationDeclinedOrg", "voucherCodeInvalid", "voucherMaxInvalid", "shiftDeleted", "shiftHasSignups", "checkedIn", "notFound",
+    "shiftCreated", "shiftsCreatedSeries", "shiftExists", "shift_role", "shift_taxiCapacity", "voucherSaved", "djWishUpdated", "shift_djPractica", "shift_payInvalid", "applicationApproved", "applicationDeclinedOrg", "voucherCodeInvalid", "voucherMaxInvalid", "shiftDeleted", "shiftHasSignups", "checkedIn", "notFound",
     "shift_time", "shift_window", "shift_length", "shift_capacity",
   ];
   const btn = "rounded-lg px-2.5 py-1 text-xs font-semibold";
@@ -256,6 +256,11 @@ export default async function EventTaxiPage(props: {
           </div>
         </fieldset>
         <label className="flex flex-col gap-1">
+          {t("payLabel")}
+          <input type="number" name="payKr" min={0} max={10000} step={50} defaultValue={0} className={`${input} w-32`} />
+          <span className="text-[11px] text-[var(--usha-muted)]">{t("payHint")}</span>
+        </label>
+        <label className="flex flex-col gap-1">
           {t("roleLabel")}
           <input type="text" name="roleLabel" maxLength={ROLE_LABEL_MAX} placeholder={t("roleLabelPlaceholder")} className={input} />
           <span className="text-[11px] text-[var(--usha-muted)]">{t("roleLabelHint")}</span>
@@ -290,6 +295,7 @@ export default async function EventTaxiPage(props: {
                 <p className="font-semibold">
                   <span className="mr-2 rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-xs text-[var(--usha-gold)]">{shiftRoleName(s, t)}</span>
                   {time(s.starts_at)}–{time(s.ends_at)}
+                  {s.pay_ore > 0 && <span className="ml-2 text-xs text-[var(--usha-gold)]">{t("paidShiftOrg", { pay: Math.round(s.pay_ore / 100) })}</span>}
                   <span className="ml-2 font-normal text-[var(--usha-muted)]">{t("bookedOf", { n: s.booked, cap: s.capacity })}</span>
                 </p>
                 {s.booked === 0 && (

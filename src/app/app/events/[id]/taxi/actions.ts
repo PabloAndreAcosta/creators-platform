@@ -12,6 +12,7 @@ import { isCancelled } from "@/lib/entrance/door-link";
 import { stockholmToday } from "@/lib/time";
 import { isValidVoucherCode, voucherScopeId } from "@/lib/taxi/voucher";
 import { approvalScopeKey } from "@/lib/taxi/approvals";
+import { recordShiftPayrollLine } from "@/lib/taxi/record-shift-pay";
 
 /** Arrangören (kvällens ägare) eller hel admin. */
 async function assertOrganiser(listingId: string) {
@@ -35,8 +36,12 @@ export async function createShift(formData: FormData) {
   // samma pass. Varje roll har sitt eget antal platser.
   const roles = [...new Set(formData.getAll("role").map(parseVolunteerRole).filter((r): r is VolunteerRole => !!r))];
   if (roles.length === 0) page(listingId, "shift_role");
-  // En DJ tar bara volontärpass på en practica; annars ska DJ:n avlönas.
-  if (roles.some((r) => !volunteerRoleAllowed(r, evening))) page(listingId, "shift_djPractica");
+  // Ersättning per person: 0 = volontärpass. Betalt pass = arrangörens kostnad.
+  const payKr = Number(String(formData.get("payKr") ?? "0").replace(",", ".") || 0);
+  if (!Number.isFinite(payKr) || payKr < 0 || payKr > 10_000) page(listingId, "shift_payInvalid");
+  const payOre = Math.round(payKr * 100);
+  // En DJ tar bara obetalda pass på en practica; annars ska DJ:n avlönas.
+  if (roles.some((r) => !volunteerRoleAllowed(r, evening, payOre))) page(listingId, "shift_djPractica");
   // Eget namn gäller bara när ett pass för en enda roll läggs upp.
   const roleLabel = roles.length === 1 ? parseRoleLabel(formData.get("roleLabel")) : null;
   const startTime = String(formData.get("start") ?? "");
@@ -71,7 +76,7 @@ export async function createShift(formData: FormData) {
   const rows = [];
   for (const e of evenings) {
     for (const role of roles) {
-      if (!volunteerRoleAllowed(role, e)) continue;
+      if (!volunteerRoleAllowed(role, e, payOre)) continue;
       const capacity = capacityOf(role);
       const r = validateShift({ eventDate: e.event_date, startTime, endTime, capacity, role });
       if (!r.ok) continue;
@@ -84,7 +89,7 @@ export async function createShift(formData: FormData) {
         .eq("ends_at", r.endsAt);
       const { count } = await (roleLabel ? dup.eq("role_label", roleLabel) : dup.is("role_label", null));
       if ((count ?? 0) > 0) continue;
-      rows.push({ listing_id: e.id, starts_at: r.startsAt, ends_at: r.endsAt, capacity, role, role_label: roleLabel, created_by: user.id });
+      rows.push({ listing_id: e.id, starts_at: r.startsAt, ends_at: r.endsAt, capacity, role, role_label: roleLabel, pay_ore: payOre, created_by: user.id });
     }
   }
   if (rows.length > 0) {
@@ -128,6 +133,8 @@ export async function organiserCheck(formData: FormData) {
   if (!s) page(listingId, "notFound");
   const now = new Date().toISOString();
   await db.from("taxi_signups").update({ checked_in_at: now }).eq("id", signupId).is("checked_in_at", null);
+  // Betalt pass: löneraden skrivs vid incheckningen. Fel här stoppar inte den.
+  await recordShiftPayrollLine(signupId).catch((e) => console.error("recordShiftPayrollLine failed:", e));
   revalidatePath(`/app/events/${listingId}/taxi`);
   page(listingId, "checkedIn");
 }
