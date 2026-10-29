@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { User, Clock, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
-import { MINUTE_OPTIONS, priceForMinutes, type MinuteOption } from "@/lib/coaching/minute-pricing";
+import { MINUTE_OPTIONS, priceForMinutes, durationParts, type MinuteOption } from "@/lib/coaching/minute-pricing";
 
 interface Props {
   listingId: string;
@@ -29,6 +29,14 @@ export function InstructorMinutesCard({
   disabledReason,
 }: Props) {
   const t = useTranslations("instructorMinutesCard");
+  const locale = useLocale();
+  // "45 min", "1,5 h" — timmar med språkets decimaltecken.
+  const label = (m: number) => {
+    const d = durationParts(m);
+    return d.unit === "min"
+      ? t("minutesShort", { minutes: d.value })
+      : t("hoursShort", { hours: new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(d.value) });
+  };
   const { toast } = useToast();
   const [minutes, setMinutes] = useState<MinuteOption>(30);
   const [loading, setLoading] = useState(false);
@@ -86,7 +94,7 @@ export function InstructorMinutesCard({
                   : "border-[var(--usha-border)] hover:border-[var(--usha-gold)]/40"
               }`}
             >
-              <span className="text-sm font-semibold">{t("minutesShort", { minutes: m })}</span>
+              <span className="text-sm font-semibold">{label(m)}</span>
               <span className="text-[11px] text-[var(--usha-muted)]">{priceForMinutes(hourlyRate, m)} kr</span>
             </button>
           );
@@ -110,7 +118,7 @@ export function InstructorMinutesCard({
           className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2.5 text-sm font-bold text-black transition hover:opacity-90 disabled:opacity-50"
         >
           {loading ? <Loader2 size={14} className="animate-spin" /> : <Clock size={14} />}
-          {t("buyMinutes", { minutes, price: priceForMinutes(hourlyRate, minutes) })}
+          {t("buyDuration", { duration: label(minutes), price: priceForMinutes(hourlyRate, minutes) })}
         </button>
       )}
     </div>
