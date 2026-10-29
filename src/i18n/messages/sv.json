@@ -3871,7 +3871,9 @@
     "errorCheckoutRetry": "Kunde inte starta köpet. Försök igen.",
     "minutesShort": "{minutes} min",
     "loginToBuy": "Logga in för att köpa",
-    "buyMinutes": "Köp {minutes} min · {price} kr"
+    "buyMinutes": "Köp {minutes} min · {price} kr",
+    "hoursShort": "{hours} h",
+    "buyDuration": "Köp {duration} · {price} kr"
   },
   "myPosts": {
     "title": "Mina inlägg",

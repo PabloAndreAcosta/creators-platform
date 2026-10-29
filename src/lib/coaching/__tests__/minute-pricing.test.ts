@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   priceForMinutes,
   isMinuteOption,
+  durationParts,
   MINUTE_OPTIONS,
   MIN_PRICE_SEK,
 } from '../minute-pricing';
@@ -37,7 +38,7 @@ describe('priceForMinutes', () => {
 });
 
 describe('isMinuteOption', () => {
-  it('accepts the four valid blocks', () => {
+  it('accepts every offered block, from 15 minutes up to four hours', () => {
     for (const m of MINUTE_OPTIONS) expect(isMinuteOption(m)).toBe(true);
   });
 
@@ -45,5 +46,22 @@ describe('isMinuteOption', () => {
     expect(isMinuteOption(0)).toBe(false);
     expect(isMinuteOption(10)).toBe(false);
     expect(isMinuteOption(75)).toBe(false);
+  });
+});
+
+describe('längre pass och visning', () => {
+  it('erbjuder 15 min upp till fyra timmar', () => {
+    expect([...MINUTE_OPTIONS]).toEqual([15, 30, 45, 60, 90, 120, 180, 240]);
+    expect(isMinuteOption(90)).toBe(true);
+    expect(isMinuteOption(300)).toBe(false);
+  });
+  it('räknar pris pro rata även för timmar', () => {
+    expect(priceForMinutes(400, 90)).toBe(600);
+    expect(priceForMinutes(400, 240)).toBe(1600);
+  });
+  it('visar minuter under en timme, annars timmar', () => {
+    expect(durationParts(45)).toEqual({ unit: 'min', value: 45 });
+    expect(durationParts(90)).toEqual({ unit: 'h', value: 1.5 });
+    expect(durationParts(120)).toEqual({ unit: 'h', value: 2 });
   });
 });

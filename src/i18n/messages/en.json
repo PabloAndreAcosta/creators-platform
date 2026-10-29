@@ -3871,7 +3871,9 @@
     "errorCheckoutRetry": "Could not start the purchase. Please try again.",
     "minutesShort": "{minutes} min",
     "loginToBuy": "Log in to buy",
-    "buyMinutes": "Buy {minutes} min · {price} kr"
+    "buyMinutes": "Buy {minutes} min · {price} kr",
+    "hoursShort": "{hours} h",
+    "buyDuration": "Buy {duration} · {price} kr"
   },
   "myPosts": {
     "title": "My posts",
