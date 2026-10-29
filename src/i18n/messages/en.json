@@ -244,7 +244,7 @@
     "q3": "How do I get my payouts?",
     "a3": "Connect your Stripe account under Payouts. The money then goes there automatically once it becomes available.",
     "q4": "Can I cancel a booking?",
-    "a4": "Yes, you can cancel under My Bookings as long as the booking is not already completed.",
+    "a4": "Yes, under My bookings until the cancellation deadline set by the creator or organiser. It is shown on the page before you buy.",
     "q5": "What is Early Bird / Gold-exclusive?",
     "a5": "Gold and Premium members get access to certain events before everyone else. When the countdown ends, the event becomes available to all.",
     "q6": "Where do I find a guide?",
@@ -1232,7 +1232,9 @@
     "ownerPreview": "Preview — this is how visitors see the page",
     "instructorsHeading": "Book an instructor on site",
     "instructorFallback": "Instructor",
-    "thatIsYou": "That's you"
+    "thatIsYou": "That's you",
+    "cancellationNote": "Free cancellation with full refund until {hours, plural, =168 {one week} one {# hour} other {# hours}} before start.",
+    "cancellationNoteAnytime": "Free cancellation with full refund until start."
   },
   "seriesCard": {
     "more": "{count, plural, =1 {# more date} other {# more dates}}",
@@ -1590,7 +1592,11 @@
       "coachingFormats": {
         "in_person": "In person",
         "online": "Online"
-      }
+      },
+      "cancellationTitle": "Cancellation deadline",
+      "cancellationSubtitle": "How late your customers can cancel themselves and get their money back. After that only you can cancel. Applies to services and events and is shown to buyers before they pay.",
+      "cancellationAnytime": "No limit, until start",
+      "cancellationHours": "At least {hours, plural, =168 {one week} one {# hour} other {# hours}} before start"
     },
     "bankid": {
       "verifiedTitle": "Identity verified with BankID",
@@ -1801,7 +1807,10 @@
     "errorSelectOccurrence": "Choose which night to move the ticket to.",
     "noOtherOccurrences": "There are no other nights to move to.",
     "rescheduleOccurrenceLabel": "New night",
-    "assignmentPayrollPending": "The creator is employed via Usha. Payment opens once payroll is live — do not pay directly."
+    "assignmentPayrollPending": "The creator is employed via Usha. Payment opens once payroll is live — do not pay directly.",
+    "cancelUntil": "Cancel by {when}",
+    "cancelDeadlinePassed": "The cancellation deadline has passed. Contact the organiser if you can't make it.",
+    "cancelPackageInUse": "This pass is already in use and can't be cancelled here. Contact the organiser."
   },
   "listingsPage": {
     "back": "Back",
@@ -2437,7 +2446,9 @@
     "volunteerShifts": "Volunteer shifts",
     "volunteerCtaTitle": "Volunteer this evening",
     "volunteerCtaBody": "Taxi dancers, instructors and more – free entry and a meal voucher. Mobile BankID required.",
-    "volunteerCtaAction": "See shifts →"
+    "volunteerCtaAction": "See shifts →",
+    "cancellationNote": "Free cancellation with full refund until {hours, plural, =168 {one week} one {# hour} other {# hours}} before start.",
+    "cancellationNoteAnytime": "Free cancellation with full refund until start."
   },
   "eventErrors": {
     "notReleased": "Tickets have not been released yet.",
@@ -3784,12 +3795,12 @@
     "heading": "Refund Policy",
     "lastUpdated": "Last updated: 2026-05-01",
     "overviewTitle": "Overview",
-    "overviewBody": "Usha Platform facilitates bookings between customers, creators and organizers. When you cancel a paid booking before it has been completed, you receive a full refund to the same card used for the payment.",
+    "overviewBody": "Usha Platform mediates bookings between customers, creators and organisers. When a paid booking is cancelled you get a full refund to the card used for payment.",
     "cancellationTitle": "Cancellation",
-    "cancellationPendingLabel": "Ongoing booking (status: pending):",
-    "cancellationPendingBody": "The customer or creator can cancel at any time. Any payment is refunded in full.",
-    "cancellationConfirmedLabel": "Confirmed booking (status: confirmed):",
-    "cancellationConfirmedBody": "The customer or creator can cancel. Any payment is refunded in full.",
+    "cancellationPendingLabel": "Before the cancellation deadline:",
+    "cancellationPendingBody": "You can cancel yourself until the cancellation deadline set by the creator or organiser. It is shown on the page before you buy. If no deadline is set you can cancel until start. The creator or organiser can always cancel. Payment is refunded in full.",
+    "cancellationConfirmedLabel": "After the cancellation deadline:",
+    "cancellationConfirmedBody": "After the deadline you can't cancel yourself. Contact the creator or organiser. If they cancel, payment is refunded in full. A pass that has been used can only be cancelled by the seller.",
     "cancellationCompletedLabel": "Completed booking (status: completed):",
     "cancellationCompletedBody1": "The booking cannot be cancelled via the platform. Contact the other party directly or",
     "cancellationCompletedBody2": "for a manual review.",

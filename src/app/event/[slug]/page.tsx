@@ -144,7 +144,7 @@ const getListing = cache(async (slug: string) => {
   const [{ data: host }, { data: venue }, { data: moreDatesRows }, { data: moreRows }] = await Promise.all([
     supabase
       .from("profiles")
-      .select("id, full_name, slug, avatar_url, bankid_verified_at, company_verified_at")
+      .select("id, full_name, slug, avatar_url, bankid_verified_at, company_verified_at, cancellation_hours")
       .eq("id", listing.user_id)
       .maybeSingle(),
     venueId
@@ -1009,6 +1009,14 @@ export default async function EventPage(props: Params) {
               {sale.buyable && !user && (
                 <p className="mt-3 text-center text-[11px] text-[var(--usha-muted)]">
                   {t("noAccountNote")}
+                </p>
+              )}
+              {/* Arrangörens avbokningstid, så köparen vet villkoret före köpet. */}
+              {sale.buyable && (
+                <p className="mt-2 text-center text-[11px] text-[var(--usha-muted)]">
+                  {(host as { cancellation_hours?: number | null } | null)?.cancellation_hours != null
+                    ? t("cancellationNote", { hours: (host as { cancellation_hours: number }).cancellation_hours })
+                    : t("cancellationNoteAnytime")}
                 </p>
               )}
             </div>
