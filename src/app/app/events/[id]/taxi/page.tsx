@@ -7,7 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdminById } from "@/lib/admin/check";
 import { loadEvening, loadShifts, loadStrikeFacts } from "@/lib/taxi/data";
 import { isStrike, strikeStatus, TAXI_WINDOW, STRIKE_LIMIT, type StrikeStatus, TAXI_MAX_PER_EVENING } from "@/lib/taxi/rules";
-import { ROLE_LABEL_MAX, VOLUNTEER_ROLES, shiftRoleName } from "@/lib/taxi/roles";
+import { DEFAULT_CAPACITY, ROLE_LABEL_MAX, VOLUNTEER_ROLES, shiftRoleName } from "@/lib/taxi/roles";
 import { createShift, deleteShift, organiserCheck } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -106,19 +106,37 @@ export default async function EventTaxiPage(props: {
 
       <form action={createShift} className="mt-6 flex flex-wrap items-end gap-3 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 text-sm">
         <input type="hidden" name="listingId" value={id} />
-        <label className="flex flex-col gap-1">
-          {t("role")}
-          <select name="role" defaultValue="taxi_dancer" className={input}>
+        {/* En rad per roll: kryssa i de roller passet gäller och antal platser
+            för var och en. Samma tider för alla — taxidansare, värd, kassa. */}
+        <fieldset className="w-full">
+          <legend className="mb-1">{t("rolesLegend")}</legend>
+          <div className="grid gap-2 sm:grid-cols-2">
             {VOLUNTEER_ROLES.map((r) => (
-              <option key={r} value={r}>
-                {t(`roles.${r}`)}
-              </option>
+              <label key={r} className="flex items-center justify-between gap-3 rounded-lg border border-[var(--usha-border)] px-3 py-2">
+                <span className="flex items-center gap-2">
+                  <input type="checkbox" name="role" value={r} defaultChecked={r === "taxi_dancer"} />
+                  {t(`roles.${r}`)}
+                </span>
+                <span className="flex items-center gap-1 text-xs text-[var(--usha-muted)]">
+                  <input
+                    type="number"
+                    name={`capacity_${r}`}
+                    min={1}
+                    max={r === "taxi_dancer" ? 2 : 50}
+                    defaultValue={DEFAULT_CAPACITY[r]}
+                    className={`${input} w-16`}
+                    aria-label={t("capacityFor", { role: t(`roles.${r}`) })}
+                  />
+                  {t("spotsShort")}
+                </span>
+              </label>
             ))}
-          </select>
-        </label>
+          </div>
+        </fieldset>
         <label className="flex flex-col gap-1">
           {t("roleLabel")}
           <input type="text" name="roleLabel" maxLength={ROLE_LABEL_MAX} placeholder={t("roleLabelPlaceholder")} className={input} />
+          <span className="text-[11px] text-[var(--usha-muted)]">{t("roleLabelHint")}</span>
         </label>
         <label className="flex flex-col gap-1">
           {t("start")}
@@ -127,10 +145,6 @@ export default async function EventTaxiPage(props: {
         <label className="flex flex-col gap-1">
           {t("end")}
           <input type="time" name="end" step={900} min={TAXI_WINDOW.from} max={TAXI_WINDOW.to} defaultValue="19:00" required className={input} />
-        </label>
-        <label className="flex flex-col gap-1">
-          {t("capacity")}
-          <input type="number" name="capacity" min={1} max={50} defaultValue={4} required className={`${input} w-20`} />
         </label>
         <button className="rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-xs font-bold text-black">
           {t("addShift")}

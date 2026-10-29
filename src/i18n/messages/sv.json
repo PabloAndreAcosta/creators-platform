@@ -4627,6 +4627,7 @@
       "taxi_dancer": "Taxidansare",
       "instructor": "Instruktör",
       "door_host": "Dörrvärd",
+      "cashier": "Kassa",
       "photographer": "Foto & film",
       "helper": "Allmän hjälp"
     },
@@ -4638,7 +4639,11 @@
     "notice_eveningFull": "Kvällen har redan fyra taxidansare. Du kan fortfarande ta andra pass.",
     "notice_shift_taxiCapacity": "Ett taxidansarpass kan ha högst 2 platser.",
     "taxiEveningFullNote": "Kvällen har redan {n} taxidansare – taxidansarpassen är fulla, men andra roller är öppna.",
-    "taxiEveningCount": "Taxidansare i kväll: {n} av högst {max}. Högst 2 per pass."
+    "taxiEveningCount": "Taxidansare i kväll: {n} av högst {max}. Högst 2 per pass.",
+    "rolesLegend": "Roller för passet – kryssa i en eller flera",
+    "capacityFor": "Platser för {role}",
+    "spotsShort": "platser",
+    "roleLabelHint": "Eget namn gäller bara när en roll är vald."
   },
   "instruktorerPage": {
     "meta": {
