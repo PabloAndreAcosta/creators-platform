@@ -69,7 +69,8 @@
     "profile": "Perfil",
     "shop": "Tienda",
     "buddies": "Compañeros",
-    "volunteerShifts": "Turnos de voluntarios"
+    "volunteerShifts": "Turnos de voluntarios",
+    "students": "Alumnos"
   },
   "pendingTodos": {
     "heading": "Te esperan",
@@ -2920,7 +2921,9 @@
     "sellLabel": "Oferta",
     "sellDesc": "Todo lo que vendes, en un sitio",
     "taxiLabel": "Turnos de voluntariado",
-    "taxiDesc": "Ayuda como voluntario: entrada gratis y vale de comida"
+    "taxiDesc": "Ayuda como voluntario: entrada gratis y vale de comida",
+    "studentsLabel": "Alumnos",
+    "studentsDesc": "Tus compradores, clases restantes y notas"
   },
   "sellPage": {
     "heading": "Oferta",
@@ -4677,5 +4680,24 @@
       "s3": "Indica qué enseñas, dónde estás, idiomas y tarifa por hora. Así apareces aquí.",
       "s4": "Publica clases, cursos o bonos y conecta Stripe para cobrar."
     }
+  },
+  "studentsPage": {
+    "title": "Alumnos",
+    "subtitle": "{n, plural, one {# persona te ha comprado} other {# personas te han comprado}}",
+    "searchPlaceholder": "Busca nombre, correo o lo que compraron",
+    "search": "Buscar",
+    "empty": "Aquí se reúnen todos los que te compran – entradas, clases y bonos – una fila por persona.",
+    "noMatch": "Nadie coincide con la búsqueda.",
+    "unnamed": "Sin nombre",
+    "stats": "{n, plural, one {# compra} other {# compras}} · {kr} SEK",
+    "last": "última {date}",
+    "next": "próxima {date}",
+    "message": "Mensaje",
+    "passLeft": "{title}: quedan {n}",
+    "passExpires": "caduca {date}",
+    "notePlaceholder": "Nota privada, p. ej. nivel, objetivos o lo que habéis trabajado. Solo tú la ves.",
+    "saveNote": "Guardar",
+    "privacyNote": "Las notas son privadas y el alumno nunca las ve. Los datos de contacto son solo para lo relacionado con la compra. Para escribir a muchos a la vez, escribe a quienes eligieron seguirte:",
+    "followersLink": "Seguidores"
   }
 }

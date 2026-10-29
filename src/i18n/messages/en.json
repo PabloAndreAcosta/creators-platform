@@ -69,7 +69,8 @@
     "profile": "Profile",
     "shop": "Shop",
     "buddies": "Training buddies",
-    "volunteerShifts": "Volunteer shifts"
+    "volunteerShifts": "Volunteer shifts",
+    "students": "Students"
   },
   "pendingTodos": {
     "heading": "Waiting for you",
@@ -2920,7 +2921,9 @@
     "sellLabel": "Offerings",
     "sellDesc": "Everything you sell, in one place",
     "taxiLabel": "Volunteer shifts",
-    "taxiDesc": "Help out as a volunteer – free entry and a meal voucher"
+    "taxiDesc": "Help out as a volunteer – free entry and a meal voucher",
+    "studentsLabel": "Students",
+    "studentsDesc": "Your buyers, passes left and notes"
   },
   "sellPage": {
     "heading": "Offerings",
@@ -4677,5 +4680,24 @@
       "s3": "Add what you teach, where you are, languages and hourly rate. Then you show up here.",
       "s4": "Post lessons, courses or passes and connect Stripe to get paid."
     }
+  },
+  "studentsPage": {
+    "title": "Students",
+    "subtitle": "{n, plural, one {# person has bought from you} other {# people have bought from you}}",
+    "searchPlaceholder": "Search name, email or what they bought",
+    "search": "Search",
+    "empty": "Everyone who buys from you – tickets, lessons and passes – gathers here, one row per person.",
+    "noMatch": "No one matches your search.",
+    "unnamed": "No name",
+    "stats": "{n, plural, one {# purchase} other {# purchases}} · {kr} SEK",
+    "last": "last {date}",
+    "next": "next {date}",
+    "message": "Message",
+    "passLeft": "{title}: {n} left",
+    "passExpires": "expires {date}",
+    "notePlaceholder": "Private note, e.g. level, goals or what you've worked on. Only you see it.",
+    "saveNote": "Save",
+    "privacyNote": "Notes are private and never shown to the student. Contact details are only for what the purchase concerns. To write to many at once, write to those who chose to follow you:",
+    "followersLink": "Followers"
   }
 }
