@@ -3650,7 +3650,22 @@
     "submit": "Publish assignment",
     "back": "Back",
     "pageTitle": "New assignment",
-    "pageIntro": "Post a session and creators can apply. You choose one of the applicants and pay through Usha. If the creator has no company, Usha employs them for the session — you never become the employer."
+    "pageIntro": "Post a session and creators can apply. You choose one of the applicants and pay through Usha. If the creator has no company, Usha employs them for the session — you never become the employer.",
+    "passTypeLabel": "What kind of shift?",
+    "passType": {
+      "taxi_dancer": "Taxi dancer",
+      "instructor": "Instructor",
+      "other": "Other"
+    },
+    "linkEventLabel": "Link to one of your events",
+    "linkEventNone": "None — enter date and place yourself",
+    "linkEventSeries": "{name} ({count} evenings)",
+    "linkEventPickDates": "Pick the evenings this shift is for. One job is posted per evening.",
+    "linkEventFilled": "Date, time and place come from the evening ({venue}).",
+    "pickAtLeastOne": "Pick at least one evening.",
+    "proposedPricePerEvening": "Price per evening, incl. VAT (SEK)",
+    "submitMany": "Publish {count} jobs",
+    "linkedEvent": "The evening: {title}"
   },
   "listingForm": {
     "passSeriesLabel": "Valid as a ticket for series",

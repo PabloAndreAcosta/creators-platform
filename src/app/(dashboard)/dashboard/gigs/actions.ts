@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { canPostGigs } from "@/lib/gigs/can-post";
+import { parsePassType } from "@/lib/gigs/pass-types";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -37,31 +38,60 @@ export async function createGig(formData: FormData) {
 
   const title = (formData.get("title") as string)?.trim();
   const description = (formData.get("description") as string)?.trim() || null;
-  const event_date = (formData.get("event_date") as string)?.trim();
-  const event_time = (formData.get("event_time") as string)?.trim() || null;
-  const venue = (formData.get("venue") as string)?.trim() || null;
-  const venue_address = (formData.get("venue_address") as string)?.trim() || null;
   const perks = (formData.get("perks") as string)?.trim() || null;
+  const pass_type = parsePassType(formData.get("pass_type"));
   const proposedPriceRaw = formData.get("proposed_price") as string;
   const proposed_price = proposedPriceRaw ? parseInt(proposedPriceRaw, 10) : NaN;
+  const listingIds = formData.getAll("listing_ids").map(String).filter(Boolean);
 
   if (!title) return { error: "Titel krävs" };
-  if (!event_date) return { error: "Eventdatum krävs" };
   if (!Number.isFinite(proposed_price) || proposed_price < 0) {
     return { error: "Föreslagen ersättning krävs och måste vara ≥ 0" };
   }
 
-  const { error } = await ctx.supabase.from("gigs").insert({
-    arranger_id: ctx.user.id,
-    title,
-    description,
-    event_date,
-    event_time,
-    venue,
-    venue_address,
-    proposed_price,
-    perks,
-  });
+  const shared = { arranger_id: ctx.user.id, title, description, proposed_price, perks, pass_type };
+  let rows: Array<typeof shared & {
+    listing_id: string | null;
+    event_date: string;
+    event_time: string | null;
+    venue: string | null;
+    venue_address: string | null;
+  }>;
+
+  if (listingIds.length > 0) {
+    // Ett uppdrag per vald kväll. Datum, tid och lokal tas från kvällen, och
+    // bara arrangörens egna kvällar räknas — ett id man inte äger faller bort.
+    const { data: events } = await ctx.supabase
+      .from("listings")
+      .select("id, event_date, event_time, event_venue, event_location")
+      .eq("user_id", ctx.user.id)
+      .in("id", listingIds)
+      .not("event_date", "is", null);
+    if (!events || events.length !== listingIds.length) {
+      return { error: "Någon av kvällarna hittades inte bland dina evenemang" };
+    }
+    rows = events.map((e) => ({
+      ...shared,
+      listing_id: e.id,
+      event_date: String(e.event_date).slice(0, 10),
+      event_time: e.event_time ?? null,
+      venue: e.event_venue ?? null,
+      venue_address: e.event_location ?? null,
+    }));
+  } else {
+    const event_date = (formData.get("event_date") as string)?.trim();
+    if (!event_date) return { error: "Eventdatum krävs" };
+    rows = [{
+      ...shared,
+      listing_id: null,
+      event_date,
+      event_time: (formData.get("event_time") as string)?.trim() || null,
+      venue: (formData.get("venue") as string)?.trim() || null,
+      venue_address: (formData.get("venue_address") as string)?.trim() || null,
+    }];
+  }
+
+  const { error } = await ctx.supabase.from("gigs").insert(rows);
 
   if (error) return { error: "Kunde inte skapa uppdraget: " + error.message };
 

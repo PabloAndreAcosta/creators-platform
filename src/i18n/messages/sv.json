@@ -3650,7 +3650,22 @@
     "submit": "Publicera uppdrag",
     "back": "Tillbaka",
     "pageTitle": "Nytt uppdrag",
-    "pageIntro": "Lägg ut ett pass så kan kreatörer ansöka. Du väljer en av de sökande och betalar via Usha. Har kreatören inget bolag anställer Usha hen för passet — ni blir aldrig arbetsgivare."
+    "pageIntro": "Lägg ut ett pass så kan kreatörer ansöka. Du väljer en av de sökande och betalar via Usha. Har kreatören inget bolag anställer Usha hen för passet — ni blir aldrig arbetsgivare.",
+    "passTypeLabel": "Vad för pass?",
+    "passType": {
+      "taxi_dancer": "Taxidansare",
+      "instructor": "Instruktör",
+      "other": "Annat"
+    },
+    "linkEventLabel": "Koppla till ett av dina evenemang",
+    "linkEventNone": "Inget — skriv datum och plats själv",
+    "linkEventSeries": "{name} ({count} kvällar)",
+    "linkEventPickDates": "Välj vilka kvällar passet gäller. Ett uppdrag läggs ut per kväll.",
+    "linkEventFilled": "Datum, tid och plats hämtas från kvällen ({venue}).",
+    "pickAtLeastOne": "Välj minst en kväll.",
+    "proposedPricePerEvening": "Pris per kväll, inkl. moms (SEK)",
+    "submitMany": "Publicera {count} uppdrag",
+    "linkedEvent": "Kvällen: {title}"
   },
   "listingForm": {
     "passSeriesLabel": "Gäller som biljett på serie",

@@ -3,6 +3,8 @@ import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Calendar, MapPin } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { loadLinkedEvents } from "@/lib/gigs/linked-events";
+import { GigEventLine } from "@/components/gigs/gig-event-line";
 import { GigApplicationActions } from "./application-actions";
 import { loadAssignmentRoutes } from "@/lib/assignments/load";
 
@@ -17,12 +19,14 @@ export default async function GigDetailPage(props: { params: Promise<{ id: strin
 
   const { data: gig } = await supabase
     .from("gigs")
-    .select("id, arranger_id, title, description, event_date, event_time, venue, venue_address, proposed_price, perks, status, created_at")
+    .select("id, arranger_id, title, description, event_date, event_time, venue, venue_address, proposed_price, perks, status, created_at, listing_id, pass_type")
     .eq("id", params.id)
     .single();
 
   if (!gig) notFound();
   if (gig.arranger_id !== user.id) redirect("/dashboard/gigs");
+  const linkedEvents = await loadLinkedEvents(supabase, [gig]);
+  const tf = await getTranslations("gigForm");
 
   const { data: applications } = await supabase
     .from("gig_applications")
@@ -58,6 +62,7 @@ export default async function GigDetailPage(props: { params: Promise<{ id: strin
           {t("backToGigs")}
         </Link>
         <h1 className="text-3xl font-bold">{gig.title}</h1>
+        <GigEventLine passType={gig.pass_type} event={gig.listing_id ? linkedEvents[gig.listing_id] : undefined} t={tf} />
         <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-[var(--usha-muted)]">
           <span className="flex items-center gap-1">
             <Calendar size={12} />
