@@ -18,6 +18,7 @@ import { PayB2BButton } from "./pay-b2b-button";
 import { RedeemSessionButton, DanceCounter } from "./redeem-session-button";
 import { RedeemMinutesButton, MinutesCounter } from "./redeem-minutes-button";
 import { calculateDiscountedPrice } from "@/lib/stripe/commission";
+import { bookingStartsAt, cancellationDeadline, customerCancelBlock } from "@/lib/bookings/cancellation";
 import { loadAssignmentRoutes } from "@/lib/assignments/load";
 import { payrollRouteLive } from "@/lib/assignments/route";
 
@@ -73,15 +74,15 @@ export default async function BookingsPage() {
     listingIds.length > 0
       ? supabase
           .from("listings")
-          .select("id, title, listing_type, price, event_date, series_id")
+          .select("id, title, listing_type, price, event_date, event_time, series_id")
           .in("id", listingIds)
-      : { data: [] as { id: string; title: string; listing_type: string | null; price: number | null; event_date: string | null; series_id: string | null }[] },
+      : { data: [] as { id: string; title: string; listing_type: string | null; price: number | null; event_date: string | null; event_time: string | null; series_id: string | null }[] },
     profileIds.length > 0
       ? supabase
           .from("profiles")
-          .select("id, full_name")
+          .select("id, full_name, cancellation_hours")
           .in("id", profileIds)
-      : { data: [] as { id: string; full_name: string | null }[] },
+      : { data: [] as { id: string; full_name: string | null; cancellation_hours: number | null }[] },
   ]);
 
   const listingMap: Record<string, string> = Object.fromEntries(
@@ -96,6 +97,27 @@ export default async function BookingsPage() {
   const profileMap = Object.fromEntries(
     (profiles ?? []).map((p) => [p.id, p.full_name || t("fallbackPersonName")])
   );
+  // Säljarens avbokningstid: efter den får köparen inte avboka själv.
+  const sellerHours = new Map((profiles ?? []).map((p) => [p.id, (p as { cancellation_hours?: number | null }).cancellation_hours ?? null]));
+  const now = new Date();
+  const customerCancel = (b: NonNullable<typeof outgoing>[number]) => {
+    const l = (listings ?? []).find((x) => x.id === b.listing_id) as
+      | { listing_type?: string | null; event_date?: string | null; event_time?: string | null }
+      | undefined;
+    const deadline = cancellationDeadline(
+      bookingStartsAt({
+        scheduledAt: b.scheduled_at,
+        listingType: l?.listing_type ?? null,
+        eventDate: l?.event_date ?? null,
+        eventTime: l?.event_time ?? null,
+      }),
+      sellerHours.get(b.creator_id) ?? null
+    );
+    return {
+      deadline,
+      block: customerCancelBlock({ now, deadline, sessionsRedeemed: b.sessions_redeemed, minutesRedeemed: b.minutes_redeemed }),
+    };
+  };
   // Uppdrag till en kreatör utan bolag betalas som lön via Usha, inte direkt.
   // Bara kreatörer man själv bokat slås upp.
   // När lönevägen är i drift betalas uppdraget till Usha som vanligt, så då
@@ -488,11 +510,30 @@ export default async function BookingsPage() {
                           occurrences={occurrencesFor(booking.listing_id)}
                           currentListingId={booking.listing_id}
                         />
-                        <CancelButton
-                          bookingId={booking.id}
-                          isPaid={!!(booking as { stripe_payment_id?: string | null }).stripe_payment_id}
-                          paidAmount={(booking as { amount_paid?: number | null }).amount_paid ?? null}
-                        />
+                        {(() => {
+                          const { deadline, block } = customerCancel(booking);
+                          if (block) {
+                            return (
+                              <span className="max-w-xs text-xs text-[var(--usha-muted)]">
+                                {block === "packageInUse" ? t("cancelPackageInUse") : t("cancelDeadlinePassed")}
+                              </span>
+                            );
+                          }
+                          return (
+                            <span className="flex flex-col items-end gap-1">
+                              <CancelButton
+                                bookingId={booking.id}
+                                isPaid={!!(booking as { stripe_payment_id?: string | null }).stripe_payment_id}
+                                paidAmount={(booking as { amount_paid?: number | null }).amount_paid ?? null}
+                              />
+                              {deadline && (
+                                <span className="text-[10px] text-[var(--usha-muted)]">
+                                  {t("cancelUntil", { when: formatDate(deadline.toISOString()) })}
+                                </span>
+                              )}
+                            </span>
+                          );
+                        })()}
                       </>
                     )}
                     {booking.status === "completed" &&
