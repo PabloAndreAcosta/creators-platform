@@ -865,22 +865,8 @@ function KreatorHome({
         ))}
       </div>
 
-      {/* KPI ribbon — locked for gratis */}
-      <GatedAction requiredTier="premium" message={t("upgradePremiumKpi")} showLock>
-        <div className="flex gap-2">
-          {[
-            { label: t("revenue"), value: `${monthlyRevenue.toLocaleString("sv-SE")} kr` },
-            { label: t("bookings"), value: String(bookingsCount) },
-            { label: t("rating"), value: averageRating != null ? `${averageRating}/5` : "—" },
-            { label: t("services"), value: String(servicesCount) },
-          ].map((kpi) => (
-            <div key={kpi.label} className="flex-1 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-3 text-center">
-              <p className="text-base font-bold leading-none">{kpi.value}</p>
-              <p className="mt-1 text-[10px] text-[var(--usha-muted)]">{kpi.label}</p>
-            </div>
-          ))}
-        </div>
-      </GatedAction>
+      {/* Det låsta KPI-bandet låg här och visade samma intäkter, bokningar och
+          betyg som raden ovanför — dubbelt, och bakom ett hänglås. Borttaget. */}
 
       {/* Quick actions — scan locked for gratis */}
       <div className="grid grid-cols-2 gap-2">
@@ -1218,22 +1204,8 @@ function UpplevelseHome({
         ))}
       </div>
 
-      {/* KPI ribbon — locked for gratis */}
-      <GatedAction requiredTier="premium" message={t("upgradePremiumKpi")} showLock>
-        <div className="flex gap-2">
-          {[
-            { label: t("revenue"), value: `${monthlyRevenue.toLocaleString("sv-SE")} kr` },
-            { label: t("bookings"), value: String(bookingsCount) },
-            { label: "Events", value: String(activeEvents.length) },
-            { label: "Utkast", value: String(draftEvents.length) },
-          ].map((kpi) => (
-            <div key={kpi.label} className="flex-1 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-3 py-3 text-center">
-              <p className="text-base font-bold leading-none">{kpi.value}</p>
-              <p className="mt-1 text-[10px] text-[var(--usha-muted)]">{kpi.label}</p>
-            </div>
-          ))}
-        </div>
-      </GatedAction>
+      {/* Det låsta KPI-bandet låg här och visade samma intäkter, bokningar och
+          betyg som raden ovanför — dubbelt, och bakom ett hänglås. Borttaget. */}
 
       {/* Quick actions — scan locked for gratis */}
       <div className="grid grid-cols-2 gap-2">
