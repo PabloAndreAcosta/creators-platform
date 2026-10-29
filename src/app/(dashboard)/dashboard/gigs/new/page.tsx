@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { canPostGigs } from "@/lib/gigs/can-post";
 import { getTranslations } from "next-intl/server";
 import { createGig } from "../actions";
 import { GigForm } from "./gig-form";
@@ -19,7 +20,7 @@ export default async function NewGigPage() {
     .eq("id", user.id)
     .single();
 
-  if ((profile as { role?: string | null } | null)?.role !== "venue") {
+  if (!canPostGigs((profile as { role?: string | null } | null)?.role)) {
     redirect("/dashboard");
   }
 

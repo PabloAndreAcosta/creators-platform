@@ -85,12 +85,11 @@ export const APP_DESTINATIONS: AppDestination[] = [
     group: "createSell", roles: ["creator", "venue"], surfaces: ["sell"] },
   { path: "/dashboard/listings", labelKey: "servicesLabel", descKey: "servicesDesc", icon: Package,
     group: "createSell", roles: ["creator", "venue"], surfaces: ["sell"] },
-  // Uppdragsmarknaden har två sidor: lokalen lägger ut, kreatören söker. De låg
-  // som två menyrader med olika namn under olika prefix, så vilken sida av
-  // marknaden man såg berodde på vilken roll man råkade ha. Samma etikett nu,
-  // en ruta på Utbud, och rollen avgör vart den leder — det är samma marknad.
+  // Uppdragsmarknaden har två sidor: den som lägger ut och den som söker.
+  // Lokaler lägger ut. Kreatörer söker — och lägger också ut, när de själva
+  // håller kvällen. En kreatör ser därför båda rutorna, med olika namn.
   { path: "/dashboard/gigs", labelKey: "gigsLabel", descKey: "gigsDesc", icon: Briefcase,
-    group: "createSell", roles: ["venue"], surfaces: ["sell"] },
+    group: "createSell", roles: ["creator", "venue"], surfaces: ["sell"] },
   { path: "/app/gigs", labelKey: "openGigsLabel", descKey: "openGigsDesc", icon: Briefcase,
     group: "createSell", roles: ["creator"], surfaces: ["sell"] },
   // I sidomenyn: vilka som kommer i kväll är en daglig fråga för den som håller

@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { canPostGigs } from "@/lib/gigs/can-post";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -30,8 +31,8 @@ export async function createGig(formData: FormData) {
   const ctx = await getViewer();
   if ("error" in ctx) return { error: ctx.error };
 
-  if (ctx.role !== "venue") {
-    return { error: "Endast lokaler och arrangörer kan lägga ut uppdrag." };
+  if (!canPostGigs(ctx.role)) {
+    return { error: "Endast kreatörer och lokaler kan lägga ut uppdrag." };
   }
 
   const title = (formData.get("title") as string)?.trim();
@@ -96,11 +97,14 @@ export async function applyToGig(gigId: string, message: string) {
 
   const { data: gig } = await ctx.supabase
     .from("gigs")
-    .select("id, status")
+    .select("id, status, arranger_id")
     .eq("id", gigId)
     .single();
 
   if (!gig) return { error: "Uppdraget hittades inte" };
+  if ((gig as { arranger_id?: string }).arranger_id === ctx.user.id) {
+    return { error: "Du kan inte söka ditt eget uppdrag" };
+  }
   if ((gig as { status?: string }).status !== "open") {
     return { error: "Uppdraget är inte öppet för ansökningar längre" };
   }
@@ -147,7 +151,7 @@ export async function acceptApplication(applicationId: string) {
   const ctx = await getViewer();
   if ("error" in ctx) return { error: ctx.error };
 
-  if (ctx.role !== "venue") {
+  if (!canPostGigs(ctx.role)) {
     return { error: "Endast arrangörer kan acceptera ansökningar." };
   }
 
