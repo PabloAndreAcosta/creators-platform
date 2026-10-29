@@ -237,7 +237,7 @@ rättelsen, men partnern har fått för lite enligt avtalets logik "50/50 efter 
 2. Delar du bedömningen att **The Lab torsdag** ("hela kvällen", practica med instruktör, socialdans tillåten) är en **danstillställning**?
 3. Delar du bedömningen att **zouk-tisdag och The Lab måndag**, med workshop, practica och social till ett pris, har danstillställningen som huvudelement, så att hela priset får 6 %?
 4. **Dansundervisning i kizomba, zouk och salsa:** ska vi ta 25 % som det säkra valet, eller begära förhandsbesked eller skriftlig upplysning för 6 % som idrott? Svenska Danssportförbundet har inte dessa grenar.
-5. **Bacchi:** avtalet säger "50/50 efter moms". Ska mellanskillnaden som Bacchi fått för lite betalas ut i efterhand? Ska det i så fall ske genom kompletteringsjobbet eller manuellt? Hur ska det formuleras mot Lennart?
+5. **Bacchi:** avtalet säger "50/50 efter moms". Ska mellanskillnaden som Bacchi fått för lite betalas ut i efterhand? Ska det i så fall ske genom kompletteringsjobbet eller manuellt? Hur ska det formuleras mot partnern?
 6. **Stripe Tax:** vet du vilken skattekod och vilket beteende (inklusive eller exklusive) kontot använder, och om Stripes skatterapport stämmer med Fortnox?
 7. **Klippkort:** ska Allt-kortet och Undervisningskortet behandlas som enfunktionsvoucher med moms vid försäljning, eller som flerfunktionsvoucher med moms vid inlösen, om undervisning skulle få 25 %?
 8. **Egenanställning via SAMekonomi:** fakturerar SAM med 25 %? Har du något emot att Usha får ett ingående momsöverskott när försäljningen har 6 %?
