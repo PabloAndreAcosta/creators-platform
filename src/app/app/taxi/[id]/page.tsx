@@ -5,6 +5,8 @@ import { ChevronLeft, HeartHandshake, ShieldCheck, Utensils } from "lucide-react
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { DEFAULT_VOUCHER_MAX_ORE, voucherScopeId } from "@/lib/taxi/voucher";
+import { assignmentRoute, type AssignmentRoute } from "@/lib/assignments/route";
+import { shiftNetOre } from "@/lib/taxi/shift-pay";
 import { approvalScopeKey, approvedRoles, type ApprovalStatus } from "@/lib/taxi/approvals";
 import { loadEvening, loadShifts, loadStrikeFacts } from "@/lib/taxi/data";
 import { canCheckIn, dancerEligibility, isLateCancel, strikeStatus, taxiEveningFull, STRIKE_LIMIT, TAXI_MAX_PER_EVENING, type DancerEligibility } from "@/lib/taxi/rules";
@@ -56,6 +58,8 @@ export default async function TaxiEveningPage(props: {
     .maybeSingle();
   const voucherMaxKr = Math.round((voucherSettings?.max_ore ?? DEFAULT_VOUCHER_MAX_ORE) / 100);
   let eligibility: DancerEligibility = "bankid";
+  let payRoute: AssignmentRoute = "payroll";
+  let birthYear: number | null = null;
   let role: "creator" | "venue" | "customer" = "customer";
   if (user) {
     const shiftIds = shifts.map((s) => s.id);
@@ -65,7 +69,7 @@ export default async function TaxiEveningPage(props: {
         : Promise.resolve({ data: [] }),
       loadStrikeFacts(user.id, evening),
       db.from("taxi_vouchers").select("redeemed_at").eq("listing_id", id).eq("dancer_id", user.id).maybeSingle(),
-      db.from("profiles").select("role, bankid_verified_at, bankid_birth_date").eq("id", user.id).single(),
+      db.from("profiles").select("role, bankid_verified_at, bankid_birth_date, is_company, company_verified_at, is_usha_owned_seller").eq("id", user.id).single(),
     ]);
     mine = rows ?? [];
     const st = strikeStatus(facts, now);
@@ -77,6 +81,13 @@ export default async function TaxiEveningPage(props: {
       evening.event_date,
     );
     if (profile?.role === "creator" || profile?.role === "venue") role = profile.role;
+    // Betalda pass: utan bolag visas ungefär vad som blir kvar i handen.
+    payRoute = assignmentRoute({
+      is_company: profile?.is_company ?? null,
+      company_verified_at: profile?.company_verified_at ?? null,
+      is_usha_owned_seller: profile?.is_usha_owned_seller ?? null,
+    });
+    birthYear = profile?.bankid_birth_date ? Number(String(profile.bankid_birth_date).slice(0, 4)) : null;
   }
   const booked = mine.filter((m) => m.status === "booked");
   const bookedIds = new Set(booked.map((m) => m.shift_id));
@@ -110,6 +121,13 @@ export default async function TaxiEveningPage(props: {
   const anyCheckedIn = booked.some((m) => m.checked_in_at);
   const late = isLateCancel(evening.event_date, now);
 
+  // Pengar nämns bara på betalda pass.
+  const payNote = (s: { pay_ore: number }) =>
+    s.pay_ore > 0
+      ? payRoute === "payroll"
+        ? t("paidShiftNet", { pay: Math.round(s.pay_ore / 100), net: Math.round(shiftNetOre(s.pay_ore, evening.event_date, birthYear) / 100) })
+        : t("paidShiftCompany", { pay: Math.round(s.pay_ore / 100) })
+      : null;
   const notices = [
     "signedUp", "cancelled", "cancelledLate", "checkedIn", "voucherRedeemed", "noShift", "mustAccept",
     "notFound", "overlap", "notApproved", "applicationSent", "applicationExists", "applicationDeclined", "eveningFull", "bankid", "bankidAgain", "age", "blocked", "closed", "full", "checkInClosed", "voucherNeedsCheckIn", "voucherNoCode", "voucherWrongCode", "voucherBadAmount", "voucherTooManyTries",
@@ -155,6 +173,7 @@ export default async function TaxiEveningPage(props: {
                 <div key={m.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 text-sm">
                   <div>
                     <p className="font-medium">{shiftRoleName(s, t)} · {time(s.starts_at)}–{time(s.ends_at)}</p>
+                    {payNote(s) && <p className="text-xs text-[var(--usha-gold)]">{payNote(s)}</p>}
                     <p className="text-xs text-[var(--usha-muted)]">
                       {m.checked_in_at ? t("checkedInAt", { time: time(m.checked_in_at) }) : t("notCheckedIn")}
                     </p>
@@ -283,6 +302,7 @@ export default async function TaxiEveningPage(props: {
                   <input type="checkbox" name="shiftId" value={s.id} />
                   <span className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-xs text-[var(--usha-gold)]">{shiftRoleName(s, t)}</span>
                   {time(s.starts_at)}–{time(s.ends_at)}
+                  {payNote(s) && <span className="text-xs text-[var(--usha-gold)]">{payNote(s)}</span>}
                   <span className="text-xs text-[var(--usha-muted)]">{t("spotsLeft", { n: s.capacity - s.booked })}</span>
                 </label>
               ))}

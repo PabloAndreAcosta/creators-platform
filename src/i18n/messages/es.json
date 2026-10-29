@@ -4696,7 +4696,13 @@
     "djAction_booked": "Reservado",
     "djAction_hidden": "Ocultar",
     "notice_djWishUpdated": "Petición actualizada.",
-    "notice_shift_djPractica": "Un DJ solo puede coger turnos voluntarios en una práctica. Si no, el DJ debe cobrar."
+    "notice_shift_djPractica": "Un DJ solo puede coger turnos voluntarios en una práctica. Si no, el DJ debe cobrar.",
+    "payLabel": "Pago por persona (kr)",
+    "payHint": "0 = turno voluntario. Turno pagado = tu coste total; sin empresa se paga como salario a través del socio de nóminas de Usha.",
+    "paidShiftOrg": "Pagado: {pay} kr/persona",
+    "paidShiftNet": "Turno pagado: {pay} kr – unos {net} kr tras impuestos",
+    "paidShiftCompany": "Turno pagado: {pay} kr – facturado por tu empresa",
+    "notice_shift_payInvalid": "Indica un pago entre 0 y 10 000 kr."
   },
   "instruktorerPage": {
     "meta": {
