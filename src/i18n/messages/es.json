@@ -852,7 +852,8 @@
       "privacy": "Política de privacidad",
       "cookies": "Política de cookies",
       "copyright": "© 2026 Usha AB. Todos los derechos reservados.",
-      "builtWith": "Hecho con cariño en Suecia"
+      "builtWith": "Hecho con cariño en Suecia",
+      "instructors": "Instructores"
     },
     "doors": {
       "heading": "¿Por dónde empiezas?",
@@ -1481,7 +1482,8 @@
     "hosted": {
       "heading": "Eventos en nuestro local",
       "by": "Organizado por {name}"
-    }
+    },
+    "instructorBadge": "Instructor"
   },
   "dashProfile": {
     "page": {
@@ -1551,12 +1553,12 @@
       "danceLanguagesLabel": "Idiomas",
       "danceLanguagesPlaceholder": "p. ej. sueco, inglés, español",
       "experienceYearsLabel": "Experiencia (años)",
-      "coachingToggleTitle": "Ofrezco clases particulares",
-      "coachingToggleHint": "Clases privadas de baile en pareja. Muestra el precio y tus especialidades en tu perfil.",
-      "coachingRateLabel": "Tarifa por hora de clases (SEK)",
-      "coachingSpecialtiesLabel": "Especialidades",
-      "coachingSpecialtiesPlaceholder": "p. ej. bugg para principiantes, salsa avanzada, coreografía de boda",
-      "coachingBioLabel": "Biografía de clases",
+      "coachingToggleTitle": "Enseño, entreno o hago coaching",
+      "coachingToggleHint": "Apareces en el directorio de instructores y en tu perfil con título, especialidad y tarifa por hora.",
+      "coachingRateLabel": "Tarifa por hora (SEK, lo que paga el alumno)",
+      "coachingSpecialtiesLabel": "Qué enseñas",
+      "coachingSpecialtiesPlaceholder": "p. ej. kizomba para principiantes, fuerza, baile de boda",
+      "coachingBioLabel": "Sobre tus clases",
       "coachingBioPlaceholder": "Describe tu estilo de enseñanza, a quién das clases o qué suelen cubrir las lecciones.",
       "publicToggleTitle": "Perfil público",
       "publicToggleHint": "Haz que tu perfil sea visible en el marketplace para que los clientes te encuentren.",
@@ -1573,7 +1575,22 @@
       "avatarUpdatedTitle": "Avatar actualizado",
       "genericErrorTitle": "Algo salió mal",
       "profileSaveFailedTitle": "No se pudo guardar el perfil",
-      "profileSavedTitle": "Perfil guardado"
+      "profileSavedTitle": "Perfil guardado",
+      "instructorTitle": "Instructor, coach o entrenador personal",
+      "instructorSubtitle": "Ofrece clases particulares y coaching. Actívalo y los alumnos te encontrarán en usha.se/instruktorer.",
+      "coachingTitleLabel": "Título",
+      "coachingTitlePlaceholder": "Escribe el tuyo o elige una sugerencia",
+      "coachingTitlePresets": {
+        "instructor": "Instructor",
+        "coach": "Coach",
+        "pt": "Entrenador personal",
+        "teacher": "Profesor"
+      },
+      "coachingFormatsLabel": "¿Dónde son las clases?",
+      "coachingFormats": {
+        "in_person": "Presencial",
+        "online": "En línea"
+      }
     },
     "bankid": {
       "verifiedTitle": "Identidad verificada con BankID",
@@ -4604,5 +4621,61 @@
     "notice_shift_taxiCapacity": "Un turno de taxi dancer puede tener como máximo 2 plazas.",
     "taxiEveningFullNote": "La noche ya tiene {n} taxi dancers: esos turnos están llenos, pero otros roles siguen abiertos.",
     "taxiEveningCount": "Taxi dancers esta noche: {n} de un máximo de {max}. Máximo 2 por turno."
+  },
+  "instruktorerPage": {
+    "meta": {
+      "title": "Instructores, coaches y entrenadores personales – Usha Platform",
+      "description": "Encuentra un instructor, coach o entrenador personal cerca de ti, u ofrece tus propias clases en Usha."
+    },
+    "hero": {
+      "titleLead": "Aprende de",
+      "titleHighlight": "la persona adecuada",
+      "body": "Instructores, coaches y entrenadores personales que ofrecen clases particulares, cursos y talleres. Busca por estilo, ciudad e idioma, o empieza a enseñar tú.",
+      "ctaFind": "Encontrar instructor",
+      "ctaBecome": "Enseña en Usha"
+    },
+    "directory": {
+      "heading": "Instructores",
+      "q": "Buscar",
+      "qPlaceholder": "Estilo, especialidad o nombre",
+      "city": "Ciudad",
+      "language": "Idioma",
+      "format": "Formato",
+      "formatAny": "Presencial o en línea",
+      "maxRate": "Máx. SEK/hora",
+      "search": "Buscar",
+      "clear": "Limpiar",
+      "empty": "Los instructores aparecerán aquí en cuanto los primeros lo activen en su perfil.",
+      "noMatch": "Ningún instructor coincide con la búsqueda. Prueba con menos filtros."
+    },
+    "formats": {
+      "in_person": "Presencial",
+      "online": "En línea"
+    },
+    "defaultTitle": "Instructor",
+    "rate": "{price} SEK/hora",
+    "offer": {
+      "heading": "Lo que obtienes como instructor",
+      "body": "Una cuenta de creador en Usha te da todas las herramientas. Tú eliges cómo te llamas y qué ofreces.",
+      "lessonsTitle": "Clases particulares",
+      "lessonsBody": "Los alumnos reservan y pagan directamente en tu perfil.",
+      "eventsTitle": "Cursos y eventos",
+      "eventsBody": "Publica talleres, cursos y noches y vende entradas.",
+      "passTitle": "Bonos de clases",
+      "passBody": "Vende varias sesiones a la vez, al precio que tú pongas.",
+      "openNightsTitle": "Noches abiertas",
+      "openNightsBody": "Únete a noches abiertas como The Lab y vende sesiones cortas de coaching allí mismo.",
+      "paidTitle": "Cobro directo",
+      "paidBody": "El dinero va a tu propia cuenta de Stripe. Usha gestiona el pago.",
+      "trustTitle": "Verificado con BankID",
+      "trustBody": "Todos los creadores se identifican con Mobile BankID, así los alumnos saben a quién reservan."
+    },
+    "steps": {
+      "heading": "Cómo empezar",
+      "s1": "Crea una cuenta de creador y verifícate con Mobile BankID.",
+      "s2": "Activa Instructor en tu perfil y elige tu título: Instructor, Coach, PT o el tuyo propio.",
+      "s3": "Indica qué enseñas, dónde estás, idiomas y tarifa por hora. Así apareces aquí.",
+      "s4": "Publica clases, cursos o bonos y conecta Stripe para cobrar."
+    }
   }
 }
