@@ -68,7 +68,8 @@
     "more": "Más",
     "profile": "Perfil",
     "shop": "Tienda",
-    "buddies": "Compañeros"
+    "buddies": "Compañeros",
+    "volunteerShifts": "Turnos de voluntarios"
   },
   "pendingTodos": {
     "heading": "Te esperan",
@@ -2416,7 +2417,10 @@
     "passesSaveUpTo": "ahorra hasta un {percent} %",
     "descriptionToggle": "Leer la descripción completa",
     "tldrHeading": "En resumen",
-    "volunteerShifts": "Turnos de voluntarios"
+    "volunteerShifts": "Turnos de voluntarios",
+    "volunteerCtaTitle": "Hazte voluntario esta noche",
+    "volunteerCtaBody": "Taxi dancers, instructores y más: entrada gratis y un vale de comida. Se requiere BankID móvil.",
+    "volunteerCtaAction": "Ver turnos →"
   },
   "eventErrors": {
     "notReleased": "Las entradas aún no están disponibles.",
