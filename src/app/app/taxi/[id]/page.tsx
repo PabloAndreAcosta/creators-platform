@@ -5,7 +5,7 @@ import { ChevronLeft, HeartHandshake, ShieldCheck, Utensils } from "lucide-react
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { loadEvening, loadShifts, loadStrikeFacts } from "@/lib/taxi/data";
-import { canCheckIn, dancerEligibility, isLateCancel, strikeStatus, STRIKE_LIMIT, type DancerEligibility } from "@/lib/taxi/rules";
+import { canCheckIn, dancerEligibility, isLateCancel, strikeStatus, taxiEveningFull, STRIKE_LIMIT, TAXI_MAX_PER_EVENING, type DancerEligibility } from "@/lib/taxi/rules";
 import { BankIdVerifyButton } from "@/app/(dashboard)/dashboard/profile/bankid-verify-button";
 import { signUpForShifts, cancelShift, checkIn, redeemVoucher } from "../actions";
 
@@ -72,13 +72,26 @@ export default async function TaxiEveningPage(props: {
   const booked = mine.filter((m) => m.status === "booked");
   const bookedIds = new Set(booked.map((m) => m.shift_id));
   const blocked = suspendedUntil !== null;
-  const open = shifts.filter((s) => Date.parse(s.starts_at) > now.getTime() && s.booked < s.capacity && !bookedIds.has(s.id));
+  // Kvällens taxitak: när fyra olika taxidansare är anmälda döljs
+  // taxidansarpassen för nya. Den som redan är en av dem får ta fler pass.
+  const taxiShiftIds = shifts.filter((s) => s.role === "taxi_dancer").map((s) => s.id);
+  const { data: taxiBooked } = taxiShiftIds.length
+    ? await db.from("taxi_signups").select("dancer_id").eq("status", "booked").in("shift_id", taxiShiftIds)
+    : { data: [] as { dancer_id: string }[] };
+  const taxiFull = taxiEveningFull(new Set((taxiBooked ?? []).map((r) => r.dancer_id)), user?.id ?? "");
+  const open = shifts.filter(
+    (s) =>
+      Date.parse(s.starts_at) > now.getTime() &&
+      s.booked < s.capacity &&
+      !bookedIds.has(s.id) &&
+      !(s.role === "taxi_dancer" && taxiFull),
+  );
   const anyCheckedIn = booked.some((m) => m.checked_in_at);
   const late = isLateCancel(evening.event_date, now);
 
   const notices = [
     "signedUp", "cancelled", "cancelledLate", "checkedIn", "voucherRedeemed", "noShift", "mustAccept",
-    "notFound", "bankid", "bankidAgain", "age", "blocked", "closed", "full", "checkInClosed", "voucherNeedsCheckIn",
+    "notFound", "overlap", "eveningFull", "bankid", "bankidAgain", "age", "blocked", "closed", "full", "checkInClosed", "voucherNeedsCheckIn",
   ];
   const btn = "rounded-lg px-3 py-1.5 text-xs font-bold";
   const gold = `${btn} bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] text-black`;
@@ -195,6 +208,9 @@ export default async function TaxiEveningPage(props: {
           <form action={signUpForShifts} className="space-y-4 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 text-sm">
             <input type="hidden" name="listingId" value={id} />
             <fieldset className="space-y-2">
+              {taxiFull && taxiShiftIds.length > 0 && (
+                <p className="mb-2 text-xs text-[var(--usha-muted)]">{t("taxiEveningFullNote", { n: TAXI_MAX_PER_EVENING })}</p>
+              )}
               <legend className="mb-1 font-medium">{t("chooseShifts")}</legend>
               {open.map((s) => (
                 <label key={s.id} className="flex items-center gap-2">

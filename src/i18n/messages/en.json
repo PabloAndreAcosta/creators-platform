@@ -4576,6 +4576,7 @@
     "role": "Role",
     "roles": {
       "taxi_dancer": "Taxi dancer",
+      "instructor": "Instructor",
       "door_host": "Door host",
       "photographer": "Photo & video",
       "helper": "General help"
@@ -4583,6 +4584,11 @@
     "wholeSeries": "Add the shift to every upcoming evening in the series",
     "notice_shiftsCreatedSeries": "The shift has been added to the series' upcoming evenings.",
     "notice_shiftExists": "The evening already had that shift.",
-    "notice_shift_role": "Choose a role for the shift."
+    "notice_shift_role": "Choose a role for the shift.",
+    "notice_overlap": "You cannot take two shifts that overlap in time.",
+    "notice_eveningFull": "The evening already has four taxi dancers. You can still take other shifts.",
+    "notice_shift_taxiCapacity": "A taxi dancer shift can have at most 2 spots.",
+    "taxiEveningFullNote": "The evening already has {n} taxi dancers – taxi dancer shifts are full, but other roles are open.",
+    "taxiEveningCount": "Taxi dancers tonight: {n} of at most {max}. At most 2 per shift."
   }
 }
