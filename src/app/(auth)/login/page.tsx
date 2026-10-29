@@ -8,7 +8,7 @@ import { authUrlWithNext, callbackUrlWithNext } from "@/lib/auth/next-path";
 import { createClient } from "@/lib/supabase/client";
 import { isRateLimitError } from "@/lib/auth/rate-limit-error";
 import { ShieldCheck, Eye, EyeOff } from "lucide-react";
-import UschjaLogo from "@/components/UschjaLogo";
+import { AuthBrand } from "@/components/auth-brand";
 import { GoogleIcon, FacebookIcon } from "@/components/brand-icons";
 
 function FieldError({ message }: { message: string }) {
@@ -185,9 +185,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center px-6">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <div className="mb-4 flex justify-center">
-            <UschjaLogo size={80} />
-          </div>
+          <AuthBrand />
           <h1 className="text-2xl font-bold">{t("welcomeBack")}</h1>
           <p className="mt-1 text-sm text-[var(--usha-muted)]">{t("loginToAccount")}</p>
         </div>
