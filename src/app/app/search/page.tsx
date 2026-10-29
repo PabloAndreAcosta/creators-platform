@@ -58,7 +58,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
     let listingsQuery = supabase
       .from("listings")
-      .select("id, title, category, price, user_id, profiles(full_name)")
+      .select("id, title, category, price, user_id, profiles!user_id(full_name)")
       .eq("is_active", true);
 
     if (pattern) {
@@ -82,7 +82,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       // related column.
       let scopedListingsQuery = supabase
         .from("listings")
-        .select("id, title, category, price, user_id, profiles!inner(full_name, creator_subcategory)")
+        .select("id, title, category, price, user_id, profiles!user_id!inner(full_name, creator_subcategory)")
         .eq("is_active", true)
         .eq("profiles.creator_subcategory", "taxi_dancer");
       if (pattern) {

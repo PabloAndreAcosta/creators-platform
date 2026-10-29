@@ -68,7 +68,8 @@
     "more": "Mer",
     "profile": "Profil",
     "shop": "Butik",
-    "buddies": "Träningsvänner"
+    "buddies": "Träningsvänner",
+    "volunteerShifts": "Volontärpass"
   },
   "pendingTodos": {
     "heading": "Väntar på dig",
@@ -2416,7 +2417,10 @@
     "passesSaveUpTo": "spara upp till {percent} %",
     "descriptionToggle": "Läs hela beskrivningen",
     "tldrHeading": "I korthet",
-    "volunteerShifts": "Volontärpass"
+    "volunteerShifts": "Volontärpass",
+    "volunteerCtaTitle": "Bli volontär den här kvällen",
+    "volunteerCtaBody": "Taxidansare, instruktörer m.fl. – fri entré och en matkupong. Mobilt BankID krävs.",
+    "volunteerCtaAction": "Se passen →"
   },
   "eventErrors": {
     "notReleased": "Biljetterna har inte släppts än.",

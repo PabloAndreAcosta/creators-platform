@@ -68,7 +68,8 @@
     "more": "More",
     "profile": "Profile",
     "shop": "Shop",
-    "buddies": "Training buddies"
+    "buddies": "Training buddies",
+    "volunteerShifts": "Volunteer shifts"
   },
   "pendingTodos": {
     "heading": "Waiting for you",
@@ -2416,7 +2417,10 @@
     "passesSaveUpTo": "save up to {percent}%",
     "descriptionToggle": "Read the full description",
     "tldrHeading": "In short",
-    "volunteerShifts": "Volunteer shifts"
+    "volunteerShifts": "Volunteer shifts",
+    "volunteerCtaTitle": "Volunteer this evening",
+    "volunteerCtaBody": "Taxi dancers, instructors and more – free entry and a meal voucher. Mobile BankID required.",
+    "volunteerCtaAction": "See shifts →"
   },
   "eventErrors": {
     "notReleased": "Tickets have not been released yet.",

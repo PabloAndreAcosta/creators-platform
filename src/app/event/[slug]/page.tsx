@@ -21,6 +21,7 @@ import { cache } from "react";
 import { safeJsonLd } from "@/lib/json-ld";
 import { pickMessages, PUBLIC_NAMESPACES } from "@/lib/i18n/client-namespaces";
 import { stockholmEventISO } from "@/lib/time";
+import { loadShifts } from "@/lib/taxi/data";
 import { getTranslations, getLocale, getMessages } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
 import { SocialShareButton } from "@/components/social-share-button";
@@ -533,6 +534,14 @@ export default async function EventPage(props: Params) {
   const isHost = !!user && user.id === listing.user_id;
   const returnPath = `/event/${slug}`;
 
+  // Volontärpass för kvällen (taxidansare, instruktörer m.fl.). Visas för
+  // besökare som en väg in — annars hittar ingen passen från kvällens sida.
+  const openVolunteerSpots = (await loadShifts(listing.id))
+    .filter((s) => Date.parse(s.starts_at) > Date.now())
+    .reduce((n, s) => n + Math.max(0, s.capacity - s.booked), 0);
+  const volunteerPath = `/app/taxi/${listing.id}`;
+  const volunteerHref = user ? volunteerPath : `/signup?role=customer&next=${encodeURIComponent(volunteerPath)}`;
+
   const hostDisplayName = listing.organizer_name || host?.full_name || t("organizer");
 
   const prepareCards = (items: EventCard[]): PreparedCard[] =>
@@ -854,6 +863,21 @@ export default async function EventPage(props: Params) {
               {t("edit")}
             </Link>
           </div>
+        )}
+        {!isHost && openVolunteerSpots > 0 && (
+          <Link
+            href={volunteerHref}
+            className="mb-8 flex items-center justify-between gap-3 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 transition hover:border-[var(--usha-gold)]/40"
+          >
+            <span className="flex items-center gap-3">
+              <Heart size={18} className="shrink-0 text-[var(--usha-gold)]" />
+              <span>
+                <span className="block text-sm font-semibold">{t("volunteerCtaTitle")}</span>
+                <span className="block text-xs text-[var(--usha-muted)]">{t("volunteerCtaBody")}</span>
+              </span>
+            </span>
+            <span className="shrink-0 text-xs font-semibold text-[var(--usha-gold)]">{t("volunteerCtaAction")}</span>
+          </Link>
         )}
         {/* min-w-0 på båda grid-barnen: ett grid-spår tar annars minst sitt
             innehålls min-content-bredd, och ett enda obrytbart stycke drar ut

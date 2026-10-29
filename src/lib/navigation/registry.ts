@@ -141,8 +141,8 @@ export const APP_DESTINATIONS: AppDestination[] = [
   { path: "/app/recommendations", labelKey: "recommendationsLabel", descKey: "recommendationsDesc", icon: Sparkles,
     group: "explore", roles: "all", surfaces: ["more"] },
   // Taxipass: volontärpass som taxidansare. Länken i inläggen pekar hit.
-  { path: "/app/taxi", labelKey: "taxiLabel", descKey: "taxiDesc", icon: Heart,
-    group: "explore", roles: "all", surfaces: ["more"] },
+  { path: "/app/taxi", labelKey: "taxiLabel", descKey: "taxiDesc", navLabelKey: "volunteerShifts", icon: Heart,
+    group: "explore", roles: "all", surfaces: ["more", "sidebar"] },
   { path: "/app/training-buddies", labelKey: "trainingBuddiesLabel", descKey: "trainingBuddiesDesc", navLabelKey: "buddies", icon: Users,
     group: "explore", roles: "all", surfaces: ["more", "sidebar"] },
   { path: "/marketplace", labelKey: "marketplaceLabel", descKey: "marketplaceDesc", icon: Store,
