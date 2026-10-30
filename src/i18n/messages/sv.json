@@ -2165,7 +2165,7 @@
     "fbAutoPostHintRecurring": "Varje tillfälle publiceras automatiskt på din kopplade Facebook-sida ~3 dagar innan dess datum — en jämn ström av påminnelser istället för allt på en gång.",
     "fbAutoPostHint": "Eventet publiceras automatiskt på din kopplade Facebook-sida ~3 dagar innan datumet. Kräver en ansluten Facebook-sida.",
     "openToInstructors": "Öppna för instruktörer",
-    "openToInstructorsHint": "Låt betalande instruktörer erbjuda betalda minisessioner (15–60 min) på ditt event. Deltagare köper minuter direkt av instruktören. Du tar ingen del av deras intäkt.",
+    "openToInstructorsHint": "Låt betalande instruktörer erbjuda betalda pass, från 15 minuter upp till 4 timmar, på ditt event. Deltagare köper tiden direkt av instruktören. Du tar ingen del av deras intäkt. Instruktörer anmäler sig senast måndag samma vecka.",
     "category": "Kategori",
     "categoryPlaceholder": "Välj kategori...",
     "price": "Pris (SEK)",
@@ -2751,7 +2751,7 @@
   "terms": {
     "back": "Tillbaka",
     "title": "Användarvillkor",
-    "lastUpdated": "Senast uppdaterad: 1 januari 2026",
+    "lastUpdated": "Senast uppdaterad: 30 oktober 2026",
     "disclaimer": "",
     "s1Title": "1. Allmänt",
     "s1Body": "Dessa användarvillkor (”Villkor”) reglerar din användning av Usha Platform-plattformen (”Plattformen”) som tillhandahålls av Usha AB, med säte i Malmö, Sverige (”Usha Platform”, ”vi”, ”oss”). Genom att skapa ett konto eller använda Plattformen godkänner du dessa Villkor.",
@@ -2771,9 +2771,11 @@
     "s8Body": "Usha Platform förbehåller sig rätten att ändra dessa Villkor. Väsentliga ändringar meddelas via e-post eller via Plattformen minst 30 dagar innan de träder i kraft. Fortsatt användning efter ändringar innebär att du godkänner de uppdaterade Villkoren.",
     "s9Title": "9. Tillämplig lag",
     "s9Body": "Dessa Villkor regleras av svensk lag. Eventuella tvister ska i första hand lösas genom förhandling, i andra hand genom allmän domstol med Malmö tingsrätt som första instans.",
-    "s10Title": "10. Kontakt",
-    "s10BodyPre": "Har du frågor om dessa Villkor? Kontakta oss på ",
-    "s10Email": "legal@usha.se"
+    "s10Title": "10. Instruktörer på öppna evenemang",
+    "s10Body": "Arrangörer kan öppna sina evenemang för instruktörer. En kreatör som vill erbjuda instruktörstid på ett sådant evenemang anmäler sig på Plattformen senast måndag samma vecka som evenemanget äger rum. Därefter stängs anmälan för det evenemanget. Arrangören tar ingen andel av det instruktören säljer; endast provisionen enligt punkt 4 gäller.",
+    "s11Title": "11. Kontakt",
+    "s11BodyPre": "Har du frågor om dessa Villkor? Kontakta oss på ",
+    "s11Email": "legal@usha.se"
   },
   "privacy": {
     "back": "Tillbaka",
@@ -3449,7 +3451,7 @@
   },
   "openEvents": {
     "title": "Öppna event",
-    "subtitle": "Gå med på andras öppna event och erbjud betalda minisessioner (15–60 min).",
+    "subtitle": "Gå med på andras öppna event och erbjud betalda instruktörspass, från 15 minuter upp till 4 timmar.",
     "eligibilityHeading": "Innan du kan erbjuda tjänster",
     "missingCreator": "Du måste vara registrerad som kreatör",
     "missingSubscription": "Skaffa en Guld- eller Premium-prenumeration",
@@ -3457,7 +3459,10 @@
     "missingStripe": "Anslut Stripe för utbetalningar",
     "emptyState": "Inga öppna event just nu. Håll utkik!",
     "ownEvent": "Ditt event",
-    "meetRequirements": "Uppfyll kraven ovan"
+    "meetRequirements": "Uppfyll kraven ovan",
+    "deadlineRule": "Anmäl dig senast måndag samma vecka som kvällen.",
+    "joinBy": "Anmälan senast {date}",
+    "joinClosed": "Anmälan stängd"
   },
   "billingConnect": {
     "title": "Bankkonto",

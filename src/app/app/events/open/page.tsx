@@ -6,6 +6,8 @@ import Link from "next/link";
 import { ArrowLeft, Calendar, MapPin, AlertCircle } from "lucide-react";
 import { JoinEventButton } from "../join-event-button";
 import { isCreatorRole } from "@/lib/roles";
+import { stockholmToday } from "@/lib/time";
+import { instructorJoinDeadline, instructorJoinOpen } from "@/lib/coaching/join-deadline";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +21,7 @@ export default async function OpenEventsPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = stockholmToday();
 
   const [{ data: profile }, { data: events }, { data: joinedRows }] = await Promise.all([
     // stripe_account_id är kolumn-låst för authenticated — egen rad via service-role.
@@ -70,6 +72,7 @@ export default async function OpenEventsPage() {
           <p className="text-sm text-[var(--usha-muted)]">
             {t("subtitle")}
           </p>
+          <p className="mt-1 text-xs text-[var(--usha-muted)]">{t("deadlineRule")}</p>
         </div>
       </div>
 
@@ -99,6 +102,12 @@ export default async function OpenEventsPage() {
         <div className="space-y-3">
           {events.map((e) => {
             const isOwn = e.user_id === user.id;
+            const isJoined = joined.has(e.id);
+            // Den som redan anmält sig kan alltid gå ur; bara nya anmälningar stängs.
+            const joinOpen = !e.event_date || instructorJoinOpen(e.event_date, today);
+            const deadline = e.event_date
+              ? new Date(instructorJoinDeadline(e.event_date) + "T12:00").toLocaleDateString("sv-SE", { weekday: "short", day: "numeric", month: "short" })
+              : null;
             return (
               <div
                 key={e.id}
@@ -121,6 +130,9 @@ export default async function OpenEventsPage() {
                         {e.event_time && ` · ${e.event_time.slice(0, 5)}`}
                       </span>
                     )}
+                    {deadline && !isOwn && !isJoined && (
+                      <span>{joinOpen ? t("joinBy", { date: deadline }) : t("joinClosed")}</span>
+                    )}
                     {e.event_location && (
                       <span className="flex items-center gap-1">
                         <MapPin size={12} className="text-[var(--usha-gold)]" />
@@ -132,8 +144,10 @@ export default async function OpenEventsPage() {
                 <div className="relative z-10 shrink-0">
                   {isOwn ? (
                     <span className="text-xs text-[var(--usha-muted)]">{t("ownEvent")}</span>
+                  ) : isJoined || (eligible && joinOpen) ? (
+                    <JoinEventButton listingId={e.id} initialJoined={isJoined} />
                   ) : eligible ? (
-                    <JoinEventButton listingId={e.id} initialJoined={joined.has(e.id)} />
+                    <span className="text-xs text-[var(--usha-muted)]">{t("joinClosed")}</span>
                   ) : (
                     <span className="text-xs text-[var(--usha-muted)]">{t("meetRequirements")}</span>
                   )}

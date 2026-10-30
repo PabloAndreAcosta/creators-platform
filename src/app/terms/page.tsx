@@ -23,7 +23,7 @@ export default async function TermsPage() {
   const locale = await getLocale();
   const disclaimer = locale !== "sv" ? t("disclaimer") : "";
 
-  const sections = Array.from({ length: 9 }, (_, i) => ({
+  const sections = Array.from({ length: 10 }, (_, i) => ({
     title: t(`s${i + 1}Title`),
     body: t(`s${i + 1}Body`),
   }));
@@ -57,11 +57,11 @@ export default async function TermsPage() {
           ))}
 
           <section>
-            <h2 className="mb-3 text-lg font-semibold text-[var(--usha-white)]">{t("s10Title")}</h2>
+            <h2 className="mb-3 text-lg font-semibold text-[var(--usha-white)]">{t("s11Title")}</h2>
             <p>
-              {t("s10BodyPre")}
-              <a href={`mailto:${t("s10Email")}`} className="text-[var(--usha-gold)] hover:underline">
-                {t("s10Email")}
+              {t("s11BodyPre")}
+              <a href={`mailto:${t("s11Email")}`} className="text-[var(--usha-gold)] hover:underline">
+                {t("s11Email")}
               </a>
             </p>
           </section>
