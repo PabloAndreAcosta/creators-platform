@@ -2165,7 +2165,7 @@
     "fbAutoPostHintRecurring": "Each occurrence is automatically published to your connected Facebook page ~3 days before its date — a steady stream of reminders instead of all at once.",
     "fbAutoPostHint": "The event is automatically published to your connected Facebook page ~3 days before the date. Requires a connected Facebook page.",
     "openToInstructors": "Open to instructors",
-    "openToInstructorsHint": "Let paying instructors offer paid mini-sessions (15–60 min) at your event. Participants buy minutes directly from the instructor. You take no cut of their revenue.",
+    "openToInstructorsHint": "Let paying instructors offer paid sessions, from 15 minutes up to 4 hours, at your event. Attendees buy the time directly from the instructor. You take no share of their income. Instructors sign up no later than the Monday of the event's week.",
     "category": "Category",
     "categoryPlaceholder": "Choose category...",
     "price": "Price (SEK)",
@@ -2751,7 +2751,7 @@
   "terms": {
     "back": "Back",
     "title": "Terms of Service",
-    "lastUpdated": "Last updated: 1 January 2026",
+    "lastUpdated": "Last updated: 30 October 2026",
     "disclaimer": "",
     "s1Title": "1. General",
     "s1Body": "These terms of service (“Terms”) govern your use of the Usha Platform (the “Platform”) provided by Usha AB, based in Malmö, Sweden (“Usha Platform”, “we”, “us”). By creating an account or using the Platform you accept these Terms.",
@@ -2771,9 +2771,11 @@
     "s8Body": "Usha Platform reserves the right to change these Terms. Material changes are announced by email or via the Platform at least 30 days before they take effect. Continued use after changes means you accept the updated Terms.",
     "s9Title": "9. Applicable law",
     "s9Body": "These Terms are governed by Swedish law. Any disputes shall be resolved primarily through negotiation and secondarily by a general court, with Malmö District Court as the court of first instance.",
-    "s10Title": "10. Contact",
-    "s10BodyPre": "Questions about these Terms? Contact us at ",
-    "s10Email": "legal@usha.se"
+    "s10Title": "10. Instructors at open events",
+    "s10Body": "Organisers can open their events to instructors. A creator who wants to offer instructor time at such an event signs up on the Platform no later than the Monday of the week the event takes place. After that, sign-up for that event closes. The organiser takes no share of what the instructor sells; only the commission under section 4 applies.",
+    "s11Title": "11. Contact",
+    "s11BodyPre": "Questions about these Terms? Contact us at ",
+    "s11Email": "legal@usha.se"
   },
   "privacy": {
     "back": "Back",
@@ -3449,7 +3451,7 @@
   },
   "openEvents": {
     "title": "Open events",
-    "subtitle": "Join other people's open events and offer paid mini-sessions (15–60 min).",
+    "subtitle": "Join other people's open events and offer paid instructor sessions, from 15 minutes up to 4 hours.",
     "eligibilityHeading": "Before you can offer services",
     "missingCreator": "You must be registered as a creator",
     "missingSubscription": "Get a Gold or Premium subscription",
@@ -3457,7 +3459,10 @@
     "missingStripe": "Connect Stripe for payouts",
     "emptyState": "No open events right now. Stay tuned!",
     "ownEvent": "Your event",
-    "meetRequirements": "Meet the requirements above"
+    "meetRequirements": "Meet the requirements above",
+    "deadlineRule": "Sign up no later than the Monday of the event's week.",
+    "joinBy": "Sign up by {date}",
+    "joinClosed": "Sign-up closed"
   },
   "billingConnect": {
     "title": "Bank account",

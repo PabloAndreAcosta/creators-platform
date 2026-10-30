@@ -2165,7 +2165,7 @@
     "fbAutoPostHintRecurring": "Cada repetición se publica automáticamente en tu página de Facebook conectada ~3 días antes de su fecha, como un flujo constante de recordatorios en lugar de todos a la vez.",
     "fbAutoPostHint": "El evento se publica automáticamente en tu página de Facebook conectada ~3 días antes de la fecha. Requiere una página de Facebook conectada.",
     "openToInstructors": "Abierto a instructores",
-    "openToInstructorsHint": "Permite que instructores de pago ofrezcan minisesiones de pago (15–60 min) en tu evento. Los participantes compran minutos directamente al instructor. No recibes ninguna parte de sus ingresos.",
+    "openToInstructorsHint": "Permite que instructores de pago ofrezcan sesiones de pago, desde 15 minutos hasta 4 horas, en tu evento. Los asistentes compran el tiempo directamente al instructor. No te quedas con ninguna parte de sus ingresos. Los instructores se inscriben a más tardar el lunes de la semana del evento.",
     "category": "Categoría",
     "categoryPlaceholder": "Elige una categoría...",
     "price": "Precio (SEK)",
@@ -2751,7 +2751,7 @@
   "terms": {
     "back": "Atrás",
     "title": "Términos de servicio",
-    "lastUpdated": "Última actualización: 1 de enero de 2026",
+    "lastUpdated": "Última actualización: 30 de octubre de 2026",
     "disclaimer": "",
     "s1Title": "1. General",
     "s1Body": "Estos términos de servicio (“Términos”) regulan tu uso de la plataforma Usha Platform (la “Plataforma”), proporcionada por Usha AB, con sede en Malmö, Suecia (“Usha Platform”, “nosotros”). Al crear una cuenta o usar la Plataforma aceptas estos Términos.",
@@ -2771,9 +2771,11 @@
     "s8Body": "Usha Platform se reserva el derecho de modificar estos Términos. Los cambios importantes se comunicarán por correo electrónico o a través de la Plataforma al menos 30 días antes de su entrada en vigor. El uso continuado tras los cambios implica que aceptas los Términos actualizados.",
     "s9Title": "9. Ley aplicable",
     "s9Body": "Estos Términos se rigen por la legislación sueca. Cualquier disputa se resolverá, en primer lugar, mediante negociación y, en segundo lugar, ante un tribunal ordinario, siendo el Tribunal de Primera Instancia de Malmö (Malmö tingsrätt) el tribunal de primera instancia.",
-    "s10Title": "10. Contacto",
-    "s10BodyPre": "¿Tienes preguntas sobre estos Términos? Escríbenos a ",
-    "s10Email": "legal@usha.se"
+    "s10Title": "10. Instructores en eventos abiertos",
+    "s10Body": "Los organizadores pueden abrir sus eventos a instructores. Un creador que quiera ofrecer tiempo de instrucción en uno de esos eventos se inscribe en la Plataforma a más tardar el lunes de la semana en que se celebra el evento. Después, la inscripción para ese evento se cierra. El organizador no se queda con ninguna parte de lo que vende el instructor; solo se aplica la comisión del punto 4.",
+    "s11Title": "11. Contacto",
+    "s11BodyPre": "¿Tienes preguntas sobre estos Términos? Escríbenos a ",
+    "s11Email": "legal@usha.se"
   },
   "privacy": {
     "back": "Atrás",
@@ -3449,7 +3451,7 @@
   },
   "openEvents": {
     "title": "Eventos abiertos",
-    "subtitle": "Únete a los eventos abiertos de otras personas y ofrece minisesiones de pago (15–60 min).",
+    "subtitle": "Únete a los eventos abiertos de otras personas y ofrece sesiones de instrucción de pago, desde 15 minutos hasta 4 horas.",
     "eligibilityHeading": "Antes de poder ofrecer servicios",
     "missingCreator": "Debes estar registrado como creador",
     "missingSubscription": "Consigue una suscripción Gold o Premium",
@@ -3457,7 +3459,10 @@
     "missingStripe": "Conecta Stripe para recibir pagos",
     "emptyState": "No hay eventos abiertos ahora mismo. ¡Mantente atento!",
     "ownEvent": "Tu evento",
-    "meetRequirements": "Cumple los requisitos de arriba"
+    "meetRequirements": "Cumple los requisitos de arriba",
+    "deadlineRule": "Inscríbete a más tardar el lunes de la semana del evento.",
+    "joinBy": "Inscripción hasta el {date}",
+    "joinClosed": "Inscripción cerrada"
   },
   "billingConnect": {
     "title": "Cuenta bancaria",

@@ -16,7 +16,8 @@ import { generateUniqueListingSlug, generateUniqueSeriesSlug } from "@/lib/listi
 import { createNotification } from "@/lib/notifications/create";
 import { isSeller, isCreatorRole } from "@/lib/roles";
 import { ticketGateForNewEvent, ticketGateForListing } from "@/lib/capabilities/gate";
-import { stockholmLocalToUtcISO } from "@/lib/time";
+import { stockholmLocalToUtcISO, stockholmToday } from "@/lib/time";
+import { instructorJoinDeadline, instructorJoinOpen } from "@/lib/coaching/join-deadline";
 import { resolveEventCity } from "@/lib/listings/city";
 
 /** Tidsstyrd automatisering (Lucka 3) ur formuläret. Datetime-fält tolkas som
@@ -829,11 +830,15 @@ export async function joinOpenEvent(listingId: string) {
 
   const { data: listing } = await supabase
     .from("listings")
-    .select("id, is_active, open_to_instructors")
+    .select("id, is_active, open_to_instructors, event_date")
     .eq("id", listingId)
     .single();
   if (!listing || !listing.is_active || !listing.open_to_instructors) {
     return { error: "Eventet är inte öppet för instruktörer." };
+  }
+  if (listing.event_date && !instructorJoinOpen(listing.event_date, stockholmToday())) {
+    const deadline = new Date(instructorJoinDeadline(listing.event_date) + "T12:00").toLocaleDateString("sv-SE", { weekday: "long", day: "numeric", month: "long" });
+    return { error: `Anmälan stängde ${deadline}. Instruktörer anmäler sig senast måndag samma vecka.` };
   }
 
   const { error } = await supabase
