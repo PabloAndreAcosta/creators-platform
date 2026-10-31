@@ -78,8 +78,8 @@ const nextConfig = {
               "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://maps.googleapis.com https://js.stripe.com https://va.vercel-scripts.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com data:",
-              "img-src 'self' data: blob: https://*.supabase.co https://images.unsplash.com https://*.cdninstagram.com https://*.fbcdn.net https://*.tiktokcdn.com https://www.googletagmanager.com https://*.googleapis.com https://*.gstatic.com https://*.google-analytics.com",
-              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://maps.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://api.stripe.com https://api.signicat.com https://vitals.vercel-insights.com",
+              "img-src 'self' data: blob: https://*.supabase.co https://auth.usha.se https://images.unsplash.com https://*.cdninstagram.com https://*.fbcdn.net https://*.tiktokcdn.com https://www.googletagmanager.com https://*.googleapis.com https://*.gstatic.com https://*.google-analytics.com",
+              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://auth.usha.se wss://auth.usha.se https://maps.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://api.stripe.com https://api.signicat.com https://vitals.vercel-insights.com",
               "frame-src 'self' https://js.stripe.com https://checkout.stripe.com https://*.signicat.com",
               "media-src 'self'",
               "worker-src 'self' blob:",
@@ -101,6 +101,11 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "**.supabase.co",
+      },
+      {
+        // Supabase via egen domän (Custom Domain) — samma lagring, ny adress.
+        protocol: "https",
+        hostname: "auth.usha.se",
       },
       {
         protocol: "https",

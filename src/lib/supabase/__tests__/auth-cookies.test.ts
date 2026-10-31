@@ -42,3 +42,12 @@ describe("auth-cookies", () => {
     );
   });
 });
+
+describe("låst cookienamn", () => {
+  it("är samma namn som Supabase härleder ur projektets ref, så ingen loggas ut", async () => {
+    const { AUTH_COOKIE_NAME, sharedCookieOptions } = await import("../cookie-options");
+    expect(AUTH_COOKIE_NAME).toBe("sb-hiurrvorwqfihtdfhbhv-auth-token");
+    expect(isSupabaseAuthCookie(AUTH_COOKIE_NAME)).toBe(true);
+    expect(sharedCookieOptions.name).toBe(AUTH_COOKIE_NAME);
+  });
+});

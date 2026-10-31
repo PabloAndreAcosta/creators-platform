@@ -16,6 +16,12 @@ import type { CookieOptionsWithName } from "@supabase/ssr";
 // need to log in once more. This is a one-time transition.
 const domain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN;
 
-export const sharedCookieOptions: CookieOptionsWithName | undefined = domain
-  ? { domain }
-  : undefined;
+// Cookiens namn är låst till projektets ref. Supabase härleder annars namnet ur
+// första delen av NEXT_PUBLIC_SUPABASE_URL: med den egna auth-domänen
+// (auth.usha.se) hade cookien bytt namn från sb-hiurrvorwqfihtdfhbhv-auth-token
+// till sb-auth-auth-token, och alla inloggade hade loggats ut samtidigt.
+export const AUTH_COOKIE_NAME = "sb-hiurrvorwqfihtdfhbhv-auth-token";
+
+export const sharedCookieOptions: CookieOptionsWithName = domain
+  ? { name: AUTH_COOKIE_NAME, domain }
+  : { name: AUTH_COOKIE_NAME };
