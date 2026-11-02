@@ -24,6 +24,14 @@ const nextConfig = {
       // egna adresser) utan att någon av dem behöver veta om den andra.
       { source: "/join", destination: "/signup?role=customer", permanent: false },
       { source: "/konto", destination: "/signup?role=customer", permanent: false },
+      // Korta rekryteringslänkar för reels och chattar. Kanalen (UTM) följer med
+      // i omdirigeringen och fångas av middlewaren på målsidan, så länken som
+      // delas kan vara kort och snygg. Värdena följer docs/utm-rutin.md i
+      // usha-marknadsforing.
+      { source: "/taxi/insta", destination: "/taxi?utm_source=instagram&utm_medium=social&utm_campaign=taxidansare&utm_content=reel", permanent: false },
+      { source: "/taxi/chatt", destination: "/taxi?utm_source=chatt&utm_medium=dm&utm_campaign=taxidansare", permanent: false },
+      { source: "/undervisa/insta", destination: "/undervisa?utm_source=instagram&utm_medium=social&utm_campaign=instruktor&utm_content=reel", permanent: false },
+      { source: "/undervisa/chatt", destination: "/undervisa?utm_source=chatt&utm_medium=dm&utm_campaign=instruktor", permanent: false },
       // Spelen har flyttat till ushagames.se. Query-strängen (t.ex. ?vuxen eller
       // ?kod=) följer med. Redirects körs före sidorna, så /spel tolkas aldrig som
       // en kreatörs adress ([slug]). 307 av samma skäl som ovan.
