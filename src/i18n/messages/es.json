@@ -3493,7 +3493,12 @@
     "applySentTitle": "Solicitud enviada",
     "applySentBody": "El organizador recibe una notificación. Cuando te apruebe podrás unirte a las noches.",
     "applicationPending": "Solicitud enviada · pendiente de aprobación",
-    "applicationDeclined": "Solicitud rechazada"
+    "applicationDeclined": "Solicitud rechazada",
+    "bankidTitle": "Verifícate con BankID Móvil",
+    "bankidBody": "Los instructores se verifican con BankID Móvil antes de solicitar. Confirma quién eres. Tarda medio minuto y se hace una sola vez.",
+    "bankidButton": "Verificar con BankID",
+    "verifyFirst": "Verifícate con BankID primero",
+    "creatorFirst": "Requiere una cuenta de creador"
   },
   "billingConnect": {
     "title": "Cuenta bancaria",

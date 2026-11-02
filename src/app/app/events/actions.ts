@@ -823,7 +823,9 @@ export async function applyAsInstructor(listingId: string, message?: string) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Ej inloggad" };
-  if (!(await isBankidCleared(supabase, user.id))) return { error: BANKID_REQUIRED_MSG };
+  if (!(await isBankidCleared(supabase, user.id))) {
+    return { error: "Verifiera dig med Mobilt BankID först. Knappen finns överst på sidan." };
+  }
 
   const db = createAdminClient();
   const { data: profile } = await db.from("profiles").select("role").eq("id", user.id).single();

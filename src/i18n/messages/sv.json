@@ -3493,7 +3493,12 @@
     "applySentTitle": "Ansökan skickad",
     "applySentBody": "Arrangören får en notis. När du är godkänd kan du gå med på kvällarna.",
     "applicationPending": "Ansökan skickad · väntar på godkännande",
-    "applicationDeclined": "Ansökan avslagen"
+    "applicationDeclined": "Ansökan avslagen",
+    "bankidTitle": "Verifiera dig med Mobilt BankID",
+    "bankidBody": "Instruktörer verifierar sig med Mobilt BankID innan de ansöker. Det bekräftar vem du är. Det tar en halv minut och görs en gång.",
+    "bankidButton": "Verifiera med BankID",
+    "verifyFirst": "Verifiera med BankID först",
+    "creatorFirst": "Kräver kreatörskonto"
   },
   "billingConnect": {
     "title": "Bankkonto",

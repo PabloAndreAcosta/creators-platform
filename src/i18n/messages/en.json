@@ -3493,7 +3493,12 @@
     "applySentTitle": "Application sent",
     "applySentBody": "The host gets a notification. Once approved you can join the evenings.",
     "applicationPending": "Application sent · awaiting approval",
-    "applicationDeclined": "Application declined"
+    "applicationDeclined": "Application declined",
+    "bankidTitle": "Verify with Mobile BankID",
+    "bankidBody": "Instructors verify with Mobile BankID before applying. It confirms who you are. It takes half a minute and is done once.",
+    "bankidButton": "Verify with BankID",
+    "verifyFirst": "Verify with BankID first",
+    "creatorFirst": "Requires a creator account"
   },
   "billingConnect": {
     "title": "Bank account",
