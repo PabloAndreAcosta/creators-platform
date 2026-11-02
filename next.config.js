@@ -32,6 +32,10 @@ const nextConfig = {
       { source: "/taxi/chatt", destination: "/taxi?utm_source=chatt&utm_medium=dm&utm_campaign=taxidansare", permanent: false },
       { source: "/undervisa/insta", destination: "/undervisa?utm_source=instagram&utm_medium=social&utm_campaign=instruktor&utm_content=reel", permanent: false },
       { source: "/undervisa/chatt", destination: "/undervisa?utm_source=chatt&utm_medium=dm&utm_campaign=instruktor", permanent: false },
+      // The Lab: alltid nästa torsdag (/event/the-lab-torsdag följer serien).
+      { source: "/thelab", destination: "/event/the-lab-torsdag", permanent: false },
+      { source: "/thelab/insta", destination: "/event/the-lab-torsdag?utm_source=instagram&utm_medium=social&utm_campaign=thelab&utm_content=reel", permanent: false },
+      { source: "/thelab/chatt", destination: "/event/the-lab-torsdag?utm_source=chatt&utm_medium=dm&utm_campaign=thelab", permanent: false },
       // Spelen har flyttat till ushagames.se. Query-strängen (t.ex. ?vuxen eller
       // ?kod=) följer med. Redirects körs före sidorna, så /spel tolkas aldrig som
       // en kreatörs adress ([slug]). 307 av samma skäl som ovan.
