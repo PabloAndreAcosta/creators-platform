@@ -27,6 +27,9 @@ function isFreshSignup(createdAt: string | undefined): boolean {
   return age >= 0 && age <= SIGNUP_WINDOW_MS;
 }
 
+import { recordSignupUtm } from "@/lib/analytics/signup-utm";
+import { UTM_COOKIE } from "@/lib/analytics/utm";
+
 export async function GET(req: NextRequest) {
   const { searchParams, origin } = new URL(req.url);
   const code = searchParams.get("code");
@@ -42,6 +45,9 @@ export async function GET(req: NextRequest) {
 
       if (user) {
         const admin = createAdminClient();
+
+        // Kanalen (usha_utm) följer med till ett nytt konto, en gång.
+        await recordSignupUtm(user, req.cookies.get(UTM_COOKIE)?.value);
 
         // 1. Apply pending role from OAuth signup (if present).
         //    Uses admin client because the privileged-columns trigger blocks

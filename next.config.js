@@ -24,6 +24,8 @@ const nextConfig = {
       // egna adresser) utan att någon av dem behöver veta om den andra.
       { source: "/join", destination: "/signup?role=customer", permanent: false },
       { source: "/konto", destination: "/signup?role=customer", permanent: false },
+      { source: "/konto/insta", destination: "/signup?role=customer&utm_source=instagram&utm_medium=social&utm_campaign=konto&utm_content=reel", permanent: false },
+      { source: "/konto/chatt", destination: "/signup?role=customer&utm_source=chatt&utm_medium=dm&utm_campaign=konto", permanent: false },
       // Korta rekryteringslänkar för reels och chattar. Kanalen (UTM) följer med
       // i omdirigeringen och fångas av middlewaren på målsidan, så länken som
       // delas kan vara kort och snygg. Värdena följer docs/utm-rutin.md i

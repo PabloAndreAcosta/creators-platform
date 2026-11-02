@@ -31,6 +31,15 @@ export default async function MobileAppLayout({
     redirect("/login");
   }
 
+  // Konton som skapats med e-post eller BankID passerar aldrig /callback.
+  // Första sidvisningen i appen sparar kanalen i stället (bara nya konton, en gång).
+  {
+    const { cookies } = await import("next/headers");
+    const { recordSignupUtm } = await import("@/lib/analytics/signup-utm");
+    const { UTM_COOKIE } = await import("@/lib/analytics/utm");
+    await recordSignupUtm(user, (await cookies()).get(UTM_COOKIE)?.value);
+  }
+
   let userName = user.email || "Användare";
   let tier: MemberTier = "gratis";
   let role: MemberRole = "customer";
