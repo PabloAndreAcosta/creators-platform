@@ -3,7 +3,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Calendar, MapPin, AlertCircle } from "lucide-react";
+import { ArrowLeft, Calendar, MapPin, AlertCircle, ShieldCheck } from "lucide-react";
+import { BankIdVerifyButton } from "@/app/(dashboard)/dashboard/profile/bankid-verify-button";
 import { JoinEventButton } from "../join-event-button";
 import { ApplyInstructorButton } from "../apply-instructor-button";
 import { approvalScopeKey } from "@/lib/taxi/approvals";
@@ -20,7 +21,10 @@ export default async function OpenEventsPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  // Länken i marknadsföringen leder hit. Utan konto: rakt in i "Skapa konto"
+  // som kreatör, och tillbaka hit efteråt. Finns kontot redan går det att
+  // logga in därifrån med samma väg tillbaka.
+  if (!user) redirect("/signup?role=creator&next=%2Fapp%2Fevents%2Fopen");
 
   const today = stockholmToday();
 
@@ -28,7 +32,7 @@ export default async function OpenEventsPage() {
     // stripe_account_id är kolumn-låst för authenticated — egen rad via service-role.
     createAdminClient()
       .from("profiles")
-      .select("role, offers_coaching, coaching_hourly_rate_sek, stripe_account_id, is_company, company_verified_at, is_usha_owned_seller")
+      .select("role, offers_coaching, coaching_hourly_rate_sek, stripe_account_id, is_company, company_verified_at, is_usha_owned_seller, bankid_verified_at, bankid_grandfathered_at")
       .eq("id", user.id)
       .single(),
     supabase
@@ -73,6 +77,9 @@ export default async function OpenEventsPage() {
     missing.push({ label: t("missingStripe"), href: "/dashboard/payouts" });
   }
   const eligible = missing.length === 0;
+  // BankID krävs för att ansöka. Utan det visas verifieringen först, tydligt.
+  const bankidOk = !!profile && (!!profile.bankid_verified_at || !!profile.bankid_grandfathered_at);
+  const isCreator = !!profile && isCreatorRole(profile.role);
 
   return (
     <div className="px-4 py-6 space-y-6">
@@ -91,6 +98,22 @@ export default async function OpenEventsPage() {
           <p className="mt-1 text-xs text-[var(--usha-muted)]">{t("deadlineRule")}</p>
         </div>
       </div>
+
+      {isCreator && !bankidOk && (
+        <div className="rounded-xl border border-[var(--usha-gold)]/30 bg-[var(--usha-gold)]/5 p-4 text-sm">
+          <p className="flex items-center gap-2 font-semibold">
+            <ShieldCheck size={16} className="text-[var(--usha-gold)]" />
+            {t("bankidTitle")}
+          </p>
+          <p className="mt-1 mb-3 text-[var(--usha-muted)]">{t("bankidBody")}</p>
+          <BankIdVerifyButton
+            role="creator"
+            label={t("bankidButton")}
+            next="/app/events/open"
+            className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-sm font-semibold text-black"
+          />
+        </div>
+      )}
 
       {!eligible && (
         <div className="rounded-xl border border-[var(--usha-gold)]/30 bg-[var(--usha-gold)]/5 p-4">
@@ -163,6 +186,8 @@ export default async function OpenEventsPage() {
                     <span className="text-xs text-[var(--usha-muted)]">{t("ownEvent")}</span>
                   ) : isJoined ? (
                     <JoinEventButton listingId={e.id} initialJoined />
+                  ) : approval === null && !(isCreator && bankidOk) ? (
+                    <span className="text-xs text-[var(--usha-muted)]">{t(isCreator ? "verifyFirst" : "creatorFirst")}</span>
                   ) : approval === null ? (
                     <ApplyInstructorButton listingId={e.id} />
                   ) : approval === "pending" ? (
