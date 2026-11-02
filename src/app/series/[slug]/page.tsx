@@ -29,6 +29,7 @@ type Occurrence = {
   slug: string | null;
   title: string;
   description: string | null;
+  tldr?: string | null;
   category: string;
   price: number | null;
   event_date: string | null;
@@ -44,7 +45,7 @@ type Occurrence = {
 };
 
 const SERIES_COLUMNS =
-  "id, slug, title, description, category, price, event_date, event_time, event_end_time, event_location, event_lat, event_lng, image_url, user_id, content_language, ticket_types(price)";
+  "id, slug, title, description, tldr, category, price, event_date, event_time, event_end_time, event_location, event_lat, event_lng, image_url, user_id, content_language, ticket_types(price)";
 
 async function fetchBySeriesSlug(slug: string): Promise<Occurrence[]> {
   const supabase = await createClient();
@@ -97,7 +98,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   // andraspråk bort. Utan det inleds förhandsvisningen med brödtextens början
   // och kan svämma över i den engelska halvan.
   const description =
-    buildPreviewDescription([s.event_location?.split(",")[0]?.trim()], s.description, 160) ||
+    buildPreviewDescription([s.event_location?.split(",")[0]?.trim()], s.tldr?.trim() || s.description, 160) ||
     t("metaDescription", { title: s.title });
   const url = `${appUrl()}/series/${canonicalSeriesSlug(params.slug)}`;
 

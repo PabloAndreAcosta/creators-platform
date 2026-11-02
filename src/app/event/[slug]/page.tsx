@@ -254,7 +254,9 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const description =
     buildPreviewDescription(
       [previewDate, previewTime, listing.event_location?.split(",")[0]?.trim()],
-      listing.description
+      // "I korthet" är skriven för att sammanfatta kvällen; den gör sig bättre
+      // i sökresultat och länkförhandsvisningar än brödtextens första stycke.
+      (listing as { tldr?: string | null }).tldr?.trim() || listing.description
     ) ||
     (host?.full_name ? t("metaDescriptionBy", { name: host.full_name }) : t("metaDescription"));
 
