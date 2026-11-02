@@ -5,13 +5,13 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Calendar, MapPin, AlertCircle } from "lucide-react";
 import { JoinEventButton } from "../join-event-button";
+import { ApplyInstructorButton } from "../apply-instructor-button";
+import { approvalScopeKey } from "@/lib/taxi/approvals";
 import { isCreatorRole } from "@/lib/roles";
 import { stockholmToday } from "@/lib/time";
 import { instructorJoinDeadline, instructorJoinOpen } from "@/lib/coaching/join-deadline";
 
 export const dynamic = "force-dynamic";
-
-const INSTRUCTOR_TIERS = ["guld", "premium"];
 
 export default async function OpenEventsPage() {
   const t = await getTranslations("openEvents");
@@ -23,22 +23,31 @@ export default async function OpenEventsPage() {
 
   const today = stockholmToday();
 
-  const [{ data: profile }, { data: events }, { data: joinedRows }] = await Promise.all([
+  const [{ data: profile }, { data: events }, { data: joinedRows }, { data: approvalRows }] = await Promise.all([
     // stripe_account_id är kolumn-låst för authenticated — egen rad via service-role.
     createAdminClient()
       .from("profiles")
-      .select("role, tier, offers_coaching, coaching_hourly_rate_sek, stripe_account_id")
+      .select("role, offers_coaching, coaching_hourly_rate_sek, stripe_account_id")
       .eq("id", user.id)
       .single(),
     supabase
       .from("listings")
-      .select("id, title, slug, event_date, event_time, event_location, image_url, user_id")
+      .select("id, title, slug, event_date, event_time, event_location, image_url, user_id, series_id")
       .eq("is_active", true)
       .eq("open_to_instructors", true)
       .gte("event_date", today)
       .order("event_date", { ascending: true }),
     supabase.from("event_instructors").select("listing_id").eq("instructor_id", user.id),
+    // Ansökningarna är stängda för authenticated — egna rader via service-role.
+    createAdminClient()
+      .from("volunteer_approvals")
+      .select("scope_key, status")
+      .eq("volunteer_id", user.id)
+      .eq("role", "instructor"),
   ]);
+
+  // Arrangören godkänner instruktörer per serie (annars per arrangör).
+  const approvalByScope = new Map((approvalRows ?? []).map((r) => [r.scope_key, r.status as string]));
 
   const joined = new Set((joinedRows ?? []).map((r) => r.listing_id));
 
@@ -46,9 +55,6 @@ export default async function OpenEventsPage() {
   const missing: { label: string; href: string }[] = [];
   if (!profile || !isCreatorRole(profile.role)) {
     missing.push({ label: t("missingCreator"), href: "/dashboard/profile" });
-  }
-  if (!profile || !INSTRUCTOR_TIERS.includes(profile.tier)) {
-    missing.push({ label: t("missingSubscription"), href: "/dashboard/billing" });
   }
   if (!profile?.offers_coaching || !profile?.coaching_hourly_rate_sek) {
     missing.push({ label: t("missingCoaching"), href: "/dashboard/profile" });
@@ -103,6 +109,7 @@ export default async function OpenEventsPage() {
           {events.map((e) => {
             const isOwn = e.user_id === user.id;
             const isJoined = joined.has(e.id);
+            const approval = approvalByScope.get(approvalScopeKey(e)) ?? null;
             // Den som redan anmält sig kan alltid gå ur; bara nya anmälningar stängs.
             const joinOpen = !e.event_date || instructorJoinOpen(e.event_date, today);
             const deadline = e.event_date
@@ -144,8 +151,16 @@ export default async function OpenEventsPage() {
                 <div className="relative z-10 shrink-0">
                   {isOwn ? (
                     <span className="text-xs text-[var(--usha-muted)]">{t("ownEvent")}</span>
-                  ) : isJoined || (eligible && joinOpen) ? (
-                    <JoinEventButton listingId={e.id} initialJoined={isJoined} />
+                  ) : isJoined ? (
+                    <JoinEventButton listingId={e.id} initialJoined />
+                  ) : approval === null ? (
+                    <ApplyInstructorButton listingId={e.id} />
+                  ) : approval === "pending" ? (
+                    <span className="text-xs text-[var(--usha-muted)]">{t("applicationPending")}</span>
+                  ) : approval === "declined" ? (
+                    <span className="text-xs text-[var(--usha-muted)]">{t("applicationDeclined")}</span>
+                  ) : eligible && joinOpen ? (
+                    <JoinEventButton listingId={e.id} initialJoined={false} />
                   ) : eligible ? (
                     <span className="text-xs text-[var(--usha-muted)]">{t("joinClosed")}</span>
                   ) : (
