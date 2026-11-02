@@ -968,7 +968,9 @@
     "levelName9": "Ikon",
     "levelNameGeneric": "Nivå {level}",
     "venueRequestTitle": "Förfrågan om er lokal",
-    "venueRequestMsg": "{organiser} vill hålla {count, plural, one {ett evenemang} other {# evenemang}} hos er. Det händer inget förrän ni svarar."
+    "venueRequestMsg": "{organiser} vill hålla {count, plural, one {ett evenemang} other {# evenemang}} hos er. Det händer inget förrän ni svarar.",
+    "instructorApplicationTitle": "Ny instruktörsansökan",
+    "instructorApplicationMsg": "{name} vill undervisa på dina öppna kvällar. Godkänn eller avslå under Volontärpass."
   },
   "apiErrors": {
     "unauthorized": "Ej behörig",
@@ -2185,7 +2187,7 @@
     "fbAutoPostHintRecurring": "Varje tillfälle publiceras automatiskt på din kopplade Facebook-sida ~3 dagar innan dess datum — en jämn ström av påminnelser istället för allt på en gång.",
     "fbAutoPostHint": "Eventet publiceras automatiskt på din kopplade Facebook-sida ~3 dagar innan datumet. Kräver en ansluten Facebook-sida.",
     "openToInstructors": "Öppna för instruktörer",
-    "openToInstructorsHint": "Låt betalande instruktörer erbjuda betalda pass, från 15 minuter upp till 4 timmar, på ditt event. Deltagare köper tiden direkt av instruktören. Du tar ingen del av deras intäkt. Instruktörer anmäler sig senast måndag samma vecka.",
+    "openToInstructorsHint": "Låt instruktörer erbjuda betalda pass, från 15 minuter upp till 4 timmar, på ditt event. Instruktörer ansöker och du godkänner dem under Volontärpass; godkännandet gäller hela serien. Deltagare köper tiden direkt av instruktören. Du tar ingen del av deras intäkt. Instruktörer anmäler sig senast måndag samma vecka.",
     "category": "Kategori",
     "categoryPlaceholder": "Välj kategori...",
     "price": "Pris (SEK)",
@@ -2792,7 +2794,7 @@
     "s9Title": "9. Tillämplig lag",
     "s9Body": "Dessa Villkor regleras av svensk lag. Eventuella tvister ska i första hand lösas genom förhandling, i andra hand genom allmän domstol med Malmö tingsrätt som första instans.",
     "s10Title": "10. Instruktörer på öppna evenemang",
-    "s10Body": "Arrangörer kan öppna sina evenemang för instruktörer. En kreatör som vill erbjuda instruktörstid på ett sådant evenemang anmäler sig på Plattformen senast måndag samma vecka som evenemanget äger rum. Därefter stängs anmälan för det evenemanget. Arrangören tar ingen andel av det instruktören säljer; endast provisionen enligt punkt 4 gäller.",
+    "s10Body": "Arrangörer kan öppna sina evenemang för instruktörer. En kreatör som vill erbjuda instruktörstid på ett sådant evenemang ansöker hos arrangören, som avgör om ansökan godkänns. En godkänd instruktör anmäler sig på Plattformen senast måndag samma vecka som evenemanget äger rum. Därefter stängs anmälan för det evenemanget. Arrangören tar ingen andel av det instruktören säljer; endast provisionen enligt punkt 4 gäller.",
     "s11Title": "11. Kontakt",
     "s11BodyPre": "Har du frågor om dessa Villkor? Kontakta oss på ",
     "s11Email": "legal@usha.se"
@@ -3471,10 +3473,9 @@
   },
   "openEvents": {
     "title": "Öppna event",
-    "subtitle": "Gå med på andras öppna event och erbjud betalda instruktörspass, från 15 minuter upp till 4 timmar.",
+    "subtitle": "Ansök om att undervisa på andras öppna kvällar. När arrangören godkänt dig säljer du privatlektioner till dansarna, från 15 minuter upp till 4 timmar. Ett gratis konto räcker.",
     "eligibilityHeading": "Innan du kan erbjuda tjänster",
     "missingCreator": "Du måste vara registrerad som kreatör",
-    "missingSubscription": "Skaffa en Guld- eller Premium-prenumeration",
     "missingCoaching": "Aktivera coaching och sätt ett timpris",
     "missingStripe": "Anslut Stripe för utbetalningar",
     "emptyState": "Inga öppna event just nu. Håll utkik!",
@@ -3482,7 +3483,17 @@
     "meetRequirements": "Uppfyll kraven ovan",
     "deadlineRule": "Anmäl dig senast måndag samma vecka som kvällen.",
     "joinBy": "Anmälan senast {date}",
-    "joinClosed": "Anmälan stängd"
+    "joinClosed": "Anmälan stängd",
+    "applyLabel": "Ansök som instruktör",
+    "applyMessageLabel": "Kort om dig (valfritt)",
+    "applyMessagePlaceholder": "Vilka danser du undervisar i och hur länge du har gjort det.",
+    "applySend": "Skicka ansökan",
+    "applyCancel": "Avbryt",
+    "applyErrorTitle": "Kunde inte skicka ansökan",
+    "applySentTitle": "Ansökan skickad",
+    "applySentBody": "Arrangören får en notis. När du är godkänd kan du gå med på kvällarna.",
+    "applicationPending": "Ansökan skickad · väntar på godkännande",
+    "applicationDeclined": "Ansökan avslagen"
   },
   "billingConnect": {
     "title": "Bankkonto",
@@ -4820,8 +4831,8 @@
     "volunteerReq": "Gratis konto, Mobilt BankID och fyllda 18 år.",
     "volunteerCta": "Se volontärpassen",
     "instructorTitle": "Lär ut på öppna kvällar",
-    "instructorBody": "Gå med på kvällar som är öppna för instruktörer och sälj minisessioner – från 15 minuter upp till fyra timmar. Du sätter ditt timpris. Usha tar {free} % i provision ({gold} % med Guld, {premium} % med Premium).",
-    "instructorReq": "Eget företag med F-skatt och Guld- eller Premium-medlemskap. Utan företag: lön via Ushas lönepartner – kommer snart.",
+    "instructorBody": "Ansök om att undervisa på kvällar som är öppna för instruktörer. När arrangören godkänt dig säljer du minisessioner – från 15 minuter upp till fyra timmar. Du sätter ditt timpris. Usha tar {free} % i provision ({gold} % med Guld, {premium} % med Premium).",
+    "instructorReq": "Arrangörens godkännande, Mobilt BankID och eget företag med F-skatt. Ett gratis konto räcker. Utan företag: lön via Ushas lönepartner – kommer snart.",
     "instructorCta": "Se öppna kvällar",
     "assignmentsTitle": "Ta uppdrag",
     "assignmentsBody": "Lokaler och arrangörer lägger ut pass. Du ansöker och ser innan vad uppdraget ger. Med eget företag fakturerar du via ditt bolag, minus Ushas provision. Utan företag anställs du för passet via Ushas lönepartner, som sköter skatt, avgifter och semesterersättning – kommer snart.",

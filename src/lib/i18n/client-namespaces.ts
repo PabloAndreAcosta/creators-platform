@@ -50,7 +50,7 @@ export const APP_NAMESPACES = [
   "invites", "joinEvent", "landing", "languageSettings", "leaderboard",
   "libraryPage", "listen", "listingCard", "matching", "messages", "myEvents",
   "myPosts", "myTickets", "nav", "notifSettings", "notifications",
-  "notificationsPage", "onboarding", "pendingTodos", "privacySettings",
+  "notificationsPage", "onboarding", "openEvents", "pendingTodos", "privacySettings",
   "profile", "quickBuy",
   "reachOut", "recommendations", "recommendationsPage", "rewards", "roleToggle",
   "roles", "scanPage", "search", "security", "serverNotifications", "settings",

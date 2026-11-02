@@ -968,7 +968,9 @@
     "levelName9": "Icono",
     "levelNameGeneric": "Nivel {level}",
     "venueRequestTitle": "Solicitud para tu local",
-    "venueRequestMsg": "{organiser} quiere celebrar {count, plural, one {un evento} other {# eventos}} en tu local. No pasa nada hasta que respondas."
+    "venueRequestMsg": "{organiser} quiere celebrar {count, plural, one {un evento} other {# eventos}} en tu local. No pasa nada hasta que respondas.",
+    "instructorApplicationTitle": "Nueva solicitud de instructor",
+    "instructorApplicationMsg": "{name} quiere enseñar en tus noches abiertas. Aprueba o rechaza en Turnos de voluntarios."
   },
   "apiErrors": {
     "unauthorized": "No autorizado",
@@ -2185,7 +2187,7 @@
     "fbAutoPostHintRecurring": "Cada repetición se publica automáticamente en tu página de Facebook conectada ~3 días antes de su fecha, como un flujo constante de recordatorios en lugar de todos a la vez.",
     "fbAutoPostHint": "El evento se publica automáticamente en tu página de Facebook conectada ~3 días antes de la fecha. Requiere una página de Facebook conectada.",
     "openToInstructors": "Abierto a instructores",
-    "openToInstructorsHint": "Permite que instructores de pago ofrezcan sesiones de pago, desde 15 minutos hasta 4 horas, en tu evento. Los asistentes compran el tiempo directamente al instructor. No te quedas con ninguna parte de sus ingresos. Los instructores se inscriben a más tardar el lunes de la semana del evento.",
+    "openToInstructorsHint": "Permite que instructores ofrezcan sesiones de pago, desde 15 minutos hasta 4 horas, en tu evento. Los instructores lo solicitan y tú los apruebas en Turnos de voluntarios; la aprobación vale para toda la serie. Los asistentes compran el tiempo directamente al instructor. No te quedas con ninguna parte de sus ingresos. Los instructores se inscriben a más tardar el lunes de la semana del evento.",
     "category": "Categoría",
     "categoryPlaceholder": "Elige una categoría...",
     "price": "Precio (SEK)",
@@ -2792,7 +2794,7 @@
     "s9Title": "9. Ley aplicable",
     "s9Body": "Estos Términos se rigen por la legislación sueca. Cualquier disputa se resolverá, en primer lugar, mediante negociación y, en segundo lugar, ante un tribunal ordinario, siendo el Tribunal de Primera Instancia de Malmö (Malmö tingsrätt) el tribunal de primera instancia.",
     "s10Title": "10. Instructores en eventos abiertos",
-    "s10Body": "Los organizadores pueden abrir sus eventos a instructores. Un creador que quiera ofrecer tiempo de instrucción en uno de esos eventos se inscribe en la Plataforma a más tardar el lunes de la semana en que se celebra el evento. Después, la inscripción para ese evento se cierra. El organizador no se queda con ninguna parte de lo que vende el instructor; solo se aplica la comisión del punto 4.",
+    "s10Body": "Los organizadores pueden abrir sus eventos a instructores. Un creador que quiera ofrecer tiempo de instrucción en uno de esos eventos lo solicita al organizador, que decide si aprueba la solicitud. Un instructor aprobado se inscribe en la Plataforma a más tardar el lunes de la semana en que se celebra el evento. Después, la inscripción para ese evento se cierra. El organizador no se queda con ninguna parte de lo que vende el instructor; solo se aplica la comisión del punto 4.",
     "s11Title": "11. Contacto",
     "s11BodyPre": "¿Tienes preguntas sobre estos Términos? Escríbenos a ",
     "s11Email": "legal@usha.se"
@@ -3471,10 +3473,9 @@
   },
   "openEvents": {
     "title": "Eventos abiertos",
-    "subtitle": "Únete a los eventos abiertos de otras personas y ofrece sesiones de instrucción de pago, desde 15 minutos hasta 4 horas.",
+    "subtitle": "Solicita enseñar en las noches abiertas de otros organizadores. Cuando el organizador te apruebe, vendes clases privadas a los bailarines, desde 15 minutos hasta 4 horas. Basta con una cuenta gratuita.",
     "eligibilityHeading": "Antes de poder ofrecer servicios",
     "missingCreator": "Debes estar registrado como creador",
-    "missingSubscription": "Consigue una suscripción Gold o Premium",
     "missingCoaching": "Activa el coaching y define un precio por hora",
     "missingStripe": "Conecta Stripe para recibir pagos",
     "emptyState": "No hay eventos abiertos ahora mismo. ¡Mantente atento!",
@@ -3482,7 +3483,17 @@
     "meetRequirements": "Cumple los requisitos de arriba",
     "deadlineRule": "Inscríbete a más tardar el lunes de la semana del evento.",
     "joinBy": "Inscripción hasta el {date}",
-    "joinClosed": "Inscripción cerrada"
+    "joinClosed": "Inscripción cerrada",
+    "applyLabel": "Solicitar como instructor",
+    "applyMessageLabel": "Un poco sobre ti (opcional)",
+    "applyMessagePlaceholder": "Qué bailes enseñas y desde hace cuánto.",
+    "applySend": "Enviar solicitud",
+    "applyCancel": "Cancelar",
+    "applyErrorTitle": "No se pudo enviar la solicitud",
+    "applySentTitle": "Solicitud enviada",
+    "applySentBody": "El organizador recibe una notificación. Cuando te apruebe podrás unirte a las noches.",
+    "applicationPending": "Solicitud enviada · pendiente de aprobación",
+    "applicationDeclined": "Solicitud rechazada"
   },
   "billingConnect": {
     "title": "Cuenta bancaria",
@@ -4820,8 +4831,8 @@
     "volunteerReq": "Cuenta gratuita, BankID móvil y 18 años o más.",
     "volunteerCta": "Ver turnos de voluntarios",
     "instructorTitle": "Enseña en noches abiertas",
-    "instructorBody": "Únete a noches abiertas a instructores y vende minisesiones, desde 15 minutos hasta cuatro horas. Tú fijas tu tarifa por hora. Usha cobra una comisión del {free} % ({gold} % con Oro, {premium} % con Premium).",
-    "instructorReq": "Empresa propia con F-skatt y membresía Oro o Premium. Sin empresa: salario a través del socio de nóminas de Usha, próximamente.",
+    "instructorBody": "Solicita enseñar en noches abiertas a instructores. Cuando el organizador te apruebe, vendes minisesiones, desde 15 minutos hasta cuatro horas. Tú fijas tu tarifa por hora. Usha cobra una comisión del {free} % ({gold} % con Oro, {premium} % con Premium).",
+    "instructorReq": "Aprobación del organizador, BankID Móvil y empresa propia con F-skatt. Basta con una cuenta gratuita. Sin empresa: salario a través del socio de nóminas de Usha, próximamente.",
     "instructorCta": "Ver noches abiertas",
     "assignmentsTitle": "Acepta encargos",
     "assignmentsBody": "Locales y organizadores publican sesiones. Te postulas y ves de antemano lo que paga el encargo. Con empresa propia facturas a través de ella, menos la comisión de Usha. Sin empresa te contrata para la sesión el socio de nóminas de Usha, que gestiona impuestos, cotizaciones y vacaciones: próximamente.",

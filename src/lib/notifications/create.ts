@@ -24,7 +24,9 @@ export type NotificationType =
   | 'collab_invite'
   // En arrangör vill hålla sitt evenemang hos en lokal. Kopplingen händer inte
   // förrän lokalen svarar ja, så lokalen måste få veta att den ligger och väntar.
-  | 'venue_request';
+  | 'venue_request'
+  // En instruktör vill undervisa på en öppen kväll och väntar på arrangörens ja.
+  | 'instructor_application';
 
 interface CreateNotificationParams {
   userId: string;

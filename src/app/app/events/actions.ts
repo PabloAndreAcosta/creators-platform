@@ -19,6 +19,7 @@ import { ticketGateForNewEvent, ticketGateForListing } from "@/lib/capabilities/
 import { stockholmLocalToUtcISO, stockholmToday } from "@/lib/time";
 import { instructorJoinDeadline, instructorJoinOpen } from "@/lib/coaching/join-deadline";
 import { resolveEventCity } from "@/lib/listings/city";
+import { approvalScopeKey, cleanMessage, type ApprovalStatus } from "@/lib/taxi/approvals";
 
 /** Tidsstyrd automatisering (Lucka 3) ur formuläret. Datetime-fält tolkas som
  *  svensk tid och lagras som UTC. Tomma fält → null (avstängt). */
@@ -790,12 +791,81 @@ export async function toggleEventActive(id: string, isActive: boolean) {
 
 // ── Instructor opt-in: offer paid mini-sessions at someone's open event ──
 
-const INSTRUCTOR_TIERS = ["guld", "premium"];
+/** Instruktörens ansökan i kvällens avgränsning (serien, annars arrangören). */
+async function instructorApprovalStatus(
+  userId: string,
+  listing: { series_id: string | null; user_id: string },
+): Promise<ApprovalStatus | null> {
+  const { data } = await createAdminClient()
+    .from("volunteer_approvals")
+    .select("status")
+    .eq("scope_key", approvalScopeKey(listing))
+    .eq("role", "instructor")
+    .eq("volunteer_id", userId)
+    .maybeSingle();
+  return (data?.status as ApprovalStatus | undefined) ?? null;
+}
 
 /**
- * A paying dance-instructor creator joins an open event so they can sell
- * 15/30/45/60-minute mini-sessions there. Gating mirrors the RLS policy on
- * event_instructors, but returns clear Swedish messages first.
+ * Ansökan om att få undervisa på en öppen kväll. Gäller hela serien (The Lab)
+ * eller arrangören; arrangören godkänner under kvällens volontärsida. Samma
+ * tabell som volontärrollerna, roll "instructor".
+ */
+export async function applyAsInstructor(listingId: string, message?: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Ej inloggad" };
+  if (!(await isBankidCleared(supabase, user.id))) return { error: BANKID_REQUIRED_MSG };
+
+  const db = createAdminClient();
+  const { data: profile } = await db.from("profiles").select("role").eq("id", user.id).single();
+  if (!profile || !isCreatorRole(profile.role)) {
+    return { error: "Endast instruktörer (kreatörer) kan ansöka." };
+  }
+  const { data: listing } = await db
+    .from("listings")
+    .select("id, user_id, series_id, is_active, open_to_instructors")
+    .eq("id", listingId)
+    .single();
+  if (!listing || !listing.is_active || !listing.open_to_instructors) {
+    return { error: "Eventet är inte öppet för instruktörer." };
+  }
+  if (listing.user_id === user.id) return { error: "Det är ditt eget event." };
+
+  const existing = await instructorApprovalStatus(user.id, listing);
+  if (existing === "approved") return { success: true, status: "approved" as const };
+  if (existing === "pending") return { success: true, status: "pending" as const };
+  if (existing === "declined") return { error: "Arrangören har tackat nej till din ansökan." };
+
+  const { error } = await db.from("volunteer_approvals").insert({
+    scope_key: approvalScopeKey(listing),
+    role: "instructor",
+    volunteer_id: user.id,
+    message: cleanMessage(message),
+  });
+  if (error && error.code !== "23505") return { error: "Kunde inte skicka ansökan. Försök igen." };
+
+  const { data: me } = await db.from("profiles").select("full_name").eq("id", user.id).maybeSingle();
+  await createNotification({
+    userId: listing.user_id,
+    type: "instructor_application",
+    titleKey: "instructorApplicationTitle",
+    bodyKey: "instructorApplicationMsg",
+    params: { name: me?.full_name ?? "" },
+    link: `/app/events/${listingId}/taxi`,
+  }).catch(() => {});
+
+  revalidatePath("/app/events/open");
+  revalidatePath(`/app/events/${listingId}/taxi`);
+  return { success: true, status: "pending" as const };
+}
+
+/**
+ * En godkänd instruktör går med på en öppen kväll och säljer minisessioner
+ * (15 min–4 h) där. Arrangören måste ha godkänt ansökan; gratiskonto räcker.
+ * Speglar RLS-policyn på event_instructors men ger tydliga meddelanden först.
  */
 export async function joinOpenEvent(listingId: string) {
   const supabase = await createClient();
@@ -811,15 +881,12 @@ export async function joinOpenEvent(listingId: string) {
   // stripe_account_id är kolumn-låst för authenticated — egen rad via service-role.
   const { data: profile } = await createAdminClient()
     .from("profiles")
-    .select("role, tier, offers_coaching, coaching_hourly_rate_sek, stripe_account_id")
+    .select("role, offers_coaching, coaching_hourly_rate_sek, stripe_account_id")
     .eq("id", user.id)
     .single();
 
   if (!profile || !isCreatorRole(profile.role)) {
     return { error: "Endast instruktörer (kreatörer) kan gå med." };
-  }
-  if (!INSTRUCTOR_TIERS.includes(profile.tier)) {
-    return { error: "Du behöver en Guld- eller Premium-prenumeration för att erbjuda tjänster på event." };
   }
   if (!profile.offers_coaching || !profile.coaching_hourly_rate_sek || profile.coaching_hourly_rate_sek <= 0) {
     return { error: "Aktivera coaching och sätt ett timpris i din profil först." };
@@ -830,11 +897,22 @@ export async function joinOpenEvent(listingId: string) {
 
   const { data: listing } = await supabase
     .from("listings")
-    .select("id, is_active, open_to_instructors, event_date")
+    .select("id, user_id, series_id, is_active, open_to_instructors, event_date")
     .eq("id", listingId)
     .single();
   if (!listing || !listing.is_active || !listing.open_to_instructors) {
     return { error: "Eventet är inte öppet för instruktörer." };
+  }
+  const approval = await instructorApprovalStatus(user.id, listing);
+  if (approval !== "approved") {
+    return {
+      error:
+        approval === "pending"
+          ? "Din ansökan väntar på arrangörens godkännande."
+          : approval === "declined"
+            ? "Arrangören har tackat nej till din ansökan."
+            : "Ansök som instruktör först.",
+    };
   }
   if (listing.event_date && !instructorJoinOpen(listing.event_date, stockholmToday())) {
     const deadline = new Date(instructorJoinDeadline(listing.event_date) + "T12:00").toLocaleDateString("sv-SE", { weekday: "long", day: "numeric", month: "long" });
