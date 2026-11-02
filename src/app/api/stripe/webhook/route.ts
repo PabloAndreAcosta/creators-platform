@@ -1006,8 +1006,11 @@ export async function POST(req: NextRequest) {
             // som kvittas mot nästa underlag. Sker återbetalningen innan
             // avräkningen betalats ut gör funktionen ingenting — då räknar
             // avräkningen bort den själv. Se lib/payouts/record-debt.ts.
+            // Bara biljetter ingår i partnerns avräkning. Instruktörsminuter
+            // ligger på värdens kväll men är instruktörens försäljning — en retur
+            // av dem får aldrig bli en skuld hos lokalen.
             await recordRefundDebt(getSupabaseAdmin() as never, {
-              listingId: refundedBooking.listing_id,
+              listingId: refundedBooking.booking_type === "ticket" ? refundedBooking.listing_id : null,
               bookingId: refundedBooking.id,
               refundedOre: charge.amount_refunded,
             }).catch((e) => console.error("recordRefundDebt failed:", e));

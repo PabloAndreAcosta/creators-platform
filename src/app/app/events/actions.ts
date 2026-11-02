@@ -20,6 +20,12 @@ import { stockholmLocalToUtcISO, stockholmToday } from "@/lib/time";
 import { instructorJoinDeadline, instructorJoinOpen } from "@/lib/coaching/join-deadline";
 import { resolveEventCity } from "@/lib/listings/city";
 import { approvalScopeKey, cleanMessage, type ApprovalStatus } from "@/lib/taxi/approvals";
+import { assignmentRoute } from "@/lib/assignments/route";
+
+/** Får instruktören pengarna direkt (eget bolag / Ushas konto) i stället för lön? */
+function paidDirectly(p: { is_company?: boolean | null; company_verified_at?: string | null; is_usha_owned_seller?: boolean | null }) {
+  return assignmentRoute({ is_company: p.is_company ?? null, company_verified_at: p.company_verified_at ?? null, is_usha_owned_seller: p.is_usha_owned_seller ?? null }) !== "payroll";
+}
 
 /** Tidsstyrd automatisering (Lucka 3) ur formuläret. Datetime-fält tolkas som
  *  svensk tid och lagras som UTC. Tomma fält → null (avstängt). */
@@ -881,7 +887,7 @@ export async function joinOpenEvent(listingId: string) {
   // stripe_account_id är kolumn-låst för authenticated — egen rad via service-role.
   const { data: profile } = await createAdminClient()
     .from("profiles")
-    .select("role, offers_coaching, coaching_hourly_rate_sek, stripe_account_id")
+    .select("role, offers_coaching, coaching_hourly_rate_sek, stripe_account_id, is_company, company_verified_at, is_usha_owned_seller")
     .eq("id", user.id)
     .single();
 
@@ -891,7 +897,9 @@ export async function joinOpenEvent(listingId: string) {
   if (!profile.offers_coaching || !profile.coaching_hourly_rate_sek || profile.coaching_hourly_rate_sek <= 0) {
     return { error: "Aktivera coaching och sätt ett timpris i din profil först." };
   }
-  if (!profile.stripe_account_id) {
+  // Stripe behövs bara när pengarna går direkt till instruktören (eget bolag).
+  // Utan bolag säljer Usha minuterna och instruktören får lön via SAMekonomi.
+  if (paidDirectly(profile) && !profile.stripe_account_id) {
     return { error: "Anslut Stripe för att ta emot betalningar först." };
   }
 
