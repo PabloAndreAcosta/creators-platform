@@ -7,6 +7,8 @@ import { getCreatorCommissionRate } from "@/lib/stripe/commission";
 import { priceForMinutes, isMinuteOption, MIN_PRICE_SEK } from "@/lib/coaching/minute-pricing";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
 import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, buildTermsCustomText, type PayeeContext } from "@/lib/stripe/checkout";
+import { assignmentRoute, payrollRouteLive } from "@/lib/assignments/route";
+import { MINUTES_PAYROLL_NOT_LIVE_MESSAGE } from "@/lib/coaching/minutes-payroll";
 
 /**
  * Creates a Stripe Checkout session for buying a block of instructor minutes
@@ -70,12 +72,26 @@ export async function POST(req: NextRequest) {
     // Instructor profile: Connect account + rate + commission inputs
     const { data: instructor } = await createAdminClient()
       .from("profiles")
-      .select("full_name, stripe_account_id, tier, creator_subcategory, coaching_hourly_rate_sek, offers_coaching, company_verified_at, stripe_card_payments_enabled, is_usha_owned_seller, company_name, org_number, terms_url")
+      .select("full_name, stripe_account_id, tier, creator_subcategory, coaching_hourly_rate_sek, offers_coaching, is_company, company_verified_at, stripe_card_payments_enabled, is_usha_owned_seller, company_name, org_number, terms_url")
       .eq("id", instructorId)
       .single();
 
     if (!instructor) {
       return NextResponse.json({ error: "Instruktören hittades inte." }, { status: 404 });
+    }
+
+    // Instruktör utan verifierat bolag får aldrig betalas direkt — köparen blir
+    // då arbetsgivare. Usha säljer minuterna och instruktören får lön via
+    // SAMekonomi. Kontrollen ligger FÖRE betagrinden, så att
+    // NEXT_PUBLIC_PAYMENTS_OPEN aldrig kan öppna lönevägen.
+    const isPayroll =
+      assignmentRoute({
+        is_company: (instructor as { is_company?: boolean | null }).is_company ?? null,
+        company_verified_at: instructor.company_verified_at,
+        is_usha_owned_seller: (instructor as { is_usha_owned_seller?: boolean }).is_usha_owned_seller ?? null,
+      }) === "payroll";
+    if (isPayroll && !payrollRouteLive({ customerId: user.id, creatorId: instructorId })) {
+      return NextResponse.json({ error: MINUTES_PAYROLL_NOT_LIVE_MESSAGE }, { status: 409 });
     }
 
     // Resolve flow first — a Usha-owned payee (principal) needs no connected account.
@@ -88,7 +104,8 @@ export async function POST(req: NextRequest) {
       org_number: (instructor as { org_number?: string | null }).org_number ?? null,
       full_name: instructor.full_name ?? null,
     };
-    const flow = resolvePayeeFlow(payee);
+    // Lönevägen: hela beloppet stannar på plattformskontot.
+    const flow = isPayroll ? "usha_principal" : resolvePayeeFlow(payee);
 
     if (flow === "third_party") {
       if (!instructor.stripe_account_id) {
@@ -148,6 +165,7 @@ export async function POST(req: NextRequest) {
         instructorId,
         listingId: listing.id,
         minutes: String(mins),
+        ...(isPayroll ? { payroll: "true" } : {}),
       },
     });
 

@@ -647,6 +647,10 @@ export async function redeemMinutes(bookingId: string, amount = 15) {
     return { error: "Bokningen ändrades precis — ladda om och försök igen." };
   }
 
+  // Instruktör utan bolag: lönen följer de inlösta minuterna.
+  const { recordMinutesShadowLine } = await import("@/lib/coaching/minutes-payroll");
+  await recordMinutesShadowLine(bookingId).catch((err) => console.error("recordMinutesShadowLine failed:", err));
+
   revalidatePath("/dashboard/bookings");
   return { success: true, redeemed: nextRedeemed, total, reachedTotal };
 }

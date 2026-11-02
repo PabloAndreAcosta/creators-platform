@@ -7,6 +7,7 @@ import { ArrowLeft, Calendar, MapPin, AlertCircle } from "lucide-react";
 import { JoinEventButton } from "../join-event-button";
 import { ApplyInstructorButton } from "../apply-instructor-button";
 import { approvalScopeKey } from "@/lib/taxi/approvals";
+import { assignmentRoute } from "@/lib/assignments/route";
 import { isCreatorRole } from "@/lib/roles";
 import { stockholmToday } from "@/lib/time";
 import { instructorJoinDeadline, instructorJoinOpen } from "@/lib/coaching/join-deadline";
@@ -27,7 +28,7 @@ export default async function OpenEventsPage() {
     // stripe_account_id är kolumn-låst för authenticated — egen rad via service-role.
     createAdminClient()
       .from("profiles")
-      .select("role, offers_coaching, coaching_hourly_rate_sek, stripe_account_id")
+      .select("role, offers_coaching, coaching_hourly_rate_sek, stripe_account_id, is_company, company_verified_at, is_usha_owned_seller")
       .eq("id", user.id)
       .single(),
     supabase
@@ -59,7 +60,16 @@ export default async function OpenEventsPage() {
   if (!profile?.offers_coaching || !profile?.coaching_hourly_rate_sek) {
     missing.push({ label: t("missingCoaching"), href: "/dashboard/profile" });
   }
-  if (!profile?.stripe_account_id) {
+  // Stripe krävs bara av den som får betalt direkt (eget bolag). Utan bolag
+  // får instruktören lön via Usha och behöver inget Connect-konto.
+  const paidDirectly =
+    !!profile &&
+    assignmentRoute({
+      is_company: profile.is_company ?? null,
+      company_verified_at: profile.company_verified_at ?? null,
+      is_usha_owned_seller: profile.is_usha_owned_seller ?? null,
+    }) !== "payroll";
+  if (paidDirectly && !profile?.stripe_account_id) {
     missing.push({ label: t("missingStripe"), href: "/dashboard/payouts" });
   }
   const eligible = missing.length === 0;
