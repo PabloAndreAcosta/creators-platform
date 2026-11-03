@@ -25,6 +25,8 @@ interface Notification {
   created_at: string;
 }
 
+const NOTIFICATION_POLL_MS = 3 * 60 * 1000;
+
 export function NotificationBell() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -37,11 +39,24 @@ export function NotificationBell() {
   // whatever language this session is in — including rows written years ago.
   const tn = useTranslations(NOTIFICATION_NS);
 
-  // Fetch unread count on mount + poll every 30s
+  // Hämta vid start, när fliken blir synlig igen och var tredje minut medan den
+  // syns. Tidigare frågade varje öppen flik var 30:e sekund, även i bakgrunden
+  // och på en låst telefon — det var det vanligaste anropet mot servern och en
+  // stor del av Vercels CPU-tid. Nya notiser kommer ändå som push.
   useEffect(() => {
+    const visible = () => document.visibilityState === "visible";
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
+    const interval = setInterval(() => {
+      if (visible()) fetchNotifications();
+    }, NOTIFICATION_POLL_MS);
+    const onVisible = () => {
+      if (visible()) fetchNotifications();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
   }, []);
 
   // Close on outside click
