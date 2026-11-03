@@ -970,7 +970,9 @@
     "venueRequestTitle": "Förfrågan om er lokal",
     "venueRequestMsg": "{organiser} vill hålla {count, plural, one {ett evenemang} other {# evenemang}} hos er. Det händer inget förrän ni svarar.",
     "instructorApplicationTitle": "Ny instruktörsansökan",
-    "instructorApplicationMsg": "{name} vill undervisa på dina öppna kvällar. Godkänn eller avslå under Volontärpass."
+    "instructorApplicationMsg": "{name} vill undervisa på dina öppna kvällar. Godkänn eller avslå under Volontärpass.",
+    "volunteerApplicationTitle": "Ny volontäransökan",
+    "volunteerApplicationMsg": "{name} vill ta volontärpass på dina kvällar. Godkänn eller avslå under Volontärpass."
   },
   "apiErrors": {
     "unauthorized": "Ej behörig",

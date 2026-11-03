@@ -25,6 +25,9 @@ export async function middleware(request: NextRequest) {
   // Språket måste nå i18n/request.ts, som bara ser headers — inte URL:en.
   const requestHeaders = new Headers(request.headers);
   if (urlLocale) requestHeaders.set("x-usha-lang", urlLocale);
+  // Sidan som efterfrågades, så att /app-layouten kan skicka en utloggad
+  // besökare till /login?next=… och tillbaka hit efter inloggningen.
+  requestHeaders.set("x-usha-path", request.nextUrl.pathname + request.nextUrl.search);
 
   let response: NextResponse;
   let clearHostOnly: string[] = [];
