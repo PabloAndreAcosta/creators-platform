@@ -8,6 +8,7 @@ import { computeAge } from "@/lib/age";
 import type { BankIdVerifiedData } from "@/types/bankid";
 import { findBankIdLoginTarget } from "@/lib/bankid/login";
 import { signInServerSide, finishSignIn } from "@/lib/bankid/session";
+import { gamesReturnUrl, gamesSecret, signGamesHandoff } from "@/lib/bankid/games-token";
 
 export async function GET(req: NextRequest) {
   const { searchParams, origin } = new URL(req.url);
@@ -24,12 +25,15 @@ export async function GET(req: NextRequest) {
     sessionId: string;
     role: string;
     subcategory?: string;
-    mode?: "signup" | "add" | "login";
+    mode?: "signup" | "add" | "login" | "games";
     next?: string | null;
+    ret?: string;
   }>(sessionCookie);
   if (!sessionData) {
     return NextResponse.redirect(`${baseUrl}/signup?bankid=error`);
   }
+
+  if (sessionData.mode === "games") return gamesCallback(status, sessionData.sessionId, sessionData.ret ?? "");
 
   const isAddMode = sessionData.mode === "add";
   const isLoginMode = sessionData.mode === "login";
@@ -198,5 +202,33 @@ export async function GET(req: NextRequest) {
     const response = NextResponse.redirect(`${errorBase}?bankid=error`);
     response.cookies.set("bankid_session", "", { path: "/", maxAge: 0 });
     return response;
+  }
+}
+
+/**
+ * Legitimering för vuxenspelen på ushagames.se. Inget konto skapas och inget
+ * sparas: BankID visar åldern, och spelaren skickas tillbaka med ett bevis
+ * som bara säger "över 18". Se src/lib/bankid/games-token.ts.
+ */
+async function gamesCallback(status: string | null, sessionId: string, ret: string): Promise<NextResponse> {
+  const back = (fragment: Parameters<typeof gamesReturnUrl>[1]) => {
+    const response = NextResponse.redirect(gamesReturnUrl(ret, fragment));
+    response.cookies.set("bankid_session", "", { path: "/", maxAge: 0 });
+    return response;
+  };
+  if (status !== "success") return back({ fel: status === "abort" ? "avbrutet" : "fel" });
+
+  try {
+    const secret = gamesSecret();
+    if (!secret) return back({ fel: "fel" });
+    const result = await getBankIdSessionResult(sessionId);
+    if (result.status !== "SUCCESS" || !result.subject) return back({ fel: "fel" });
+    const age = computeAge(result.subject.dateOfBirth);
+    if (Number.isNaN(age)) return back({ fel: "fel" });
+    if (age < 18) return back({ fel: "under18" });
+    return back({ legitimering: signGamesHandoff(secret) });
+  } catch (err) {
+    console.error("BankID games callback error:", err instanceof Error ? err.message : err);
+    return back({ fel: "fel" });
   }
 }
