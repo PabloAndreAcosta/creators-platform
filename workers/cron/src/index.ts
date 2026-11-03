@@ -112,6 +112,10 @@ const JOBS = [
   // att beskedet finns innan avräkningen betalar ut dagens kvällar. Mejlar
   // bara när något avviker.
   { name: "settlement-gaps", desc: "Kvällar som inte följer en stående regel", atHour: 6 },
+  // Förra månadens avräkning till partnern (t.ex. Bacchis ekonomi), första
+  // vardagen i månaden. Rutten avgör själv om det är dags och är idempotent
+  // per partner och månad, så den körs varje morgon — en missad dag tas igen.
+  { name: "settlement-statements", desc: "Månadsavräkning till partner", atHour: 7 },
   // Veckokontrollen letar efter drift ingen bett den leta efter: slugens datum
   // mot kvällens, kvällar som inte går att köpa biljett till, kvällar som inte
   // delats. Måndag morgon, så att veckans fel hinner rättas före helgens
