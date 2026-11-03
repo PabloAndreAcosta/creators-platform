@@ -92,6 +92,10 @@ export const config = {
   matcher: [
     // spel/: Usha Games skickas vidare till en egen Worker och behöver varken
     // Supabase-session, språkcookie eller partnerkod.
-    "/((?!_next/static|_next/image|favicon.ico|spel(?:/|$)|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    // monitoring: Sentrys tunnel (next.config.js tunnelRoute). sw.js,
+    // manifest, robots, sitemap, .well-known och media är filer — ingen av dem
+    // läser inloggning eller språk. Varje mellanlagerkörning drar CPU-tid på
+    // Vercel; i loggarna stod de här för en femtedel av alla körningar.
+    "/((?!_next/static|_next/image|favicon.ico|spel(?:/|$)|monitoring(?:/|$)|\\.well-known/|sw\\.js$|manifest\\.json$|robots\\.txt$|sitemap\\.xml$|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|mp4|webm|mp3|woff2?|webmanifest)$).*)",
   ],
 };
