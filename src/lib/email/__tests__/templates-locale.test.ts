@@ -17,6 +17,8 @@ import NewMessage, { getNewMessageSubject } from "@/components/emails/NewMessage
 import PayoutConfirmation, { getPayoutSubject } from "@/components/emails/PayoutConfirmation";
 import TrialEnding, { getTrialEndingSubject } from "@/components/emails/TrialEnding";
 import WelcomeCredit, { getWelcomeCreditSubject } from "@/components/emails/WelcomeCredit";
+import SettlementStatement, { getSettlementStatementSubject } from "@/components/emails/SettlementStatement";
+import { buildMonthlyStatement } from "@/lib/settlements/monthly-statement";
 
 const LOCALES = ["sv", "en", "es"] as const;
 const MESSAGES_DIR = join(process.cwd(), "src/i18n/messages");
@@ -81,6 +83,20 @@ function templates(t: Translate, locale: Locale) {
     WelcomeCredit: createElement(WelcomeCredit, {
       recipientName: "Pau", amount: 50, minSpend: 150, expiresAt: WHEN, t, locale,
     }),
+    SettlementStatement: createElement(SettlementStatement, {
+      partnerName: "Joy Nation", t, locale,
+      statement: buildMonthlyStatement("2026-10", [
+        { listingId: "l1", eventDate: "2026-10-01", title: "The Lab", tickets: 10, grossOre: 184000, refundedOre: 0,
+          vatOre: 36800, basisOre: 147200, vatRate: 0.25, partnerPercent: 50, amountOre: 73600, status: "paid",
+          paidAt: "2026-10-03T05:00:00Z", transferId: "tr_a" },
+        { listingId: "l2", eventDate: "2026-10-29", title: "The Lab", tickets: 5, grossOre: 50000, refundedOre: 0,
+          vatOre: 10000, basisOre: 40000, vatRate: 0.25, partnerPercent: 50, amountOre: 20000, status: "dry_run",
+          paidAt: null, transferId: null },
+      ], [
+        { listingId: "l0", eventDate: "2026-09-29", title: "Zouk", seq: 1, amountOre: 8000, dueOre: 40000, grossOre: 0,
+          refundedOre: 0, vatOre: 0, basisOre: 0, status: "paid", paidAt: "2026-10-05T08:00:00Z", transferId: "tr_k" },
+      ]),
+    }),
   };
 }
 
@@ -127,6 +143,7 @@ describe("email templates render in the reader's language", () => {
         getPayoutSubject(t, "instant", 1234),
         getTrialEndingSubject(t, 1),
         getWelcomeCreditSubject(t, 50),
+        getSettlementStatementSubject(t, "Joy Nation", "2026-10", "sv"),
         getTrialEndingSubject(t, 5),
       ];
     };
