@@ -2831,7 +2831,7 @@
     "s4Title": "4. Base jurídica",
     "s4Body": "Tratamos tus datos con base en: la ejecución de un contrato (para prestar el servicio), el interés legítimo (para mejorar la plataforma), el consentimiento (para marketing) y una obligación legal (contabilidad).",
     "s5Title": "5. Compartición de datos",
-    "s5Body": "Compartimos tus datos con: Stripe (procesamiento de pagos), Supabase (almacenamiento de datos), Resend (envío de correos). Nunca vendemos tus datos personales a terceros. Los datos pueden compartirse con las autoridades si la ley lo exige.",
+    "s5Body": "Compartimos tus datos con: Stripe (procesamiento de pagos), Supabase (almacenamiento de datos), Resend (envío de correos), Google (estadísticas de visitas mediante Google Analytics, con cookies solo si las has aceptado). Nunca vendemos tus datos personales a terceros. Los datos pueden compartirse con las autoridades si la ley lo exige.",
     "s6Title": "6. Plazo de conservación",
     "s6Body": "Conservamos tus datos mientras tu cuenta esté activa. Cuando eliminas tu cuenta, tus datos personales se anonimizan y ocultan de inmediato: tu perfil se retira de todas las áreas públicas, tu acceso se bloquea y se libera el vínculo con tu correo electrónico y tu BankID para que puedas registrarte de nuevo. Los datos que estamos legalmente obligados a conservar (p. ej., registros de pago y contables durante 7 años) se conservan durante el periodo legal y luego se eliminan. Esta acción no se puede deshacer.",
     "s7Title": "7. Tus derechos",
@@ -3658,7 +3658,7 @@
   "cookiesPage": {
     "back": "Volver",
     "heading": "Política de cookies",
-    "lastUpdated": "Última actualización: 1 de enero de 2026",
+    "lastUpdated": "Última actualización: 4 de noviembre de 2026",
     "whatHeading": "1. ¿Qué son las cookies?",
     "whatBody": "Las cookies son pequeños archivos de texto que se almacenan en tu dispositivo cuando visitas un sitio web. Se utilizan para que el sitio web funcione correctamente, recordar tus preferencias y mejorar tu experiencia.",
     "whichHeading": "2. Qué cookies utilizamos",
@@ -3669,7 +3669,7 @@
     "functionalHeading": "Cookies funcionales",
     "functionalBody": "Estas cookies permiten recordar tus elecciones, como el idioma y los ajustes de rol.",
     "analyticsHeading": "Cookies analíticas",
-    "analyticsBody": "Podemos utilizar cookies analíticas para entender cómo los visitantes usan la Plataforma. Estas cookies recopilan datos anónimos.",
+    "analyticsBody": "Usamos Google Analytics 4 para entender cómo se usa usha.se, por ejemplo qué páginas se visitan, de qué canales llegan los visitantes y qué eventos llevan a una compra. Las cookies estadísticas solo se instalan si las has aceptado. Si las rechazas, Google Analytics solo recibe señales anónimas sin cookies. Tu elección se guarda en la cookie usha_consent durante seis meses y puedes cambiarla cuando quieras.",
     "thirdPartyHeading": "3. Cookies de terceros",
     "thirdPartyBody": "Stripe puede colocar cookies para gestionar los pagos de forma segura. Estas cookies se rigen por la propia política de privacidad de Stripe.",
     "manageHeading": "4. Gestionar las cookies",
@@ -4917,5 +4917,13 @@
     "instructor": "Instructores",
     "hint": "Invita a bailar a los taxi dancers: están aquí para bailar con todos, sea cual sea tu nivel. Los instructores te ayudan con gusto con la técnica.",
     "collaborator": "Participan"
+  },
+  "consent": {
+    "title": "¿Podemos recopilar estadísticas?",
+    "body": "Usamos Google Analytics para ver cómo se usa usha.se, por ejemplo qué páginas se visitan y qué lleva a una compra. Utiliza cookies y solo ocurre si lo aceptas. Iniciar sesión y pagar funciona igual elijas lo que elijas.",
+    "readMore": "Más información sobre cookies",
+    "accept": "Aceptar estadísticas",
+    "decline": "Solo necesarias",
+    "settings": "Configuración de cookies"
   }
 }

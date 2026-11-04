@@ -10,7 +10,7 @@ type GtagEventParams = Record<string, GtagValue>;
 
 declare global {
   interface Window {
-    gtag?: (command: "event" | "config" | "js", action: string, params?: GtagEventParams | Date) => void;
+    gtag?: (command: "event" | "config" | "js" | "consent", action: string, params?: GtagEventParams | Date) => void;
     dataLayer?: unknown[];
   }
 }

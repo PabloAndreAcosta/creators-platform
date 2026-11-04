@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { ConsentSettingsLink } from "@/components/consent-banner";
 
 export const metadata: Metadata = {
   title: "Cookiepolicy – Usha Platform",
@@ -61,6 +62,9 @@ export default async function CookiesPage() {
             <h3 className="mt-4 mb-2 font-semibold text-[var(--usha-white)]">{t("analyticsHeading")}</h3>
             <p>
               {t("analyticsBody")}
+            </p>
+            <p className="mt-2">
+              <ConsentSettingsLink className="text-[var(--usha-gold)] hover:underline" />
             </p>
           </section>
 

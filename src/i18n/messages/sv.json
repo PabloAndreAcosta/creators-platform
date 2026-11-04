@@ -2831,7 +2831,7 @@
     "s4Title": "4. Rättslig grund",
     "s4Body": "Vi behandlar dina uppgifter baserat på: fullgörande av avtal (för att leverera tjänsten), berättigat intresse (för att förbättra plattformen), samtycke (för marknadsföring) och rättslig förpliktelse (bokföring).",
     "s5Title": "5. Delning av uppgifter",
-    "s5Body": "Vi delar dina uppgifter med: Stripe (betalningshantering), Supabase (datalagring), Resend (e-postutskick). Vi säljer aldrig dina personuppgifter till tredje part. Uppgifter kan delas med myndigheter om det krävs enligt lag.",
+    "s5Body": "Vi delar dina uppgifter med: Stripe (betalningshantering), Supabase (datalagring), Resend (e-postutskick), Google (besöksstatistik via Google Analytics, med cookies bara om du har godkänt det). Vi säljer aldrig dina personuppgifter till tredje part. Uppgifter kan delas med myndigheter om det krävs enligt lag.",
     "s6Title": "6. Lagringstid",
     "s6Body": "Vi sparar dina uppgifter så länge ditt konto är aktivt. När du raderar ditt konto anonymiseras och döljs dina personuppgifter direkt: din profil tas bort från alla publika ytor, din inloggning spärras och kopplingen till din e-postadress och ditt BankID släpps så att du kan registrera dig på nytt. Uppgifter som vi enligt lag är skyldiga att spara (t.ex. betalnings- och bokföringsunderlag i 7 år) behålls under den lagstadgade tiden och gallras därefter. Åtgärden kan inte ångras.",
     "s7Title": "7. Dina rättigheter",
@@ -3658,7 +3658,7 @@
   "cookiesPage": {
     "back": "Tillbaka",
     "heading": "Cookiepolicy",
-    "lastUpdated": "Senast uppdaterad: 1 januari 2026",
+    "lastUpdated": "Senast uppdaterad: 4 november 2026",
     "whatHeading": "1. Vad är cookies?",
     "whatBody": "Cookies är små textfiler som lagras på din enhet när du besöker en webbplats. De används för att webbplatsen ska fungera korrekt, komma ihåg dina inställningar och förbättra din upplevelse.",
     "whichHeading": "2. Vilka cookies vi använder",
@@ -3669,7 +3669,7 @@
     "functionalHeading": "Funktionella cookies",
     "functionalBody": "Dessa cookies gör det möjligt att komma ihåg dina val, som språk och roll-inställningar.",
     "analyticsHeading": "Analyscookies",
-    "analyticsBody": "Vi kan använda analyscookies för att förstå hur besökare använder Plattformen. Dessa cookies samlar in anonym data.",
+    "analyticsBody": "Vi använder Google Analytics 4 för att förstå hur usha.se används, till exempel vilka sidor som besöks, vilka kanaler besökare kommer från och vilka evenemang som leder till köp. Statistikcookies sätts bara om du har godkänt det. Tackar du nej skickar Google Analytics bara anonyma signaler utan cookies. Ditt val sparas i cookien usha_consent i sex månader, och du kan ändra det när du vill.",
     "thirdPartyHeading": "3. Tredjepartscookies",
     "thirdPartyBody": "Stripe kan placera cookies för att hantera betalningar säkert. Dessa cookies regleras av Stripes egna integritetspolicy.",
     "manageHeading": "4. Hantera cookies",
@@ -4917,5 +4917,13 @@
     "instructor": "Instruktörer",
     "hint": "Bjud gärna upp taxidansarna – de är här för att dansa med alla, oavsett nivå. Instruktörerna hjälper dig gärna med tekniken.",
     "collaborator": "Medverkande"
+  },
+  "consent": {
+    "title": "Får vi föra statistik?",
+    "body": "Vi använder Google Analytics för att se hur usha.se används, till exempel vilka sidor som besöks och vad som leder till köp. Det sätter cookies och sker bara om du godkänner. Inloggning och betalning fungerar lika bra oavsett val.",
+    "readMore": "Läs mer om cookies",
+    "accept": "Godkänn statistik",
+    "decline": "Bara nödvändiga",
+    "settings": "Cookieinställningar"
   }
 }
