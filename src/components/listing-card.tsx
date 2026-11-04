@@ -126,7 +126,7 @@ export async function ListingCard({
         {crew.length > 0 && (
           <EveningCrew
             crew={crew}
-            labels={{ taxi_dancer: t("eveningCrew.taxi_dancer"), instructor: t("eveningCrew.instructor") }}
+            labels={{ taxi_dancer: t("eveningCrew.taxi_dancer"), instructor: t("eveningCrew.instructor"), collaborator: t("eveningCrew.collaborator") }}
           />
         )}
         <div className="mb-2.5 mt-2 flex items-center justify-between">

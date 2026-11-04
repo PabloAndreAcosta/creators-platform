@@ -11,13 +11,13 @@ export function EveningCrew({
   variant = "compact",
 }: {
   crew: CrewMember[];
-  labels: { taxi_dancer: string; instructor: string; hint?: string };
+  labels: { taxi_dancer: string; instructor: string; collaborator?: string; hint?: string };
   variant?: "full" | "compact";
 }) {
   if (!crew.length) return null;
-  const groups = (["taxi_dancer", "instructor"] as const)
+  const groups = (["taxi_dancer", "instructor", "collaborator"] as const)
     .map((role) => ({ role, people: crew.filter((c) => c.role === role) }))
-    .filter((g) => g.people.length);
+    .filter((g) => g.people.length && labels[g.role]);
   const big = variant === "full";
   return (
     <div className={big ? "mt-5 space-y-3 rounded-xl border border-[var(--usha-gold)]/30 bg-[var(--usha-gold)]/5 p-4" : "mt-2 space-y-1.5"}>

@@ -428,7 +428,7 @@ function EventCard({
             </div>
           )}
           {listing.crew && listing.crew.length > 0 && (
-            <EveningCrew crew={listing.crew} labels={{ taxi_dancer: t("crewTaxi"), instructor: t("crewInstructor") }} />
+            <EveningCrew crew={listing.crew} labels={{ taxi_dancer: t("crewTaxi"), instructor: t("crewInstructor"), collaborator: t("crewCollaborator") }} />
           )}
           {listing.fb_auto_post && (
             listing.facebook_event_id ? (

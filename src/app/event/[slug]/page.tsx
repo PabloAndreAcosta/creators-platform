@@ -206,6 +206,8 @@ async function getCrew(listingId: string) {
     .select("user_id, role, accepted_at")
     .eq("listing_id", listingId)
     .eq("status", "accepted")
+    // Bara de som själva valt att vara med den här kvällen.
+    .eq("attending", true)
     .order("accepted_at", { ascending: true });
 
   if (!collabs || collabs.length === 0) return [];
@@ -556,7 +558,7 @@ export default async function EventPage(props: Params) {
       ? ((await loadEveningCrew([listing.id])).get(listing.id) ?? [])
       : [];
   const tc = await getTranslations({ locale: eventLocale, namespace: "eveningCrew" });
-  const crewLabels = { taxi_dancer: tc("taxi_dancer"), instructor: tc("instructor"), hint: tc("hint") };
+  const crewLabels = { taxi_dancer: tc("taxi_dancer"), instructor: tc("instructor"), collaborator: tc("collaborator"), hint: tc("hint") };
   const volunteerPath = `/app/taxi/${listing.id}`;
   const volunteerHref = user ? volunteerPath : `/signup?role=customer&next=${encodeURIComponent(volunteerPath)}`;
 
