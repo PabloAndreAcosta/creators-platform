@@ -37,6 +37,9 @@ export async function signUpForShifts(formData: FormData) {
   const volunteer = formData.get("volunteer") === "on";
   const rules = formData.get("rules") === "on";
   const photoConsent = formData.get("photo") === "yes";
+  // Taxidansare och instruktörer syns alltid med förnamn; bilden får väljas bort.
+  // Rutan finns bara när passen gäller de rollerna — annars standard ja.
+  const showPhoto = formData.get("showPhotoShown") !== "1" || formData.get("showPhoto") === "yes";
   if (shiftIds.length === 0) back(listingId, "noShift");
   if (!volunteer || !rules) back(listingId, "mustAccept");
 
@@ -113,13 +116,14 @@ export async function signUpForShifts(formData: FormData) {
     if (existing) {
       await db
         .from("taxi_signups")
-        .update({ status: "booked", cancelled_at: null, photo_consent: photoConsent, volunteer_ack_at: ackAt })
+        .update({ status: "booked", cancelled_at: null, photo_consent: photoConsent, show_photo_on_event: showPhoto, volunteer_ack_at: ackAt })
         .eq("id", existing.id);
     } else {
       const { error } = await db.from("taxi_signups").insert({
         shift_id: id,
         dancer_id: user.id,
         photo_consent: photoConsent,
+        show_photo_on_event: showPhoto,
         volunteer_ack_at: ackAt,
       });
       if (error) throw error;

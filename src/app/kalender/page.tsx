@@ -13,6 +13,8 @@ import { safeJsonLd } from "@/lib/json-ld";
 import { stockholmEventISO } from "@/lib/time";
 import { absoluteUrl } from "@/lib/seo/metadata";
 import { FollowButton } from "@/components/follow-button";
+import { loadEveningCrew } from "@/lib/taxi/crew";
+import { EveningCrew } from "@/components/evening-crew";
 import { FollowUs } from "@/components/follow-us";
 import { indexable } from "@/lib/seo/metadata";
 
@@ -59,6 +61,9 @@ export default async function KalenderPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const organizerIds = [...new Set(entries.map((e) => e.organizerId).filter((id): id is string => !!id))];
+  const crewByListing = await loadEveningCrew(entries.map((e) => e.listingId));
+  const tc = await getTranslations("eveningCrew");
+  const crewLabels = { taxi_dancer: tc("taxi_dancer"), instructor: tc("instructor") };
   const { data: myFollows } = user && organizerIds.length
     ? await supabase.from("follows").select("followed_id").eq("follower_id", user.id).in("followed_id", organizerIds)
     : { data: [] as { followed_id: string }[] };
@@ -189,6 +194,7 @@ export default async function KalenderPage() {
                           {e.occurrences > 1 && (
                             <p className="mt-1 text-[11px] text-[var(--usha-muted)]">{t("next", { date: nextFmt.format(noon(e.date)) })}</p>
                           )}
+                          <EveningCrew crew={crewByListing.get(e.listingId) ?? []} labels={crewLabels} />
                         </div>
                         <ArrowRight size={16} className="mt-1 shrink-0 self-start text-[var(--usha-muted)] transition group-hover:text-[var(--usha-gold)]" />
                       </Link>

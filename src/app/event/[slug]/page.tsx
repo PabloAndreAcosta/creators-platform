@@ -22,6 +22,8 @@ import { safeJsonLd } from "@/lib/json-ld";
 import { pickMessages, PUBLIC_NAMESPACES } from "@/lib/i18n/client-namespaces";
 import { stockholmEventISO } from "@/lib/time";
 import { loadShifts } from "@/lib/taxi/data";
+import { loadEveningCrew } from "@/lib/taxi/crew";
+import { EveningCrew } from "@/components/evening-crew";
 import { approvalScopeKey } from "@/lib/taxi/approvals";
 import { DjWishes } from "./dj-wishes";
 import { getSignupCreditEnabled } from "@/lib/credits/flag";
@@ -547,6 +549,14 @@ export default async function EventPage(props: Params) {
   const openVolunteerSpots = (await loadShifts(listing.id))
     .filter((s) => Date.parse(s.starts_at) > Date.now())
     .reduce((n, s) => n + Math.max(0, s.capacity - s.booked), 0);
+  // Kvällens taxidansare, så att deltagarna vet vem de kan bjuda upp. Bara för
+  // kvällar som inte passerat.
+  const eveningCrew =
+    listing.event_date && listing.event_date >= todayStockholmIso()
+      ? ((await loadEveningCrew([listing.id])).get(listing.id) ?? [])
+      : [];
+  const tc = await getTranslations({ locale: eventLocale, namespace: "eveningCrew" });
+  const crewLabels = { taxi_dancer: tc("taxi_dancer"), instructor: tc("instructor"), hint: tc("hint") };
   const volunteerPath = `/app/taxi/${listing.id}`;
   const volunteerHref = user ? volunteerPath : `/signup?role=customer&next=${encodeURIComponent(volunteerPath)}`;
 
@@ -803,6 +813,10 @@ export default async function EventPage(props: Params) {
             )}
           </div>
         )}
+
+        {/* Vem som är där: taxidansare och instruktörer, direkt under när och
+            var — det är skälet för många att komma. */}
+        <EveningCrew crew={eveningCrew} labels={crewLabels} variant="full" />
 
         {/* SAMMANFATTNINGEN STÅR HÄR, MED TID OCH PLATS (2026-10-25).
             Den är en uppgift om kvällen i samma klass som när och var — inte
@@ -1331,4 +1345,9 @@ function EventCardSection({
       </div>
     </section>
   );
+}
+
+/** Dagens datum i Stockholm som YYYY-MM-DD, för att jämföra med event_date. */
+function todayStockholmIso(): string {
+  return new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Stockholm" }).format(new Date());
 }

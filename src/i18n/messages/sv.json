@@ -972,7 +972,9 @@
     "instructorApplicationTitle": "Ny instruktörsansökan",
     "instructorApplicationMsg": "{name} vill undervisa på dina öppna kvällar. Godkänn eller avslå under Volontärpass.",
     "volunteerApplicationTitle": "Ny volontäransökan",
-    "volunteerApplicationMsg": "{name} vill ta volontärpass på dina kvällar. Godkänn eller avslå under Volontärpass."
+    "volunteerApplicationMsg": "{name} vill ta volontärpass på dina kvällar. Godkänn eller avslå under Volontärpass.",
+    "volunteerApprovedTitle": "Du är godkänd som volontär",
+    "volunteerApprovedMsg": "Välj dina pass för {title}. Godkännandet gäller hela serien."
   },
   "apiErrors": {
     "unauthorized": "Ej behörig",
@@ -3090,7 +3092,9 @@
     "hideOccurrences": "Dölj",
     "badgePast": "Passerat",
     "sellAtDoor": "Sälj i entrén",
-    "taxiPass": "Volontärpass"
+    "taxiPass": "Volontärpass",
+    "pendingVolunteers": "{n, plural, one {# volontäransökan väntar} other {# volontäransökningar väntar}} på ditt svar",
+    "pendingVolunteersOpen": "Öppna"
   },
   "calendarPage": {
     "dayMon": "Mån",
@@ -4636,6 +4640,7 @@
     "photoQuestion": "Får vi ta bilder på dig under kvällen och använda dem i våra kanaler?",
     "photoYes": "Ja, det går bra",
     "photoNo": "Nej, inga bilder på mig",
+    "appliedChooseLater": "Hen väljer själv sina pass efter ditt godkännande.",
     "ackVolunteer": "Jag förstår att jag är volontär och inte får lön – bara fri entré och en matkupong.",
     "ackRules": "Jag följer reglerna ovan: alkoholfritt under passet, avbokning senast kl. 10 samma dag, och tre varningar inom sex månader ger sex månaders avstängning.",
     "signUp": "Anmäl mig",
@@ -4778,7 +4783,9 @@
     "paidShiftOrg": "Betalt: {pay} kr/person",
     "paidShiftNet": "Betalt pass: {pay} kr – ca {net} kr i handen efter skatt",
     "paidShiftCompany": "Betalt pass: {pay} kr – faktureras via ditt bolag",
-    "notice_shift_payInvalid": "Ange en ersättning mellan 0 och 10 000 kr."
+    "notice_shift_payInvalid": "Ange en ersättning mellan 0 och 10 000 kr.",
+    "shownOnEvent": "Som taxidansare eller instruktör visas ditt förnamn på kvällens sida, i serien och i kalendern, så att deltagarna vet vem du är.",
+    "showPhotoOnEvent": "Visa även min profilbild."
   },
   "instruktorerPage": {
     "meta": {
@@ -4887,5 +4894,10 @@
     "linkPlaceholder": "Länk (Instagram, SoundCloud) – valfritt",
     "add": "Önska",
     "loginToVote": "Logga in för att önska och rösta →"
+  },
+  "eveningCrew": {
+    "taxi_dancer": "Taxidansare",
+    "instructor": "Instruktörer",
+    "hint": "Bjud gärna upp taxidansarna – de är här för att dansa med alla, oavsett nivå. Instruktörerna hjälper dig gärna med tekniken."
   }
 }

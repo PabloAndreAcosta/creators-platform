@@ -28,7 +28,9 @@ export type NotificationType =
   // En instruktör vill undervisa på en öppen kväll och väntar på arrangörens ja.
   | 'instructor_application'
   // En volontär (taxidansare, dörrvärd m.fl.) har ansökt och väntar på arrangörens ja.
-  | 'volunteer_application';
+  | 'volunteer_application'
+  // Arrangören har godkänt volontären — nu kan hen välja pass.
+  | 'volunteer_approved';
 
 interface CreateNotificationParams {
   userId: string;

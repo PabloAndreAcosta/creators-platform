@@ -24,6 +24,8 @@ export type CalendarListing = {
 
 export type CalendarEntry = {
   key: string;
+  /** Nästa tillfällets listing-id (för kvällens besättning i listan). */
+  listingId: string;
   title: string;
   href: string;
   /** Arrangörens profil-id, för följ-knappen i listan. */
@@ -98,6 +100,7 @@ export function groupUpcoming(listings: CalendarListing[], today: string): Calen
     // resten av serien räknas in i efterhand nedan.
     entries.push({
       key: l.series_id ?? l.id,
+      listingId: l.id,
       title: l.title,
       organizerId: l.user_id,
       href: l.series_id && l.series_slug ? `/event/${l.series_slug}` : `/event/${l.slug ?? l.id}`,

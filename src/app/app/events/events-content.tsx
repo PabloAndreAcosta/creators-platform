@@ -87,8 +87,16 @@ interface ListingData {
   stats_only?: boolean;
 }
 
+export interface PendingVolunteers {
+  /** Nästa kommande kväll i avgränsningen — där godkänns ansökan. */
+  id: string;
+  title: string;
+  n: number;
+}
+
 interface EventsContentProps {
   listings: ListingData[];
+  pendingVolunteers?: PendingVolunteers[];
   facebookPageId: string | null;
   facebookPageName: string | null;
   fbConnected?: boolean;
@@ -97,6 +105,7 @@ interface EventsContentProps {
 
 export function EventsContent({
   listings,
+  pendingVolunteers = [],
   facebookPageId,
   facebookPageName,
   fbConnected,
@@ -175,6 +184,25 @@ export function EventsContent({
           </span>
         </div>
       </div>
+
+      {/* Väntande volontäransökningar. Volontärpass ligger i kvällens ⋯-meny,
+          så utan den här rutan märks en ansökan inte. */}
+      {pendingVolunteers.map((p) => (
+        <Link
+          key={p.id}
+          href={`/app/events/${p.id}/taxi`}
+          className="flex items-center justify-between gap-3 rounded-xl border border-[var(--usha-gold)]/40 bg-[var(--usha-gold)]/10 px-4 py-3 text-sm transition hover:border-[var(--usha-gold)]"
+        >
+          <span className="flex min-w-0 items-center gap-2">
+            <Heart size={16} className="shrink-0 text-[var(--usha-gold)]" />
+            <span className="min-w-0">
+              <span className="block font-semibold">{t("pendingVolunteers", { n: p.n })}</span>
+              <span className="block truncate text-xs text-[var(--usha-muted)]">{p.title}</span>
+            </span>
+          </span>
+          <span className="shrink-0 text-xs font-semibold text-[var(--usha-gold)]">{t("pendingVolunteersOpen")}</span>
+        </Link>
+      ))}
 
       {/* Facebook connect panel */}
       <FacebookConnect pageName={facebookPageName} pageId={facebookPageId} />

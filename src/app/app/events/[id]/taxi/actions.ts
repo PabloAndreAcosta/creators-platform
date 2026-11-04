@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createNotification } from "@/lib/notifications/create";
 import { isAdminById } from "@/lib/admin/check";
 import { loadEvening } from "@/lib/taxi/data";
 import { validateShift } from "@/lib/taxi/rules";
@@ -163,12 +164,26 @@ export async function decideApplication(formData: FormData) {
   const listingId = String(formData.get("listingId") ?? "");
   const { user, evening } = await assertOrganiser(listingId);
   const decision = formData.get("decision") === "approve" ? "approved" : "declined";
-  const { error } = await createAdminClient()
+  const { data: decided, error } = await createAdminClient()
     .from("volunteer_approvals")
     .update({ status: decision, decided_by: user.id, decided_at: new Date().toISOString() })
     .eq("id", String(formData.get("approvalId")))
-    .eq("scope_key", approvalScopeKey(evening));
+    .eq("scope_key", approvalScopeKey(evening))
+    .select("volunteer_id")
+    .maybeSingle();
   if (error) throw error;
+  // Den godkände ska veta att det är dags att välja pass — annars väntar hen
+  // på ett besked som redan kommit.
+  if (decision === "approved" && decided?.volunteer_id) {
+    await createNotification({
+      userId: decided.volunteer_id,
+      type: "volunteer_approved",
+      titleKey: "volunteerApprovedTitle",
+      bodyKey: "volunteerApprovedMsg",
+      params: { title: evening.title },
+      link: `/app/taxi/${listingId}`,
+    }).catch(() => {});
+  }
   revalidatePath(`/app/events/${listingId}/taxi`);
   page(listingId, decision === "approved" ? "applicationApproved" : "applicationDeclinedOrg");
 }

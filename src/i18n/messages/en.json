@@ -972,7 +972,9 @@
     "instructorApplicationTitle": "New instructor application",
     "instructorApplicationMsg": "{name} wants to teach at your open evenings. Approve or decline under Volunteer shifts.",
     "volunteerApplicationTitle": "New volunteer application",
-    "volunteerApplicationMsg": "{name} wants to take volunteer shifts at your evenings. Approve or decline under Volunteer shifts."
+    "volunteerApplicationMsg": "{name} wants to take volunteer shifts at your evenings. Approve or decline under Volunteer shifts.",
+    "volunteerApprovedTitle": "You are approved as a volunteer",
+    "volunteerApprovedMsg": "Pick your shifts for {title}. The approval covers the whole series."
   },
   "apiErrors": {
     "unauthorized": "Unauthorized",
@@ -3090,7 +3092,9 @@
     "hideOccurrences": "Hide",
     "badgePast": "Past",
     "sellAtDoor": "Sell at the door",
-    "taxiPass": "Volunteer shifts"
+    "taxiPass": "Volunteer shifts",
+    "pendingVolunteers": "{n, plural, one {# volunteer application is} other {# volunteer applications are}} waiting for you",
+    "pendingVolunteersOpen": "Open"
   },
   "calendarPage": {
     "dayMon": "Mon",
@@ -4636,6 +4640,7 @@
     "photoQuestion": "May we take photos of you during the evening and use them in our channels?",
     "photoYes": "Yes, that is fine",
     "photoNo": "No photos of me",
+    "appliedChooseLater": "They pick their own shifts once you approve.",
     "ackVolunteer": "I understand that I am a volunteer and not paid – only free entry and a meal voucher.",
     "ackRules": "I follow the rules above: no alcohol during the shift, cancel by 10:00 on the day, and three warnings within six months mean a six-month suspension.",
     "signUp": "Sign me up",
@@ -4778,7 +4783,9 @@
     "paidShiftOrg": "Paid: {pay} kr/person",
     "paidShiftNet": "Paid shift: {pay} kr – about {net} kr after tax",
     "paidShiftCompany": "Paid shift: {pay} kr – invoiced through your company",
-    "notice_shift_payInvalid": "Enter pay between 0 and 10 000 kr."
+    "notice_shift_payInvalid": "Enter pay between 0 and 10 000 kr.",
+    "shownOnEvent": "As a taxi dancer or instructor your first name is shown on the evening's page, in the series and in the calendar, so guests know who you are.",
+    "showPhotoOnEvent": "Show my profile picture too."
   },
   "instruktorerPage": {
     "meta": {
@@ -4887,5 +4894,10 @@
     "linkPlaceholder": "Link (Instagram, SoundCloud) – optional",
     "add": "Request",
     "loginToVote": "Log in to request and vote →"
+  },
+  "eveningCrew": {
+    "taxi_dancer": "Taxi dancers",
+    "instructor": "Instructors",
+    "hint": "Feel free to ask the taxi dancers to dance – they are here to dance with everyone, whatever your level. The instructors are happy to help with your technique."
   }
 }
