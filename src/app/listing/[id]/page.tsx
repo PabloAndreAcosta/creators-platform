@@ -274,7 +274,7 @@ export default async function ListingDetailPage(props: Props) {
             spåret förbi skärmkanten — då hamnar kartan och biljettrutan utanför
             till höger på mobil, medan texten ovanför ser ok ut. Samma fix som
             redan gjorts på /event/[slug]. */}
-        <div className="grid gap-8 lg:grid-cols-[1fr_340px]">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_340px]">
           {/* Main content */}
           <div className="min-w-0">
             {/* Event image */}

@@ -35,7 +35,7 @@ export function Footer() {
   return (
     <footer className="border-t border-[var(--usha-border)] pt-12 pb-8 px-4 sm:pt-16 sm:px-6">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mb-12 grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div className="lg:col-span-2">
             <div className="mb-4 flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)]">

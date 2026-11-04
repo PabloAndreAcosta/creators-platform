@@ -346,7 +346,7 @@ export default function EventForm({
         </div>
 
         {/* Start + End time */}
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="event_time" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
               {t("startTime")} <span className="text-[var(--usha-gold)]">*</span>
@@ -379,7 +379,7 @@ export default function EventForm({
             </label>
             {recurring && (
               <>
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
                     <label htmlFor="recur_interval" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
                       {t("interval")}
@@ -480,7 +480,7 @@ export default function EventForm({
           <p className="mt-2 text-xs text-[var(--usha-muted)]">
             {t("automationHelp")}
           </p>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <label className="text-xs text-[var(--usha-muted)]">
               {t("ebStart")}
               <input
@@ -633,7 +633,7 @@ export default function EventForm({
         )}
 
         {/* Category + Price */}
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="category" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
               {t("category")} <span className="text-red-400">*</span>
@@ -695,7 +695,7 @@ export default function EventForm({
               <div className="mt-3">
                 <input type="hidden" name="service_fee_mode" value={serviceFeeMode} />
                 <p className="mb-1.5 text-sm text-[var(--usha-muted)]">{t("serviceFeeLabel")}</p>
-                <div className="grid gap-2 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                   <button
                     type="button"
                     onClick={() => setServiceFeeMode("buyer")}
@@ -792,7 +792,7 @@ export default function EventForm({
         </div>
 
         {/* Duration + Tier */}
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="duration_minutes" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
               {t("duration")}
@@ -837,7 +837,7 @@ export default function EventForm({
 
         {/* Guest capacity (only for relevant types) */}
         {showGuestFields && (
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label htmlFor="min_guests" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
                 {t("minGuests")}

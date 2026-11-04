@@ -141,7 +141,7 @@ export default async function LocationCategoryPage(props: Props) {
 
         {/* Listings grid */}
         {listings && listings.length > 0 ? (
-          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {listings.map((listing) => (
               <ListingCard
                 key={listing.id}

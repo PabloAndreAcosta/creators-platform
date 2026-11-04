@@ -440,7 +440,7 @@ export default async function MarketplacePage(
             </p>
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {profiles.map((creator) => {
               const cats = creator.categories?.length ? creator.categories : (creator.category ? [creator.category] : []);
               const locs = creator.locations?.length ? creator.locations : (creator.location ? [creator.location] : []);

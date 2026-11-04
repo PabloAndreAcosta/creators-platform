@@ -924,7 +924,7 @@ export default async function EventPage(props: Params) {
             Desktop: samma sak men i två spalter, så det visuella intrycket
             är oförändrat — därför col-start/row-start i stället för en
             omskriven layout. */}
-        <div className="grid gap-8 md:grid-cols-[1fr_280px] md:gap-12">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-[1fr_280px] md:gap-12">
           <div className="order-2 min-w-0 md:order-none md:col-start-1 md:row-start-1">
             {listing.description ? (
               <div className="text-base leading-relaxed text-[var(--usha-white)] sm:text-lg">
@@ -1312,7 +1312,7 @@ function EventCardSection({
           </Link>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {cards.map((c) => (
             <Link
               key={c.id}

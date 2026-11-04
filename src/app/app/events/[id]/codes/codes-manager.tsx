@@ -45,7 +45,7 @@ export function CodesManager({ listingId, codes }: { listingId: string; codes: C
 
   return (
     <div className="space-y-6">
-      <form onSubmit={onCreate} className="grid gap-2 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 sm:grid-cols-5">
+      <form onSubmit={onCreate} className="grid grid-cols-1 gap-2 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 sm:grid-cols-5">
         <input
           name="code"
           required

@@ -277,7 +277,7 @@ export function GigForm({
       {/* Med en kopplad kväll kommer datum, tid och lokal från kvällen själv. */}
       {!group && (
         <>
-          <div className="grid gap-6 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
               <label htmlFor="event_date" className="mb-1.5 block text-sm text-[var(--usha-muted)]">{t("dateLabel")}</label>
               <input id="event_date" name="event_date" type="date" required className={inputClass} />
@@ -288,7 +288,7 @@ export function GigForm({
             </div>
           </div>
 
-          <div className="grid gap-6 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
               <label htmlFor="venue" className="mb-1.5 block text-sm text-[var(--usha-muted)]">{t("venueLabel")}</label>
               <input id="venue" name="venue" type="text" placeholder={t("venuePlaceholder")} className={inputClass} />

@@ -25,7 +25,7 @@ export function AudienceDoors({ size = "default" }: { size?: "default" | "large"
   ];
 
   return (
-    <div className={`grid w-full text-left sm:grid-cols-3 ${large ? "gap-5 sm:gap-6" : "gap-4 sm:gap-5"}`}>
+    <div className={`grid grid-cols-1 w-full text-left sm:grid-cols-3 ${large ? "gap-5 sm:gap-6" : "gap-4 sm:gap-5"}`}>
       {doors.map((d) => (
         <a
           key={d.href}

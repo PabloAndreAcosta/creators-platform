@@ -211,7 +211,7 @@ export default async function TaxiEveningPage(props: {
               <input type="hidden" name="listingId" value={id} />
               <p className="text-[var(--usha-muted)]">{t("voucherHint")}</p>
               {/* Fylls i av restaurangens personal, inte av volontären. */}
-              <div className="grid gap-2 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 <label className="flex flex-col gap-1 text-xs text-[var(--usha-muted)]">
                   {t("voucherAmountLabel", { max: voucherMaxKr })}
                   <input name="amount" inputMode="decimal" required defaultValue={voucherMaxKr} className="rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-3 py-2 text-sm" />

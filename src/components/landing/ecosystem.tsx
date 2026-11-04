@@ -103,7 +103,7 @@ export function Ecosystem() {
 
                 {isOpen && (
                   <div className="border-t border-[var(--usha-border)] px-6 pb-6 pt-4">
-                    <ul className="grid gap-3 sm:grid-cols-2">
+                    <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                       {pillar.details.map((detail) => (
                         <li key={detail.text} className="flex items-start gap-3">
                           <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[var(--usha-gold)]/10">

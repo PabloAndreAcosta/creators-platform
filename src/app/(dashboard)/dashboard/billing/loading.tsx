@@ -25,7 +25,7 @@ export default function BillingLoading() {
       </div>
 
       {/* Plan-kort */}
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {Array.from({ length: 3 }).map((_, i) => (
           <div
             key={i}

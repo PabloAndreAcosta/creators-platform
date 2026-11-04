@@ -71,7 +71,7 @@ export default async function SellPage() {
       {items.length === 0 ? (
         <p className="text-sm text-[var(--usha-muted)]">{tSell("empty")}</p>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {items.map((item) => {
             const count = counts[item.path];
             return (

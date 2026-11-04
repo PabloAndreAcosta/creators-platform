@@ -436,7 +436,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
           <label className="mb-1.5 block text-sm text-[var(--usha-muted)]">
             {t("ratesLabel")}
           </label>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {selectedCategories.map((cat) => (
               <div key={cat} className="flex items-center gap-2">
                 <span className="w-20 shrink-0 text-xs font-medium text-[var(--usha-muted)]">
@@ -556,7 +556,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
         <label className="mb-3 block text-sm text-[var(--usha-muted)]">
           {t("contactLabel")}
         </label>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
             <label htmlFor="contact_email" className="mb-1 block text-xs text-[var(--usha-muted)]">
               {t("contactEmailLabel")}
