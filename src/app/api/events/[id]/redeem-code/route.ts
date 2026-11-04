@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { checkoutTax, parseVatRate, withTaxRates } from "@/lib/stripe/vat";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -54,7 +55,7 @@ export async function POST(
   const admin = createAdminClient();
   const { data: listing } = await admin
     .from("listings")
-    .select("id, user_id, title, event_date, event_time, capacity, tickets_sold")
+    .select("id, user_id, title, event_date, event_time, capacity, tickets_sold, vat_rate")
     .eq("id", listingId)
     .eq("is_active", true)
     .maybeSingle();
@@ -126,6 +127,8 @@ export async function POST(
       return NextResponse.json({ error: te("invalidCode") }, { status: 400 });
     }
 
+    // Momsen: kvällens egen sats (t.ex. 6 % på danskvällar) eller Stripe Tax.
+    const tax = await checkoutTax(stripe, parseVatRate(listing.vat_rate));
     let session;
     try {
       session = await stripe.checkout.sessions.create({
@@ -134,22 +137,25 @@ export async function POST(
         // Shorter hold so a griefer can't lock a single-use code for a full day
         // by abandoning checkouts (mirrors the ticket checkout window).
         expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
-        line_items: [
-          {
-            price_data: {
-              currency: "sek",
-              product_data: { name: listing.title },
-              unit_amount: amountInOre,
+        line_items: withTaxRates(
+          [
+            {
+              price_data: {
+                currency: "sek",
+                product_data: { name: listing.title },
+                unit_amount: amountInOre,
+              },
+              quantity: 1,
             },
-            quantity: 1,
-          },
-        ],
+          ],
+          tax,
+        ),
         mode: "payment",
         payment_intent_data: {
           application_fee_amount: applicationFee,
           transfer_data: { destination: creator.stripe_account_id },
         },
-        automatic_tax: { enabled: true },
+        ...(tax.automatic_tax ? { automatic_tax: tax.automatic_tax } : {}),
         // Land buyers on a clear confirmation instead of the feed: logged-in users
         // see their tickets, guests get the login-free "thank you" page.
         success_url: user ? `${baseUrl}/app/tickets?success=true` : `${baseUrl}/biljett/klar`,

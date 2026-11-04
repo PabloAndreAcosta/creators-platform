@@ -26,6 +26,7 @@ import {
 import { efterkopLage } from "./late-purchase";
 import { getSaleState } from "@/lib/listings/sale-state";
 import { paymentMethodConfigParam } from "@/lib/stripe/method-config";
+import { checkoutTax, parseVatRate, withTaxRates } from "@/lib/stripe/vat";
 
 export interface LateCheckoutListing {
   id: string;
@@ -36,6 +37,8 @@ export interface LateCheckoutListing {
   event_time: string | null;
   series_slug: string | null;
   service_fee_mode: string | null;
+  /** Momssats för kvällen (listings.vat_rate). Saknas/null = standard. */
+  vat_rate?: number | string | null;
 }
 
 export interface LateCheckoutTicketType {
@@ -223,6 +226,8 @@ export async function createLateCheckoutSession(args: {
 
   const totalOre = amountInOre + (feeMode === "buyer" ? serviceFee : 0);
 
+  // Momsen: kvällens egen sats (t.ex. 6 % på danskvällar) eller Stripe Tax.
+  const tax = await checkoutTax(stripe, parseVatRate(listing.vat_rate));
   const session = await stripe.checkout.sessions.create({
     ...(args.locale ? { locale: args.locale } : {}),
     // Klarna bara över gränsen — se lib/stripe/method-config.
@@ -230,12 +235,12 @@ export async function createLateCheckoutSession(args: {
     // Ingen customer_email: värden känner inte nödvändigtvis gästens adress,
     // och att skriva in den åt någon annan är ett sätt att stava fel. Stripe
     // frågar gästen själv, och webhooken plockar adressen ur customer_details.
-    line_items: lineItems,
+    line_items: withTaxRates(lineItems, tax),
     mode: "payment",
     expires_at: Math.floor(now.getTime() / 1000) + minuter * 60,
     ...(paymentIntentData ? { payment_intent_data: paymentIntentData } : {}),
     ...(customText ? { custom_text: customText } : {}),
-    automatic_tax: { enabled: true },
+    ...(tax.automatic_tax ? { automatic_tax: tax.automatic_tax } : {}),
     success_url: `${appUrl}/biljett/klar?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${appUrl}/flode`,
     metadata: {
