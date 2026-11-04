@@ -4640,7 +4640,6 @@
     "photoQuestion": "May we take photos of you during the evening and use them in our channels?",
     "photoYes": "Yes, that is fine",
     "photoNo": "No photos of me",
-    "showOnEvent": "Show my first name and profile picture on the evening's page, so guests can see who the taxi dancers and instructors are.",
     "appliedChooseLater": "They pick their own shifts once you approve.",
     "ackVolunteer": "I understand that I am a volunteer and not paid – only free entry and a meal voucher.",
     "ackRules": "I follow the rules above: no alcohol during the shift, cancel by 10:00 on the day, and three warnings within six months mean a six-month suspension.",
@@ -4784,7 +4783,9 @@
     "paidShiftOrg": "Paid: {pay} kr/person",
     "paidShiftNet": "Paid shift: {pay} kr – about {net} kr after tax",
     "paidShiftCompany": "Paid shift: {pay} kr – invoiced through your company",
-    "notice_shift_payInvalid": "Enter pay between 0 and 10 000 kr."
+    "notice_shift_payInvalid": "Enter pay between 0 and 10 000 kr.",
+    "shownOnEvent": "As a taxi dancer or instructor your first name is shown on the evening's page, in the series and in the calendar, so guests know who you are.",
+    "showPhotoOnEvent": "Show my profile picture too."
   },
   "instruktorerPage": {
     "meta": {

@@ -5,10 +5,11 @@ import { createAdminClient } from "@/lib/supabase/admin";
  * serielistan och kalendern. Den som kommer för att träna ska se vem som är
  * där utan att öppna kvällen.
  *
- * Källor: bokade volontärpass (taxi_signups med show_on_event) i rollerna
+ * Bara den som själv anmält sig syns. Källor: bokade volontärpass i rollerna
  * taxidansare och instruktör, och instruktörer som gått med på kvällen för att
  * sälja minuter (event_instructors — de är redan publika på kvällens sida).
- * Bara förnamn och profilbild.
+ * Förnamnet visas alltid (det hör till rollen); bilden bara om personen inte
+ * valt bort den vid anmälan (show_photo_on_event).
  */
 export type CrewRole = "taxi_dancer" | "instructor";
 
@@ -46,9 +47,11 @@ export async function loadEveningCrew(listingIds: string[]): Promise<Map<string,
   ]);
   const shiftIds = (shifts ?? []).map((s) => s.id);
   const { data: signups } = shiftIds.length
-    ? await db.from("taxi_signups").select("shift_id, dancer_id").in("shift_id", shiftIds).eq("status", "booked").eq("show_on_event", true)
-    : { data: [] as { shift_id: string; dancer_id: string }[] };
-  const signupRows = (signups ?? []) as { shift_id: string; dancer_id: string }[];
+    ? await db.from("taxi_signups").select("shift_id, dancer_id, show_photo_on_event").in("shift_id", shiftIds).eq("status", "booked")
+    : { data: [] as { shift_id: string; dancer_id: string; show_photo_on_event: boolean }[] };
+  const signupRows = (signups ?? []) as { shift_id: string; dancer_id: string; show_photo_on_event: boolean }[];
+  // Har personen valt bort bilden på något pass gäller det hela kvällen.
+  const noPhoto = new Set(signupRows.filter((s) => !s.show_photo_on_event).map((s) => s.dancer_id));
   const joinedRows = (joined ?? []) as { listing_id: string; instructor_id: string }[];
 
   const people = [...new Set([...signupRows.map((s) => s.dancer_id), ...joinedRows.map((j) => j.instructor_id)])];
@@ -65,7 +68,8 @@ export async function loadEveningCrew(listingIds: string[]): Promise<Map<string,
     const m = byListing.get(listingId) ?? new Map<string, CrewMember>();
     byListing.set(listingId, m);
     const key = `${personId}|${role}`;
-    const cur: CrewMember = m.get(key) ?? { firstName, avatarUrl: p?.avatar_url ?? null, role, times: [] };
+    const avatarUrl = noPhoto.has(personId) ? null : (p?.avatar_url ?? null);
+    const cur: CrewMember = m.get(key) ?? { firstName, avatarUrl, role, times: [] };
     if (time && !cur.times.includes(time)) cur.times.push(time);
     m.set(key, cur);
   };

@@ -4640,7 +4640,6 @@
     "photoQuestion": "¿Podemos hacerte fotos durante la noche y usarlas en nuestros canales?",
     "photoYes": "Sí, no hay problema",
     "photoNo": "No, sin fotos mías",
-    "showOnEvent": "Mostrar mi nombre y mi foto de perfil en la página de la noche, para que los asistentes vean quiénes son los taxi dancers e instructores.",
     "appliedChooseLater": "Elige sus turnos después de tu aprobación.",
     "ackVolunteer": "Entiendo que soy voluntario y no cobro: solo entrada gratis y un vale de comida.",
     "ackRules": "Sigo las normas de arriba: sin alcohol durante el turno, cancelar como tarde a las 10:00 del mismo día, y tres avisos en seis meses suponen seis meses de suspensión.",
@@ -4784,7 +4783,9 @@
     "paidShiftOrg": "Pagado: {pay} kr/persona",
     "paidShiftNet": "Turno pagado: {pay} kr – unos {net} kr tras impuestos",
     "paidShiftCompany": "Turno pagado: {pay} kr – facturado por tu empresa",
-    "notice_shift_payInvalid": "Indica un pago entre 0 y 10 000 kr."
+    "notice_shift_payInvalid": "Indica un pago entre 0 y 10 000 kr.",
+    "shownOnEvent": "Como taxi dancer o instructor, tu nombre se muestra en la página de la noche, en la serie y en el calendario, para que los asistentes sepan quién eres.",
+    "showPhotoOnEvent": "Mostrar también mi foto de perfil."
   },
   "instruktorerPage": {
     "meta": {

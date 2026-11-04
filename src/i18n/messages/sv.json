@@ -4640,7 +4640,6 @@
     "photoQuestion": "Får vi ta bilder på dig under kvällen och använda dem i våra kanaler?",
     "photoYes": "Ja, det går bra",
     "photoNo": "Nej, inga bilder på mig",
-    "showOnEvent": "Visa mitt förnamn och min profilbild på kvällens sida, så att deltagarna ser vem som är taxidansare eller instruktör.",
     "appliedChooseLater": "Hen väljer själv sina pass efter ditt godkännande.",
     "ackVolunteer": "Jag förstår att jag är volontär och inte får lön – bara fri entré och en matkupong.",
     "ackRules": "Jag följer reglerna ovan: alkoholfritt under passet, avbokning senast kl. 10 samma dag, och tre varningar inom sex månader ger sex månaders avstängning.",
@@ -4784,7 +4783,9 @@
     "paidShiftOrg": "Betalt: {pay} kr/person",
     "paidShiftNet": "Betalt pass: {pay} kr – ca {net} kr i handen efter skatt",
     "paidShiftCompany": "Betalt pass: {pay} kr – faktureras via ditt bolag",
-    "notice_shift_payInvalid": "Ange en ersättning mellan 0 och 10 000 kr."
+    "notice_shift_payInvalid": "Ange en ersättning mellan 0 och 10 000 kr.",
+    "shownOnEvent": "Som taxidansare eller instruktör visas ditt förnamn på kvällens sida, i serien och i kalendern, så att deltagarna vet vem du är.",
+    "showPhotoOnEvent": "Visa även min profilbild."
   },
   "instruktorerPage": {
     "meta": {
