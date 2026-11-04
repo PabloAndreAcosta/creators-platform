@@ -29,6 +29,7 @@ export const PUBLIC_NAMESPACES = [
   "a11y",
   "common",
   "connection",
+  "consent",
   "creatorProfile",
   "eventPage",
   "feed",

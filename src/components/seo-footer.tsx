@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { FollowUs } from "@/components/follow-us";
+import { ConsentSettingsLink } from "@/components/consent-banner";
 import { CATEGORIES } from "@/lib/categories";
 import { createClient } from "@/lib/supabase/server";
 import { getTranslations } from "next-intl/server";
@@ -140,6 +141,7 @@ export async function SeoFooter() {
             <Link href="/partner" className="text-[10px] text-[var(--usha-muted)] hover:text-[var(--usha-white)]">{t("seoFooter.partner")}</Link>
             <Link href="/privacy" className="text-[10px] text-[var(--usha-muted)] hover:text-[var(--usha-white)]">{t("seoFooter.privacyPolicy")}</Link>
             <Link href="/terms" className="text-[10px] text-[var(--usha-muted)] hover:text-[var(--usha-white)]">{t("seoFooter.terms")}</Link>
+            <ConsentSettingsLink className="text-[10px] text-[var(--usha-muted)] hover:text-[var(--usha-white)]" />
           </div>
         </div>
       </div>
