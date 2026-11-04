@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { checkoutTax, parseVatRate, withTaxRates } from "@/lib/stripe/vat";
 import { normalizeEmail } from "@/lib/email/normalize";
 import { UTM_COOKIE, parseUtm, utmMetadata } from "@/lib/analytics/utm";
 import { REF_COOKIE, affiliateForPurchase } from "@/lib/affiliate/attribution";
@@ -57,7 +58,7 @@ export async function POST(req: NextRequest) {
     // Fetch listing
     const { data: listing } = await supabase
       .from("listings")
-      .select("id, title, price, user_id, is_active, event_date, event_time, event_location, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, service_fee_mode, listing_type, session_count, series_slug")
+      .select("id, title, price, user_id, is_active, event_date, event_time, event_location, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, service_fee_mode, listing_type, session_count, series_slug, vat_rate")
       .eq("id", listingId)
       .eq("is_active", true)
       .single();
@@ -306,6 +307,9 @@ export async function POST(req: NextRequest) {
       metadata: buildPaymentMetadata({ flow, payee, eventId: listing.id, eventDate: listing.event_date, seriesSlug: listing.series_slug, termsUrl: creator.terms_url }),
     });
 
+    // Momsen: egen sats (t.ex. 6 % på danskvällar) eller Stripe Tax. Se lib/stripe/vat.
+    const tax = await checkoutTax(stripe, parseVatRate(listing.vat_rate));
+
     const stripeLocale = await getStripeLocale();
     let session: Stripe.Checkout.Session;
     try {
@@ -317,7 +321,7 @@ export async function POST(req: NextRequest) {
         ...(email ? { customer_email: email } : {}),
         // Klarna bara över gränsen — se lib/stripe/method-config.
         ...paymentMethodConfigParam(amountInOre * qty + (feeMode === "buyer" ? serviceFee : 0)),
-        line_items: lineItems,
+        line_items: withTaxRates(lineItems, tax),
         mode: "payment",
         // Köparen matar in rabattkoden själv. Stripe äger kupongen och räknar
         // ned användningarna, så en engångskod kan inte lösas in två gånger.
@@ -325,7 +329,7 @@ export async function POST(req: NextRequest) {
         expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
         ...(paymentIntentData ? { payment_intent_data: paymentIntentData } : {}),
         ...(customText ? { custom_text: customText } : {}),
-        automatic_tax: { enabled: true },
+        ...(tax.automatic_tax ? { automatic_tax: tax.automatic_tax } : {}),
         // Clear confirmation screen for guests (no account) — the ticket QR is
         // emailed; landing on the feed left buyers unsure the purchase worked.
         // Sessions-id:t följer med så kvittosidan kan slå upp den bokning som

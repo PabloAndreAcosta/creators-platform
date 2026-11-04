@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { checkoutTax, parseVatRate, withTaxRates } from "@/lib/stripe/vat";
 import { UTM_COOKIE, parseUtm, utmMetadata } from "@/lib/analytics/utm";
 import { getCreditLedgerBalance, applicableLedgerCredit } from "@/lib/credits/balance";
 import { REF_COOKIE, affiliateForPurchase } from "@/lib/affiliate/attribution";
@@ -67,7 +68,7 @@ export async function POST(req: NextRequest) {
     // Get listing details
     const { data: listing, error: listingError } = await supabase
       .from('listings')
-      .select('id, title, price, user_id, is_active, event_date, event_time, release_to_gold_at, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, service_fee_mode, listing_type, session_count, series_slug')
+      .select('id, title, price, user_id, is_active, event_date, event_time, release_to_gold_at, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, service_fee_mode, listing_type, session_count, series_slug, vat_rate')
       .eq('id', listingId)
       .single();
 
@@ -376,6 +377,9 @@ export async function POST(req: NextRequest) {
       metadata: buildPaymentMetadata({ flow, payee, eventId: listing.id, eventDate: listing.event_date, seriesSlug: listing.series_slug, termsUrl: creator.terms_url }),
     });
 
+    // Momsen: egen sats (t.ex. 6 % på danskvällar) eller Stripe Tax. Se lib/stripe/vat.
+    const tax = await checkoutTax(stripe, parseVatRate(listing.vat_rate));
+
     // Create Stripe Checkout session with Connect split
     const stripeLocale = await getStripeLocale();
     let session: Stripe.Checkout.Session;
@@ -385,7 +389,7 @@ export async function POST(req: NextRequest) {
         customer_email: user.email,
         // Klarna bara över gränsen — se lib/stripe/method-config.
         ...paymentMethodConfigParam(subtotalOre + (feeMode === "buyer" ? serviceFee : 0)),
-        line_items: lineItems,
+        line_items: withTaxRates(lineItems, tax),
         mode: 'payment',
         // Köparen matar in rabattkoden själv. Stripe äger kupongen och räknar
         // ned användningarna, så en engångskod kan inte lösas in två gånger.
@@ -393,7 +397,7 @@ export async function POST(req: NextRequest) {
         expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
         ...(paymentIntentData ? { payment_intent_data: paymentIntentData } : {}),
         ...(customText ? { custom_text: customText } : {}),
-        automatic_tax: { enabled: true },
+        ...(tax.automatic_tax ? { automatic_tax: tax.automatic_tax } : {}),
         success_url: `${process.env.NEXT_PUBLIC_APP_URL}/app/tickets?success=true`,
         cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/creators/${listing.user_id}`,
         metadata: {
