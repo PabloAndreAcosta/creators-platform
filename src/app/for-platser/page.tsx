@@ -33,7 +33,7 @@ function VenueValues() {
   ];
   return (
     <section className="relative py-12 px-4 sm:py-16 sm:px-6">
-      <div className="mx-auto grid max-w-4xl gap-6 sm:grid-cols-3">
+      <div className="mx-auto grid grid-cols-1 max-w-4xl gap-6 sm:grid-cols-3">
         {items.map((it) => (
           <div key={it.title} className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
             <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--usha-gold)]/20 to-[var(--usha-accent)]/20">

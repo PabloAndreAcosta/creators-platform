@@ -120,7 +120,7 @@ export function Features() {
         </div>
 
         {/* Grouped rest — compact */}
-        <div className="mt-10 grid gap-8 sm:mt-14 sm:grid-cols-3 sm:gap-6">
+        <div className="mt-10 grid grid-cols-1 gap-8 sm:mt-14 sm:grid-cols-3 sm:gap-6">
           {GROUPS.map((group) => (
             <div key={group.heading}>
               <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--usha-gold)]">

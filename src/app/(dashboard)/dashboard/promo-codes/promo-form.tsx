@@ -27,7 +27,7 @@ export function PromoCodeForm() {
 
   return (
     <form ref={formRef} action={handleSubmit} className="space-y-4">
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div>
           <label className="mb-1 block text-xs text-[var(--usha-muted)]">{t("labelCode")}</label>
           <input
@@ -48,7 +48,7 @@ export function PromoCodeForm() {
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label className="mb-1 block text-xs text-[var(--usha-muted)]">{t("labelMaxUses")}</label>
           <input name="max_uses" type="number" min={1} placeholder={t("placeholderMaxUses")} className={inputClass} />

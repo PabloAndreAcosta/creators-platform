@@ -57,7 +57,7 @@ export async function SeoFooter() {
   return (
     <footer className="border-t border-[var(--usha-border)] bg-[var(--usha-black)]">
       <div className="mx-auto max-w-5xl px-4 py-10">
-        <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3">
           {/* Upplevelser per stad */}
           <div>
             <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--usha-muted)]">
@@ -136,7 +136,7 @@ export async function SeoFooter() {
         <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-[var(--usha-border)] pt-6">
           <Link href="/" className="text-sm font-bold text-gradient">Usha Platform</Link>
           <FollowUs />
-          <div className="flex gap-4">
+          <div className="flex flex-wrap gap-x-4 gap-y-2">
             <Link href="/platser" className="text-[10px] text-[var(--usha-muted)] hover:text-[var(--usha-white)]">{t("seoFooter.places")}</Link>
             <Link href="/partner" className="text-[10px] text-[var(--usha-muted)] hover:text-[var(--usha-white)]">{t("seoFooter.partner")}</Link>
             <Link href="/privacy" className="text-[10px] text-[var(--usha-muted)] hover:text-[var(--usha-white)]">{t("seoFooter.privacyPolicy")}</Link>

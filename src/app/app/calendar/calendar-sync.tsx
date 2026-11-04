@@ -165,7 +165,7 @@ export function CalendarSync({ initialFeedUrl, lastFetchedAt, lastClient }: Cale
           </div>
 
           {/* One-click calendar buttons */}
-          <div className="grid gap-2 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
             <a
               href={getGoogleUrl()}
               target="_blank"

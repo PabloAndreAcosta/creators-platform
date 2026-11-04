@@ -3111,7 +3111,11 @@
     "pendingVolunteersOpen": "Open",
     "crewTaxi": "Taxi dancers",
     "crewInstructor": "Instructors",
-    "crewCollaborator": "With us"
+    "crewCollaborator": "With us",
+    "actionLive": "Live",
+    "actionWaitlist": "Waitlist & email",
+    "actionSettlement": "Settlement",
+    "eventToolsLabel": "Event tools"
   },
   "calendarPage": {
     "dayMon": "Mon",

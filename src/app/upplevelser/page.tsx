@@ -312,7 +312,7 @@ export default async function UpplevelserPage(
 
         {/* ── Listings grid ── */}
         {listings && listings.length > 0 ? (
-          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {grupper.map((g) => (
               <SeriesCard
                 key={g.forsta.id}
@@ -387,7 +387,7 @@ export default async function UpplevelserPage(
         {topLocations.length > 0 && !hasFilters && (
           <section className="mt-12 border-t border-[var(--usha-border)] pt-8">
             <h2 className="text-lg font-semibold">{t("experiences.seoHeading")}</h2>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
               {topLocations.slice(0, 6).map(([city]) => {
                 // Only link city×category combinations that actually have listings,
                 // so we never generate (or link to) thin/empty SEO pages.

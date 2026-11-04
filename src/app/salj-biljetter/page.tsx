@@ -81,7 +81,7 @@ export default async function SellTicketsPage() {
 
       {/* Features */}
       <section className="mx-auto max-w-4xl px-6 py-10">
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {features.map((f) => (
             <div key={f.title} className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5">
               <f.icon className="h-6 w-6 text-[var(--usha-gold)]" />

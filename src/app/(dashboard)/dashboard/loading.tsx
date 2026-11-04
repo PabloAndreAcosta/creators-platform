@@ -8,7 +8,7 @@ export default function DashboardLoading() {
       <Skeleton className="mb-10 h-5 w-80" />
 
       {/* Quick stats */}
-      <div className="mb-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
@@ -24,7 +24,7 @@ export default function DashboardLoading() {
       </div>
 
       {/* Quick actions */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 5 }).map((_, i) => (
           <div
             key={i}

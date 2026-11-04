@@ -102,7 +102,7 @@ export default async function InstructorsPage(props: Props) {
       {/* Katalogen */}
       <section id="katalog" className="mx-auto max-w-5xl scroll-mt-20 px-4 py-14 sm:px-6">
         <h2 className="text-2xl font-bold sm:text-3xl">{t("directory.heading")}</h2>
-        <form method="get" action="/instruktorer#katalog" className="mt-6 grid gap-3 sm:grid-cols-6">
+        <form method="get" action="/instruktorer#katalog" className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-6">
           <label className="sm:col-span-2">
             <span className="sr-only">{t("directory.q")}</span>
             <input name="q" defaultValue={filter.q} placeholder={t("directory.qPlaceholder")} className={input} />
@@ -159,7 +159,7 @@ export default async function InstructorsPage(props: Props) {
             </Link>
           </div>
         ) : (
-          <ul className="mt-8 grid gap-4 sm:grid-cols-2">
+          <ul className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
             {instructors.map((r) => {
               const cities = r.locations?.length ? r.locations : r.location ? [r.location] : [];
               const tags = [...(r.coaching_specialties ?? []), ...(r.dance_styles ?? [])].slice(0, 5);
@@ -225,7 +225,7 @@ export default async function InstructorsPage(props: Props) {
         <div className="mx-auto max-w-5xl px-6 py-16">
           <h2 className="text-center text-2xl font-bold sm:text-3xl">{t("offer.heading")}</h2>
           <p className="mx-auto mt-3 max-w-2xl text-center text-sm text-[var(--usha-muted)]">{t("offer.body")}</p>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <Feature icon={<CalendarDays size={18} />} title={t("offer.lessonsTitle")} body={t("offer.lessonsBody")} />
             <Feature icon={<Ticket size={18} />} title={t("offer.eventsTitle")} body={t("offer.eventsBody")} />
             <Feature icon={<GraduationCap size={18} />} title={t("offer.passTitle")} body={t("offer.passBody")} />

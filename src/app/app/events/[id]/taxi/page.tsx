@@ -235,7 +235,7 @@ export default async function EventTaxiPage(props: {
             för var och en. Samma tider för alla — taxidansare, värd, kassa. */}
         <fieldset className="w-full">
           <legend className="mb-1">{t("rolesLegend")}</legend>
-          <div className="grid gap-2 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             {VOLUNTEER_ROLES.map((r) => (
               <label key={r} className="flex items-center justify-between gap-3 rounded-lg border border-[var(--usha-border)] px-3 py-2">
                 <span className="flex items-center gap-2">

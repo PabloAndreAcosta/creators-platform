@@ -71,70 +71,45 @@ export default async function EditEventPage(props: { params: Promise<{ id: strin
 
   return (
     <>
-      <div className="flex flex-wrap gap-2 px-4 pt-4">
-        <Link
-          href="/app/scan"
-          className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-sm font-bold text-black transition hover:opacity-90"
-        >
-          <ScanLine size={15} />
-          Skanna biljetter
-        </Link>
-        {/* Entréförsäljningen står bredvid skanningen: samma person, samma
-            dörr, samma stund. Den som skannar biljetter är den som möter
-            spontanbesökaren utan biljett. */}
-        <Link
-          href={`/app/events/${event.id}/entre`}
-          className="inline-flex items-center gap-2 rounded-full border border-[var(--usha-gold)]/60 px-4 py-2 text-sm font-medium text-[var(--usha-gold)] transition hover:bg-[var(--usha-gold)]/10"
-        >
-          <QrCode size={15} />
-          {t("sellAtDoor")}
-        </Link>
-        {/* Bokningar direkt efter skanning: det är här man ser vem som köpt och
-            betalar tillbaka en biljett. Den här knappraden är den yta arrangören
-            faktiskt använder — en länk som bara finns i trepunktsmenyn på
-            eventkortet hittas inte. */}
-        <Link
-          href={`/app/events/${event.id}/bookings`}
-          className="inline-flex items-center gap-2 rounded-full border border-[var(--usha-gold)]/60 px-4 py-2 text-sm font-medium text-[var(--usha-gold)] transition hover:bg-[var(--usha-gold)]/10"
-        >
-          <Ticket size={15} />
-          {t("eventBookings")}
-        </Link>
-        <Link
-          href={`/app/events/${event.id}/crew`}
-          className="inline-flex items-center gap-2 rounded-full border border-[var(--usha-border)] px-4 py-2 text-sm font-medium text-[var(--usha-white)] transition hover:border-[var(--usha-gold)]/60 hover:text-[var(--usha-gold)]"
-        >
-          <Users size={15} />
-          Crew
-        </Link>
-        <Link
-          href={`/app/events/${event.id}/live`}
-          className="inline-flex items-center gap-2 rounded-full border border-[var(--usha-border)] px-4 py-2 text-sm font-medium text-green-400 transition hover:border-green-400/60"
-        >
-          <Radio size={15} />
-          Live Dashboard
-        </Link>
-        <Link
-          href={`/app/events/${event.id}/waitlist`}
-          className="inline-flex items-center gap-2 rounded-full border border-[var(--usha-border)] px-4 py-2 text-sm font-medium text-[var(--usha-white)] transition hover:border-[var(--usha-gold)]/60 hover:text-[var(--usha-gold)]"
-        >
-          <Mail size={15} />
-          Väntelista & mejl
-        </Link>
-        <Link
-          href={`/app/events/${event.id}/stats`}
-          className="inline-flex items-center gap-2 rounded-full border border-[var(--usha-border)] px-4 py-2 text-sm font-medium text-[var(--usha-white)] transition hover:border-[var(--usha-gold)]/60 hover:text-[var(--usha-gold)]"
-        >
-          <BarChart3 size={15} />
-          Statistik
-        </Link>
-        <Link
-          href={`/app/events/${event.id}/settlement`}
-          className="inline-flex items-center gap-2 rounded-full border border-[var(--usha-border)] px-4 py-2 text-sm font-medium text-[var(--usha-white)] transition hover:border-[var(--usha-gold)]/60 hover:text-[var(--usha-gold)]"
-        >
-          <Receipt size={15} />
-          Avräkning
-        </Link>
+      {/* Dörren först: skanna och sälj i entrén är samma person i samma stund,
+          så de får en egen rad. Resten är ett kompakt rutnät. Allt syns direkt;
+          en länk som göms i en meny hittas inte. */}
+      <div className="space-y-2 px-4 pt-4">
+        <div className="grid grid-cols-2 gap-2">
+          <Link
+            href="/app/scan"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-3 py-2.5 text-sm font-bold text-black transition hover:opacity-90"
+          >
+            <ScanLine size={16} className="shrink-0" />
+            <span className="truncate">{t("scanTickets")}</span>
+          </Link>
+          <Link
+            href={`/app/events/${event.id}/entre`}
+            className="inline-flex items-center justify-center gap-2 rounded-full border border-[var(--usha-gold)]/60 px-3 py-2.5 text-sm font-medium text-[var(--usha-gold)] transition hover:bg-[var(--usha-gold)]/10"
+          >
+            <QrCode size={16} className="shrink-0" />
+            <span className="truncate">{t("sellAtDoor")}</span>
+          </Link>
+        </div>
+        <nav aria-label={t("eventToolsLabel")} className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+          {[
+            { href: "bookings", icon: Ticket, label: t("eventBookings") },
+            { href: "live", icon: Radio, label: t("actionLive"), live: true },
+            { href: "crew", icon: Users, label: t("crew") },
+            { href: "waitlist", icon: Mail, label: t("actionWaitlist") },
+            { href: "stats", icon: BarChart3, label: t("statistics") },
+            { href: "settlement", icon: Receipt, label: t("actionSettlement") },
+          ].map(({ href, icon: Icon, label, live }) => (
+            <Link
+              key={href}
+              href={`/app/events/${event.id}/${href}`}
+              className="flex min-w-0 flex-col items-center justify-center gap-1 rounded-xl border border-[var(--usha-border)] px-1 py-2 text-center text-xs font-medium leading-tight text-[var(--usha-white)] transition hover:border-[var(--usha-gold)]/60 hover:text-[var(--usha-gold)]"
+            >
+              <Icon size={16} className={live ? "text-green-400" : "text-[var(--usha-muted)]"} />
+              <span className="line-clamp-2 break-words">{label}</span>
+            </Link>
+          ))}
+        </nav>
       </div>
       <EventForm event={{ ...event, ticketTypes: ticketTypeRows }} action={action} userId={user.id} venues={venues} />
     </>

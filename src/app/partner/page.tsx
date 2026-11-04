@@ -50,7 +50,7 @@ export default async function PartnerPublicPage() {
         </Link>
       </section>
 
-      <section className="mx-auto grid max-w-5xl gap-4 px-6 pb-16 sm:grid-cols-3">
+      <section className="mx-auto grid grid-cols-1 max-w-5xl gap-4 px-6 pb-16 sm:grid-cols-3">
         {steps.map(({ icon: Icon, title, body }) => (
           <div key={title} className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
             <Icon size={20} className="text-[var(--usha-gold)]" />

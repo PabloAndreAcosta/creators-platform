@@ -3111,7 +3111,11 @@
     "pendingVolunteersOpen": "Öppna",
     "crewTaxi": "Taxidansare",
     "crewInstructor": "Instruktörer",
-    "crewCollaborator": "Medverkande"
+    "crewCollaborator": "Medverkande",
+    "actionLive": "Live",
+    "actionWaitlist": "Väntelista & mejl",
+    "actionSettlement": "Avräkning",
+    "eventToolsLabel": "Verktyg för evenemanget"
   },
   "calendarPage": {
     "dayMon": "Mån",

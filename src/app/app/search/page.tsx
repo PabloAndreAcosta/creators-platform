@@ -284,7 +284,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--usha-muted)]">
             {t("creatorsHeading", { count: creators.length })}
           </h2>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {creators.map((c) => (
               <Link
                 key={c.id}
@@ -324,7 +324,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--usha-muted)]">
             {t("listingsHeading", { count: listings.length })}
           </h2>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {listings.map((l) => {
               const creator = l.profiles as {
                 full_name: string | null;

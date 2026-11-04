@@ -83,7 +83,7 @@ export default async function TaxiDancerLandingPage() {
         <h2 className="text-center text-2xl font-bold sm:text-3xl">
           {t("value.heading")}
         </h2>
-        <div className="mt-12 grid gap-6 sm:grid-cols-3">
+        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-3">
           <ValueCard
             icon={<Wallet size={24} className="text-[var(--usha-gold)]" />}
             title={t("value.paidTitle")}
@@ -107,7 +107,7 @@ export default async function TaxiDancerLandingPage() {
         <div className="mx-auto max-w-5xl px-6 py-16">
           <h2 className="text-center text-2xl font-bold sm:text-3xl">{t("how.heading")}</h2>
 
-          <div className="mt-12 grid gap-8 lg:grid-cols-2">
+          <div className="mt-12 grid grid-cols-1 gap-8 lg:grid-cols-2">
             <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-8">
               <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-[var(--usha-gold)]/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[var(--usha-gold)]">
                 {t("how.customersBadge")}
@@ -163,7 +163,7 @@ export default async function TaxiDancerLandingPage() {
           {t("dancers.body")}
         </p>
 
-        <div className="mt-10 grid gap-4 sm:grid-cols-3">
+        <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-3">
           <FeatureRow
             icon={<Calendar size={18} />}
             title={t("dancers.calendarTitle")}

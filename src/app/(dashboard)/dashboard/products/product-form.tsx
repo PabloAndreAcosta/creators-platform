@@ -54,7 +54,7 @@ export function ProductForm() {
 
   return (
     <form ref={formRef} action={handleSubmit} className="space-y-4">
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label className="mb-1 block text-xs text-[var(--usha-muted)]">Titel</label>
           <input name="title" type="text" required placeholder="t.ex. Grundkurs i salsa" className={inputClass} />
@@ -75,7 +75,7 @@ export function ProductForm() {
         <textarea name="description" rows={3} placeholder="Beskriv produkten..." className={`${inputClass} resize-none`} />
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label className="mb-1 block text-xs text-[var(--usha-muted)]">Pris (SEK)</label>
           <input name="price" type="number" min={0} required placeholder="t.ex. 199" className={inputClass} />

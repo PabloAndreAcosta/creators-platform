@@ -539,7 +539,7 @@ export default async function CreatorProfilePage(props: Props) {
         {hostedEvents && hostedEvents.length > 0 && (
           <div className="mb-10">
             <h2 className="mb-4 text-xl font-bold">{t("hosted.heading")}</h2>
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {hostedEvents.map((ev) => {
                 const organiser = Array.isArray(ev.profiles) ? ev.profiles[0] : ev.profiles;
                 return (
@@ -579,7 +579,7 @@ export default async function CreatorProfilePage(props: Props) {
               {t("services.empty")}
             </p>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {serviceListings.map((listing) => (
                 <Link
                   key={listing.id}

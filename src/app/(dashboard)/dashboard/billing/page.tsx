@@ -199,7 +199,7 @@ export default async function BillingPage({
       )}
 
       {/* Plan cards */}
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Gratis plan card */}
         <div
           className={`relative rounded-2xl border p-8 transition-all ${
@@ -334,7 +334,7 @@ export default async function BillingPage({
                 <h3 className="mb-3 text-sm font-semibold text-[var(--usha-muted)]">
                   {t(`roleName.${group.role}`)}
                 </h3>
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   {group.plans.map((plan) => (
                     <div
                       key={plan.key}

@@ -273,7 +273,7 @@ export default function ListingForm({
       </div>
 
       {/* Category + Price */}
-      <div className="grid gap-6 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <div>
           <label htmlFor="category" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
             {t("categoryLabel")}
@@ -341,7 +341,7 @@ export default function ListingForm({
       </div>
 
       {/* Start + End time */}
-      <div className="grid gap-6 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <div>
           <label htmlFor="event_time" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
             {t("startTimeLabel")}

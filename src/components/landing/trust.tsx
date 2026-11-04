@@ -31,7 +31,7 @@ export function Trust() {
           <p className="mx-auto max-w-xl text-[var(--usha-muted)]">{t("trust.subtitle")}</p>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {TRUST_POINTS.map((point) => (
             <div
               key={point.title}

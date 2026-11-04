@@ -151,7 +151,7 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Summary cards */}
-      <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5">
           <div className="mb-3 flex items-center justify-between">
             <span className="text-xs text-[var(--usha-muted)]">{t("revenueThisMonth")}</span>
