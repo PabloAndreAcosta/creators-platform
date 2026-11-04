@@ -3,6 +3,8 @@ import { MapPin, Calendar, Flame, Star } from "lucide-react";
 import { getTranslations, getLocale } from "next-intl/server";
 import { BuyTicketCta } from "@/components/buy-ticket-cta";
 import { getSaleState } from "@/lib/listings/sale-state";
+import { EveningCrew } from "@/components/evening-crew";
+import type { CrewMember } from "@/lib/taxi/crew";
 
 // UI-locale → BCP 47-tagg för datumformatering (annars blir månadsnamnen
 // svenska även på engelska/spanska sidor).
@@ -33,6 +35,8 @@ interface ListingCardProps {
    * ett objekt i stället för två.
    */
   attachedBelow?: boolean;
+  /** Kvällens taxidansare och instruktörer — syns direkt på kortet. */
+  crew?: CrewMember[];
 }
 
 export async function ListingCard({
@@ -40,6 +44,7 @@ export async function ListingCard({
   bookingCount = 0,
   isPromoted,
   attachedBelow,
+  crew = [],
 }: ListingCardProps) {
   const t = await getTranslations();
   const dateLocale = DATE_LOCALES[await getLocale()] ?? "en-GB";
@@ -118,6 +123,12 @@ export async function ListingCard({
             </span>
           )}
         </div>
+        {crew.length > 0 && (
+          <EveningCrew
+            crew={crew}
+            labels={{ taxi_dancer: t("eveningCrew.taxi_dancer"), instructor: t("eveningCrew.instructor") }}
+          />
+        )}
         <div className="mb-2.5 mt-2 flex items-center justify-between">
           <span className="text-xs font-medium text-[var(--usha-gold)]">
             {displayPrice
