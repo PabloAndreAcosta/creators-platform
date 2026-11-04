@@ -2481,8 +2481,6 @@
     "volunteerCtaTitle": "Bli volontär den här kvällen",
     "volunteerCtaBody": "Taxidansare, instruktörer m.fl. – fri entré och en matkupong. Mobilt BankID krävs.",
     "volunteerCtaAction": "Se passen →",
-    "taxiDancersTitle": "Taxidansare i kväll",
-    "taxiDancersBody": "Bjud gärna upp dem – de är här för att dansa med alla, oavsett nivå.",
     "cancellationNote": "Avbokning med full återbetalning fram till {hours, plural, =168 {en vecka} one {# timme} other {# timmar}} före start.",
     "cancellationNoteAnytime": "Avbokning med full återbetalning fram till start."
   },
@@ -4642,7 +4640,7 @@
     "photoQuestion": "Får vi ta bilder på dig under kvällen och använda dem i våra kanaler?",
     "photoYes": "Ja, det går bra",
     "photoNo": "Nej, inga bilder på mig",
-    "showOnEvent": "Visa mitt förnamn som taxidansare på kvällens sida, så att deltagarna vet vem de kan bjuda upp.",
+    "showOnEvent": "Visa mitt förnamn och min profilbild på kvällens sida, så att deltagarna ser vem som är taxidansare eller instruktör.",
     "appliedChooseLater": "Hen väljer själv sina pass efter ditt godkännande.",
     "ackVolunteer": "Jag förstår att jag är volontär och inte får lön – bara fri entré och en matkupong.",
     "ackRules": "Jag följer reglerna ovan: alkoholfritt under passet, avbokning senast kl. 10 samma dag, och tre varningar inom sex månader ger sex månaders avstängning.",
@@ -4895,5 +4893,10 @@
     "linkPlaceholder": "Länk (Instagram, SoundCloud) – valfritt",
     "add": "Önska",
     "loginToVote": "Logga in för att önska och rösta →"
+  },
+  "eveningCrew": {
+    "taxi_dancer": "Taxidansare",
+    "instructor": "Instruktörer",
+    "hint": "Bjud gärna upp taxidansarna – de är här för att dansa med alla, oavsett nivå. Instruktörerna hjälper dig gärna med tekniken."
   }
 }

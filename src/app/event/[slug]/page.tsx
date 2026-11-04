@@ -21,7 +21,9 @@ import { cache } from "react";
 import { safeJsonLd } from "@/lib/json-ld";
 import { pickMessages, PUBLIC_NAMESPACES } from "@/lib/i18n/client-namespaces";
 import { stockholmEventISO } from "@/lib/time";
-import { loadShifts, loadPublicTaxiDancers } from "@/lib/taxi/data";
+import { loadShifts } from "@/lib/taxi/data";
+import { loadEveningCrew } from "@/lib/taxi/crew";
+import { EveningCrew } from "@/components/evening-crew";
 import { approvalScopeKey } from "@/lib/taxi/approvals";
 import { DjWishes } from "./dj-wishes";
 import { getSignupCreditEnabled } from "@/lib/credits/flag";
@@ -549,10 +551,12 @@ export default async function EventPage(props: Params) {
     .reduce((n, s) => n + Math.max(0, s.capacity - s.booked), 0);
   // Kvällens taxidansare, så att deltagarna vet vem de kan bjuda upp. Bara för
   // kvällar som inte passerat.
-  const taxiDancers =
+  const eveningCrew =
     listing.event_date && listing.event_date >= todayStockholmIso()
-      ? await loadPublicTaxiDancers(listing.id)
+      ? ((await loadEveningCrew([listing.id])).get(listing.id) ?? [])
       : [];
+  const tc = await getTranslations({ locale: eventLocale, namespace: "eveningCrew" });
+  const crewLabels = { taxi_dancer: tc("taxi_dancer"), instructor: tc("instructor"), hint: tc("hint") };
   const volunteerPath = `/app/taxi/${listing.id}`;
   const volunteerHref = user ? volunteerPath : `/signup?role=customer&next=${encodeURIComponent(volunteerPath)}`;
 
@@ -810,6 +814,10 @@ export default async function EventPage(props: Params) {
           </div>
         )}
 
+        {/* Vem som är där: taxidansare och instruktörer, direkt under när och
+            var — det är skälet för många att komma. */}
+        <EveningCrew crew={eveningCrew} labels={crewLabels} variant="full" />
+
         {/* SAMMANFATTNINGEN STÅR HÄR, MED TID OCH PLATS (2026-10-25).
             Den är en uppgift om kvällen i samma klass som när och var — inte
             en inledning till brödtexten. Därför eget fält i databasen, därför
@@ -892,31 +900,6 @@ export default async function EventPage(props: Params) {
             </span>
             <span className="shrink-0 text-xs font-semibold text-[var(--usha-gold)]">{t("volunteerCtaAction")}</span>
           </Link>
-        )}
-        {taxiDancers.length > 0 && (
-          <section className="mb-8 rounded-2xl border border-[var(--usha-gold)]/30 bg-[var(--usha-gold)]/5 p-4">
-            <p className="flex items-center gap-2 text-sm font-semibold">
-              <Heart size={16} className="text-[var(--usha-gold)]" />
-              {t("taxiDancersTitle")}
-            </p>
-            <p className="mt-1 text-xs text-[var(--usha-muted)]">{t("taxiDancersBody")}</p>
-            <ul className="mt-3 flex flex-wrap gap-3">
-              {taxiDancers.map((d, i) => (
-                <li key={i} className="flex items-center gap-2 rounded-full border border-[var(--usha-border)] bg-[var(--usha-card)] py-1 pl-1 pr-3 text-sm">
-                  {d.avatarUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={d.avatarUrl} alt="" className="h-7 w-7 rounded-full object-cover" />
-                  ) : (
-                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--usha-gold)]/20 text-xs font-bold text-[var(--usha-gold)]">
-                      {d.firstName.charAt(0)}
-                    </span>
-                  )}
-                  <span className="font-medium">{d.firstName}</span>
-                  <span className="text-xs text-[var(--usha-muted)]">{d.times.join(", ")}</span>
-                </li>
-              ))}
-            </ul>
-          </section>
         )}
         {listing.is_practica && (
           <DjWishes

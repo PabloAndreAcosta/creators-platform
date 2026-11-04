@@ -6,6 +6,8 @@ import { stockholmEventISO } from "@/lib/time";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { loadEveningCrew, type CrewMember } from "@/lib/taxi/crew";
+import { EveningCrew } from "@/components/evening-crew";
 import Image from "next/image";
 import { MapPin, Clock, Calendar, ArrowLeft, User, ChevronRight, ChevronDown } from "lucide-react";
 import { CATEGORY_LABELS } from "@/lib/categories";
@@ -144,12 +146,16 @@ function OccurrenceRow({
   locale,
   priceLabel,
   ctaLabel,
+  crew = [],
+  crewLabels,
 }: {
   o: Occurrence;
   past?: boolean;
   locale: string;
   priceLabel: string | null;
   ctaLabel: string;
+  crew?: CrewMember[];
+  crewLabels?: { taxi_dancer: string; instructor: string };
 }) {
   const href = `/listing/${o.slug || o.id}`;
   return (
@@ -173,6 +179,7 @@ function OccurrenceRow({
             </span>
           )}
         </div>
+        {crewLabels && <EveningCrew crew={crew} labels={crewLabels} />}
       </div>
       <div className="flex shrink-0 items-center gap-3">
         {priceLabel && (
@@ -239,6 +246,9 @@ export default async function SeriesPage(props: Props) {
   // Split upcoming vs past (today inclusive = upcoming). Past kept as a library.
   const today = new Date().toISOString().slice(0, 10);
   const upcoming = occurrences.filter((o) => !o.event_date || o.event_date >= today);
+  const crewByListing = await loadEveningCrew(upcoming.map((o) => o.id));
+  const tc = await getTranslations("eveningCrew");
+  const crewLabels = { taxi_dancer: tc("taxi_dancer"), instructor: tc("instructor") };
   const past = occurrences.filter((o) => o.event_date && o.event_date < today).reverse();
 
   const jsonLd = {
@@ -363,6 +373,8 @@ export default async function SeriesPage(props: Props) {
                   locale={locale}
                   priceLabel={priceLabel(o)}
                   ctaLabel={t("book")}
+                  crew={crewByListing.get(o.id)}
+                  crewLabels={crewLabels}
                 />
               ))}
             </div>

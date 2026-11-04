@@ -2481,8 +2481,6 @@
     "volunteerCtaTitle": "Volunteer this evening",
     "volunteerCtaBody": "Taxi dancers, instructors and more – free entry and a meal voucher. Mobile BankID required.",
     "volunteerCtaAction": "See shifts →",
-    "taxiDancersTitle": "Taxi dancers tonight",
-    "taxiDancersBody": "Feel free to ask them to dance – they are here to dance with everyone, whatever your level.",
     "cancellationNote": "Free cancellation with full refund until {hours, plural, =168 {one week} one {# hour} other {# hours}} before start.",
     "cancellationNoteAnytime": "Free cancellation with full refund until start."
   },
@@ -4642,7 +4640,7 @@
     "photoQuestion": "May we take photos of you during the evening and use them in our channels?",
     "photoYes": "Yes, that is fine",
     "photoNo": "No photos of me",
-    "showOnEvent": "Show my first name as a taxi dancer on the evening's page, so guests know whom to ask.",
+    "showOnEvent": "Show my first name and profile picture on the evening's page, so guests can see who the taxi dancers and instructors are.",
     "appliedChooseLater": "They pick their own shifts once you approve.",
     "ackVolunteer": "I understand that I am a volunteer and not paid – only free entry and a meal voucher.",
     "ackRules": "I follow the rules above: no alcohol during the shift, cancel by 10:00 on the day, and three warnings within six months mean a six-month suspension.",
@@ -4895,5 +4893,10 @@
     "linkPlaceholder": "Link (Instagram, SoundCloud) – optional",
     "add": "Request",
     "loginToVote": "Log in to request and vote →"
+  },
+  "eveningCrew": {
+    "taxi_dancer": "Taxi dancers",
+    "instructor": "Instructors",
+    "hint": "Feel free to ask the taxi dancers to dance – they are here to dance with everyone, whatever your level. The instructors are happy to help with your technique."
   }
 }
