@@ -193,7 +193,21 @@
     "payouts": "Utbetalningar",
     "payoutsDesc": "Få notis när en utbetalning genomförs",
     "marketing": "Tips och nyheter",
-    "marketingDesc": "Få nyhetsbrev och plattformstips"
+    "marketingDesc": "Få nyhetsbrev och plattformstips",
+    "pushTitle": "Push-notiser på den här enheten",
+    "pushBody": "Få uppdateringar (biljettköp, avbokningar, väntelista, volontärpass) direkt – även när appen är stängd.",
+    "pushDenied": "Notiser är blockerade i webbläsaren. Tillåt notiser för usha.se i inställningarna för att slå på.",
+    "pushTest": "Skicka testnotis",
+    "pushTestSending": "Skickar…",
+    "pushTestSent": "Skickad. Kommer den inte fram inom någon minut är prenumerationen död – slå av och på igen.",
+    "pushTestNoSub": "Ingen enhet är registrerad. Slå av och på igen så skapas prenumerationen om.",
+    "pushTestFailed": "Gick inte att skicka. Försök igen om en stund.",
+    "pushBadgeNeedsHome": "Siffran på appikonen kräver att appen ligger på hemskärmen.",
+    "pushIosIntro": "På iPhone fungerar notiser bara när Usha ligger på hemskärmen. Så här gör du:",
+    "pushIosStep1": "Öppna usha.se i Safari och tryck på Dela-knappen",
+    "pushIosStep2": "Välj Lägg till på hemskärmen.",
+    "pushIosStep3": "Öppna Usha från den nya ikonen och kom tillbaka hit – då finns brytaren här.",
+    "pushUnsupported": "Den här webbläsaren stöder inte push-notiser. Prova Chrome, Edge eller Firefox, eller lägg till Usha på hemskärmen."
   },
   "privacySettings": {
     "publicProfile": "Publik profil",

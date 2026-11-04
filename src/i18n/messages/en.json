@@ -193,7 +193,21 @@
     "payouts": "Payouts",
     "payoutsDesc": "Get notified when a payout is processed",
     "marketing": "Tips and news",
-    "marketingDesc": "Receive newsletters and platform tips"
+    "marketingDesc": "Receive newsletters and platform tips",
+    "pushTitle": "Push notifications on this device",
+    "pushBody": "Get updates (ticket sales, cancellations, waitlist, volunteer shifts) right away – even when the app is closed.",
+    "pushDenied": "Notifications are blocked in your browser. Allow notifications for usha.se in its settings to turn them on.",
+    "pushTest": "Send test notification",
+    "pushTestSending": "Sending…",
+    "pushTestSent": "Sent. If it does not arrive within a minute the subscription is dead – switch off and on again.",
+    "pushTestNoSub": "No device is registered. Switch off and on again to recreate the subscription.",
+    "pushTestFailed": "Could not send. Try again in a moment.",
+    "pushBadgeNeedsHome": "The number on the app icon requires the app to be on your home screen.",
+    "pushIosIntro": "On iPhone, notifications only work when Usha is on your home screen. Here is how:",
+    "pushIosStep1": "Open usha.se in Safari and tap the Share button",
+    "pushIosStep2": "Choose Add to Home Screen.",
+    "pushIosStep3": "Open Usha from the new icon and come back here – the switch will be here.",
+    "pushUnsupported": "This browser does not support push notifications. Try Chrome, Edge or Firefox, or add Usha to your home screen."
   },
   "privacySettings": {
     "publicProfile": "Public profile",

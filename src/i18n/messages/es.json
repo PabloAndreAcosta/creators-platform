@@ -193,7 +193,21 @@
     "payouts": "Pagos",
     "payoutsDesc": "Recibe una notificación cuando se procese un pago",
     "marketing": "Consejos y novedades",
-    "marketingDesc": "Recibe boletines y consejos sobre la plataforma"
+    "marketingDesc": "Recibe boletines y consejos sobre la plataforma",
+    "pushTitle": "Notificaciones push en este dispositivo",
+    "pushBody": "Recibe novedades (venta de entradas, cancelaciones, lista de espera, turnos de voluntario) al instante, incluso con la app cerrada.",
+    "pushDenied": "Las notificaciones están bloqueadas en el navegador. Permite las notificaciones de usha.se en sus ajustes para activarlas.",
+    "pushTest": "Enviar notificación de prueba",
+    "pushTestSending": "Enviando…",
+    "pushTestSent": "Enviada. Si no llega en un minuto, la suscripción no funciona: desactívala y vuelve a activarla.",
+    "pushTestNoSub": "No hay ningún dispositivo registrado. Desactiva y activa de nuevo para crear la suscripción.",
+    "pushTestFailed": "No se pudo enviar. Inténtalo de nuevo en un momento.",
+    "pushBadgeNeedsHome": "El número en el icono de la app requiere que la app esté en la pantalla de inicio.",
+    "pushIosIntro": "En iPhone, las notificaciones solo funcionan cuando Usha está en la pantalla de inicio. Así se hace:",
+    "pushIosStep1": "Abre usha.se en Safari y toca el botón Compartir",
+    "pushIosStep2": "Elige Añadir a pantalla de inicio.",
+    "pushIosStep3": "Abre Usha desde el nuevo icono y vuelve aquí: el interruptor estará aquí.",
+    "pushUnsupported": "Este navegador no admite notificaciones push. Prueba Chrome, Edge o Firefox, o añade Usha a la pantalla de inicio."
   },
   "privacySettings": {
     "publicProfile": "Perfil público",
