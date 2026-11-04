@@ -3108,7 +3108,9 @@
     "sellAtDoor": "Sälj i entrén",
     "taxiPass": "Volontärpass",
     "pendingVolunteers": "{n, plural, one {# volontäransökan väntar} other {# volontäransökningar väntar}} på ditt svar",
-    "pendingVolunteersOpen": "Öppna"
+    "pendingVolunteersOpen": "Öppna",
+    "crewTaxi": "Taxidansare",
+    "crewInstructor": "Instruktörer"
   },
   "calendarPage": {
     "dayMon": "Mån",

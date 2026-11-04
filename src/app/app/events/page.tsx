@@ -3,6 +3,7 @@ import { sortEventsForOwner, todayInStockholm } from "@/lib/events/sort";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { EventsContent, type PendingVolunteers } from "./events-content";
 import { approvalScopeKey } from "@/lib/taxi/approvals";
+import { loadEveningCrew } from "@/lib/taxi/crew";
 
 export default async function EventsPage(
   props: {
@@ -71,6 +72,12 @@ export default async function EventsPage(
       // slumpmässig ordning. Nästa kväll ska ligga överst.
       const today = todayInStockholm();
       listings = [...sortEventsForOwner(own, today), ...sortEventsForOwner(co, today)];
+      // Vem som bokat pass som taxidansare eller instruktör — samma rad som
+      // deltagarna ser, så att arrangören ser det utan att öppna Volontärpass.
+      const crewByListing = await loadEveningCrew(
+        listings.filter((l) => l.event_date && l.event_date >= today).map((l) => l.id)
+      );
+      listings = listings.map((l) => (crewByListing.has(l.id) ? { ...l, crew: crewByListing.get(l.id) } : l));
       // Väntande volontäransökningar i de egna kvällarnas avgränsningar (serie
       // eller arrangör). Volontärpass ligger annars bara i kvällens ⋯-meny.
       const upcomingOwn = sortEventsForOwner(own, today).filter((l) => l.event_date && l.event_date >= today);

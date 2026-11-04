@@ -3108,7 +3108,9 @@
     "sellAtDoor": "Vender en la entrada",
     "taxiPass": "Voluntariado",
     "pendingVolunteers": "{n, plural, one {# solicitud de voluntario espera} other {# solicitudes de voluntario esperan}} tu respuesta",
-    "pendingVolunteersOpen": "Abrir"
+    "pendingVolunteersOpen": "Abrir",
+    "crewTaxi": "Taxi dancers",
+    "crewInstructor": "Instructores"
   },
   "calendarPage": {
     "dayMon": "Lun",

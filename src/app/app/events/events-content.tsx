@@ -37,6 +37,8 @@ import { deleteEvent, toggleEventActive, duplicateEvent } from "./actions";
 import { trackEvent } from "@/lib/analytics";
 import { EVENT_CATEGORY_LABELS } from "./constants";
 import { FacebookConnect } from "@/components/facebook/FacebookConnect";
+import { EveningCrew } from "@/components/evening-crew";
+import type { CrewMember } from "@/lib/taxi/crew";
 import { FacebookSyncButton } from "@/components/facebook/FacebookSyncButton";
 import { SocialShareButton } from "@/components/social-share-button";
 import { eventShareUrl } from "@/lib/events/share";
@@ -78,6 +80,8 @@ interface ListingData {
   user_id: string;
   slug: string | null;
   series_id?: string | null;
+  /** Bokade taxidansare och instruktörer för kvällen (bara kommande kvällar). */
+  crew?: CrewMember[];
   /** Kvällen tillhör någon annan; jag är medkreatör. */
   co_organized?: boolean;
   /**
@@ -422,6 +426,9 @@ function EventCard({
                 </span>
               )}
             </div>
+          )}
+          {listing.crew && listing.crew.length > 0 && (
+            <EveningCrew crew={listing.crew} labels={{ taxi_dancer: t("crewTaxi"), instructor: t("crewInstructor") }} />
           )}
           {listing.fb_auto_post && (
             listing.facebook_event_id ? (
