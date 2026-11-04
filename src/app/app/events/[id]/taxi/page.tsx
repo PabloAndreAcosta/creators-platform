@@ -137,6 +137,9 @@ export default async function EventTaxiPage(props: {
             : [...approvedCount.entries()].map(([r, n]) => `${t(`roles.${r}`)}: ${n}`).join(" · ")}
         </p>
         {pendingApps.length > 0 && (
+          <p className="mt-1 text-xs text-[var(--usha-muted)]">{t("appliedChooseLater")}</p>
+        )}
+        {pendingApps.length > 0 && (
           <ul className="mt-3 space-y-2">
             {pendingApps.map((a) => (
               <li key={a.id} className="flex flex-wrap items-start justify-between gap-2 border-t border-[var(--usha-border)] pt-2">

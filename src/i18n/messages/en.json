@@ -972,7 +972,9 @@
     "instructorApplicationTitle": "New instructor application",
     "instructorApplicationMsg": "{name} wants to teach at your open evenings. Approve or decline under Volunteer shifts.",
     "volunteerApplicationTitle": "New volunteer application",
-    "volunteerApplicationMsg": "{name} wants to take volunteer shifts at your evenings. Approve or decline under Volunteer shifts."
+    "volunteerApplicationMsg": "{name} wants to take volunteer shifts at your evenings. Approve or decline under Volunteer shifts.",
+    "volunteerApprovedTitle": "You are approved as a volunteer",
+    "volunteerApprovedMsg": "Pick your shifts for {title}. The approval covers the whole series."
   },
   "apiErrors": {
     "unauthorized": "Unauthorized",
@@ -2479,6 +2481,8 @@
     "volunteerCtaTitle": "Volunteer this evening",
     "volunteerCtaBody": "Taxi dancers, instructors and more – free entry and a meal voucher. Mobile BankID required.",
     "volunteerCtaAction": "See shifts →",
+    "taxiDancersTitle": "Taxi dancers tonight",
+    "taxiDancersBody": "Feel free to ask them to dance – they are here to dance with everyone, whatever your level.",
     "cancellationNote": "Free cancellation with full refund until {hours, plural, =168 {one week} one {# hour} other {# hours}} before start.",
     "cancellationNoteAnytime": "Free cancellation with full refund until start."
   },
@@ -3090,7 +3094,9 @@
     "hideOccurrences": "Hide",
     "badgePast": "Past",
     "sellAtDoor": "Sell at the door",
-    "taxiPass": "Volunteer shifts"
+    "taxiPass": "Volunteer shifts",
+    "pendingVolunteers": "{n, plural, one {# volunteer application is} other {# volunteer applications are}} waiting for you",
+    "pendingVolunteersOpen": "Open"
   },
   "calendarPage": {
     "dayMon": "Mon",
@@ -4636,6 +4642,8 @@
     "photoQuestion": "May we take photos of you during the evening and use them in our channels?",
     "photoYes": "Yes, that is fine",
     "photoNo": "No photos of me",
+    "showOnEvent": "Show my first name as a taxi dancer on the evening's page, so guests know whom to ask.",
+    "appliedChooseLater": "They pick their own shifts once you approve.",
     "ackVolunteer": "I understand that I am a volunteer and not paid – only free entry and a meal voucher.",
     "ackRules": "I follow the rules above: no alcohol during the shift, cancel by 10:00 on the day, and three warnings within six months mean a six-month suspension.",
     "signUp": "Sign me up",

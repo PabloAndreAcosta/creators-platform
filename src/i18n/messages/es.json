@@ -972,7 +972,9 @@
     "instructorApplicationTitle": "Nueva solicitud de instructor",
     "instructorApplicationMsg": "{name} quiere enseñar en tus noches abiertas. Aprueba o rechaza en Turnos de voluntarios.",
     "volunteerApplicationTitle": "Nueva solicitud de voluntario",
-    "volunteerApplicationMsg": "{name} quiere hacer turnos de voluntario en tus noches. Aprueba o rechaza en Turnos de voluntarios."
+    "volunteerApplicationMsg": "{name} quiere hacer turnos de voluntario en tus noches. Aprueba o rechaza en Turnos de voluntarios.",
+    "volunteerApprovedTitle": "Te han aprobado como voluntario",
+    "volunteerApprovedMsg": "Elige tus turnos para {title}. La aprobación vale para toda la serie."
   },
   "apiErrors": {
     "unauthorized": "No autorizado",
@@ -2479,6 +2481,8 @@
     "volunteerCtaTitle": "Hazte voluntario esta noche",
     "volunteerCtaBody": "Taxi dancers, instructores y más: entrada gratis y un vale de comida. Se requiere BankID móvil.",
     "volunteerCtaAction": "Ver turnos →",
+    "taxiDancersTitle": "Taxi dancers esta noche",
+    "taxiDancersBody": "Invítalos a bailar: están aquí para bailar con todos, sea cual sea tu nivel.",
     "cancellationNote": "Cancelación con reembolso completo hasta {hours, plural, =168 {una semana} one {# hora} other {# horas}} antes del inicio.",
     "cancellationNoteAnytime": "Cancelación con reembolso completo hasta el inicio."
   },
@@ -3090,7 +3094,9 @@
     "hideOccurrences": "Ocultar",
     "badgePast": "Pasado",
     "sellAtDoor": "Vender en la entrada",
-    "taxiPass": "Voluntariado"
+    "taxiPass": "Voluntariado",
+    "pendingVolunteers": "{n, plural, one {# solicitud de voluntario espera} other {# solicitudes de voluntario esperan}} tu respuesta",
+    "pendingVolunteersOpen": "Abrir"
   },
   "calendarPage": {
     "dayMon": "Lun",
@@ -4636,6 +4642,8 @@
     "photoQuestion": "¿Podemos hacerte fotos durante la noche y usarlas en nuestros canales?",
     "photoYes": "Sí, no hay problema",
     "photoNo": "No, sin fotos mías",
+    "showOnEvent": "Mostrar mi nombre como taxi dancer en la página de la noche, para que los asistentes sepan a quién invitar.",
+    "appliedChooseLater": "Elige sus turnos después de tu aprobación.",
     "ackVolunteer": "Entiendo que soy voluntario y no cobro: solo entrada gratis y un vale de comida.",
     "ackRules": "Sigo las normas de arriba: sin alcohol durante el turno, cancelar como tarde a las 10:00 del mismo día, y tres avisos en seis meses suponen seis meses de suspensión.",
     "signUp": "Apuntarme",

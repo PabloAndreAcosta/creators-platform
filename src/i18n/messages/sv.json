@@ -972,7 +972,9 @@
     "instructorApplicationTitle": "Ny instruktörsansökan",
     "instructorApplicationMsg": "{name} vill undervisa på dina öppna kvällar. Godkänn eller avslå under Volontärpass.",
     "volunteerApplicationTitle": "Ny volontäransökan",
-    "volunteerApplicationMsg": "{name} vill ta volontärpass på dina kvällar. Godkänn eller avslå under Volontärpass."
+    "volunteerApplicationMsg": "{name} vill ta volontärpass på dina kvällar. Godkänn eller avslå under Volontärpass.",
+    "volunteerApprovedTitle": "Du är godkänd som volontär",
+    "volunteerApprovedMsg": "Välj dina pass för {title}. Godkännandet gäller hela serien."
   },
   "apiErrors": {
     "unauthorized": "Ej behörig",
@@ -2479,6 +2481,8 @@
     "volunteerCtaTitle": "Bli volontär den här kvällen",
     "volunteerCtaBody": "Taxidansare, instruktörer m.fl. – fri entré och en matkupong. Mobilt BankID krävs.",
     "volunteerCtaAction": "Se passen →",
+    "taxiDancersTitle": "Taxidansare i kväll",
+    "taxiDancersBody": "Bjud gärna upp dem – de är här för att dansa med alla, oavsett nivå.",
     "cancellationNote": "Avbokning med full återbetalning fram till {hours, plural, =168 {en vecka} one {# timme} other {# timmar}} före start.",
     "cancellationNoteAnytime": "Avbokning med full återbetalning fram till start."
   },
@@ -3090,7 +3094,9 @@
     "hideOccurrences": "Dölj",
     "badgePast": "Passerat",
     "sellAtDoor": "Sälj i entrén",
-    "taxiPass": "Volontärpass"
+    "taxiPass": "Volontärpass",
+    "pendingVolunteers": "{n, plural, one {# volontäransökan väntar} other {# volontäransökningar väntar}} på ditt svar",
+    "pendingVolunteersOpen": "Öppna"
   },
   "calendarPage": {
     "dayMon": "Mån",
@@ -4636,6 +4642,8 @@
     "photoQuestion": "Får vi ta bilder på dig under kvällen och använda dem i våra kanaler?",
     "photoYes": "Ja, det går bra",
     "photoNo": "Nej, inga bilder på mig",
+    "showOnEvent": "Visa mitt förnamn som taxidansare på kvällens sida, så att deltagarna vet vem de kan bjuda upp.",
+    "appliedChooseLater": "Hen väljer själv sina pass efter ditt godkännande.",
     "ackVolunteer": "Jag förstår att jag är volontär och inte får lön – bara fri entré och en matkupong.",
     "ackRules": "Jag följer reglerna ovan: alkoholfritt under passet, avbokning senast kl. 10 samma dag, och tre varningar inom sex månader ger sex månaders avstängning.",
     "signUp": "Anmäl mig",

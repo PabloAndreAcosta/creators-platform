@@ -312,6 +312,12 @@ export default async function TaxiEveningPage(props: {
               <label className="flex items-center gap-2"><input type="radio" name="photo" value="yes" required /> {t("photoYes")}</label>
               <label className="flex items-center gap-2"><input type="radio" name="photo" value="no" required /> {t("photoNo")}</label>
             </fieldset>
+            {open.some((s) => s.role === "taxi_dancer") && (
+              <label className="flex items-start gap-2">
+                <input type="hidden" name="showOnEventShown" value="1" />
+                <input type="checkbox" name="showOnEvent" value="yes" defaultChecked className="mt-1" /> {t("showOnEvent")}
+              </label>
+            )}
             <div className="space-y-2">
               <label className="flex items-start gap-2"><input type="checkbox" name="volunteer" required className="mt-1" /> {t("ackVolunteer")}</label>
               <label className="flex items-start gap-2"><input type="checkbox" name="rules" required className="mt-1" /> {t("ackRules")}</label>

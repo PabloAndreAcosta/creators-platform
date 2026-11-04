@@ -1,7 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { sortEventsForOwner, todayInStockholm } from "@/lib/events/sort";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { EventsContent } from "./events-content";
+import { EventsContent, type PendingVolunteers } from "./events-content";
+import { approvalScopeKey } from "@/lib/taxi/approvals";
 
 export default async function EventsPage(
   props: {
@@ -12,6 +13,7 @@ export default async function EventsPage(
   let listings: any[] = [];
   let facebookPageId: string | null = null;
   let facebookPageName: string | null = null;
+  let pendingVolunteers: PendingVolunteers[] = [];
 
   try {
     const supabase = await createClient();
@@ -69,6 +71,24 @@ export default async function EventsPage(
       // slumpmässig ordning. Nästa kväll ska ligga överst.
       const today = todayInStockholm();
       listings = [...sortEventsForOwner(own, today), ...sortEventsForOwner(co, today)];
+      // Väntande volontäransökningar i de egna kvällarnas avgränsningar (serie
+      // eller arrangör). Volontärpass ligger annars bara i kvällens ⋯-meny.
+      const upcomingOwn = sortEventsForOwner(own, today).filter((l) => l.event_date && l.event_date >= today);
+      const scopeToListing = new Map<string, { id: string; title: string }>();
+      for (const l of upcomingOwn) {
+        const key = approvalScopeKey({ series_id: l.series_id ?? null, user_id: l.user_id });
+        if (!scopeToListing.has(key)) scopeToListing.set(key, { id: l.id, title: l.title });
+      }
+      if (scopeToListing.size) {
+        const { data: pend } = await admin
+          .from("volunteer_approvals")
+          .select("scope_key")
+          .eq("status", "pending")
+          .in("scope_key", [...scopeToListing.keys()]);
+        const counts = new Map<string, number>();
+        for (const r of pend ?? []) counts.set(r.scope_key, (counts.get(r.scope_key) ?? 0) + 1);
+        pendingVolunteers = [...counts.entries()].map(([key, n]) => ({ n, ...scopeToListing.get(key)! }));
+      }
       facebookPageId = profileRes.data?.facebook_page_id ?? null;
       facebookPageName = profileRes.data?.facebook_page_name ?? null;
     }
@@ -79,6 +99,7 @@ export default async function EventsPage(
   return (
     <EventsContent
       listings={listings}
+      pendingVolunteers={pendingVolunteers}
       facebookPageId={facebookPageId}
       facebookPageName={facebookPageName}
       fbConnected={searchParams.fb_connected === "1"}
