@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { BellRing, Loader2 } from "lucide-react";
+import { BellRing, Loader2, Share } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { badgeSupported } from "@/lib/badge/app-badge";
 
 // VAPID public key → Uint8Array for pushManager.subscribe.
@@ -14,7 +15,18 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   return output;
 }
 
-type State = "loading" | "unsupported" | "unconfigured" | "off" | "on" | "denied" | "busy";
+type State = "loading" | "unsupported" | "iosInstall" | "unconfigured" | "off" | "on" | "denied" | "busy";
+
+/** iPhone/iPad (iPadOS utger sig för att vara Mac men har pekskärm). */
+function isIOS(): boolean {
+  const ua = navigator.userAgent;
+  return /iPhone|iPad|iPod/.test(ua) || (ua.includes("Macintosh") && navigator.maxTouchPoints > 1);
+}
+
+/** Öppnad från hemskärmen som app, inte i Safari. */
+function isStandalone(): boolean {
+  return window.matchMedia?.("(display-mode: standalone)").matches || (navigator as { standalone?: boolean }).standalone === true;
+}
 type TestState = "idle" | "sending" | "sent" | "nosub" | "failed";
 
 /**
@@ -23,6 +35,7 @@ type TestState = "idle" | "sending" | "sent" | "nosub" | "failed";
  * the backend can push updates (ticket sales, cancellations, etc.).
  */
 export function PushToggle() {
+  const t = useTranslations("notifSettings");
   const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
   const [state, setState] = useState<State>("loading");
   const [test, setTest] = useState<TestState>("idle");
@@ -31,7 +44,9 @@ export function PushToggle() {
     if (typeof window === "undefined") return;
     const supported =
       "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
-    if (!supported) return setState("unsupported");
+    // iPhone ger bara push till appar på hemskärmen. I Safari saknas API:et
+    // helt — då ska man få veta varför och hur, inte se en tom rad.
+    if (!supported) return setState(isIOS() && !isStandalone() ? "iosInstall" : "unsupported");
     if (!vapidKey) return setState("unconfigured");
     if (Notification.permission === "denied") return setState("denied");
 
@@ -103,8 +118,34 @@ export function PushToggle() {
     }
   }, []);
 
-  // Hide the row entirely where push can't work — keeps settings clean.
-  if (state === "loading" || state === "unsupported" || state === "unconfigured") return null;
+  if (state === "loading" || state === "unconfigured") return null;
+
+  if (state === "iosInstall" || state === "unsupported") {
+    return (
+      <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-4">
+        <div className="flex items-start gap-4">
+          <BellRing size={20} className="mt-0.5 shrink-0 text-[var(--usha-gold)]" />
+          <div className="flex-1">
+            <p className="text-sm font-medium">{t("pushTitle")}</p>
+            {state === "iosInstall" ? (
+              <>
+                <p className="mt-1 text-xs text-[var(--usha-muted)]">{t("pushIosIntro")}</p>
+                <ol className="mt-2 list-decimal space-y-1 pl-4 text-xs text-[var(--usha-muted)]">
+                  <li>
+                    {t("pushIosStep1")} <Share size={12} className="inline align-[-2px]" />
+                  </li>
+                  <li>{t("pushIosStep2")}</li>
+                  <li>{t("pushIosStep3")}</li>
+                </ol>
+              </>
+            ) : (
+              <p className="mt-1 text-xs text-[var(--usha-muted)]">{t("pushUnsupported")}</p>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const badgeIsSupported = typeof navigator !== "undefined" && badgeSupported(navigator as never);
   const on = state === "on";
@@ -116,11 +157,11 @@ export function PushToggle() {
       <div className="flex items-center gap-4">
       <BellRing size={20} className="shrink-0 text-[var(--usha-gold)]" />
       <div className="flex-1">
-        <p className="text-sm font-medium">Push-notiser på den här enheten</p>
+        <p className="text-sm font-medium">{t("pushTitle")}</p>
         <p className="text-xs text-[var(--usha-muted)]">
           {denied
-            ? "Notiser är blockerade i webbläsaren. Tillåt notiser för usha.se i inställningarna för att slå på."
-            : "Få uppdateringar (biljettköp, avbokningar, väntelista) direkt – även när appen är stängd."}
+            ? t("pushDenied")
+            : t("pushBody")}
         </p>
       </div>
       <button
@@ -153,13 +194,13 @@ export function PushToggle() {
             disabled={test === "sending"}
             className="rounded-lg border border-[var(--usha-border)] px-3 py-1.5 text-xs font-medium transition hover:border-[var(--usha-gold)]/40 disabled:opacity-50"
           >
-            {test === "sending" ? "Skickar…" : "Skicka testnotis"}
+            {test === "sending" ? t("pushTestSending") : t("pushTest")}
           </button>
           <p className="text-xs text-[var(--usha-muted)]">
-            {test === "sent" && "Skickad. Kommer den inte fram inom någon minut är prenumerationen död — slå av och på igen."}
-            {test === "nosub" && "Ingen enhet är registrerad. Slå av och på igen så skapas prenumerationen om."}
-            {test === "failed" && "Gick inte att skicka. Försök igen om en stund."}
-            {test === "idle" && !badgeIsSupported && "Siffran på appikonen kräver att appen ligger på hemskärmen."}
+            {test === "sent" && t("pushTestSent")}
+            {test === "nosub" && t("pushTestNoSub")}
+            {test === "failed" && t("pushTestFailed")}
+            {test === "idle" && !badgeIsSupported && t("pushBadgeNeedsHome")}
           </p>
         </div>
       )}
