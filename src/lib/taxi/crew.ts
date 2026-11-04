@@ -7,11 +7,12 @@ import { createAdminClient } from "@/lib/supabase/admin";
  *
  * Bara den som själv anmält sig syns. Källor: bokade volontärpass i rollerna
  * taxidansare och instruktör, och instruktörer som gått med på kvällen för att
- * sälja minuter (event_instructors — de är redan publika på kvällens sida).
+ * sälja minuter (event_instructors — de är redan publika på kvällens sida),
+ * och medverkande som själva valt att vara med kvällen (listing_collaborators.attending).
  * Förnamnet visas alltid (det hör till rollen); bilden bara om personen inte
  * valt bort den vid anmälan (show_photo_on_event).
  */
-export type CrewRole = "taxi_dancer" | "instructor";
+export type CrewRole = "taxi_dancer" | "instructor" | "collaborator";
 
 export interface CrewMember {
   firstName: string;
@@ -21,7 +22,8 @@ export interface CrewMember {
   times: string[];
 }
 
-const CREW_ROLES: CrewRole[] = ["taxi_dancer", "instructor"];
+const CREW_ROLES: CrewRole[] = ["taxi_dancer", "instructor", "collaborator"];
+const SHIFT_ROLES = ["taxi_dancer", "instructor"];
 
 export function firstNameOf(fullName: string | null | undefined): string {
   const first = (fullName ?? "").trim().split(/\s+/)[0] ?? "";
@@ -41,10 +43,13 @@ export async function loadEveningCrew(listingIds: string[]): Promise<Map<string,
   if (!ids.length) return out;
   const db = createAdminClient();
 
-  const [{ data: shifts }, { data: joined }] = await Promise.all([
-    db.from("taxi_shifts").select("id, listing_id, role, starts_at, ends_at").in("listing_id", ids).in("role", CREW_ROLES).order("starts_at"),
+  const [{ data: shifts }, { data: joined }, { data: collabs }] = await Promise.all([
+    db.from("taxi_shifts").select("id, listing_id, role, starts_at, ends_at").in("listing_id", ids).in("role", SHIFT_ROLES).order("starts_at"),
     db.from("event_instructors").select("listing_id, instructor_id").in("listing_id", ids),
+    // Medverkande syns bara de kvällar de själva valt att vara med (attending).
+    db.from("listing_collaborators").select("listing_id, user_id").in("listing_id", ids).eq("status", "accepted").eq("attending", true),
   ]);
+  const collabRows = (collabs ?? []) as { listing_id: string; user_id: string }[];
   const shiftIds = (shifts ?? []).map((s) => s.id);
   const { data: signups } = shiftIds.length
     ? await db.from("taxi_signups").select("shift_id, dancer_id, show_photo_on_event").in("shift_id", shiftIds).eq("status", "booked")
@@ -54,7 +59,7 @@ export async function loadEveningCrew(listingIds: string[]): Promise<Map<string,
   const noPhoto = new Set(signupRows.filter((s) => !s.show_photo_on_event).map((s) => s.dancer_id));
   const joinedRows = (joined ?? []) as { listing_id: string; instructor_id: string }[];
 
-  const people = [...new Set([...signupRows.map((s) => s.dancer_id), ...joinedRows.map((j) => j.instructor_id)])];
+  const people = [...new Set([...signupRows.map((s) => s.dancer_id), ...joinedRows.map((j) => j.instructor_id), ...collabRows.map((c) => c.user_id)])];
   if (!people.length) return out;
   const { data: profiles } = await db.from("profiles").select("id, full_name, avatar_url").in("id", people);
   const profileOf = new Map((profiles ?? []).map((p) => [p.id, p]));
@@ -79,6 +84,7 @@ export async function loadEveningCrew(listingIds: string[]): Promise<Map<string,
     if (sh) add(sh.listing_id, s.dancer_id, sh.role as CrewRole, `${hm(sh.starts_at)}–${hm(sh.ends_at)}`);
   }
   for (const j of joinedRows) add(j.listing_id, j.instructor_id, "instructor");
+  for (const c of collabRows) add(c.listing_id, c.user_id, "collaborator");
 
   for (const [listingId, m] of byListing) {
     // Taxidansare först, sedan instruktörer.

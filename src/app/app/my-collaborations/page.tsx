@@ -8,6 +8,7 @@ import { collabRoleLabel } from "@/lib/collaborators";
 import { creatorBalance } from "@/lib/payouts/creator-balance";
 import { GagePanel, type GageView } from "@/components/gage-panel";
 import { StripeConnectButton } from "@/components/stripe-connect-button";
+import { setAttending } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +41,7 @@ export default async function MyCollaborationsPage() {
   // RLS allows self-select on listing_collaborators.
   const { data: collabs } = await supabase
     .from("listing_collaborators")
-    .select("listing_id, role, accepted_at, can_scan, can_manage, can_view_stats")
+    .select("listing_id, role, accepted_at, can_scan, can_manage, can_view_stats, attending")
     .eq("user_id", user.id)
     .eq("status", "accepted")
     .order("accepted_at", { ascending: false });
@@ -106,6 +107,7 @@ export default async function MyCollaborationsPage() {
     .maybeSingle();
   const stripeConnected = !!me?.stripe_account_id;
 
+  const today = new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Stockholm" }).format(new Date());
   const items = (collabs ?? [])
     .map((c) => ({ ...c, listing: listingsById.get(c.listing_id) }))
     .filter((c) => c.listing);
@@ -311,6 +313,27 @@ export default async function MyCollaborationsPage() {
                       <BarChart3 size={12} />
                       Statistik
                     </Link>
+                  )}
+                  {l.event_date && l.event_date >= today && (
+                    // Syns publikt bara om du valt att vara med just den här kvällen.
+                    <form action={setAttending} className="mt-2 flex flex-wrap items-center gap-2">
+                      <input type="hidden" name="listingId" value={c.listing_id} />
+                      <input type="hidden" name="attending" value={c.attending ? "no" : "yes"} />
+                      <button
+                        className={
+                          c.attending
+                            ? "rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-3 py-1.5 text-[11px] font-bold text-black"
+                            : "rounded-lg border border-[var(--usha-border)] px-3 py-1.5 text-[11px] font-medium text-[var(--usha-muted)] hover:border-[var(--usha-gold)]/50 hover:text-[var(--usha-white)]"
+                        }
+                      >
+                        {c.attending ? "Jag är med ✓" : "Jag är med den här kvällen"}
+                      </button>
+                      <span className="text-[11px] text-[var(--usha-muted)]">
+                        {c.attending
+                          ? "Du syns som medverkande på kvällen. Tryck igen om du inte kan."
+                          : "Du syns inte på kvällen förrän du valt att vara med."}
+                      </span>
+                    </form>
                   )}
                   <GagePanel
                     listingId={c.listing_id}

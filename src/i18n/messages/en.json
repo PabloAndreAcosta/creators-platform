@@ -3108,7 +3108,10 @@
     "sellAtDoor": "Sell at the door",
     "taxiPass": "Volunteer shifts",
     "pendingVolunteers": "{n, plural, one {# volunteer application is} other {# volunteer applications are}} waiting for you",
-    "pendingVolunteersOpen": "Open"
+    "pendingVolunteersOpen": "Open",
+    "crewTaxi": "Taxi dancers",
+    "crewInstructor": "Instructors",
+    "crewCollaborator": "With us"
   },
   "calendarPage": {
     "dayMon": "Mon",
@@ -4912,6 +4915,7 @@
   "eveningCrew": {
     "taxi_dancer": "Taxi dancers",
     "instructor": "Instructors",
-    "hint": "Feel free to ask the taxi dancers to dance – they are here to dance with everyone, whatever your level. The instructors are happy to help with your technique."
+    "hint": "Feel free to ask the taxi dancers to dance – they are here to dance with everyone, whatever your level. The instructors are happy to help with your technique.",
+    "collaborator": "With us tonight"
   }
 }

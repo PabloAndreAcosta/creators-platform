@@ -155,7 +155,7 @@ function OccurrenceRow({
   priceLabel: string | null;
   ctaLabel: string;
   crew?: CrewMember[];
-  crewLabels?: { taxi_dancer: string; instructor: string };
+  crewLabels?: { taxi_dancer: string; instructor: string; collaborator?: string };
 }) {
   const href = `/listing/${o.slug || o.id}`;
   return (
@@ -248,7 +248,7 @@ export default async function SeriesPage(props: Props) {
   const upcoming = occurrences.filter((o) => !o.event_date || o.event_date >= today);
   const crewByListing = await loadEveningCrew(upcoming.map((o) => o.id));
   const tc = await getTranslations("eveningCrew");
-  const crewLabels = { taxi_dancer: tc("taxi_dancer"), instructor: tc("instructor") };
+  const crewLabels = { taxi_dancer: tc("taxi_dancer"), instructor: tc("instructor"), collaborator: tc("collaborator") };
   const past = occurrences.filter((o) => o.event_date && o.event_date < today).reverse();
 
   const jsonLd = {

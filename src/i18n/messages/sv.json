@@ -3108,7 +3108,10 @@
     "sellAtDoor": "Sälj i entrén",
     "taxiPass": "Volontärpass",
     "pendingVolunteers": "{n, plural, one {# volontäransökan väntar} other {# volontäransökningar väntar}} på ditt svar",
-    "pendingVolunteersOpen": "Öppna"
+    "pendingVolunteersOpen": "Öppna",
+    "crewTaxi": "Taxidansare",
+    "crewInstructor": "Instruktörer",
+    "crewCollaborator": "Medverkande"
   },
   "calendarPage": {
     "dayMon": "Mån",
@@ -4912,6 +4915,7 @@
   "eveningCrew": {
     "taxi_dancer": "Taxidansare",
     "instructor": "Instruktörer",
-    "hint": "Bjud gärna upp taxidansarna – de är här för att dansa med alla, oavsett nivå. Instruktörerna hjälper dig gärna med tekniken."
+    "hint": "Bjud gärna upp taxidansarna – de är här för att dansa med alla, oavsett nivå. Instruktörerna hjälper dig gärna med tekniken.",
+    "collaborator": "Medverkande"
   }
 }

@@ -63,7 +63,7 @@ export default async function KalenderPage() {
   const organizerIds = [...new Set(entries.map((e) => e.organizerId).filter((id): id is string => !!id))];
   const crewByListing = await loadEveningCrew(entries.map((e) => e.listingId));
   const tc = await getTranslations("eveningCrew");
-  const crewLabels = { taxi_dancer: tc("taxi_dancer"), instructor: tc("instructor") };
+  const crewLabels = { taxi_dancer: tc("taxi_dancer"), instructor: tc("instructor"), collaborator: tc("collaborator") };
   const { data: myFollows } = user && organizerIds.length
     ? await supabase.from("follows").select("followed_id").eq("follower_id", user.id).in("followed_id", organizerIds)
     : { data: [] as { followed_id: string }[] };
