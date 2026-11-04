@@ -28,7 +28,11 @@ export default async function MobileAppLayout({
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login");
+    // Tillbaka till sidan efter inloggningen — en delad länk till ett pass
+    // eller en kväll ska inte sluta på startsidan. /login rensar next själv.
+    const { headers } = await import("next/headers");
+    const path = (await headers()).get("x-usha-path") ?? "";
+    redirect(path.startsWith("/app") ? `/login?next=${encodeURIComponent(path)}` : "/login");
   }
 
   // Konton som skapats med e-post eller BankID passerar aldrig /callback.

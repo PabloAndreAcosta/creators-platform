@@ -9,6 +9,7 @@ import { recordShiftPayrollLine } from "@/lib/taxi/record-shift-pay";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createNotification } from "@/lib/notifications/create";
 import { loadEvening, loadShifts, loadStrikeFacts } from "@/lib/taxi/data";
 import { canCheckIn, dancerEligibility, isLateCancel, overlaps, strikeStatus, taxiEveningFull } from "@/lib/taxi/rules";
 
@@ -253,6 +254,21 @@ export async function applyForRole(formData: FormData) {
     message: cleanMessage(formData.get("message")),
   });
   if (error && error.code !== "23505") throw error;
+
+  // Arrangören måste få veta att någon väntar på ett ja — annars ligger
+  // ansökan obemärkt tills hen råkar öppna Volontärpass.
+  if (!error && evening!.user_id !== user.id) {
+    const { data: me } = await db.from("profiles").select("full_name").eq("id", user.id).maybeSingle();
+    await createNotification({
+      userId: evening!.user_id,
+      type: "volunteer_application",
+      titleKey: "volunteerApplicationTitle",
+      bodyKey: "volunteerApplicationMsg",
+      params: { name: me?.full_name ?? "" },
+      link: `/app/events/${listingId}/taxi`,
+    }).catch(() => {});
+  }
+
   revalidatePath(`/app/taxi/${listingId}`);
   revalidatePath(`/app/events/${listingId}/taxi`);
   back(listingId, "applicationSent");

@@ -970,7 +970,9 @@
     "venueRequestTitle": "Request for your venue",
     "venueRequestMsg": "{organiser} wants to hold {count, plural, one {an event} other {# events}} at your venue. Nothing happens until you respond.",
     "instructorApplicationTitle": "New instructor application",
-    "instructorApplicationMsg": "{name} wants to teach at your open evenings. Approve or decline under Volunteer shifts."
+    "instructorApplicationMsg": "{name} wants to teach at your open evenings. Approve or decline under Volunteer shifts.",
+    "volunteerApplicationTitle": "New volunteer application",
+    "volunteerApplicationMsg": "{name} wants to take volunteer shifts at your evenings. Approve or decline under Volunteer shifts."
   },
   "apiErrors": {
     "unauthorized": "Unauthorized",

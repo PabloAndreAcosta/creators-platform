@@ -970,7 +970,9 @@
     "venueRequestTitle": "Solicitud para tu local",
     "venueRequestMsg": "{organiser} quiere celebrar {count, plural, one {un evento} other {# eventos}} en tu local. No pasa nada hasta que respondas.",
     "instructorApplicationTitle": "Nueva solicitud de instructor",
-    "instructorApplicationMsg": "{name} quiere enseñar en tus noches abiertas. Aprueba o rechaza en Turnos de voluntarios."
+    "instructorApplicationMsg": "{name} quiere enseñar en tus noches abiertas. Aprueba o rechaza en Turnos de voluntarios.",
+    "volunteerApplicationTitle": "Nueva solicitud de voluntario",
+    "volunteerApplicationMsg": "{name} quiere hacer turnos de voluntario en tus noches. Aprueba o rechaza en Turnos de voluntarios."
   },
   "apiErrors": {
     "unauthorized": "No autorizado",
