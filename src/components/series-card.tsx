@@ -3,6 +3,7 @@ import { ChevronDown } from "lucide-react";
 import { getTranslations, getLocale } from "next-intl/server";
 import { ListingCard } from "@/components/listing-card";
 import type { SerieGrupp } from "@/lib/listings/group-series";
+import type { CrewMember } from "@/lib/taxi/crew";
 
 const DATE_LOCALES: Record<string, string> = { sv: "sv-SE", en: "en-GB", es: "es-ES" };
 
@@ -30,16 +31,19 @@ export async function SeriesCard({
   grupp,
   bookingCount = 0,
   isPromoted,
+  crew,
 }: {
   grupp: SerieGrupp<Kort>;
   bookingCount?: number;
   isPromoted?: boolean;
+  /** Besättningen för kortets kväll (seriens närmaste). */
+  crew?: CrewMember[];
 }) {
   const t = await getTranslations("seriesCard");
   const dateLocale = DATE_LOCALES[await getLocale()] ?? "en-GB";
 
   if (grupp.fler === 0) {
-    return <ListingCard listing={grupp.forsta} bookingCount={bookingCount} isPromoted={isPromoted} />;
+    return <ListingCard listing={grupp.forsta} bookingCount={bookingCount} isPromoted={isPromoted} crew={crew} />;
   }
 
   const ovriga = grupp.alla.slice(1);
@@ -50,6 +54,7 @@ export async function SeriesCard({
         listing={grupp.forsta}
         bookingCount={bookingCount}
         isPromoted={isPromoted}
+        crew={crew}
         attachedBelow
       />
       <details

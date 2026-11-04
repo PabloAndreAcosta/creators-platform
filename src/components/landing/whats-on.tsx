@@ -7,6 +7,7 @@ import { groupBySeries } from "@/lib/listings/group-series";
 import { BROWSABLE_TYPES } from "@/lib/listings/browse";
 import { upcomingOrUndated } from "@/lib/listings/time-window";
 import { getBookingCounts } from "@/lib/listings/popularity";
+import { loadEveningCrew } from "@/lib/taxi/crew";
 
 /**
  * Vad som händer — högst upp på startsidan.
@@ -49,10 +50,11 @@ export async function WhatsOn() {
   // coachingen trängdes undan.
   const urval = groupBySeries(listings).slice(0, 6);
 
-  const bookingCounts = await getBookingCounts(
-    supabase,
-    urval.map((g) => g.forsta.id)
-  );
+  const [bookingCounts, crewByListing] = await Promise.all([
+    getBookingCounts(supabase, urval.map((g) => g.forsta.id)),
+    // Vem som är där — taxidansare och instruktörer — syns direkt på kortet.
+    loadEveningCrew(urval.map((g) => g.forsta.id)),
+  ]);
 
   return (
     <section className="relative px-4 pb-14 pt-2 sm:px-6 sm:pb-20 sm:pt-4">
@@ -73,7 +75,7 @@ export async function WhatsOn() {
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {urval.map((g) => (
-            <SeriesCard key={g.forsta.id} grupp={g} bookingCount={bookingCounts[g.forsta.id] ?? 0} />
+            <SeriesCard key={g.forsta.id} grupp={g} bookingCount={bookingCounts[g.forsta.id] ?? 0} crew={crewByListing.get(g.forsta.id)} />
           ))}
         </div>
       </div>

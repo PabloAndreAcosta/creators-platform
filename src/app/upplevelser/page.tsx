@@ -7,6 +7,7 @@ import Link from "next/link";
 import { MapPin, Calendar, ArrowRight, SlidersHorizontal } from "lucide-react";
 import { SeoFooter } from "@/components/seo-footer";
 import { SeriesCard } from "@/components/series-card";
+import { loadEveningCrew } from "@/lib/taxi/crew";
 import { groupBySeries } from "@/lib/listings/group-series";
 import { getBookingCounts, sortWithPromoted, isActivelyPromoted } from "@/lib/listings/popularity";
 import { GeoLocationDetector } from "@/components/geo-location";
@@ -115,7 +116,10 @@ export default async function UpplevelserPage(
 
   // Fetch booking counts for badges
   const listingIds = (rawListings || []).map((l) => l.id);
-  const bookingCounts = await getBookingCounts(supabase, listingIds);
+  const [bookingCounts, crewByListing] = await Promise.all([
+    getBookingCounts(supabase, listingIds),
+    loadEveningCrew(listingIds),
+  ]);
 
   // Sort promoted first (preserve sort order otherwise)
   const listings = sortWithPromoted(rawListings || []);
@@ -315,6 +319,7 @@ export default async function UpplevelserPage(
                 grupp={g}
                 bookingCount={bookingCounts[g.forsta.id] || 0}
                 isPromoted={isActivelyPromoted(g.forsta)}
+                crew={crewByListing.get(g.forsta.id)}
               />
             ))}
           </div>
