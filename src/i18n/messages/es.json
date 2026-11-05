@@ -4408,6 +4408,7 @@
     "pending": "Esperando respuesta",
     "confirmed": "Aprobado",
     "approve": "Aprobar",
+    "deciding": "Guardando…",
     "decline": "Rechazar",
     "withdraw": "Retirar aprobación",
     "by": "Organizado por {name}",

@@ -13,6 +13,7 @@ import { isAdminById } from "@/lib/admin/check";
 import { loadEvening, loadShifts, loadStrikeFacts } from "@/lib/taxi/data";
 import { isStrike, strikeStatus, TAXI_WINDOW, STRIKE_LIMIT, type StrikeStatus, TAXI_MAX_PER_EVENING } from "@/lib/taxi/rules";
 import { DEFAULT_CAPACITY, ROLE_LABEL_MAX, VOLUNTEER_ROLES, shiftRoleName } from "@/lib/taxi/roles";
+import { PendingButton } from "@/components/form-feedback";
 import { createShift, deleteShift, organiserCheck, setVoucherSettings, decideApplication, setDjWishStatus } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -162,7 +163,9 @@ export default async function EventTaxiPage(props: {
                       <input type="hidden" name="listingId" value={id} />
                       <input type="hidden" name="approvalId" value={a.id} />
                       <input type="hidden" name="decision" value={d} />
-                      <button
+                      {/* Låses medan beslutet sparas – ett dubbeltryck gav två notiser. */}
+                      <PendingButton
+                        pendingLabel={t("deciding")}
                         className={
                           d === "approve"
                             ? "rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-3 py-1 text-xs font-bold text-black"
@@ -170,7 +173,7 @@ export default async function EventTaxiPage(props: {
                         }
                       >
                         {t(d === "approve" ? "approve" : "decline")}
-                      </button>
+                      </PendingButton>
                     </form>
                   ))}
                 </div>

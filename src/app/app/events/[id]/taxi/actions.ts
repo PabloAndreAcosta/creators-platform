@@ -169,6 +169,9 @@ export async function decideApplication(formData: FormData) {
     .update({ status: decision, decided_by: user.id, decided_at: new Date().toISOString() })
     .eq("id", String(formData.get("approvalId")))
     .eq("scope_key", approvalScopeKey(evening))
+    // Samma beslut två gånger (dubbeltryck, två flikar) ändrar inget och
+    // skickar ingen andra notis.
+    .neq("status", decision)
     .select("volunteer_id")
     .maybeSingle();
   if (error) throw error;
