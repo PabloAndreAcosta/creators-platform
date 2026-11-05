@@ -10,6 +10,7 @@ import { isRateLimitError } from "@/lib/auth/rate-limit-error";
 import { ShieldCheck, Eye, EyeOff } from "lucide-react";
 import { AuthBrand } from "@/components/auth-brand";
 import { GoogleIcon, FacebookIcon } from "@/components/brand-icons";
+import { InAppBrowserNotice, useInAppBrowser } from "@/components/in-app-browser-notice";
 
 function FieldError({ message }: { message: string }) {
   return <p className="mt-1 text-xs text-red-400">{message}</p>;
@@ -17,6 +18,8 @@ function FieldError({ message }: { message: string }) {
 
 export default function LoginPage() {
   const t = useTranslations("auth");
+  // I Messenger/Instagram spärrar Google inloggningen – dölj knappen och visa vägen ut.
+  const inApp = useInAppBrowser();
   const searchParams = useSearchParams();
   const bankidPending = searchParams.get("bankid_pending") === "1";
   const prefilledEmail = searchParams.get("email") || "";
@@ -254,6 +257,8 @@ export default function LoginPage() {
           </p>
         )}
 
+        <InAppBrowserNotice app={inApp} />
+
         <button
           onClick={handleBankIdLogin}
           disabled={bankidStarting}
@@ -263,13 +268,15 @@ export default function LoginPage() {
           {bankidStarting ? t("openingBankid") : t("loginWithBankid")}
         </button>
 
-        <button
-          onClick={handleGoogleLogin}
-          className="mb-2 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium transition hover:bg-[var(--usha-card)]"
-        >
-          <GoogleIcon />
-          {t("continueWithGoogle")}
-        </button>
+        {!inApp && (
+          <button
+            onClick={handleGoogleLogin}
+            className="mb-2 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium transition hover:bg-[var(--usha-card)]"
+          >
+            <GoogleIcon />
+            {t("continueWithGoogle")}
+          </button>
+        )}
 
         <button
           onClick={handleFacebookLogin}
