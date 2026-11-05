@@ -4408,6 +4408,7 @@
     "pending": "Väntar på svar",
     "confirmed": "Godkänd",
     "approve": "Godkänn",
+    "deciding": "Sparar…",
     "decline": "Neka",
     "withdraw": "Ta bort godkännande",
     "by": "Arrangeras av {name}",

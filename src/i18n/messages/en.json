@@ -4408,6 +4408,7 @@
     "pending": "Awaiting reply",
     "confirmed": "Approved",
     "approve": "Approve",
+    "deciding": "Saving…",
     "decline": "Decline",
     "withdraw": "Withdraw approval",
     "by": "Hosted by {name}",
