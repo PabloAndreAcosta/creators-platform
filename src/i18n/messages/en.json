@@ -4950,5 +4950,15 @@
     "accept": "Accept statistics",
     "decline": "Only necessary",
     "settings": "Cookie settings"
+  },
+  "tyckTill": {
+    "metaTitle": "Have your say – Usha",
+    "metaDescription": "Vote for DJs and tell us what you want on Thursdays at The Lab.",
+    "title": "Have your say",
+    "intro": "This is where you decide with us. Vote for DJs for monthly parties and festivals, and answer the surveys about Thursdays at The Lab.",
+    "surveysTitle": "Surveys about Thursdays",
+    "surveysBody": "Short and anonymous. Your answers shape what we do next.",
+    "surveyTaxi": "Taxi dancers",
+    "surveyOpen": "Answer →"
   }
 }
