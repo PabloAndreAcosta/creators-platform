@@ -2022,6 +2022,7 @@
     "expiredBody": "Pídele al anfitrión un nuevo enlace de invitación.",
     "acceptedTitle": "Ya aceptada",
     "acceptedBody": "Ya formas parte de este evento.",
+    "acceptedCta": "Ir a Mis colaboraciones",
     "notFoundTitle": "Invitación no encontrada",
     "notFoundBody": "Este enlace de invitación ya no es válido.",
     "successTitle": "¡Ya estás dentro!",

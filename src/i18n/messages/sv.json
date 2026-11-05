@@ -2022,6 +2022,7 @@
     "expiredBody": "Be värden om en ny inbjudningslänk.",
     "acceptedTitle": "Redan accepterad",
     "acceptedBody": "Du är redan med på det här eventet.",
+    "acceptedCta": "Till Mina samarbeten",
     "notFoundTitle": "Inbjudan hittades inte",
     "notFoundBody": "Den här inbjudningslänken är inte längre giltig.",
     "successTitle": "Du är med!",

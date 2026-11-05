@@ -40,12 +40,32 @@ export default async function InvitePage({ params }: Params) {
     );
   }
 
-  if (invite.accepted_user_id) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // Den som redan är med på evenemanget ska aldrig mötas av "gått ut" — en
+  // gammal länk i en chatt är ofta vägen tillbaka in. Kolla medlemskapet före
+  // utgångsdatumet och skicka dem till Mina samarbeten.
+  let alreadyMember = false;
+  if (user) {
+    const { data: collab } = await admin
+      .from("listing_collaborators")
+      .select("listing_id")
+      .eq("listing_id", invite.listing_id)
+      .eq("user_id", user.id)
+      .eq("status", "accepted")
+      .maybeSingle();
+    alreadyMember = !!collab;
+  }
+
+  if (invite.accepted_user_id || alreadyMember) {
     return (
       <StatusCard
         title={t("acceptedTitle")}
         body={t("acceptedBody")}
         variant="ok"
+        href={user ? "/app/my-collaborations" : undefined}
+        cta={user ? t("acceptedCta") : undefined}
       />
     );
   }
@@ -75,9 +95,6 @@ export default async function InvitePage({ params }: Params) {
   ]);
 
   if (!listing) notFound();
-
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
 
   const expiresDate = new Date(invite.expires_at).toLocaleDateString("sv-SE", {
     day: "numeric",
@@ -231,10 +248,14 @@ function StatusCard({
   title,
   body,
   variant,
+  href = "/app",
+  cta = "Usha Platform",
 }: {
   title: string;
   body: string;
   variant: "ok" | "error";
+  href?: string;
+  cta?: string;
 }) {
   const borderColor = variant === "ok" ? "border-green-500/30" : "border-[var(--usha-border)]";
   return (
@@ -244,10 +265,10 @@ function StatusCard({
           <h1 className="text-2xl font-bold">{title}</h1>
           <p className="mt-3 text-sm text-[var(--usha-muted)]">{body}</p>
           <Link
-            href="/app"
+            href={href}
             className="mt-6 inline-flex rounded-xl border border-[var(--usha-border)] px-5 py-2.5 text-sm font-medium hover:bg-[var(--usha-card-hover)]"
           >
-            Usha Platform
+            {cta}
           </Link>
         </div>
       </div>
