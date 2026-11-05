@@ -21,6 +21,7 @@ import { MapPin } from "lucide-react";
  * Den är viktigare än kartan: på en telefon är det den som tar folk fram.
  */
 import { buildMapsHref } from "@/lib/listings/maps";
+import { LazyMount } from "@/components/lazy-mount";
 
 export function EventMap({
   lat,
@@ -77,18 +78,24 @@ export function EventMap({
       <h2 className="mb-2 text-lg font-semibold">{heading}</h2>
       <div className="overflow-hidden rounded-xl border border-[var(--usha-border)]">
         {showEmbed && (
-          <iframe
-            title={heading}
-            width="100%"
-            height="200"
-            style={{ border: 0 }}
-            className="block sm:h-[300px]"
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            src={`https://www.google.com/maps/embed/v1/place?key=${key}&q=${encodeURIComponent(
-              embedQuery
-            )}&zoom=15&language=${encodeURIComponent(locale)}`}
-          />
+          // Kartan monteras först när rutan närmar sig skärmen. `loading="lazy"`
+          // räckte inte: Chrome laddar lata iframes upp till 2 500 px under
+          // skärmkanten, så Maps-skripten (~330 kB) kom ändå med vid start.
+          // Platshållaren har kartans höjd, så sidan hoppar inte.
+          <LazyMount className="h-[200px] sm:h-[300px]">
+            <iframe
+              title={heading}
+              width="100%"
+              height="200"
+              style={{ border: 0 }}
+              className="block h-full sm:h-[300px]"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              src={`https://www.google.com/maps/embed/v1/place?key=${key}&q=${encodeURIComponent(
+                embedQuery
+              )}&zoom=15&language=${encodeURIComponent(locale)}`}
+            />
+          </LazyMount>
         )}
         <a
           href={mapsHref}
