@@ -14,7 +14,7 @@ import { canCheckIn, dancerEligibility, isLateCancel, strikeStatus, taxiEveningF
 import { BankIdVerifyButton } from "@/app/(dashboard)/dashboard/profile/bankid-verify-button";
 import { signUpForShifts, cancelShift, checkIn, redeemVoucher, applyForRole } from "../actions";
 import { shiftRoleName } from "@/lib/taxi/roles";
-import { PendingButton, ScrollIntoViewNotice } from "@/components/form-feedback";
+import { ConfirmButton, PendingButton, ScrollIntoViewNotice } from "@/components/form-feedback";
 
 export const dynamic = "force-dynamic";
 
@@ -199,9 +199,16 @@ export default async function TaxiEveningPage(props: {
                     {!m.checked_in_at && Date.parse(s.starts_at) > now.getTime() && (
                       <form action={cancelShift}>
                         <input type="hidden" name="signupId" value={m.id} />
-                        <button className={`${btn} border border-[var(--usha-border)] text-[var(--usha-muted)]`}>
+                        <ConfirmButton
+                          className={`${btn} border border-[var(--usha-border)] text-[var(--usha-muted)]`}
+                          confirmClassName={`${btn} bg-red-500/90 text-white`}
+                          question={late ? t("cancelQuestionLate") : t("cancelQuestion")}
+                          confirmLabel={t("cancelConfirm")}
+                          keepLabel={t("cancelKeep")}
+                          pendingLabel={t("cancelling")}
+                        >
                           {late ? t("cancelLate") : t("cancel")}
-                        </button>
+                        </ConfirmButton>
                       </form>
                     )}
                   </div>
