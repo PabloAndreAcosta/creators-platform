@@ -113,7 +113,8 @@
     "viewAll": "View all results",
     "openSearch": "Open search",
     "closeSearch": "Close search",
-    "creator": "Creator"
+    "creator": "Creator",
+    "pages": "Pages in the app"
   },
   "notifications": {
     "title": "Notifications",
@@ -2909,7 +2910,7 @@
   },
   "toolsPage": {
     "partnerLabel": "Partner programme",
-    "partnerDesc": "Your link, your referrals and what they earned.",
+    "partnerDesc": "Invite others with your link – and see what it has earned.",
     "homeLabel": "Home",
     "toolsLabel": "Tools",
     "openGigsLabel": "Jobs",
@@ -4638,7 +4639,7 @@
     "ruleAge": "You must be 18 or older and verify with Mobile BankID.",
     "ruleAlcohol": "No alcohol during your shift.",
     "ruleLength": "Each shift is at least 2 hours, between 17:00 and 23:00. Pick the shifts you can do.",
-    "ruleCancel": "Cancel by 10:00 on the day at the latest. A late cancellation or a shift you do not check in to gives a warning. Three warnings within six months mean a six-month suspension – after that the count starts again from zero.",
+    "ruleCancel": "Cancel by 10:00 on the day at the latest. If you book after 10:00 you can cancel freely until two hours before the shift. A late cancellation or a shift you do not check in to gives a warning. Three warnings within six months mean a six-month suspension – after that the count starts again from zero.",
     "ruleCheck": "Check in on this page when you arrive. You do not need to check out.",
     "ruleDecline": "You may always say no to a dance.",
     "myShifts": "Your shifts",
@@ -4669,7 +4670,7 @@
     "notice_signedUp": "You are signed up. Check in here when you arrive.",
     "signingUp": "Signing up…",
     "notice_cancelled": "The shift is cancelled.",
-    "notice_cancelledLate": "The shift is cancelled, but after 10:00 – it counts as a warning.",
+    "notice_cancelledLate": "The shift is cancelled, but too late – it counts as a warning.",
     "notice_checkedIn": "Checked in.",
     "notice_voucherRedeemed": "The meal voucher is redeemed.",
     "notice_noShift": "Choose at least one shift.",

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getTranslations } from 'next-intl/server';
 import { createClient } from '@/lib/supabase/server';
+import { matchPages } from '@/lib/navigation/page-search';
 
 export async function GET(req: NextRequest) {
   try {
@@ -45,7 +47,12 @@ export async function GET(req: NextRequest) {
     if (listingsRes.error) console.error("search: listings query failed", listingsRes.error);
     if (creatorsRes.error) console.error("search: creators query failed", creatorsRes.error);
 
+    // Appens egna sidor (t.ex. Partnerprogram när någon söker "bjud in").
+    const tTools = await getTranslations('toolsPage');
+    const pages = matchPages(q, (k) => tTools(k));
+
     return NextResponse.json({
+      pages,
       listings: listingsRes.data ?? [],
       creators: creatorsRes.data ?? [],
     });

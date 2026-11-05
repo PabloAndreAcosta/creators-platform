@@ -56,12 +56,6 @@ export function AppShell({ children, userName, initialRole }: AppShellProps) {
                 <SearchBar />
               </div>
 
-              {/* SearchBar – mobile: toggled */}
-              {mobileSearchOpen && (
-                <div className="flex-1 md:hidden">
-                  <SearchBar onSearch={() => setMobileSearchOpen(false)} />
-                </div>
-              )}
 
               {/* Actions — shrink-0 so the controls always stay fully on-screen
                   and the logo gives up space first. */}
@@ -80,6 +74,13 @@ export function AppShell({ children, userName, initialRole }: AppShellProps) {
                 <RoleToggle />
               </div>
             </div>
+            {/* SearchBar – mobile: en egen rad i full bredd. Mellan loggan och
+                knapparna blev rutan och träfflistan bara några tecken breda. */}
+            {mobileSearchOpen && (
+              <div className="px-4 pb-3 md:hidden">
+                <SearchBar onSearch={() => setMobileSearchOpen(false)} />
+              </div>
+            )}
           </header>
 
           {/* Content */}

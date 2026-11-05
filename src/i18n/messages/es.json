@@ -113,7 +113,8 @@
     "viewAll": "Ver todos los resultados",
     "openSearch": "Abrir búsqueda",
     "closeSearch": "Cerrar búsqueda",
-    "creator": "Creador"
+    "creator": "Creador",
+    "pages": "Páginas de la app"
   },
   "notifications": {
     "title": "Notificaciones",
@@ -2909,7 +2910,7 @@
   },
   "toolsPage": {
     "partnerLabel": "Programa de partners",
-    "partnerDesc": "Tu enlace, tus referidos y lo que han generado.",
+    "partnerDesc": "Invita a otros con tu enlace y mira lo que te ha dado.",
     "homeLabel": "Inicio",
     "toolsLabel": "Herramientas",
     "openGigsLabel": "Trabajos",
@@ -4638,7 +4639,7 @@
     "ruleAge": "Debes tener 18 años o más y verificarte con BankID móvil.",
     "ruleAlcohol": "Sin alcohol durante el turno.",
     "ruleLength": "Cada turno dura al menos 2 horas, entre las 17 y las 23. Elige los turnos que puedas.",
-    "ruleCancel": "Cancela como tarde a las 10:00 del mismo día. Una cancelación tardía o un turno sin registrar entrada da un aviso. Tres avisos en seis meses suponen seis meses de suspensión; después la cuenta vuelve a cero.",
+    "ruleCancel": "Cancela como tarde a las 10:00 del mismo día. Si reservas después de las 10:00, puedes cancelar sin aviso hasta dos horas antes del turno. Una cancelación tardía o un turno sin registrar entrada da un aviso. Tres avisos en seis meses suponen seis meses de suspensión; después la cuenta vuelve a cero.",
     "ruleCheck": "Registra tu entrada en esta página al llegar. No hace falta registrar la salida.",
     "ruleDecline": "Siempre puedes decir que no a un baile.",
     "myShifts": "Tus turnos",
@@ -4669,7 +4670,7 @@
     "notice_signedUp": "Estás apuntado. Registra tu entrada aquí al llegar.",
     "signingUp": "Apuntando…",
     "notice_cancelled": "Turno cancelado.",
-    "notice_cancelledLate": "Turno cancelado, pero después de las 10:00: cuenta como aviso.",
+    "notice_cancelledLate": "Turno cancelado, pero demasiado tarde: cuenta como aviso.",
     "notice_checkedIn": "Entrada registrada.",
     "notice_voucherRedeemed": "Vale de comida canjeado.",
     "notice_noShift": "Elige al menos un turno.",

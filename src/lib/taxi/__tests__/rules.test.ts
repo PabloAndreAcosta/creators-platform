@@ -39,6 +39,17 @@ describe("avbokning", () => {
     expect(isLateCancel("2026-11-12", new Date("2026-11-12T08:59:00Z"))).toBe(false);
     expect(isLateCancel("2026-11-12", new Date("2026-11-12T09:00:00Z"))).toBe(true);
   });
+  it("bokat efter kl. 10: fritt fram till två timmar före passet", () => {
+    // Bokat 11.35, pass 19–21 (Stockholm). Avbokat 13.54 → ingen varning.
+    const signup = { created_at: "2026-11-12T10:35:00Z", starts_at: "2026-11-12T19:00:00+01:00" };
+    expect(isLateCancel("2026-11-12", new Date("2026-11-12T12:54:00Z"), signup)).toBe(false);
+    expect(isLateCancel("2026-11-12", new Date("2026-11-12T15:59:00Z"), signup)).toBe(false);
+    expect(isLateCancel("2026-11-12", new Date("2026-11-12T16:00:00Z"), signup)).toBe(true);
+  });
+  it("bokat före kl. 10: gränsen är fortfarande kl. 10", () => {
+    const signup = { created_at: "2026-11-11T20:00:00Z", starts_at: "2026-11-12T19:00:00+01:00" };
+    expect(isLateCancel("2026-11-12", new Date("2026-11-12T09:30:00Z"), signup)).toBe(true);
+  });
 });
 
 /** Ett uteblivet pass som slutade vid tiden t. */
