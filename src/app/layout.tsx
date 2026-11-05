@@ -10,6 +10,24 @@ import { ConsentBanner } from "@/components/consent-banner";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import Script from "next/script";
+import { Outfit, JetBrains_Mono } from "next/font/google";
+
+// Typsnitten serveras från vår egen domän i stället för via ett @import mot
+// Google Fonts. Det @import:et var den enda renderingsblockerande resursen på
+// sajten (~0,8 s på simulerad mobil) — webbläsaren fick inte måla förrän
+// Googles CSS hämtats. Latin-delmängden täcker å, ä, ö och spanska tecken.
+const outfit = Outfit({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-outfit",
+  display: "swap",
+});
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-mono",
+  display: "swap",
+});
 import "./globals.css";
 
 export const viewport: Viewport = {
@@ -93,7 +111,7 @@ export default async function RootLayout({
   const themeClass = themeCookie === "dark" ? "dark" : "";
 
   return (
-    <html lang={locale} className={themeClass} suppressHydrationWarning>
+    <html lang={locale} className={`${themeClass} ${outfit.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
       <head>
         {/* PWA tags are declared explicitly here instead of via the Next.js
             metadata API: in production streaming, metadata-generated tags render

@@ -14,6 +14,7 @@ import { Trust } from "@/components/landing/trust";
 import { Footer } from "@/components/landing/footer";
 import { AudienceDoors } from "@/components/landing/audience-doors";
 import { RedirectIfAuthed } from "@/components/landing/redirect-if-authed";
+import { HeroVideo } from "@/components/landing/hero-video";
 
 const OG_LOCALE: Record<string, string> = { sv: "sv_SE", en: "en_US", es: "es_ES" };
 
@@ -131,24 +132,7 @@ function Hero() {
           <span className="text-gradient">{t("hero.headlinePart2")}</span>
         </h1>
 
-        {/* Hero video */}
-        <div
-          className="animate-fade-up delay-150 mx-auto mb-8 max-w-3xl overflow-hidden rounded-xl border border-[var(--usha-border)] sm:mb-10 sm:rounded-2xl"
-          style={{ opacity: 0 }}
-        >
-          {/* Höjdtaket gäller även på desktop. Utan det växte videon med
-              skärmen och tryckte ned allt konkret under vikningen. */}
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full max-h-[38vh] object-cover sm:max-h-[44vh]"
-            suppressHydrationWarning
-          >
-            <source src="/hero-video.mp4" type="video/mp4" />
-          </video>
-        </div>
+        <HeroVideo />
 
         <p
           className="animate-fade-up delay-200 mx-auto mb-10 max-w-2xl text-base leading-relaxed text-[var(--usha-muted)] sm:mb-12 sm:text-lg"

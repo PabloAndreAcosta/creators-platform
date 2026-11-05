@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { CrewMember } from "@/lib/taxi/crew";
 
 /**
@@ -33,7 +34,7 @@ export function EveningCrew({
             >
               {p.avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={p.avatarUrl} alt="" className={`${big ? "h-8 w-8" : "h-5 w-5"} rounded-full object-cover`} />
+                <Image src={p.avatarUrl} alt="" width={big ? 32 : 20} height={big ? 32 : 20} className={`${big ? "h-8 w-8" : "h-5 w-5"} rounded-full object-cover`} />
               ) : (
                 <span
                   className={`flex ${big ? "h-8 w-8 text-xs" : "h-5 w-5 text-[10px]"} items-center justify-center rounded-full bg-[var(--usha-gold)]/20 font-bold text-[var(--usha-gold)]`}

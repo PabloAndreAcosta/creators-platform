@@ -15,13 +15,15 @@ const TODAY = "2026-09-08"; // tisdag
 describe("groupUpcoming", () => {
   it("visar en serie som en rad med nästa datum och antal tillfällen", () => {
     const rows = [
-      l({ id: "a", event_date: "2026-09-14", series_id: "s", series_slug: "the-lab", title: "The Lab" }),
-      l({ id: "b", event_date: "2026-09-21", series_id: "s", series_slug: "the-lab", title: "The Lab" }),
-      l({ id: "c", event_date: "2026-09-28", series_id: "s", series_slug: "the-lab", title: "The Lab" }),
+      l({ id: "a", event_date: "2026-09-14", series_id: "s", series_slug: "the-lab", slug: "the-lab-2026-09-14", title: "The Lab" }),
+      l({ id: "b", event_date: "2026-09-21", series_id: "s", series_slug: "the-lab", slug: "the-lab-2026-09-21", title: "The Lab" }),
+      l({ id: "c", event_date: "2026-09-28", series_id: "s", series_slug: "the-lab", slug: "the-lab-2026-09-28", title: "The Lab" }),
     ];
     const entries = groupUpcoming(rows, TODAY);
     expect(entries).toHaveLength(1);
-    expect(entries[0]).toMatchObject({ date: "2026-09-14", occurrences: 3, href: "/event/the-lab", recurringWeekday: 1 });
+    // Länken går direkt till nästa tillfälle, inte via seriens slug — den
+    // vägen kostade en omdirigering (~0,8 s) på varje klick från kalendern.
+    expect(entries[0]).toMatchObject({ date: "2026-09-14", occurrences: 3, href: "/event/the-lab-2026-09-14", recurringWeekday: 1 });
   });
 
   it("markerar inte veckodag när tillfällena hoppar mellan dagar", () => {

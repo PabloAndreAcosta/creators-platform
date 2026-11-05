@@ -103,7 +103,9 @@ export function groupUpcoming(listings: CalendarListing[], today: string): Calen
       listingId: l.id,
       title: l.title,
       organizerId: l.user_id,
-      href: l.series_id && l.series_slug ? `/event/${l.series_slug}` : `/event/${l.slug ?? l.id}`,
+      // Raden ÄR nästa tillfälle, så länka dit direkt. Serielänken gick via
+      // en omdirigering i eventsidan (~0,8 s per klick från kalendern).
+      href: `/event/${l.slug ?? l.id}`,
       date: l.event_date,
       time: l.event_time,
       endTime: l.event_end_time,
