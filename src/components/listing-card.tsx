@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { MapPin, Calendar, Flame, Star } from "lucide-react";
 import { getTranslations, getLocale } from "next-intl/server";
 import { BuyTicketCta } from "@/components/buy-ticket-cta";
@@ -37,6 +38,9 @@ interface ListingCardProps {
   attachedBelow?: boolean;
   /** Kvällens taxidansare och instruktörer — syns direkt på kortet. */
   crew?: CrewMember[];
+  /** Första kortet ovanför vikningen: bilden laddas direkt och förladdas,
+   *  eftersom den är sidans LCP-element. Övriga kort laddar lat. */
+  priority?: boolean;
 }
 
 export async function ListingCard({
@@ -45,6 +49,7 @@ export async function ListingCard({
   isPromoted,
   attachedBelow,
   crew = [],
+  priority = false,
 }: ListingCardProps) {
   const t = await getTranslations();
   const dateLocale = DATE_LOCALES[await getLocale()] ?? "en-GB";
@@ -91,12 +96,17 @@ export async function ListingCard({
 
       {/* Image */}
       {listing.image_url ? (
-        <div className="aspect-video shrink-0 overflow-hidden">
-          <img
+        <div className="relative aspect-video shrink-0 overflow-hidden">
+          {/* Genom bildoptimeringen: kortet är som mest ~380 px brett, men
+              affischerna laddas i original (400–600 kB styck). Rätt storlek
+              och WebP/AVIF ger ~90 % mindre per kort. */}
+          <Image
             src={listing.image_url}
             alt={listing.title}
-            className="h-full w-full object-cover transition group-hover:scale-105"
-            loading="lazy"
+            fill
+            priority={priority}
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 384px"
+            className="object-cover transition group-hover:scale-105"
           />
         </div>
       ) : (

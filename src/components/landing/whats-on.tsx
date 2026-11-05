@@ -74,8 +74,15 @@ export async function WhatsOn() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {urval.map((g) => (
-            <SeriesCard key={g.forsta.id} grupp={g} bookingCount={bookingCounts[g.forsta.id] ?? 0} crew={crewByListing.get(g.forsta.id)} />
+          {urval.map((g, i) => (
+            <SeriesCard
+              key={g.forsta.id}
+              grupp={g}
+              bookingCount={bookingCounts[g.forsta.id] ?? 0}
+              crew={crewByListing.get(g.forsta.id)}
+              // Första kortet är det största som syns vid start: prioritera bilden.
+              priority={i === 0}
+            />
           ))}
         </div>
       </div>

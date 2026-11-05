@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ChevronLeft, ChevronRight, MapPin, Calendar, Star } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 
@@ -47,10 +48,13 @@ export function EventCarousel({ events }: { events: CarouselEvent[] }) {
       <Link href={`/listing/${event.slug || event.id}`} className="block">
         <div className="relative aspect-[21/9] sm:aspect-[3/1]">
           {event.image_url ? (
-            <img
+            <Image
               src={event.image_url}
               alt={event.title}
-              className="h-full w-full object-cover transition-transform duration-[5000ms] hover:scale-105"
+              fill
+              priority
+              sizes="(max-width: 1152px) 100vw, 1152px"
+              className="object-cover transition-transform duration-[5000ms] hover:scale-105"
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[var(--usha-gold)]/20 to-[var(--usha-accent)]/20">

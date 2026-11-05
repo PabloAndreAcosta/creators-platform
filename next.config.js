@@ -125,6 +125,16 @@ const nextConfig = {
         hostname: "auth.usha.se",
       },
       {
+        // Google-inloggade kreatörers profilbilder (profiles.avatar_url).
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+      },
+      {
+        // Reservbilden på eventsidan när annonsen saknar egen bild.
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+      {
         protocol: "https",
         hostname: "**.cdninstagram.com",
       },

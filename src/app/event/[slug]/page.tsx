@@ -5,7 +5,7 @@ import { applyPoolLimits } from "@/lib/tickets/pools";
 import { passSavings } from "@/lib/passes/series-pass";
 import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
-import Image from "next/image";
+import Image, { getImageProps } from "next/image";
 import Link from "next/link";
 import { Calendar, ChevronDown, Clock, MapPin, Ticket, Users, Pencil, Heart } from "lucide-react";
 import { EVENT_CATEGORY_LABELS } from "@/app/app/events/constants";
@@ -489,6 +489,27 @@ export default async function EventPage(props: Params) {
   const locale = eventLocale;
   const tFollow = await getTranslations({ locale, namespace: "emailFollow" });
   const image = listing.image_url ?? FALLBACK_IMAGE;
+  // Affischen är sidans LCP-element och laddades i original (600 kB). Genom
+  // bildoptimeringen får varje skärm rätt storlek och WebP/AVIF. getImageProps
+  // i stället för <Image> för att behålla art direction i <picture>:
+  // kvadraten på mobil, den breda på desktop.
+  const { props: heroSquare } = getImageProps({
+    src: listing.image_url_square ?? image,
+    alt: "",
+    width: 1200,
+    height: 1200,
+    sizes: "100vw",
+    quality: 80,
+  });
+  const { props: heroWide } = getImageProps({
+    src: image,
+    alt: listing.title,
+    width: 1600,
+    height: 800,
+    sizes: "100vw",
+    quality: 80,
+    priority: true,
+  });
   // Kategorin är ett enum i databasen — översätt via eventPage.cat_* och annars
   // via de delade categories.*-nycklarna innan råvärdet visas.
   const categoryLabel = t.has(`cat_${listing.category}`)
@@ -704,10 +725,10 @@ export default async function EventPage(props: Params) {
             en fjärdedel av bredden på en 4:3-bild — på The Lab försvann hela
             tidsschemat i högerkanten. Desktop behåller den breda bannern. */}
         <picture>
-          <source media="(max-width: 639px)" srcSet={listing.image_url_square ?? image} />
+          <source media="(max-width: 639px)" srcSet={heroSquare.srcSet} sizes={heroSquare.sizes} />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={image}
+            {...heroWide}
             alt={listing.title}
             className="block h-auto w-full sm:absolute sm:inset-0 sm:h-full sm:object-cover sm:object-center"
           />

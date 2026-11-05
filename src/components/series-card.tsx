@@ -32,18 +32,20 @@ export async function SeriesCard({
   bookingCount = 0,
   isPromoted,
   crew,
+  priority = false,
 }: {
   grupp: SerieGrupp<Kort>;
   bookingCount?: number;
   isPromoted?: boolean;
   /** Besättningen för kortets kväll (seriens närmaste). */
   crew?: CrewMember[];
+  priority?: boolean;
 }) {
   const t = await getTranslations("seriesCard");
   const dateLocale = DATE_LOCALES[await getLocale()] ?? "en-GB";
 
   if (grupp.fler === 0) {
-    return <ListingCard listing={grupp.forsta} bookingCount={bookingCount} isPromoted={isPromoted} crew={crew} />;
+    return <ListingCard listing={grupp.forsta} bookingCount={bookingCount} isPromoted={isPromoted} crew={crew} priority={priority} />;
   }
 
   const ovriga = grupp.alla.slice(1);
@@ -54,7 +56,7 @@ export async function SeriesCard({
         listing={grupp.forsta}
         bookingCount={bookingCount}
         isPromoted={isPromoted}
-        crew={crew}
+        crew={crew} priority={priority}
         attachedBelow
       />
       <details

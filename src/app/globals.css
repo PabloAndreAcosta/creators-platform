@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -40,13 +38,13 @@
 }
 
 body {
-  font-family: 'Outfit', sans-serif;
+  font-family: var(--font-outfit), 'Outfit', sans-serif;
   background: var(--usha-black);
   color: var(--usha-white);
   -webkit-font-smoothing: antialiased;
 }
 
-.font-mono { font-family: 'JetBrains Mono', monospace; }
+.font-mono { font-family: var(--font-mono), 'JetBrains Mono', monospace; }
 
 .grain::before {
   content: '';
