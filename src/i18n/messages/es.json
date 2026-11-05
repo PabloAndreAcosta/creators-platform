@@ -2910,7 +2910,7 @@
   },
   "toolsPage": {
     "partnerLabel": "Programa de partners",
-    "partnerDesc": "Invita a otros con tu enlace y mira lo que te ha dado.",
+    "partnerDesc": "Tu enlace, tus referidos y lo que han generado.",
     "homeLabel": "Inicio",
     "toolsLabel": "Herramientas",
     "openGigsLabel": "Trabajos",
@@ -4809,7 +4809,10 @@
     "paidShiftCompany": "Turno pagado: {pay} kr – facturado por tu empresa",
     "notice_shift_payInvalid": "Indica un pago entre 0 y 10 000 kr.",
     "shownOnEvent": "Como taxi dancer o instructor, tu nombre se muestra en la página de la noche, en la serie y en el calendario, para que los asistentes sepan quién eres.",
-    "showPhotoOnEvent": "Mostrar también mi foto de perfil."
+    "showPhotoOnEvent": "Mostrar también mi foto de perfil.",
+    "inviteButton": "Invitar",
+    "inviteCopied": "Enlace copiado",
+    "inviteText": "¿Quieres ser voluntario en {title} ({date})? Elige un turno entre las 17:00 y las 23:00: entrada gratis y comida incluidas."
   },
   "instruktorerPage": {
     "meta": {

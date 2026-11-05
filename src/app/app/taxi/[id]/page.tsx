@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { ChevronLeft, HeartHandshake, ShieldCheck, Utensils } from "lucide-react";
+import { ShareEventButton } from "@/components/share-event-button";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { DEFAULT_VOUCHER_MAX_ORE, voucherScopeId } from "@/lib/taxi/voucher";
@@ -144,6 +145,16 @@ export default async function TaxiEveningPage(props: {
       </Link>
       <h1 className="text-2xl font-bold">{t("eveningTitle", { title: evening.title })}</h1>
       <p className="mt-1 text-sm text-[var(--usha-muted)]">{evening.event_date}</p>
+      {/* Bjud in: vem som helst som ser passen kan skicka kvällens länk vidare.
+          Utan konto hamnar mottagaren på inloggningen, som tar hen tillbaka hit. */}
+      <ShareEventButton
+        url={`https://usha.se/app/taxi/${id}`}
+        title={t("eveningTitle", { title: evening.title })}
+        text={t("inviteText", { title: evening.title, date: evening.event_date })}
+        label={t("inviteButton")}
+        copiedLabel={t("inviteCopied")}
+        className="mt-3 inline-flex items-center gap-2 rounded-xl border border-[var(--usha-gold)]/50 px-4 py-2 text-sm font-medium text-[var(--usha-gold)] transition hover:bg-[var(--usha-gold)]/10"
+      />
 
       {notice && notices.includes(notice) && (
         // key: samma besked två gånger i rad ska ändå rulla fram.
