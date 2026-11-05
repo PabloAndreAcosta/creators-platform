@@ -73,8 +73,24 @@ export function cancelDeadline(eventDate: string): string {
   return stockholmEventISO(eventDate, `${CANCEL_DEADLINE_TIME}:00`);
 }
 
-export function isLateCancel(eventDate: string, now: Date): boolean {
-  return now.getTime() >= ms(cancelDeadline(eventDate));
+/** Den som bokar efter kl. 10 får avboka fritt fram till så här länge före passet. */
+export const LATE_BOOKING_GRACE_MINUTES = 120;
+
+/**
+ * Sen avbokning = varning. Gränsen är kl. 10 samma dag, men den som bokade
+ * först efter kl. 10 kunde aldrig hålla den — för dem flyttas gränsen till två
+ * timmar före passets start. Utan anmälans uppgifter gäller kl. 10 rakt av.
+ */
+export function isLateCancel(
+  eventDate: string,
+  now: Date,
+  signup?: { created_at: string; starts_at: string },
+): boolean {
+  const deadline = ms(cancelDeadline(eventDate));
+  if (signup && ms(signup.created_at) >= deadline) {
+    return now.getTime() >= ms(signup.starts_at) - LATE_BOOKING_GRACE_MINUTES * MIN;
+  }
+  return now.getTime() >= deadline;
 }
 
 export interface SignupFacts {

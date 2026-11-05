@@ -136,7 +136,7 @@ export async function signUpForShifts(formData: FormData) {
 async function ownSignup(signupId: string, userId: string) {
   const { data } = await createAdminClient()
     .from("taxi_signups")
-    .select("id, dancer_id, status, late_cancel, checked_in_at, shift:taxi_shifts(id, listing_id, starts_at, ends_at)")
+    .select("id, dancer_id, status, late_cancel, checked_in_at, created_at, shift:taxi_shifts(id, listing_id, starts_at, ends_at)")
     .eq("id", signupId)
     .maybeSingle();
   type Row = {
@@ -144,20 +144,21 @@ async function ownSignup(signupId: string, userId: string) {
     dancer_id: string;
     status: string;
     checked_in_at: string | null;
+    created_at: string;
     shift: { id: string; listing_id: string; starts_at: string; ends_at: string };
   };
   const row = data as unknown as Row | null;
   return row && row.dancer_id === userId ? row : null;
 }
 
-/** Avbokning. Efter kl. 10 samma dag blir den en varning. */
+/** Avbokning. Efter kl. 10 samma dag blir den en varning (bokat efter kl. 10: två timmar före passet). */
 export async function cancelShift(formData: FormData) {
   const user = await viewer();
   if (!user) redirect("/login");
   const s = await ownSignup(String(formData.get("signupId")), user.id);
   if (!s || s.status !== "booked") redirect("/app/taxi");
   const evening = await loadEvening(s!.shift.listing_id);
-  const late = isLateCancel(evening!.event_date, new Date());
+  const late = isLateCancel(evening!.event_date, new Date(), { created_at: s!.created_at, starts_at: s!.shift.starts_at });
   await createAdminClient()
     .from("taxi_signups")
     .update({ status: "cancelled", cancelled_at: new Date().toISOString(), late_cancel: late })

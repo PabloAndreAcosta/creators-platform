@@ -24,6 +24,12 @@ interface SearchCreator {
   avatar_url: string | null;
 }
 
+interface SearchPage {
+  path: string;
+  label: string;
+  desc: string;
+}
+
 interface SearchBarProps {
   onSearch?: () => void;
 }
@@ -35,6 +41,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
   const [query, setQuery] = useState("");
   const [listings, setListings] = useState<SearchListing[]>([]);
   const [creators, setCreators] = useState<SearchCreator[]>([]);
+  const [pages, setPages] = useState<SearchPage[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -44,6 +51,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
     if (query.length < 2) {
       setListings([]);
       setCreators([]);
+      setPages([]);
       setOpen(false);
       return;
     }
@@ -56,6 +64,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
         const data = await res.json();
         setListings(data.listings ?? []);
         setCreators(data.creators ?? []);
+        setPages(data.pages ?? []);
         setOpen(true);
       } catch {
         // ignore
@@ -78,7 +87,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  const hasResults = listings.length > 0 || creators.length > 0;
+  const hasResults = listings.length > 0 || creators.length > 0 || pages.length > 0;
 
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === "Enter" && query.trim().length >= 2) {
@@ -127,6 +136,26 @@ export function SearchBar({ onSearch }: SearchBarProps) {
           {!loading && !hasResults && query.length >= 2 && (
             <div className="px-4 py-6 text-center text-sm text-[var(--usha-muted)]">
               {t("noResults", { query })}
+            </div>
+          )}
+
+          {/* Appens sidor */}
+          {pages.length > 0 && (
+            <div>
+              <p className="px-4 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--usha-muted)]">
+                {t("pages")}
+              </p>
+              {pages.map((p) => (
+                <Link
+                  key={p.path}
+                  href={p.path}
+                  onClick={() => { setOpen(false); onSearch?.(); }}
+                  className="block px-4 py-2.5 transition-colors hover:bg-[var(--usha-card-hover)]"
+                >
+                  <p className="truncate text-sm font-medium">{p.label}</p>
+                  {p.desc && <p className="truncate text-[11px] text-[var(--usha-muted)]">{p.desc}</p>}
+                </Link>
+              ))}
             </div>
           )}
 

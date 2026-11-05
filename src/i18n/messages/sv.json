@@ -113,7 +113,8 @@
     "viewAll": "Visa alla resultat",
     "openSearch": "Öppna sök",
     "closeSearch": "Stäng sök",
-    "creator": "Kreatör"
+    "creator": "Kreatör",
+    "pages": "Sidor i appen"
   },
   "notifications": {
     "title": "Notifikationer",
@@ -2909,7 +2910,7 @@
   },
   "toolsPage": {
     "partnerLabel": "Partnerprogram",
-    "partnerDesc": "Din länk, dina värvningar och vad de gett.",
+    "partnerDesc": "Bjud in andra med din länk – och se vad det gett.",
     "homeLabel": "Hem",
     "toolsLabel": "Verktyg",
     "openGigsLabel": "Uppdrag",
@@ -4638,7 +4639,7 @@
     "ruleAge": "Du ska ha fyllt 18 år och verifiera dig med Mobilt BankID.",
     "ruleAlcohol": "Alkoholfritt under passet.",
     "ruleLength": "Varje pass är minst 2 timmar och ligger mellan 17 och 23. Välj de pass du kan.",
-    "ruleCancel": "Avboka senast kl. 10 samma dag. Sen avbokning eller ett pass du inte checkar in på ger en varning. Tre varningar inom sex månader ger sex månaders avstängning – sedan börjar räkningen om från noll.",
+    "ruleCancel": "Avboka senast kl. 10 samma dag. Bokar du efter kl. 10 kan du avboka fritt fram till två timmar före passet. Sen avbokning eller ett pass du inte checkar in på ger en varning. Tre varningar inom sex månader ger sex månaders avstängning – sedan börjar räkningen om från noll.",
     "ruleCheck": "Checka in här på sidan när du kommer. Du behöver inte checka ut.",
     "ruleDecline": "Du får alltid tacka nej till en dans.",
     "myShifts": "Dina pass",
@@ -4669,7 +4670,7 @@
     "notice_signedUp": "Du är anmäld. Checka in här när du kommer.",
     "signingUp": "Anmäler…",
     "notice_cancelled": "Passet är avbokat.",
-    "notice_cancelledLate": "Passet är avbokat, men efter kl. 10 – det räknas som en varning.",
+    "notice_cancelledLate": "Passet är avbokat, men för sent – det räknas som en varning.",
     "notice_checkedIn": "Incheckad.",
     "notice_voucherRedeemed": "Matkupongen är inlöst.",
     "notice_noShift": "Välj minst ett pass.",

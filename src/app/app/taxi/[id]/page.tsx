@@ -48,6 +48,7 @@ export default async function TaxiEveningPage(props: {
     shift_id: string;
     status: string;
     checked_in_at: string | null;
+    created_at: string;
   }[] = [];
   let strikes = 0;
   let suspendedUntil: string | null = null;
@@ -66,7 +67,7 @@ export default async function TaxiEveningPage(props: {
     const shiftIds = shifts.map((s) => s.id);
     const [{ data: rows }, facts, { data: voucher }, { data: profile }] = await Promise.all([
       shiftIds.length
-        ? db.from("taxi_signups").select("id, shift_id, status, checked_in_at").eq("dancer_id", user.id).in("shift_id", shiftIds)
+        ? db.from("taxi_signups").select("id, shift_id, status, checked_in_at, created_at").eq("dancer_id", user.id).in("shift_id", shiftIds)
         : Promise.resolve({ data: [] }),
       loadStrikeFacts(user.id, evening),
       db.from("taxi_vouchers").select("redeemed_at").eq("listing_id", id).eq("dancer_id", user.id).maybeSingle(),
@@ -120,7 +121,6 @@ export default async function TaxiEveningPage(props: {
       !(s.role === "taxi_dancer" && taxiFull),
   );
   const anyCheckedIn = booked.some((m) => m.checked_in_at);
-  const late = isLateCancel(evening.event_date, now);
 
   // Pengar nämns bara på betalda pass.
   const payNote = (s: { pay_ore: number }) =>
@@ -171,6 +171,7 @@ export default async function TaxiEveningPage(props: {
           <div className="space-y-2">
             {booked.map((m) => {
               const s = shifts.find((x) => x.id === m.shift_id)!;
+              const late = isLateCancel(evening.event_date, now, { created_at: m.created_at, starts_at: s.starts_at });
               return (
                 <div key={m.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3 text-sm">
                   <div>
