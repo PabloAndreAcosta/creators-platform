@@ -2910,7 +2910,7 @@
   },
   "toolsPage": {
     "partnerLabel": "Partnerprogram",
-    "partnerDesc": "Bjud in andra med din länk – och se vad det gett.",
+    "partnerDesc": "Din länk, dina värvningar och vad de gett.",
     "homeLabel": "Hem",
     "toolsLabel": "Verktyg",
     "openGigsLabel": "Uppdrag",
@@ -4809,7 +4809,10 @@
     "paidShiftCompany": "Betalt pass: {pay} kr – faktureras via ditt bolag",
     "notice_shift_payInvalid": "Ange en ersättning mellan 0 och 10 000 kr.",
     "shownOnEvent": "Som taxidansare eller instruktör visas ditt förnamn på kvällens sida, i serien och i kalendern, så att deltagarna vet vem du är.",
-    "showPhotoOnEvent": "Visa även min profilbild."
+    "showPhotoOnEvent": "Visa även min profilbild.",
+    "inviteButton": "Bjud in",
+    "inviteCopied": "Länken är kopierad",
+    "inviteText": "Vill du vara volontär på {title} ({date})? Välj ett pass mellan 17 och 23 – fri entré och mat ingår."
   },
   "instruktorerPage": {
     "meta": {

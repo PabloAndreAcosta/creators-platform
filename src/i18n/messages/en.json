@@ -2910,7 +2910,7 @@
   },
   "toolsPage": {
     "partnerLabel": "Partner programme",
-    "partnerDesc": "Invite others with your link – and see what it has earned.",
+    "partnerDesc": "Your link, your referrals and what they earned.",
     "homeLabel": "Home",
     "toolsLabel": "Tools",
     "openGigsLabel": "Jobs",
@@ -4809,7 +4809,10 @@
     "paidShiftCompany": "Paid shift: {pay} kr – invoiced through your company",
     "notice_shift_payInvalid": "Enter pay between 0 and 10 000 kr.",
     "shownOnEvent": "As a taxi dancer or instructor your first name is shown on the evening's page, in the series and in the calendar, so guests know who you are.",
-    "showPhotoOnEvent": "Show my profile picture too."
+    "showPhotoOnEvent": "Show my profile picture too.",
+    "inviteButton": "Invite",
+    "inviteCopied": "Link copied",
+    "inviteText": "Want to volunteer at {title} ({date})? Pick a shift between 17:00 and 23:00 – free entry and food included."
   },
   "instruktorerPage": {
     "meta": {

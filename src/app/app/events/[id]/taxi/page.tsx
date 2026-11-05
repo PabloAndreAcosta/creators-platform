@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { ChevronLeft, HeartHandshake } from "lucide-react";
+import { ShareEventButton } from "@/components/share-event-button";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { DEFAULT_VOUCHER_MAX_ORE, voucherScopeId } from "@/lib/taxi/voucher";
@@ -126,6 +127,14 @@ export default async function EventTaxiPage(props: {
         <p className="mt-2 text-[var(--usha-muted)]">
           {t("shareLink")} <span className="font-mono text-[var(--usha-white)]">usha.se/app/taxi/{id}</span>
         </p>
+        <ShareEventButton
+          url={`https://usha.se/app/taxi/${id}`}
+          title={t("eveningTitle", { title: evening.title })}
+          text={t("inviteText", { title: evening.title, date: evening.event_date })}
+          label={t("inviteButton")}
+          copiedLabel={t("inviteCopied")}
+          className="mt-2 inline-flex items-center gap-2 rounded-xl border border-[var(--usha-gold)]/50 px-4 py-2 text-sm font-medium text-[var(--usha-gold)] transition hover:bg-[var(--usha-gold)]/10"
+        />
       </div>
 
       {/* Ansökningar: vem som helst får inte ta pass. Godkänn per roll. */}

@@ -2,12 +2,13 @@ import { APP_DESTINATIONS } from "./registry";
 
 /**
  * Sökord som inte står i sidans namn men som folk faktiskt skriver.
- * Paulina letade efter "referral"/"bjud in" och hittade aldrig Partnerprogram.
+ * Paulina ville bjuda in taxidansare och sökte "bjud in" utan att hitta passen.
+ * Partnerprogrammet kopplas medvetet inte hit — det är känsligt och avancerat.
  */
 const ALIASES: Record<string, string[]> = {
-  "/app/partner": [
-    "bjud in", "bjuda in", "inbjudan", "värva", "värvning", "tipsa", "referral", "refer",
-    "invite", "invitar", "referido", "partner",
+  "/app/taxi": [
+    "bjud in", "bjuda in", "inbjudan", "taxidans", "taxidansare", "volontär", "rekrytera",
+    "invite", "invitar", "voluntario",
   ],
 };
 
