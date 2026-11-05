@@ -4667,6 +4667,7 @@
     "ackRules": "Sigo las normas de arriba: sin alcohol durante el turno, cancelar como tarde a las 10:00 del mismo día, y tres avisos en seis meses suponen seis meses de suspensión.",
     "signUp": "Apuntarme",
     "notice_signedUp": "Estás apuntado. Registra tu entrada aquí al llegar.",
+    "signingUp": "Apuntando…",
     "notice_cancelled": "Turno cancelado.",
     "notice_cancelledLate": "Turno cancelado, pero después de las 10:00: cuenta como aviso.",
     "notice_checkedIn": "Entrada registrada.",

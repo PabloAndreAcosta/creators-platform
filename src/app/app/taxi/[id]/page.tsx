@@ -13,6 +13,7 @@ import { canCheckIn, dancerEligibility, isLateCancel, strikeStatus, taxiEveningF
 import { BankIdVerifyButton } from "@/app/(dashboard)/dashboard/profile/bankid-verify-button";
 import { signUpForShifts, cancelShift, checkIn, redeemVoucher, applyForRole } from "../actions";
 import { shiftRoleName } from "@/lib/taxi/roles";
+import { PendingButton, ScrollIntoViewNotice } from "@/components/form-feedback";
 
 export const dynamic = "force-dynamic";
 
@@ -145,9 +146,10 @@ export default async function TaxiEveningPage(props: {
       <p className="mt-1 text-sm text-[var(--usha-muted)]">{evening.event_date}</p>
 
       {notice && notices.includes(notice) && (
-        <div className="mt-4 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm font-medium">
+        // key: samma besked två gånger i rad ska ändå rulla fram.
+        <ScrollIntoViewNotice key={notice} className="mt-4 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm font-medium">
           {t(`notice_${notice}`)}
-        </div>
+        </ScrollIntoViewNotice>
       )}
 
       <div className="mt-5 rounded-xl border border-[var(--usha-gold)]/30 bg-[var(--usha-gold)]/5 p-4 text-sm">
@@ -325,7 +327,7 @@ export default async function TaxiEveningPage(props: {
               <label className="flex items-start gap-2"><input type="checkbox" name="volunteer" required className="mt-1" /> {t("ackVolunteer")}</label>
               <label className="flex items-start gap-2"><input type="checkbox" name="rules" required className="mt-1" /> {t("ackRules")}</label>
             </div>
-            <button className={gold}>{t("signUp")}</button>
+            <PendingButton className={gold} pendingLabel={t("signingUp")}>{t("signUp")}</PendingButton>
           </form>
             )}
           </div>

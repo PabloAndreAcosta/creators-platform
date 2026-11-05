@@ -4667,6 +4667,7 @@
     "ackRules": "I follow the rules above: no alcohol during the shift, cancel by 10:00 on the day, and three warnings within six months mean a six-month suspension.",
     "signUp": "Sign me up",
     "notice_signedUp": "You are signed up. Check in here when you arrive.",
+    "signingUp": "Signing up…",
     "notice_cancelled": "The shift is cancelled.",
     "notice_cancelledLate": "The shift is cancelled, but after 10:00 – it counts as a warning.",
     "notice_checkedIn": "Checked in.",
