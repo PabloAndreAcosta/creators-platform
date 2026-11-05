@@ -40,6 +40,8 @@ const nextConfig = {
       // The Lab: alltid nästa torsdag (/event/the-lab-torsdag följer serien).
       { source: "/thelab", destination: "/event/the-lab-torsdag", permanent: false },
       { source: "/thelab/insta", destination: "/event/the-lab-torsdag?utm_source=instagram&utm_medium=social&utm_campaign=thelab&utm_content=reel", permanent: false },
+      // DJ-röstningen på nästa The Lab. Hashen följer med till sidan.
+      { source: "/dj", destination: "/event/the-lab-torsdag#dj", permanent: false },
       { source: "/thelab/chatt", destination: "/event/the-lab-torsdag?utm_source=chatt&utm_medium=dm&utm_campaign=thelab", permanent: false },
       // Spelen har flyttat till ushagames.se. Query-strängen (t.ex. ?vuxen eller
       // ?kod=) följer med. Redirects körs före sidorna, så /spel tolkas aldrig som
