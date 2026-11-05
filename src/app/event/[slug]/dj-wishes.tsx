@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { Music2 } from "lucide-react";
 import { rankWishes, DJ_WISH_GOAL } from "@/lib/taxi/dj-wishes";
 import { loadDjWishes } from "@/lib/taxi/dj-wishes-data";
-import { addDjWish, voteDjWish } from "./dj-actions";
+import { addDjWish, unvoteDjWish, voteDjWish } from "./dj-actions";
 
 /**
  * "Önska DJ" visas på practicorna men gäller månadsfesten och festivalen:
@@ -46,7 +46,14 @@ export async function DjWishes({
                   </span>
                   {viewerId ? (
                     votedIds.has(w.id) ? (
-                      <span className="text-xs text-[var(--usha-gold)]">{t("voted")}</span>
+                      <form action={unvoteDjWish} className="flex items-center gap-2">
+                        <input type="hidden" name="wishId" value={w.id} />
+                        <input type="hidden" name="back" value={backPath} />
+                        <span className="text-xs text-[var(--usha-gold)]">{t("voted")}</span>
+                        <button className="text-xs text-[var(--usha-muted)] underline underline-offset-2">
+                          {t("unvote")}
+                        </button>
+                      </form>
                     ) : (
                       <form action={voteDjWish}>
                         <input type="hidden" name="wishId" value={w.id} />
@@ -74,7 +81,7 @@ export async function DjWishes({
         <form action={addDjWish} className="mt-4 flex flex-col gap-2 sm:flex-row">
           <input type="hidden" name="listingId" value={listingId} />
           <input type="hidden" name="back" value={backPath} />
-          <input name="name" required minLength={2} maxLength={80} placeholder={t("namePlaceholder")} className={`${input} flex-1`} />
+          <input name="name" required minLength={2} maxLength={80} placeholder={t("namePlaceholder")} title={t("nameHint")} className={`${input} flex-1`} />
           <input name="link" type="url" maxLength={300} placeholder={t("linkPlaceholder")} className={`${input} flex-1`} />
           <button className="rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-4 py-2 text-sm font-bold text-black">
             {t("add")}

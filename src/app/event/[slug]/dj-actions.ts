@@ -7,7 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { rateLimit } from "@/lib/rate-limit";
 import { loadEvening } from "@/lib/taxi/data";
 import { approvalScopeKey } from "@/lib/taxi/approvals";
-import { cleanDjLink, cleanDjName } from "@/lib/taxi/dj-wishes";
+import { cleanDjLink, splitDjNames } from "@/lib/taxi/dj-wishes";
 
 async function viewerOr(next: string) {
   const supabase = await createClient();
@@ -26,23 +26,27 @@ export async function addDjWish(formData: FormData) {
   const evening = await loadEvening(listingId);
   if (!evening?.is_practica) redirect(back);
   if (!rateLimit(`djwish:${user.id}`, 5, 60 * 60_000).allowed) redirect(`${back}?dj=tooMany`);
-  const name = cleanDjName(formData.get("name"));
-  if (!name) redirect(`${back}?dj=badName`);
+  const names = splitDjNames(formData.get("name"));
+  if (names.length === 0) redirect(`${back}?dj=badName`);
   const db = createAdminClient();
   const scope = approvalScopeKey(evening!);
-  const { data: existing } = await db.from("dj_wishes").select("id").eq("scope_key", scope).ilike("name", name!).maybeSingle();
-  let wishId = existing?.id as string | undefined;
-  if (!wishId) {
-    const { data, error } = await db
-      .from("dj_wishes")
-      .insert({ scope_key: scope, name: name!, link: cleanDjLink(formData.get("link")), created_by: user.id })
-      .select("id")
-      .single();
-    if (error) throw error;
-    wishId = data.id;
+  // Länken hör bara till en DJ; flera namn i samma fält får ingen länk.
+  const link = names.length === 1 ? cleanDjLink(formData.get("link")) : null;
+  for (const name of names) {
+    const { data: existing } = await db.from("dj_wishes").select("id").eq("scope_key", scope).ilike("name", name).maybeSingle();
+    let wishId = existing?.id as string | undefined;
+    if (!wishId) {
+      const { data, error } = await db
+        .from("dj_wishes")
+        .insert({ scope_key: scope, name, link, created_by: user.id })
+        .select("id")
+        .single();
+      if (error) throw error;
+      wishId = data.id;
+    }
+    // Den som önskar röstar också.
+    await db.from("dj_wish_votes").upsert({ wish_id: wishId, voter_id: user.id }, { onConflict: "wish_id,voter_id", ignoreDuplicates: true });
   }
-  // Den som önskar röstar också.
-  await db.from("dj_wish_votes").upsert({ wish_id: wishId, voter_id: user.id }, { onConflict: "wish_id,voter_id", ignoreDuplicates: true });
   revalidatePath(back);
   redirect(`${back}?dj=added#dj`);
 }
@@ -58,4 +62,14 @@ export async function voteDjWish(formData: FormData) {
   await db.from("dj_wish_votes").upsert({ wish_id: wishId, voter_id: user.id }, { onConflict: "wish_id,voter_id", ignoreDuplicates: true });
   revalidatePath(back);
   redirect(`${back}?dj=voted#dj`);
+}
+
+/** Ta tillbaka sin röst. Ett felklick ska gå att ångra. */
+export async function unvoteDjWish(formData: FormData) {
+  const back = String(formData.get("back") ?? "/");
+  const user = await viewerOr(back);
+  const wishId = String(formData.get("wishId") ?? "");
+  await createAdminClient().from("dj_wish_votes").delete().eq("wish_id", wishId).eq("voter_id", user.id);
+  revalidatePath(back);
+  redirect(`${back}?dj=unvoted#dj`);
 }

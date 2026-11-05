@@ -4910,9 +4910,11 @@
     "body": "Vota por tus DJ favoritos para que los contratemos en las próximas fiestas mensuales y festivales. Cuando un DJ llegue a {goal} votos intentamos contratarlo.",
     "vote": "Votar",
     "voted": "Has votado",
+    "unvote": "Deshacer",
     "booking": "Intentamos reservarlo",
     "booked": "¡Reservado!",
     "namePlaceholder": "Nombre del DJ",
+    "nameHint": "Un DJ por deseo. Separa varios nombres con comas y serán deseos distintos.",
     "linkPlaceholder": "Enlace (Instagram, SoundCloud), opcional",
     "add": "Pedir",
     "loginToVote": "Inicia sesión para pedir y votar →"

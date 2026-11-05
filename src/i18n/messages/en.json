@@ -4910,9 +4910,11 @@
     "body": "Vote for your favourite DJs to be booked for upcoming monthly parties and festivals. When a DJ reaches {goal} votes we try to book them.",
     "vote": "Vote",
     "voted": "You voted",
+    "unvote": "Undo",
     "booking": "We’re trying to book",
     "booked": "Booked!",
     "namePlaceholder": "DJ name",
+    "nameHint": "One DJ per wish. Separate several names with commas and they become separate wishes.",
     "linkPlaceholder": "Link (Instagram, SoundCloud) – optional",
     "add": "Request",
     "loginToVote": "Log in to request and vote →"
