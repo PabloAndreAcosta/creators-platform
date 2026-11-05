@@ -4950,5 +4950,15 @@
     "accept": "Godkänn statistik",
     "decline": "Bara nödvändiga",
     "settings": "Cookieinställningar"
+  },
+  "tyckTill": {
+    "metaTitle": "Tyck till – Usha",
+    "metaDescription": "Rösta fram DJ:s och säg vad du vill ha på torsdagarna på The Lab.",
+    "title": "Tyck till",
+    "intro": "Här bestämmer du med oss. Rösta fram DJ:s till månadsfester och festivaler, och svara på enkäterna om torsdagarna på The Lab.",
+    "surveysTitle": "Enkäter om torsdagarna",
+    "surveysBody": "Korta och anonyma. Det du svarar styr vad vi gör härnäst.",
+    "surveyTaxi": "Taxidansare",
+    "surveyOpen": "Svara →"
   }
 }

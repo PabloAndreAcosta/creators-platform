@@ -4950,5 +4950,15 @@
     "accept": "Aceptar estadísticas",
     "decline": "Solo necesarias",
     "settings": "Configuración de cookies"
+  },
+  "tyckTill": {
+    "metaTitle": "Opina – Usha",
+    "metaDescription": "Vota por DJs y dinos qué quieres los jueves en The Lab.",
+    "title": "Opina",
+    "intro": "Aquí decides con nosotros. Vota por DJs para las fiestas mensuales y festivales, y responde las encuestas sobre los jueves en The Lab.",
+    "surveysTitle": "Encuestas sobre los jueves",
+    "surveysBody": "Cortas y anónimas. Tus respuestas deciden lo que hacemos después.",
+    "surveyTaxi": "Taxi dancers",
+    "surveyOpen": "Responder →"
   }
 }
