@@ -12,6 +12,7 @@ import { trackEvent } from "@/lib/analytics";
 import { SIGNUP_CREDIT_ORE, SIGNUP_CREDIT_MIN_SPEND_ORE } from "@/lib/credits/signup";
 import { Palette, Store, Search, ShieldCheck, Loader2, Music, User, Building2, Gift } from "lucide-react";
 import { GoogleIcon, FacebookIcon } from "@/components/brand-icons";
+import { InAppBrowserNotice, useInAppBrowser } from "@/components/in-app-browser-notice";
 
 import type { Role } from "@/lib/roles";
 type CreatorSubcategory = "general" | "taxi_dancer";
@@ -79,6 +80,8 @@ function WelcomeCredit() {
 
 export default function SignupPage() {
   const t = useTranslations("auth");
+  // I Messenger/Instagram spärrar Google inloggningen – dölj knappen och visa vägen ut.
+  const inApp = useInAppBrowser();
   const locale = useLocale();
   const searchParams = useSearchParams();
   const [selectedRole, setSelectedRole] = useState<Role | null>(() =>
@@ -687,13 +690,16 @@ export default function SignupPage() {
 
         {(!NEEDS_BANKID.includes(selectedRole!) || bankidVerified) && (
           <>
-            <button
-              onClick={handleGoogleSignup}
-              className="mb-2 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium transition hover:bg-[var(--usha-card)]"
-            >
-              <GoogleIcon />
-              {t("continueWithGoogle")}
-            </button>
+            <InAppBrowserNotice app={inApp} />
+            {!inApp && (
+              <button
+                onClick={handleGoogleSignup}
+                className="mb-2 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium transition hover:bg-[var(--usha-card)]"
+              >
+                <GoogleIcon />
+                {t("continueWithGoogle")}
+              </button>
+            )}
 
             <button
               onClick={handleFacebookSignup}
