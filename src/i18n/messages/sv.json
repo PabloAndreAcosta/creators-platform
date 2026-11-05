@@ -4910,9 +4910,11 @@
     "body": "Rösta fram dina favorit-DJ:s till bokning på kommande månadsfester och festivaler. När en DJ når {goal} röster försöker vi boka hen.",
     "vote": "Rösta",
     "voted": "Du har röstat",
+    "unvote": "Ångra",
     "booking": "Vi försöker boka",
     "booked": "Bokad!",
     "namePlaceholder": "DJ:ns namn",
+    "nameHint": "En DJ per önskemål. Skriv flera namn med komma emellan, så blir de separata.",
     "linkPlaceholder": "Länk (Instagram, SoundCloud) – valfritt",
     "add": "Önska",
     "loginToVote": "Logga in för att önska och rösta →"

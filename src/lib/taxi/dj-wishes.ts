@@ -12,6 +12,26 @@ export function cleanDjName(input: unknown): string | null {
   return s.length >= 2 ? s : null;
 }
 
+/**
+ * Ett önskemål per DJ. "Poema Beats, DJ Den Mega-Voly" blev ett enda
+ * önskemål, och den som röstade såg ut att rösta på båda. Komma och semikolon
+ * delar; "&" och "och" gör det inte, eftersom duos heter så.
+ */
+export const DJ_NAMES_PER_WISH = 3;
+export function splitDjNames(input: unknown): string[] {
+  if (typeof input !== "string") return [];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const part of input.split(/[,;\n]/)) {
+    const name = cleanDjName(part);
+    if (!name || seen.has(name.toLowerCase())) continue;
+    seen.add(name.toLowerCase());
+    out.push(name);
+    if (out.length === DJ_NAMES_PER_WISH) break;
+  }
+  return out;
+}
+
 /** Bara http(s)-länkar, till exempel Instagram eller SoundCloud. */
 export function cleanDjLink(input: unknown): string | null {
   if (typeof input !== "string" || !input.trim()) return null;

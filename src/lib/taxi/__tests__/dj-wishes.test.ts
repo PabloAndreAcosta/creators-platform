@@ -1,10 +1,17 @@
 import { describe, it, expect } from "vitest";
-import { cleanDjName, cleanDjLink, rankWishes, DJ_WISH_GOAL } from "../dj-wishes";
+import { cleanDjName, cleanDjLink, rankWishes, splitDjNames, DJ_WISH_GOAL } from "../dj-wishes";
 
 describe("DJ-önskemål", () => {
   it("namn städas och kräver två tecken", () => {
     expect(cleanDjName("  DJ   Kizz  ")).toBe("DJ Kizz");
     expect(cleanDjName("x")).toBeNull();
+  });
+  it("flera namn blir flera önskemål, men duos med & hålls ihop", () => {
+    expect(splitDjNames("Poema Beats, DJ Den Mega-Voly")).toEqual(["Poema Beats", "DJ Den Mega-Voly"]);
+    expect(splitDjNames("Kizz & Zouk")).toEqual(["Kizz & Zouk"]);
+    expect(splitDjNames("A1; a1, B2,,x")).toEqual(["A1", "B2"]);
+    expect(splitDjNames("a1,b2,c3,d4")).toHaveLength(3);
+    expect(splitDjNames(null)).toEqual([]);
   });
   it("bara http(s)-länkar", () => {
     expect(cleanDjLink("https://instagram.com/djkizz")).toBe("https://instagram.com/djkizz");
