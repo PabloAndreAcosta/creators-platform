@@ -2022,6 +2022,7 @@
     "expiredBody": "Ask the host for a new invitation link.",
     "acceptedTitle": "Already accepted",
     "acceptedBody": "You're already part of this event.",
+    "acceptedCta": "Go to My collaborations",
     "notFoundTitle": "Invitation not found",
     "notFoundBody": "This invitation link is no longer valid.",
     "successTitle": "You're in!",

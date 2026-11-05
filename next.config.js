@@ -22,6 +22,9 @@ const nextConfig = {
       //
       // Redirects körs före routingen, så /join vinner över [slug] (kreatörernas
       // egna adresser) utan att någon av dem behöver veta om den andra.
+      // Medvärdar skriver "samarbeten" — sidan heter my-collaborations.
+      { source: "/app/samarbeten", destination: "/app/my-collaborations", permanent: false },
+      { source: "/samarbeten", destination: "/app/my-collaborations", permanent: false },
       { source: "/join", destination: "/signup?role=customer", permanent: false },
       { source: "/konto", destination: "/signup?role=customer", permanent: false },
       { source: "/konto/insta", destination: "/signup?role=customer&utm_source=instagram&utm_medium=social&utm_campaign=konto&utm_content=reel", permanent: false },
