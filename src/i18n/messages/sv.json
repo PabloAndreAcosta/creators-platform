@@ -4667,6 +4667,7 @@
     "ackRules": "Jag följer reglerna ovan: alkoholfritt under passet, avbokning senast kl. 10 samma dag, och tre varningar inom sex månader ger sex månaders avstängning.",
     "signUp": "Anmäl mig",
     "notice_signedUp": "Du är anmäld. Checka in här när du kommer.",
+    "signingUp": "Anmäler…",
     "notice_cancelled": "Passet är avbokat.",
     "notice_cancelledLate": "Passet är avbokat, men efter kl. 10 – det räknas som en varning.",
     "notice_checkedIn": "Incheckad.",
