@@ -115,7 +115,7 @@ const getListing = cache(async (slug: string) => {
   const { data: listing } = await supabase
     .from("listings")
     .select(
-      "id, user_id, title, description, tldr, category, price, duration_minutes, image_url, image_url_square, series_id, is_practica, event_date, event_time, event_end_time, event_location, event_place_id, event_lat, event_lng, event_city, event_venue, slug, series_slug, is_active, content_language, organizer_name, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, venue_profile_id, venue_confirmed_at"
+      "id, user_id, title, description, tldr, category, price, duration_minutes, image_url, image_url_square, series_id, is_practica, event_date, event_time, event_end_time, event_location, event_place_id, event_lat, event_lng, event_city, event_venue, slug, series_slug, is_active, content_language, organizer_name, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, venue_profile_id, venue_confirmed_at, is_wellness_eligible"
     )
     .eq(isUUID(slug) ? "id" : "slug", slug)
     .eq("is_active", true)
@@ -1072,6 +1072,17 @@ export default async function EventPage(props: Params) {
                 </p>
               )}
             </div>
+            {/* Friskvårdsbidrag via Epassi. Bara på kvällar flaggade som
+                friskvård (is_wellness_eligible: undervisning och motion, aldrig
+                social med bar). Betalningen sker i Epassi, inte här — därför en
+                upplysning och ingen knapp. Epassis villkor kräver att vi
+                kontrollerar legitimation i dörren. */}
+            {(listing as { is_wellness_eligible?: boolean }).is_wellness_eligible && sale.state !== "past" && (
+              <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5">
+                <p className="text-sm font-semibold">{t("epassiTitle")}</p>
+                <p className="mt-1 text-xs leading-relaxed text-[var(--usha-muted)]">{t("epassiBody")}</p>
+              </div>
+            )}
 
             {/* Väntelistan visas bara när biljetter INTE säljs (ännu ej släppt
                 eller slutsålt) — under aktiv försäljning köper man direkt. Ett
