@@ -1,11 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
-import { LayoutGrid, ShieldCheck } from "lucide-react";
+import { LayoutGrid, ShieldCheck, Lock } from "lucide-react";
+import { BETA_MODE } from "@/lib/beta";
 import { isVenueRole } from "@/lib/roles";
 import { venuesUserHasCapability } from "@/lib/venues/members";
 import {
   groupedDestinationsFor,
+  tierUnlocks,
   ADMIN_ROOT,
   type NavRole,
   type NavGroup,
@@ -32,13 +34,15 @@ export default async function ToolsPage() {
   // här. Sidomenyn på desktop läser samma register, så de kan inte längre
   // driva isär och göra en sida osynlig beroende på skärmbredd.
   let role: NavRole = "customer";
+  let tier: string | null = null;
   let showAdmin = false;
   const extra: string[] = [];
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      const { data } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+      const { data } = await supabase.from("profiles").select("role, tier").eq("id", user.id).single();
+      tier = (data?.tier as string) ?? null;
       const dbRole = (data?.role as string) ?? "customer";
       role = isVenueRole(dbRole) ? "venue" : dbRole === "creator" ? "creator" : "customer";
       showAdmin = hasAnyAdminAccess(await adminAccessFor(user.id));
@@ -70,23 +74,35 @@ export default async function ToolsPage() {
               {t(GROUP_TITLE_KEY[group])}
             </h2>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {items.map((tool) => (
-                <Link
-                  key={tool.path}
-                  href={tool.path}
-                  className="flex flex-col gap-2 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 transition hover:border-[var(--usha-gold)]/50"
-                >
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--usha-gold)]/10 text-[var(--usha-gold)]">
-                    <tool.icon size={20} />
-                  </span>
-                  <span className="font-semibold leading-tight text-[var(--usha-white)]">
-                    {t(tool.labelKey!)}
-                  </span>
-                  {tool.descKey && (
-                    <span className="text-xs text-[var(--usha-muted)]">{t(tool.descKey)}</span>
-                  )}
-                </Link>
-              ))}
+              {items.map((tool) => {
+                // Låsta funktioner visas, inte göms: gråmarkerade med nivåns
+                // namn. Länken går ändå till sidan, som förklarar och leder
+                // vidare till uppgraderingen.
+                const locked = !tierUnlocks(tier, tool.minTier, BETA_MODE);
+                return (
+                  <Link
+                    key={tool.path}
+                    href={tool.path}
+                    aria-label={locked ? `${t(tool.labelKey!)} – ${t(tool.minTier === "premium" ? "lockedPremium" : "lockedGuld")}` : undefined}
+                    className={`relative flex flex-col gap-2 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 transition hover:border-[var(--usha-gold)]/50 ${locked ? "opacity-60 grayscale" : ""}`}
+                  >
+                    {locked && (
+                      <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full border border-[var(--usha-border)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--usha-muted)]">
+                        <Lock size={10} /> {t(tool.minTier === "premium" ? "lockedPremium" : "lockedGuld")}
+                      </span>
+                    )}
+                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--usha-gold)]/10 text-[var(--usha-gold)]">
+                      <tool.icon size={20} />
+                    </span>
+                    <span className="font-semibold leading-tight text-[var(--usha-white)]">
+                      {t(tool.labelKey!)}
+                    </span>
+                    {tool.descKey && (
+                      <span className="text-xs text-[var(--usha-muted)]">{t(tool.descKey)}</span>
+                    )}
+                  </Link>
+                );
+              })}
             </div>
           </section>
         ))}
