@@ -360,12 +360,16 @@ export function Kiosk({ id, ticketTypeId, s }: { id: string; ticketTypeId: strin
           className="flex min-h-0 flex-col items-center rounded-2xl border border-white/10 bg-white/5 p-5 text-center landscape:p-3"
           style={{ order: cameraSide === "right" ? 2 : 1 }}
         >
-          <h2 className="text-3xl font-bold landscape:text-xl">{s.showTitle}</h2>
+          <h2 className="text-3xl font-bold text-[var(--usha-gold)] landscape:text-xl">{s.showTitle}</h2>
           <p className="mt-1 text-lg text-white/60 landscape:mt-0 landscape:text-sm">{s.showHint}</p>
           {/* Kvadraten får aldrig bli högre än skärmen: på en telefon i liggande
               läge var den 560 px hög på en 412 px skärm och syntes inte hel. */}
           <div className="relative mt-4 w-full max-w-[min(560px,70dvh)] overflow-hidden rounded-xl bg-black landscape:mt-2 landscape:max-w-[min(560px,calc(100dvh-130px))]" style={{ aspectRatio: "1 / 1" }}>
             <div id="kiosk-reader" className="h-full w-full [&_video]:h-full [&_video]:w-full [&_video]:object-cover" />
+            {/* Pulserande guldram: visar att rutan är aktiv och var biljetten ska hållas. */}
+            {!cameraStarting && !cameraError && (
+              <div className="pointer-events-none absolute inset-0 animate-pulse rounded-xl border-4 border-[var(--usha-gold)]/70" />
+            )}
             {cameraStarting && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/60">
                 <Loader2 size={40} className="animate-spin" />
