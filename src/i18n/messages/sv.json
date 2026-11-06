@@ -999,7 +999,13 @@
     "volunteerApplicationTitle": "Ny volontäransökan",
     "volunteerApplicationMsg": "{name} vill ta volontärpass på dina kvällar. Godkänn eller avslå under Volontärpass.",
     "volunteerApprovedTitle": "Du är godkänd som volontär",
-    "volunteerApprovedMsg": "Välj dina pass för {title}. Godkännandet gäller hela serien."
+    "volunteerApprovedMsg": "Välj dina pass för {title}. Godkännandet gäller hela serien.",
+    "epassiRequestTitle": "Epassi-köp att bekräfta",
+    "epassiRequestMsg": "{name} vill betala «{service}» med friskvårdsbidrag. Bekräfta när köpet syns i Epassi.",
+    "epassiConfirmedTitle": "Klippkortet är aktiverat",
+    "epassiConfirmedMsg": "Vi har sett din Epassi-betalning. «{service}» gäller nu i dörren.",
+    "epassiRejectedTitle": "Epassi-köpet kunde inte bekräftas",
+    "epassiRejectedMsg": "Vi hittade ingen Epassi-betalning för «{service}». Hör av dig om du har betalat."
   },
   "apiErrors": {
     "unauthorized": "Ej behörig",
@@ -2406,7 +2412,7 @@
   },
   "eventPage": {
     "epassiTitle": "Betala med friskvårdsbidrag",
-    "epassiBody": "The Lab finns i Epassi för klippkort. Öppna Epassi-appen, sök på The Lab och köp Klippkort 8 eller 15 torsdagar där. Visa betalningsbekräftelsen i dörren och ta med legitimation.",
+    "epassiBody": "The Lab finns i Epassi för klippkort. Välj ett klippkort bland biljetterna och tryck Betala med friskvårdsbidrag, så får du instruktionerna. Ta med legitimation första kvällen.",
     "singleTicket": "Biljett till kvällen",
     "passSessions": "{n} tillfällen",
     "passValidMonths": "giltigt i {n} månader",
@@ -2510,7 +2516,11 @@
     "volunteerCtaBody": "Taxidansare, instruktörer m.fl. – fri entré och en matkupong. Mobilt BankID krävs.",
     "volunteerCtaAction": "Se passen →",
     "cancellationNote": "Avbokning med full återbetalning fram till {hours, plural, =168 {en vecka} one {# timme} other {# timmar}} före start.",
-    "cancellationNoteAnytime": "Avbokning med full återbetalning fram till start."
+    "cancellationNoteAnytime": "Avbokning med full återbetalning fram till start.",
+    "epassiButton": "Betala med friskvårdsbidrag (Epassi)",
+    "epassiLoginButton": "Logga in för att betala med friskvårdsbidrag",
+    "epassiStartedTitle": "Nästan klart: betala i Epassi",
+    "epassiStartedBody": "Öppna Epassi-appen, sök på The Lab och köp {title} för {price} kr. Använd samma namn som på ditt Usha-konto. Vi aktiverar klippkortet när betalningen syns hos oss, och då hittar du det under Biljetter. Ta med legitimation första kvällen."
   },
   "eventErrors": {
     "notReleased": "Biljetterna har inte släppts än.",
@@ -5030,5 +5040,17 @@
     "surveyPractical": "Praktiskt",
     "surveyTaxi": "Taxidansare",
     "surveyOpen": "Svara →"
+  },
+  "epassiAdmin": {
+    "title": "Epassi-köp",
+    "intro": "Kunder som valt att betala ett klippkort med friskvårdsbidrag. Jämför med Epassis leverantörsportal under Betalningar, Dagens köp eller Betalningshistorik: namn, klippkort och belopp ska stämma. Bekräfta först när köpet syns där. Då aktiveras klippkortet och kunden får en notis.",
+    "pendingHeading": "Att bekräfta ({n})",
+    "pendingEmpty": "Inga Epassi-köp väntar på bekräftelse.",
+    "requestedAt": "Valde Epassi {when}",
+    "confirm": "Betald i Epassi",
+    "reject": "Hittar ingen betalning",
+    "recentHeading": "Senast hanterade",
+    "statusConfirmed": "Bekräftad",
+    "statusRejected": "Avvisad"
   }
 }

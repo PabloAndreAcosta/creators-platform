@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Ticket, Loader2 } from "lucide-react";
+import { Ticket, Loader2, HeartPulse } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
 import { applicableCredit, SIGNUP_CREDIT_ORE, SIGNUP_CREDIT_MIN_SPEND_ORE } from "@/lib/credits/signup";
 import { trackEvent } from "@/lib/analytics";
@@ -28,6 +28,8 @@ interface PassOption {
   referencePrice?: number | null;
   /** Vad kortet sparar mot kvällsbiljetten. null = ingen rabatt att visa. */
   savings?: { perSession: number; percent: number } | null;
+  /** Friskvårdsgodkänt: kortet finns i Epassi och kan betalas med friskvårdsbidrag. */
+  wellness?: boolean;
 }
 
 interface Props {
@@ -95,6 +97,10 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
     () => passes.find((p) => p.id === preselectPassId)?.id ?? null
   );
   const selectedPass = passes.find((p) => p.id === selectedPassId) ?? null;
+  // Epassi: kunden betalar i Epassi-appen, inte här. Vi skapar ett vilande
+  // kort som arrangören bekräftar när köpet syns i Epassis portal.
+  const [epassiLoading, setEpassiLoading] = useState(false);
+  const [epassiDone, setEpassiDone] = useState<{ title: string; price: number } | null>(null);
   // Klippkorten låg utfällda mellan biljettyperna och köpknappen. Fyra höga
   // kort betyder att den som bara vill ha en enkelbiljett skrollar förbi dem
   // varje gång — på mobil hamnade köpknappen under vecket. Hopfällda som
@@ -384,6 +390,60 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
       </p>
     ) : null;
 
+  async function startEpassi() {
+    if (!selectedPass) return;
+    setEpassiLoading(true);
+    try {
+      const res = await fetch("/api/passes/epassi", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ listingId: selectedPass.id }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        toast.error(t("errorTitle"), t("errorRetry"));
+        return;
+      }
+      setEpassiDone({ title: data.title ?? selectedPass.title, price: data.price ?? selectedPass.price });
+    } catch {
+      toast.error(t("errorTitle"), t("errorRetry"));
+    } finally {
+      setEpassiLoading(false);
+    }
+  }
+
+  // Friskvårdsbidrag via Epassi — bara för klippkort som finns i Epassi.
+  // Utloggade skickas till inloggningen: kortet måste höra till ett konto för
+  // att kunna bekräftas och skannas.
+  const epassiBlock = selectedPass?.wellness ? (
+    epassiDone ? (
+      <div className="mt-3 rounded-2xl border border-[var(--usha-gold)]/40 bg-[var(--usha-card)] p-4 text-sm">
+        <p className="font-semibold">{t("epassiStartedTitle")}</p>
+        <p className="mt-1 leading-relaxed text-[var(--usha-muted)]">
+          {t("epassiStartedBody", { title: epassiDone.title, price: epassiDone.price })}
+        </p>
+      </div>
+    ) : isLoggedIn ? (
+      <button
+        type="button"
+        onClick={startEpassi}
+        disabled={epassiLoading}
+        className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-[var(--usha-border)] px-6 py-3 text-sm font-semibold transition hover:border-[var(--usha-gold)] disabled:opacity-60"
+      >
+        {epassiLoading ? <Loader2 size={18} className="animate-spin" /> : <HeartPulse size={18} />}
+        {t("epassiButton")}
+      </button>
+    ) : (
+      <a
+        href={`/login?next=${encodeURIComponent(`${pathname}?kort=${selectedPass.id}`)}`}
+        className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-[var(--usha-border)] px-6 py-3 text-sm font-semibold transition hover:border-[var(--usha-gold)]"
+      >
+        <HeartPulse size={18} />
+        {t("epassiLoginButton")}
+      </a>
+    )
+  ) : null;
+
   // Logged-in: existing ticket checkout (uses the account).
   if (isLoggedIn) {
     return (
@@ -402,6 +462,7 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
           {loading ? <Loader2 size={20} className="animate-spin" /> : <Ticket size={20} />}
           {loading ? t("booking") : label}
         </button>
+        {epassiBlock}
       </>
     );
   }
@@ -457,6 +518,7 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
           {loading ? <Loader2 size={20} className="animate-spin" /> : <Ticket size={20} />}
           {loading ? t("booking") : label}
         </button>
+        {epassiBlock}
       </div>
     );
   }

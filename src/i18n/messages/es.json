@@ -999,7 +999,13 @@
     "volunteerApplicationTitle": "Nueva solicitud de voluntario",
     "volunteerApplicationMsg": "{name} quiere hacer turnos de voluntario en tus noches. Aprueba o rechaza en Turnos de voluntarios.",
     "volunteerApprovedTitle": "Te han aprobado como voluntario",
-    "volunteerApprovedMsg": "Elige tus turnos para {title}. La aprobación vale para toda la serie."
+    "volunteerApprovedMsg": "Elige tus turnos para {title}. La aprobación vale para toda la serie.",
+    "epassiRequestTitle": "Compra de Epassi por confirmar",
+    "epassiRequestMsg": "{name} quiere pagar «{service}» con su ayuda de bienestar. Confirma cuando la compra aparezca en Epassi.",
+    "epassiConfirmedTitle": "Tu bono está activado",
+    "epassiConfirmedMsg": "Hemos visto tu pago en Epassi. «{service}» ya es válido en la puerta.",
+    "epassiRejectedTitle": "No se pudo confirmar la compra de Epassi",
+    "epassiRejectedMsg": "No encontramos ningún pago de Epassi para «{service}». Escríbenos si ya has pagado."
   },
   "apiErrors": {
     "unauthorized": "No autorizado",
@@ -2406,7 +2412,7 @@
   },
   "eventPage": {
     "epassiTitle": "Paga con tu ayuda de bienestar",
-    "epassiBody": "The Lab está en Epassi para bonos. Abre la app de Epassi, busca The Lab y compra allí el bono de 8 o 15 jueves. Muestra la confirmación de pago en la puerta y trae tu documento de identidad.",
+    "epassiBody": "The Lab está en Epassi para bonos. Elige un bono entre las entradas y pulsa Pagar con ayuda de bienestar para ver las instrucciones. Trae tu documento de identidad la primera noche.",
     "singleTicket": "Entrada para la noche",
     "passSessions": "{n} sesiones",
     "passValidMonths": "válido {n} meses",
@@ -2510,7 +2516,11 @@
     "volunteerCtaBody": "Taxi dancers, instructores y más: entrada gratis y un vale de comida. Se requiere BankID móvil.",
     "volunteerCtaAction": "Ver turnos →",
     "cancellationNote": "Cancelación con reembolso completo hasta {hours, plural, =168 {una semana} one {# hora} other {# horas}} antes del inicio.",
-    "cancellationNoteAnytime": "Cancelación con reembolso completo hasta el inicio."
+    "cancellationNoteAnytime": "Cancelación con reembolso completo hasta el inicio.",
+    "epassiButton": "Pagar con ayuda de bienestar (Epassi)",
+    "epassiLoginButton": "Inicia sesión para pagar con tu ayuda de bienestar",
+    "epassiStartedTitle": "Casi listo: paga en Epassi",
+    "epassiStartedBody": "Abre la app de Epassi, busca The Lab y compra {title} por {price} kr. Usa el mismo nombre que en tu cuenta de Usha. Activamos el bono cuando veamos el pago y lo encontrarás en Entradas. Trae tu documento de identidad la primera noche."
   },
   "eventErrors": {
     "notReleased": "Las entradas aún no están disponibles.",
@@ -5030,5 +5040,17 @@
     "surveyPractical": "Aspectos prácticos",
     "surveyTaxi": "Taxi dancers",
     "surveyOpen": "Responder →"
+  },
+  "epassiAdmin": {
+    "title": "Compras de Epassi",
+    "intro": "Clientes que eligieron pagar un bono con su ayuda de bienestar. Compara con el portal de proveedores de Epassi en Pagos, Compras de hoy o Historial de pagos: el nombre, el bono y el importe deben coincidir. Confirma solo cuando la compra aparezca allí. Así se activa el bono y el cliente recibe un aviso.",
+    "pendingHeading": "Por confirmar ({n})",
+    "pendingEmpty": "No hay compras de Epassi pendientes de confirmar.",
+    "requestedAt": "Eligió Epassi {when}",
+    "confirm": "Pagado en Epassi",
+    "reject": "No hay pago",
+    "recentHeading": "Gestionadas recientemente",
+    "statusConfirmed": "Confirmada",
+    "statusRejected": "Rechazada"
   }
 }
