@@ -6,6 +6,7 @@ import { asLocale } from "@/lib/seo/metadata";
 import { REF_COOKIE, REF_COOKIE_MAX_AGE, normalizeRefCode } from "@/lib/affiliate/attribution";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { UTM_COOKIE, UTM_COOKIE_MAX_AGE, readUtmFromParams, hasUtm, serializeUtm } from "@/lib/analytics/utm";
+import { decidePublicCache, anonymousCacheUrl, stripAnonParam, CDN_CACHE_CONTROL } from "@/lib/cache/public-pages";
 
 export async function middleware(request: NextRequest) {
   // 1. Ensure locale cookie exists. A cookieless visitor gets their device
@@ -28,6 +29,32 @@ export async function middleware(request: NextRequest) {
   // Sidan som efterfrågades, så att /app-layouten kan skicka en utloggad
   // besökare till /login?next=… och tillbaka hit efter inloggningen.
   requestHeaders.set("x-usha-path", request.nextUrl.pathname + request.nextUrl.search);
+
+  // Edge-cache för utloggade besökare (regeln i src/lib/cache/public-pages.ts).
+  // Ett anonymt anrop till en publik sida skrivs om till samma sida med
+  // språket i nyckeln (?_anon=sv) och får Vercels cache-direktiv. Ingen cookie
+  // sätts på vägen — ett svar med Set-Cookie cachas aldrig — och updateSession
+  // hoppas över, eftersom det inte finns någon session att förnya. Inloggade
+  // begär URL:en utan _anon och kan därför aldrig få den cachade posten.
+  const incomingAnon = stripAnonParam(request.nextUrl);
+  const decision = decidePublicCache({
+    method: request.method,
+    pathname: request.nextUrl.pathname,
+    searchParams: request.nextUrl.searchParams,
+    cookieNames: request.cookies.getAll().map((c) => c.name),
+    locale,
+  });
+  if (decision.cacheable) {
+    requestHeaders.set("x-usha-lang", decision.locale);
+    const target = anonymousCacheUrl(incomingAnon ?? request.nextUrl, decision.locale);
+    const cached = NextResponse.rewrite(target, { request: { headers: requestHeaders } });
+    cached.headers.set("Vercel-CDN-Cache-Control", CDN_CACHE_CONTROL);
+    cached.headers.set("x-usha-cache", "anon");
+    return cached;
+  }
+  // Någon har fått en adress med _anon i (kopierad länk, gammal flik): skicka
+  // tillbaka till den riktiga adressen, så att den personliga varianten renderas.
+  if (incomingAnon) return NextResponse.redirect(incomingAnon, 307);
 
   let response: NextResponse;
   let clearHostOnly: string[] = [];
