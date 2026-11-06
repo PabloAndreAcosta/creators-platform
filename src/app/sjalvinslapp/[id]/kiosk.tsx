@@ -83,7 +83,7 @@ export function Kiosk({ id, ticketTypeId, s }: { id: string; ticketTypeId: strin
     fetch(`/api/events/${id}/entry`)
       .then(async (res) => {
         if (res.status === 401) {
-          router.replace(`/login?next=${encodeURIComponent(`/dorr/${id}`)}`);
+          router.replace(`/login?next=${encodeURIComponent(`/sjalvinslapp/${id}`)}`);
           return null;
         }
         if (!res.ok) throw new Error(res.status === 403 ? "noPermission" : "loadError");

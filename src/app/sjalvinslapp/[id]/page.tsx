@@ -10,7 +10,10 @@ export const metadata = { title: "Självinsläpp · Usha Platform", ...notIndexa
 /**
  * Självinsläppet för ett evenemang: plattan i dörren.
  *
- * Ligger UTANFÖR /app med flit — appens flikrad och sidhuvud ska inte synas
+ * Ligger UTANFÖR /app med flit, och under /sjalvinslapp — inte /dorr, där
+ * dörrlänken /dorr/[serie]/[plats] redan bor; två olika dynamiska namn på
+ * samma nivå gör att Next vägrar starta (hela sajten gav 500 den 6 nov).
+ * Ligger utanför /app — appens flikrad och sidhuvud ska inte synas
  * på en platta som står vänd mot gästerna. Översättningarna hämtas här på
  * servern och skickas som strängar; klientdelen behöver då ingen egen
  * provider.
@@ -25,7 +28,7 @@ export default async function KioskPage({
   const { id } = await params;
   const { tt } = await searchParams;
   const user = await getCurrentUser();
-  if (!user) redirect(`/login?next=${encodeURIComponent(`/dorr/${id}`)}`);
+  if (!user) redirect(`/login?next=${encodeURIComponent(`/sjalvinslapp/${id}`)}`);
 
   const s = await getTranslations("scanPage");
   const d = await getTranslations("dorrPage");
