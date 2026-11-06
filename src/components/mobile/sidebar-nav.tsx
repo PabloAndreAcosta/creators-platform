@@ -69,18 +69,21 @@ export function SidebarNav() {
     href === "/app" ? pathname === "/app" : pathname.startsWith(href);
 
   return (
-    <aside className="hidden md:flex md:w-56 lg:w-64 flex-shrink-0 sticky top-0 h-screen flex-col justify-between border-r border-[var(--usha-border)] bg-[var(--usha-black)]">
-      <div>
-        {/* Logo */}
-        <a
-          href="/app"
-          aria-label="Usha Platform – hem"
-          className="flex items-center gap-2.5 px-6 py-6 transition-opacity duration-150 active:opacity-50"
-        >
-          <UschjaLogo size={36} />
-          <span className="text-xl font-bold tracking-tight">Usha Platform</span>
-        </a>
+    <aside className="hidden md:flex md:w-56 lg:w-64 flex-shrink-0 sticky top-0 h-screen flex-col border-r border-[var(--usha-border)] bg-[var(--usha-black)]">
+      {/* Logo */}
+      <a
+        href="/app"
+        aria-label="Usha Platform – hem"
+        className="flex shrink-0 items-center gap-2.5 px-6 py-6 transition-opacity duration-150 active:opacity-50"
+      >
+        <UschjaLogo size={36} />
+        <span className="text-xl font-bold tracking-tight">Usha Platform</span>
+      </a>
 
+      {/* Menyn är längre än en vanlig laptopskärm. Utan egen skroll klipptes
+          allt under Utforska bort, Mitt konto inräknat, eftersom sidomenyn
+          har fast höjd (h-screen) och sitter kvar när sidan skrollar. */}
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-4">
         {/* Navigation */}
         <nav className="space-y-0.5 px-4">
           {home && (
@@ -142,7 +145,7 @@ export function SidebarNav() {
       </div>
 
       {/* Language switcher at bottom */}
-      <div className="px-4 pb-6">
+      <div className="shrink-0 border-t border-[var(--usha-border)] px-4 pb-6 pt-3">
         <LanguageSwitcher />
       </div>
     </aside>
