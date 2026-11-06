@@ -2406,7 +2406,7 @@
   },
   "eventPage": {
     "epassiTitle": "Pay with your wellness allowance",
-    "epassiBody": "The Lab is on Epassi. Open the Epassi app, search for The Lab and pay for the practica or a punch card there. Show the receipt at the door and bring ID.",
+    "epassiBody": "The Lab is on Epassi for punch cards. Open the Epassi app, search for The Lab and buy the 8 or 15 Thursdays punch card there. Show the payment confirmation at the door and bring ID.",
     "singleTicket": "Ticket for the night",
     "passSessions": "{n} sessions",
     "passValidMonths": "valid for {n} months",
