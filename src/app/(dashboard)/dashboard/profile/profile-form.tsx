@@ -621,19 +621,19 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
                 : t("whitelabelHintLocked")}
             </p>
           </div>
-          {isPremium && (
-            <label className="relative inline-flex cursor-pointer items-center">
+          {/* Reglaget och fälten syns för alla — gråa och avstängda utan Premium. */}
+          <label className={`relative inline-flex items-center ${isPremium ? "cursor-pointer" : "cursor-not-allowed opacity-50"}`} title={isPremium ? undefined : t("whitelabelHintLocked")}>
               <input
                 type="checkbox"
                 name="whitelabel_enabled"
+                disabled={!isPremium}
                 defaultChecked={profile.whitelabel_enabled}
                 className="h-4 w-4 rounded border-[var(--usha-border)] accent-[var(--usha-premium)]"
               />
-            </label>
-          )}
+          </label>
         </div>
 
-        {isPremium && (
+        <fieldset disabled={!isPremium} className={isPremium ? "" : "cursor-not-allowed opacity-50"}>
           <div className="space-y-3">
             <div>
               <label htmlFor="whitelabel_brand_name" className="mb-1 block text-xs text-[var(--usha-muted)]">
@@ -712,7 +712,7 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
               </div>
             </div>
           </div>
-        )}
+        </fieldset>
 
         {isPremium && profile.slug && (
           <a
