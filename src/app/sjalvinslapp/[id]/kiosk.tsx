@@ -391,7 +391,7 @@ export function Kiosk({ id, ticketTypeId, s }: { id: string; ticketTypeId: strin
           className="flex min-h-0 flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-5 text-center landscape:p-3"
           style={{ order: cameraSide === "right" ? 1 : 2 }}
         >
-          <h2 className="text-2xl font-bold landscape:text-xl">{s.buyTitle}</h2>
+          <h2 className="text-2xl font-bold text-[var(--usha-gold)] landscape:text-xl">{s.buyTitle}</h2>
           <p className="mt-1 text-base text-white/60 landscape:mt-0 landscape:text-sm">{s.buyHint}</p>
           {ticketType ? (
             <>
