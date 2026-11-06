@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { ArrowLeft, Loader2, CheckCircle2, RefreshCw, Link2, Check } from "lucide-react";
+import { ArrowLeft, Loader2, CheckCircle2, RefreshCw, Link2, Check, ScanLine } from "lucide-react";
 
 /**
  * Entréförsäljning utan kortläsare.
@@ -215,6 +215,16 @@ export default function EntrancePage() {
             {selected.name} · {t("priceSek", { price: selected.price })}
           </p>
           <p className="mt-1 text-center text-sm text-[var(--usha-muted)]">{t("guestScans")}</p>
+
+          {/* Plattan i dörren: samma köp-QR plus frontkameran, så gästerna
+              checkar in sig själva. */}
+          <Link
+            href={`/app/events/${id}/entre/kiosk?tt=${encodeURIComponent(selected.id)}`}
+            className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-gold)]/50 py-3 text-sm font-medium text-[var(--usha-gold)] transition hover:bg-[var(--usha-gold)]/10"
+          >
+            <ScanLine size={15} />
+            {t("kioskButton")}
+          </Link>
 
           {/* Bara vid efterköp. På en pågående kväll står gästen framför dig
               och ska scanna — en länk att skicka vore en omväg. */}

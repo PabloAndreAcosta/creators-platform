@@ -2754,6 +2754,18 @@
     "shareFormLocked": "Kvällen har redan sålt biljetter. Villkoren går inte att ändra i efterhand — det skulle ändra vad som är skyldigt på köp som redan skett."
   },
   "scanPage": {
+    "kioskExit": "Avsluta kioskläget",
+    "kioskBuyTitle": "Köp biljett",
+    "kioskBuyHint": "Skanna med din telefon och betala.",
+    "kioskPrice": "{price} kr",
+    "kioskNoTicketTypes": "Inga biljettyper att sälja i kväll.",
+    "kioskShowTitle": "Har du biljett?",
+    "kioskShowHint": "Håll upp QR-koden mot kameran, 15–25 cm bort.",
+    "kioskStartCamera": "Tryck för att starta kameran",
+    "kioskWelcome": "Välkommen!",
+    "kioskWrongDate": "Fel kväll",
+    "kioskAskCrew": "Prata med någon i teamet.",
+    "kioskNoPermission": "Det här kontot får inte skanna biljetter för kvällen.",
     "passRemaining": "{n} klipp kvar på kortet",
     "title": "Skanna biljetter",
     "subtitle": "Skanna QR-koden eller ange biljettkoden manuellt.",
@@ -4570,6 +4582,7 @@
     }
   },
   "entrance": {
+    "kioskButton": "Kioskläge: gästerna skannar själva",
     "title": "Entré",
     "back": "Tillbaka",
     "pickTicket": "Välj biljett så visas en QR-kod gästen scannar.",
