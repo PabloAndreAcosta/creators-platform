@@ -23,34 +23,22 @@ export async function getFeedPosts(
 
   const postIds = posts.map((p) => p.id);
 
-  // Get like counts
-  const { data: likeCounts } = await supabase
-    .from("post_likes")
-    .select("post_id")
-    .in("post_id", postIds);
-
-  // Get current user's likes (only if logged in)
-  let userLikedSet = new Set<string>();
-  if (userId) {
-    const { data: userLikes } = await supabase
-      .from("post_likes")
-      .select("post_id")
-      .eq("user_id", userId)
-      .in("post_id", postIds);
-    userLikedSet = new Set((userLikes || []).map((l) => l.post_id));
-  }
+  // Gillningar, egna gillningar och författarnas nivåer beror alla bara på
+  // inläggen — en omgång i stället för tre efter varandra.
+  const authorIds = Array.from(new Set(posts.map((p) => p.user_id)));
+  const [{ data: likeCounts }, { data: userLikes }, { data: authorPoints }] = await Promise.all([
+    supabase.from("post_likes").select("post_id").in("post_id", postIds),
+    userId
+      ? supabase.from("post_likes").select("post_id").eq("user_id", userId).in("post_id", postIds)
+      : Promise.resolve({ data: [] as { post_id: string }[] }),
+    supabase.from("user_points").select("user_id, current_level").in("user_id", authorIds),
+  ]);
+  const userLikedSet = new Set((userLikes || []).map((l) => l.post_id));
 
   const likeCountMap: Record<string, number> = {};
   (likeCounts || []).forEach((l) => {
     likeCountMap[l.post_id] = (likeCountMap[l.post_id] || 0) + 1;
   });
-
-  // Get user levels for post authors
-  const authorIds = Array.from(new Set(posts.map((p) => p.user_id)));
-  const { data: authorPoints } = await supabase
-    .from("user_points")
-    .select("user_id, current_level")
-    .in("user_id", authorIds);
 
   const levelMap: Record<string, number> = {};
   (authorPoints || []).forEach((up) => {
