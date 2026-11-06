@@ -35,6 +35,18 @@ export async function generateMetadata(): Promise<Metadata> {
  */
 const SURVEYS: { key: string; url: string }[] = [
   {
+    key: "surveyMusic",
+    url: "https://docs.google.com/forms/d/e/1FAIpQLSfB4p7fN4s5mdZHZ2ujcgYS1Dko4Ue6JdLBcVV1fKsttPFAHw/viewform",
+  },
+  {
+    key: "surveyInstructors",
+    url: "https://docs.google.com/forms/d/e/1FAIpQLSf8_s-BF7uSseWTj2zwCaGo6SxOLYTLMYYZsKpm80EjK2IsZg/viewform",
+  },
+  {
+    key: "surveyPractical",
+    url: "https://docs.google.com/forms/d/e/1FAIpQLSfW4ElDLdfeYyUaEmb8ojsmH0qVDeoUJ1Sa6oQCrpQndI7gdg/viewform",
+  },
+  {
     key: "surveyTaxi",
     url: "https://docs.google.com/forms/d/e/1FAIpQLScqa6-ouASzkxXiMcu4sha7Kau6WE9BxNNoOtQiUT9aXQOzAg/viewform",
   },
