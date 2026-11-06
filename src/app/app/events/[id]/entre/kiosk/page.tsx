@@ -64,6 +64,7 @@ export default function EntranceKioskPage() {
   const [title, setTitle] = useState("");
   const [ticketType, setTicketType] = useState<TicketType | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [locked, setLocked] = useState(false);
   const [cameraOn, setCameraOn] = useState(false);
   const [cameraStarting, setCameraStarting] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
@@ -87,6 +88,8 @@ export default function EntranceKioskPage() {
       .then((data) => {
         if (!active) return;
         setTitle(data.listing.title);
+        // Premium-grinden avgörs på servern utifrån värdens nivå.
+        if (data.kiosk && !data.kiosk.allowed) setLocked(true);
         const types: TicketType[] = data.ticketTypes ?? [];
         const wanted = params.get("tt");
         setTicketType(types.find((x) => x.id === wanted) ?? types[0] ?? null);
@@ -268,6 +271,14 @@ export default function EntranceKioskPage() {
 
       {loadError ? (
         <div className="flex flex-1 items-center justify-center p-8 text-center text-xl">{loadError}</div>
+      ) : locked ? (
+        <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8 text-center">
+          <p className="text-3xl font-bold">{t("kioskLockedTitle")}</p>
+          <p className="max-w-md text-lg text-white/70">{t("kioskLockedBody")}</p>
+          <Link href="/dashboard/billing" className="mt-2 rounded-xl bg-white px-6 py-3 text-base font-semibold text-black">
+            {t("kioskUpgrade")}
+          </Link>
+        </div>
       ) : (
         <div className="grid flex-1 grid-cols-1 gap-4 p-4 md:grid-cols-2">
           {/* Köp */}

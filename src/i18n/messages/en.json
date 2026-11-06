@@ -860,7 +860,8 @@
       "kreatorPremium2": "3% commission instead of 8%",
       "kreatorPremium3": "Everything in Gold",
       "kreatorPremium4": "Facebook sync: publish the night automatically",
-      "kreatorPremium5": "Statistics export to CSV"
+      "kreatorPremium5": "Statistics export to CSV",
+      "kreatorPremium6": "Door kiosk: guests check themselves in"
     },
     "faq": {
       "title": "Questions &",
@@ -2754,6 +2755,9 @@
     "shareFormLocked": "This evening has already sold tickets. The terms cannot be changed afterwards — it would change what is owed on purchases already made."
   },
   "scanPage": {
+    "kioskLockedTitle": "Kiosk mode is a Premium feature",
+    "kioskLockedBody": "Upgrade the organiser's account to Premium and the tablet handles check-in by itself. Until then the crew scans as usual.",
+    "kioskUpgrade": "Upgrade to Premium",
     "kioskExit": "Exit kiosk mode",
     "kioskBuyTitle": "Buy a ticket",
     "kioskBuyHint": "Scan with your phone and pay.",
@@ -4582,6 +4586,9 @@
     }
   },
   "entrance": {
+    "kioskPremiumBadge": "Premium feature",
+    "kioskBetaBadge": "Premium feature – free during launch",
+    "kioskLocked": "Kiosk mode is a Premium feature – upgrade",
     "kioskButton": "Kiosk mode: guests scan themselves",
     "title": "Door",
     "back": "Back",

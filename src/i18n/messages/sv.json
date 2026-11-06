@@ -860,7 +860,8 @@
       "kreatorPremium2": "3 % provision i stället för 8 %",
       "kreatorPremium3": "Allt i Guld",
       "kreatorPremium4": "Facebook-synk: publicera kvällen automatiskt",
-      "kreatorPremium5": "Statistikexport till CSV"
+      "kreatorPremium5": "Statistikexport till CSV",
+      "kreatorPremium6": "Kioskläge i dörren: gästerna skannar in sig själva"
     },
     "faq": {
       "title": "Frågor &",
@@ -2754,6 +2755,9 @@
     "shareFormLocked": "Kvällen har redan sålt biljetter. Villkoren går inte att ändra i efterhand — det skulle ändra vad som är skyldigt på köp som redan skett."
   },
   "scanPage": {
+    "kioskLockedTitle": "Kioskläget är en Premium-funktion",
+    "kioskLockedBody": "Uppgradera arrangörens konto till Premium så sköter plattan incheckningen själv. Tills dess skannar teamet som vanligt.",
+    "kioskUpgrade": "Uppgradera till Premium",
     "kioskExit": "Avsluta kioskläget",
     "kioskBuyTitle": "Köp biljett",
     "kioskBuyHint": "Skanna med din telefon och betala.",
@@ -4582,6 +4586,9 @@
     }
   },
   "entrance": {
+    "kioskPremiumBadge": "Premium-funktion",
+    "kioskBetaBadge": "Premium-funktion – fri under lansering",
+    "kioskLocked": "Kioskläge är en Premium-funktion – uppgradera",
     "kioskButton": "Kioskläge: gästerna skannar själva",
     "title": "Entré",
     "back": "Tillbaka",

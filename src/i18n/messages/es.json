@@ -860,7 +860,8 @@
       "kreatorPremium2": "3 % de comisión en lugar del 8 %",
       "kreatorPremium3": "Todo lo de Gold",
       "kreatorPremium4": "Sincronización con Facebook: publica la noche automáticamente",
-      "kreatorPremium5": "Exportación de estadísticas a CSV"
+      "kreatorPremium5": "Exportación de estadísticas a CSV",
+      "kreatorPremium6": "Quiosco en la puerta: los invitados se registran solos"
     },
     "faq": {
       "title": "Preguntas y",
@@ -2754,6 +2755,9 @@
     "shareFormLocked": "Esta noche ya ha vendido entradas. Las condiciones no se pueden cambiar después — cambiaría lo que se debe por compras ya realizadas."
   },
   "scanPage": {
+    "kioskLockedTitle": "El modo quiosco es una función Premium",
+    "kioskLockedBody": "Mejora la cuenta del organizador a Premium y la tableta gestiona el registro sola. Hasta entonces, el equipo escanea como siempre.",
+    "kioskUpgrade": "Mejorar a Premium",
     "kioskExit": "Salir del modo quiosco",
     "kioskBuyTitle": "Compra tu entrada",
     "kioskBuyHint": "Escanea con tu móvil y paga.",
@@ -4582,6 +4586,9 @@
     }
   },
   "entrance": {
+    "kioskPremiumBadge": "Función Premium",
+    "kioskBetaBadge": "Función Premium – gratis durante el lanzamiento",
+    "kioskLocked": "El modo quiosco es una función Premium – mejora tu plan",
     "kioskButton": "Modo quiosco: los invitados escanean solos",
     "title": "Entrada",
     "back": "Volver",
