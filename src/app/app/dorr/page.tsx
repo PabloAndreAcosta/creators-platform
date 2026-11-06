@@ -49,8 +49,12 @@ export default async function DoorHubPage() {
     }
     mine.push({ id: l.id, title: l.title, date: l.event_date, owner: l.user_id, access });
   }
-  const primary = mine[0] ?? null;
-  const rest = mine.slice(1);
+  // Starta-knappen tar bara KVÄLLENS evenemang. Annars valdes närmaste
+  // kommande kväll av sig själv, och en fredag hamnade plattan på
+  // tisdagens zouk när det var torsdagens The Lab som skulle köras –
+  // två olika arrangemang på samma konto. Ingen kväll i dag: välj själv.
+  const primary = mine[0]?.date === today ? mine[0] : null;
+  const rest = primary ? mine.slice(1) : mine;
 
   const fmtDate = (d: string) =>
     d === today ? t("tonight") : new Date(d + "T12:00:00").toLocaleDateString("sv-SE", { weekday: "short", day: "numeric", month: "short" });
@@ -69,7 +73,7 @@ export default async function DoorHubPage() {
       {/* Starta */}
       <section className="mb-8 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5">
         {!primary ? (
-          <p className="text-sm text-[var(--usha-muted)]">{t("noEvents")}</p>
+          <p className="text-sm text-[var(--usha-muted)]">{mine.length > 0 ? t("noEventTonight") : t("noEvents")}</p>
         ) : primary.access.allowed ? (
           <>
             <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-[var(--usha-muted)]">{fmtDate(primary.date)}</p>
@@ -100,8 +104,8 @@ export default async function DoorHubPage() {
           </>
         )}
         {rest.length > 0 && (
-          <div className="mt-4 border-t border-[var(--usha-border)] pt-3">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--usha-muted)]">{t("otherNights")}</p>
+          <div className={primary ? "mt-4 border-t border-[var(--usha-border)] pt-3" : "mt-3"}>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--usha-muted)]">{primary ? t("otherNights") : t("chooseNight")}</p>
             <ul className="space-y-1 text-sm">
               {rest.map((e) => (
                 <li key={e.id}>

@@ -2776,6 +2776,8 @@
     "start": "Starta självinsläppet",
     "otherNights": "Andra kvällar",
     "noEvents": "Inget kommande evenemang att sköta entrén för. Skapa ett evenemang, eller be värden lägga till dig i teamet med rätt att skanna.",
+    "noEventTonight": "Inget evenemang i kväll. Välj vilken kväll plattan ska släppa in till.",
+    "chooseNight": "Välj kväll",
     "lockedOwner": "Självinsläppet ingår i Premium. Uppgradera, så sköter plattan insläppet åt dig.",
     "lockedCrew": "Arrangörens konto behöver Premium för självinsläppet. Tills dess skannar du som vanligt under Skanna.",
     "upgrade": "Uppgradera till Premium",
