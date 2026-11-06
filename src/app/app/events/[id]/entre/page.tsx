@@ -225,7 +225,7 @@ export default function EntrancePage() {
           {kiosk && kiosk.allowed ? (
             <>
               <Link
-                href={`/app/events/${id}/entre/kiosk?tt=${encodeURIComponent(selected.id)}`}
+                href={`/dorr/${id}?tt=${encodeURIComponent(selected.id)}`}
                 className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-gold)]/50 py-3 text-sm font-medium text-[var(--usha-gold)] transition hover:bg-[var(--usha-gold)]/10"
               >
                 <ScanLine size={15} />
