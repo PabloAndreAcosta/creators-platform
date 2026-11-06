@@ -34,6 +34,8 @@ describe("next.config: CDN-direktiv för anonyma", () => {
       expect(cookies).toContain("usha-theme");
       for (const q of ["ref", "lang", "utm_source", "utm_medium", "utm_campaign"]) expect(queries).toContain(q);
       expect(r.headers.map((h) => h.key)).toContain("Vercel-CDN-Cache-Control");
+      // Vercels gräns — deploy #531 föll på 21 villkor.
+      expect(r.missing!.length).toBeLessThanOrEqual(16);
     }
   });
 
