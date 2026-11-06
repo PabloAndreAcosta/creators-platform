@@ -32,7 +32,7 @@ export interface KioskStrings {
   welcome: string; wrongDate: string; wrongDateDetail: string; alreadyUsed: string; checkInTime: string;
   canceled: string; pending: string; invalid: string; askCrew: string; seats: string; passRemaining: string;
   noPermission: string; onlyOwnEvents: string; couldNotVerify: string; checkInFailed: string; network: string;
-  lockedTitle: string; lockedBody: string; upgrade: string;
+  lockedTitle: string; lockedBody: string; upgrade: string; swapSide: string;
 }
 
 interface TicketType { id: string; name: string; price: number }
@@ -71,6 +71,33 @@ export function Kiosk({ id, ticketTypeId, s }: { id: string; ticketTypeId: strin
   const [cameraStarting, setCameraStarting] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [shown, setShown] = useState<Shown | null>(null);
+  // Liggande läge på en telefon: frontkameran sitter i ena kortänden, och
+  // skanningsrutan ska ligga närmast den. Vilken sida avgörs av hur telefonen
+  // vreds (landscape-primary brukar lägga kameran till vänster), med en knapp
+  // att byta om gissningen är fel. Valet minns per enhet.
+  const [cameraSide, setCameraSide] = useState<"left" | "right">("left");
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("kiosk-camera-side");
+      if (saved === "left" || saved === "right") {
+        setCameraSide(saved);
+        return;
+      }
+    } catch {
+      // ingen lagring — gissa
+    }
+    const type = (screen.orientation?.type ?? "") as string;
+    if (type === "landscape-secondary") setCameraSide("right");
+  }, []);
+  function swapSide() {
+    const next = cameraSide === "left" ? "right" : "left";
+    setCameraSide(next);
+    try {
+      localStorage.setItem("kiosk-camera-side", next);
+    } catch {
+      // ignorerat
+    }
+  }
 
   const scannerRef = useRef<any>(null);
   const busyRef = useRef(false);
@@ -315,23 +342,34 @@ export function Kiosk({ id, ticketTypeId, s }: { id: string; ticketTypeId: strin
 
   // ---- Igång -------------------------------------------------------------
   return (
-    <div className="min-h-dvh bg-black text-white">
-      <div className="flex items-center justify-between px-4 py-2 text-xs text-white/50">
-        <Link href="/app/dorr" className="inline-flex items-center gap-1 hover:text-white">
+    <div className="flex min-h-dvh flex-col bg-black text-white landscape:h-dvh landscape:overflow-hidden">
+      <div className="flex items-center justify-between gap-3 px-4 py-2 text-xs text-white/50">
+        <Link href="/app/dorr" className="inline-flex shrink-0 items-center gap-1 hover:text-white">
           <ArrowLeft size={14} /> {s.exit}
         </Link>
-        <span className="truncate">{title}</span>
+        <span className="min-w-0 truncate">{title}</span>
+        <button onClick={swapSide} className="hidden shrink-0 rounded-full border border-white/20 px-2.5 py-1 hover:text-white landscape:inline-block">
+          {s.swapSide}
+        </button>
       </div>
 
-      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-4 p-4 lg:grid-cols-[3fr_2fr]">
+      {/* Liggande: två kolumner som ryms på skärmen utan skroll, skanningen närmast kameran. */}
+      <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-4 p-4 landscape:min-h-0 landscape:flex-1 landscape:grid-cols-2 landscape:gap-3 landscape:p-3 lg:landscape:grid-cols-[3fr_2fr]">
         {/* Visa biljett — det viktigaste, därför först och störst. */}
-        <section className="flex flex-col items-center rounded-2xl border border-white/10 bg-white/5 p-5 text-center">
-          <h2 className="text-3xl font-bold">{s.showTitle}</h2>
-          <p className="mt-1 text-lg text-white/60">{s.showHint}</p>
+        <section
+          className="flex min-h-0 flex-col items-center rounded-2xl border border-white/10 bg-white/5 p-5 text-center landscape:p-3"
+          style={{ order: cameraSide === "right" ? 2 : 1 }}
+        >
+          <h2 className="text-3xl font-bold text-[var(--usha-gold)] landscape:text-xl">{s.showTitle}</h2>
+          <p className="mt-1 text-lg text-white/60 landscape:mt-0 landscape:text-sm">{s.showHint}</p>
           {/* Kvadraten får aldrig bli högre än skärmen: på en telefon i liggande
               läge var den 560 px hög på en 412 px skärm och syntes inte hel. */}
-          <div className="relative mt-4 w-full max-w-[min(560px,70dvh)] overflow-hidden rounded-xl bg-black" style={{ aspectRatio: "1 / 1" }}>
+          <div className="relative mt-4 w-full max-w-[min(560px,70dvh)] overflow-hidden rounded-xl bg-black landscape:mt-2 landscape:max-w-[min(560px,calc(100dvh-130px))]" style={{ aspectRatio: "1 / 1" }}>
             <div id="kiosk-reader" className="h-full w-full [&_video]:h-full [&_video]:w-full [&_video]:object-cover" />
+            {/* Pulserande guldram: visar att rutan är aktiv och var biljetten ska hållas. */}
+            {!cameraStarting && !cameraError && (
+              <div className="pointer-events-none absolute inset-0 animate-pulse rounded-xl border-4 border-[var(--usha-gold)]/70" />
+            )}
             {cameraStarting && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/60">
                 <Loader2 size={40} className="animate-spin" />
@@ -349,18 +387,21 @@ export function Kiosk({ id, ticketTypeId, s }: { id: string; ticketTypeId: strin
         </section>
 
         {/* Köp */}
-        <section className="flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-5 text-center">
-          <h2 className="text-2xl font-bold">{s.buyTitle}</h2>
-          <p className="mt-1 text-base text-white/60">{s.buyHint}</p>
+        <section
+          className="flex min-h-0 flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-5 text-center landscape:p-3"
+          style={{ order: cameraSide === "right" ? 1 : 2 }}
+        >
+          <h2 className="text-2xl font-bold text-[var(--usha-gold)] landscape:text-xl">{s.buyTitle}</h2>
+          <p className="mt-1 text-base text-white/60 landscape:mt-0 landscape:text-sm">{s.buyHint}</p>
           {ticketType ? (
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={`/api/events/${id}/entry/qr?tt=${encodeURIComponent(ticketType.id)}`}
                 alt=""
-                className="mt-4 w-full max-w-[260px] rounded-xl bg-white p-3"
+                className="mt-4 w-full max-w-[260px] rounded-xl bg-white p-3 landscape:mt-2 landscape:max-w-[min(260px,calc(100dvh-190px))]"
               />
-              <p className="mt-3 text-lg font-semibold">
+              <p className="mt-3 text-lg font-semibold landscape:mt-1 landscape:text-base">
                 {ticketType.name} · {ticketType.price} {s.priceSuffix}
               </p>
             </>

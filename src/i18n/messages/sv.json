@@ -2768,6 +2768,7 @@
     "shareFormLocked": "Kvällen har redan sålt biljetter. Villkoren går inte att ändra i efterhand — det skulle ändra vad som är skyldigt på köp som redan skett."
   },
   "dorrPage": {
+    "swapSide": "Kameran sitter på andra sidan",
     "title": "Självinsläpp",
     "premiumBadge": "Premium",
     "lead": "Ställ en platta i dörren. Gästerna köper biljett med sin telefon och skannar sig in själva – teamet slipper stå med mobilen i hand.",
@@ -2817,8 +2818,8 @@
     "kioskBuyHint": "Skanna med din telefon och betala.",
     "kioskPrice": "{price} kr",
     "kioskNoTicketTypes": "Inga biljettyper att sälja i kväll.",
-    "kioskShowTitle": "Har du biljett?",
-    "kioskShowHint": "Håll upp QR-koden mot kameran, 15–25 cm bort.",
+    "kioskShowTitle": "Skanna din biljett här",
+    "kioskShowHint": "Håll upp biljettens QR-kod mot kameran – den läses av automatiskt.",
     "kioskStartCamera": "Tryck för att starta kameran",
     "kioskWelcome": "Välkommen!",
     "kioskWrongDate": "Fel kväll",

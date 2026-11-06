@@ -2768,6 +2768,7 @@
     "shareFormLocked": "This evening has already sold tickets. The terms cannot be changed afterwards — it would change what is owed on purchases already made."
   },
   "dorrPage": {
+    "swapSide": "Camera is on the other side",
     "title": "Self check-in",
     "premiumBadge": "Premium",
     "lead": "Put a tablet at the door. Guests buy a ticket with their phone and scan themselves in – nobody on the crew has to stand there with a phone.",
@@ -2817,8 +2818,8 @@
     "kioskBuyHint": "Scan with your phone and pay.",
     "kioskPrice": "{price} kr",
     "kioskNoTicketTypes": "No ticket types on sale tonight.",
-    "kioskShowTitle": "Got a ticket?",
-    "kioskShowHint": "Hold the QR code up to the camera, 15–25 cm away.",
+    "kioskShowTitle": "Scan your ticket here",
+    "kioskShowHint": "Hold your ticket's QR code up to the camera – it's read automatically.",
     "kioskStartCamera": "Tap to start the camera",
     "kioskWelcome": "Welcome!",
     "kioskWrongDate": "Wrong night",
