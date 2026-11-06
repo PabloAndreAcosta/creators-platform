@@ -75,7 +75,7 @@ export default async function DoorHubPage() {
             <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-[var(--usha-muted)]">{fmtDate(primary.date)}</p>
             <p className="mb-4 text-lg font-semibold">{primary.title}</p>
             <Link
-              href={`/dorr/${primary.id}`}
+              href={`/sjalvinslapp/${primary.id}`}
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--usha-gold)] py-4 text-lg font-bold text-black transition hover:opacity-90"
             >
               <Play size={20} /> {t("start")}
@@ -106,7 +106,7 @@ export default async function DoorHubPage() {
               {rest.map((e) => (
                 <li key={e.id}>
                   {e.access.allowed ? (
-                    <Link href={`/dorr/${e.id}`} className="hover:text-[var(--usha-gold)]">
+                    <Link href={`/sjalvinslapp/${e.id}`} className="hover:text-[var(--usha-gold)]">
                       {fmtDate(e.date)} · {e.title}
                     </Link>
                   ) : (
