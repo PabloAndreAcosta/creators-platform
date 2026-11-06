@@ -69,6 +69,7 @@ export default async function KioskPage({
     lockedTitle: s("kioskLockedTitle"),
     lockedBody: s("kioskLockedBody"),
     upgrade: s("kioskUpgrade"),
+    swapSide: d("swapSide"),
   };
 
   return <Kiosk id={id} ticketTypeId={tt ?? null} s={strings} />;

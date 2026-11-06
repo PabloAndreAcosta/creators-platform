@@ -2758,6 +2758,7 @@
     "shareFormLocked": "Esta noche ya ha vendido entradas. Las condiciones no se pueden cambiar después — cambiaría lo que se debe por compras ya realizadas."
   },
   "dorrPage": {
+    "swapSide": "La cámara está en el otro lado",
     "title": "Autoregistro",
     "premiumBadge": "Premium",
     "lead": "Pon una tableta en la puerta. Los invitados compran la entrada con su móvil y se registran solos: nadie del equipo tiene que estar con el móvil en la mano.",
