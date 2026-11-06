@@ -57,7 +57,7 @@ export default async function DoorHubPage() {
   const rest = primary ? mine.slice(1) : mine;
 
   const fmtDate = (d: string) =>
-    d === today ? t("tonight") : new Date(d + "T12:00:00").toLocaleDateString("sv-SE", { weekday: "short", day: "numeric", month: "short" });
+    d === today ? t("tonight") : new Date(d + "T12:00:00").toLocaleDateString("sv-SE", { weekday: "long", day: "numeric", month: "short" });
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6">
@@ -76,8 +76,8 @@ export default async function DoorHubPage() {
           <p className="text-sm text-[var(--usha-muted)]">{mine.length > 0 ? t("noEventTonight") : t("noEvents")}</p>
         ) : primary.access.allowed ? (
           <>
-            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-[var(--usha-muted)]">{fmtDate(primary.date)}</p>
-            <p className="mb-4 text-lg font-semibold">{primary.title}</p>
+            <p className="mb-1 text-base font-bold first-letter:uppercase">{fmtDate(primary.date)}</p>
+            <p className="mb-4 text-lg font-bold text-[var(--usha-gold)]">{primary.title}</p>
             <Link
               href={`/sjalvinslapp/${primary.id}`}
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--usha-gold)] py-4 text-lg font-bold text-black transition hover:opacity-90"
@@ -106,20 +106,37 @@ export default async function DoorHubPage() {
         {rest.length > 0 && (
           <div className={primary ? "mt-4 border-t border-[var(--usha-border)] pt-3" : "mt-3"}>
             <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--usha-muted)]">{primary ? t("otherNights") : t("chooseNight")}</p>
-            <ul className="space-y-1 text-sm">
-              {rest.map((e) => (
-                <li key={e.id}>
-                  {e.access.allowed ? (
-                    <Link href={`/sjalvinslapp/${e.id}`} className="hover:text-[var(--usha-gold)]">
-                      {fmtDate(e.date)} · {e.title}
-                    </Link>
-                  ) : (
-                    <span className="text-[var(--usha-muted)]">
-                      {fmtDate(e.date)} · {e.title} <Lock size={12} className="inline" />
+            {/* Varje kväll som en tydlig rad: datumet stort, evenemanget i
+                Usha-guld och fetstil – så att The Lab (torsdag) och zouken
+                (tisdag) inte går att blanda ihop när man väljer. */}
+            <ul className="space-y-2">
+              {rest.map((e) => {
+                const row = (
+                  <>
+                    <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                      <span className="text-base font-bold text-[var(--usha-white)] first-letter:uppercase">{fmtDate(e.date)}</span>
+                      <span className={`text-lg font-bold leading-snug ${e.access.allowed ? "text-[var(--usha-gold)]" : "text-[var(--usha-muted)]"}`}>
+                        {e.title}
+                      </span>
                     </span>
-                  )}
-                </li>
-              ))}
+                    {!e.access.allowed && <Lock size={14} className="shrink-0 text-[var(--usha-muted)]" />}
+                  </>
+                );
+                return (
+                  <li key={e.id}>
+                    {e.access.allowed ? (
+                      <Link
+                        href={`/sjalvinslapp/${e.id}`}
+                        className="flex items-center gap-3 rounded-xl border border-[var(--usha-border)] px-4 py-3 transition hover:border-[var(--usha-gold)]/60 hover:bg-[var(--usha-gold)]/5"
+                      >
+                        {row}
+                      </Link>
+                    ) : (
+                      <div className="flex items-center gap-3 rounded-xl border border-[var(--usha-border)] px-4 py-3 opacity-70">{row}</div>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         )}
