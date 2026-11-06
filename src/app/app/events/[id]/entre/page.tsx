@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { ArrowLeft, Loader2, CheckCircle2, RefreshCw, Link2, Check, ScanLine } from "lucide-react";
+import { ArrowLeft, Loader2, CheckCircle2, RefreshCw, Link2, Check, ScanLine, Lock } from "lucide-react";
 
 /**
  * Entréförsäljning utan kortläsare.
@@ -58,6 +58,8 @@ export default function EntrancePage() {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // Kioskläget är Premium; servern avgör utifrån värdens nivå.
+  const [kiosk, setKiosk] = useState<{ allowed: boolean; premium: boolean; beta: boolean } | null>(null);
 
   // Tidsstämpeln kommer från servern, inte från telefonen. En entrémobil med
   // några minuters klockfel hade annars antingen missat betalningar eller
@@ -78,6 +80,7 @@ export default function EntrancePage() {
         setTitle(data.listing.title);
         setTypes(data.ticketTypes);
         if (data.efterkop) setEfterkop(data.efterkop);
+        if (data.kiosk) setKiosk(data.kiosk);
         if (poll) {
           if (data.sales.length > 0) setSales((prev) => [...data.sales, ...prev].slice(0, 8));
         } else {
@@ -217,14 +220,30 @@ export default function EntrancePage() {
           <p className="mt-1 text-center text-sm text-[var(--usha-muted)]">{t("guestScans")}</p>
 
           {/* Plattan i dörren: samma köp-QR plus frontkameran, så gästerna
-              checkar in sig själva. */}
-          <Link
-            href={`/app/events/${id}/entre/kiosk?tt=${encodeURIComponent(selected.id)}`}
-            className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-gold)]/50 py-3 text-sm font-medium text-[var(--usha-gold)] transition hover:bg-[var(--usha-gold)]/10"
-          >
-            <ScanLine size={15} />
-            {t("kioskButton")}
-          </Link>
+              checkar in sig själva. Premium-funktion: öppen under betan,
+              annars bara när värden har Premium. */}
+          {kiosk && kiosk.allowed ? (
+            <>
+              <Link
+                href={`/dorr/${id}?tt=${encodeURIComponent(selected.id)}`}
+                className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-gold)]/50 py-3 text-sm font-medium text-[var(--usha-gold)] transition hover:bg-[var(--usha-gold)]/10"
+              >
+                <ScanLine size={15} />
+                {t("kioskButton")}
+              </Link>
+              <p className="mt-2 text-center text-xs text-[var(--usha-muted)]">
+                {kiosk.beta ? t("kioskBetaBadge") : t("kioskPremiumBadge")}
+              </p>
+            </>
+          ) : kiosk ? (
+            <Link
+              href="/dashboard/billing"
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-3 text-sm font-medium text-[var(--usha-muted)] transition hover:border-[var(--usha-gold)]/60"
+            >
+              <Lock size={15} />
+              {t("kioskLocked")}
+            </Link>
+          ) : null}
 
           {/* Bara vid efterköp. På en pågående kväll står gästen framför dig
               och ska scanna — en länk att skicka vore en omväg. */}

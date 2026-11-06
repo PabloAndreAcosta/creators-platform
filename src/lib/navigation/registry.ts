@@ -19,7 +19,7 @@ import {
   Wallet, BarChart3, CreditCard, Tag, Search, Store, FileText, Heart, Trophy,
   ShoppingBag, Ticket, MessageCircle, BookMarked, Gift, Bell, User, Settings,
   Users, Home, Sparkles, Box, LayoutGrid, KeyRound, Languages, Layers, Mail,
-  Banknote,
+  Banknote, DoorOpen,
 } from "lucide-react";
 
 /** Kanoniska roller. Se roll-modellen: creator/venue säljer, customer köper. */
@@ -100,6 +100,11 @@ export const APP_DESTINATIONS: AppDestination[] = [
   { path: "/app/calendar", labelKey: "calendarLabel", descKey: "calendarDesc", navLabelKey: "calendar", icon: CalendarDays,
     group: "createSell", roles: "all", surfaces: ["more", "sidebar"] },
   { path: "/app/scan", labelKey: "scanLabel", descKey: "scanDesc", navLabelKey: "scan", icon: ScanLine,
+    group: "createSell", roles: ["creator", "venue"], surfaces: ["more", "sidebar"] },
+  // Självinsläpp: plattan i dörren där gästerna skannar sig in själva.
+  // Premium-funktion, tänkt för en separat enhet. Hubben har guiden och
+  // startknappen; kiosken själv ligger utanför appen (/dorr/[id]).
+  { path: "/app/dorr", labelKey: "dorrLabel", descKey: "dorrDesc", navLabelKey: "dorr", icon: DoorOpen,
     group: "createSell", roles: ["creator", "venue"], surfaces: ["more", "sidebar"] },
   // Skriv till dem som följer dig. Utskicket fanns bara per kväll, vilket är
   // bakvänt: följaren har sagt ja till avsändaren, väntelistan bara till en
@@ -278,7 +283,6 @@ export const CONTEXTUAL_ROUTES: Record<string, string> = {
   "/app/events/[id]/broadcast": "Nås från väntelistan på eventsidan.",
   "/app/events/[id]/codes": "Nås från eventsidan.",
   "/app/events/[id]/entre": "Nås från knappraden på eventsidan; öppnas av den som står i dörren.",
-  "/app/events/[id]/entre/kiosk": "Kioskläget för plattan i dörren — nås med knappen på entrésidan. Gästerna skannar sina biljetter själva; ska inte ligga i någon meny.",
   "/app/events/new": "Nås från Skapa-knappen i eventlistan.",
   "/app/events/open": "Nås från eventlistan.",
   "/app/events/insights": "Statistik för egna event — nås från Statistik-länken i eventlistans huvud. Det är en underrutt till Evenemang, inte en jämlike i menyn.",

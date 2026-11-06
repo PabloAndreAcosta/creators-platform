@@ -32,6 +32,7 @@ const BENEFIT_KEYS: Partial<Record<PlanKey, readonly string[]>> = {
     "kreatorPremium3",
     "kreatorPremium4",
     "kreatorPremium5",
+    "kreatorPremium6",
   ],
 };
 

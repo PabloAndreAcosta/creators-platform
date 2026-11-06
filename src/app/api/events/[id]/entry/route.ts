@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { canOperateEntrance } from "@/lib/scan-access";
+import { kioskAccessForOwner } from "@/lib/tickets/kiosk-access";
 import { efterkopLage } from "@/lib/tickets/late-purchase";
 
 /**
@@ -68,6 +69,9 @@ export async function GET(
 
   const { data: sales } = await salesQuery;
 
+  // Kioskläget är Premium — grindat på värdens nivå, se kiosk-access.ts.
+  const kiosk = await kioskAccessForOwner(admin, listing.user_id);
+
   // Efterköpsläget avgörs på SERVERN, inte av entréenhetens klocka. En telefon
   // som går några minuter fel skulle annars antingen stänga fönstret för
   // tidigt eller visa det när det faktiskt gått ut.
@@ -82,6 +86,7 @@ export async function GET(
     },
     ticketTypes: ticketTypes ?? [],
     sales: sales ?? [],
+    kiosk,
     now: new Date().toISOString(),
   });
 }

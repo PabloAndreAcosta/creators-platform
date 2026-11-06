@@ -127,6 +127,7 @@ export const PLANS: Record<PlanKey, Plan> = {
       "Allt i Guld",
       "Facebook-synk: publicera kvällen automatiskt",
       "Statistikexport till CSV",
+      "Kioskläge i dörren: gästerna skannar in sig själva",
     ],
     stripePriceId: process.env.STRIPE_KREATOR_PREMIUM_PRICE_ID || "",
   },

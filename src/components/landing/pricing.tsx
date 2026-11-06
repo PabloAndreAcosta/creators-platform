@@ -113,6 +113,7 @@ export function Pricing({
           t("pricing.kreatorPremium3"),
           t("pricing.kreatorPremium4"),
           t("pricing.kreatorPremium5"),
+          t("pricing.kreatorPremium6"),
         ],
         cta: t("pricing.ctaPremium"),
         popular: false,
