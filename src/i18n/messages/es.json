@@ -2754,6 +2754,18 @@
     "shareFormLocked": "Esta noche ya ha vendido entradas. Las condiciones no se pueden cambiar después — cambiaría lo que se debe por compras ya realizadas."
   },
   "scanPage": {
+    "kioskExit": "Salir del modo quiosco",
+    "kioskBuyTitle": "Compra tu entrada",
+    "kioskBuyHint": "Escanea con tu móvil y paga.",
+    "kioskPrice": "{price} kr",
+    "kioskNoTicketTypes": "No hay tipos de entrada a la venta esta noche.",
+    "kioskShowTitle": "¿Tienes entrada?",
+    "kioskShowHint": "Acerca el código QR a la cámara, a 15–25 cm.",
+    "kioskStartCamera": "Toca para iniciar la cámara",
+    "kioskWelcome": "¡Bienvenido!",
+    "kioskWrongDate": "Noche equivocada",
+    "kioskAskCrew": "Habla con alguien del equipo.",
+    "kioskNoPermission": "Esta cuenta no puede escanear entradas esta noche.",
     "passRemaining": "Quedan {n} sesiones en el bono",
     "title": "Escanear entradas",
     "subtitle": "Escanea el código QR o introduce el código de la entrada manualmente.",
@@ -4570,6 +4582,7 @@
     }
   },
   "entrance": {
+    "kioskButton": "Modo quiosco: los invitados escanean solos",
     "title": "Entrada",
     "back": "Volver",
     "pickTicket": "Elige una entrada para mostrar un código QR al invitado.",

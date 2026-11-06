@@ -2754,6 +2754,18 @@
     "shareFormLocked": "This evening has already sold tickets. The terms cannot be changed afterwards — it would change what is owed on purchases already made."
   },
   "scanPage": {
+    "kioskExit": "Exit kiosk mode",
+    "kioskBuyTitle": "Buy a ticket",
+    "kioskBuyHint": "Scan with your phone and pay.",
+    "kioskPrice": "{price} kr",
+    "kioskNoTicketTypes": "No ticket types on sale tonight.",
+    "kioskShowTitle": "Got a ticket?",
+    "kioskShowHint": "Hold the QR code up to the camera, 15–25 cm away.",
+    "kioskStartCamera": "Tap to start the camera",
+    "kioskWelcome": "Welcome!",
+    "kioskWrongDate": "Wrong night",
+    "kioskAskCrew": "Please talk to someone in the crew.",
+    "kioskNoPermission": "This account may not scan tickets for tonight.",
     "passRemaining": "{n} sessions left on the pass",
     "title": "Scan tickets",
     "subtitle": "Scan the QR code or enter the ticket code manually.",
@@ -4570,6 +4582,7 @@
     }
   },
   "entrance": {
+    "kioskButton": "Kiosk mode: guests scan themselves",
     "title": "Door",
     "back": "Back",
     "pickTicket": "Pick a ticket to show the guest a QR code.",
