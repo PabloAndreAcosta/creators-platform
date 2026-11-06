@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/supabase/current-user";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { HomeContent } from "./home-content";
 import { getFeedPosts } from "./feed/queries";
@@ -62,13 +63,36 @@ export default async function AppHomePage() {
 
   try {
     const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const user = await getCurrentUser();
 
     if (user) {
       const today = todayInStockholm();
-      const [profileRes, listingsRes, bookingsRes, kommandeRes, ovrigaRes, ownCountRes] = await Promise.all([
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+      startOfMonth.setHours(0, 0, 0, 0);
+
+      // Allt som bara behöver user.id går i EN omgång. Tidigare låg frågorna i
+      // sju steg efter varandra — en tur till databasen per steg — och det här
+      // var sajtens långsammaste sida: 6 s innan något syntes (Speed Insights,
+      // p75 i oktober). Bara "inkomna förfrågningar" behöver ett tidigare svar
+      // (vilka lokaler användaren sköter) och går i steg två.
+      const [
+        profileRes,
+        listingsRes,
+        bookingsRes,
+        kommandeRes,
+        ovrigaRes,
+        ownCountRes,
+        prefRes,
+        hostedRes,
+        venuesManaged,
+        utgaende,
+        creatorsRes,
+        revenueRes,
+        reviewsRes,
+        feedRes,
+        upcomingRes,
+      ] = await Promise.all([
         // Egen rad via service-role: känsliga kolumner (bl.a. stripe_account_id)
         // är kolumn-låsta för authenticated, så select("*") skulle nekas.
         createAdminClient().from("profiles").select("*").eq("id", user.id).single(),
@@ -110,50 +134,24 @@ export default async function AppHomePage() {
           .from("listings")
           .select("id", { count: "exact", head: true })
           .eq("user_id", user.id),
-      ]);
-      profile = profileRes.data as Profile | null;
-      listings = (listingsRes.data || []) as Listing[];
-      // Kommande först i datumordning, sedan passerade och odaterade. Samma
-      // ordning som arrangörens egen evenemangslista använder.
-      ownServices = sortEventsForOwner([
-        ...((kommandeRes.data || []) as OwnListing[]),
-        ...((ovrigaRes.data || []) as OwnListing[]),
-      ], today);
-      ownServicesCount = ownCountRes.count ?? ownServices.length;
-      bookingsCount = bookingsRes.count ?? 0;
-
-      // Customer onboarding: have they set matching preferences?
-      const { data: prefRow } = await supabase
-        .from("profile_preferences")
-        .select("onboarding_completed_at")
-        .eq("profile_id", user.id)
-        .maybeSingle();
-      hasPreferences = !!prefRow?.onboarding_completed_at;
-
-      // Arrangemang som ANDRA håller hos lokalen. En lokal som upplåter sina
-      // lokaler skapar aldrig egna evenemang, och skulle annars få "skapa ditt
-      // första evenemang" liggande kvar i checklistan för alltid.
-      const { count: hosted } = await supabase
-        .from("listings")
-        .select("id", { count: "exact", head: true })
-        .eq("venue_profile_id", user.id)
-        .not("venue_confirmed_at", "is", null)
-        .eq("is_active", true);
-      hostedEventsCount = hosted ?? 0;
-
-      // Sådant som väntar på ett svar. Marias åtta förfrågningar låg obesvarade
-      // i två dygn utan att något sa till — startsidan får säga det nu.
-      // Samma lokaler som förfrågningssidan visar: egna plus dem man sköter
-      // sidan åt, annars ser en teammedlem en siffra hen inte kan agera på.
-      const lokaler = [user.id, ...(await venuesUserHasCapability(user.id, "page"))];
-      const [inkomna, utgaende] = await Promise.all([
+        // Customer onboarding: have they set matching preferences?
+        supabase
+          .from("profile_preferences")
+          .select("onboarding_completed_at")
+          .eq("profile_id", user.id)
+          .maybeSingle(),
+        // Arrangemang som ANDRA håller hos lokalen. En lokal som upplåter sina
+        // lokaler skapar aldrig egna evenemang, och skulle annars få "skapa ditt
+        // första evenemang" liggande kvar i checklistan för alltid.
         supabase
           .from("listings")
           .select("id", { count: "exact", head: true })
-          .in("venue_profile_id", lokaler)
-          .neq("user_id", user.id)
-          .is("venue_confirmed_at", null)
+          .eq("venue_profile_id", user.id)
+          .not("venue_confirmed_at", "is", null)
           .eq("is_active", true),
+        // Lokaler användaren sköter sidan åt — samma som förfrågningssidan visar.
+        venuesUserHasCapability(user.id, "page"),
+        // Egna evenemang som väntar på en lokals godkännande.
         supabase
           .from("listings")
           .select("id", { count: "exact", head: true })
@@ -162,17 +160,6 @@ export default async function AppHomePage() {
           .neq("venue_profile_id", user.id)
           .is("venue_confirmed_at", null)
           .eq("is_active", true),
-      ]);
-      todos = pendingTodos({
-        venueRequestsPending: inkomna.count,
-        listingsAwaitingVenue: utgaende.count,
-      });
-
-      const startOfMonth = new Date();
-      startOfMonth.setDate(1);
-      startOfMonth.setHours(0, 0, 0, 0);
-
-      const [creatorsRes, revenueRes, reviewsRes] = await Promise.all([
         supabase
           .from("profiles")
           .select("id, full_name, avatar_url, category, hourly_rate")
@@ -192,7 +179,48 @@ export default async function AppHomePage() {
           .from("reviews")
           .select("rating")
           .eq("creator_id", user.id),
+        // Flödet får inte fälla hela sidan.
+        getFeedPosts(user.id).catch(() => [] as any[]),
+        // The user's next upcoming confirmed bookings (for the home "Kommande bokningar" card).
+        supabase
+          .from("bookings")
+          .select("id, scheduled_at, listings(title, event_location)")
+          .eq("customer_id", user.id)
+          .eq("status", "confirmed")
+          .gte("scheduled_at", new Date().toISOString())
+          .order("scheduled_at", { ascending: true })
+          .limit(3),
       ]);
+
+      profile = profileRes.data as Profile | null;
+      listings = (listingsRes.data || []) as Listing[];
+      // Kommande först i datumordning, sedan passerade och odaterade. Samma
+      // ordning som arrangörens egen evenemangslista använder.
+      ownServices = sortEventsForOwner([
+        ...((kommandeRes.data || []) as OwnListing[]),
+        ...((ovrigaRes.data || []) as OwnListing[]),
+      ], today);
+      ownServicesCount = ownCountRes.count ?? ownServices.length;
+      bookingsCount = bookingsRes.count ?? 0;
+      hasPreferences = !!prefRes.data?.onboarding_completed_at;
+      hostedEventsCount = hostedRes.count ?? 0;
+
+      // Steg två: sådant som väntar på ett svar. Marias åtta förfrågningar låg
+      // obesvarade i två dygn utan att något sa till — startsidan får säga det
+      // nu. Egna lokaler plus dem man sköter sidan åt, annars ser en
+      // teammedlem en siffra hen inte kan agera på.
+      const lokaler = [user.id, ...venuesManaged];
+      const inkomna = await supabase
+        .from("listings")
+        .select("id", { count: "exact", head: true })
+        .in("venue_profile_id", lokaler)
+        .neq("user_id", user.id)
+        .is("venue_confirmed_at", null)
+        .eq("is_active", true);
+      todos = pendingTodos({
+        venueRequestsPending: inkomna.count,
+        listingsAwaitingVenue: utgaende.count,
+      });
 
       topCreators = (creatorsRes.data || []) as TopCreator[];
 
@@ -208,23 +236,9 @@ export default async function AppHomePage() {
         averageRating = Math.round((ratings.reduce((a, b) => a + b, 0) / ratings.length) * 10) / 10;
       }
 
-      // Fetch feed posts
-      try {
-        feedPosts = await getFeedPosts(user.id);
-      } catch {
-        feedPosts = [];
-      }
+      feedPosts = feedRes;
 
-      // The user's next upcoming confirmed bookings (for the home "Kommande bokningar" card).
-      const { data: upcomingRes } = await supabase
-        .from("bookings")
-        .select("id, scheduled_at, listings(title, event_location)")
-        .eq("customer_id", user.id)
-        .eq("status", "confirmed")
-        .gte("scheduled_at", new Date().toISOString())
-        .order("scheduled_at", { ascending: true })
-        .limit(3);
-      upcomingBookings = (upcomingRes || []).map((b: any) => ({
+      upcomingBookings = (upcomingRes.data || []).map((b: any) => ({
         id: b.id,
         title: b.listings?.title || "Bokning",
         scheduledAt: b.scheduled_at,

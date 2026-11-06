@@ -5,6 +5,7 @@ import { getLocale, getMessages } from "next-intl/server";
 import { IntlProvider } from "@/components/intl-provider";
 import { pickMessages, APP_NAMESPACES } from "@/lib/i18n/client-namespaces";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/supabase/current-user";
 import { AppShell } from "@/components/mobile/app-shell";
 import { SubscriptionProvider } from "@/lib/subscription/context";
 import type { MemberTier, MemberRole } from "@/types/database";
@@ -23,9 +24,7 @@ export default async function MobileAppLayout({
 }) {
   // Auth check — must be outside try/catch because redirect() throws
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   if (!user) {
     // Tillbaka till sidan efter inloggningen — en delad länk till ett pass
@@ -55,22 +54,20 @@ export default async function MobileAppLayout({
   let initialRole: UserRole = "customer";
 
   try {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("full_name, tier, role")
-      .eq("id", user.id)
-      .single();
+    // Profil och prenumeration beror inte på varandra: en tur, inte två.
+    const [{ data: profile }, { data: sub }] = await Promise.all([
+      supabase.from("profiles").select("full_name, tier, role").eq("id", user.id).single(),
+      supabase
+        .from("subscriptions")
+        .select("plan, status")
+        .eq("user_id", user.id)
+        .in("status", ["active", "trialing"])
+        .single(),
+    ]);
     userName = profile?.full_name || user.email || "Användare";
     tier = (profile?.tier as MemberTier) ?? "gratis";
     role = (profile?.role as MemberRole) ?? "customer";
     initialRole = normalizeRole(profile?.role) ?? "customer";
-
-    const { data: sub } = await supabase
-      .from("subscriptions")
-      .select("plan, status")
-      .eq("user_id", user.id)
-      .in("status", ["active", "trialing"])
-      .single();
 
     if (sub) {
       plan = sub.plan;
