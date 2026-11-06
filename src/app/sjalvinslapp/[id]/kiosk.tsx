@@ -328,7 +328,9 @@ export function Kiosk({ id, ticketTypeId, s }: { id: string; ticketTypeId: strin
         <section className="flex flex-col items-center rounded-2xl border border-white/10 bg-white/5 p-5 text-center">
           <h2 className="text-3xl font-bold">{s.showTitle}</h2>
           <p className="mt-1 text-lg text-white/60">{s.showHint}</p>
-          <div className="relative mt-4 w-full max-w-[560px] overflow-hidden rounded-xl bg-black" style={{ aspectRatio: "1 / 1" }}>
+          {/* Kvadraten får aldrig bli högre än skärmen: på en telefon i liggande
+              läge var den 560 px hög på en 412 px skärm och syntes inte hel. */}
+          <div className="relative mt-4 w-full max-w-[min(560px,70dvh)] overflow-hidden rounded-xl bg-black" style={{ aspectRatio: "1 / 1" }}>
             <div id="kiosk-reader" className="h-full w-full [&_video]:h-full [&_video]:w-full [&_video]:object-cover" />
             {cameraStarting && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/60">
