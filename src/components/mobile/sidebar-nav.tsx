@@ -18,9 +18,10 @@ import {
   ShoppingBag,
   Users,
   ShieldCheck,
+  Lock,
 } from "lucide-react";
 import { useRole } from "./role-context";
-import { groupedDestinationsFor, ADMIN_ROOT, type NavRole } from "@/lib/navigation/registry";
+import { groupedDestinationsFor, tierUnlocks, ADMIN_ROOT, type NavRole } from "@/lib/navigation/registry";
 import { useSubscription } from "@/lib/subscription/context";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import UschjaLogo from "@/components/UschjaLogo";
@@ -28,7 +29,7 @@ import UschjaLogo from "@/components/UschjaLogo";
 export function SidebarNav() {
   const pathname = usePathname();
   const { role, hasAdminAccess } = useRole();
-  const { tier } = useSubscription();
+  const { tier, hasActiveSubscription } = useSubscription();
   const t = useTranslations("nav");
   const tAdmin = useTranslations("adminPage");
   const tTools = useTranslations("toolsPage");
@@ -101,10 +102,17 @@ export function SidebarNav() {
                 </p>
                 {items.map((d) => {
                   const isActive = activeFor(d.path);
+                  // Låsta funktioner visas gråmarkerade med nivåns namn, inte gömda.
+                  const locked = !tierUnlocks(tier, d.minTier, hasActiveSubscription);
                   return (
-                    <Link key={d.path} href={d.path} className={linkClass(isActive)}>
+                    <Link key={d.path} href={d.path} className={`${linkClass(isActive)} ${locked ? "opacity-50" : ""}`}>
                       <d.icon size={20} strokeWidth={isActive ? 2.5 : 1.5} />
-                      {t(d.navLabelKey!)}
+                      <span className="min-w-0 flex-1 truncate">{t(d.navLabelKey!)}</span>
+                      {locked && (
+                        <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[var(--usha-border)] px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide">
+                          <Lock size={9} /> {tTools(d.minTier === "premium" ? "lockedPremium" : "lockedGuld")}
+                        </span>
+                      )}
                     </Link>
                   );
                 })}

@@ -61,6 +61,24 @@ export interface AppDestination {
   surfaces: NavSurface[];
   /** Ligger utanför appen (annan domän eller publik sajt). */
   external?: boolean;
+  /**
+   * Lägsta nivå som låser upp sidan. Destinationen visas ÄNDÅ för alla i
+   * rollen, men gråmarkerad med ett lås och nivåns namn — den som är på
+   * gratis eller Guld ska se vad som finns, inte undra. Sidan själv
+   * förklarar och leder till uppgraderingen.
+   */
+  minTier?: "guld" | "premium";
+}
+
+/** Räcker kontots nivå för destinationen? Betan låser upp allt. */
+export function tierUnlocks(
+  tier: string | null | undefined,
+  minTier: "guld" | "premium" | undefined,
+  betaOrActive = false
+): boolean {
+  if (!minTier || betaOrActive) return true;
+  if (minTier === "guld") return tier === "guld" || tier === "premium";
+  return tier === "premium";
 }
 
 export const APP_DESTINATIONS: AppDestination[] = [
@@ -100,12 +118,12 @@ export const APP_DESTINATIONS: AppDestination[] = [
   { path: "/app/calendar", labelKey: "calendarLabel", descKey: "calendarDesc", navLabelKey: "calendar", icon: CalendarDays,
     group: "createSell", roles: "all", surfaces: ["more", "sidebar"] },
   { path: "/app/scan", labelKey: "scanLabel", descKey: "scanDesc", navLabelKey: "scan", icon: ScanLine,
-    group: "createSell", roles: ["creator", "venue"], surfaces: ["more", "sidebar"] },
+    group: "createSell", roles: ["creator", "venue"], surfaces: ["more", "sidebar"], minTier: "guld" },
   // Självinsläpp: plattan i dörren där gästerna skannar sig in själva.
   // Premium-funktion, tänkt för en separat enhet. Hubben har guiden och
   // startknappen; kiosken själv ligger utanför appen (/dorr/[id]).
   { path: "/app/dorr", labelKey: "dorrLabel", descKey: "dorrDesc", navLabelKey: "dorr", icon: DoorOpen,
-    group: "createSell", roles: ["creator", "venue"], surfaces: ["more", "sidebar"] },
+    group: "createSell", roles: ["creator", "venue"], surfaces: ["more", "sidebar"], minTier: "premium" },
   // Skriv till dem som följer dig. Utskicket fanns bara per kväll, vilket är
   // bakvänt: följaren har sagt ja till avsändaren, väntelistan bara till en
   // kväll. Rutten var byggd men saknade väg in.

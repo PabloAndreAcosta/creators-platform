@@ -484,12 +484,13 @@ export function CrewManager({
                     {roleLabel(c.role)}
                   </p>
                 </div>
-                {canDelegateScan && c.scan_eligible && (
+                {/* Låsta reglage visas gråa med förklaring, inte gömda. */}
+                {c.scan_eligible && (
                   <button
-                    onClick={() => handleToggleScan(c.user_id, !c.can_scan)}
-                    disabled={scanToggling === c.user_id}
+                    onClick={() => canDelegateScan && handleToggleScan(c.user_id, !c.can_scan)}
+                    disabled={!canDelegateScan || scanToggling === c.user_id}
                     aria-pressed={c.can_scan}
-                    title={t("scanToggleTitle")}
+                    title={canDelegateScan ? t("scanToggleTitle") : t("requiresGold")}
                     className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-medium transition disabled:opacity-50 ${
                       c.can_scan
                         ? "bg-[var(--usha-gold)] text-black"
@@ -522,12 +523,12 @@ export function CrewManager({
                     )}
                     {c.can_view_stats ? t("statsOn") : t("statsOff")}
                   </button>
-                {canDelegateScan && (
+                {(
                   <button
-                    onClick={() => handleToggleManage(c.user_id, !c.can_manage)}
-                    disabled={manageToggling === c.user_id}
+                    onClick={() => canDelegateScan && handleToggleManage(c.user_id, !c.can_manage)}
+                    disabled={!canDelegateScan || manageToggling === c.user_id}
                     aria-pressed={c.can_manage}
-                    title={t("manageToggleTitle")}
+                    title={canDelegateScan ? t("manageToggleTitle") : t("requiresGold")}
                     className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-medium transition disabled:opacity-50 ${
                       c.can_manage
                         ? "bg-[var(--usha-gold)] text-black"
