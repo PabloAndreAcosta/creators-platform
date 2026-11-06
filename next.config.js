@@ -6,6 +6,19 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 // gamla länkar och QR-koder fortsätter fungera. Repo: usha-ab/skuggspelet.
 const USHA_GAMES_ORIGIN = process.env.USHA_GAMES_ORIGIN || "https://ushagames.se";
 
+// Cookies och parametrar som gör ett svar personligt eller sätter cookies.
+// Auth-cookien heter sb-<projekt>-auth-token (låst i #491), chunkad .0, .1 …
+// när sessionen är stor; PKCE-verifieraren följer samma prefix.
+const SUPABASE_AUTH_COOKIE = "sb-hiurrvorwqfihtdfhbhv-auth-token";
+const ANON_CACHE_MISSING = [
+  ...["", ".0", ".1", ".2", ".3", ".4", ".5", ".6", ".7", ".8", ".9"].map((s) => ({ type: "cookie", key: `${SUPABASE_AUTH_COOKIE}${s}` })),
+  { type: "cookie", key: `${SUPABASE_AUTH_COOKIE}-code-verifier` },
+  { type: "cookie", key: "usha-theme" },
+  { type: "query", key: "ref" },
+  { type: "query", key: "lang" },
+  ...["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "utm_id"].map((k) => ({ type: "query", key: k })),
+];
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   async redirects() {
@@ -55,6 +68,25 @@ const nextConfig = {
   },
   async headers() {
     return [
+      // Edge-cache för utloggade (regeln i src/lib/cache/public-pages.ts).
+      // Direktivet måste sitta på funktionens eget svar: satt från middleware
+      // nådde det aldrig CDN:ens bedömning (allt blev MISS). Men headers-regler
+      // utvärderas mot den URSPRUNGLIGA adressen, före middlewarens omskrivning
+      // till ?_anon=<språk>, så villkoren upprepas här: inga auth-cookies,
+      // inget valt tema, inga parametrar som sätter cookies. Middleware skriver
+      // om exakt samma anrop, så den cachade posten har alltid språket i
+      // nyckeln. Next skriver över Cache-Control för dynamiska sidor men
+      // lämnar CDN-namnen ifred. Håll i synk med CACHEABLE_PATHS/decidePublicCache.
+      ...["/", "/(upplevelser|kalender|instruktorer|taxidansare|for-kreatorer|for-platser|for-publik|om|platser|guide)"].map(
+        (source) => ({
+          source,
+          missing: ANON_CACHE_MISSING,
+          headers: [
+            { key: "Vercel-CDN-Cache-Control", value: "s-maxage=60, stale-while-revalidate=600" },
+            { key: "CDN-Cache-Control", value: "s-maxage=60, stale-while-revalidate=600" },
+          ],
+        })
+      ),
       {
         source: "/api/:path*",
         headers: [
