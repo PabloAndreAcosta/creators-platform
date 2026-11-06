@@ -2776,6 +2776,8 @@
     "start": "Iniciar autoregistro",
     "otherNights": "Otras noches",
     "noEvents": "No hay ningún evento próximo del que gestionar la puerta. Crea un evento o pide al anfitrión que te añada al equipo con permiso para escanear.",
+    "noEventTonight": "No hay evento esta noche. Elige para qué noche la tableta dará entrada.",
+    "chooseNight": "Elegir noche",
     "lockedOwner": "El autoregistro forma parte de Premium. Mejora tu plan y la tableta se encarga de la puerta.",
     "lockedCrew": "La cuenta del organizador necesita Premium para el autoregistro. Hasta entonces, escanea como siempre en Escanear.",
     "upgrade": "Mejorar a Premium",

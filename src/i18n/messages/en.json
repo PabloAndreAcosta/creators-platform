@@ -2776,6 +2776,8 @@
     "start": "Start self check-in",
     "otherNights": "Other nights",
     "noEvents": "No upcoming event to run the door for. Create an event, or ask the host to add you to the crew with scanning rights.",
+    "noEventTonight": "No event tonight. Choose which night the tablet should check people in for.",
+    "chooseNight": "Choose night",
     "lockedOwner": "Self check-in is part of Premium. Upgrade and the tablet handles the door for you.",
     "lockedCrew": "The organiser's account needs Premium for self check-in. Until then you scan as usual under Scan.",
     "upgrade": "Upgrade to Premium",
