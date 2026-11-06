@@ -14,6 +14,7 @@ export function Footer() {
       { label: t("nav.calendar"), href: "/kalender" },
       { label: t("footer.marketplace"), href: "/marketplace" },
       { label: t("nav.feed"), href: "/flode" },
+      { label: t("footer.haveYourSay"), href: "/tyck-till" },
     ],
     [t("footer.platform")]: [
       { label: t("nav.forCreators"), href: "/for-kreatorer" },
