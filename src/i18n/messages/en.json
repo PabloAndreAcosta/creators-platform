@@ -999,7 +999,13 @@
     "volunteerApplicationTitle": "New volunteer application",
     "volunteerApplicationMsg": "{name} wants to take volunteer shifts at your evenings. Approve or decline under Volunteer shifts.",
     "volunteerApprovedTitle": "You are approved as a volunteer",
-    "volunteerApprovedMsg": "Pick your shifts for {title}. The approval covers the whole series."
+    "volunteerApprovedMsg": "Pick your shifts for {title}. The approval covers the whole series.",
+    "epassiRequestTitle": "Epassi purchase to confirm",
+    "epassiRequestMsg": "{name} wants to pay for «{service}» with their wellness allowance. Confirm once the purchase shows in Epassi.",
+    "epassiConfirmedTitle": "Your punch card is active",
+    "epassiConfirmedMsg": "We've seen your Epassi payment. «{service}» is now valid at the door.",
+    "epassiRejectedTitle": "Epassi purchase could not be confirmed",
+    "epassiRejectedMsg": "We found no Epassi payment for «{service}». Get in touch if you have paid."
   },
   "apiErrors": {
     "unauthorized": "Unauthorized",
@@ -2406,7 +2412,7 @@
   },
   "eventPage": {
     "epassiTitle": "Pay with your wellness allowance",
-    "epassiBody": "The Lab is on Epassi for punch cards. Open the Epassi app, search for The Lab and buy the 8 or 15 Thursdays punch card there. Show the payment confirmation at the door and bring ID.",
+    "epassiBody": "The Lab is on Epassi for punch cards. Choose a punch card among the tickets and tap Pay with wellness allowance to get the instructions. Bring ID on your first evening.",
     "singleTicket": "Ticket for the night",
     "passSessions": "{n} sessions",
     "passValidMonths": "valid for {n} months",
@@ -2510,7 +2516,11 @@
     "volunteerCtaBody": "Taxi dancers, instructors and more – free entry and a meal voucher. Mobile BankID required.",
     "volunteerCtaAction": "See shifts →",
     "cancellationNote": "Free cancellation with full refund until {hours, plural, =168 {one week} one {# hour} other {# hours}} before start.",
-    "cancellationNoteAnytime": "Free cancellation with full refund until start."
+    "cancellationNoteAnytime": "Free cancellation with full refund until start.",
+    "epassiButton": "Pay with wellness allowance (Epassi)",
+    "epassiLoginButton": "Log in to pay with your wellness allowance",
+    "epassiStartedTitle": "Almost done: pay in Epassi",
+    "epassiStartedBody": "Open the Epassi app, search for The Lab and buy {title} for {price} kr. Use the same name as on your Usha account. We activate the punch card once we see the payment, and you'll find it under Tickets. Bring ID on your first evening."
   },
   "eventErrors": {
     "notReleased": "Tickets have not been released yet.",
@@ -5031,5 +5041,17 @@
     "surveyPractical": "Practical",
     "surveyTaxi": "Taxi dancers",
     "surveyOpen": "Answer →"
+  },
+  "epassiAdmin": {
+    "title": "Epassi purchases",
+    "intro": "Customers who chose to pay for a punch card with their wellness allowance. Compare with Epassi's supplier portal under Payments, Today's purchases or Payment history: name, punch card and amount must match. Confirm only once the purchase shows there. That activates the punch card and notifies the customer.",
+    "pendingHeading": "To confirm ({n})",
+    "pendingEmpty": "No Epassi purchases are waiting for confirmation.",
+    "requestedAt": "Chose Epassi {when}",
+    "confirm": "Paid in Epassi",
+    "reject": "No payment found",
+    "recentHeading": "Recently handled",
+    "statusConfirmed": "Confirmed",
+    "statusRejected": "Rejected"
   }
 }

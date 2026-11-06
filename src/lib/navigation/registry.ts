@@ -283,6 +283,7 @@ export const CONTEXTUAL_ROUTES: Record<string, string> = {
   "/app/events/[id]/broadcast": "Nås från väntelistan på eventsidan.",
   "/app/events/[id]/codes": "Nås från eventsidan.",
   "/app/events/[id]/entre": "Nås från knappraden på eventsidan; öppnas av den som står i dörren.",
+  "/app/epassi": "Epassi-köp att bekräfta — nås från notisen som skickas när en kund väljer att betala ett klippkort med friskvårdsbidrag.",
   "/app/events/new": "Nås från Skapa-knappen i eventlistan.",
   "/app/events/open": "Nås från eventlistan.",
   "/app/events/insights": "Statistik för egna event — nås från Statistik-länken i eventlistans huvud. Det är en underrutt till Evenemang, inte en jämlike i menyn.",

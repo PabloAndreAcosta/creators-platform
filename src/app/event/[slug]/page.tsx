@@ -379,7 +379,7 @@ export default async function EventPage(props: Params) {
     seriesIdRaw && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(seriesIdRaw)
       ? seriesIdRaw
       : null;
-  type PassRow = { id: string; title: string; price: number | null; session_count: number | null; pass_covers: string | null; pass_reference_price: number | null };
+  type PassRow = { id: string; title: string; price: number | null; session_count: number | null; pass_covers: string | null; pass_reference_price: number | null; is_wellness_eligible: boolean | null };
 
   // Allt härunder beror bara på annonsen (och på user, som redan är hämtad),
   // aldrig på varandra. Ett steg i stället för sex. Löftena namnges först så
@@ -392,7 +392,7 @@ export default async function EventPage(props: Params) {
   const passesP = seriesIdForPass
     ? supabase
         .from("listings")
-        .select("id, title, price, session_count, pass_covers, pass_reference_price")
+        .select("id, title, price, session_count, pass_covers, pass_reference_price, is_wellness_eligible")
         .or(`pass_series_id.eq.${seriesIdForPass},pass_series_ids.cs.{${seriesIdForPass}}`)
         .eq("is_active", true)
         .eq("is_public", true)
@@ -433,7 +433,7 @@ export default async function EventPage(props: Params) {
 
   const passes = ((passRows ?? []) as PassRow[])
     .filter((p) => (p.session_count ?? 0) > 0)
-    .map((p) => ({ id: p.id, title: p.title, price: p.price ?? 0, sessionCount: p.session_count ?? 0, covers: p.pass_covers, referencePrice: p.pass_reference_price }));
+    .map((p) => ({ id: p.id, title: p.title, price: p.price ?? 0, sessionCount: p.session_count ?? 0, covers: p.pass_covers, referencePrice: p.pass_reference_price, wellness: !!p.is_wellness_eligible }));
 
   // Pottmedlemmar ärver pottens tak och pottens sålda antal, annars ser de
   // obegränsade ut för köparen och nekas först i kassan.
