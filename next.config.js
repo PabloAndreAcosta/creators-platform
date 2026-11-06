@@ -7,17 +7,20 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 const USHA_GAMES_ORIGIN = process.env.USHA_GAMES_ORIGIN || "https://ushagames.se";
 
 // Cookies och parametrar som gör ett svar personligt eller sätter cookies.
-// Auth-cookien heter sb-<projekt>-auth-token (låst i #491), chunkad .0, .1 …
-// när sessionen är stor; PKCE-verifieraren följer samma prefix.
+// Auth-cookien heter sb-<projekt>-auth-token (låst i #491). En stor session
+// chunkas till .0, .1 … och har då ALLTID en .0-del, så basnamnet + .0 räcker
+// för att fånga varje session; .1 är hängslen. PKCE-verifieraren följer samma
+// prefix. Vercel tillåter högst 16 villkor per regel (deploy #531 föll på 21).
 const SUPABASE_AUTH_COOKIE = "sb-hiurrvorwqfihtdfhbhv-auth-token";
 const ANON_CACHE_MISSING = [
-  ...["", ".0", ".1", ".2", ".3", ".4", ".5", ".6", ".7", ".8", ".9"].map((s) => ({ type: "cookie", key: `${SUPABASE_AUTH_COOKIE}${s}` })),
+  ...["", ".0", ".1"].map((s) => ({ type: "cookie", key: `${SUPABASE_AUTH_COOKIE}${s}` })),
   { type: "cookie", key: `${SUPABASE_AUTH_COOKIE}-code-verifier` },
   { type: "cookie", key: "usha-theme" },
   { type: "query", key: "ref" },
   { type: "query", key: "lang" },
-  ...["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "utm_id"].map((k) => ({ type: "query", key: k })),
+  ...["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"].map((k) => ({ type: "query", key: k })),
 ];
+if (ANON_CACHE_MISSING.length > 16) throw new Error("Vercel tillåter högst 16 has/missing-villkor per regel");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
