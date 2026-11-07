@@ -23,7 +23,8 @@ export interface SignicatSessionResult {
     lastName: string;
     name: string;
     dateOfBirth: string;
-    nin: {
+    /** Saknas för Freja-användare med pass utan nationellt ID-nummer. */
+    nin?: {
       value: string;
       issuingCountry: string;
       type: string;

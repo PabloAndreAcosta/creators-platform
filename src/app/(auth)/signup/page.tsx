@@ -12,6 +12,7 @@ import { trackEvent } from "@/lib/analytics";
 import { SIGNUP_CREDIT_ORE, SIGNUP_CREDIT_MIN_SPEND_ORE } from "@/lib/credits/signup";
 import { Palette, Store, Search, ShieldCheck, Loader2, Music, User, Building2, Gift } from "lucide-react";
 import { GoogleIcon, FacebookIcon } from "@/components/brand-icons";
+import { FrejaAlternative } from "@/components/freja-alternative";
 import { InAppBrowserNotice, useInAppBrowser } from "@/components/in-app-browser-notice";
 
 import type { Role } from "@/lib/roles";
@@ -202,7 +203,7 @@ export default function SignupPage() {
     return `${base} border-green-500/40 focus:border-green-500/60`;
   }
 
-  async function handleBankIdVerify() {
+  async function handleBankIdVerify(method: "sbid" | "freja" = "sbid") {
     if (!selectedRole) return;
     setBankidVerifying(true);
     setBankidError("");
@@ -220,7 +221,7 @@ export default function SignupPage() {
       const res = await fetch("/api/auth/bankid/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role: selectedRole, subcategory: selectedSubcategory ?? "general" }),
+        body: JSON.stringify({ role: selectedRole, subcategory: selectedSubcategory ?? "general", method }),
       });
       const data = await res.json();
 
@@ -351,7 +352,7 @@ export default function SignupPage() {
 
   // Konto med BankID utan lösenord: BankID först, sedan e-post + kod på
   // /signup/bankid. Finns redan ett konto på personnumret loggas det in.
-  async function handleBankIdCreate() {
+  async function handleBankIdCreate(method: "sbid" | "freja" = "sbid") {
     setBankidVerifying(true);
     setBankidError("");
     const rawNext = searchParams.get("next") || "";
@@ -361,6 +362,7 @@ export default function SignupPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           mode: "login",
+          method,
           role: selectedRole,
           next: rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : null,
         }),
@@ -588,7 +590,7 @@ export default function SignupPage() {
           )}
 
           <button
-            onClick={handleBankIdVerify}
+            onClick={() => handleBankIdVerify()}
             disabled={bankidVerifying}
             className="flex w-full min-h-[48px] items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] py-3 text-sm font-bold text-black transition hover:opacity-90 disabled:opacity-50"
           >
@@ -604,6 +606,7 @@ export default function SignupPage() {
               </>
             )}
           </button>
+          <FrejaAlternative className="mt-2" label={t("frejaAlternative")} disabled={bankidVerifying} onClick={() => handleBankIdVerify("freja")} />
 
           <p className="mt-3 text-center text-xs text-[var(--usha-muted)]">
             {t("bankidRedirectInfo")}
@@ -677,13 +680,14 @@ export default function SignupPage() {
         {!NEEDS_BANKID.includes(selectedRole!) && !bankidVerified && (
           <>
             <button
-              onClick={handleBankIdCreate}
+              onClick={() => handleBankIdCreate()}
               disabled={bankidVerifying}
               className="mb-2 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] py-3 text-sm font-semibold text-black transition hover:opacity-90 disabled:opacity-60"
             >
               <ShieldCheck size={16} />
               {bankidVerifying ? t("openingBankid") : t("createWithBankid")}
             </button>
+            <FrejaAlternative className="mb-2" label={t("frejaAlternative")} disabled={bankidVerifying} onClick={() => handleBankIdCreate("freja")} />
             {bankidError && <p className="mb-2 text-xs text-red-400">{bankidError}</p>}
           </>
         )}

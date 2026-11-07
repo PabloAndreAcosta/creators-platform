@@ -10,6 +10,7 @@ import { isRateLimitError } from "@/lib/auth/rate-limit-error";
 import { ShieldCheck, Eye, EyeOff } from "lucide-react";
 import { AuthBrand } from "@/components/auth-brand";
 import { GoogleIcon, FacebookIcon } from "@/components/brand-icons";
+import { FrejaAlternative } from "@/components/freja-alternative";
 import { InAppBrowserNotice, useInAppBrowser } from "@/components/in-app-browser-notice";
 
 function FieldError({ message }: { message: string }) {
@@ -196,14 +197,14 @@ export default function LoginPage() {
     });
   }
 
-  async function handleBankIdLogin() {
+  async function handleBankIdLogin(method: "sbid" | "freja" = "sbid") {
     setBankidStarting(true);
     setError("");
     try {
       const res = await fetch("/api/auth/bankid/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode: "login", next: nextPath }),
+        body: JSON.stringify({ mode: "login", next: nextPath, method }),
       });
       const data = await res.json();
       if (!res.ok || !data.authenticationUrl) {
@@ -260,13 +261,14 @@ export default function LoginPage() {
         <InAppBrowserNotice app={inApp} />
 
         <button
-          onClick={handleBankIdLogin}
+          onClick={() => handleBankIdLogin()}
           disabled={bankidStarting}
           className="mb-2 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] py-3 text-sm font-semibold text-black transition hover:opacity-90 disabled:opacity-60"
         >
           <ShieldCheck size={16} />
           {bankidStarting ? t("openingBankid") : t("loginWithBankid")}
         </button>
+        <FrejaAlternative className="mb-3" label={t("frejaAlternative")} disabled={bankidStarting} onClick={() => handleBankIdLogin("freja")} />
 
         {!inApp && (
           <button

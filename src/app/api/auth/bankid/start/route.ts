@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createBankIdSession } from "@/lib/signicat/client";
 import { signCookieValue } from "@/lib/signicat/crypto";
+import { frejaEnabled, parseIdMethod } from "@/lib/bankid/identity";
 
 export async function POST(req: NextRequest) {
   try {
-    const { role, subcategory, mode, next } = await req.json();
+    const { role, subcategory, mode, next, method: rawMethod } = await req.json();
+    const method = parseIdMethod(rawMethod);
+    if (method === "freja" && !frejaEnabled()) {
+      return NextResponse.json({ error: "Freja eID är inte tillgängligt ännu." }, { status: 400 });
+    }
 
     const resolvedMode: "signup" | "add" | "login" =
       mode === "add" ? "add" : mode === "login" ? "login" : "signup";
@@ -36,7 +41,7 @@ export async function POST(req: NextRequest) {
         : "general";
 
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || req.nextUrl.origin;
-    const session = await createBankIdSession(baseUrl);
+    const session = await createBankIdSession(baseUrl, method);
 
     const response = NextResponse.json({
       authenticationUrl: session.authenticationUrl,
@@ -52,6 +57,7 @@ export async function POST(req: NextRequest) {
       subcategory: resolvedSubcategory,
       mode: resolvedMode,
       next: safeNext,
+      method,
     }), {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",

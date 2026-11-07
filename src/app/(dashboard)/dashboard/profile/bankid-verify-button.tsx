@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ShieldCheck, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
+import { FrejaAlternative } from "@/components/freja-alternative";
 
 interface Props {
   role: "creator" | "venue" | "customer";
@@ -18,7 +19,7 @@ export function BankIdVerifyButton({ role, label, className, next: nextProp }: P
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
 
-  async function handleClick() {
+  async function handleClick(method: "sbid" | "freja" = "sbid") {
     setLoading(true);
     const rawNext = nextProp || searchParams.get("bankid_next") || "";
     const next = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : null;
@@ -26,7 +27,7 @@ export function BankIdVerifyButton({ role, label, className, next: nextProp }: P
       const res = await fetch("/api/auth/bankid/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role, mode: "add", next }),
+        body: JSON.stringify({ role, mode: "add", next, method }),
       });
       const data = await res.json();
       if (!res.ok || !data.authenticationUrl) {
@@ -42,9 +43,17 @@ export function BankIdVerifyButton({ role, label, className, next: nextProp }: P
   }
 
   return (
-    <button onClick={handleClick} disabled={loading} className={className} type="button">
-      {loading ? <Loader2 size={14} className="animate-spin" /> : <ShieldCheck size={14} />}
-      {label}
-    </button>
+    <>
+      <button onClick={() => handleClick()} disabled={loading} className={className} type="button">
+        {loading ? <Loader2 size={14} className="animate-spin" /> : <ShieldCheck size={14} />}
+        {label}
+      </button>
+      <FrejaAlternative
+        className="mt-2"
+        label="Inget svenskt BankID? Legitimera dig med Freja eID"
+        disabled={loading}
+        onClick={() => handleClick("freja")}
+      />
+    </>
   );
 }
