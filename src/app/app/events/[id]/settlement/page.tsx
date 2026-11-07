@@ -9,6 +9,7 @@ import { getCreatorCommissionRate } from "@/lib/stripe/commission";
 import { aggregateEventBookings } from "@/lib/settlements/aggregate";
 import { passRedemptionRows } from "@/lib/passes/series-pass";
 import { splitEventRevenue } from "@/lib/settlements/split";
+import { allowedPartnerIds } from "@/lib/settlements/partners";
 
 // Organizer settlement / payout report for one event. Read-only: it reconciles
 // gross ticket sales against Usha's fee and refunds to show the net the
@@ -64,7 +65,7 @@ export default async function SettlementPage(props: { params: Promise<{ id: stri
   // .eq("user_id", user.id), så bara ägaren kommer hit.
   const { data: share } = await createAdminClient()
     .from("event_revenue_shares")
-    .select("partner_percent, vat_rate, payout_delay_days, partner:profiles!partner_profile_id(full_name, company_name, company_verified_at, stripe_charges_enabled)")
+    .select("partner_profile_id, partner_percent, vat_rate, payout_delay_days, partner:profiles!partner_profile_id(full_name, company_name, company_verified_at, stripe_charges_enabled)")
     .eq("listing_id", listing.id)
     .maybeSingle();
 
@@ -101,16 +102,26 @@ export default async function SettlementPage(props: { params: Promise<{ id: stri
         .maybeSingle()
     : { data: null };
 
-  // Lokalens namn behövs även när inget avtal finns ännu, för att kunna säga
-  // VEM andelen skulle gå till i formuläret.
-  const { data: kopplad } = listing.venue_profile_id
-    ? await createAdminClient()
-        .from("profiles")
-        .select("full_name, company_name")
-        .eq("id", listing.venue_profile_id)
-        .maybeSingle()
-    : { data: null };
-  const kopplatLokalnamn = (kopplad?.company_name || kopplad?.full_name || "").trim() || null;
+  // Möjliga mottagare: kvällens lokal och medarrangörerna i crew. Namnen
+  // behövs även när inget avtal finns ännu, för att kunna säga VEM andelen
+  // skulle gå till i formuläret.
+  const adminDb = createAdminClient();
+  const candidateIds = [...(await allowedPartnerIds(adminDb, listing))];
+  const { data: candidateProfiles } = candidateIds.length
+    ? await adminDb.from("profiles").select("id, full_name, company_name").in("id", candidateIds)
+    : { data: [] as { id: string; full_name: string | null; company_name: string | null }[] };
+  const partnerOptions = candidateIds.map((id) => {
+    const p = (candidateProfiles ?? []).find((x) => x.id === id);
+    const name = (p?.company_name || p?.full_name || "").trim() || "—";
+    const isVenue = id === listing.venue_profile_id;
+    return {
+      id,
+      name,
+      label: isVenue ? t("shareFormPartnerVenue", { name }) : t("shareFormPartnerCrew", { name }),
+    };
+  });
+  // Lokalen först, den är det vanliga fallet.
+  partnerOptions.sort((a, b) => Number(b.id === listing.venue_profile_id) - Number(a.id === listing.venue_profile_id));
 
   // Sålda biljetter låser villkoren.
   const harForsaljning = grossOre > 0;
@@ -250,11 +261,12 @@ export default async function SettlementPage(props: { params: Promise<{ id: stri
         )}
         <ShareForm
           listingId={listing.id}
-          venueName={kopplatLokalnamn}
+          partnerOptions={partnerOptions}
           hasSales={harForsaljning}
           existing={
             share
               ? {
+                  partnerProfileId: share.partner_profile_id,
                   partnerPercent: share.partner_percent,
                   vatRate: Number(share.vat_rate),
                   payoutDelayDays: share.payout_delay_days ?? 1,
@@ -273,6 +285,8 @@ export default async function SettlementPage(props: { params: Promise<{ id: stri
             saved: t("shareFormSaved"),
             remove: t("shareFormRemove"),
             locked: t("shareFormLocked"),
+            partner: t("shareFormPartner"),
+            partnerHint: t("shareFormPartnerHint"),
           }}
         />
       </div>

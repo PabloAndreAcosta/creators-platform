@@ -4,15 +4,18 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { validateShareInput } from "@/lib/settlements/share-input";
+import { allowedPartnerIds } from "@/lib/settlements/partners";
 import { checkVenueShareChange } from "@/lib/settlements/venue-share-lock";
 import { isAdminById } from "@/lib/admin/check";
 
 /**
  * Delningsavtalet för en kväll.
  *
- * Partnern är alltid evenemangets kopplade lokal. Ett fritt personval hade
- * krävt en väljare som exponerar konton, och det verkliga fallet är alltid
- * lokalen — vill man dela med en medarrangör finns gage-funktionen.
+ * Partnern är evenemangets kopplade lokal eller någon i kvällens crew
+ * (accepterad medarrangör), till exempel en gästlärare som får en andel av
+ * sin workshop. Aldrig ett fritt personval: en väljare över alla konton hade
+ * exponerat konton, och mottagaren ska vara någon arrangören redan samarbetar
+ * med på just den här kvällen. Högst en partner per evenemang.
  */
 
 /** Ägaren till evenemanget, eller ett felmeddelande. */
@@ -53,6 +56,7 @@ async function venueDefaultPercent(
 }
 
 const LOCK_MESSAGES = {
+  crew: "Lokalen har ett standardavtal, så andelen kan inte flyttas till crew här. Kom överens med lokalen, så ändrar Usha avtalet.",
   lower: "Lokalens andel kan inte sänkas här. Det är lokalens villkor – kom överens med lokalen, så ändrar Usha avtalet.",
   remove: "Lokalens andel kan inte tas bort här. Det är lokalens villkor – kom överens med lokalen, så ändrar Usha avtalet.",
 } as const;
@@ -75,13 +79,19 @@ async function hasSales(admin: ReturnType<typeof createAdminClient>, listingId: 
 
 export async function saveRevenueShare(
   listingId: string,
-  input: { partnerPercent: unknown; vatRate: unknown; payoutDelayDays: unknown }
+  input: { partnerPercent: unknown; vatRate: unknown; payoutDelayDays: unknown; partnerProfileId?: unknown }
 ) {
   const ctx = await requireOwner(listingId);
   if ("error" in ctx) return { error: ctx.error };
 
-  if (!ctx.listing.venue_profile_id) {
-    return { error: "Koppla evenemanget till en lokal först — det är lokalen som får andelen." };
+  const allowed = await allowedPartnerIds(ctx.admin, ctx.listing);
+  const requested = typeof input.partnerProfileId === "string" && input.partnerProfileId ? input.partnerProfileId : null;
+  const partnerId = requested ?? ctx.listing.venue_profile_id ?? null;
+  if (!partnerId) {
+    return { error: "Koppla evenemanget till en lokal eller lägg till en medarrangör i crew först — det är någon av dem som får andelen." };
+  }
+  if (!allowed.has(partnerId)) {
+    return { error: "Mottagaren måste vara kvällens lokal eller en medarrangör i crew." };
   }
 
   const parsed = validateShareInput(input);
@@ -94,12 +104,16 @@ export async function saveRevenueShare(
     return { error: messages[parsed.error] };
   }
 
+  // Går andelen till någon annan än lokalen tar det i praktiken bort lokalens
+  // andel. Har lokalen ett standardavtal är det samma sak som en borttagning
+  // och kräver admin — en överenskommelse med lokalen, inte arrangörens val.
+  const toVenue = partnerId === ctx.listing.venue_profile_id;
   const lock = checkVenueShareChange(
     await venueDefaultPercent(ctx.admin, ctx.listing.venue_profile_id),
-    { kind: "save", partnerPercent: parsed.value.partnerPercent },
+    toVenue ? { kind: "save", partnerPercent: parsed.value.partnerPercent } : { kind: "remove" },
     await isAdminById(ctx.userId),
   );
-  if (!lock.ok) return { error: LOCK_MESSAGES[lock.reason] };
+  if (!lock.ok) return { error: LOCK_MESSAGES[toVenue ? lock.reason : "crew"] };
 
   if (await hasSales(ctx.admin, listingId)) {
     return { error: "Kvällen har redan sålt biljetter. Villkoren går inte att ändra i efterhand." };
@@ -108,7 +122,7 @@ export async function saveRevenueShare(
   const { error } = await ctx.admin.from("event_revenue_shares").upsert(
     {
       listing_id: listingId,
-      partner_profile_id: ctx.listing.venue_profile_id,
+      partner_profile_id: partnerId,
       partner_percent: parsed.value.partnerPercent,
       vat_rate: parsed.value.vatRate,
       payout_delay_days: parsed.value.payoutDelayDays,
