@@ -25,7 +25,9 @@ export default async function TicketsPage() {
       const { data: prof } = await supabase.from("profiles").select("role, tier").eq("id", user.id).maybeSingle();
       // "Paid" = Gold/Premium tier, an active/trialing subscription, or — during
       // the free beta — everyone (mirrors hasActiveSubscription on the scan page).
-      let paid = prof?.tier === "guld" || prof?.tier === "premium";
+      // Lokaler räknas som betalande här: deras nivåer är avvecklade och går
+      // inte att köpa (se lib/scan-host-paid.ts).
+      let paid = prof?.tier === "guld" || prof?.tier === "premium" || prof?.role === "venue";
       if (!paid) {
         const { BETA_MODE } = await import("@/lib/beta");
         if (BETA_MODE) {
@@ -40,20 +42,16 @@ export default async function TicketsPage() {
           paid = !!sub;
         }
       }
-      if (paid) {
-        const isHost = prof?.role === "creator" || prof?.role === "venue";
-        canScan = isHost;
-        if (!canScan) {
-          const { data: deleg } = await supabase
-            .from("listing_collaborators")
-            .select("id")
-            .eq("user_id", user.id)
-            .eq("status", "accepted")
-            .eq("can_scan", true)
-            .limit(1)
-            .maybeSingle();
-          canScan = !!deleg;
-        }
+      const isHost = prof?.role === "creator" || prof?.role === "venue";
+      if (paid && isHost) {
+        canScan = true;
+      } else {
+        // Crew och dörrteam: skanna-rätten följer VÄRDENS nivå. Har en
+        // betalande värd delegerat skanning behövs ingen egen prenumeration;
+        // med egen betald nivå räcker det att någon delegerat.
+        const { delegatedScanAccess } = await import("@/lib/scan-host-paid");
+        const { delegated, hostPaid } = await delegatedScanAccess(createAdminClient(), user.id);
+        canScan = delegated && (paid || hostPaid);
       }
 
       // Own bookings (RLS-scoped to this user).
