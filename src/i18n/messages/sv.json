@@ -3849,7 +3849,7 @@
     "manageSubscription": "Hantera prenumeration"
   },
   "companyVerify": {
-    "orgNumberPlaceholder": "Organisationsnummer (t.ex. 559401-8326)",
+    "orgNumberPlaceholder": "Organisationsnummer eller EU-momsnummer (t.ex. 559401-8326 eller EL123456789)",
     "submit": "Verifiera bolag",
     "successTitle": "Bolag verifierat",
     "successNamed": "{companyName} är nu verifierat.",
