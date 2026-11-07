@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { validateShareInput } from "@/lib/settlements/share-input";
+import { checkVenueShareChange } from "@/lib/settlements/venue-share-lock";
+import { isAdminById } from "@/lib/admin/check";
 
 /**
  * Delningsavtalet för en kväll.
@@ -33,8 +35,27 @@ async function requireOwner(listingId: string) {
   if (!listing || listing.user_id !== user.id) {
     return { error: "Du äger inte det här evenemanget." as const };
   }
-  return { listing, admin };
+  return { listing, admin, userId: user.id };
 }
+
+/** Lokalens standardandel i procent, eller null om lokalen inte har någon. */
+async function venueDefaultPercent(
+  admin: ReturnType<typeof createAdminClient>,
+  venueProfileId: string | null,
+): Promise<number | null> {
+  if (!venueProfileId) return null;
+  const { data } = await admin
+    .from("venue_revenue_share_defaults")
+    .select("partner_percent")
+    .eq("venue_profile_id", venueProfileId)
+    .maybeSingle();
+  return data ? Number(data.partner_percent) : null;
+}
+
+const LOCK_MESSAGES = {
+  lower: "Lokalens andel kan inte sänkas här. Det är lokalens villkor – kom överens med lokalen, så ändrar Usha avtalet.",
+  remove: "Lokalens andel kan inte tas bort här. Det är lokalens villkor – kom överens med lokalen, så ändrar Usha avtalet.",
+} as const;
 
 /**
  * Har kvällen redan sålt biljetter?
@@ -73,6 +94,13 @@ export async function saveRevenueShare(
     return { error: messages[parsed.error] };
   }
 
+  const lock = checkVenueShareChange(
+    await venueDefaultPercent(ctx.admin, ctx.listing.venue_profile_id),
+    { kind: "save", partnerPercent: parsed.value.partnerPercent },
+    await isAdminById(ctx.userId),
+  );
+  if (!lock.ok) return { error: LOCK_MESSAGES[lock.reason] };
+
   if (await hasSales(ctx.admin, listingId)) {
     return { error: "Kvällen har redan sålt biljetter. Villkoren går inte att ändra i efterhand." };
   }
@@ -100,6 +128,13 @@ export async function saveRevenueShare(
 export async function removeRevenueShare(listingId: string) {
   const ctx = await requireOwner(listingId);
   if ("error" in ctx) return { error: ctx.error };
+
+  const lock = checkVenueShareChange(
+    await venueDefaultPercent(ctx.admin, ctx.listing.venue_profile_id),
+    { kind: "remove" },
+    await isAdminById(ctx.userId),
+  );
+  if (!lock.ok) return { error: LOCK_MESSAGES[lock.reason] };
 
   if (await hasSales(ctx.admin, listingId)) {
     return { error: "Kvällen har redan sålt biljetter. Avtalet går inte att ta bort i efterhand." };
