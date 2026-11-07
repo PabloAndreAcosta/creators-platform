@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
+
 import { useState, useEffect, useRef } from "react";
-import { Loader2, Trash2, Copy, Check, UserPlus, ShieldCheck, Search, ScanLine, BarChart3 } from "lucide-react";
+import { Loader2, Trash2, Copy, Check, UserPlus, ShieldCheck, Search, ScanLine, BarChart3, FileSignature } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useToast } from "@/components/ui/toaster";
 import {
@@ -484,6 +486,14 @@ export function CrewManager({
                     {roleLabel(c.role)}
                   </p>
                 </div>
+                <Link
+                  href={`/app/avtal/ny?with=${c.user_id}&listing=${listingId}`}
+                  title={t("agreementLink")}
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[var(--usha-border)] px-3 py-1.5 text-[11px] font-medium text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
+                >
+                  <FileSignature size={13} />
+                  {t("agreementLink")}
+                </Link>
                 {/* Låsta reglage visas gråa med förklaring, inte gömda. */}
                 {c.scan_eligible && (
                   <button
