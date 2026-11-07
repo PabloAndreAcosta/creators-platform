@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { delegatedScanAccess } from "@/lib/scan-host-paid";
 
-// Whether the signed-in user has been delegated ticket scanning on any event.
-// Used to open the scanner UI for crew members (per-ticket authorization is
-// still enforced per event in /api/tickets/verify and /checkin).
+// Om användaren fått skanna-rätt av en värd (crew, can_scan) eller en lokal
+// (dörrteam med "scan"), och om någon av dem är betalande. Skannern öppnas för
+// crew när VÄRDEN betalar – crew behöver ingen egen prenumeration.
+// Behörigheten per biljett kontrolleras fortfarande per evenemang i
+// /api/tickets/verify och /checkin.
 export async function GET() {
   const supabase = await createClient();
   const {
@@ -11,37 +15,9 @@ export async function GET() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ allowed: false }, { status: 401 });
+    return NextResponse.json({ allowed: false, hostPaid: false }, { status: 401 });
   }
 
-  // RLS allows self-select on listing_collaborators.
-  const { data } = await supabase
-    .from("listing_collaborators")
-    .select("id")
-    .eq("user_id", user.id)
-    .eq("status", "accepted")
-    .eq("can_scan", true)
-    .limit(1)
-    .maybeSingle();
-
-  if (data) return NextResponse.json({ allowed: true });
-
-  // Dörrvärden i en lokals team har ingen rad per evenemang — behörigheten
-  // sitter på lokalen. Utan det här öppnas aldrig skannern för hen, och
-  // `scan`-behörigheten blir en kryssruta utan verkan.
-  //
-  // RLS på venue_members släpper igenom den egna raden, så användarens egen
-  // klient räcker.
-  const { data: member } = await supabase
-    .from("venue_members")
-    .select("capabilities")
-    .eq("user_id", user.id)
-    .not("accepted_at", "is", null)
-    .is("removed_at", null);
-
-  const kanSkanna = (member ?? []).some((m: { capabilities: string[] | null }) =>
-    (m.capabilities ?? []).includes("scan")
-  );
-
-  return NextResponse.json({ allowed: kanSkanna });
+  const { delegated, hostPaid } = await delegatedScanAccess(createAdminClient(), user.id);
+  return NextResponse.json({ allowed: delegated, hostPaid });
 }

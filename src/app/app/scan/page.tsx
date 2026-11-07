@@ -53,6 +53,7 @@ export default function ScanPage() {
   const [cameraErrorDetail, setCameraErrorDetail] = useState("");
   const [scanningFile, setScanningFile] = useState(false);
   const [delegated, setDelegated] = useState<boolean | null>(null);
+  const [hostPaid, setHostPaid] = useState(false);
   const scannerRef = useRef<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scannerContainerRef = useRef<HTMLDivElement>(null);
@@ -71,7 +72,11 @@ export default function ScanPage() {
     let active = true;
     fetch("/api/tickets/can-scan")
       .then((r) => r.json())
-      .then((d) => active && setDelegated(!!d.allowed))
+      .then((d) => {
+        if (!active) return;
+        setDelegated(!!d.allowed);
+        setHostPaid(!!d.hostPaid);
+      })
       .catch(() => active && setDelegated(false));
     return () => {
       active = false;
@@ -84,7 +89,13 @@ export default function ScanPage() {
   // Scanning requires a paid account for EVERYONE — creators, venues AND
   // delegated crew (volunteers/team). During the free beta, hasActiveSubscription
   // is true for all, so scanning is open to authorized users until beta ends.
-  const paid = tier === "guld" || tier === "premium" || hasActiveSubscription;
+  //
+  // Undantag sedan 2026-11-07: crew som fått skanna-rätt av en BETALANDE värd
+  // skannar på värdens nivå (hostPaid från /api/tickets/can-scan).
+  // Lokaler skannar utan prenumeration: deras nivåer är avvecklade och går
+  // inte att köpa (se lib/scan-host-paid.ts).
+  const paid =
+    tier === "guld" || tier === "premium" || hasActiveSubscription || role === "venue" || (delegated === true && hostPaid);
   const authorized = role === "creator" || role === "venue" || delegated === true;
   const hasAccess = paid && authorized;
 
