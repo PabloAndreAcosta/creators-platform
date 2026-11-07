@@ -1,4 +1,5 @@
 import type { SignicatSession, SignicatSessionResult } from "@/types/bankid";
+import type { IdMethod } from "@/lib/bankid/identity";
 
 const CLIENT_ID = process.env.SIGNICAT_CLIENT_ID || "";
 const CLIENT_SECRET = process.env.SIGNICAT_CLIENT_SECRET || "";
@@ -40,7 +41,8 @@ async function getAccessToken(): Promise<string> {
 }
 
 export async function createBankIdSession(
-  callbackBaseUrl: string
+  callbackBaseUrl: string,
+  method: IdMethod = "sbid",
 ): Promise<SignicatSession> {
   const token = await getAccessToken();
 
@@ -54,7 +56,12 @@ export async function createBankIdSession(
       },
       body: JSON.stringify({
         flow: "redirect",
-        allowedProviders: ["sbid"],
+        allowedProviders: [method],
+        // Freja: kräv minst EXTENDED, alltså en identitet styrkt med ID-handling
+        // (svenskt ID-kort eller biometriskt pass). BASIC är bara en e-postadress
+        // och duger inte för BankID-grinden. Parameternamnet ska bekräftas i
+        // Signicats sandlåda innan FREJA slås på.
+        ...(method === "freja" ? { additionalParameters: { freja_min_registration_level: "EXTENDED" } } : {}),
         requestedAttributes: [
           "name",
           "firstName",

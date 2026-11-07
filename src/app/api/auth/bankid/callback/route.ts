@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { birthDateOrNull } from "@/lib/bankid/birth-date";
 import { getBankIdSessionResult } from "@/lib/signicat/client";
-import { signCookieValue, verifyCookieValue, hashPersonalNumber } from "@/lib/signicat/crypto";
+import { signCookieValue, verifyCookieValue } from "@/lib/signicat/crypto";
+import { identityKey, parseIdMethod } from "@/lib/bankid/identity";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { computeAge } from "@/lib/age";
@@ -28,6 +29,7 @@ export async function GET(req: NextRequest) {
     mode?: "signup" | "add" | "login" | "games";
     next?: string | null;
     ret?: string;
+    method?: string;
   }>(sessionCookie);
   if (!sessionData) {
     return NextResponse.redirect(`${baseUrl}/signup?bankid=error`);
@@ -62,7 +64,7 @@ export async function GET(req: NextRequest) {
       return response;
     }
 
-    const { firstName, lastName, name, dateOfBirth, nin } = result.subject;
+    const { firstName, lastName, name, dateOfBirth } = result.subject;
 
     if (sessionData.subcategory === "taxi_dancer") {
       const age = computeAge(dateOfBirth);
@@ -75,7 +77,14 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    const hashedNin = hashPersonalNumber(nin.value);
+    // Svenskt personnummer, utländskt ID-nummer med landskod, eller Frejas
+    // fasta användar-id för den som saknar nummer. Se lib/bankid/identity.ts.
+    const hashedNin = identityKey(result.subject, parseIdMethod(sessionData.method));
+    if (!hashedNin) {
+      const response = NextResponse.redirect(`${errorBase}?bankid=failed`);
+      response.cookies.set("bankid_session", "", { path: "/", maxAge: 0 });
+      return response;
+    }
 
     const admin = createAdminClient();
 

@@ -539,6 +539,7 @@
     "bankidStartError": "No se pudo iniciar la verificación con BankID. Inténtalo de nuevo.",
     "bankidAgeRestricted": "Debes tener al menos 18 años para registrarte como bailarín de compañía.",
     "loginWithBankid": "Iniciar sesión con BankID",
+    "frejaAlternative": "¿Sin BankID sueco? Identifícate con Freja eID",
     "bankidNoAccount": "No hay ninguna cuenta vinculada a tu BankID. Inicia sesión de otra forma y vincula BankID en Perfil, o crea una cuenta.",
     "bankidEmailUnconfirmed": "Primero confirma tu correo con el enlace que te enviamos y luego inicia sesión con BankID.",
     "chooseSubcategory": "¿Qué tipo de creador?",

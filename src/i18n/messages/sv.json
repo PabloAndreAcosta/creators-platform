@@ -539,6 +539,7 @@
     "bankidStartError": "Kunde inte starta BankID-verifiering. Försök igen.",
     "bankidAgeRestricted": "Du måste vara minst 18 år för att registrera dig som taxidansare.",
     "loginWithBankid": "Logga in med BankID",
+    "frejaAlternative": "Inget svenskt BankID? Legitimera dig med Freja eID",
     "bankidNoAccount": "Inget konto är kopplat till ditt BankID. Logga in på annat sätt och koppla BankID under Profil, eller skapa ett konto.",
     "bankidEmailUnconfirmed": "Bekräfta din e-postadress först via länken vi mejlade, logga sedan in med BankID.",
     "chooseSubcategory": "Vilken typ av kreatör?",
