@@ -863,7 +863,8 @@
       "kreatorPremium3": "Everything in Gold",
       "kreatorPremium4": "Facebook sync: publish the night automatically",
       "kreatorPremium5": "Statistics export to CSV",
-      "kreatorPremium6": "Door kiosk: guests check themselves in"
+      "kreatorPremium6": "Door kiosk: guests check themselves in",
+      "kreatorPremium7": "Agreements: write and sign agreements with collaborators"
     },
     "faq": {
       "title": "Questions &",
