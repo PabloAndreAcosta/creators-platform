@@ -453,7 +453,7 @@
     "payouts": "Payouts",
     "commissionLevel": "Your commission level",
     "switchRole": "Change role",
-    "switchRoleHint": "Your role decides what the app shows you. To sell tickets or list a venue, pick that role here — during the beta it costs nothing.",
+    "switchRoleHint": "Your role decides what the app shows you. To sell tickets or list a venue, pick that role here.",
     "month": "mo",
     "roleName": {
       "customer": "Visitor",
@@ -4636,7 +4636,7 @@
       "q2": "Can guests buy without an account?",
       "a2": "Yes. They give an email address and get a QR code to show at the door.",
       "q3": "I picked the wrong role when signing up",
-      "a3": "Go to Subscription and choose Change role. The other roles plans are there — during the beta they cost nothing.",
+      "a3": "Go to Subscription and choose Change role. The other roles' plans are there.",
       "q4": "Can several people manage the same account?",
       "a4": "Venues can build a team and hand out permissions. Creators can invite co-organisers and crew per event.",
       "q5": "What if I have to cancel?",

@@ -453,7 +453,7 @@
     "payouts": "Pagos",
     "commissionLevel": "Tu nivel de comisión",
     "switchRole": "Cambiar de rol",
-    "switchRoleHint": "Tu rol determina lo que muestra la app. Para vender entradas o publicar un local, elige ese rol aquí — durante la beta no cuesta nada.",
+    "switchRoleHint": "Tu rol determina lo que muestra la app. Para vender entradas o publicar un local, elige ese rol aquí.",
     "month": "mes",
     "roleName": {
       "customer": "Visitante",
@@ -4636,7 +4636,7 @@
       "q2": "¿Pueden comprar los invitados sin cuenta?",
       "a2": "Sí. Dan un correo y reciben un código QR para mostrar en la puerta.",
       "q3": "Elegí el rol equivocado al registrarme",
-      "a3": "Ve a Suscripción y elige Cambiar de rol. Allí están los planes de los otros roles — durante la beta no cuestan nada.",
+      "a3": "Ve a Suscripción y elige Cambiar de rol. Allí están los planes de los otros roles.",
       "q4": "¿Pueden varias personas gestionar la misma cuenta?",
       "a4": "Los locales pueden formar un equipo y repartir permisos. Los creadores pueden invitar a coorganizadores y equipo por evento.",
       "q5": "¿Y si tengo que cancelar?",
