@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import PrintButton from "./print-button";
 import { indexable } from "@/lib/seo/metadata";
+import { BETA_MODE } from "@/lib/beta";
 
 /**
  * Kom igång-guide för kreatörer och lokaler.
@@ -113,7 +114,8 @@ export default async function GuidePage() {
           <Block title={t("money.stripeTitle")}><p>{t("money.stripeBody")}</p></Block>
           <Block title={t("money.commissionTitle")}>
             <p>{t("money.commissionBody")}</p>
-            <p className="font-medium text-[var(--usha-gold)] print:text-neutral-900">{t("money.betaNote")}</p>
+            {/* Bara medan betan pågår – stod kvar efter betaslutet 30 sep. */}
+            {BETA_MODE && <p className="font-medium text-[var(--usha-gold)] print:text-neutral-900">{t("money.betaNote")}</p>}
           </Block>
           <Block title={t("money.payoutTitle")}><p>{t("money.payoutBody")}</p></Block>
         </Section>

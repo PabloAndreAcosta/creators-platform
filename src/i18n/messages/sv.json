@@ -453,7 +453,7 @@
     "payouts": "Utbetalningar",
     "commissionLevel": "Din kommissionsnivå",
     "switchRole": "Byt roll",
-    "switchRoleHint": "Din roll bestämmer vad appen visar. Vill du sälja biljetter eller hyra ut en lokal väljer du rollen här — under betan kostar det ingenting.",
+    "switchRoleHint": "Din roll bestämmer vad appen visar. Vill du sälja biljetter eller hyra ut en lokal väljer du rollen här.",
     "month": "mån",
     "roleName": {
       "customer": "Besökare",
@@ -4636,7 +4636,7 @@
       "q2": "Kan gäster köpa utan konto?",
       "a2": "Ja. De anger mejladress och får en QR-kod att visa i dörren.",
       "q3": "Jag valde fel roll vid registreringen",
-      "a3": "Gå till Prenumeration och välj Byt roll. Där finns de andra rollernas planer — under betan kostar det ingenting.",
+      "a3": "Gå till Prenumeration och välj Byt roll. Där finns de andra rollernas planer.",
       "q4": "Kan flera personer sköta samma konto?",
       "a4": "Lokaler kan bygga ett team och dela ut behörigheter. Kreatörer kan bjuda in medarrangörer och crew per evenemang.",
       "q5": "Vad händer om jag ställer in?",
