@@ -3853,7 +3853,7 @@
     "manageSubscription": "Gestionar suscripción"
   },
   "companyVerify": {
-    "orgNumberPlaceholder": "Número de registro de la empresa (p. ej. 559401-8326)",
+    "orgNumberPlaceholder": "Número de organización sueco o NIF-IVA de la UE (p. ej. 559401-8326 o EL123456789)",
     "submit": "Verificar empresa",
     "successTitle": "Empresa verificada",
     "successNamed": "{companyName} ya está verificada.",

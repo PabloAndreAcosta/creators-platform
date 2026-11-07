@@ -46,7 +46,6 @@ export function CompanyVerifyForm() {
     <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-2 sm:flex-row">
       <input
         type="text"
-        inputMode="numeric"
         value={orgNumber}
         onChange={(e) => setOrgNumber(e.target.value)}
         placeholder={t("orgNumberPlaceholder")}

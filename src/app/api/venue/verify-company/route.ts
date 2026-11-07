@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { normalizeOrgNumber, formatOrgNumber, verifyViaVies } from "@/lib/org-number";
+import { formatOrgNumber, parseCompanyId, verifyViaVies, verifyVatViaVies } from "@/lib/org-number";
 import { isVenueRole, isCreatorRole } from "@/lib/roles";
 
 export async function POST(req: NextRequest) {
@@ -47,15 +47,17 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json().catch(() => ({}));
-  const org = normalizeOrgNumber(body?.orgNumber ?? "");
-  if (!org) {
+  // Svenskt organisationsnummer eller EU-momsnummer med landsprefix.
+  const id = parseCompanyId(body?.orgNumber ?? "");
+  if (!id) {
     return NextResponse.json(
-      { error: "Ogiltigt organisationsnummer. Kontrollera siffrorna." },
+      { error: "Ogiltigt nummer. Ange ett svenskt organisationsnummer eller ett EU-momsnummer med landsprefix, t.ex. EL123456789." },
       { status: 400 }
     );
   }
+  const org = id.stored;
 
-  const result = await verifyViaVies(org);
+  const result = "org" in id ? await verifyViaVies(id.org) : await verifyVatViaVies(id.country, id.vat);
 
   if (result.status === "unavailable") {
     // Transient VIES / member-state error — do not reject, ask to retry.

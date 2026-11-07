@@ -3853,7 +3853,7 @@
     "manageSubscription": "Manage subscription"
   },
   "companyVerify": {
-    "orgNumberPlaceholder": "Company registration number (e.g. 559401-8326)",
+    "orgNumberPlaceholder": "Swedish org. number or EU VAT number (e.g. 559401-8326 or EL123456789)",
     "submit": "Verify company",
     "successTitle": "Company verified",
     "successNamed": "{companyName} is now verified.",
