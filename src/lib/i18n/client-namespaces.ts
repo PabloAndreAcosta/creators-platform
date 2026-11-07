@@ -44,7 +44,7 @@ export const PUBLIC_NAMESPACES = [
 
 /** src/app/app/ — den inloggade appen. */
 export const APP_NAMESPACES = [
-  "a11y", "account", "adminPage", "appProfile", "bookingsPage", "calendarPage",
+  "a11y", "account", "adminPage", "agreements", "appProfile", "bookingsPage", "calendarPage",
   "common", "connections", "courses", "entrance", "eventBookings", "eventCrew",
   "eventForm", "eventInsights", "eventLive", "eventPage", "eventStats",
   "favorites", "feed", "gagePanel", "gigsApply", "help", "home", "hostEvent",

@@ -30,7 +30,12 @@ export type NotificationType =
   // En volontär (taxidansare, dörrvärd m.fl.) har ansökt och väntar på arrangörens ja.
   | 'volunteer_application'
   // Arrangören har godkänt volontären — nu kan hen välja pass.
-  | 'volunteer_approved';
+  | 'volunteer_approved'
+  // Avtal: skickat till mig att signera, signerat av motparten, avböjt, tillbakadraget.
+  | 'agreement_sent'
+  | 'agreement_signed'
+  | 'agreement_declined'
+  | 'agreement_withdrawn';
 
 interface CreateNotificationParams {
   userId: string;

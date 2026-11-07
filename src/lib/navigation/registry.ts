@@ -19,7 +19,7 @@ import {
   Wallet, BarChart3, CreditCard, Tag, Search, Store, FileText, Heart, Trophy,
   ShoppingBag, Ticket, MessageCircle, BookMarked, Gift, Bell, User, Settings,
   Users, Home, Sparkles, Box, LayoutGrid, KeyRound, Languages, Layers, Mail,
-  Banknote, DoorOpen,
+  Banknote, DoorOpen, FileSignature,
 } from "lucide-react";
 
 /** Kanoniska roller. Se roll-modellen: creator/venue säljer, customer köper. */
@@ -123,6 +123,10 @@ export const APP_DESTINATIONS: AppDestination[] = [
   // Premium-funktion, tänkt för en separat enhet. Hubben har guiden och
   // startknappen; kiosken själv ligger utanför appen (/dorr/[id]).
   { path: "/app/dorr", labelKey: "dorrLabel", descKey: "dorrDesc", navLabelKey: "dorr", icon: DoorOpen,
+    group: "createSell", roles: ["creator", "venue"], surfaces: ["more", "sidebar"], minTier: "premium" },
+  // Avtal med samarbetspartners: medarrangör, uppdrag, lokal. Premium skriver;
+  // vem som helst kan läsa och signera det hen fått.
+  { path: "/app/avtal", labelKey: "avtalLabel", descKey: "avtalDesc", navLabelKey: "avtal", icon: FileSignature,
     group: "createSell", roles: ["creator", "venue"], surfaces: ["more", "sidebar"], minTier: "premium" },
   // Skriv till dem som följer dig. Utskicket fanns bara per kväll, vilket är
   // bakvänt: följaren har sagt ja till avsändaren, väntelistan bara till en
@@ -313,6 +317,9 @@ export const CONTEXTUAL_ROUTES: Record<string, string> = {
   "/dashboard/gigs/[id]": "Nås genom att öppna ett gig.",
   "/dashboard/admin/promo/new": "Nås från Ny kod-knappen i rabattkodslistan.",
   "/dashboard/profile": "Redigera profil — nås från profilmenyn.",
+  "/app/avtal/ny": "Nytt avtal — nås från knappen på Avtal-sidan och från crew-sidan.",
+  "/app/avtal/[id]": "Ett avtal — nås från listan på Avtal-sidan, notisen och mejlet.",
+  "/app/avtal/[id]/utskrift": "Utskriftsvy av ett signerat avtal — nås från Skriv ut på avtalet.",
 };
 
 function roleMatches(dest: AppDestination, role: NavRole): boolean {
