@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/client';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { stripeAccountCountry } from '@/lib/stripe/account-country';
 
 /**
  * POST /api/stripe/connect
@@ -46,10 +47,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ url: accountLink.url });
     }
 
-    // Create new Express account
+    // Bolagsuppgifterna är kolumn-låsta för authenticated – läs via service-role
+    // på den inloggades eget id.
+    const { data: company } = await createAdminClient()
+      .from('profiles')
+      .select('org_number, company_verified_at')
+      .eq('id', user.id)
+      .maybeSingle();
+    const country = stripeAccountCountry(company?.org_number, !!company?.company_verified_at);
+
+    // Create new Express account – i kreatörens land (svenskt som förut, annars
+    // det EU-land där bolaget är verifierat).
     const account = await stripe.accounts.create({
       type: 'express',
-      country: 'SE',
+      country,
       email: user.email,
       capabilities: {
         transfers: { requested: true },
@@ -57,7 +68,9 @@ export async function POST(req: NextRequest) {
         // (on_behalf_of) for third-party ticket sales.
         card_payments: { requested: true },
       },
-      business_type: 'individual',
+      // Svenska kreatörer säljer som privatperson eller enskild firma som förut.
+      // Utländska har alltid ett verifierat bolag; Stripe frågar själv om formen.
+      ...(country === 'SE' ? { business_type: 'individual' as const } : {}),
       metadata: {
         userId: user.id,
       },
