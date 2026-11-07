@@ -16,36 +16,48 @@ interface Labels {
   saved: string;
   remove: string;
   locked: string;
+  partner: string;
+  partnerHint: string;
+}
+
+interface PartnerOption {
+  id: string;
+  name: string;
+  label: string;
 }
 
 /**
  * Skapa eller ändra delningsavtalet för en kväll.
  *
- * Partnern visas men väljs inte — det är alltid evenemangets kopplade lokal.
+ * Mottagaren väljs bland kvällens lokal och medarrangörerna i crew. Bara en
+ * mottagare per kväll.
  * Låst så snart en biljett sålts: att ändra procenten mitt i en försäljning
  * ändrar vad som är skyldigt på köp som redan skett.
  */
 export default function ShareForm({
   listingId,
-  venueName,
+  partnerOptions,
   hasSales,
   existing,
   labels,
 }: {
   listingId: string;
-  venueName: string | null;
+  partnerOptions: PartnerOption[];
   hasSales: boolean;
-  existing: { partnerPercent: number; vatRate: number; payoutDelayDays: number } | null;
+  existing: { partnerProfileId: string; partnerPercent: number; vatRate: number; payoutDelayDays: number } | null;
   labels: Labels;
 }) {
   const [percent, setPercent] = useState(String(existing?.partnerPercent ?? 50));
   const [vat, setVat] = useState(String(Math.round((existing?.vatRate ?? 0.25) * 100)));
   const [delay, setDelay] = useState(String(existing?.payoutDelayDays ?? 1));
+  const [partnerId, setPartnerId] = useState(existing?.partnerProfileId ?? partnerOptions[0]?.id ?? "");
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [pending, startTransition] = useTransition();
 
-  if (!venueName) {
+  const selected = partnerOptions.find((o) => o.id === partnerId) ?? partnerOptions[0] ?? null;
+
+  if (!selected) {
     return (
       <section className="mt-8 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5">
         <h2 className="mb-1.5 flex items-center gap-2 text-sm font-semibold">
@@ -65,6 +77,7 @@ export default function ShareForm({
         partnerPercent: percent,
         vatRate: vat,
         payoutDelayDays: delay,
+        partnerProfileId: selected?.id,
       });
       if (res?.error) setError(res.error);
       else {
@@ -91,8 +104,21 @@ export default function ShareForm({
         {labels.heading}
       </h2>
       <p className="mb-4 text-xs leading-relaxed text-[var(--usha-muted)]">
-        {labels.intro.replace("{venue}", venueName)}
+        {labels.intro.replace("{venue}", selected.name)}
       </p>
+
+      {partnerOptions.length > 1 && (
+        <label className="mb-3 block">
+          <span className="mb-1 block text-xs text-[var(--usha-muted)]">{labels.partner}</span>
+          <select value={selected.id} disabled={hasSales}
+            onChange={(e) => setPartnerId(e.target.value)} className={field}>
+            {partnerOptions.map((o) => (
+              <option key={o.id} value={o.id}>{o.label}</option>
+            ))}
+          </select>
+          <span className="mt-1 block text-xs text-[var(--usha-muted)]">{labels.partnerHint}</span>
+        </label>
+      )}
 
       {hasSales && (
         <p className="mb-4 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-xs leading-relaxed text-amber-200">
