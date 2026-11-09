@@ -926,7 +926,7 @@ export async function joinOpenEvent(listingId: string) {
   }
   if (listing.event_date && !instructorJoinOpen(listing.event_date, stockholmToday())) {
     const deadline = new Date(instructorJoinDeadline(listing.event_date) + "T12:00").toLocaleDateString("sv-SE", { weekday: "long", day: "numeric", month: "long" });
-    return { error: `Anmälan stängde ${deadline}. Instruktörer anmäler sig senast måndag samma vecka.` };
+    return { error: `Anmälan stängde ${deadline}. Instruktörer anmäler sig senast samma dag som kvällen.` };
   }
 
   const { error } = await supabase
