@@ -9,6 +9,7 @@ import { getCreatorCommissionRate } from "@/lib/stripe/commission";
 import { aggregateEventBookings } from "@/lib/settlements/aggregate";
 import { passRedemptionRows } from "@/lib/passes/series-pass";
 import { splitEventRevenue } from "@/lib/settlements/split";
+import { EMPTY_SWISH, swishPartnerShareOre, swishTotalsByListing } from "@/lib/settlements/swish";
 import { allowedPartnerIds } from "@/lib/settlements/partners";
 
 // Organizer settlement / payout report for one event. Read-only: it reconciles
@@ -38,11 +39,15 @@ export default async function SettlementPage(props: { params: Promise<{ id: stri
     .maybeSingle();
   const commissionRate = getCreatorCommissionRate(owner?.tier ?? "gratis", owner?.creator_subcategory);
 
+  // Swish-rader hålls utanför Stripe-delen (de pengarna ligger på banken) och
+  // visas i en egen sektion nedan, med partnerns andel att reglera via bank.
   const { data: bookings } = await supabase
     .from("bookings")
     .select("status, amount_paid, platform_fee_amount, refund_amount, guest_count, credit_applied_ore")
     .eq("listing_id", listing.id)
-    .eq("booking_type", "ticket");
+    .eq("booking_type", "ticket")
+    .or("payment_method.is.null,payment_method.neq.swish");
+  const swish = (await swishTotalsByListing(createAdminClient(), [listing.id])).get(listing.id) ?? EMPTY_SWISH;
 
   // Inlösta klipp på seriekort räknas som biljetter värda 1/N av kortet, så
   // att kvällens delning med lokalen inte missar dem.
@@ -131,6 +136,18 @@ export default async function SettlementPage(props: { params: Promise<{ id: stri
   // emot. Saknas något går underlaget att visa, men inte att föra över.
   const partnerCanReceive = !!partner?.company_verified_at && !!partner?.stripe_charges_enabled;
 
+  const swishNetOre = swish.grossOre - swish.refundedOre;
+  const swishPartnerOre = split ? swishPartnerShareOre(swish, split.vatRate, split.partnerPercent) : 0;
+  const swishRows: { label: string; value: string; sub?: string; strong?: boolean }[] =
+    swishNetOre > 0
+      ? [
+          { label: t("swishGrossLabel"), value: `${kr(swishNetOre)} kr`, sub: t("swishGrossSub", { count: swish.tickets }) },
+          ...(split
+            ? [{ label: t("swishPartnerLabel", { partner: partnerName }), value: `${kr(swishPartnerOre)} kr`, sub: t("swishPartnerSub", { percent: split.partnerPercent }), strong: true }]
+            : []),
+        ]
+      : [];
+
   const shareRows = split
     ? [
         { label: t("shareNetLabel"), value: `${kr(split.netInclVatOre)} kr`, sub: t("shareNetSub") },
@@ -197,6 +214,24 @@ export default async function SettlementPage(props: { params: Promise<{ id: stri
         </div>
 
         <p className="mt-4 text-xs leading-relaxed text-[var(--usha-muted)]">{t("footer")}</p>
+
+        {swishRows.length > 0 && (
+          <section className="mt-8">
+            <h2 className="mb-3 text-sm font-semibold text-[var(--usha-white)]">{t("swishHeading")}</h2>
+            <div className="divide-y divide-[var(--usha-border)] overflow-hidden rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)]">
+              {swishRows.map((r) => (
+                <div key={r.label} className="flex items-center justify-between px-5 py-4">
+                  <div>
+                    <p className={`text-sm ${r.strong ? "font-semibold text-[var(--usha-white)]" : "text-[var(--usha-muted)]"}`}>{r.label}</p>
+                    {r.sub && <p className="text-xs text-[var(--usha-muted)]">{r.sub}</p>}
+                  </div>
+                  <p className={`text-sm tabular-nums ${r.strong ? "text-lg font-bold text-[var(--usha-gold)]" : "font-medium text-[var(--usha-white)]"}`}>{r.value}</p>
+                </div>
+              ))}
+            </div>
+            <p className="mt-3 text-xs leading-relaxed text-[var(--usha-muted)]">{t("swishNote")}</p>
+          </section>
+        )}
 
         {split && (
           <section className="mt-8">

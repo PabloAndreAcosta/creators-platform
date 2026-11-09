@@ -37,6 +37,8 @@ export async function sendSettlementStatementEmail(opts: {
     transfers: t('statementCsvTransfers'),
     total: t('statementCsvTotal'),
     earlier: t('statementCsvEarlier'),
+    swishGross: t('statementCsvSwish'),
+    swishShare: t('statementCsvSwishShare'),
   });
 
   const { error } = await getResend().emails.send({
