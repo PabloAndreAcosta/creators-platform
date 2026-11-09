@@ -33,6 +33,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/privacy`, changeFrequency: "yearly", priority: 0.2 },
     { url: `${baseUrl}/terms`, changeFrequency: "yearly", priority: 0.2 },
     { url: `${baseUrl}/cookies`, changeFrequency: "yearly", priority: 0.2 },
+    { url: `${baseUrl}/sakerhet`, changeFrequency: "yearly", priority: 0.3 },
   ];
 
   // Public creator profiles

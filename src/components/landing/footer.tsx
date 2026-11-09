@@ -30,6 +30,7 @@ export function Footer() {
       { label: t("footer.terms"), href: "/terms" },
       { label: t("footer.privacy"), href: "/privacy" },
       { label: t("footer.cookies"), href: "/cookies" },
+      { label: t("footer.security"), href: "/sakerhet" },
     ],
   };
 

@@ -79,6 +79,7 @@ En kreatör är inte bara en dansare. Det är alla som har något att lära ut e
 - [Bli taxidansare](${BAS}/taxi): dansa som volontär på The Lab, med fri entré och matkupong. Kräver Mobilt BankID och 18 år.
 - [Jobba med Usha](${BAS}/jobba): tre vägar in – volontär, instruktör som säljer privatlektioner på öppna kvällar, eller uppdrag.
 - [Köpvillkor](${BAS}/terms) och [ångerrätt](${BAS}/refund-policy).
+- [Säkerhet](${BAS}/sakerhet): hur vi skyddar konton och personuppgifter – BankID, data i EU (Supabase Frankfurt), Stripe för betalningar, daglig backup, automatisk säkerhetskontroll varje månad, underleverantörer med intyg. GDPR; inget SOC 2-intyg i dag.
 ${program}
 ## Om datan på sidorna
 

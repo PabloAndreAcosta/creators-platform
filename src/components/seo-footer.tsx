@@ -141,6 +141,7 @@ export async function SeoFooter() {
             <Link href="/partner" className="text-[10px] text-[var(--usha-muted)] hover:text-[var(--usha-white)]">{t("seoFooter.partner")}</Link>
             <Link href="/privacy" className="text-[10px] text-[var(--usha-muted)] hover:text-[var(--usha-white)]">{t("seoFooter.privacyPolicy")}</Link>
             <Link href="/terms" className="text-[10px] text-[var(--usha-muted)] hover:text-[var(--usha-white)]">{t("seoFooter.terms")}</Link>
+            <Link href="/sakerhet" className="text-[10px] text-[var(--usha-muted)] hover:text-[var(--usha-white)]">{t("seoFooter.security")}</Link>
             <ConsentSettingsLink className="text-[10px] text-[var(--usha-muted)] hover:text-[var(--usha-white)]" />
           </div>
         </div>
