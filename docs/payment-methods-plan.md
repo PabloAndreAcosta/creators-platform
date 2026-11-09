@@ -62,3 +62,34 @@ Förkrav innan teknik kan byggas:
 - Klargör settlement (hur/när Usha betalas, avgifter) och vidarefördelning till kreatörer.
 
 Teknisk plan detaljeras när avtal + credentials finns.
+
+## Swish Företag i dörren (2026-11-09)
+
+Stripe-vägen till Swish är fortsatt stängd (branschkod 7911 restricted). I
+stället tecknade Usha AB **Swish Företag hos Nordea** (avtal 565622, signerat
+av Ludvig 2026-11-06): nummer **123 711 11 80**, 720 kr/år + 2 kr per
+betalning, pengarna direkt till bolagets konto.
+
+**Hur det fungerar i plattformen**
+- Numret ligger i `app_config.swish_number` (tomt = Swish av, ingen deploy).
+- Entrésidan visar en Swish-QR per biljettyp (`/api/events/[id]/entry/swish-qr`):
+  en Swish-länk med nummer, belopp och kväll förifyllda och låsta.
+- Den som står i dörren ser gästens kvitto i Swish-appen och trycker
+  *Registrera* (`POST /api/events/[id]/entry/swish`): bokningen skapas
+  bekräftad **och incheckad**, `payment_method = 'swish'`, `amount_paid` =
+  pris, `platform_fee_amount` = 0. Mejl med biljett/kvitto om adress angavs.
+- **Bara för Ushas egna evenemang** (`profiles.is_usha_owned_seller`): för en
+  tredje parts kväll vore det att ta emot någon annans pengar på vårt konto.
+
+**Avräkning**
+Swish-raderna ligger på banken, inte hos Stripe, och kan inte föras över
+därifrån. `run-payouts` och `run-supplements` filtrerar därför bort
+`payment_method = 'swish'`. Partnerns andel av Swish-försäljningen (t.ex.
+Bacchis 50 % efter moms) regleras för hand tills vidare – summera rader med
+`payment_method = 'swish'` per kväll och lägg till i avräkningsunderlaget.
+Samma gäller i princip Epassi-klipp, som i dag räknas med (känd lucka).
+
+**Kvar**
+Swish-summa per kväll i avräkningsvyn och månadsrapporten; Swish i
+självinsläppet (kräver att någon ser kvittot – ingen självbetjäning än);
+dekaler från swish.nu/marknadsmaterial.
