@@ -22,7 +22,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          # Samma Node som produktionen (Vercel kör nodejs24.x). npm 10 på Node 22
+          # vägrar lockfilen efter next-intl 4.14 (nästlad @swc/helpers); npm 11 tar den.
+          node-version: 24
           cache: npm
       - run: npm ci --no-audit --no-fund
       - name: Typkontroll
