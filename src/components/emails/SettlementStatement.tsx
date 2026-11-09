@@ -106,6 +106,8 @@ export default function SettlementStatement({ partnerName, statement, t, locale 
                                     {sum(t('statementTotalBasis'), kr(totals.basisOre))}
                                     {sum(t('statementTotalShare'), kr(totals.dueOre))}
                                     {sum(t('statementTotalPaid'), kr(totals.paidOre), true)}
+                                    {totals.swishGrossOre > 0 && sum(t('statementTotalSwish'), kr(totals.swishGrossOre))}
+                                    {totals.swishGrossOre > 0 && sum(t('statementTotalSwishShare'), kr(totals.swishDueOre), true)}
                                   </tbody>
                                 </table>
                               </td>
@@ -131,6 +133,9 @@ export default function SettlementStatement({ partnerName, statement, t, locale 
                           </>
                         )}
 
+                        {totals.swishGrossOre > 0 && (
+                          <p style={{ fontSize: 13, color: '#6b6b6b', margin: '0 0 12px', lineHeight: 1.6 }}>{t('statementSwishNote')}</p>
+                        )}
                         {anyPending && (
                           <p style={{ fontSize: 13, color: '#6b6b6b', margin: '0 0 12px', lineHeight: 1.6 }}>{t('statementPendingNote')}</p>
                         )}

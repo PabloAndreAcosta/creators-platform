@@ -2739,6 +2739,12 @@
     "addOnHeading": "¿Te quedas más? Añade otra sesión."
   },
   "settlement": {
+    "swishHeading": "Swish en la puerta",
+    "swishGrossLabel": "Ventas con Swish",
+    "swishGrossSub": "{count} entradas, IVA incluido, tras devoluciones",
+    "swishPartnerLabel": "Parte de {partner} de Swish",
+    "swishPartnerSub": "{percent} % de la base, se paga por transferencia bancaria",
+    "swishNote": "Los pagos con Swish están en la cuenta bancaria de Usha AB, no en Stripe, y no se transfieren automáticamente. La parte del socio se liquida por transferencia bancaria y figura en la liquidación mensual.",
     "back": "Atrás",
     "heading": "Liquidación",
     "grossLabel": "Ventas brutas",
@@ -4376,6 +4382,11 @@
     "refundedAmount": "Reembolsada {amount} kr"
   },
   "emails": {
+    "statementTotalSwish": "Ventas con Swish IVA incl.",
+    "statementTotalSwishShare": "Vuestra parte de Swish, por transferencia",
+    "statementSwishNote": "Los pagos con Swish en la puerta van fuera de Stripe. Vuestra parte se paga por transferencia bancaria en lugar de la transferencia automática: el total está arriba y por noche en el archivo.",
+    "statementCsvSwish": "Ventas con Swish IVA incl. (SEK)",
+    "statementCsvSwishShare": "Vuestra parte de Swish, por banco (SEK)",
     "agreement": {
         "sentSubject": "Acuerdo para firmar: {title}",
         "sentIntro": "{name} ha redactado un acuerdo contigo y ha firmado su parte. Léelo y fírmalo, o recházalo, en Usha Platform.",

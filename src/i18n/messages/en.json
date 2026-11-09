@@ -2739,6 +2739,12 @@
     "addOnHeading": "Staying longer? Add another session."
   },
   "settlement": {
+    "swishHeading": "Swish at the door",
+    "swishGrossLabel": "Swish sales",
+    "swishGrossSub": "{count} tickets, incl. VAT, after refunds",
+    "swishPartnerLabel": "{partner}'s share of Swish",
+    "swishPartnerSub": "{percent}% of the basis, paid by bank transfer",
+    "swishNote": "Swish payments sit in Usha AB's bank account, not at Stripe, and are not transferred automatically. The partner's share of them is settled by bank transfer and is included in the monthly statement.",
     "back": "Back",
     "heading": "Settlement",
     "grossLabel": "Gross sales",
@@ -4376,6 +4382,11 @@
     "refundedAmount": "Refunded {amount} kr"
   },
   "emails": {
+    "statementTotalSwish": "Swish sales incl. VAT",
+    "statementTotalSwishShare": "Your share of Swish, by bank transfer",
+    "statementSwishNote": "Swish payments at the door go outside Stripe. Your share of them is paid by bank transfer instead of the automatic transfer – the total is above and per night in the file.",
+    "statementCsvSwish": "Swish sales incl. VAT (SEK)",
+    "statementCsvSwishShare": "Your share of Swish, by bank (SEK)",
     "agreement": {
         "sentSubject": "Agreement to sign: {title}",
         "sentIntro": "{name} has written an agreement with you and signed their part. Read it through and sign, or decline, in Usha Platform.",

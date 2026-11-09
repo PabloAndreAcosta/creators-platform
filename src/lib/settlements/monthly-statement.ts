@@ -27,6 +27,10 @@ export interface StatementPayout {
   status: string;
   paidAt: string | null; // ISO
   transferId: string | null;
+  /** Swish-försäljning samma kväll: utanför Stripe, partnerns andel via bank. */
+  swishTickets?: number;
+  swishGrossOre?: number;
+  swishDueOre?: number;
 }
 
 export interface StatementSupplement {
@@ -64,6 +68,10 @@ export interface StatementRow {
   transferIds: string[];
   /** Ordinarie avräkning som ännu inte gått: dry_run, pending eller failed. */
   pending: boolean;
+  /** Swish-försäljning: utanför Stripe, partnerns andel regleras via bank. */
+  swishTickets: number;
+  swishGrossOre: number;
+  swishDueOre: number;
 }
 
 export interface EarlierSupplement {
@@ -87,6 +95,8 @@ export interface MonthlyStatement {
     dueOre: number;
     paidOre: number;
     earlierOre: number;
+    swishGrossOre: number;
+    swishDueOre: number;
   };
 }
 
@@ -168,6 +178,9 @@ export function buildMonthlyStatement(
           ...own.map((s) => s.transferId).filter((x): x is string => !!x),
         ],
         pending: !ordinaryPaid,
+        swishTickets: p.swishTickets ?? 0,
+        swishGrossOre: p.swishGrossOre ?? 0,
+        swishDueOre: p.swishDueOre ?? 0,
       };
     });
 
@@ -196,6 +209,8 @@ export function buildMonthlyStatement(
       dueOre: sum((r) => r.dueOre),
       paidOre: sum((r) => r.paidOre),
       earlierOre: earlier.reduce((n, e) => n + e.amountOre, 0),
+      swishGrossOre: sum((r) => r.swishGrossOre),
+      swishDueOre: sum((r) => r.swishDueOre),
     },
   };
 }
@@ -219,22 +234,28 @@ export function statementCsv(
   headers: {
     date: string; evening: string; tickets: string; gross: string; vat: string; basis: string;
     share: string; paid: string; paidDate: string; transfers: string; total: string; earlier: string;
+    swishGross?: string; swishShare?: string;
   },
 ): string {
+  // Swish-kolumnerna sist, så att de som redan läser in filen inte får sina
+  // kolumner förskjutna. De fylls bara när någon kväll i perioden hade Swish.
+  const swish = s.rows.some((r) => r.swishGrossOre > 0) && headers.swishGross && headers.swishShare;
+  const tail = (a: string, b: string) => (swish ? [a, b] : []);
   const lines: string[][] = [[
     headers.date, headers.evening, headers.tickets, headers.gross, headers.vat, headers.basis,
-    headers.share, headers.paid, headers.paidDate, headers.transfers,
+    headers.share, headers.paid, headers.paidDate, headers.transfers, ...tail(headers.swishGross!, headers.swishShare!),
   ]];
   for (const r of s.rows) {
     lines.push([
       r.eventDate, r.title, String(r.tickets), krCell(r.grossOre), krCell(r.vatOre), krCell(r.basisOre),
       krCell(r.dueOre), krCell(r.paidOre), r.paidDate ?? "", r.transferIds.join(" + "),
+      ...tail(krCell(r.swishGrossOre), krCell(r.swishDueOre)),
     ]);
   }
   const t = s.totals;
   lines.push([
     headers.total, "", String(t.tickets), krCell(t.grossOre), krCell(t.vatOre), krCell(t.basisOre),
-    krCell(t.dueOre), krCell(t.paidOre), "", "",
+    krCell(t.dueOre), krCell(t.paidOre), "", "", ...tail(krCell(t.swishGrossOre), krCell(t.swishDueOre)),
   ]);
   if (s.earlier.length) {
     lines.push([]);

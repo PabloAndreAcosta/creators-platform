@@ -10,6 +10,7 @@ import {
   type StatementSupplement,
 } from "@/lib/settlements/monthly-statement";
 import { sendSettlementStatementEmail } from "@/lib/email/send-settlement-statement";
+import { swishPartnerShareOre, swishTotalsByListing } from "@/lib/settlements/swish";
 
 /** Ushas ekonomilista — samma som övriga ekonomilarm, ägaren ingår. */
 function internalRecipients(): string[] {
@@ -129,6 +130,57 @@ export async function GET(req: NextRequest) {
       transferId: (p.stripe_transfer_id as string | null) ?? null,
     };
   });
+
+  // Swish-försäljningen ligger utanför Stripe och därmed utanför payout-
+  // raderna. Den räknas fram här, kväll för kväll, och läggs på raden —
+  // partnerns andel av den betalas via bank, inte via överföringen.
+  const { data: swishListings } = await db
+    .from("bookings")
+    .select("listing_id, listing:listings!inner(event_date, title, id)")
+    .eq("booking_type", "ticket")
+    .eq("payment_method", "swish")
+    .gte("listing.event_date", from)
+    .lt("listing.event_date", to);
+  const swishIds = [...new Set((swishListings ?? []).map((b) => b.listing_id as string))];
+  const swishTotals = await swishTotalsByListing(db, swishIds);
+  for (const p of payouts) {
+    const sw = swishTotals.get(p.listingId);
+    if (!sw) continue;
+    p.swishTickets = sw.tickets;
+    p.swishGrossOre = sw.grossOre - sw.refundedOre;
+    p.swishDueOre = swishPartnerShareOre(sw, p.vatRate, p.partnerPercent);
+  }
+  // Kvällar med Swish men utan payout-rad (t.ex. bara Swish-försäljning):
+  // en egen rad med noll i Stripe-delen, så att andelen ändå kommer med.
+  const missing = swishIds.filter((id) => !payouts.some((p) => p.listingId === id));
+  if (missing.length) {
+    const { data: shares } = await db
+      .from("event_revenue_shares")
+      .select("listing_id, partner_profile_id, partner_percent, vat_rate, listing:listings(event_date, title)")
+      .in("listing_id", missing);
+    for (const sh of shares ?? []) {
+      const sw = swishTotals.get(sh.listing_id as string);
+      if (!sw) continue;
+      const l = one(sh.listing as ListingJoin);
+      const vatRate = Number(sh.vat_rate);
+      const partnerPercent = Number(sh.partner_percent);
+      payouts.push({
+        partnerId: sh.partner_profile_id as string,
+        listingId: sh.listing_id as string,
+        eventDate: l?.event_date ?? "",
+        title: l?.title ?? "",
+        tickets: 0,
+        grossOre: 0, refundedOre: 0, vatOre: 0, basisOre: 0,
+        vatRate, partnerPercent,
+        amountOre: 0,
+        status: "paid", // inget att föra över via Stripe
+        paidAt: null, transferId: null,
+        swishTickets: sw.tickets,
+        swishGrossOre: sw.grossOre - sw.refundedOre,
+        swishDueOre: swishPartnerShareOre(sw, vatRate, partnerPercent),
+      });
+    }
+  }
 
   const partnerIds = [...new Set([...payouts.map((p) => p.partnerId), ...[...supps.values()].map((s) => s.partnerId)])];
   const results: { partner: string; sentTo: string[]; skipped?: string }[] = [];

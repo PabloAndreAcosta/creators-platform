@@ -2739,6 +2739,12 @@
     "addOnHeading": "Vill du stanna längre? Lägg till ett pass."
   },
   "settlement": {
+    "swishHeading": "Swish i dörren",
+    "swishGrossLabel": "Swish-försäljning",
+    "swishGrossSub": "{count} biljetter, inklusive moms, efter återbetalningar",
+    "swishPartnerLabel": "{partner}s andel av Swish",
+    "swishPartnerSub": "{percent} % av underlaget, betalas via bank",
+    "swishNote": "Swish-betalningarna ligger på Usha AB:s bankkonto, inte hos Stripe, och förs inte över automatiskt. Partnerns andel av dem regleras via bank och står med i månadsavräkningen.",
     "back": "Tillbaka",
     "heading": "Avräkning",
     "grossLabel": "Bruttoförsäljning",
@@ -4376,6 +4382,11 @@
     "refundedAmount": "Återbetald {amount} kr"
   },
   "emails": {
+    "statementTotalSwish": "Swish-försäljning inkl. moms",
+    "statementTotalSwishShare": "Er andel av Swish, via bank",
+    "statementSwishNote": "Swish-betalningar i dörren går utanför Stripe. Er andel av dem betalas via bank i stället för att föras över automatiskt – summan står ovan och per kväll i filen.",
+    "statementCsvSwish": "Swish-försäljning inkl. moms (kr)",
+    "statementCsvSwishShare": "Er andel av Swish, via bank (kr)",
     "agreement": {
         "sentSubject": "Avtal att signera: {title}",
         "sentIntro": "{name} har skrivit ett avtal med dig och signerat sin del. Läs igenom och signera, eller avböj, i Usha Platform.",
