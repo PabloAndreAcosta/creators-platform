@@ -1,0 +1,45 @@
+name: Säkerhetskontroll
+
+# Månadens kontroll av det vi lovar i docs/sakerhet/kontrollprogram.md:
+# skydd på main, sårbarheter, åtkomst, backup, RLS i databasen, hemligheter i
+# preview, säkerhetsheaders, SPF/DKIM/DMARC. Rapporten blir ett ärende med
+# etiketten "säkerhetskontroll" (bevis med tidsstämpel) och ett mejl.
+#
+# Valfria hemligheter som ger fler kontroller (annars "ej kontrollerat"):
+#   GH_ADMIN_TOKEN  fine-grained PAT, läsrätt: Administration, Dependabot alerts,
+#                   Metadata (repo) + Members (org)
+#   VERCEL_TOKEN    läs-token för teamet
+on:
+  schedule:
+    - cron: "0 6 1 * *" # 06:00 UTC den 1:a varje månad
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  issues: write
+  actions: read
+  pull-requests: read
+
+jobs:
+  kontroll:
+    if: github.repository == 'usha-ab/creators-platform'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Kör kontrollerna
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_ADMIN_TOKEN: ${{ secrets.GH_ADMIN_TOKEN }}
+          SUPABASE_URL: https://hiurrvorwqfihtdfhbhv.supabase.co
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: node scripts/sakerhetskontroll.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sakerhetskontroll
+          path: sakerhetskontroll.md
+          retention-days: 400
