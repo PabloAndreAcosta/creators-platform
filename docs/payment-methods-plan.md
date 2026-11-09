@@ -84,12 +84,14 @@ betalning, pengarna direkt till bolagets konto.
 **Avräkning**
 Swish-raderna ligger på banken, inte hos Stripe, och kan inte föras över
 därifrån. `run-payouts` och `run-supplements` filtrerar därför bort
-`payment_method = 'swish'`. Partnerns andel av Swish-försäljningen (t.ex.
-Bacchis 50 % efter moms) regleras för hand tills vidare – summera rader med
-`payment_method = 'swish'` per kväll och lägg till i avräkningsunderlaget.
-Samma gäller i princip Epassi-klipp, som i dag räknas med (känd lucka).
+`payment_method = 'swish'`. I stället räknas Swish för sig
+(`lib/settlements/swish.ts`): kvällens avräkningssida visar sektionen *Swish
+i dörren* med partnerns andel, och månadsunderlaget till partnern får Swish
+per kväll (kolumner sist i CSV:n) med noten att andelen **betalas via bank**.
+Ludvig får mejlet som intern kopia och betalar Bacchis Swish-andel därifrån.
+Epassi-klipp räknas fortfarande med i Stripe-överföringen (känd lucka).
 
 **Kvar**
-Swish-summa per kväll i avräkningsvyn och månadsrapporten; Swish i
+Swish i
 självinsläppet (kräver att någon ser kvittot – ingen självbetjäning än);
 dekaler från swish.nu/marknadsmaterial.
