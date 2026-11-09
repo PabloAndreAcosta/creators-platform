@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { canSign, contentHash, isParty, signatureName, type PartyProfile } from "../model";
 import { fillTemplate } from "../templates";
 
-const base: PartyProfile = { id: "u1", full_name: "Anna Andersson", bankid_name: null, bankid_verified: false, email: "a@x.se", locale: "sv", avatar_url: null };
+const base: PartyProfile = { id: "u1", full_name: "Anna Andersson", bankid_name: null, bankid_verified_at: null, email: "a@x.se", locale: "sv", avatar_url: null };
 
 describe("avtal: fingeravtryck", () => {
   it("är stabilt för samma text och känsligt för ändringar", () => {
@@ -15,10 +15,11 @@ describe("avtal: fingeravtryck", () => {
 });
 
 describe("avtal: vem får signera", () => {
-  it("kräver BankID-verifierat konto med namn", () => {
+  it("kräver BankID-verifierat konto med BankID-namn – profilnamnet räcker inte", () => {
     expect(canSign(base)).toBe(false);
-    expect(canSign({ ...base, bankid_verified: true })).toBe(true);
-    expect(canSign({ ...base, bankid_verified: true, full_name: null })).toBe(false);
+    expect(canSign({ ...base, bankid_verified_at: "2026-05-16T10:00:00Z" })).toBe(false);
+    expect(canSign({ ...base, bankid_verified_at: "2026-05-16T10:00:00Z", bankid_name: "ANNA ANDERSSON" })).toBe(true);
+    expect(canSign({ ...base, bankid_verified_at: "2026-05-16T10:00:00Z", bankid_name: " " })).toBe(false);
     expect(canSign(null)).toBe(false);
   });
   it("skriver BankID-namnet under signaturen, annars profilnamnet", () => {

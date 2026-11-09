@@ -47,13 +47,13 @@ export interface PartyProfile {
   id: string;
   full_name: string | null;
   bankid_name: string | null;
-  bankid_verified: boolean | null;
+  bankid_verified_at: string | null;
   email: string | null;
   locale: string | null;
   avatar_url: string | null;
 }
 
-export const PARTY_COLUMNS = "id, full_name, bankid_name, bankid_verified, email, locale, avatar_url";
+export const PARTY_COLUMNS = "id, full_name, bankid_name, bankid_verified_at, email, locale, avatar_url";
 
 export const TITLE_MAX = 120;
 export const BODY_MAX = 20000;
@@ -67,8 +67,13 @@ export function signatureName(p: PartyProfile | null | undefined): string {
   return (p?.bankid_name || p?.full_name || "").trim();
 }
 
+/**
+ * Får signera: BankID-verifierat konto OCH ett BankID-namn. Profilnamnet är
+ * fritt redigerbart och duger därför inte som signatur – då vore beviset
+ * svagare än sidan påstår.
+ */
 export function canSign(p: PartyProfile | null | undefined): boolean {
-  return !!p?.bankid_verified && signatureName(p).length > 0;
+  return !!p?.bankid_verified_at && !!p?.bankid_name?.trim();
 }
 
 export async function canWriteAgreements(admin: SupabaseClient, userId: string): Promise<boolean> {

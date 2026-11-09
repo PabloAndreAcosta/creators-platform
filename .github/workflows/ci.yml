@@ -1,0 +1,33 @@
+name: Kontroll
+
+# Typkontroll och tester på varje PR. Jobbet heter "kontroll" och krävs av
+# branch protection på main — en PR med röda tester går inte att merga.
+# (Bygget körs inte här: det behöver miljövariabler och tar flera minuter.
+# Nya rutter ska byggas lokalt före merge, se docs/sakerhet/policyer/sakra-utveckling.md.)
+on:
+  pull_request:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kontroll-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  kontroll:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          # Samma Node som produktionen (Vercel kör nodejs24.x). npm 10 på Node 22
+          # vägrar lockfilen efter next-intl 4.14 (nästlad @swc/helpers); npm 11 tar den.
+          node-version: 24
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Typkontroll
+        run: npx tsc --noEmit -p .
+      - name: Tester
+        run: npx vitest run --reporter=dot
