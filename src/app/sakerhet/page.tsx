@@ -27,14 +27,14 @@ export default async function SecurityPage() {
   const t = await getTranslations("securityPage");
   const h2 = "mb-3 text-lg font-semibold text-[var(--usha-white)]";
   const vendors = [
-    ["Vercel", t("vendorVercel"), "EU/CDN", "SOC 2 Type II, ISO 27001"],
+    ["Vercel", t("vendorVercel"), "EU/CDN", "SOC 2 Type II, ISO 27001:2022"],
     ["Supabase", t("vendorSupabase"), "Frankfurt (EU)", "SOC 2 Type II"],
     ["Stripe", t("vendorStripe"), "EU/USA", "PCI DSS 1, SOC 2"],
     ["Signicat", t("vendorSignicat"), "Norge/EU", "ISO 27001, eIDAS"],
-    ["Resend", t("vendorResend"), "USA/EU", "SOC 2 Type II"],
+    ["Resend", t("vendorResend"), "USA", "SOC 2 Type II"],
     ["Google Workspace", t("vendorGoogle"), "EU", "ISO 27001, SOC 2"],
     ["Cloudflare", t("vendorCloudflare"), "EU", "SOC 2 Type II, ISO 27001"],
-    ["Sentry", t("vendorSentry"), "EU", "SOC 2 Type II"],
+    ["Sentry", t("vendorSentry"), "Frankfurt (EU)", "SOC 2 Type II, ISO 27001"],
   ];
   const sections: [string, string][] = [
     ["identityTitle", "identityBody"],

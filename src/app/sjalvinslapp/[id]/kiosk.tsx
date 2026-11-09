@@ -67,6 +67,9 @@ export function Kiosk({ id, ticketTypeId, s }: { id: string; ticketTypeId: strin
   const [ticketType, setTicketType] = useState<TicketType | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [locked, setLocked] = useState(false);
+  // Efterköpsfönstret avgörs på servern (entry-rutten); QR:n får då flaggan
+  // precis som på entrésidan, annars stängs köpet vid midnatt.
+  const [efterkop, setEfterkop] = useState(false);
   const [phase, setPhase] = useState<"start" | "running">("start");
   const [cameraStarting, setCameraStarting] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
@@ -120,6 +123,7 @@ export function Kiosk({ id, ticketTypeId, s }: { id: string; ticketTypeId: strin
         if (!active || !data) return;
         setTitle(data.listing.title);
         if (data.kiosk && !data.kiosk.allowed) setLocked(true);
+        setEfterkop(!!data.efterkop?.oppet);
         const types: TicketType[] = data.ticketTypes ?? [];
         setTicketType(types.find((x) => x.id === ticketTypeId) ?? types[0] ?? null);
       })
@@ -397,7 +401,7 @@ export function Kiosk({ id, ticketTypeId, s }: { id: string; ticketTypeId: strin
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={`/api/events/${id}/entry/qr?tt=${encodeURIComponent(ticketType.id)}`}
+                src={`/api/events/${id}/entry/qr?tt=${encodeURIComponent(ticketType.id)}${efterkop ? "&efterkop=1" : ""}`}
                 alt=""
                 className="mt-4 w-full max-w-[260px] rounded-xl bg-white p-3 landscape:mt-2 landscape:max-w-[min(260px,calc(100dvh-190px))]"
               />

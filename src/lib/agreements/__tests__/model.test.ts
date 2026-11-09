@@ -15,10 +15,11 @@ describe("avtal: fingeravtryck", () => {
 });
 
 describe("avtal: vem får signera", () => {
-  it("kräver BankID-verifierat konto med namn", () => {
+  it("kräver BankID-verifierat konto med BankID-namn – profilnamnet räcker inte", () => {
     expect(canSign(base)).toBe(false);
-    expect(canSign({ ...base, bankid_verified: true })).toBe(true);
-    expect(canSign({ ...base, bankid_verified: true, full_name: null })).toBe(false);
+    expect(canSign({ ...base, bankid_verified: true })).toBe(false);
+    expect(canSign({ ...base, bankid_verified: true, bankid_name: "ANNA ANDERSSON" })).toBe(true);
+    expect(canSign({ ...base, bankid_verified: true, bankid_name: " " })).toBe(false);
     expect(canSign(null)).toBe(false);
   });
   it("skriver BankID-namnet under signaturen, annars profilnamnet", () => {
