@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { canOperateEntrance } from "@/lib/scan-access";
 import { kioskAccessForOwner } from "@/lib/tickets/kiosk-access";
 import { efterkopLage } from "@/lib/tickets/late-purchase";
+import { formatSwishNumber, getSwishNumber } from "@/lib/swish/config";
 
 /**
  * Underlaget för entréförsäljningen: vilka biljetter som går att sälja, och
@@ -59,7 +60,7 @@ export async function GET(
 
   let salesQuery = admin
     .from("bookings")
-    .select("id, guest_name, guest_email, amount_paid, guest_count, ticket_type_name, created_at")
+    .select("id, guest_name, guest_email, amount_paid, guest_count, ticket_type_name, created_at, payment_method")
     .eq("listing_id", listingId)
     .eq("booking_type", "ticket")
     .in("status", ["confirmed", "completed"])
@@ -71,6 +72,14 @@ export async function GET(
 
   // Kioskläget är Premium — grindat på värdens nivå, se kiosk-access.ts.
   const kiosk = await kioskAccessForOwner(admin, listing.user_id);
+
+  // Swish i dörren: bara när Usha själv är säljare (pengarna landar på
+  // bolagets konto) och numret är satt i app_config.
+  const [{ data: owner }, swishNumber] = await Promise.all([
+    admin.from("profiles").select("is_usha_owned_seller").eq("id", listing.user_id).maybeSingle(),
+    getSwishNumber(admin),
+  ]);
+  const swish = owner?.is_usha_owned_seller && swishNumber ? { enabled: true, number: swishNumber, formatted: formatSwishNumber(swishNumber) } : { enabled: false };
 
   // Efterköpsläget avgörs på SERVERN, inte av entréenhetens klocka. En telefon
   // som går några minuter fel skulle annars antingen stänga fönstret för
@@ -87,6 +96,7 @@ export async function GET(
     ticketTypes: ticketTypes ?? [],
     sales: sales ?? [],
     kiosk,
+    swish,
     now: new Date().toISOString(),
   });
 }

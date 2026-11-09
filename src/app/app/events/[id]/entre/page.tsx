@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { ArrowLeft, Loader2, CheckCircle2, RefreshCw, Link2, Check, ScanLine, Lock } from "lucide-react";
+import { ArrowLeft, Loader2, CheckCircle2, RefreshCw, Link2, Check, ScanLine, Lock, Smartphone } from "lucide-react";
 
 /**
  * Entréförsäljning utan kortläsare.
@@ -35,6 +35,7 @@ interface Sale {
   guest_count: number | null;
   ticket_type_name: string | null;
   created_at: string;
+  payment_method?: string | null;
 }
 
 const POLL_MS = 5000;
@@ -60,6 +61,13 @@ export default function EntrancePage() {
   const [error, setError] = useState<string | null>(null);
   // Kioskläget är Premium; servern avgör utifrån värdens nivå.
   const [kiosk, setKiosk] = useState<{ allowed: boolean; premium: boolean; beta: boolean } | null>(null);
+  // Swish Företag: visas bara för Ushas egna evenemang (servern avgör).
+  const [swish, setSwish] = useState<{ enabled: boolean; number?: string; formatted?: string }>({ enabled: false });
+  const [swishOpen, setSwishOpen] = useState(false);
+  const [swishName, setSwishName] = useState("");
+  const [swishEmail, setSwishEmail] = useState("");
+  const [swishCount, setSwishCount] = useState(1);
+  const [swishState, setSwishState] = useState<"idle" | "sparar" | "klar" | "fel">("idle");
 
   // Tidsstämpeln kommer från servern, inte från telefonen. En entrémobil med
   // några minuters klockfel hade annars antingen missat betalningar eller
@@ -81,6 +89,7 @@ export default function EntrancePage() {
         setTypes(data.ticketTypes);
         if (data.efterkop) setEfterkop(data.efterkop);
         if (data.kiosk) setKiosk(data.kiosk);
+        if (data.swish) setSwish(data.swish);
         if (poll) {
           if (data.sales.length > 0) setSales((prev) => [...data.sales, ...prev].slice(0, 8));
         } else {
@@ -106,6 +115,31 @@ export default function EntrancePage() {
   }, [load]);
 
   const soldOut = (tt: TicketType) => tt.capacity != null && tt.tickets_sold >= tt.capacity;
+
+  /**
+   * Gästen har swishat och visat kvittot. Registrera = bokningen skapas
+   * bekräftad och incheckad på en gång; gästen står ju framför dig.
+   */
+  async function registreraSwish() {
+    if (!selected || swishState === "sparar") return;
+    setSwishState("sparar");
+    try {
+      const res = await fetch(`/api/events/${id}/entry/swish`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ticketTypeId: selected.id, guestCount: swishCount, name: swishName, email: swishEmail }),
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      setSwishState("klar");
+      setSwishName("");
+      setSwishEmail("");
+      setSwishCount(1);
+      load(true);
+      setTimeout(() => setSwishState("idle"), 4000);
+    } catch {
+      setSwishState("fel");
+    }
+  }
 
   /**
    * Hämtar en betallänk och lägger den i urklipp.
@@ -219,6 +253,57 @@ export default function EntrancePage() {
           </p>
           <p className="mt-1 text-center text-sm text-[var(--usha-muted)]">{t("guestScans")}</p>
 
+          {/* Swish Företag via Nordea. Pengarna landar på bolagets konto, inte
+              hos Stripe — därför registreras betalningen för hand av den som
+              ser kvittot, och avräkningen håller raden utanför Stripe. */}
+          {swish.enabled && !efterkop.oppet && (
+            <div className="mt-4 rounded-2xl border border-[var(--usha-border)] p-3">
+              <button
+                onClick={() => setSwishOpen((v) => !v)}
+                className="flex w-full items-center justify-between gap-2 text-left text-sm font-medium"
+              >
+                <span className="inline-flex items-center gap-2"><Smartphone size={15} /> {t("swishToggle")}</span>
+                <span className="text-xs text-[var(--usha-muted)]">{swishOpen ? t("swishHide") : t("swishShow")}</span>
+              </button>
+              {swishOpen && (
+                <div className="mt-3">
+                  <div className="rounded-2xl bg-white p-4">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={`/api/events/${id}/entry/swish-qr?tt=${encodeURIComponent(selected.id)}`}
+                      alt={t("swishQrAlt", { ticket: selected.name })}
+                      className="mx-auto block h-auto w-full max-w-[320px]"
+                    />
+                  </div>
+                  <p className="mt-3 text-center text-sm">
+                    {t("swishNumber")} <span className="font-mono font-semibold">{swish.formatted}</span> · {t("priceSek", { price: selected.price })}
+                  </p>
+                  <p className="mt-1 text-center text-xs text-[var(--usha-muted)]">{t("swishHint")}</p>
+
+                  <div className="mt-4 space-y-2">
+                    <div className="flex gap-2">
+                      <input value={swishName} onChange={(e) => setSwishName(e.target.value)} placeholder={t("swishName")} className="min-w-0 flex-1 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-black)] px-3 py-2 text-sm" maxLength={120} />
+                      <select value={swishCount} onChange={(e) => setSwishCount(Number(e.target.value))} className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-black)] px-2 py-2 text-sm">
+                        {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n}</option>)}
+                      </select>
+                    </div>
+                    <input value={swishEmail} onChange={(e) => setSwishEmail(e.target.value)} placeholder={t("swishEmail")} type="email" className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-black)] px-3 py-2 text-sm" maxLength={254} />
+                    <button
+                      onClick={registreraSwish}
+                      disabled={swishState === "sparar"}
+                      className={`flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold text-black disabled:opacity-60 ${swishState === "klar" ? "bg-green-500" : "bg-[var(--usha-gold)]"}`}
+                    >
+                      {swishState === "sparar" ? <Loader2 size={15} className="animate-spin" /> : <Check size={15} />}
+                      {swishState === "klar" ? t("swishRegistered") : t("swishRegister", { price: selected.price * swishCount })}
+                    </button>
+                    {swishState === "fel" && <p className="text-center text-xs text-red-400">{t("swishError")}</p>}
+                    <p className="text-center text-xs text-[var(--usha-muted)]">{t("swishRegisterHint")}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Plattan i dörren: samma köp-QR plus frontkameran, så gästerna
               checkar in sig själva. Premium-funktion: öppen under betan,
               annars bara när värden har Premium. */}
@@ -296,6 +381,7 @@ export default function EntrancePage() {
                     {s.guest_name || s.guest_email || t("guest")}
                   </p>
                   <p className="truncate text-xs text-[var(--usha-muted)]">
+                    {s.payment_method === "swish" ? `${t("swishTag")} · ` : ""}
                     {s.ticket_type_name ?? ""}
                     {s.guest_count && s.guest_count > 1 ? ` · ${t("seats", { n: s.guest_count })}` : ""}
                   </p>

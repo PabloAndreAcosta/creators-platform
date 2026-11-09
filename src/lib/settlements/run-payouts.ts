@@ -115,7 +115,10 @@ export async function runSettlementPayouts(now: Date = new Date()): Promise<Payo
       .from("bookings")
       .select("status, amount_paid, platform_fee_amount, refund_amount, guest_count, credit_applied_ore")
       .eq("listing_id", listing.id)
-      .eq("booking_type", "ticket");
+      .eq("booking_type", "ticket")
+      // Swish-betalningar ligger på banken, inte hos Stripe: de kan inte föras
+      // över härifrån. Partnerns andel av dem regleras för hand, se docs.
+      .or("payment_method.is.null,payment_method.neq.swish");
     // Inlösta klipp på seriekort: 1/N av kortet per kväll, se lib/passes.
     const passRows = await passRedemptionRows(db, listing.id);
 

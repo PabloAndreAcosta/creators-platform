@@ -155,7 +155,10 @@ export async function runSettlementSupplements(now: Date = new Date()): Promise<
       .from("bookings")
       .select("status, amount_paid, platform_fee_amount, refund_amount, guest_count, credit_applied_ore")
       .eq("listing_id", listing.id)
-      .eq("booking_type", "ticket");
+      .eq("booking_type", "ticket")
+      // Swish-betalningar ligger på banken, inte hos Stripe: de kan inte föras
+      // över härifrån. Partnerns andel av dem regleras för hand, se docs.
+      .or("payment_method.is.null,payment_method.neq.swish");
     const passRows = await passRedemptionRows(db, listing.id);
 
     const totals = aggregateEventBookings([...(bookings ?? []), ...passRows], 0);
