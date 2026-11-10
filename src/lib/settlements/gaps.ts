@@ -21,6 +21,13 @@ export interface NightInput {
   eventDate: string;
   venueProfileId: string | null;
   seriesSlug: string | null;
+  /**
+   * Kvällens egen momssats (listings.vat_rate), null = lokalens standard.
+   * Avräkningen räknar med coalesce(kvällens sats, lokalens) sedan #515, så
+   * det är den kontrollen ska jämföra mot — annars larmar varje kväll med
+   * egen sats, som The Lab på 6 % från november.
+   */
+  vatRate?: number | null;
   /** Avräkningen som faktiskt ligger på kvällen, om någon. */
   share: { partnerProfileId: string; partnerPercent: number; vatRate: number; payoutDelayDays: number } | null;
   /** Koder som ligger på kvällen. */
@@ -93,8 +100,9 @@ export function findGaps({ nights, venueDefaults, seriesRules }: GapInput): Gap[
         if (night.share.partnerPercent !== venueDefault.partnerPercent) {
           avvikelser.push(`${procent(night.share.partnerPercent)} i stället för ${procent(venueDefault.partnerPercent)}`);
         }
-        if (Number(night.share.vatRate) !== Number(venueDefault.vatRate)) {
-          avvikelser.push(`moms ${night.share.vatRate} i stället för ${venueDefault.vatRate}`);
+        const expectedVat = night.vatRate ?? venueDefault.vatRate;
+        if (Number(night.share.vatRate) !== Number(expectedVat)) {
+          avvikelser.push(`moms ${night.share.vatRate} i stället för ${expectedVat}`);
         }
         if (night.share.payoutDelayDays !== venueDefault.payoutDelayDays) {
           avvikelser.push(
