@@ -124,4 +124,13 @@ describe("findGaps", () => {
     });
     expect(gaps.map((g) => g.listingId)).toEqual(["tidig", "sen"]);
   });
+
+  it("jämför momsen mot kvällens egen sats när den finns", () => {
+    const sexProcent = { partnerProfileId: BACCHI, partnerPercent: 50, vatRate: 0.06, payoutDelayDays: 1 };
+    expect(findGaps({ nights: [night({ vatRate: 0.06, share: sexProcent })], venueDefaults, seriesRules })).toEqual([]);
+
+    const gaps = findGaps({ nights: [night({ vatRate: 0.06 })], venueDefaults, seriesRules });
+    expect(gaps).toHaveLength(1);
+    expect(gaps[0].detalj).toContain("moms 0.25 i stället för 0.06");
+  });
 });

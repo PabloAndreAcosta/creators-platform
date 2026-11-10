@@ -54,7 +54,7 @@ export async function GET(req: NextRequest) {
     admin.from("series_collaborators").select("series_slug, user_id"),
     admin
       .from("listings")
-      .select("id, title, event_date, venue_profile_id, series_slug")
+      .select("id, title, event_date, venue_profile_id, series_slug, vat_rate")
       .eq("is_active", true)
       .not("event_date", "is", null)
       .gte("event_date", from),
@@ -105,6 +105,7 @@ export async function GET(req: NextRequest) {
     eventDate: l.event_date as string,
     venueProfileId: l.venue_profile_id,
     seriesSlug: l.series_slug,
+    vatRate: l.vat_rate == null ? null : Number(l.vat_rate),
     share: shareByListing.get(l.id) ?? null,
     codes: codesByListing.get(l.id) ?? [],
     collaboratorUserIds: collabByListing.get(l.id) ?? [],
