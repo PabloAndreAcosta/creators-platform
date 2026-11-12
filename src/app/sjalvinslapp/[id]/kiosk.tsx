@@ -33,7 +33,7 @@ export interface KioskStrings {
   canceled: string; pending: string; invalid: string; askCrew: string; seats: string; passRemaining: string;
   noPermission: string; onlyOwnEvents: string; couldNotVerify: string; checkInFailed: string; network: string;
   lockedTitle: string; lockedBody: string; upgrade: string; swapSide: string;
-  fullscreen: string; exitFullscreen: string;
+  fullscreen: string; exitFullscreen: string; fullscreenDenied: string;
 }
 
 interface TicketType { id: string; name: string; price: number }
@@ -115,6 +115,10 @@ export function Kiosk({ id, ticketTypeId, s }: { id: string; ticketTypeId: strin
   // Knappen döljs om webbläsaren saknar API:et.
   const [canFullscreen, setCanFullscreen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  // Nekar webbläsaren ska det synas, med skälet — annars ser det ut som att
+  // knappen är trasig. Skälet ("TypeError: Permissions check failed" o.d.)
+  // är det enda sättet att felsöka en platta vi inte har i handen.
+  const [fullscreenError, setFullscreenError] = useState<string | null>(null);
   useEffect(() => {
     const doc = document as Document & { webkitFullscreenElement?: Element | null };
     const root = document.documentElement as HTMLElement & { webkitRequestFullscreen?: () => void };
@@ -132,19 +136,24 @@ export function Kiosk({ id, ticketTypeId, s }: { id: string; ticketTypeId: strin
   function toggleFullscreen() {
     const doc = document as Document & { webkitFullscreenElement?: Element | null; webkitExitFullscreen?: () => void };
     const root = document.documentElement as HTMLElement & { webkitRequestFullscreen?: () => void };
+    setFullscreenError(null);
+    const fail = (e: unknown) => {
+      const err = e as { name?: string; message?: string } | null;
+      setFullscreenError([err?.name, err?.message].filter(Boolean).join(": ") || String(e));
+    };
     try {
       if (document.fullscreenElement || doc.webkitFullscreenElement) {
-        if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+        if (document.exitFullscreen) document.exitFullscreen().catch(fail);
         else doc.webkitExitFullscreen?.();
       } else if (root.requestFullscreen) {
-        root.requestFullscreen().catch(() => {});
+        root.requestFullscreen({ navigationUI: "hide" }).catch(fail);
       } else {
         root.webkitRequestFullscreen?.();
       }
-    } catch {
-      // nekad — kiosken fungerar lika bra utan
+    } catch (e) {
+      fail(e);
     }
-    requestWakeLock();
+    void requestWakeLock();
   }
 
   useEffect(() => {
@@ -402,6 +411,11 @@ export function Kiosk({ id, ticketTypeId, s }: { id: string; ticketTypeId: strin
         </button>
         </div>
       </div>
+      {fullscreenError && (
+        <p className="px-4 pb-2 text-xs text-yellow-300">
+          {s.fullscreenDenied} <span className="text-white/40">({fullscreenError})</span>
+        </p>
+      )}
 
       {/* Liggande: två kolumner som ryms på skärmen utan skroll, skanningen närmast kameran. */}
       <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-4 p-4 landscape:min-h-0 landscape:flex-1 landscape:grid-cols-2 landscape:gap-3 landscape:p-3 lg:landscape:grid-cols-[3fr_2fr]">

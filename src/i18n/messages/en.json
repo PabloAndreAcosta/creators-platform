@@ -2809,6 +2809,7 @@
     "swapSide": "Camera is on the other side",
     "fullscreen": "Full screen",
     "exitFullscreen": "Exit full screen",
+    "fullscreenDenied": "The browser did not allow full screen. Open the Chrome menu, choose Add to Home screen and start the kiosk from there.",
     "title": "Self check-in",
     "premiumBadge": "Premium",
     "lead": "Put a tablet at the door. Guests buy a ticket with their phone and scan themselves in – nobody on the crew has to stand there with a phone.",

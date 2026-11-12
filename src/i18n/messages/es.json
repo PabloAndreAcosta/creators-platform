@@ -2809,6 +2809,7 @@
     "swapSide": "La cámara está en el otro lado",
     "fullscreen": "Pantalla completa",
     "exitFullscreen": "Salir de pantalla completa",
+    "fullscreenDenied": "El navegador no permitió la pantalla completa. Abre el menú de Chrome, elige Añadir a pantalla de inicio e inicia el quiosco desde allí.",
     "title": "Autoregistro",
     "premiumBadge": "Premium",
     "lead": "Pon una tableta en la puerta. Los invitados compran la entrada con su móvil y se registran solos: nadie del equipo tiene que estar con el móvil en la mano.",
