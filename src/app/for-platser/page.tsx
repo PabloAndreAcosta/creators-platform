@@ -6,7 +6,6 @@ import { SiteNav } from "@/components/landing/site-nav";
 import { PerspectiveHero } from "@/components/landing/perspective-hero";
 import { LoopSection } from "@/components/landing/loop-section";
 import { Pricing } from "@/components/landing/pricing";
-import { getSignupCreditEnabled } from "@/lib/credits/flag";
 import { PerspectiveLinks } from "@/components/landing/perspective-links";
 import { Trust } from "@/components/landing/trust";
 import { Footer } from "@/components/landing/footer";
@@ -56,7 +55,7 @@ export default async function ForVenuesPage() {
       <PerspectiveHero ns="forVenues" ctaHref="/signup?role=venue" />
       <VenueValues />
       <LoopSection ns="forVenues" />
-      <Pricing role="venue" signupCredit={await getSignupCreditEnabled()} />
+      <Pricing role="venue" />
       <PerspectiveLinks exclude="venues" />
       <Trust />
       <Footer />

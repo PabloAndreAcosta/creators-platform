@@ -27,14 +27,7 @@ interface Tier {
  * tre. Sidan får aldrig visa ett pris som inte går att teckna — det var precis
  * vad den gjorde innan, med fyra förmåner som dessutom inte fanns byggda.
  */
-export function Pricing({
-  role = "creator",
-  signupCredit = false,
-}: {
-  role?: PricingRole;
-  /** Välkomstavdraget delas ut just nu (app_config). Annars lovas det inte. */
-  signupCredit?: boolean;
-} = {}) {
+export function Pricing({ role = "creator" }: { role?: PricingRole } = {}) {
   const t = useTranslations("landing");
   const locale = useLocale();
   const [activeRole, setActiveRole] = useState<PricingRole>(role);
@@ -65,7 +58,6 @@ export function Pricing({
           t("pricing.publikFree1"),
           t("pricing.publikFree2"),
           t("pricing.publikFree3"),
-          ...(signupCredit ? [t("pricing.publikFree4")] : []),
           t("pricing.publikFree5"),
         ],
         cta: t("pricing.ctaFree"),

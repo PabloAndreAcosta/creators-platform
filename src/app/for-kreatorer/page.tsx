@@ -5,7 +5,6 @@ import { PerspectiveHero } from "@/components/landing/perspective-hero";
 import { Onboarding } from "@/components/landing/onboarding";
 import { Features } from "@/components/landing/features";
 import { Pricing } from "@/components/landing/pricing";
-import { getSignupCreditEnabled } from "@/lib/credits/flag";
 import { LoopSection } from "@/components/landing/loop-section";
 import { PerspectiveLinks } from "@/components/landing/perspective-links";
 import { Trust } from "@/components/landing/trust";
@@ -32,7 +31,7 @@ export default async function ForCreatorsPage() {
       <PerspectiveHero ns="forCreators" ctaHref="/signup?role=creator" />
       <Onboarding />
       <Features />
-      <Pricing role="creator" signupCredit={await getSignupCreditEnabled()} />
+      <Pricing role="creator" />
       <LoopSection ns="forCreators" />
       <PerspectiveLinks exclude="creators" />
       <Trust />
