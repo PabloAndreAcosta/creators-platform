@@ -14,6 +14,9 @@ import { FollowButton } from "@/components/follow-button";
 import { emailFollowState, findEmailFollow } from "@/lib/follows/email-follow";
 import { ShareEventButton } from "@/components/share-event-button";
 import { appleWalletConfigured, googleWalletConfigured } from "@/lib/tickets/wallet";
+import { swishOfferForListing } from "@/lib/swish/availability";
+import { swishPaymentUrl } from "@/lib/swish/config";
+import { PendingRefresh } from "./pending-refresh";
 
 export const dynamic = "force-dynamic";
 
@@ -45,7 +48,7 @@ export default async function GuestTicketPage({
   const admin = createAdminClient();
   const { data: booking } = await admin
     .from("bookings")
-    .select("id, status, scheduled_at, guest_name, guest_email, customer_id, creator_id, listing_id, checked_in_at, ticket_type_name, guest_count, sessions_total, sessions_redeemed, pass_expires_at")
+    .select("id, status, scheduled_at, guest_name, guest_email, customer_id, creator_id, listing_id, checked_in_at, ticket_type_name, ticket_type_id, guest_count, sessions_total, sessions_redeemed, pass_expires_at, payment_method, amount_paid")
     .eq("id", id)
     .maybeSingle();
   if (!booking) notFound();
@@ -53,7 +56,7 @@ export default async function GuestTicketPage({
   const [{ data: listing }, { data: creator }] = await Promise.all([
     admin
       .from("listings")
-      .select("title, slug, event_date, event_time, event_location, venue_profile_id, venue_confirmed_at, pass_series_id, pass_series_ids, pass_covers")
+      .select("user_id, title, slug, event_date, event_time, event_location, venue_profile_id, venue_confirmed_at, pass_series_id, pass_series_ids, pass_covers")
       .eq("id", booking.listing_id)
       .maybeSingle(),
     admin
@@ -169,9 +172,10 @@ export default async function GuestTicketPage({
   const qrDataUrl = await QRCode.toDataURL(verifyUrl, qrOpts);
 
   // Multi-ticket order: one QR per attendee, each individually scannable.
-  const isMulti = (booking.guest_count ?? 1) > 1;
+  // Swish-bokningar har inga attendee-rader (en QR, antalet platser ligger i
+  // guest_count och skannern räknar), så de faller tillbaka på den enkla vyn.
   const attendeeQrs: { id: string; label: string; checkedIn: boolean; qr: string }[] = [];
-  if (isMulti) {
+  if ((booking.guest_count ?? 1) > 1) {
     const { data: attRows } = await admin
       .from("ticket_attendees")
       .select("id, idx, name, checked_in_at")
@@ -187,6 +191,7 @@ export default async function GuestTicketPage({
       });
     }
   }
+  const isMulti = attendeeQrs.length > 0;
 
   // scheduled_at is UTC — always format in Europe/Stockholm so a 14:00 Swedish
   // event doesn't render as 12:00. event_time (when set) is already Swedish
@@ -209,6 +214,18 @@ export default async function GuestTicketPage({
 
   const canceled = booking.status === "canceled";
   const used = booking.status === "completed" || !!booking.checked_in_at;
+
+  // Swish som inte bekräftats än. Det här är sidan gästen landar på direkt
+  // efter "Fortsätt till Swish": här görs betalningen, här står vad som händer
+  // sedan, och här byts allt mot QR-koden när entrén tryckt Bekräfta. Utan
+  // den här vyn visade sidan en QR som dörren nekar, och ingen förstod varför.
+  const swishPending = booking.status === "pending" && booking.payment_method === "swish";
+  const swishOffer = swishPending && listing ? await swishOfferForListing(admin, { user_id: listing.user_id, title: listing.title, event_date: listing.event_date }) : null;
+  const swishAmountSek = Math.round((booking.amount_paid ?? 0) / 100);
+  const swishUrl = swishOffer && swishAmountSek > 0 ? swishPaymentUrl({ number: swishOffer.number, amountSek: swishAmountSek, message: swishOffer.message }) : null;
+  const swishQr = swishUrl
+    ? `/api/swish/qr?listing=${encodeURIComponent(booking.listing_id)}${booking.ticket_type_id ? `&tt=${encodeURIComponent(booking.ticket_type_id)}` : ""}&qty=${booking.guest_count ?? 1}`
+    : null;
 
   // Wallet passes — only rendered when the provider's credentials are configured.
   const appleOn = appleWalletConfigured();
@@ -270,7 +287,42 @@ export default async function GuestTicketPage({
           </div>
 
           {/* QR or status */}
-          {canceled ? (
+          {swishPending ? (
+            <div className="space-y-3 rounded-xl border border-[var(--usha-gold)]/40 bg-[var(--usha-black)]/40 p-4 text-sm">
+              <PendingRefresh />
+              <p className="font-semibold">{t("swishPendingTitle", { amount: swishAmountSek })}</p>
+              <p className="text-xs leading-relaxed text-[var(--usha-muted)]">{t("swishPendingLead")}</p>
+              {swishUrl && swishOffer ? (
+                <>
+                  <a
+                    href={swishUrl}
+                    aria-label={`${t("swishOpenApp")} Swish`}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-white/15 bg-black px-4 py-3 text-sm font-bold text-white transition hover:border-white/40"
+                  >
+                    <span className="whitespace-nowrap">{t("swishOpenApp")}</span>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/payments/swish-logo-dark.png" alt="Swish" width={66} height={20} className="h-5 w-auto shrink-0" />
+                  </a>
+                  <p className="text-center text-xs text-[var(--usha-muted)]">
+                    {t("swishNumberLabel")} <span className="font-mono font-semibold text-[var(--usha-white)]">{swishOffer.formatted}</span>
+                    {" · "}
+                    {t("swishMessageLabel")} <span className="font-semibold text-[var(--usha-white)]">{swishOffer.message}</span>
+                  </p>
+                  <details className="text-xs text-[var(--usha-muted)]">
+                    <summary className="cursor-pointer text-center">{t("swishQrHint")}</summary>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={swishQr ?? undefined} alt="" className="mx-auto mt-2 w-full max-w-[200px] rounded-xl bg-white p-2" />
+                  </details>
+                </>
+              ) : (
+                <p className="text-xs text-[var(--usha-muted)]">{t("swishUnavailable")}</p>
+              )}
+              <div className="space-y-1.5 border-t border-[var(--usha-border)] pt-3 text-xs leading-relaxed text-[var(--usha-muted)]">
+                <p>{t("swishThen", { email: booking.guest_email ?? "" })}</p>
+                <p>{t("swishAtDoor")}</p>
+              </div>
+            </div>
+          ) : canceled ? (
             <div className="flex flex-col items-center gap-2 rounded-xl bg-red-500/10 p-6 text-center">
               <XCircle className="h-8 w-8 text-red-400" />
               <p className="text-sm font-medium text-red-400">{t("canceled")}</p>
@@ -345,7 +397,7 @@ export default async function GuestTicketPage({
             )}
           </div>
 
-          {!canceled && !used && (
+          {!canceled && !used && !swishPending && (
             <p className="text-center text-xs text-[var(--usha-muted)]">
               {t("showAtEntrance")}
             </p>

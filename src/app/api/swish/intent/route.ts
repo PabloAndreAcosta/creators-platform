@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getLocale } from "next-intl/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentUser } from "@/lib/supabase/current-user";
 import { rateLimit, getRateLimitKey } from "@/lib/rate-limit";
 import { createNotification } from "@/lib/notifications/create";
 import { swishOfferForListing } from "@/lib/swish/availability";
+import { swishPaymentUrl } from "@/lib/swish/config";
+import { sendSwishPendingEmail } from "@/lib/email/send-swish-pending";
 import { stockholmLocalToUtcISO } from "@/lib/time";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -17,9 +20,12 @@ const MAX_PENDING_PER_EMAIL = 3;
  *
  * Swish Företag har inget API vi kan fråga, så betalningen syns bara i
  * bolagets Swish-app. Här skapas därför en VILANDE bokning (status pending,
- * payment_method swish) med namnet och adressen gästen angav. Den som sköter
- * entrén ser den under "Swish att bekräfta", jämför mot Swish-appen och
- * bekräftar — först då räknas biljetten, mejlas QR-koden och kan skannas.
+ * payment_method swish) med namnet och adressen gästen angav, INNAN gästen
+ * swishar: biljettsidan /biljett/[id] är där betalningen görs och där QR-koden
+ * sedan dyker upp. Ett mejl går direkt med samma instruktioner, så att gästen
+ * har något i handen. Den som sköter entrén ser bokningen under "Swish att
+ * bekräfta", jämför mot Swish-appen och bekräftar — först då räknas
+ * biljetten, mejlas QR-koden och kan skannas.
  *
  * Inget räknas i tickets_sold här: en vilande bokning är ett löfte från
  * gästen, inte en betalning.
@@ -78,7 +84,7 @@ export async function POST(req: NextRequest) {
     .eq("payment_method", "swish")
     .eq("status", "pending");
   const existing = (pending ?? []).find((b) => b.listing_id === listing.id);
-  if (existing) return NextResponse.json({ bookingId: existing.id, amountOre, reused: true });
+  if (existing) return NextResponse.json({ bookingId: existing.id, amountOre, reused: true, ticketUrl: `/biljett/${existing.id}` });
   if ((pending ?? []).length >= MAX_PENDING_PER_EMAIL) return NextResponse.json({ error: "tooManyPending" }, { status: 429 });
 
   const user = await getCurrentUser();
@@ -111,14 +117,30 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "createFailed" }, { status: 500 });
   }
 
+  const service = ticketType ? `${listing.title} · ${ticketType.name}` : listing.title;
+  sendSwishPendingEmail({
+    to: email,
+    customerName: name || "Gäst",
+    serviceName: service,
+    scheduledAt: new Date(scheduledAt),
+    amountSek: amountOre / 100,
+    swishNumber: offer.formatted,
+    swishMessage: offer.message,
+    swishUrl: swishPaymentUrl({ number: offer.number, amountSek: amountOre / 100, message: offer.message }),
+    bookingId: booking.id,
+    customerId: user?.id ?? null,
+    // Gästen har inget konto att läsa språket ur; sidan hen stod på får avgöra.
+    preferredLocale: await getLocale().catch(() => null),
+  }).catch((e) => console.error("Swish pending email failed:", e));
+
   await createNotification({
     userId: listing.user_id,
     type: "booking_new",
     titleKey: "swishRequestTitle",
     bodyKey: "swishRequestMsg",
-    params: { name: name || email, service: ticketType ? `${listing.title} · ${ticketType.name}` : listing.title, amount: Math.round(amountOre / 100) },
+    params: { name: name || email, service, amount: Math.round(amountOre / 100) },
     link: `/app/events/${listing.id}/entre`,
   }).catch((e) => console.error("Swish intent notification failed:", e));
 
-  return NextResponse.json({ bookingId: booking.id, amountOre });
+  return NextResponse.json({ bookingId: booking.id, amountOre, ticketUrl: `/biljett/${booking.id}` });
 }
