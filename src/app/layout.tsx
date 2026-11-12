@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
+import { isKioskPath } from "@/lib/tickets/kiosk-path";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import { IntlProvider } from "@/components/intl-provider";
 import { pickMessages, PUBLIC_NAMESPACES } from "@/lib/i18n/client-namespaces";
@@ -104,6 +105,7 @@ export default async function RootLayout({
   // nästlad provider ersätter föräldern, den slår inte ihop.
   const messages = pickMessages(await getMessages(), PUBLIC_NAMESPACES);
   const cookieStore = await cookies();
+  const pathname = (await headers()).get("x-usha-path") ?? "";
   const themeCookie = cookieStore.get("usha-theme")?.value;
   // Light by default (cookieless). Only an explicit "dark" choice renders dark
   // server-side; the inline script below then follows the device's setting for
@@ -119,7 +121,11 @@ export default async function RootLayout({
             Chrome only reads a manifest linked from <head>, so a body-placed link
             makes the app non-installable (no install icon, no beforeinstallprompt).
             Elements inside this manual <head> are reliably emitted in <head>. */}
-        <link rel="manifest" href="/manifest.json" />
+        {/* Kioskens sidor länkar en egen manifest med display: fullscreen, så
+            att "Lägg till på startskärmen" på plattan ger en ikon som öppnar
+            självinsläppet i helskärm. Chrome på vissa plattor ignorerar
+            requestFullscreen helt; en installerad helskärmsapp går förbi det. */}
+        <link rel="manifest" href={isKioskPath(pathname) ? "/kiosk.webmanifest" : "/manifest.json"} />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         {/* iOS "Add to Home Screen" standalone hints — Safari only honors these
             from <head>. mobile-web-app-capable is the modern name; the apple-
