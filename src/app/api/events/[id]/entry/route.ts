@@ -33,7 +33,7 @@ export async function GET(
 
   const { data: listing } = await admin
     .from("listings")
-    .select("id, title, slug, user_id, event_date, is_active, is_wellness_eligible")
+    .select("id, title, slug, user_id, event_date, is_active")
     .eq("id", listingId)
     .maybeSingle();
   if (!listing) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -80,9 +80,6 @@ export async function GET(
     getSwishNumber(admin),
   ]);
   const swish = owner?.is_usha_owned_seller && swishNumber ? { enabled: true, number: swishNumber, formatted: formatSwishNumber(swishNumber) } : { enabled: false };
-  // Epassi i dörren (enstaka kväll köpt i Epassi-appen): Ushas egna kvällar
-  // som är flaggade som friskvård.
-  const epassi = { enabled: !!owner?.is_usha_owned_seller && !!listing.is_wellness_eligible };
 
   // Efterköpsläget avgörs på SERVERN, inte av entréenhetens klocka. En telefon
   // som går några minuter fel skulle annars antingen stänga fönstret för
@@ -100,7 +97,6 @@ export async function GET(
     sales: sales ?? [],
     kiosk,
     swish,
-    epassi,
     now: new Date().toISOString(),
   });
 }
