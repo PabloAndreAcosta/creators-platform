@@ -2425,7 +2425,7 @@
   },
   "eventPage": {
     "epassiTitle": "Pay with your wellness allowance",
-    "epassiBody": "The Lab is on Epassi. Buy a single evening as Practica 17–23 in the Epassi app and show the receipt at the door. For a punch card, choose one among the tickets here and tap Pay with wellness allowance to get the instructions. Bring ID. You can also pay at the door with Swish.",
+    "epassiBody": "The Lab is on Epassi for punch cards. Choose a punch card among the tickets and tap Pay with wellness allowance to get the instructions. Bring ID on your first evening. A single evening can also be paid at the door with Swish.",
     "singleTicket": "Ticket for the night",
     "passSessions": "{n} sessions",
     "passValidMonths": "valid for {n} months",

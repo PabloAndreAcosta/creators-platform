@@ -2425,7 +2425,7 @@
   },
   "eventPage": {
     "epassiTitle": "Betala med friskvårdsbidrag",
-    "epassiBody": "The Lab finns i Epassi. En enstaka kväll köper du som Practica 17–23 i Epassi-appen och visar kvittot i dörren. Ett klippkort väljer du bland biljetterna här och trycker Betala med friskvårdsbidrag, så får du instruktionerna. Ta med legitimation. Du kan också betala i dörren med Swish.",
+    "epassiBody": "The Lab finns i Epassi för klippkort. Välj ett klippkort bland biljetterna och tryck Betala med friskvårdsbidrag, så får du instruktionerna. Ta med legitimation första kvällen. En enstaka kväll kan du också betala i dörren med Swish.",
     "singleTicket": "Biljett till kvällen",
     "passSessions": "{n} tillfällen",
     "passValidMonths": "giltigt i {n} månader",
