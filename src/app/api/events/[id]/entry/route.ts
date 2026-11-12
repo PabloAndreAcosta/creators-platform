@@ -70,6 +70,19 @@ export async function GET(
 
   const { data: sales } = await salesQuery;
 
+  // Vilande Swish-köp från eventsidan: gästen har tryckt "Jag har swishat",
+  // ingen har ännu jämfört mot Swish-appen. Hela listan varje gång (inte
+  // sedan `since`) — en rad försvinner när den avgjorts, och det måste synas.
+  const { data: pendingSwish } = await admin
+    .from("bookings")
+    .select("id, guest_name, guest_email, amount_paid, guest_count, ticket_type_name, created_at")
+    .eq("listing_id", listingId)
+    .eq("booking_type", "ticket")
+    .eq("payment_method", "swish")
+    .eq("status", "pending")
+    .order("created_at", { ascending: false })
+    .limit(20);
+
   // Kioskläget är Premium — grindat på värdens nivå, se kiosk-access.ts.
   const kiosk = await kioskAccessForOwner(admin, listing.user_id);
 
@@ -98,6 +111,7 @@ export async function GET(
     },
     ticketTypes: ticketTypes ?? [],
     sales: sales ?? [],
+    pendingSwish: pendingSwish ?? [],
     kiosk,
     swish,
     epassi,

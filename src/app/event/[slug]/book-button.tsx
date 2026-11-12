@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Ticket, Loader2, HeartPulse } from "lucide-react";
+import { Ticket, Loader2, HeartPulse, Smartphone } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
+import { swishPaymentUrl } from "@/lib/swish/config";
+import type { SwishOffer } from "@/lib/swish/availability";
 import { applicableCredit, SIGNUP_CREDIT_ORE, SIGNUP_CREDIT_MIN_SPEND_ORE } from "@/lib/credits/signup";
 import { trackEvent } from "@/lib/analytics";
 import { ANALYTICS_EVENTS } from "@/lib/analytics/events";
@@ -52,6 +54,12 @@ interface Props {
   /** Delas välkomstavdraget ut till nya konton just nu? Styr löftet till utloggade. */
   signupCreditEnabled?: boolean;
   /**
+   * Swish Företag, när sidan avgjort att det får erbjudas (Ushas egna kvällar,
+   * numret satt). null = ingen Swish-knapp. Betalningen sker i Swish-appen;
+   * här skapas bara en vilande bokning som entrén bekräftar mot kvittot.
+   */
+  swish?: SwishOffer | null;
+  /**
    * Prisrubriken ovanför väljaren. Den renderades tidigare av sidan, på
    * servern, och kunde därför bara visa grundpriset — valde man Workshop för
    * 100 kr stod det fortfarande 50 kr i stort format medan köpknappen sa 100.
@@ -76,13 +84,21 @@ function soldOut(tt: TicketType) {
   return tt.capacity != null && tt.tickets_sold >= tt.capacity;
 }
 
-export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], passes = [], header, preselectTicketTypeId, preselectPassId, creditOre = 0, signupCreditEnabled = false }: Props) {
+export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], passes = [], header, preselectTicketTypeId, preselectPassId, creditOre = 0, signupCreditEnabled = false, swish = null }: Props) {
   const { toast } = useToast();
   const t = useTranslations("eventPage");
   const pathname = usePathname();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
+  // Swish: panelen med QR/länk och "Jag har swishat". Gästen betalar i
+  // Swish-appen; vi får inget kvitto, så bokningen blir vilande tills
+  // entrén jämfört mot bolagets Swish-app.
+  const [swishOpen, setSwishOpen] = useState(false);
+  const [swishEmail, setSwishEmail] = useState("");
+  const [swishName, setSwishName] = useState("");
+  const [swishLoading, setSwishLoading] = useState(false);
+  const [swishDone, setSwishDone] = useState<number | null>(null);
 
   const hasTypes = ticketTypes.length > 0;
   const [selectedTypeId, setSelectedTypeId] = useState<string>(() => {
@@ -444,6 +460,106 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
     )
   ) : null;
 
+  async function registerSwish() {
+    if (!swish || swishLoading) return;
+    setSwishLoading(true);
+    try {
+      const res = await fetch("/api/swish/intent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ listingId, ticketTypeId: selectedTypeId || undefined, quantity: effectiveQty, name: swishName, email: swishEmail }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        toast.error(t("errorTitle"), data.error === "invalidEmail" ? t("swishInvalidEmail") : t("errorRetry"));
+        return;
+      }
+      trackEvent(ANALYTICS_EVENTS.beginCheckout, { value: total, currency: "SEK", item_id: listingId, item_category: "ticket", quantity: effectiveQty, logged_in: isLoggedIn, payment_method: "swish" });
+      setSwishDone(total);
+    } catch {
+      toast.error(t("errorTitle"), t("errorRetry"));
+    } finally {
+      setSwishLoading(false);
+    }
+  }
+
+  // Swish som alternativ till kortet — bara på betalda kvällsbiljetter (inte
+  // klippkort: de har Epassi och Stripe, och ett kort över flera kvällar är
+  // inget man bekräftar i en dörr). Utan knapp när sidan inte skickat ett
+  // erbjudande, dvs. tredje parts kvällar och när numret är tomt.
+  const swishUrl = swish && !isFree && !selectedPass ? swishPaymentUrl({ number: swish.number, amountSek: total, message: swish.message }) : null;
+  const swishQr = swishUrl ? `/api/swish/qr?listing=${encodeURIComponent(listingId)}${selectedTypeId ? `&tt=${encodeURIComponent(selectedTypeId)}` : ""}&qty=${effectiveQty}` : null;
+  const swishBlock = swishUrl && swish ? (
+    swishDone != null ? (
+      <div className="mt-3 rounded-2xl border border-[var(--usha-gold)]/40 bg-[var(--usha-card)] p-4 text-sm">
+        <p className="font-semibold">{t("swishDoneTitle")}</p>
+        <p className="mt-1 leading-relaxed text-[var(--usha-muted)]">{t("swishDoneBody", { price: swishDone })}</p>
+      </div>
+    ) : !swishOpen ? (
+      <button
+        type="button"
+        onClick={() => setSwishOpen(true)}
+        disabled={typeSoldOut}
+        className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-[var(--usha-border)] px-6 py-3 text-sm font-semibold transition hover:border-[var(--usha-gold)] disabled:opacity-60"
+      >
+        <Smartphone size={18} />
+        {t("swishButton", { price: total })}
+      </button>
+    ) : (
+      <div className="mt-3 rounded-2xl border border-[var(--usha-gold)]/40 bg-[var(--usha-card)] p-4 text-sm">
+        <p className="font-semibold">{t("swishTitle", { price: total })}</p>
+        <p className="mt-1 leading-relaxed text-[var(--usha-muted)]">{t("swishLead")}</p>
+        {/* På telefonen öppnar länken Swish-appen direkt. QR-koden är för den
+            som sitter vid en dator och skannar med telefonen. */}
+        <a
+          href={swishUrl}
+          className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--usha-gold)] px-6 py-3 text-sm font-bold text-black transition hover:opacity-90"
+        >
+          <Smartphone size={18} />
+          {t("swishOpenApp")}
+        </a>
+        <details className="mt-2 text-xs text-[var(--usha-muted)]">
+          <summary className="cursor-pointer">{t("swishScanHint")}</summary>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={swishQr ?? undefined} alt="" className="mx-auto mt-2 w-full max-w-[200px] rounded-xl bg-white p-2" />
+          <p className="mt-1 text-center">
+            {t("swishNumberLabel")} <span className="font-mono font-semibold text-[var(--usha-white)]">{swish.formatted}</span>
+          </p>
+        </details>
+        <p className="mt-3 text-xs text-[var(--usha-muted)]">{t("swishThenLead")}</p>
+        <input
+          type="email"
+          required
+          value={swishEmail}
+          onChange={(e) => setSwishEmail(e.target.value)}
+          placeholder={t("emailPlaceholder")}
+          autoComplete="email"
+          className="mt-2 w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-3 py-2 text-sm"
+        />
+        <input
+          type="text"
+          value={swishName}
+          onChange={(e) => setSwishName(e.target.value)}
+          placeholder={t("namePlaceholder")}
+          autoComplete="name"
+          className="mt-2 w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-3 py-2 text-sm"
+        />
+        <button
+          type="button"
+          onClick={registerSwish}
+          disabled={swishLoading || !swishEmail}
+          className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-[var(--usha-gold)] px-6 py-3 text-sm font-semibold transition hover:bg-[var(--usha-gold)]/10 disabled:opacity-60"
+        >
+          {swishLoading ? <Loader2 size={18} className="animate-spin" /> : <Smartphone size={18} />}
+          {t("swishPaid", { price: total })}
+        </button>
+        <button type="button" onClick={() => setSwishOpen(false)} className="mt-2 w-full text-center text-xs text-[var(--usha-muted)] underline underline-offset-2">
+          {t("swishBack")}
+        </button>
+      </div>
+    )
+  ) : null;
+
   // Logged-in: existing ticket checkout (uses the account).
   if (isLoggedIn) {
     return (
@@ -462,6 +578,7 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
           {loading ? <Loader2 size={20} className="animate-spin" /> : <Ticket size={20} />}
           {loading ? t("booking") : label}
         </button>
+        {swishBlock}
         {epassiBlock}
       </>
     );
@@ -518,6 +635,7 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
           {loading ? <Loader2 size={20} className="animate-spin" /> : <Ticket size={20} />}
           {loading ? t("booking") : label}
         </button>
+        {swishBlock}
         {epassiBlock}
       </div>
     );

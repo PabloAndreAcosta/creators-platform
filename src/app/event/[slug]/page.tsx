@@ -27,6 +27,7 @@ import { EveningCrew } from "@/components/evening-crew";
 import { approvalScopeKey } from "@/lib/taxi/approvals";
 import { DjWishes } from "./dj-wishes";
 import { getSignupCreditEnabled } from "@/lib/credits/flag";
+import { swishOfferForListing } from "@/lib/swish/availability";
 import { getTranslations, getLocale, getMessages } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
 import { SocialShareButton } from "@/components/social-share-button";
@@ -566,6 +567,15 @@ export default async function EventPage(props: Params) {
   const isHost = !!user && user.id === listing.user_id;
   const signupCreditEnabled = await getSignupCreditEnabled();
   const returnPath = `/event/${slug}`;
+  // Swish Företag: bara Ushas egna kvällar (pengarna landar på bolagets konto)
+  // och bara när det finns något att betala. Samma regel som i dörren.
+  const swishOffer =
+    sale.buyable && sellable
+      ? await swishOfferForListing(
+          createAdminClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!),
+          listing
+        )
+      : null;
 
   // Volontärpass för kvällen (taxidansare, instruktörer m.fl.). Visas för
   // besökare som en väg in — annars hittar ingen passen från kvällens sida.
@@ -1012,6 +1022,7 @@ export default async function EventPage(props: Params) {
                   preselectPassId={preselectPassId}
                   creditOre={signupCreditOre}
                   signupCreditEnabled={signupCreditEnabled}
+                  swish={swishOffer}
                   header={{
                     badge: saleBadge ?? t("ticket"),
                     listPrice: listing.price ?? null,

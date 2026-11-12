@@ -38,6 +38,16 @@ interface Sale {
   payment_method?: string | null;
 }
 
+interface PendingSwish {
+  id: string;
+  guest_name: string | null;
+  guest_email: string | null;
+  amount_paid: number | null;
+  guest_count: number | null;
+  ticket_type_name: string | null;
+  created_at: string;
+}
+
 const POLL_MS = 5000;
 
 export default function EntrancePage() {
@@ -68,6 +78,11 @@ export default function EntrancePage() {
   const [swishEmail, setSwishEmail] = useState("");
   const [swishCount, setSwishCount] = useState(1);
   const [swishState, setSwishState] = useState<"idle" | "sparar" | "klar" | "fel">("idle");
+  // Vilande Swish-köp från eventsidan ("Jag har swishat"), att jämföra mot
+  // Swish-appen och avgöra. Raden med pågående anrop får inte tryckas igen.
+  const [pendingSwish, setPendingSwish] = useState<PendingSwish[]>([]);
+  const [pendingBusy, setPendingBusy] = useState<string | null>(null);
+  const [pendingCheckIn, setPendingCheckIn] = useState(true);
   // Epassi i dörren: en enstaka kväll köpt i Epassi-appen (friskvårdskvällar).
   const [epassi, setEpassi] = useState<{ enabled: boolean }>({ enabled: false });
   const [epassiOpen, setEpassiOpen] = useState(false);
@@ -97,6 +112,7 @@ export default function EntrancePage() {
         if (data.kiosk) setKiosk(data.kiosk);
         if (data.swish) setSwish(data.swish);
         if (data.epassi) setEpassi(data.epassi);
+        if (Array.isArray(data.pendingSwish)) setPendingSwish(data.pendingSwish);
         if (poll) {
           if (data.sales.length > 0) setSales((prev) => [...data.sales, ...prev].slice(0, 8));
         } else {
@@ -145,6 +161,32 @@ export default function EntrancePage() {
       setTimeout(() => setSwishState("idle"), 4000);
     } catch {
       setSwishState("fel");
+    }
+  }
+
+  /**
+   * Avgör ett vilande Swish-köp från eventsidan. Bekräfta = biljetten räknas
+   * och QR-koden mejlas (och gästen checkas in om hen står här). Avvisa =
+   * ingen betalning hittades, bokningen avbokas.
+   */
+  async function avgorSwish(bookingId: string, action: "confirm" | "reject") {
+    if (pendingBusy) return;
+    setPendingBusy(bookingId);
+    try {
+      const res = await fetch(`/api/events/${id}/entry/swish/confirm`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bookingId, action, checkIn: action === "confirm" && pendingCheckIn }),
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      setPendingSwish((prev) => prev.filter((p) => p.id !== bookingId));
+      // Hela listan igen: bokningen skapades när gästen tryckte, så en
+      // since-poll skulle inte se den som ny under "Betalt nyss".
+      load(false);
+    } catch {
+      setError(t("swishError"));
+    } finally {
+      setPendingBusy(null);
     }
   }
 
@@ -427,6 +469,63 @@ export default function EntrancePage() {
             <RefreshCw size={15} />
             {t("otherTicket")}
           </button>
+        </div>
+      )}
+
+      {/* Swish-köp från eventsidan som väntar på att någon jämför mot
+          Swish-appen. Ligger ÖVER "Betalt nyss": det är det som kräver en
+          handling, och gästen står ofta i dörren och väntar på svaret. */}
+      {pendingSwish.length > 0 && (
+        <div className="mt-8">
+          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--usha-muted)]">
+            {t("swishPendingHeading")}
+          </p>
+          <p className="mt-1 text-xs text-[var(--usha-muted)]">{t("swishPendingHint")}</p>
+          <label className="mt-2 flex cursor-pointer items-center gap-2 text-xs text-[var(--usha-muted)]">
+            <input type="checkbox" checked={pendingCheckIn} onChange={(e) => setPendingCheckIn(e.target.checked)} className="h-4 w-4 accent-[var(--usha-gold)]" />
+            {t("swishPendingCheckIn")}
+          </label>
+          <ul className="mt-3 space-y-2">
+            {pendingSwish.map((p) => (
+              <li key={p.id} className="rounded-xl border border-[var(--usha-gold)]/40 bg-[var(--usha-gold)]/5 px-4 py-3">
+                <div className="flex items-center gap-3">
+                  <Smartphone size={18} className="shrink-0 text-[var(--usha-gold)]" />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">{p.guest_name || p.guest_email || t("guest")}</p>
+                    <p className="truncate text-xs text-[var(--usha-muted)]">
+                      {p.guest_name && p.guest_email ? `${p.guest_email} · ` : ""}
+                      {p.ticket_type_name ?? ""}
+                      {p.guest_count && p.guest_count > 1 ? ` · ${t("seats", { n: p.guest_count })}` : ""}
+                    </p>
+                  </div>
+                  {p.amount_paid != null && (
+                    <span className="shrink-0 text-sm font-semibold text-[var(--usha-gold)]">
+                      {t("priceSek", { price: Math.round(p.amount_paid / 100) })}
+                    </span>
+                  )}
+                </div>
+                <div className="mt-3 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => avgorSwish(p.id, "confirm")}
+                    disabled={pendingBusy !== null}
+                    className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--usha-gold)] py-2.5 text-sm font-bold text-black disabled:opacity-60"
+                  >
+                    {pendingBusy === p.id ? <Loader2 size={15} className="animate-spin" /> : <Check size={15} />}
+                    {t("swishPendingConfirm")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => avgorSwish(p.id, "reject")}
+                    disabled={pendingBusy !== null}
+                    className="rounded-xl border border-[var(--usha-border)] px-4 py-2.5 text-sm font-medium text-[var(--usha-muted)] transition hover:border-red-400/60 hover:text-red-400 disabled:opacity-60"
+                  >
+                    {t("swishPendingReject")}
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 
