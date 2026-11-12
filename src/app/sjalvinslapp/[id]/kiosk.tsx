@@ -33,6 +33,7 @@ export interface KioskStrings {
   canceled: string; pending: string; invalid: string; askCrew: string; seats: string; passRemaining: string;
   noPermission: string; onlyOwnEvents: string; couldNotVerify: string; checkInFailed: string; network: string;
   lockedTitle: string; lockedBody: string; upgrade: string; swapSide: string;
+  fullscreen: string; exitFullscreen: string;
 }
 
 interface TicketType { id: string; name: string; price: number }
@@ -107,6 +108,44 @@ export function Kiosk({ id, ticketTypeId, s }: { id: string; ticketTypeId: strin
   const lastRef = useRef<{ code: string; at: number } | null>(null);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const wakeLockRef = useRef<{ release: () => Promise<void> } | null>(null);
+
+  // Helskärm går att slå på och av med en egen knapp. Begäran vid start
+  // nekas tyst i vissa webbläsare, och Androids bakåtgest tar plattan ur
+  // helskärm — då ska den gå att få tillbaka utan att starta om kameran.
+  // Knappen döljs om webbläsaren saknar API:et.
+  const [canFullscreen, setCanFullscreen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  useEffect(() => {
+    const doc = document as Document & { webkitFullscreenElement?: Element | null };
+    const root = document.documentElement as HTMLElement & { webkitRequestFullscreen?: () => void };
+    setCanFullscreen(!!(root.requestFullscreen || root.webkitRequestFullscreen));
+    const sync = () => setIsFullscreen(!!(document.fullscreenElement || doc.webkitFullscreenElement));
+    sync();
+    document.addEventListener("fullscreenchange", sync);
+    document.addEventListener("webkitfullscreenchange", sync);
+    return () => {
+      document.removeEventListener("fullscreenchange", sync);
+      document.removeEventListener("webkitfullscreenchange", sync);
+    };
+  }, []);
+
+  function toggleFullscreen() {
+    const doc = document as Document & { webkitFullscreenElement?: Element | null; webkitExitFullscreen?: () => void };
+    const root = document.documentElement as HTMLElement & { webkitRequestFullscreen?: () => void };
+    try {
+      if (document.fullscreenElement || doc.webkitFullscreenElement) {
+        if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+        else doc.webkitExitFullscreen?.();
+      } else if (root.requestFullscreen) {
+        root.requestFullscreen().catch(() => {});
+      } else {
+        root.webkitRequestFullscreen?.();
+      }
+    } catch {
+      // nekad — kiosken fungerar lika bra utan
+    }
+    requestWakeLock();
+  }
 
   useEffect(() => {
     let active = true;
@@ -352,9 +391,16 @@ export function Kiosk({ id, ticketTypeId, s }: { id: string; ticketTypeId: strin
           <ArrowLeft size={14} /> {s.exit}
         </Link>
         <span className="min-w-0 truncate">{title}</span>
+        <div className="flex shrink-0 items-center gap-2">
+        {canFullscreen && (
+          <button onClick={toggleFullscreen} className="shrink-0 rounded-full border border-white/20 px-2.5 py-1 hover:text-white">
+            {isFullscreen ? s.exitFullscreen : s.fullscreen}
+          </button>
+        )}
         <button onClick={swapSide} className="hidden shrink-0 rounded-full border border-white/20 px-2.5 py-1 hover:text-white landscape:inline-block">
           {s.swapSide}
         </button>
+        </div>
       </div>
 
       {/* Liggande: två kolumner som ryms på skärmen utan skroll, skanningen närmast kameran. */}

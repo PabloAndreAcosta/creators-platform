@@ -2807,6 +2807,8 @@
   },
   "dorrPage": {
     "swapSide": "La cámara está en el otro lado",
+    "fullscreen": "Pantalla completa",
+    "exitFullscreen": "Salir de pantalla completa",
     "title": "Autoregistro",
     "premiumBadge": "Premium",
     "lead": "Pon una tableta en la puerta. Los invitados compran la entrada con su móvil y se registran solos: nadie del equipo tiene que estar con el móvil en la mano.",
