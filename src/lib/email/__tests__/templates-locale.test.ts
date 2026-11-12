@@ -10,6 +10,7 @@ import { EMAIL_FALLBACK_LOCALE } from "@/lib/i18n/recipient";
 
 import BookingConfirmation, { getBookingConfirmationSubject } from "@/components/emails/BookingConfirmation";
 import BookingCancellation, { getBookingCancellationSubject } from "@/components/emails/BookingCancellation";
+import SwishPending, { getSwishPendingSubject } from "@/components/emails/SwishPending";
 import BookingReminder, { getBookingReminderSubject } from "@/components/emails/BookingReminder";
 import CreatorEventAnnouncement, { getCreatorEventSubject } from "@/components/emails/CreatorEventAnnouncement";
 import SubscriptionWelcome, { getSubscriptionWelcomeSubject } from "@/components/emails/SubscriptionWelcome";
@@ -51,6 +52,11 @@ function templates(t: Translate, locale: Locale) {
     }),
     BookingCancellation: createElement(BookingCancellation, {
       recipientName: "Pau", serviceName: "Salsa 101", scheduledAt: WHEN, t, locale,
+    }),
+    SwishPending: createElement(SwishPending, {
+      customerName: "Pau", serviceName: "Salsa 101", scheduledAt: WHEN, amountSek: 130,
+      swishNumber: "123 711 11 80", swishMessage: "The Lab 11/12",
+      swishUrl: "https://app.swish.nu/1/p/sw/?sw=1237111180&amt=130.00&msg=The%20Lab", bookingId: "b-1", t, locale,
     }),
     BookingReminder: createElement(BookingReminder, {
       customerName: "Pau", serviceName: "Salsa 101", scheduledAt: WHEN,
@@ -130,6 +136,7 @@ describe("email templates render in the reader's language", () => {
       return [
         getBookingConfirmationSubject(t, "Salsa 101"),
         getBookingCancellationSubject(t, "Salsa 101"),
+        getSwishPendingSubject(t, "Salsa 101", 130),
         getBookingReminderSubject(t, "Salsa 101", "soon"),
         getBookingReminderSubject(t, "Salsa 101", "day"),
         getCreatorEventSubject(t, "Joy", "Sparkle"),

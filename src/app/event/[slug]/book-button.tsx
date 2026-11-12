@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Ticket, Loader2, HeartPulse, Smartphone } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
-import { swishPaymentUrl } from "@/lib/swish/config";
 import type { SwishOffer } from "@/lib/swish/availability";
 import { applicableCredit, SIGNUP_CREDIT_MIN_SPEND_ORE } from "@/lib/credits/signup";
 import { trackEvent } from "@/lib/analytics";
@@ -61,6 +60,8 @@ interface Props {
    * här skapas bara en vilande bokning som entrén bekräftar mot kvittot.
    */
   swish?: SwishOffer | null;
+  /** Inloggad köpares adress, så Swish-steget slipper fråga igen. */
+  buyerEmail?: string | null;
   /**
    * Prisrubriken ovanför väljaren. Den renderades tidigare av sidan, på
    * servern, och kunde därför bara visa grundpriset — valde man Workshop för
@@ -86,21 +87,21 @@ function soldOut(tt: TicketType) {
   return tt.capacity != null && tt.tickets_sold >= tt.capacity;
 }
 
-export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], passes = [], header, preselectTicketTypeId, preselectPassId, creditOre = 0, swish = null }: Props) {
+export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], passes = [], header, preselectTicketTypeId, preselectPassId, creditOre = 0, swish = null, buyerEmail = null }: Props) {
   const { toast } = useToast();
   const t = useTranslations("eventPage");
   const pathname = usePathname();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
-  // Swish: panelen med QR/länk och "Jag har swishat". Gästen betalar i
-  // Swish-appen; vi får inget kvitto, så bokningen blir vilande tills
-  // entrén jämfört mot bolagets Swish-app.
+  // Swish: panelen frågar efter e-post FÖRST och skapar en vilande bokning,
+  // sedan går köparen till biljettsidan och swishar där. Den sidan överlever
+  // hoppet till Swish-appen och tillbaka, och det är där QR-koden dyker upp
+  // när entrén bekräftat. Panelen själv tar aldrig emot betalningen.
   const [swishOpen, setSwishOpen] = useState(false);
-  const [swishEmail, setSwishEmail] = useState("");
+  const [swishEmail, setSwishEmail] = useState(buyerEmail ?? "");
   const [swishName, setSwishName] = useState("");
   const [swishLoading, setSwishLoading] = useState(false);
-  const [swishDone, setSwishDone] = useState<number | null>(null);
 
   const hasTypes = ticketTypes.length > 0;
   const [selectedTypeId, setSelectedTypeId] = useState<string>(() => {
@@ -469,15 +470,16 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
         body: JSON.stringify({ listingId, ticketTypeId: selectedTypeId || undefined, quantity: effectiveQty, name: swishName, email: swishEmail }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
+      if (!res.ok || !data.ticketUrl) {
         toast.error(t("errorTitle"), data.error === "invalidEmail" ? t("swishInvalidEmail") : t("errorRetry"));
+        setSwishLoading(false);
         return;
       }
       trackEvent(ANALYTICS_EVENTS.beginCheckout, { value: total, currency: "SEK", item_id: listingId, item_category: "ticket", quantity: effectiveQty, logged_in: isLoggedIn, payment_method: "swish" });
-      setSwishDone(total);
+      // Knappen förblir upptagen tills biljettsidan tagit över.
+      window.location.href = data.ticketUrl;
     } catch {
       toast.error(t("errorTitle"), t("errorRetry"));
-    } finally {
       setSwishLoading(false);
     }
   }
@@ -486,15 +488,9 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
   // klippkort: de har Epassi och Stripe, och ett kort över flera kvällar är
   // inget man bekräftar i en dörr). Utan knapp när sidan inte skickat ett
   // erbjudande, dvs. tredje parts kvällar och när numret är tomt.
-  const swishUrl = swish && !isFree && !selectedPass ? swishPaymentUrl({ number: swish.number, amountSek: total, message: swish.message }) : null;
-  const swishQr = swishUrl ? `/api/swish/qr?listing=${encodeURIComponent(listingId)}${selectedTypeId ? `&tt=${encodeURIComponent(selectedTypeId)}` : ""}&qty=${effectiveQty}` : null;
-  const swishBlock = swishUrl && swish ? (
-    swishDone != null ? (
-      <div className="mt-3 rounded-2xl border border-[var(--usha-gold)]/40 bg-[var(--usha-card)] p-4 text-sm">
-        <p className="font-semibold">{t("swishDoneTitle")}</p>
-        <p className="mt-1 leading-relaxed text-[var(--usha-muted)]">{t("swishDoneBody", { price: swishDone })}</p>
-      </div>
-    ) : !swishOpen ? (
+  const swishAvailable = !!swish && !isFree && !selectedPass;
+  const swishBlock = swishAvailable ? (
+    !swishOpen ? (
       <>
         {/* Swishs riktlinjer (swish.nu/marknadsmaterial/logotyp): logotypen
             får aldrig redigeras eller färgläggas om, och mot mörk bakgrund
@@ -519,26 +515,6 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
       <div className="mt-3 rounded-2xl border border-[var(--usha-gold)]/40 bg-[var(--usha-card)] p-4 text-sm">
         <p className="font-semibold">{t("swishTitle", { price: total })}</p>
         <p className="mt-1 leading-relaxed text-[var(--usha-muted)]">{t("swishLead")}</p>
-        {/* På telefonen öppnar länken Swish-appen direkt. QR-koden är för den
-            som sitter vid en dator och skannar med telefonen. */}
-        <a
-          href={swishUrl}
-          aria-label={`${t("swishOpenApp")} Swish`}
-          className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-white/15 bg-black px-4 py-3 text-sm font-bold text-white transition hover:border-white/40"
-        >
-          <span className="whitespace-nowrap">{t("swishOpenApp")}</span>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/payments/swish-logo-dark.png" alt="Swish" width={66} height={20} className="h-5 w-auto shrink-0" />
-        </a>
-        <details className="mt-2 text-xs text-[var(--usha-muted)]">
-          <summary className="cursor-pointer">{t("swishScanHint")}</summary>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={swishQr ?? undefined} alt="" className="mx-auto mt-2 w-full max-w-[200px] rounded-xl bg-white p-2" />
-          <p className="mt-1 text-center">
-            {t("swishNumberLabel")} <span className="font-mono font-semibold text-[var(--usha-white)]">{swish.formatted}</span>
-          </p>
-        </details>
-        <p className="mt-3 text-xs text-[var(--usha-muted)]">{t("swishThenLead")}</p>
         <input
           type="email"
           required
@@ -546,7 +522,7 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
           onChange={(e) => setSwishEmail(e.target.value)}
           placeholder={t("emailPlaceholder")}
           autoComplete="email"
-          className="mt-2 w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-3 py-2 text-sm"
+          className="mt-3 w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-3 py-2 text-sm"
         />
         <input
           type="text"
@@ -560,11 +536,14 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
           type="button"
           onClick={registerSwish}
           disabled={swishLoading || !swishEmail}
-          className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-[var(--usha-gold)] px-6 py-3 text-sm font-semibold transition hover:bg-[var(--usha-gold)]/10 disabled:opacity-60"
+          aria-label={`${t("swishContinue")} Swish`}
+          className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-white/15 bg-black px-4 py-3 text-sm font-bold text-white transition hover:border-white/40 disabled:opacity-60"
         >
-          {swishLoading ? <Loader2 size={18} className="animate-spin" /> : <Smartphone size={18} />}
-          {t("swishPaid", { price: total })}
+          {swishLoading ? <Loader2 size={18} className="animate-spin" /> : <span className="whitespace-nowrap">{t("swishContinue")}</span>}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/payments/swish-logo-dark.png" alt="Swish" width={66} height={20} className="h-5 w-auto shrink-0" />
         </button>
+        <p className="mt-2 text-xs leading-relaxed text-[var(--usha-muted)]">{t("swishThenLead")}</p>
         <button type="button" onClick={() => setSwishOpen(false)} className="mt-2 w-full text-center text-xs text-[var(--usha-muted)] underline underline-offset-2">
           {t("swishBack")}
         </button>

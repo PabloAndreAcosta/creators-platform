@@ -1020,6 +1020,7 @@ export default async function EventPage(props: Params) {
                   preselectPassId={preselectPassId}
                   creditOre={signupCreditOre}
                   swish={swishOffer}
+                  buyerEmail={user?.email ?? null}
                   header={{
                     badge: saleBadge ?? t("ticket"),
                     listPrice: listing.price ?? null,
