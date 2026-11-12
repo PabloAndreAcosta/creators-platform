@@ -496,14 +496,20 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
         <p className="mt-1 leading-relaxed text-[var(--usha-muted)]">{t("swishDoneBody", { price: swishDone })}</p>
       </div>
     ) : !swishOpen ? (
+      // Swishs riktlinjer (swish.nu/marknadsmaterial/logotyp): logotypen får
+      // aldrig redigeras eller färgläggas om, mot mörk bakgrund används
+      // varianten med vitt ordmärke på en svart platta. Därför en svart knapp
+      // med deras egen fil — inte en knapp i "Swish-färger".
       <button
         type="button"
         onClick={() => setSwishOpen(true)}
         disabled={typeSoldOut}
-        className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-[var(--usha-border)] px-6 py-3 text-sm font-semibold transition hover:border-[var(--usha-gold)] disabled:opacity-60"
+        aria-label={`${t("swishButton", { price: total })} Swish`}
+        className="mt-2 inline-flex w-full items-center justify-center gap-2.5 rounded-2xl border border-white/15 bg-black px-6 py-3 text-sm font-semibold text-white transition hover:border-white/40 disabled:opacity-60"
       >
-        <Smartphone size={18} />
         {t("swishButton", { price: total })}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/payments/swish-logo-dark.png" alt="Swish" width={72} height={22} className="h-[22px] w-auto" />
       </button>
     ) : (
       <div className="mt-3 rounded-2xl border border-[var(--usha-gold)]/40 bg-[var(--usha-card)] p-4 text-sm">
@@ -513,10 +519,12 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
             som sitter vid en dator och skannar med telefonen. */}
         <a
           href={swishUrl}
-          className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--usha-gold)] px-6 py-3 text-sm font-bold text-black transition hover:opacity-90"
+          aria-label={`${t("swishOpenApp")} Swish`}
+          className="mt-3 inline-flex w-full items-center justify-center gap-2.5 rounded-2xl border border-white/15 bg-black px-6 py-3 text-sm font-bold text-white transition hover:border-white/40"
         >
-          <Smartphone size={18} />
           {t("swishOpenApp")}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/payments/swish-logo-dark.png" alt="Swish" width={72} height={22} className="h-[22px] w-auto" />
         </a>
         <details className="mt-2 text-xs text-[var(--usha-muted)]">
           <summary className="cursor-pointer">{t("swishScanHint")}</summary>
