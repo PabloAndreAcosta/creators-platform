@@ -7,7 +7,7 @@ import { Ticket, Loader2, HeartPulse, Smartphone } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
 import { swishPaymentUrl } from "@/lib/swish/config";
 import type { SwishOffer } from "@/lib/swish/availability";
-import { applicableCredit, SIGNUP_CREDIT_ORE, SIGNUP_CREDIT_MIN_SPEND_ORE } from "@/lib/credits/signup";
+import { applicableCredit, SIGNUP_CREDIT_MIN_SPEND_ORE } from "@/lib/credits/signup";
 import { trackEvent } from "@/lib/analytics";
 import { ANALYTICS_EVENTS } from "@/lib/analytics/events";
 
@@ -49,10 +49,12 @@ interface Props {
   preselectTicketTypeId?: string | null;
   /** Förvalt klippkort, från `?kort=` (dörrskärmens klippkortskod). */
   preselectPassId?: string | null;
-  /** Köparens outnyttjade välkomstavdrag i öre. 0 = inget att visa. */
+  /**
+   * Köparens outnyttjade välkomstavdrag i öre. 0 = inget att visa. Avdraget
+   * delas inte ut längre (avvecklat 2026-11-12), men de som fick det behåller
+   * det tills det används eller går ut.
+   */
   creditOre?: number;
-  /** Delas välkomstavdraget ut till nya konton just nu? Styr löftet till utloggade. */
-  signupCreditEnabled?: boolean;
   /**
    * Swish Företag, när sidan avgjort att det får erbjudas (Ushas egna kvällar,
    * numret satt). null = ingen Swish-knapp. Betalningen sker i Swish-appen;
@@ -84,7 +86,7 @@ function soldOut(tt: TicketType) {
   return tt.capacity != null && tt.tickets_sold >= tt.capacity;
 }
 
-export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], passes = [], header, preselectTicketTypeId, preselectPassId, creditOre = 0, signupCreditEnabled = false, swish = null }: Props) {
+export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], passes = [], header, preselectTicketTypeId, preselectPassId, creditOre = 0, swish = null }: Props) {
   const { toast } = useToast();
   const t = useTranslations("eventPage");
   const pathname = usePathname();
@@ -149,9 +151,6 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
   // Avdraget räknas i ören men visas i kronor, och gäller bara över gränsen.
   const credit = applicableCredit({ creditOre, subtotalOre: total * 100 });
   const totalAfterCredit = total - credit / 100;
-  // Välkomstavdraget nämns bara när det faktiskt skulle gälla. Ett löfte om
-  // 50 kr på en 120-kronorsbiljett vore en lögn — gränsen ligger på 150.
-  const qualifiesForSignupCredit = signupCreditEnabled && total * 100 >= SIGNUP_CREDIT_MIN_SPEND_ORE;
   const label = selectedPass
     ? t("buyPass", { price: credit > 0 ? totalAfterCredit : total })
     : isFree
@@ -496,10 +495,11 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
         <p className="mt-1 leading-relaxed text-[var(--usha-muted)]">{t("swishDoneBody", { price: swishDone })}</p>
       </div>
     ) : !swishOpen ? (
-      // Swishs riktlinjer (swish.nu/marknadsmaterial/logotyp): logotypen får
-      // aldrig redigeras eller färgläggas om, mot mörk bakgrund används
-      // varianten med vitt ordmärke på en svart platta. Därför en svart knapp
-      // med deras egen fil — inte en knapp i "Swish-färger".
+      <>
+        {/* Swishs riktlinjer (swish.nu/marknadsmaterial/logotyp): logotypen
+            får aldrig redigeras eller färgläggas om, och mot mörk bakgrund
+            används varianten med vitt ordmärke på en svart platta. Därför en
+            svart knapp med deras egen fil — inte en knapp i "Swish-färger". */}
       <button
         type="button"
         onClick={() => setSwishOpen(true)}
@@ -511,6 +511,10 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/payments/swish-logo-dark.png" alt="Swish" width={66} height={20} className="h-5 w-auto shrink-0" />
       </button>
+      {/* Välkomstavdraget dras bara i kortkassan. Utan raden ser Swish ut
+          att vara 50 kr dyrare utan förklaring. */}
+      {credit > 0 && <p className="mt-1 text-center text-[11px] text-[var(--usha-muted)]">{t("swishNoCredit")}</p>}
+      </>
     ) : (
       <div className="mt-3 rounded-2xl border border-[var(--usha-gold)]/40 bg-[var(--usha-card)] p-4 text-sm">
         <p className="font-semibold">{t("swishTitle", { price: total })}</p>
@@ -605,7 +609,6 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
       >
         {t("haveAccountLink")}
       </a>
-      {qualifiesForSignupCredit ? ` ${t("signupCreditTeaser", { amount: SIGNUP_CREDIT_ORE / 100 })}` : ""}
     </p>
   ) : null;
 

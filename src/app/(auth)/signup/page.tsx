@@ -9,8 +9,7 @@ import { createClient } from "@/lib/supabase/client";
 import { isPasswordPwned } from "@/lib/auth/password-strength";
 import { isRateLimitError } from "@/lib/auth/rate-limit-error";
 import { trackEvent } from "@/lib/analytics";
-import { SIGNUP_CREDIT_ORE, SIGNUP_CREDIT_MIN_SPEND_ORE } from "@/lib/credits/signup";
-import { Palette, Store, Search, ShieldCheck, Loader2, Music, User, Building2, Gift } from "lucide-react";
+import { Palette, Store, Search, ShieldCheck, Loader2, Music, User, Building2 } from "lucide-react";
 import { GoogleIcon, FacebookIcon } from "@/components/brand-icons";
 import { FrejaAlternative } from "@/components/freja-alternative";
 import { InAppBrowserNotice, useInAppBrowser } from "@/components/in-app-browser-notice";
@@ -40,43 +39,6 @@ function roleFromParam(value: string | null): Role | null {
 
 function FieldError({ message }: { message: string }) {
   return <p className="mt-1 text-xs text-red-400">{message}</p>;
-}
-
-/**
- * Välkomstavdraget, sagt på registreringssidan.
- *
- * Marknadsföringen lovar 50 kr — affischer, QR-koden i projektionen — och den
- * som scannar landar här. Utan den här rutan bekräftar sidan aldrig löftet, och
- * avdraget delas ut helt tyst av triggern i handle_new_user.
- *
- * Beloppen läses från samma konstanter som regeln använder, så texten inte kan
- * påstå ett belopp och koden räkna med ett annat.
- */
-function WelcomeCredit() {
-  const t = useTranslations("auth");
-  // Rutan lovar 50 kr. Den visas bara när avdraget faktiskt delas ut —
-  // samma app_config-värde som triggern läser (lib/credits/flag.ts).
-  const [enabled, setEnabled] = useState(false);
-  useEffect(() => {
-    fetch("/api/config/signup-credit")
-      .then((r) => r.json())
-      .then((d) => setEnabled(d?.enabled === true))
-      .catch(() => setEnabled(false));
-  }, []);
-  if (!enabled) return null;
-  return (
-    <div className="mb-6 flex items-start gap-3 rounded-xl border border-[var(--usha-gold)]/30 bg-[var(--usha-gold)]/5 px-4 py-3 text-left">
-      <Gift size={18} className="mt-0.5 shrink-0 text-[var(--usha-gold)]" />
-      <div>
-        <p className="text-sm font-semibold text-[var(--usha-gold)]">
-          {t("signupCreditTitle", { amount: SIGNUP_CREDIT_ORE / 100 })}
-        </p>
-        <p className="mt-0.5 text-xs text-[var(--usha-muted)]">
-          {t("signupCreditNote", { minSpend: SIGNUP_CREDIT_MIN_SPEND_ORE / 100 })}
-        </p>
-      </div>
-    </div>
-  );
 }
 
 export default function SignupPage() {
@@ -432,8 +394,6 @@ export default function SignupPage() {
             <p className="mt-1 text-sm text-[var(--usha-muted)]">{t("howToUse")}</p>
           </div>
 
-          <WelcomeCredit />
-
           <div className="space-y-3">
             {ROLES.map((role) => (
               <button
@@ -659,8 +619,6 @@ export default function SignupPage() {
             </button>
           )}
         </div>
-
-        <WelcomeCredit />
 
         {/* Samtycket står före ALLA tre registreringsvägarna, inte nere vid
             formulärets knapp. Google- och Facebook-knapparna ligger ovanför

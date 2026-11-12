@@ -16,7 +16,6 @@ import SubscriptionWelcome, { getSubscriptionWelcomeSubject } from "@/components
 import NewMessage, { getNewMessageSubject } from "@/components/emails/NewMessage";
 import PayoutConfirmation, { getPayoutSubject } from "@/components/emails/PayoutConfirmation";
 import TrialEnding, { getTrialEndingSubject } from "@/components/emails/TrialEnding";
-import WelcomeCredit, { getWelcomeCreditSubject } from "@/components/emails/WelcomeCredit";
 import SettlementStatement, { getSettlementStatementSubject } from "@/components/emails/SettlementStatement";
 import { buildMonthlyStatement } from "@/lib/settlements/monthly-statement";
 
@@ -80,9 +79,6 @@ function templates(t: Translate, locale: Locale) {
     TrialEnding: createElement(TrialEnding, {
       memberName: "Pau", trialEndDate: WHEN, daysLeft: 3, t, locale,
     }),
-    WelcomeCredit: createElement(WelcomeCredit, {
-      recipientName: "Pau", amount: 50, minSpend: 150, expiresAt: WHEN, t, locale,
-    }),
     SettlementStatement: createElement(SettlementStatement, {
       partnerName: "Joy Nation", t, locale,
       statement: buildMonthlyStatement("2026-10", [
@@ -142,7 +138,6 @@ describe("email templates render in the reader's language", () => {
         getPayoutSubject(t, "batch", 1234),
         getPayoutSubject(t, "instant", 1234),
         getTrialEndingSubject(t, 1),
-        getWelcomeCreditSubject(t, 50),
         getSettlementStatementSubject(t, "Joy Nation", "2026-10", "sv"),
         getTrialEndingSubject(t, 5),
       ];

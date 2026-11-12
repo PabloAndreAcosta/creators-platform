@@ -26,7 +26,6 @@ import { loadEveningCrew } from "@/lib/taxi/crew";
 import { EveningCrew } from "@/components/evening-crew";
 import { approvalScopeKey } from "@/lib/taxi/approvals";
 import { DjWishes } from "./dj-wishes";
-import { getSignupCreditEnabled } from "@/lib/credits/flag";
 import { swishOfferForListing } from "@/lib/swish/availability";
 import { getTranslations, getLocale, getMessages } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
@@ -565,7 +564,6 @@ export default async function EventPage(props: Params) {
     sale.state === "before" && saleUntil ? t("releasesAt", { date: saleUntil }) :
     sale.state === "sold_out" && saleUntil ? t("releasesAt", { date: saleUntil }) : null;
   const isHost = !!user && user.id === listing.user_id;
-  const signupCreditEnabled = await getSignupCreditEnabled();
   const returnPath = `/event/${slug}`;
   // Swish Företag: bara Ushas egna kvällar (pengarna landar på bolagets konto)
   // och bara när det finns något att betala. Samma regel som i dörren.
@@ -1021,7 +1019,6 @@ export default async function EventPage(props: Params) {
                   preselectTicketTypeId={preselectTicketTypeId}
                   preselectPassId={preselectPassId}
                   creditOre={signupCreditOre}
-                  signupCreditEnabled={signupCreditEnabled}
                   swish={swishOffer}
                   header={{
                     badge: saleBadge ?? t("ticket"),

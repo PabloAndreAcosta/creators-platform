@@ -4,7 +4,6 @@ import { SiteNav } from "@/components/landing/site-nav";
 import { PerspectiveHero } from "@/components/landing/perspective-hero";
 import { LoopSection } from "@/components/landing/loop-section";
 import { Pricing } from "@/components/landing/pricing";
-import { getSignupCreditEnabled } from "@/lib/credits/flag";
 import { AudienceFeatures } from "@/components/landing/audience-features";
 import { PerspectiveLinks } from "@/components/landing/perspective-links";
 import { Trust } from "@/components/landing/trust";
@@ -33,7 +32,7 @@ export default async function ForAudiencePage() {
       <PerspectiveHero ns="forAudience" ctaHref="/upplevelser" wedge />
       <LoopSection ns="forAudience" />
       <AudienceFeatures />
-      <Pricing role="customer" signupCredit={await getSignupCreditEnabled()} />
+      <Pricing role="customer" />
       <PerspectiveLinks exclude="audience" />
       <Trust />
       <Footer />
