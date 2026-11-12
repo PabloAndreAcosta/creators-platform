@@ -78,6 +78,8 @@ export default async function KioskPage({
     lockedBody: s("kioskLockedBody"),
     upgrade: s("kioskUpgrade"),
     swapSide: d("swapSide"),
+    fullscreen: d("fullscreen"),
+    exitFullscreen: d("exitFullscreen"),
   };
 
   return <Kiosk id={id} ticketTypeId={tt ?? null} s={strings} />;

@@ -2807,6 +2807,8 @@
   },
   "dorrPage": {
     "swapSide": "Kameran sitter på andra sidan",
+    "fullscreen": "Helskärm",
+    "exitFullscreen": "Avsluta helskärm",
     "title": "Självinsläpp",
     "premiumBadge": "Premium",
     "lead": "Ställ en platta i dörren. Gästerna köper biljett med sin telefon och skannar sig in själva – teamet slipper stå med mobilen i hand.",
