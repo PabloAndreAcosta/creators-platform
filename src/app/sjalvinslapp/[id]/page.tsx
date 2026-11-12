@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { getCurrentUser } from "@/lib/supabase/current-user";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { swishOfferForListing } from "@/lib/swish/availability";
 import { notIndexable } from "@/lib/seo/metadata";
 import { Kiosk, type KioskStrings } from "./kiosk";
 
@@ -30,6 +32,12 @@ export default async function KioskPage({
   const user = await getCurrentUser();
   if (!user) redirect(`/login?next=${encodeURIComponent(`/sjalvinslapp/${id}`)}`);
 
+  // Köprutan säger "kort eller Swish" bara när Swish faktiskt erbjuds på
+  // eventsidan som QR-koden leder till (Ushas egna kvällar).
+  const admin = createAdminClient();
+  const { data: listing } = await admin.from("listings").select("user_id, title, event_date").eq("id", id).maybeSingle();
+  const swish = listing ? await swishOfferForListing(admin, listing) : null;
+
   const s = await getTranslations("scanPage");
   const d = await getTranslations("dorrPage");
   const strings: KioskStrings = {
@@ -42,7 +50,7 @@ export default async function KioskPage({
     starting: s("startingCamera"),
     exit: s("kioskExit"),
     buyTitle: s("kioskBuyTitle"),
-    buyHint: s("kioskBuyHint"),
+    buyHint: swish ? s("kioskBuyHintSwish") : s("kioskBuyHint"),
     priceSuffix: d("priceSuffix"),
     noTicketTypes: s("kioskNoTicketTypes"),
     showTitle: s("kioskShowTitle"),
