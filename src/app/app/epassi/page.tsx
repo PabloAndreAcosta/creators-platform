@@ -23,11 +23,12 @@ type Row = {
   status: string;
   created_at: string;
   amount_paid: number | null;
-  customer_id: string;
+  customer_id: string | null;
+  guest_name: string | null;
   listings: { title: string; price: number | null } | { title: string; price: number | null }[] | null;
 };
 
-const SELECT = "id, status, created_at, amount_paid, customer_id, listings(title, price)";
+const SELECT = "id, status, created_at, amount_paid, customer_id, guest_name, listings(title, price)";
 
 function listingOf(r: Row) {
   return Array.isArray(r.listings) ? r.listings[0] ?? null : r.listings;
@@ -54,13 +55,15 @@ export default async function EpassiPage() {
 
   // Kundens namn och e-post från profilen — det är dem arrangören jämför med
   // namnet på Epassi-köpet.
-  const customerIds = Array.from(new Set([...(pending ?? []), ...(recent ?? [])].map((r) => (r as Row).customer_id)));
+  const customerIds = Array.from(new Set([...(pending ?? []), ...(recent ?? [])].map((r) => (r as Row).customer_id).filter((x): x is string => !!x)));
   const { data: people } = customerIds.length
     ? await admin.from("profiles").select("id, full_name, email").in("id", customerIds)
     : { data: [] as { id: string; full_name: string | null; email: string | null }[] };
   const person = new Map((people ?? []).map((p) => [p.id, p]));
-  const nameOf = (r: Row) => person.get(r.customer_id)?.full_name || person.get(r.customer_id)?.email || "—";
-  const emailOf = (r: Row) => (person.get(r.customer_id)?.full_name ? person.get(r.customer_id)?.email ?? null : null);
+  // Enstaka kvällar registrerade i dörren har inget konto, bara namnet från kvittot.
+  const p = (r: Row) => (r.customer_id ? person.get(r.customer_id) : undefined);
+  const nameOf = (r: Row) => p(r)?.full_name || p(r)?.email || r.guest_name || "—";
+  const emailOf = (r: Row) => (p(r)?.full_name ? p(r)?.email ?? null : null);
 
   const fmt = (iso: string) =>
     new Date(iso).toLocaleString("sv-SE", {
