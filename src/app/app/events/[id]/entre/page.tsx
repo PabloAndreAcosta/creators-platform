@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { ArrowLeft, Loader2, CheckCircle2, RefreshCw, Link2, Check, ScanLine, Lock, Smartphone } from "lucide-react";
+import { ArrowLeft, Loader2, CheckCircle2, RefreshCw, Link2, Check, ScanLine, Lock, Smartphone, HeartPulse } from "lucide-react";
 
 /**
  * Entréförsäljning utan kortläsare.
@@ -68,6 +68,12 @@ export default function EntrancePage() {
   const [swishEmail, setSwishEmail] = useState("");
   const [swishCount, setSwishCount] = useState(1);
   const [swishState, setSwishState] = useState<"idle" | "sparar" | "klar" | "fel">("idle");
+  // Epassi i dörren: en enstaka kväll köpt i Epassi-appen (friskvårdskvällar).
+  const [epassi, setEpassi] = useState<{ enabled: boolean }>({ enabled: false });
+  const [epassiOpen, setEpassiOpen] = useState(false);
+  const [epassiName, setEpassiName] = useState("");
+  const [epassiCount, setEpassiCount] = useState(1);
+  const [epassiState, setEpassiState] = useState<"idle" | "sparar" | "klar" | "fel">("idle");
 
   // Tidsstämpeln kommer från servern, inte från telefonen. En entrémobil med
   // några minuters klockfel hade annars antingen missat betalningar eller
@@ -90,6 +96,7 @@ export default function EntrancePage() {
         if (data.efterkop) setEfterkop(data.efterkop);
         if (data.kiosk) setKiosk(data.kiosk);
         if (data.swish) setSwish(data.swish);
+        if (data.epassi) setEpassi(data.epassi);
         if (poll) {
           if (data.sales.length > 0) setSales((prev) => [...data.sales, ...prev].slice(0, 8));
         } else {
@@ -138,6 +145,30 @@ export default function EntrancePage() {
       setTimeout(() => setSwishState("idle"), 4000);
     } catch {
       setSwishState("fel");
+    }
+  }
+
+  /**
+   * Gästen visar kvittot för kvällen i Epassi-appen och legitimation.
+   * Namnet krävs — det jämförs mot Epassis leverantörsportal i efterhand.
+   */
+  async function registreraEpassi() {
+    if (!selected || !epassiName.trim() || epassiState === "sparar") return;
+    setEpassiState("sparar");
+    try {
+      const res = await fetch(`/api/events/${id}/entry/epassi`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ticketTypeId: selected.id, guestCount: epassiCount, name: epassiName }),
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      setEpassiState("klar");
+      setEpassiName("");
+      setEpassiCount(1);
+      load(true);
+      setTimeout(() => setEpassiState("idle"), 4000);
+    } catch {
+      setEpassiState("fel");
     }
   }
 
@@ -304,6 +335,41 @@ export default function EntrancePage() {
             </div>
           )}
 
+          {/* Epassi i dörren: gästen har köpt kvällen i Epassi-appen. Epassi har
+              inget API, så den som ser kvittot och legitimationen registrerar. */}
+          {epassi.enabled && !efterkop.oppet && (
+            <div className="mt-4 rounded-2xl border border-[var(--usha-border)] p-3">
+              <button
+                onClick={() => setEpassiOpen((v) => !v)}
+                className="flex w-full items-center justify-between gap-2 text-left text-sm font-medium"
+              >
+                <span className="inline-flex items-center gap-2"><HeartPulse size={15} /> {t("epassiToggle")}</span>
+                <span className="text-xs text-[var(--usha-muted)]">{epassiOpen ? t("swishHide") : t("swishShow")}</span>
+              </button>
+              {epassiOpen && (
+                <div className="mt-3 space-y-2">
+                  <p className="text-xs text-[var(--usha-muted)]">{t("epassiHint")}</p>
+                  <div className="flex gap-2">
+                    <input value={epassiName} onChange={(e) => setEpassiName(e.target.value)} placeholder={t("epassiName")} className="min-w-0 flex-1 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-black)] px-3 py-2 text-sm" maxLength={120} />
+                    <select value={epassiCount} onChange={(e) => setEpassiCount(Number(e.target.value))} className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-black)] px-2 py-2 text-sm">
+                      {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n}</option>)}
+                    </select>
+                  </div>
+                  <button
+                    onClick={registreraEpassi}
+                    disabled={epassiState === "sparar" || !epassiName.trim()}
+                    className={`flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold text-black disabled:opacity-60 ${epassiState === "klar" ? "bg-green-500" : "bg-[var(--usha-gold)]"}`}
+                  >
+                    {epassiState === "sparar" ? <Loader2 size={15} className="animate-spin" /> : <Check size={15} />}
+                    {epassiState === "klar" ? t("swishRegistered") : t("epassiRegister", { price: selected.price * epassiCount })}
+                  </button>
+                  {epassiState === "fel" && <p className="text-center text-xs text-red-400">{t("swishError")}</p>}
+                  <p className="text-center text-xs text-[var(--usha-muted)]">{t("epassiRegisterHint")}</p>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Plattan i dörren: samma köp-QR plus frontkameran, så gästerna
               checkar in sig själva. Premium-funktion: öppen under betan,
               annars bara när värden har Premium. */}
@@ -381,7 +447,7 @@ export default function EntrancePage() {
                     {s.guest_name || s.guest_email || t("guest")}
                   </p>
                   <p className="truncate text-xs text-[var(--usha-muted)]">
-                    {s.payment_method === "swish" ? `${t("swishTag")} · ` : ""}
+                    {s.payment_method === "swish" ? `${t("swishTag")} · ` : s.payment_method === "epassi" ? `${t("epassiTag")} · ` : ""}
                     {s.ticket_type_name ?? ""}
                     {s.guest_count && s.guest_count > 1 ? ` · ${t("seats", { n: s.guest_count })}` : ""}
                   </p>
