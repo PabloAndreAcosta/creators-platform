@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getLocale } from "next-intl/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentUser } from "@/lib/supabase/current-user";
 import { rateLimit, getRateLimitKey } from "@/lib/rate-limit";
@@ -128,6 +129,8 @@ export async function POST(req: NextRequest) {
     swishUrl: swishPaymentUrl({ number: offer.number, amountSek: amountOre / 100, message: offer.message }),
     bookingId: booking.id,
     customerId: user?.id ?? null,
+    // Gästen har inget konto att läsa språket ur; sidan hen stod på får avgöra.
+    preferredLocale: await getLocale().catch(() => null),
   }).catch((e) => console.error("Swish pending email failed:", e));
 
   await createNotification({

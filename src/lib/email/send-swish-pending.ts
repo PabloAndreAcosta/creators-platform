@@ -16,6 +16,8 @@ interface SendSwishPendingParams {
   swishUrl: string;
   bookingId: string;
   customerId?: string | null;
+  /** Sidans språk när gästen registrerade sig: en gäst utan konto har inget annat. */
+  preferredLocale?: string | null;
 }
 
 /**
@@ -26,7 +28,7 @@ interface SendSwishPendingParams {
 export async function sendSwishPendingEmail(p: SendSwishPendingParams): Promise<void> {
   try {
     const resend = getResend();
-    const { t, locale } = await getEmailIntl(await resolveRecipientLocale({ userId: p.customerId, email: p.to }));
+    const { t, locale } = await getEmailIntl(await resolveRecipientLocale({ userId: p.customerId, email: p.to, preferred: p.preferredLocale }));
     const html = await renderEmailToHtml(
       createElement(SwishPending, {
         customerName: p.customerName,
