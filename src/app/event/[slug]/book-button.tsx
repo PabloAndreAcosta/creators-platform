@@ -505,11 +505,11 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
         onClick={() => setSwishOpen(true)}
         disabled={typeSoldOut}
         aria-label={`${t("swishButton", { price: total })} Swish`}
-        className="mt-2 inline-flex w-full items-center justify-center gap-2.5 rounded-2xl border border-white/15 bg-black px-6 py-3 text-sm font-semibold text-white transition hover:border-white/40 disabled:opacity-60"
+        className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-white/15 bg-black px-4 py-3 text-sm font-semibold text-white transition hover:border-white/40 disabled:opacity-60"
       >
-        {t("swishButton", { price: total })}
+        <span className="whitespace-nowrap">{t("swishButton", { price: total })}</span>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/payments/swish-logo-dark.png" alt="Swish" width={72} height={22} className="h-[22px] w-auto" />
+        <img src="/payments/swish-logo-dark.png" alt="Swish" width={66} height={20} className="h-5 w-auto shrink-0" />
       </button>
     ) : (
       <div className="mt-3 rounded-2xl border border-[var(--usha-gold)]/40 bg-[var(--usha-card)] p-4 text-sm">
@@ -520,11 +520,11 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
         <a
           href={swishUrl}
           aria-label={`${t("swishOpenApp")} Swish`}
-          className="mt-3 inline-flex w-full items-center justify-center gap-2.5 rounded-2xl border border-white/15 bg-black px-6 py-3 text-sm font-bold text-white transition hover:border-white/40"
+          className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-white/15 bg-black px-4 py-3 text-sm font-bold text-white transition hover:border-white/40"
         >
-          {t("swishOpenApp")}
+          <span className="whitespace-nowrap">{t("swishOpenApp")}</span>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/payments/swish-logo-dark.png" alt="Swish" width={72} height={22} className="h-[22px] w-auto" />
+          <img src="/payments/swish-logo-dark.png" alt="Swish" width={66} height={20} className="h-5 w-auto shrink-0" />
         </a>
         <details className="mt-2 text-xs text-[var(--usha-muted)]">
           <summary className="cursor-pointer">{t("swishScanHint")}</summary>
