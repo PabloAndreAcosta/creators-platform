@@ -250,7 +250,29 @@
     "retentionNote": "Betalnings- och bokföringsunderlag sparas i den tid lagen kräver.",
     "confirmWord": "Skriv RADERA för att bekräfta",
     "confirmWordPlaceholder": "RADERA",
-    "confirmWordValue": "RADERA"
+    "confirmWordValue": "RADERA",
+    "roleTitle": "Din roll",
+    "roleLead": "Rollen avgör vilka ytor appen visar: biljetter och kalender, kreatörens verktyg eller lokalens. Du kan byta när du vill, och inget du gjort försvinner.",
+    "roleLoading": "Hämtar din roll …",
+    "roleLoadError": "Kunde inte hämta din roll. Ladda om sidan.",
+    "roleSwitchError": "Kunde inte byta roll. Försök igen.",
+    "roleCurrent": "Nu",
+    "roleName": {
+      "customer": "Publik",
+      "creator": "Kreatör",
+      "venue": "Lokal"
+    },
+    "roleDesc": {
+      "customer": "Gå på saker. Biljetter, klippkort och kalender.",
+      "creator": "Lära ut eller visa upp. Lägg upp event och kurser, sälj biljetter, checka in gäster.",
+      "venue": "Ta emot kreatörer i din lokal. Program, team i dörren och avräkning per kväll."
+    },
+    "roleConfirmBody": "Byt till {role}? Appen startar om med den nya rollens meny och startsida. Dina biljetter, bokningar och event finns kvar.",
+    "roleNoteCreator": "För att publicera och sälja behöver kontot vara verifierat med Mobilt BankID. Det gör du under Säkerhet om det inte redan är gjort.",
+    "roleNoteVenue": "För att synas som lokal verifierar du bolaget med organisationsnummer på profilsidan.",
+    "roleConfirm": "Byt till {role}",
+    "roleSwitching": "Byter …",
+    "roleCancel": "Avbryt"
   },
   "help": {
     "title": "Hjälp & Support",
