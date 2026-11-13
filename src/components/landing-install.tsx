@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Download, Share } from "lucide-react";
+import { isNativeApp } from "@/lib/native";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -22,7 +23,7 @@ export function LandingInstall() {
     const standalone =
       window.matchMedia("(display-mode: standalone)").matches ||
       (window.navigator as unknown as { standalone?: boolean }).standalone === true;
-    if (standalone) {
+    if (standalone || isNativeApp()) {
       setInstalled(true);
       return;
     }

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Download, X } from "lucide-react";
+import { isNativeApp } from "@/lib/native";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -17,6 +18,8 @@ export function InstallPrompt() {
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
+    // Butiksappen är redan installerad – ingen PWA-ruta där.
+    if (isNativeApp()) return;
     const handler = (e: Event) => {
       e.preventDefault();
       setInstallPrompt(e as BeforeInstallPromptEvent);

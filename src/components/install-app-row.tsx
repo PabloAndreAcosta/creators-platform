@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Download, ChevronDown, Check } from "lucide-react";
+import { isNativeApp } from "@/lib/native";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -38,7 +39,7 @@ export function InstallAppRow() {
       window.matchMedia("(display-mode: standalone)").matches ||
       // iOS Safari standalone flag
       (window.navigator as unknown as { standalone?: boolean }).standalone === true;
-    if (standalone) setIsInstalled(true);
+    if (standalone || isNativeApp()) setIsInstalled(true);
 
     setIsIOS(/iphone|ipad|ipod/i.test(window.navigator.userAgent));
 
