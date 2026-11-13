@@ -1,48 +1,61 @@
 // ---------------------------------------------------------------------------
-// Ticketing service fee ("Tickster"-style) — Usha's per-ticket fee on PAID
-// tickets, positioned below Tickster (~20 kr/ticket). 3% of the ticket price,
-// min 3 kr, capped at 15 kr, per ticket.
+// Serviceavgift för köparen — arrangörens val per event.
 //
-// The organizer picks the mode per event (listings.service_fee_mode):
-//   • "buyer"  → the fee is added on top; the buyer pays ticket + fee.
-//   • "absorb" → the buyer pays the ticket price only; the fee is deducted from
-//                the organizer's payout.
-// In BOTH cases the fee amount is added to the Stripe application_fee so it stays
-// with Usha (never transferred to the organizer's connected account).
+// Pablo 2026-11-13: provisionen sänktes till 3,5 % + 3,50 kr per biljett, och
+// arrangören ska kunna lägga kortkostnaden på köparen. Det får inte göras som
+// en kortavgift: sedan 2018 är tilläggsavgifter för konsumentkort förbjudna i
+// Sverige och EU (betaltjänstlagen, PSD2). Det som är tillåtet, och det
+// Billetto och Tickster gör, är en serviceavgift som är lika oavsett
+// betalsätt. Därför heter den serviceavgift och tas ut även när köparen
+// betalar med Klarna eller wallet.
 //
-// GATED OFF by default: nothing is charged until NEXT_PUBLIC_TICKET_SERVICE_FEE_
-// ENABLED=true. Keep it off until the VAT/consumer-law treatment of the service
-// fee is confirmed (§9 legal), then flip it on — like the discounts flag.
+// Storleken är satt så att den täcker Stripes kortkostnad (1,5 % + 1,80 kr
+// per köp) även efter 25 % moms på avgiften: 2 % + 2,50 kr per KÖP, inte per
+// biljett — Stripe tar sin fasta del per köp, och den som köper fyra
+// biljetter åt gänget ska inte betala fyra fasta avgifter.
+//
+// Två lägen, arrangören väljer (listings.service_fee_mode):
+//   • "buyer"  → avgiften läggs ovanpå i kassan och går till Usha.
+//   • "absorb" → ingen avgift alls; provisionen täcker allt. STANDARD.
+// Förr betydde "absorb" att avgiften drogs från arrangörens utbetalning. Det
+// är borta: provisionen är redan arrangörens pris, en avgift till vore dubbelt.
+//
+// Kill switch: NEXT_PUBLIC_TICKET_SERVICE_FEE_ENABLED=false stänger av den
+// helt oavsett val. Förr var den avstängd om inte flaggan var "true".
 // ---------------------------------------------------------------------------
 
 export const TICKET_SERVICE_FEE = {
-  rate: 0.03, // 3%
-  minOre: 300, // 3 kr floor
-  capOre: 1500, // 15 kr ceiling
+  rate: 0.02,
+  fixedOre: 250,
 } as const;
 
 export type ServiceFeeMode = "buyer" | "absorb";
 
 export function ticketServiceFeeEnabled(): boolean {
-  return process.env.NEXT_PUBLIC_TICKET_SERVICE_FEE_ENABLED === "true";
+  return process.env.NEXT_PUBLIC_TICKET_SERVICE_FEE_ENABLED !== "false";
 }
 
 /**
- * The per-order service fee in öre for a paid ticket order. Returns 0 when the
- * feature is disabled or the ticket is free. `qty` supports multi-ticket orders
- * (the fee is charged per ticket).
+ * Serviceavgiften i öre för ett köp av `qty` biljetter à `unitPriceOre`.
+ * 0 när arrangören inte valt att köparen betalar, när biljetten är gratis,
+ * eller när avgiften är avstängd. Räknas per köp.
  */
-export function computeServiceFeeOre(unitPriceOre: number, qty: number = 1): number {
+export function computeServiceFeeOre(unitPriceOre: number, qty: number = 1, mode: ServiceFeeMode = "absorb"): number {
+  if (mode !== "buyer") return 0;
   if (!ticketServiceFeeEnabled()) return 0;
   if (!unitPriceOre || unitPriceOre <= 0) return 0;
-  const perTicket = Math.min(
-    Math.max(Math.round(unitPriceOre * TICKET_SERVICE_FEE.rate), TICKET_SERVICE_FEE.minOre),
-    TICKET_SERVICE_FEE.capOre,
-  );
-  return perTicket * Math.max(1, qty);
+  const n = Math.max(1, qty);
+  return Math.round(unitPriceOre * n * TICKET_SERVICE_FEE.rate) + TICKET_SERVICE_FEE.fixedOre;
 }
 
-/** Normalize a listing's stored mode to a valid ServiceFeeMode ("buyer" default). */
+/** Lagrat läge → giltigt läge. Saknas värde gäller "absorb": ingen avgift. */
 export function serviceFeeMode(raw: unknown): ServiceFeeMode {
-  return raw === "absorb" ? "absorb" : "buyer";
+  return raw === "buyer" ? "buyer" : "absorb";
+}
+
+/** "2 % + 2,50 kr" för text och etiketter, på svenskt vis. */
+export function serviceFeeLabel(): string {
+  const pct = (TICKET_SERVICE_FEE.rate * 100).toLocaleString("sv-SE");
+  const kr = (TICKET_SERVICE_FEE.fixedOre / 100).toLocaleString("sv-SE", { minimumFractionDigits: 2 });
+  return `${pct} % + ${kr} kr`;
 }

@@ -7,7 +7,7 @@ import { isValidEmail, normalizeEmail, cleanName } from "@/lib/waitlist";
 import { sendBookingConfirmationEmail } from "@/lib/email/send-booking";
 import { getStripeLocale } from "@/lib/i18n/stripe-locale";
 import { stripe } from "@/lib/stripe/client";
-import { getCreatorCommissionRate } from "@/lib/stripe/commission";
+import { getCreatorCommissionRate, platformCommissionOre } from "@/lib/stripe/commission";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
 import { stockholmLocalToUtcISO } from "@/lib/time";
 import { getSaleState } from "@/lib/listings/sale-state";
@@ -110,7 +110,7 @@ export async function POST(
     }
 
     const amountInOre = Math.round(codeRow.discount_price * 100);
-    const applicationFee = Math.round(amountInOre * getCreatorCommissionRate(creator.tier ?? "gratis"));
+    const applicationFee = platformCommissionOre(amountInOre, 1);
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";
     const stripeLocale = await getStripeLocale();
 

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { HeartHandshake, GraduationCap, Briefcase } from "lucide-react";
-import { COMMISSION_RATES } from "@/lib/stripe/commission";
+import { commissionLabel } from "@/lib/stripe/commission";
 
 /**
  * "Jobba med Usha" — de tre vägarna in, som en trappa.
@@ -17,7 +17,6 @@ import { COMMISSION_RATES } from "@/lib/stripe/commission";
  */
 export async function WorkLadder({ loggedIn }: { loggedIn: boolean }) {
   const t = await getTranslations("work");
-  const pct = (r: number) => Math.round(r * 100);
   const signup = (next: string, role: "customer" | "creator") =>
     `/signup?role=${role}&next=${encodeURIComponent(next)}`;
 
@@ -36,7 +35,7 @@ export async function WorkLadder({ loggedIn }: { loggedIn: boolean }) {
       icon: GraduationCap,
       key: "instructor",
       body: t("instructorBody", {
-        free: pct(COMMISSION_RATES.gratis),
+        free: commissionLabel(),
       }),
       requirements: t("instructorReq"),
       cta: t("instructorCta"),

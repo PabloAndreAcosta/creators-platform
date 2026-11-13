@@ -18,8 +18,8 @@ import { stockholmLocalToUtcISO } from '@/lib/time';
 import { getTranslations } from 'next-intl/server';
 import {
   calculateDiscountedPrice,
-  getCreatorCommissionRate,
-} from '@/lib/stripe/commission';
+  getCreatorCommissionRate, platformCommissionOre,
+} from "@/lib/stripe/commission";
 import { isGoldExclusive } from '@/lib/listings/early-bird';
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from '@/lib/payments/beta-gate';
 import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, buildTermsCustomText, type PayeeContext } from '@/lib/stripe/checkout';
@@ -275,7 +275,7 @@ export async function POST(req: NextRequest) {
       creator.tier ?? 'gratis',
       (creator as { creator_subcategory?: string | null }).creator_subcategory ?? null
     );
-    const applicationFee = Math.round(amountInOre * commissionRate);
+    const applicationFee = platformCommissionOre(amountInOre, 1); // per biljett, se * qty nedan
     // OBS: applicationFee räknas per biljett på ordinarie pris nedan, och
     // avdraget dras från Ushas egen del i slutänden (se creditOre).
 
@@ -283,7 +283,7 @@ export async function POST(req: NextRequest) {
     // modes the fee is added to the application_fee so it stays with Usha; in
     // "buyer" mode it is ALSO added as a line item so the buyer pays it on top.
     const feeMode = serviceFeeMode(listing.service_fee_mode);
-    const serviceFee = computeServiceFeeOre(amountInOre, qty); // total for all N tickets
+    const serviceFee = computeServiceFeeOre(amountInOre, qty, feeMode); // per köp, 0 om arrangören inte valt köparen betalar
     // Välkomstavdraget. Räknas på ordersumman för biljetterna, INTE på
     // serviceavgiften — avgiften är Ushas ersättning, inte en del av köpet.
     //

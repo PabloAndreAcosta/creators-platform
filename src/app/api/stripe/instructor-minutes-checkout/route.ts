@@ -3,7 +3,7 @@ import { getStripeLocale } from "@/lib/i18n/stripe-locale";
 import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from '@/lib/supabase/admin';
-import { getCreatorCommissionRate } from "@/lib/stripe/commission";
+import { getCreatorCommissionRate, platformCommissionOre } from "@/lib/stripe/commission";
 import { priceForMinutes, isMinuteOption, MIN_PRICE_SEK } from "@/lib/coaching/minute-pricing";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
 import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, buildTermsCustomText, type PayeeContext } from "@/lib/stripe/checkout";
@@ -125,7 +125,7 @@ export async function POST(req: NextRequest) {
     }
     const amountInOre = priceSek * 100;
     const commissionRate = getCreatorCommissionRate(instructor.tier ?? "gratis", instructor.creator_subcategory ?? null);
-    const applicationFee = Math.round(amountInOre * commissionRate);
+    const applicationFee = platformCommissionOre(amountInOre, 1);
 
     const termsUrl = (instructor as { terms_url?: string | null }).terms_url ?? null;
     const customText = buildTermsCustomText(termsUrl);

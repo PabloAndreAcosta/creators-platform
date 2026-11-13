@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from '@/lib/supabase/admin';
 import {
   calculateDiscountedPrice,
-  getCreatorCommissionRate,
+  getCreatorCommissionRate, platformCommissionOre,
 } from "@/lib/stripe/commission";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
 import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, buildTermsCustomText, type PayeeContext } from "@/lib/stripe/checkout";
@@ -161,7 +161,7 @@ export async function POST(req: NextRequest) {
     const amountInOre = Math.round(discountedPrice * 100);
     const creatorSubcategory = (creator as { creator_subcategory?: string | null }).creator_subcategory ?? null;
     const commissionRate = getCreatorCommissionRate(creator.tier ?? "gratis", creatorSubcategory);
-    const applicationFee = Math.round(amountInOre * commissionRate);
+    const applicationFee = platformCommissionOre(amountInOre, 1);
 
     // Validate promo code if provided
     let promoCodeId: string | undefined;

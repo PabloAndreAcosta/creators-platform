@@ -13,7 +13,7 @@
 
 import type Stripe from "stripe";
 import { stripe } from "@/lib/stripe/client";
-import { getCreatorCommissionRate } from "@/lib/stripe/commission";
+import { getCreatorCommissionRate, platformCommissionOre } from "@/lib/stripe/commission";
 import { computeServiceFeeOre, serviceFeeMode } from "@/lib/tickets/service-fee";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
 import {
@@ -178,9 +178,9 @@ export async function createLateCheckoutSession(args: {
     creator.tier ?? "gratis",
     creator.creator_subcategory ?? null
   );
-  const applicationFee = Math.round(amountInOre * commissionRate);
+  const applicationFee = platformCommissionOre(amountInOre, 1);
   const feeMode = serviceFeeMode(listing.service_fee_mode);
-  const serviceFee = computeServiceFeeOre(amountInOre, 1);
+  const serviceFee = computeServiceFeeOre(amountInOre, 1, feeMode);
 
   const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
     {

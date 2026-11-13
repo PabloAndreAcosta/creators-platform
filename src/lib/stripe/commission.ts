@@ -8,6 +8,45 @@ export interface PayoutBreakdown {
 }
 
 /**
+ * Provisionen sedan 2026-11-13: 3,5 % + 3,50 kr per såld biljett, samma för
+ * alla. Pablo valde formen efter Stripes egen (1,5 % + 1,80 kr per köp): en
+ * ren procentsats förlorar på billiga biljetter och tar för mycket på dyra.
+ * Med en fast del går ingen biljett back, rubriken blir "3,5 %" och en kurs
+ * för 450 kr kostar 19,25 kr — under Billettos 26.
+ *
+ * Den fasta delen tas per biljett (branschstandard, enklast att förklara).
+ * Gratis biljetter kostar ingenting alls.
+ */
+export const PLATFORM_COMMISSION = {
+  rate: 0.035,
+  fixedOre: 350,
+} as const;
+
+/** Ushas provision i öre för `qty` biljetter à `unitPriceOre`. 0 på gratis. */
+export function platformCommissionOre(unitPriceOre: number, qty: number = 1): number {
+  if (!unitPriceOre || unitPriceOre <= 0) return 0;
+  const n = Math.max(1, qty);
+  return Math.round(unitPriceOre * n * PLATFORM_COMMISSION.rate) + PLATFORM_COMMISSION.fixedOre * n;
+}
+
+/**
+ * Provisionen som andel av beloppet, för de ställen som räknar med en sats
+ * (lönens skuggrader, uppdragssidans "du får ca"). På 125 kr blir det 6,3 %,
+ * på 450 kr 4,3 %: den fasta delen väger mer ju billigare biljetten är.
+ */
+export function effectiveCommissionRate(unitPriceOre: number, qty: number = 1): number {
+  if (!unitPriceOre || unitPriceOre <= 0) return 0;
+  return platformCommissionOre(unitPriceOre, qty) / (unitPriceOre * Math.max(1, qty));
+}
+
+/** "3,5 % + 3,50 kr" för text och etiketter. */
+export function commissionLabel(): string {
+  const pct = (PLATFORM_COMMISSION.rate * 100).toLocaleString("sv-SE");
+  const kr = (PLATFORM_COMMISSION.fixedOre / 100).toLocaleString("sv-SE", { minimumFractionDigits: 2 });
+  return `${pct} % + ${kr} kr`;
+}
+
+/**
  * Provisionstrappan. Sänkt 2026-09-29 från 15/8/3.
  *
  * Femton procent på gratisnivån var inte "lite dyrt" — det var fyra och en
@@ -30,9 +69,9 @@ export interface PayoutBreakdown {
  * inte falla igenom till något annat.
  */
 export const COMMISSION_RATES: Record<MemberTier, number> = {
-  gratis: 0.08,
-  guld: 0.08,
-  premium: 0.08,
+  gratis: PLATFORM_COMMISSION.rate,
+  guld: PLATFORM_COMMISSION.rate,
+  premium: PLATFORM_COMMISSION.rate,
 };
 
 /**
@@ -46,9 +85,9 @@ export const COMMISSION_RATES: Record<MemberTier, number> = {
  * vad den var. Att radera den vore att tyst dra in något som utlovats.
  */
 export const TAXI_DANCER_COMMISSION_RATES: Record<MemberTier, number> = {
-  gratis: 0.08,
-  guld: 0.08,
-  premium: 0.08,
+  gratis: PLATFORM_COMMISSION.rate,
+  guld: PLATFORM_COMMISSION.rate,
+  premium: PLATFORM_COMMISSION.rate,
 };
 
 export const DISCOUNT_RATES: Record<'guld' | 'premium', number> = {
@@ -61,8 +100,8 @@ export const DISCOUNT_RATES: Record<'guld' | 'premium', number> = {
  * (optionally) their creator_subcategory. Taxi dancers get reduced
  * rates as a Fas 5 special offer.
  *
- * Standard: gratis 8%, guld 5%, premium 3%
- * Taxi dancer: samma siffror sedan 2026-09-29 (se tabellen ovan)
+ * Sedan 2026-11-13 samma sats för alla (PLATFORM_COMMISSION.rate). Den fasta
+ * delen ligger inte här — använd platformCommissionOre för kronor.
  */
 export function getCreatorCommissionRate(
   tier: string,

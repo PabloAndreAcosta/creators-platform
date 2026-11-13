@@ -16,7 +16,7 @@ import { getSaleState } from "@/lib/listings/sale-state";
 import { stockholmLocalToUtcISO } from "@/lib/time";
 import { getTranslations } from "next-intl/server";
 import {
-  getCreatorCommissionRate,
+  getCreatorCommissionRate, platformCommissionOre,
 } from "@/lib/stripe/commission";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
 import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, buildTermsCustomText, type PayeeContext } from "@/lib/stripe/checkout";
@@ -250,12 +250,12 @@ export async function POST(req: NextRequest) {
       creator.tier ?? "gratis",
       (creator as { creator_subcategory?: string | null }).creator_subcategory ?? null
     );
-    const applicationFee = Math.round(amountInOre * commissionRate);
+    const applicationFee = platformCommissionOre(amountInOre, 1); // per biljett, se * qty nedan
 
     // Tickster-style service fee (gated off until the flag is set). Fee is added
     // to the application_fee in both modes; "buyer" mode also adds a line item.
     const feeMode = serviceFeeMode(listing.service_fee_mode);
-    const serviceFee = computeServiceFeeOre(amountInOre, qty); // total for all N tickets
+    const serviceFee = computeServiceFeeOre(amountInOre, qty, feeMode); // per köp, 0 om arrangören inte valt köparen betalar
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
       {
         price_data: {

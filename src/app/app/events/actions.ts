@@ -127,7 +127,7 @@ function parseEventForm(formData: FormData) {
   const listingType = (formData.get("listing_type") as string) || "event";
   const openToInstructors = formData.get("open_to_instructors") === "on";
   const isPractica = formData.get("is_practica") === "on";
-  const serviceFeeMode = formData.get("service_fee_mode") === "absorb" ? "absorb" : "buyer";
+  const serviceFeeMode = formData.get("service_fee_mode") === "buyer" ? "buyer" : "absorb";
   const minGuestsRaw = formData.get("min_guests") as string;
   const maxGuestsRaw = formData.get("max_guests") as string;
   const amenitiesRaw = (formData.get("amenities") as string)?.trim() || "";
