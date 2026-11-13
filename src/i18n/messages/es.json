@@ -3559,7 +3559,13 @@
     "csvFilePrefix": "asistentes",
     "markAttended": "Vino",
     "checkingIn": "…",
-    "errorCheckIn": "No se pudo registrar. Inténtalo de nuevo."
+    "errorCheckIn": "No se pudo registrar. Inténtalo de nuevo.",
+    "kindPass": "Bono",
+    "kindTaxi": "Taxi dancer",
+    "kindVolunteer": "Voluntario",
+    "csvKind": "Entrada",
+    "csvKindTicket": "Entrada normal",
+    "checkInOnShiftPage": "Registrar en la página de turnos"
   },
   "libraryPage": {
     "title": "Mi biblioteca",

@@ -3559,7 +3559,13 @@
     "csvFilePrefix": "attendees",
     "markAttended": "Attended",
     "checkingIn": "…",
-    "errorCheckIn": "Could not check in. Try again."
+    "errorCheckIn": "Could not check in. Try again.",
+    "kindPass": "Punch card",
+    "kindTaxi": "Taxi dancer",
+    "kindVolunteer": "Volunteer",
+    "csvKind": "Entry",
+    "csvKindTicket": "Ticket",
+    "checkInOnShiftPage": "Check in on the shift page"
   },
   "libraryPage": {
     "title": "My library",

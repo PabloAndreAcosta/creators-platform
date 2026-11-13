@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { groupAttendees, attachProfiles, type BookingLike } from "@/lib/attendees";
+import { groupAttendees, attachProfiles, loadExtraAttendance, type BookingLike } from "@/lib/attendees";
 import { stockholmLocalToUtcISO } from "@/lib/time";
 
 // Aggregate attendee insights across all of the host's events.
@@ -20,7 +20,11 @@ export async function GET() {
     .eq("creator_id", user.id)
     .in("status", ["confirmed", "completed"]);
 
-  const bookings = await attachProfiles(createAdminClient(), (all ?? []) as unknown as BookingLike[]);
+  // Klipp och volontärpass räknas som närvaro. Klippets belopp räknas INTE
+  // här: hela kortköpet ligger redan som intäkt på kortets egen bokning.
+  const admin = createAdminClient();
+  const extra = await loadExtraAttendance(admin, user.id, { clipRevenue: false });
+  const bookings = await attachProfiles(admin, [...((all ?? []) as unknown as BookingLike[]), ...extra]);
   const attendees = groupAttendees(bookings);
 
   const uniqueAttendees = attendees.size;

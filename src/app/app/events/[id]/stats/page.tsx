@@ -14,6 +14,10 @@ interface Attendee {
   checkedIn: boolean;
   returning: boolean;
   bookingId: string;
+  /** Biljett, klipp på klippkort eller volontär-/taxipass. */
+  kind: "ticket" | "pass" | "volunteer";
+  role: string | null;
+  roleLabel: string | null;
 }
 interface Stats {
   event: { id: string; title: string; capacity: number | null; eventDate: string | null };
@@ -95,16 +99,28 @@ export default function EventStatsPage() {
     fetchData();
   }, [fetchData]);
 
+  /**
+   * Hur personen kom in. Visas bara när det inte är en vanlig biljett: det
+   * är klippet eller passet som förklarar varför namnet saknas i
+   * bokningslistan.
+   */
+  function kindLabel(a: Attendee): string | null {
+    if (a.kind === "pass") return t("kindPass");
+    if (a.kind === "volunteer") return a.roleLabel || (a.role === "taxi_dancer" ? t("kindTaxi") : t("kindVolunteer"));
+    return null;
+  }
+
   function exportCsv() {
     if (!data) return;
     const rows = [
-      [t("csvName"), t("csvEmail"), t("csvStatus"), t("csvEventsCount"), t("csvType")],
+      [t("csvName"), t("csvEmail"), t("csvStatus"), t("csvEventsCount"), t("csvType"), t("csvKind")],
       ...data.list.map((a) => [
         a.name,
         a.email ?? "",
         a.checkedIn ? t("csvStatusAttended") : t("csvStatusBooked"),
         String(a.eventsCount),
         a.returning ? t("typeReturning") : t("typeNew"),
+        kindLabel(a) ?? t("csvKindTicket"),
       ]),
     ];
     const csv = rows.map((r) => r.map((c) => csvEscape(c)).join(",")).join("\n");
@@ -229,10 +245,26 @@ export default function EventStatsPage() {
                   <p className="truncate text-sm font-medium text-[var(--usha-white)]">{a.name}</p>
                   {a.email && <p className="truncate text-[11px] text-[var(--usha-muted)]">{a.email}</p>}
                 </div>
+                {kindLabel(a) && (
+                  <span className="shrink-0 rounded-full border border-[var(--usha-border)] px-2.5 py-0.5 text-[10px] font-medium text-[var(--usha-muted)]">
+                    {kindLabel(a)}
+                  </span>
+                )}
                 <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-medium ${a.returning ? "bg-[var(--usha-gold)]/15 text-[var(--usha-gold)]" : "bg-[var(--usha-border)] text-[var(--usha-muted)]"}`}>
                   {a.returning ? t("returningBadge", { count: a.eventsCount }) : t("typeNew")}
                 </span>
-                {!a.checkedIn && (
+                {/* En volontär checkas in på passidan, inte via biljettincheckningen.
+                    Ett klipp är alltid incheckat (det dras i dörren), så den
+                    raden får aldrig någon knapp. */}
+                {!a.checkedIn && a.kind === "volunteer" && (
+                  <Link
+                    href={`/app/events/${id}/taxi`}
+                    className="shrink-0 rounded-lg border border-[var(--usha-border)] px-2.5 py-1 text-[11px] font-medium text-[var(--usha-muted)] transition hover:border-green-500/50 hover:text-green-400"
+                  >
+                    {t("checkInOnShiftPage")}
+                  </Link>
+                )}
+                {!a.checkedIn && a.kind === "ticket" && (
                   <button
                     type="button"
                     onClick={() => checkInManually(a.bookingId)}

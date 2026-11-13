@@ -3559,7 +3559,13 @@
     "csvFilePrefix": "deltagare",
     "markAttended": "Kom",
     "checkingIn": "…",
-    "errorCheckIn": "Kunde inte checka in. Försök igen."
+    "errorCheckIn": "Kunde inte checka in. Försök igen.",
+    "kindPass": "Klippkort",
+    "kindTaxi": "Taxidansare",
+    "kindVolunteer": "Volontär",
+    "csvKind": "Inträde",
+    "csvKindTicket": "Biljett",
+    "checkInOnShiftPage": "Checka in på passidan"
   },
   "libraryPage": {
     "title": "Mitt bibliotek",

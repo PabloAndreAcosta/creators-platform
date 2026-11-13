@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { attendeeKey, attendeeName, bookingEmail, attachProfiles, type BookingLike } from "@/lib/attendees";
+import { attendeeKey, attendeeName, bookingEmail, attachProfiles, loadExtraAttendance, type AttendanceKind, type BookingLike } from "@/lib/attendees";
 import { listingStatsAccess } from "@/lib/listings/stats-access";
 import { stockholmLocalToUtcISO } from "@/lib/time";
 
@@ -48,7 +48,10 @@ export async function GET(
     .eq("creator_id", listing.user_id)
     .in("status", ["confirmed", "completed"]);
 
-  const allBookings = await attachProfiles(admin, (all ?? []) as unknown as BookingLike[]);
+  // Klipp på klippkort och volontärpass är ingen bokningsrad på kvällen men
+  // lika mycket närvaro. Kvällens andel av kortet räknas som intäkt här.
+  const extra = await loadExtraAttendance(admin, listing.user_id, { clipRevenue: true });
+  const allBookings = await attachProfiles(admin, [...((all ?? []) as unknown as BookingLike[]), ...extra]);
 
   // distinct events per attendee key across the host
   const eventsByKey = new Map<string, Set<string>>();
@@ -68,7 +71,15 @@ export async function GET(
   // statistiken och bilden av vem som faktiskt kommer.
   const byKey = new Map<
     string,
-    { name: string; email: string | null; checkedIn: boolean; bookingId: string }
+    {
+      name: string;
+      email: string | null;
+      checkedIn: boolean;
+      bookingId: string;
+      kind: AttendanceKind;
+      role: string | null;
+      roleLabel: string | null;
+    }
   >();
   for (const b of eventBookings) {
     const k = attendeeKey(b);
@@ -76,12 +87,22 @@ export async function GET(
     if (cur) {
       if (b.checked_in_at) cur.checkedIn = true;
       if (cur.name === "Gäst") cur.name = attendeeName(b);
+      // Har personen både biljett och klipp/pass är det klippet eller passet
+      // som förklarar varför hen inte står i bokningslistan — visa det.
+      if (b.kind && b.kind !== "ticket" && cur.kind === "ticket") {
+        cur.kind = b.kind;
+        cur.role = b.role ?? null;
+        cur.roleLabel = b.roleLabel ?? null;
+      }
     } else {
       byKey.set(k, {
         name: attendeeName(b),
         email: bookingEmail(b),
         checkedIn: !!b.checked_in_at,
         bookingId: b.id,
+        kind: b.kind ?? "ticket",
+        role: b.role ?? null,
+        roleLabel: b.roleLabel ?? null,
       });
     }
   }
@@ -94,7 +115,12 @@ export async function GET(
       eventsCount,
       checkedIn: v.checkedIn,
       returning: eventsCount >= 2,
+      // För ett klipp eller ett pass är det inte ett boknings-id, och knappen
+      // "Kom" ska inte gå mot biljettincheckningen. Klienten läser kind.
       bookingId: v.bookingId,
+      kind: v.kind,
+      role: v.role,
+      roleLabel: v.roleLabel,
     };
   });
   list.sort((a, b) => Number(b.checkedIn) - Number(a.checkedIn) || a.name.localeCompare(b.name, "sv"));
