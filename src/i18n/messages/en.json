@@ -250,7 +250,29 @@
     "retentionNote": "Payment and accounting records are retained for as long as the law requires.",
     "confirmWord": "Type DELETE to confirm",
     "confirmWordPlaceholder": "DELETE",
-    "confirmWordValue": "DELETE"
+    "confirmWordValue": "DELETE",
+    "roleTitle": "Your role",
+    "roleLead": "The role decides what the app shows: tickets and calendar, the creator's tools or the venue's. You can switch whenever you like, and nothing you have done disappears.",
+    "roleLoading": "Loading your role …",
+    "roleLoadError": "Could not load your role. Reload the page.",
+    "roleSwitchError": "Could not switch role. Try again.",
+    "roleCurrent": "Now",
+    "roleName": {
+      "customer": "Audience",
+      "creator": "Creator",
+      "venue": "Venue"
+    },
+    "roleDesc": {
+      "customer": "Go to things. Tickets, punch cards and calendar.",
+      "creator": "Teach or perform. List events and classes, sell tickets, check guests in.",
+      "venue": "Host creators in your space. Programme, door team and settlement per night."
+    },
+    "roleConfirmBody": "Switch to {role}? The app restarts with the new role's menu and home. Your tickets, bookings and events remain.",
+    "roleNoteCreator": "To publish and sell, the account needs to be verified with Mobile BankID. You do that under Security if it is not already done.",
+    "roleNoteVenue": "To be listed as a venue, verify the company with its organisation number on the profile page.",
+    "roleConfirm": "Switch to {role}",
+    "roleSwitching": "Switching …",
+    "roleCancel": "Cancel"
   },
   "help": {
     "title": "Help & Support",

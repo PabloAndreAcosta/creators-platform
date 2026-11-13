@@ -250,7 +250,29 @@
     "retentionNote": "Los registros de pagos y contabilidad se conservan durante el tiempo que exige la ley.",
     "confirmWord": "Escribe ELIMINAR para confirmar",
     "confirmWordPlaceholder": "ELIMINAR",
-    "confirmWordValue": "ELIMINAR"
+    "confirmWordValue": "ELIMINAR",
+    "roleTitle": "Tu rol",
+    "roleLead": "El rol decide qué muestra la app: entradas y calendario, las herramientas del creador o las del local. Puedes cambiar cuando quieras, y nada de lo que hayas hecho desaparece.",
+    "roleLoading": "Cargando tu rol …",
+    "roleLoadError": "No se pudo cargar tu rol. Recarga la página.",
+    "roleSwitchError": "No se pudo cambiar el rol. Inténtalo de nuevo.",
+    "roleCurrent": "Actual",
+    "roleName": {
+      "customer": "Público",
+      "creator": "Creador",
+      "venue": "Local"
+    },
+    "roleDesc": {
+      "customer": "Ir a cosas. Entradas, bonos y calendario.",
+      "creator": "Enseñar o actuar. Publica eventos y clases, vende entradas, registra invitados.",
+      "venue": "Recibe creadores en tu local. Programa, equipo en la puerta y liquidación por noche."
+    },
+    "roleConfirmBody": "¿Cambiar a {role}? La app se reinicia con el menú y la página de inicio del nuevo rol. Tus entradas, reservas y eventos se mantienen.",
+    "roleNoteCreator": "Para publicar y vender, la cuenta debe estar verificada con Mobilt BankID. Lo haces en Seguridad si aún no está hecho.",
+    "roleNoteVenue": "Para aparecer como local, verifica la empresa con su número de organización en la página de perfil.",
+    "roleConfirm": "Cambiar a {role}",
+    "roleSwitching": "Cambiando …",
+    "roleCancel": "Cancelar"
   },
   "help": {
     "title": "Ayuda y soporte",

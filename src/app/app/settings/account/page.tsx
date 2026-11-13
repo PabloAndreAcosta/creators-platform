@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Trash2, AlertTriangle, Shield } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useTranslations } from "next-intl";
+import { RoleSwitcher } from "@/components/settings/role-switcher";
 
 export default function AccountSettingsPage() {
   const t = useTranslations("account");
@@ -57,6 +58,10 @@ export default function AccountSettingsPage() {
         <h1 className="text-2xl font-semibold">{t("title")}</h1>
         <p className="text-[var(--usha-muted)] mt-1">{t("subtitle")}</p>
       </div>
+
+      {/* Roll: publik, kreatör eller lokal. Förr byttes den genom att köpa en
+          plan; sedan en nivå (2026-11-13) är det här enda vägen. */}
+      <RoleSwitcher />
 
       {/* GDPR Delete Account Section */}
       <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-6 space-y-4">
