@@ -22,6 +22,7 @@ export function Footer() {
       { label: t("nav.forVenues"), href: "/for-platser" },
       { label: t("nav.forAudience"), href: "/for-publik" },
       { label: t("nav.sellTickets"), href: "/salj-biljetter" },
+      { label: t("nav.compare"), href: "/jamfor" },
       { label: t("nav.shop"), href: "https://shop.usha.se" },
       { label: t("footer.about"), href: "/om" },
       { label: t("footer.partner"), href: "/partner" },

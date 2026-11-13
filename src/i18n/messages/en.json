@@ -605,6 +605,7 @@
       "forAudience": "Audience",
       "shop": "Shop",
       "sellTickets": "Sell tickets",
+      "compare": "Compare ticketing services",
       "homeAriaLabel": "Usha Platform – home",
       "calendar": "Calendar"
     },
@@ -5285,5 +5286,125 @@
     "recentHeading": "Recently handled",
     "statusConfirmed": "Confirmed",
     "statusRejected": "Rejected"
+  },
+  "compare": {
+    "metaTitle": "Usha compared with Tickster and Billetto – fees and features",
+    "metaDescription": "Fees, payment methods, check-in, punch cards and BankID side by side, taken from the companies' own pages with a date. And when Usha is not the right fit.",
+    "ogTitle": "Usha compared with Tickster and Billetto",
+    "badge": "Comparison",
+    "heroTitle": "Usha compared with Tickster and Billetto",
+    "heroBody": "Choosing a ticketing service should not mean doing the research yourself. Here we stand next to two of the most common ones in Sweden, row by row. Everything about them comes from their own public pages, and we say just as clearly when Usha is not the right choice.",
+    "checkedDate": "13 November 2026",
+    "tableNote": "The details about Tickster and Billetto were copied from their public pages on {date}. If you find something that is wrong, write to us and we will correct it.",
+    "row": {
+      "buyerFee": {
+        "label": "Fee paid by the buyer",
+        "usha": "None. The buyer pays the ticket price.",
+        "tickster": "Set per organiser: per ticket, per order or none at all. No public rate. In a current example, SEK 30 on a SEK 259 ticket.",
+        "billetto": "3.99% + SEK 7.99 per ticket excluding VAT, no cap stated. The organiser can choose to absorb the fee."
+      },
+      "organiserFee": {
+        "label": "Fee paid by the organiser",
+        "usha": "8% of each sold ticket. 5% on Guld, 3% on Premium.",
+        "tickster": "A variable cost per sold ticket, priced by quote. No fixed costs, except hardware rental.",
+        "billetto": "None beyond the buyer's fee. Swish costs the organiser SEK 5 per order excluding VAT."
+      },
+      "freeEvents": {
+        "label": "Free events",
+        "usha": "SEK 0, always.",
+        "tickster": "If you sell nothing it costs nothing, according to their site. We found no separate rule for free events.",
+        "billetto": "Can be listed, but the buyer pays a platform fee whose amount is not stated."
+      },
+      "monthly": {
+        "label": "Fixed cost",
+        "usha": "None. Guld and Premium are optional subscriptions for a lower commission and more tools.",
+        "tickster": "No fixed costs, according to their pricing page.",
+        "billetto": "No monthly fee, no setup cost."
+      },
+      "payment": {
+        "label": "Payment methods for the buyer",
+        "usha": "Card, Apple Pay and Google Pay. Klarna from SEK 1,000. Swish at events Usha runs itself.",
+        "tickster": "Card, Swish, credit invoice, instalments and advance invoice.",
+        "billetto": "Card, Apple Pay, Google Pay, Swish, Klarna, PayPal and e-invoice, when the organiser has enabled them."
+      },
+      "payout": {
+        "label": "Payout",
+        "usha": "The money lands in your own Stripe account at purchase and moves on to your bank on Stripe's schedule.",
+        "tickster": "No public information.",
+        "billetto": "3–5 business days after the event. Card purchases continuously via Stripe Connect; Swish and PayPal after the event."
+      },
+      "door": {
+        "label": "Check-in at the door",
+        "usha": "Included. QR ticket by email, scanning with any phone, and you can let others scan.",
+        "tickster": "Their own organiser app scans QR codes with a phone, plus scanning hardware for larger entrances.",
+        "billetto": "App for iOS and Android that scans QR codes and shows the guest list, with door sales."
+      },
+      "kiosk": {
+        "label": "Self check-in",
+        "usha": "Yes. A tablet at the door where the guest scans themselves, no staff needed. Included in Premium.",
+        "tickster": "No information on their pages.",
+        "billetto": "No information on their pages."
+      },
+      "passes": {
+        "label": "Punch cards and season passes",
+        "usha": "Punch cards with a validity period and one punch per night, also across a whole series.",
+        "tickster": "Season and annual passes, ticket pools and points. Punch cards are not mentioned.",
+        "billetto": "Monthly or annual memberships and season passes. Ticket bundles give separate tickets. Punch cards are not mentioned."
+      },
+      "venueShare": {
+        "label": "Sharing with the venue",
+        "usha": "Calculated per night, with records you can export.",
+        "tickster": "No information.",
+        "billetto": "No information."
+      },
+      "bankid": {
+        "label": "BankID",
+        "usha": "Log in and create an account with Mobile BankID, no password. Age check where required.",
+        "tickster": "Account created by email. BankID only as the bank's check at payment. ID is shown at the door.",
+        "billetto": "Email, Facebook or Google for the organiser. Buyers can purchase without an account. No BankID."
+      },
+      "marketing": {
+        "label": "Reaching the audience",
+        "usha": "A page for every event and creator, a public calendar and followers by email. No SMS.",
+        "tickster": "Email and SMS to buyers, audiences and event search across Sweden.",
+        "billetto": "Email and SMS, a marketplace and followers who become contacts. Advertising is on by default and costs 33% on the tickets it drives."
+      },
+      "fitFor": {
+        "label": "Best suited for",
+        "usha": "Recurring nights, classes and small venues where the same guests come back.",
+        "tickster": "Festivals, culture, arenas and larger venues. Contact with sales to get started.",
+        "billetto": "Self-service for everyone, including private individuals. Two tiers, under and over 1,000 tickets per year."
+      }
+    },
+    "fitTitle": "When Usha fits",
+    "fit1": "Recurring nights, classes and series where the same guests come back and a punch card makes a difference.",
+    "fit2": "Small and mid-sized venues that want the split with the organiser calculated per night.",
+    "fit3": "Anyone who wants guests to check themselves in at the door, without staff.",
+    "fit4": "Creators who want to start tonight, without a sales meeting or a monthly fee.",
+    "notFitTitle": "When Usha does not fit",
+    "notFit1": "Festivals and arenas with tens of thousands of tickets and hardware at the entrance.",
+    "notFit2": "If you need Swish at your own events right now. Today Swish is only available at nights Usha runs itself.",
+    "notFit3": "If you want to reach buyers by SMS, or need invoicing and instalments at checkout.",
+    "notFit4": "If your audience already finds you on Tickster's or Billetto's marketplace and that is where they buy.",
+    "notFitFootnote": "We would rather say this now than have you find out after the first night.",
+    "faqTitle": "Common questions",
+    "faq1Q": "What does it cost to sell tickets on Usha?",
+    "faq1A": "8% of each sold ticket, 5% on Guld and 3% on Premium. Free events cost nothing and there is no monthly fee to sell. The buyer pays only the ticket price.",
+    "faq2Q": "Does Usha charge the buyer a fee?",
+    "faq2A": "No, not today. If that changes it will be stated here and at checkout before the purchase.",
+    "faq3Q": "Why do you compare yourselves with Tickster and Billetto?",
+    "faq3A": "Because they are the ones most people ask about. We copy from their public pages and state the date, so you can check for yourself. If you find an error we will correct it.",
+    "faq4Q": "Can I move my events from Tickster or Billetto to Usha?",
+    "faq4A": "Yes. List the event with us and share the link, and guests buy here. Tickets already sold with the old provider remain valid there; upcoming nights you sell here.",
+    "sourcesTitle": "Sources",
+    "sourcesBody": "Read on {date}. Tickster publishes no amounts; its fee is set per organiser. Billetto publishes its price list.",
+    "sources": {
+      "tickster": "Tickster",
+      "billetto": "Billetto"
+    },
+    "ctaTitle": "Try it with your next night",
+    "ctaBody": "Create an account with Mobile BankID, list the event and share the link. It costs nothing until you have sold something.",
+    "ctaPrimary": "Get started for free",
+    "ctaSecondary": "How ticket sales work"
   }
 }

@@ -605,6 +605,7 @@
       "forAudience": "Público",
       "shop": "Tienda",
       "sellTickets": "Vender entradas",
+      "compare": "Comparar plataformas de entradas",
       "homeAriaLabel": "Usha Platform – inicio",
       "calendar": "Calendario"
     },
@@ -5285,5 +5286,125 @@
     "recentHeading": "Gestionadas recientemente",
     "statusConfirmed": "Confirmada",
     "statusRejected": "Rechazada"
+  },
+  "compare": {
+    "metaTitle": "Usha comparado con Tickster y Billetto – comisiones y funciones",
+    "metaDescription": "Comisiones, métodos de pago, control de acceso, bonos y BankID lado a lado, tomados de las páginas de las propias empresas con fecha. Y cuándo Usha no es la opción adecuada.",
+    "ogTitle": "Usha comparado con Tickster y Billetto",
+    "badge": "Comparativa",
+    "heroTitle": "Usha comparado con Tickster y Billetto",
+    "heroBody": "Elegir una plataforma de entradas no debería obligarte a investigar por tu cuenta. Aquí nos ponemos al lado de dos de las más comunes en Suecia, fila por fila. Todo lo que decimos de ellas viene de sus propias páginas públicas, y decimos con la misma claridad cuándo Usha no es la opción correcta.",
+    "checkedDate": "13 de noviembre de 2026",
+    "tableNote": "Los datos sobre Tickster y Billetto se copiaron de sus páginas públicas el {date}. Si encuentras algo incorrecto, escríbenos y lo corregimos.",
+    "row": {
+      "buyerFee": {
+        "label": "Comisión que paga el comprador",
+        "usha": "Ninguna. El comprador paga el precio de la entrada.",
+        "tickster": "Se fija por organizador: por entrada, por pedido o ninguna. Sin tarifa pública. En un ejemplo actual, 30 kr sobre una entrada de 259 kr.",
+        "billetto": "3,99 % + 7,99 kr por entrada sin IVA, sin tope indicado. El organizador puede asumir la comisión."
+      },
+      "organiserFee": {
+        "label": "Comisión que paga el organizador",
+        "usha": "8 % de cada entrada vendida. 5 % en Guld, 3 % en Premium.",
+        "tickster": "Coste variable por entrada vendida, precio bajo presupuesto. Sin costes fijos, salvo alquiler de hardware.",
+        "billetto": "Ninguna más allá de la del comprador. Swish cuesta al organizador 5 kr por pedido sin IVA."
+      },
+      "freeEvents": {
+        "label": "Eventos gratuitos",
+        "usha": "0 kr, siempre.",
+        "tickster": "Si no vendes nada no cuesta nada, según su web. No encontramos una regla propia para eventos gratuitos.",
+        "billetto": "Se pueden publicar, pero el comprador paga una comisión de plataforma cuyo importe no se indica."
+      },
+      "monthly": {
+        "label": "Coste fijo",
+        "usha": "Ninguno. Guld y Premium son suscripciones opcionales para una comisión menor y más herramientas.",
+        "tickster": "Sin costes fijos, según su página de precios.",
+        "billetto": "Sin cuota mensual, sin coste inicial."
+      },
+      "payment": {
+        "label": "Métodos de pago del comprador",
+        "usha": "Tarjeta, Apple Pay y Google Pay. Klarna desde 1 000 kr. Swish en las noches que organiza la propia Usha.",
+        "tickster": "Tarjeta, Swish, factura a crédito, pago a plazos y factura anticipada.",
+        "billetto": "Tarjeta, Apple Pay, Google Pay, Swish, Klarna, PayPal y factura electrónica, cuando el organizador los activa."
+      },
+      "payout": {
+        "label": "Liquidación",
+        "usha": "El dinero llega a tu propia cuenta de Stripe en el momento de la compra y pasa a tu banco según el calendario de Stripe.",
+        "tickster": "Sin información pública.",
+        "billetto": "3–5 días laborables después del evento. Compras con tarjeta de forma continua vía Stripe Connect; Swish y PayPal tras el evento."
+      },
+      "door": {
+        "label": "Control de acceso en la puerta",
+        "usha": "Incluido. Entrada QR por correo, escaneo con cualquier teléfono, y puedes dar permiso de escaneo a otros.",
+        "tickster": "App propia para organizadores que escanea QR con el teléfono, más hardware de escaneo para accesos grandes.",
+        "billetto": "App para iOS y Android que escanea QR y muestra la lista de invitados, con venta en puerta."
+      },
+      "kiosk": {
+        "label": "Autoacceso",
+        "usha": "Sí. Una tablet en la puerta donde el invitado se escanea solo, sin personal. Incluido en Premium.",
+        "tickster": "Sin información en sus páginas.",
+        "billetto": "Sin información en sus páginas."
+      },
+      "passes": {
+        "label": "Bonos y abonos de temporada",
+        "usha": "Bonos con periodo de validez y un uso por noche, también para una serie completa.",
+        "tickster": "Abonos de temporada y anuales, bolsas de entradas y puntos. No se mencionan bonos de usos.",
+        "billetto": "Membresías mensuales o anuales y abonos de temporada. Los paquetes dan entradas separadas. No se mencionan bonos de usos."
+      },
+      "venueShare": {
+        "label": "Reparto con el local",
+        "usha": "Se calcula por noche, con registros exportables.",
+        "tickster": "Sin información.",
+        "billetto": "Sin información."
+      },
+      "bankid": {
+        "label": "BankID",
+        "usha": "Inicia sesión y crea tu cuenta con Mobilt BankID, sin contraseña. Control de edad donde se exige.",
+        "tickster": "La cuenta se crea por correo. BankID solo como control del banco al pagar. El documento se muestra en la puerta.",
+        "billetto": "Correo, Facebook o Google para el organizador. El comprador puede comprar sin cuenta. Sin BankID."
+      },
+      "marketing": {
+        "label": "Llegar al público",
+        "usha": "Una página para cada evento y creador, calendario público y seguidores por correo. Sin SMS.",
+        "tickster": "Correo y SMS a compradores, audiencias y buscador de eventos en toda Suecia.",
+        "billetto": "Correo y SMS, marketplace y seguidores que se convierten en contactos. La publicidad está activada por defecto y cuesta un 33 % sobre las entradas que genera."
+      },
+      "fitFor": {
+        "label": "Ideal para",
+        "usha": "Noches recurrentes, clases y locales pequeños donde los mismos invitados vuelven.",
+        "tickster": "Festivales, cultura, arenas y locales grandes. Contacto con ventas para empezar.",
+        "billetto": "Autoservicio para todos, también particulares. Dos niveles, por debajo y por encima de 1 000 entradas al año."
+      }
+    },
+    "fitTitle": "Cuándo encaja Usha",
+    "fit1": "Noches recurrentes, clases y series donde los mismos invitados vuelven y un bono marca la diferencia.",
+    "fit2": "Locales pequeños y medianos que quieren el reparto con el organizador calculado por noche.",
+    "fit3": "Quien quiere que los invitados se registren solos en la puerta, sin personal.",
+    "fit4": "Creadores que quieren empezar esta noche, sin reunión comercial ni cuota mensual.",
+    "notFitTitle": "Cuándo Usha no encaja",
+    "notFit1": "Festivales y arenas con decenas de miles de entradas y hardware en el acceso.",
+    "notFit2": "Si necesitas Swish en tus propios eventos ya. Hoy Swish solo está en las noches que organiza la propia Usha.",
+    "notFit3": "Si quieres llegar a los compradores por SMS, o necesitas factura y pago a plazos en la caja.",
+    "notFit4": "Si tu público ya te encuentra en el marketplace de Tickster o Billetto y es allí donde compra.",
+    "notFitFootnote": "Preferimos decirlo ahora a que lo descubras después de la primera noche.",
+    "faqTitle": "Preguntas frecuentes",
+    "faq1Q": "¿Cuánto cuesta vender entradas en Usha?",
+    "faq1A": "8 % de cada entrada vendida, 5 % en Guld y 3 % en Premium. Los eventos gratuitos no cuestan nada y no hay cuota mensual por vender. El comprador paga solo el precio de la entrada.",
+    "faq2Q": "¿Usha cobra alguna comisión al comprador?",
+    "faq2A": "No, hoy no. Si eso cambia, se indicará aquí y en la caja antes de la compra.",
+    "faq3Q": "¿Por qué os comparáis con Tickster y Billetto?",
+    "faq3A": "Porque son por quienes más pregunta la gente. Copiamos de sus páginas públicas e indicamos la fecha, para que puedas comprobarlo. Si encuentras un error, lo corregimos.",
+    "faq4Q": "¿Puedo pasar mis eventos de Tickster o Billetto a Usha?",
+    "faq4A": "Sí. Publica el evento con nosotros y comparte el enlace, y los invitados compran aquí. Las entradas ya vendidas en la otra plataforma siguen valiendo allí; las próximas noches las vendes aquí.",
+    "sourcesTitle": "Fuentes",
+    "sourcesBody": "Leídas el {date}. Tickster no publica importes; su comisión se fija por organizador. Billetto publica su lista de precios.",
+    "sources": {
+      "tickster": "Tickster",
+      "billetto": "Billetto"
+    },
+    "ctaTitle": "Pruébalo con tu próxima noche",
+    "ctaBody": "Crea una cuenta con Mobilt BankID, publica el evento y comparte el enlace. No cuesta nada hasta que hayas vendido algo.",
+    "ctaPrimary": "Empieza gratis",
+    "ctaSecondary": "Cómo funciona la venta de entradas"
   }
 }
