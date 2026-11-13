@@ -8,6 +8,7 @@ import { ToastProvider } from "@/components/ui/toaster";
 import { ConnectionStatus } from "@/components/ConnectionStatus";
 import { GoogleAnalytics } from "@/components/google-analytics";
 import { ConsentBanner } from "@/components/consent-banner";
+import { NativeShellBridge } from "@/components/native-shell-bridge";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import Script from "next/script";
@@ -163,6 +164,7 @@ export default async function RootLayout({
       <body className="grain min-h-screen bg-[var(--usha-black)] text-[var(--usha-white)] antialiased" suppressHydrationWarning>
         <IntlProvider locale={locale} messages={messages}>
           <ConnectionStatus />
+          <NativeShellBridge />
           <ToastProvider>{children}</ToastProvider>
           <ConsentBanner />
         </IntlProvider>

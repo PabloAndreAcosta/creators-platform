@@ -3,5 +3,5 @@
     <string name="app_name">Usha Platform</string>
     <string name="title_activity_main">Usha Platform</string>
     <string name="package_name">se.usha.app</string>
-    <string name="custom_url_scheme">se.usha.app</string>
+    <string name="custom_url_scheme">usha</string>
 </resources>
