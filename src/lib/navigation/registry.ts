@@ -68,6 +68,12 @@ export interface AppDestination {
    * förklarar och leder till uppgraderingen.
    */
   minTier?: "guld" | "premium";
+  /**
+   * Gömd tills vidare, med skälet i klartext. Sidan finns och går att nå på
+   * sin adress, men ingen meny visar den (surfaces är då tom). Coverage-
+   * testet släpper igenom en gömd destination bara när skälet står här.
+   */
+  hidden?: string;
 }
 
 /** Räcker kontots nivå för destinationen? Betan låser upp allt. */
@@ -189,8 +195,11 @@ export const APP_DESTINATIONS: AppDestination[] = [
     group: "explore", roles: "all", surfaces: ["more", "sidebar"] },
   { path: "/app/favorites", labelKey: "favoritesLabel", descKey: "favoritesDesc", navLabelKey: "favorites", icon: Heart,
     group: "explore", roles: "all", surfaces: ["more", "sidebar"] },
+  // Poängsystemet är gömt sedan 2026-11-13 tills belöningarna byggts om till
+  // något som går att lösa in (Pablo: "nice att ha kvar"). Sidorna finns,
+  // men ingen meny pekar dit. surfaces: [] = registrerad men osynlig.
   { path: "/app/leaderboard", labelKey: "leaderboardLabel", descKey: "leaderboardDesc", navLabelKey: "leaderboard", icon: Trophy,
-    group: "explore", roles: "all", surfaces: ["more", "sidebar"] },
+    group: "explore", roles: "all", surfaces: [], hidden: "Poängsystemet byggs om till inlösbara belöningar (2026-11-13)" },
 
   // ---- Mitt konto ---------------------------------------------------------
   { path: "/app/tickets", labelKey: "ticketsLabel", descKey: "ticketsDesc", navLabelKey: "tickets", icon: Ticket,
@@ -202,7 +211,7 @@ export const APP_DESTINATIONS: AppDestination[] = [
   { path: "/app/library", labelKey: "libraryLabel", descKey: "libraryDesc", navLabelKey: "library", icon: BookMarked,
     group: "myAccount", roles: "all", surfaces: ["more", "sidebar"] },
   { path: "/app/rewards", labelKey: "rewardsLabel", descKey: "rewardsDesc", icon: Gift,
-    group: "myAccount", roles: "all", surfaces: ["more", "profile"] },
+    group: "myAccount", roles: "all", surfaces: [], hidden: "Poängsystemet byggs om till inlösbara belöningar (2026-11-13)" },
   { path: "/app/notifications", labelKey: "notificationsLabel", icon: Bell,
     group: "myAccount", roles: "all", surfaces: ["more"] },
   { path: "/app/profile", labelKey: "profileLabel", navLabelKey: "profile", icon: User,

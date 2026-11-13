@@ -125,7 +125,9 @@ export async function POST(req: NextRequest) {
     }
     const amountInOre = priceSek * 100;
     const commissionRate = getCreatorCommissionRate(instructor.tier ?? "gratis", instructor.creator_subcategory ?? null);
-    const applicationFee = platformCommissionOre(amountInOre, 1);
+    // Ushas egna arrangemang (usha_principal) bär ingen provision: pengarna är
+    // redan Ushas, och en avgift mot sig själv hade bara skräpat ner avräkningen.
+    const applicationFee = flow === "usha_principal" ? 0 : platformCommissionOre(amountInOre, 1);
 
     const termsUrl = (instructor as { terms_url?: string | null }).terms_url ?? null;
     const customText = buildTermsCustomText(termsUrl);

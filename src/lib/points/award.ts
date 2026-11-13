@@ -52,8 +52,12 @@ export async function awardPoints(params: AwardPointsParams): Promise<AwardResul
     leveledUp: result.leveled_up ?? false,
   };
 
+  // Poängsystemet är gömt sedan 2026-11-13 (inga menyer pekar dit) tills
+  // belöningarna byggts om. Poängen räknas vidare i tysthet, men ingen notis
+  // ska locka in användaren på en sida som inte går att hitta.
+  const POINTS_VISIBLE = false;
   // On level-up, notify user and unlock rewards
-  if (awardResult.leveledUp) {
+  if (POINTS_VISIBLE && awardResult.leveledUp) {
     // The level's name is a word, not a value, so it travels as a key and gets
     // translated together with the sentence it sits in.
     createNotification({

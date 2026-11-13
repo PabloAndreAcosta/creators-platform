@@ -117,9 +117,13 @@ describe("navigationsregistret täcker varje inloggad sida", () => {
     expect(missingNav, `Ligger i sidomenyn utan navLabelKey: ${missingNav.join(", ")}`).toEqual([]);
   });
 
-  it("varje destination visas på minst en yta", () => {
-    const homeless = APP_DESTINATIONS.filter((d) => d.surfaces.length === 0).map((d) => d.path);
+  it("varje destination visas på minst en yta, om den inte är gömd med skäl", () => {
+    // En gömd sida (hidden) får sakna yta — men bara med skälet utskrivet, så
+    // att ingen om ett halvår undrar varför /app/rewards inte syns någonstans.
+    const homeless = APP_DESTINATIONS.filter((d) => d.surfaces.length === 0 && !d.hidden).map((d) => d.path);
     expect(homeless, `Destination utan yta blir osynlig: ${homeless.join(", ")}`).toEqual([]);
+    const hiddenWithSurface = APP_DESTINATIONS.filter((d) => d.hidden && d.surfaces.length > 0).map((d) => d.path);
+    expect(hiddenWithSurface, `Gömd men ändå i en meny: ${hiddenWithSurface.join(", ")}`).toEqual([]);
   });
 });
 

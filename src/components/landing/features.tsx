@@ -1,7 +1,7 @@
 import { useTranslations } from "next-intl";
 import {
   Sparkles, Ticket, QrCode, Users, ScanLine, Banknote, Radio, BarChart3,
-  Fingerprint, CreditCard, Store, Newspaper, CalendarCheck, BookOpen, Gift,
+  Fingerprint, CreditCard, Store, Newspaper, CalendarCheck, BookOpen,
   KeyRound, Building2, Layers, BellRing, Receipt,
   type LucideIcon,
 } from "lucide-react";
@@ -69,7 +69,6 @@ const GROUPS: { heading: string; items: Item[] }[] = [
       { key: "marketplace", icon: Store },
       { key: "feed", icon: Newspaper },
       { key: "calendar", icon: CalendarCheck },
-      { key: "rewards", icon: Gift },
     ],
   },
 ];

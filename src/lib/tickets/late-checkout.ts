@@ -178,7 +178,9 @@ export async function createLateCheckoutSession(args: {
     creator.tier ?? "gratis",
     creator.creator_subcategory ?? null
   );
-  const applicationFee = platformCommissionOre(amountInOre, 1);
+  // Ushas egna arrangemang (usha_principal) bär ingen provision: pengarna är
+  // redan Ushas, och en avgift mot sig själv hade bara skräpat ner avräkningen.
+  const applicationFee = flow === "usha_principal" ? 0 : platformCommissionOre(amountInOre, 1);
   const feeMode = serviceFeeMode(listing.service_fee_mode);
   const serviceFee = computeServiceFeeOre(amountInOre, 1, feeMode);
 

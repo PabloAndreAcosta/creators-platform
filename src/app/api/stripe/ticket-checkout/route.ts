@@ -275,7 +275,9 @@ export async function POST(req: NextRequest) {
       creator.tier ?? 'gratis',
       (creator as { creator_subcategory?: string | null }).creator_subcategory ?? null
     );
-    const applicationFee = platformCommissionOre(amountInOre, 1); // per biljett, se * qty nedan
+    // Ushas egna arrangemang (usha_principal) bär ingen provision: pengarna är
+    // redan Ushas, och en avgift mot sig själv hade bara skräpat ner avräkningen.
+    const applicationFee = flow === "usha_principal" ? 0 : platformCommissionOre(amountInOre, 1); // per biljett, se * qty nedan
     // OBS: applicationFee räknas per biljett på ordinarie pris nedan, och
     // avdraget dras från Ushas egen del i slutänden (se creditOre).
 

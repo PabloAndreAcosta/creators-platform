@@ -250,7 +250,9 @@ export async function POST(req: NextRequest) {
       creator.tier ?? "gratis",
       (creator as { creator_subcategory?: string | null }).creator_subcategory ?? null
     );
-    const applicationFee = platformCommissionOre(amountInOre, 1); // per biljett, se * qty nedan
+    // Ushas egna arrangemang (usha_principal) bär ingen provision: pengarna är
+    // redan Ushas, och en avgift mot sig själv hade bara skräpat ner avräkningen.
+    const applicationFee = flow === "usha_principal" ? 0 : platformCommissionOre(amountInOre, 1); // per biljett, se * qty nedan
 
     // Tickster-style service fee (gated off until the flag is set). Fee is added
     // to the application_fee in both modes; "buyer" mode also adds a line item.

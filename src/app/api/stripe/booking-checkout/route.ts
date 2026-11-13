@@ -161,7 +161,9 @@ export async function POST(req: NextRequest) {
     const amountInOre = Math.round(discountedPrice * 100);
     const creatorSubcategory = (creator as { creator_subcategory?: string | null }).creator_subcategory ?? null;
     const commissionRate = getCreatorCommissionRate(creator.tier ?? "gratis", creatorSubcategory);
-    const applicationFee = platformCommissionOre(amountInOre, 1);
+    // Ushas egna arrangemang (usha_principal) bär ingen provision: pengarna är
+    // redan Ushas, och en avgift mot sig själv hade bara skräpat ner avräkningen.
+    const applicationFee = flow === "usha_principal" ? 0 : platformCommissionOre(amountInOre, 1);
 
     // Validate promo code if provided
     let promoCodeId: string | undefined;
