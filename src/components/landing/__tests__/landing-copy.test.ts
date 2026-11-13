@@ -44,7 +44,7 @@ describe("prisrutorna på landningssidan", () => {
   it("innehåller inga nycklar för avvecklade nivåer", () => {
     // Ligger de kvar i filen är de bara ett klipp-och-klistra från att hamna
     // på sidan igen.
-    const dodaPrefix = ["publikGold", "publikPremium", "upplevelseGold", "upplevelsePremium"];
+    const dodaPrefix = ["publikGold", "publikPremium", "upplevelseGold", "upplevelsePremium", "kreatorGold", "kreatorPremium", "kreatorFree", "gold", "premium", "ctaGold", "ctaPremium", "mostPopular", "beta", "sekMonth", "freeDuringBeta"];
     for (const l of LOCALES) {
       const nycklar = Object.keys((msgs[l] as never as Record<string, Record<string, object>>).landing.pricing);
       const kvar = nycklar.filter((k) => dodaPrefix.some((p) => k.startsWith(p)));
@@ -52,18 +52,20 @@ describe("prisrutorna på landningssidan", () => {
     }
   });
 
-  it("har bara en prisstege för de roller som faktiskt kan teckna en", () => {
-    // Kreatören är den enda rollen med en köpbar nivå kvar. Skulle en ny roll
-    // få en nivå ska det här testet falla, inte sidan tiga.
+  it("har ingen prisstege alls — en nivå sedan 2026-11-13", () => {
+    // Skulle någon roll få en köpbar nivå igen ska det här testet falla,
+    // inte sidan tiga.
     const roller = new Set(getPlanList().map((p) => PLANS[p.key].role));
-    expect([...roller]).toEqual(["creator"]);
+    expect([...roller]).toEqual([]);
   });
 
   it("uppger samma provision som COMMISSION_RATES", () => {
     const rad = (nyckel: string) => varden(msgs.sv, `landing.pricing.${nyckel}`).join(" ");
-    expect(rad("kreatorFree2")).toMatch(procent(COMMISSION_RATES.gratis * 100));
-    expect(rad("kreatorGold2")).toMatch(procent(COMMISSION_RATES.guld * 100));
-    expect(rad("kreatorPremium2")).toMatch(procent(COMMISSION_RATES.premium * 100));
+    expect(rad("kreatorOne2")).toMatch(procent(COMMISSION_RATES.gratis * 100));
+    // Samma sats för alla: står det något annat än gratisnivåns procent
+    // någonstans i prisrutorna är det en gammal stege som smugit tillbaka.
+    expect(COMMISSION_RATES.guld).toBe(COMMISSION_RATES.gratis);
+    expect(COMMISSION_RATES.premium).toBe(COMMISSION_RATES.gratis);
     // Och ingenstans den gamla 15-procentaren.
     const allt = varden(msgs.sv, "landing.pricing");
     expect(allt.some((v) => procent(15).test(v))).toBe(false);

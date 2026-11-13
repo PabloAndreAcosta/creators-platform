@@ -41,9 +41,9 @@ const STATUS_META: Record<string, { labelKey: string; color: string }> = {
 };
 
 const COMMISSION_RATES: Record<string, number> = {
-  gratis: 0.15,
+  gratis: 0.08,
   guld: 0.08,
-  premium: 0.03,
+  premium: 0.08,
 };
 
 export default function PayoutDashboard({ creatorId }: PayoutDashboardProps) {
@@ -72,7 +72,7 @@ export default function PayoutDashboard({ creatorId }: PayoutDashboardProps) {
     return () => document.removeEventListener('keydown', handleKey);
   }, [showModal]);
 
-  const commissionRate = COMMISSION_RATES[tier] ?? 0.15;
+  const commissionRate = COMMISSION_RATES[tier] ?? 0.08;
   const weeklyCommission = Math.round(weeklyGross * commissionRate);
   const weeklyNet = weeklyGross - weeklyCommission;
   const instantFee = instantCount >= 1;

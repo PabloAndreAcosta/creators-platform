@@ -79,15 +79,25 @@ export const PLANS: Record<PlanKey, Plan> = {
     ],
     stripePriceId: process.env.STRIPE_PUBLIK_PREMIUM_PRICE_ID || "",
   },
+  // AVVECKLAD 2026-11-13, tillsammans med Premium. En nivå för alla.
+  //
+  // Sex konton hade en nivå, alla beviljade utan kostnad; ingen betalade.
+  // Nivåerna låste just det som gör Usha annorlunda (kiosken, statistiken,
+  // att låta någon annan skanna), och Guld gick jämnt upp mot gratis först
+  // vid 10 000 kr försäljning i månaden — en nivå ingen tredjepartskreatör
+  // var i närheten av. Provisionen är 8 % för alla (se commission.ts).
+  //
+  // Nycklarna ligger kvar så att gamla prenumerationsrader och webhooken
+  // känner igen sitt plan-id. Förmånslistorna är historik, inte löften.
   kreator_guld: {
+    retired: true,
     name: "Guld",
     role: "creator",
     tier: "guld",
-    price: 299,
+    price: 0,
     currency: "SEK",
     interval: "month",
     description: "Väx din verksamhet",
-    popular: true,
     // Bara sådant som faktiskt är grindat på nivån i koden.
     //
     // Genomgången 2026-10-05 visade att listan ljög åt båda hållen: sex
@@ -114,10 +124,11 @@ export const PLANS: Record<PlanKey, Plan> = {
     stripePriceId: process.env.STRIPE_KREATOR_GULD_PRICE_ID || "",
   },
   kreator_premium: {
+    retired: true,
     name: "Premium",
     role: "creator",
     tier: "premium",
-    price: 599,
+    price: 0,
     currency: "SEK",
     interval: "month",
     description: "Full kontroll och maximal synlighet",

@@ -23,11 +23,16 @@ export interface PayoutBreakdown {
  * Hela trappan flyttades ned, inte bara första steget: hade gratis blivit 8 %
  * med Guld kvar på 8 % vore Guld gratis att avstå från, och trappan hade
  * upphört att vara en trappa.
+ *
+ * 2026-11-13: Guld och Premium togs bort. En nivå, 8 % för alla. Tabellen
+ * behåller sina tre nycklar eftersom profiles.tier fortfarande kan bära de
+ * gamla värdena för konton som hade en nivå — de ska räknas som alla andra,
+ * inte falla igenom till något annat.
  */
 export const COMMISSION_RATES: Record<MemberTier, number> = {
   gratis: 0.08,
-  guld: 0.05,
-  premium: 0.03,
+  guld: 0.08,
+  premium: 0.08,
 };
 
 /**
@@ -42,8 +47,8 @@ export const COMMISSION_RATES: Record<MemberTier, number> = {
  */
 export const TAXI_DANCER_COMMISSION_RATES: Record<MemberTier, number> = {
   gratis: 0.08,
-  guld: 0.05,
-  premium: 0.03,
+  guld: 0.08,
+  premium: 0.08,
 };
 
 export const DISCOUNT_RATES: Record<'guld' | 'premium', number> = {

@@ -53,6 +53,9 @@ const nextConfig = {
       { source: "/taxi/chatt", destination: "/taxi?utm_source=chatt&utm_medium=dm&utm_campaign=taxidansare", permanent: false },
       { source: "/undervisa/insta", destination: "/undervisa?utm_source=instagram&utm_medium=social&utm_campaign=instruktor&utm_content=reel", permanent: false },
       { source: "/undervisa/chatt", destination: "/undervisa?utm_source=chatt&utm_medium=dm&utm_campaign=instruktor", permanent: false },
+      // Jämförelsen med Tickster och Billetto: "usha.se/vs" går att säga högt.
+      { source: "/vs", destination: "/jamfor", permanent: false },
+      { source: "/vs/insta", destination: "/jamfor?utm_source=instagram&utm_medium=social&utm_campaign=jamfor&utm_content=reel", permanent: false },
       // Dörren: kioskläget för kvällens evenemang (sidan /dorr väljer kvällen).
       { source: "/kiosk", destination: "/dorr", permanent: false },
       // The Lab: alltid nästa torsdag (/event/the-lab-torsdag följer serien).

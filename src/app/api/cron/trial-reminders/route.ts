@@ -20,6 +20,12 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  // En nivå sedan 2026-11-13: det finns inget att uppgradera till, så en
+  // påminnelse om att provperioden tar slut vore ett brev om ingenting.
+  // Jobbet ligger kvar i schemat men gör inget.
+  if (process.env.TRIAL_REMINDERS_ENABLED !== "true") {
+    return NextResponse.json({ skipped: "tiers retired 2026-11-13", sent: 0 });
+  }
   const admin = getSupabaseAdmin();
   const now = new Date();
   let sent = 0;

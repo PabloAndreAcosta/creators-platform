@@ -21,6 +21,9 @@ export async function sendTrialEndingEmail({
   daysLeft,
   memberId,
 }: SendTrialEndingParams): Promise<void> {
+  // En nivå sedan 2026-11-13: inget att uppgradera till, så mejlet skickas
+  // inte. Kvar tills webhooken och cron-jobbet städats.
+  if (process.env.TRIAL_REMINDERS_ENABLED !== "true") return;
   const resend = getResend();
   const { t, locale } = await getEmailIntl(await resolveRecipientLocale({ userId: memberId, email: to }));
 

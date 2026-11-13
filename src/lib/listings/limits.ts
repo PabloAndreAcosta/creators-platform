@@ -14,15 +14,14 @@ import { createClient } from "@/lib/supabase/server";
  * just nu är ett rimligt produktbeslut; ett tak på vad man någonsin gjort
  * straffar den som återkommer.
  */
+// En nivå sedan 2026-11-13: Guld och Premium är borta, allt ingår för alla.
+// Taket var det som skulle få en kreatör att köpa Guld. Utan nivåer finns
+// inget att köpa, så alla är obegränsade. Räknaren ligger kvar för att
+// kunna införa ett tak igen om missbruk skulle kräva det.
 const TIER_LIMITS: Record<MemberTier, number | null> = {
-  gratis: 3,
-  // Sju, inte femton. En kreatör med en kväll i veckan publicerar en månad
-  // framåt och landar på fyra till fem kommande — över gratisnivåns tre, men
-  // långt under femton. Taket ska kännas som nästa steg, inte som ett tak man
-  // aldrig når. Den som kör veckovis ska uppmuntras uppåt; den som kör två
-  // serier samtidigt ska hamna på Premium.
-  guld: 7,
-  premium: null, // obegränsat
+  gratis: null,
+  guld: null,
+  premium: null,
 };
 
 interface LimitCheck {

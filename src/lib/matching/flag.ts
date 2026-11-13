@@ -1,5 +1,3 @@
-import { createAdminClient } from "@/lib/supabase/admin";
-
 export type MatchingAccess = "open" | "premium";
 
 /**
@@ -17,24 +15,12 @@ const TTL_MS = 5 * 60_000;
 let cached: { value: MatchingAccess; at: number } | null = null;
 
 export async function getMatchingAccess(): Promise<MatchingAccess> {
+  // En nivå sedan 2026-11-13: Guld och Premium är borta, allt ingår för alla.
+  // Flaggan i app_config läses inte längre: det finns ingen Premium att
+  // begränsa till, så matchningen är öppen för alla inloggade.
   const now = Date.now();
   if (cached && now - cached.at < TTL_MS) return cached.value;
-
-  let value: MatchingAccess = "open"; // safe default: launch mode
-  try {
-    const admin = createAdminClient();
-    const { data } = await admin
-      .from("app_config")
-      .select("value")
-      .eq("key", "matching_access")
-      .maybeSingle();
-    if (data?.value === "premium" || data?.value === "open") {
-      value = data.value;
-    }
-  } catch {
-    // fall back to the launch default on any read error
-  }
-
+  const value: MatchingAccess = "open";
   cached = { value, at: now };
   return value;
 }

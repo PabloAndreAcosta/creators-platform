@@ -11,20 +11,11 @@ import type { SupabaseClient } from "@supabase/supabase-js";
  * anroparen.
  */
 export async function isPaidAccount(admin: SupabaseClient, userId: string): Promise<boolean> {
-  const { data: prof } = await admin.from("profiles").select("tier, role").eq("id", userId).maybeSingle();
-  if (prof?.tier === "guld" || prof?.tier === "premium") return true;
-  // Lokalernas nivåer är avvecklade (2026-09-29, se stripe/config.ts) – en
-  // lokal är en avtalspart, inte en abonnent, och kan inte köpa en nivå.
-  // Skanningen får därför inte hänga på en prenumeration den inte kan teckna.
-  if (prof?.role === "venue") return true;
-  const { data: sub } = await admin
-    .from("subscriptions")
-    .select("status")
-    .eq("user_id", userId)
-    .in("status", ["active", "trialing"])
-    .limit(1)
-    .maybeSingle();
-  return !!sub;
+  // En nivå sedan 2026-11-13: Guld och Premium är borta, allt ingår för alla.
+  // Skannern öppnas för alla; funktionen finns kvar för anropsställena.
+  void admin;
+  void userId;
+  return true;
 }
 
 export interface DelegatedScan {

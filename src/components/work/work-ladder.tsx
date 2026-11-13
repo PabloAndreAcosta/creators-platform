@@ -37,8 +37,6 @@ export async function WorkLadder({ loggedIn }: { loggedIn: boolean }) {
       key: "instructor",
       body: t("instructorBody", {
         free: pct(COMMISSION_RATES.gratis),
-        gold: pct(COMMISSION_RATES.guld),
-        premium: pct(COMMISSION_RATES.premium),
       }),
       requirements: t("instructorReq"),
       cta: t("instructorCta"),
