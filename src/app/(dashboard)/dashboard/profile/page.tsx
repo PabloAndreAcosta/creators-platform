@@ -101,7 +101,7 @@ export default async function ProfilePage() {
       </div>
 
       <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 sm:p-8">
-        <ProfileForm profile={profile} isPaidTier={BETA_MODE || profile.tier === 'guld' || profile.tier === 'premium'} isPremium={BETA_MODE || profile.tier === 'premium'} isCustomer={!isCreator} />
+        <ProfileForm profile={profile} isPaidTier isPremium isCustomer={!isCreator} />
       </div>
 
       {showCompany && (

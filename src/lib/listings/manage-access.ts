@@ -1,11 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { hasVenueCapabilityForListing } from "@/lib/venues/listing-access";
 
-const PAID_TIERS = new Set(["guld", "premium"]);
-
-/** Only Gold/Premium owners may delegate co-organizer (manage) rights. */
+/** En nivå sedan 2026-11-13: Guld och Premium är borta, allt ingår för alla. Alla ägare får dela administrationen. */
 export function canDelegateManage(tier: string | null | undefined): boolean {
-  return !!tier && PAID_TIERS.has(tier);
+  void tier;
+  return true;
 }
 
 /**

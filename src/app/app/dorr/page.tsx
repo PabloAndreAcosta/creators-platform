@@ -64,9 +64,6 @@ export default async function DoorHubPage() {
       <div className="mb-2 flex items-center gap-2">
         <ScanLine size={22} className="text-[var(--usha-gold)]" />
         <h1 className="text-2xl font-bold">{t("title")}</h1>
-        <span className="ml-auto rounded-full border border-[var(--usha-gold)]/50 px-2.5 py-0.5 text-xs font-semibold text-[var(--usha-gold)]">
-          {t("premiumBadge")}
-        </span>
       </div>
       <p className="mb-6 text-sm text-[var(--usha-muted)]">{t("lead")}</p>
 

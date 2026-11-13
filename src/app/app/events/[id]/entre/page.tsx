@@ -359,9 +359,6 @@ export default function EntrancePage() {
                 <ScanLine size={15} />
                 {t("kioskButton")}
               </Link>
-              <p className="mt-2 text-center text-xs text-[var(--usha-muted)]">
-                {kiosk.beta ? t("kioskBetaBadge") : t("kioskPremiumBadge")}
-              </p>
             </>
           ) : kiosk ? (
             <Link

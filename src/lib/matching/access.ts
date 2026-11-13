@@ -17,9 +17,10 @@ export function normalizeRole(role: string | null | undefined): MatchRole {
   }
 }
 
-/** A tier string counts as Premium only when it is exactly the premium tier. */
+/** En nivå sedan 2026-11-13: Guld och Premium är borta, allt ingår för alla. Alla räknas som Premium. */
 export function isPremiumTier(tier: string | null | undefined): boolean {
-  return (tier || "").toLowerCase() === "premium";
+  void tier;
+  return true;
 }
 
 /**
@@ -34,20 +35,9 @@ export async function userIsPremium(
   admin: SupabaseClient,
   userId: string
 ): Promise<boolean> {
-  const { data: profile } = await admin
-    .from("profiles")
-    .select("tier")
-    .eq("id", userId)
-    .maybeSingle();
-  if (isPremiumTier(profile?.tier)) return true;
-
-  const { data: sub } = await admin
-    .from("subscriptions")
-    .select("plan, status")
-    .eq("user_id", userId)
-    .in("status", ["active", "trialing"])
-    .maybeSingle();
-  if (sub && (sub.plan || "").toLowerCase().includes("premium")) return true;
-
-  return false;
+  // En nivå sedan 2026-11-13. Signaturen behålls så att kiosken, avtalen och
+  // matchningen inte behöver skrivas om; svaret är ja för alla.
+  void admin;
+  void userId;
+  return true;
 }

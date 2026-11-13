@@ -20,13 +20,14 @@ describe('PLANS', () => {
     }
   });
 
-  it('publik plans are cheaper than kreator/upplevelse plans', () => {
-    expect(PLANS.publik_guld.price).toBeLessThan(PLANS.kreator_guld.price);
-    expect(PLANS.publik_premium.price).toBeLessThan(PLANS.kreator_premium.price);
-  });
-
-  it('guld är billigare än premium bland nivåer som går att teckna', () => {
-    expect(PLANS.kreator_guld.price).toBeLessThan(PLANS.kreator_premium.price);
+  it('kreatörsnivåerna är avvecklade och kostar noll (en nivå sedan 2026-11-13)', () => {
+    // Sex konton hade en nivå, alla beviljade utan kostnad. Nivåerna låste
+    // kiosken, statistiken och delegerad skanning — det som gör Usha
+    // annorlunda. Nu ingår allt, och provisionen är 8 % för alla.
+    expect(PLANS.kreator_guld.retired).toBe(true);
+    expect(PLANS.kreator_premium.retired).toBe(true);
+    expect(PLANS.kreator_guld.price).toBe(0);
+    expect(PLANS.kreator_premium.price).toBe(0);
   });
 
   it('publiknivåerna är avvecklade och kostar noll', () => {
@@ -66,22 +67,18 @@ describe('GRATIS_PLAN', () => {
 });
 
 describe('getPlanList', () => {
-  it('returnerar bara nivåer som går att teckna', () => {
-    // Sex plan-nycklar finns, men de två avvecklade venue-nivåerna ska inte
-    // dyka upp i någon prislista.
-    const plans = getPlanList();
-    expect(plans).toHaveLength(2);
-    expect(plans.every((p) => p.role === 'creator')).toBe(true);
+  it('returnerar inga nivåer alls — allt är avvecklat', () => {
+    // Sex plan-nycklar finns kvar för gamla rader och webhooken, men ingen
+    // av dem går att teckna.
+    expect(getPlanList()).toHaveLength(0);
   });
 
   it('returnerar inga nivåer för publik — de är avvecklade', () => {
     expect(getPlanList('customer')).toHaveLength(0);
   });
 
-  it('returns 2 plans for kreator role', () => {
-    const plans = getPlanList('creator');
-    expect(plans).toHaveLength(2);
-    expect(plans.every((p) => p.role === 'creator')).toBe(true);
+  it('returnerar inga nivåer för kreatörer — avvecklade 2026-11-13', () => {
+    expect(getPlanList('creator')).toHaveLength(0);
   });
 
   it('returnerar inga nivåer för venue — de är avvecklade', () => {
@@ -89,7 +86,7 @@ describe('getPlanList', () => {
   });
 
   it('plan objects include key, name, price, features', () => {
-    const plans = getPlanList('creator');
+    const plans = Object.entries(PLANS).map(([key, p]) => ({ key, ...p }));
     for (const plan of plans) {
       expect(plan).toHaveProperty('key');
       expect(plan).toHaveProperty('name');

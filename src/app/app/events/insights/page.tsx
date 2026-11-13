@@ -2,9 +2,8 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { ArrowLeft, Users, Repeat, UserPlus, CheckCircle2, Download, Radio, Banknote, Percent, CalendarDays } from "lucide-react";
+import { ArrowLeft, Users, Repeat, UserPlus, CheckCircle2, Download, Banknote, Percent, CalendarDays } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useSubscription } from "@/lib/subscription/context";
 
 interface TopReturning {
   name: string;
@@ -48,7 +47,6 @@ function fmtDate(d: string | null) {
 
 export default function InsightsPage() {
   const t = useTranslations("eventInsights");
-  const { tier } = useSubscription();
   const [data, setData] = useState<Insights | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -94,17 +92,6 @@ export default function InsightsPage() {
     URL.revokeObjectURL(url);
   }
 
-  if (tier === "gratis") {
-    return (
-      <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
-        <Radio size={48} className="mb-4 text-[var(--usha-gold)]" />
-        <h2 className="mb-2 text-xl font-bold">{t("premiumFeatureTitle")}</h2>
-        <Link href="/dashboard/billing" className="mt-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-6 py-3 text-sm font-bold text-black">
-          {t("upgrade")}
-        </Link>
-      </div>
-    );
-  }
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">

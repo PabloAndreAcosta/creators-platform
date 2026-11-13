@@ -1,12 +1,12 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { PACK_INCLUDES, type Capability } from "./config";
+import type { Capability } from "./config";
 
-// Paid tiers grant every event capability for free; everyone else unlocks
-// per-event with nycklar (the token alternative to a subscription).
-const TIER_GRANTS_ALL = new Set(["guld", "premium"]);
-
+// En nivå sedan 2026-11-13: Guld och Premium är borta, allt ingår för alla.
+// Nycklarna (per-event-upplåsning med tokens) har därmed inget kvar att låsa
+// upp; koden ligger kvar tills den städas, men ingen grind frågar efter dem.
 export function tierGrants(tier: string | null | undefined): boolean {
-  return TIER_GRANTS_ALL.has((tier || "").toLowerCase());
+  void tier;
+  return true;
 }
 
 /**
@@ -24,23 +24,9 @@ export async function hasCapability(
   cap: Capability,
   listingId?: string | null
 ): Promise<boolean> {
-  const { data: profile } = await admin
-    .from("profiles")
-    .select("tier")
-    .eq("id", profileId)
-    .maybeSingle();
-  if (tierGrants(profile?.tier)) return true;
-
-  const { data: unlocks } = await admin
-    .from("capability_unlocks")
-    .select("capability, scope, listing_id, expires_at")
-    .eq("profile_id", profileId);
-
-  const now = Date.now();
-  return (unlocks ?? []).some((u) => {
-    if (!(PACK_INCLUDES[u.capability] ?? []).includes(cap)) return false;
-    if (u.scope === "event") return !listingId || u.listing_id === listingId;
-    if (u.scope === "period") return !u.expires_at || new Date(u.expires_at).getTime() > now;
-    return false;
-  });
+  void admin;
+  void profileId;
+  void cap;
+  void listingId;
+  return true;
 }

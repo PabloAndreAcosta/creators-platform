@@ -118,16 +118,16 @@ export const APP_DESTINATIONS: AppDestination[] = [
   { path: "/app/calendar", labelKey: "calendarLabel", descKey: "calendarDesc", navLabelKey: "calendar", icon: CalendarDays,
     group: "createSell", roles: "all", surfaces: ["more", "sidebar"] },
   { path: "/app/scan", labelKey: "scanLabel", descKey: "scanDesc", navLabelKey: "scan", icon: ScanLine,
-    group: "createSell", roles: ["creator", "venue"], surfaces: ["more", "sidebar"], minTier: "guld" },
+    group: "createSell", roles: ["creator", "venue"], surfaces: ["more", "sidebar"] },
   // Självinsläpp: plattan i dörren där gästerna skannar sig in själva.
   // Premium-funktion, tänkt för en separat enhet. Hubben har guiden och
   // startknappen; kiosken själv ligger utanför appen (/dorr/[id]).
   { path: "/app/dorr", labelKey: "dorrLabel", descKey: "dorrDesc", navLabelKey: "dorr", icon: DoorOpen,
-    group: "createSell", roles: ["creator", "venue"], surfaces: ["more", "sidebar"], minTier: "premium" },
+    group: "createSell", roles: ["creator", "venue"], surfaces: ["more", "sidebar"] },
   // Avtal med samarbetspartners: medarrangör, uppdrag, lokal. Premium skriver;
   // vem som helst kan läsa och signera det hen fått.
   { path: "/app/avtal", labelKey: "avtalLabel", descKey: "avtalDesc", navLabelKey: "avtal", icon: FileSignature,
-    group: "createSell", roles: ["creator", "venue"], surfaces: ["more", "sidebar"], minTier: "premium" },
+    group: "createSell", roles: ["creator", "venue"], surfaces: ["more", "sidebar"] },
   // Skriv till dem som följer dig. Utskicket fanns bara per kväll, vilket är
   // bakvänt: följaren har sagt ja till avsändaren, väntelistan bara till en
   // kväll. Rutten var byggd men saknade väg in.

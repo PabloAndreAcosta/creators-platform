@@ -17,25 +17,11 @@ import type { Locale } from "@/i18n/config";
  * listan är lika lång som `PLANS[...].features`. Läggs en förmån till i koden
  * faller testet tills sidan och mejlet följt med.
  */
-const BENEFIT_KEYS: Partial<Record<PlanKey, readonly string[]>> = {
-  kreator_guld: [
-    "kreatorGold1",
-    "kreatorGold2",
-    "kreatorGold3",
-    "kreatorGold4",
-    "kreatorGold5",
-    "kreatorGold6",
-  ],
-  kreator_premium: [
-    "kreatorPremium1",
-    "kreatorPremium2",
-    "kreatorPremium3",
-    "kreatorPremium4",
-    "kreatorPremium5",
-    "kreatorPremium6",
-    "kreatorPremium7",
-  ],
-};
+// Tom sedan 2026-11-13: Guld och Premium är avvecklade (en nivå för alla),
+// så det finns ingen nivå att räkna upp förmåner för. Mappningen behålls så
+// att välkomstmejlet och testet inte behöver skrivas om när nyckelarna
+// försvann ur landing.pricing.
+const BENEFIT_KEYS: Partial<Record<PlanKey, readonly string[]>> = {};
 
 /** i18n-nycklarna för en nivå. Exporterad för testet. */
 export function benefitKeys(planKey: string): readonly string[] {

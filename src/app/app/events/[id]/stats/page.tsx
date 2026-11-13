@@ -3,9 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Users, CheckCircle2, Repeat, UserPlus, Download, Radio, Percent, UserX, Banknote, Gauge } from "lucide-react";
+import { ArrowLeft, Users, CheckCircle2, Repeat, UserPlus, Download, Percent, UserX, Banknote, Gauge } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useSubscription } from "@/lib/subscription/context";
 
 interface Attendee {
   name: string;
@@ -43,7 +42,6 @@ function csvEscape(v: string) {
 export default function EventStatsPage() {
   const { id } = useParams<{ id: string }>();
   const t = useTranslations("eventStats");
-  const { tier } = useSubscription();
   const [data, setData] = useState<Stats | null>(null);
   // Vem vi just nu checkar in. Knappen låses medan anropet pågår så att ett
   // dubbelklick inte blir två anrop.
@@ -132,17 +130,6 @@ export default function EventStatsPage() {
     URL.revokeObjectURL(url);
   }
 
-  if (tier === "gratis") {
-    return (
-      <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
-        <Radio size={48} className="mb-4 text-[var(--usha-gold)]" />
-        <h2 className="mb-2 text-xl font-bold">{t("premiumFeatureTitle")}</h2>
-        <Link href="/dashboard/billing" className="mt-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-6 py-3 text-sm font-bold text-black">
-          {t("upgrade")}
-        </Link>
-      </div>
-    );
-  }
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">

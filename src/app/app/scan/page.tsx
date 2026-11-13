@@ -94,8 +94,11 @@ export default function ScanPage() {
   // skannar på värdens nivå (hostPaid från /api/tickets/can-scan).
   // Lokaler skannar utan prenumeration: deras nivåer är avvecklade och går
   // inte att köpa (se lib/scan-host-paid.ts).
-  const paid =
-    tier === "guld" || tier === "premium" || hasActiveSubscription || role === "venue" || (delegated === true && hostPaid);
+  // En nivå sedan 2026-11-13: skanningen är inte längre en betalfunktion.
+  void tier;
+  void hasActiveSubscription;
+  void hostPaid;
+  const paid = true;
   const authorized = role === "creator" || role === "venue" || delegated === true;
   const hasAccess = paid && authorized;
 

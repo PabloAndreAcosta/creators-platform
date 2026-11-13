@@ -53,18 +53,10 @@ export async function getSubscriptionStatus(
 }
 
 /**
- * Server-side guard that throws if the user has a Gratis tier.
- * Use in server actions that require a paid subscription.
+ * Förr: kastade om användaren låg på gratisnivån. Sedan Guld och Premium togs
+ * bort (2026-11-13, en nivå för alla) spärrar den ingenting — den finns kvar
+ * för att anropsställena fortfarande vill ha statusen tillbaka.
  */
 export async function requirePaidSubscription(): Promise<SubscriptionStatus> {
-  const status = await getSubscriptionStatus();
-
-  // During beta everything is unlocked for everyone — don't block gratis users.
-  if (!BETA_MODE && status.tier === "gratis") {
-    throw new Error(
-      "Du behöver en Guld- eller Premium-prenumeration för att göra detta. Uppgradera på /dashboard/billing."
-    );
-  }
-
-  return status;
+  return getSubscriptionStatus();
 }

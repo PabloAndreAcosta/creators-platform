@@ -2,24 +2,21 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { hasVenueCapabilityForListing } from "@/lib/venues/listing-access";
 import { isAdminById } from "@/lib/admin/check";
 
-const PAID_TIERS = new Set(["guld", "premium"]);
-// Account roles that count as creator/experience (both EN + SV spellings exist).
-const PRO_ROLES = new Set(["creator", "creator", "venue", "venue"]);
+// En nivå sedan 2026-11-13: Guld och Premium är borta, allt ingår för alla.
+// Att delegera och ta emot skanning var en Guld-förmån; nu får alla.
 
-/** Only Gold/Premium accounts may delegate ticket scanning to others. */
 export function canDelegateScan(tier: string | null | undefined): boolean {
-  return !!tier && PAID_TIERS.has(tier);
+  void tier;
+  return true;
 }
 
-/**
- * Who may RECEIVE a scan delegation: a paying user (Gold/Premium) or a
- * creator/experience account — not a free public account.
- */
 export function canReceiveScan(
   role: string | null | undefined,
   tier: string | null | undefined
 ): boolean {
-  return (!!role && PRO_ROLES.has(role)) || (!!tier && PAID_TIERS.has(tier));
+  void role;
+  void tier;
+  return true;
 }
 
 /**

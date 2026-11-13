@@ -27,18 +27,8 @@ export async function updateProfile(formData: FormData) {
   // Validate slug: only lowercase letters, numbers, hyphens, underscores
   const slug = rawSlug && /^[a-z0-9_-]+$/.test(rawSlug) ? rawSlug : null;
 
-  // Slug is a Premium-only feature
+  // Egen profiladress ingår för alla sedan 2026-11-13 (en nivå).
   if (slug) {
-    const { data: userProfile } = await supabase
-      .from("profiles")
-      .select("tier")
-      .eq("id", user.id)
-      .single();
-
-    if (!BETA_MODE && userProfile?.tier !== "premium" && userProfile?.tier !== "guld") {
-      return { error: "Egen profiladress kräver Guld- eller Premium-planen." };
-    }
-
     // Check slug uniqueness
     const { data: existing } = await supabase
       .from("profiles")
@@ -79,7 +69,7 @@ export async function updateProfile(formData: FormData) {
   // Organizer purchase terms (köpvillkor) — shown at checkout for their sales.
   const terms_url = (formData.get("terms_url") as string)?.trim() || null;
 
-  // White label fields (Premium only)
+  // White label fields (ingår för alla sedan 2026-11-13)
   const whitelabel_enabled = formData.get("whitelabel_enabled") === "on";
   const whitelabel_brand_name = (formData.get("whitelabel_brand_name") as string)?.trim() || null;
   const whitelabel_logo_url = (formData.get("whitelabel_logo_url") as string)?.trim() || null;

@@ -35,6 +35,7 @@ import { FavoriteButton } from "@/components/favorite-button";
 import { BuyTicketCta } from "@/components/buy-ticket-cta";
 import { SearchBar } from "@/components/search-bar";
 import { GatedAction } from "@/components/subscription/GatedAction";
+import { COMMISSION_RATES } from "@/lib/stripe/commission";
 import { Feed } from "@/components/feed/feed";
 import { CreatePostForm } from "@/components/feed/create-post-form";
 import { useTranslations } from "next-intl";
@@ -200,8 +201,6 @@ function PublikHome({
     { label: tc("messages"), href: "/app/messages", icon: MessageCircle },
     { label: t("qaDiscoverCreators"), href: "/marketplace", icon: Compass },
   ];
-  const isGuld = tier === "guld" || tier === "premium";
-  const isPremium = tier === "premium";
   const eventImages = [
     "https://images.unsplash.com/photo-1504609813442-a8924e83f76e?w=600&h=400&fit=crop",
     "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&h=400&fit=crop",
@@ -594,9 +593,13 @@ function KreatorHome({
   const t = useTranslations("home");
   const tc = useTranslations("common");
   const tr = useTranslations("roles");
-  const isPremium = tier === "premium";
-  const isGuld = tier === "guld";
-  const commission = isPremium ? 3 : isGuld ? 8 : 15;
+  // En nivå sedan 2026-11-13: alla får den fullaste vyn (den som förr hette
+  // Premium) och betalar samma provision. Flaggorna ligger kvar tills de två
+  // enklare layouterna städats bort; de nås inte längre.
+  void tier;
+  const isPremium = true;
+  const isGuld = true;
+  const commission = Math.round(COMMISSION_RATES.gratis * 100);
 
   // Egna listningar, de tre närmaste. Raden renderas av OwnListingRow — den
   // fick tidigare en tillplattad kopia utan bild, pris eller status, vilket var
@@ -662,7 +665,7 @@ function KreatorHome({
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-lg font-bold">{profile?.full_name || tr("creator")}</h1>
-            <p className="text-[11px] text-[var(--usha-muted)]">Premium · {t("commission", { commission })}</p>
+            <p className="text-[11px] text-[var(--usha-muted)]">{t("commission", { commission })}</p>
           </div>
           <Link
             href="/app/calendar"
@@ -971,9 +974,13 @@ function UpplevelseHome({
   const t = useTranslations("home");
   const tc = useTranslations("common");
   const tr = useTranslations("roles");
-  const isPremium = tier === "premium";
-  const isGuld = tier === "guld";
-  const commission = isPremium ? 3 : isGuld ? 8 : 15;
+  // En nivå sedan 2026-11-13: alla får den fullaste vyn (den som förr hette
+  // Premium) och betalar samma provision. Flaggorna ligger kvar tills de två
+  // enklare layouterna städats bort; de nås inte längre.
+  void tier;
+  const isPremium = true;
+  const isGuld = true;
+  const commission = Math.round(COMMISSION_RATES.gratis * 100);
 
   // The venue's OWN events (dedicated query), not the global feed.
   const activeEvents = ownServices.filter((l) => l.is_active);
@@ -1040,7 +1047,7 @@ function UpplevelseHome({
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-lg font-bold">{profile?.full_name || tr("venue")}</h1>
-            <p className="text-[11px] text-[var(--usha-muted)]">Premium · {t("commission", { commission })}</p>
+            <p className="text-[11px] text-[var(--usha-muted)]">{t("commission", { commission })}</p>
           </div>
           <Link
             href="/app/scan"

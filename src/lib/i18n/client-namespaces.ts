@@ -62,8 +62,8 @@ export const APP_NAMESPACES = [
 export const DASHBOARD_NAMESPACES = [
   "a11y", "adminPage", "adminPromoForm", "adminPromoTable", "analytics",
   "bankidToast", "billingConnect", "bookingCalendar", "bookingsPage",
-  "breakEven", "categories", "checkoutButton", "common", "companyVerify",
-  "creatorProfile", "dashProfile", "gigApplicationActions", "gigForm",
+  "categories", "common", "companyVerify",
+  "dashProfile", "gigApplicationActions", "gigForm",
   "listingCard", "listingForm", "listingsPage", "payouts", "promoCodes",
   "redeemMinutes", "reviewForm",
 ] as const;
