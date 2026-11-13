@@ -98,7 +98,7 @@ export async function POST(
 
     const { data: creator } = await admin
       .from("profiles")
-      .select("stripe_account_id, tier, company_verified_at")
+      .select("stripe_account_id, tier, company_verified_at, is_usha_owned_seller")
       .eq("id", listing.user_id)
       .maybeSingle();
 
@@ -110,7 +110,8 @@ export async function POST(
     }
 
     const amountInOre = Math.round(codeRow.discount_price * 100);
-    const applicationFee = platformCommissionOre(amountInOre, 1);
+    // Ushas egna arrangemang bär ingen provision mot sig själva.
+    const applicationFee = creator.is_usha_owned_seller ? 0 : platformCommissionOre(amountInOre, 1);
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";
     const stripeLocale = await getStripeLocale();
 

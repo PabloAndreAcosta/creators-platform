@@ -31,7 +31,6 @@ import {
   Building2,
   Ticket,
   Crown,
-  Trophy,
   Gift,
   Link2,
   Lock,
@@ -226,8 +225,6 @@ export function ProfileContent({
       {/* Settings list */}
       <div className="space-y-1 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] overflow-hidden">
         <SettingsRow icon={Gift} label={t("partner")} href="/app/partner" />
-        <SettingsRow icon={Trophy} label={t("leaderboard")} href="/app/leaderboard" />
-        <SettingsRow icon={Gift} label={t("rewards")} href="/app/rewards" />
         {profile && (
           <SettingsRow
             icon={Eye}

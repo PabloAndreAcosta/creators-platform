@@ -149,7 +149,9 @@ export async function POST(req: NextRequest) {
       (creator as { creator_subcategory?: string | null }).creator_subcategory ?? null,
     );
     const amountOre = finalPrice * 100;
-    const applicationFee = platformCommissionOre(amountOre, 1);
+    // Ushas egna arrangemang (usha_principal) bär ingen provision: pengarna är
+    // redan Ushas, och en avgift mot sig själv hade bara skräpat ner avräkningen.
+    const applicationFee = flow === "usha_principal" ? 0 : platformCommissionOre(amountOre, 1);
 
     const customText = buildTermsCustomText(creator.terms_url);
     const paymentIntentData = buildConnectPaymentIntentData({
