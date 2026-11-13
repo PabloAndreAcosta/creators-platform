@@ -1,58 +1,14 @@
-import { NextRequest, NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe/client";
-import { createClient } from "@/lib/supabase/server";
-import { getPackage } from "@/lib/tokens/config";
-import { rateLimit, getRateLimitKey } from "@/lib/rate-limit";
+import { NextResponse } from "next/server";
 
 /**
- * POST /api/tokens/checkout — buy a "nyckel" package.
- *
- * One-time platform charge (no Connect transfer) — and that is correct, NOT a
- * §1.1 violation: "nycklar" are Usha's OWN product (credits to unlock features on
- * the buyer's own events, see /api/tokens/unlock). The full amount is therefore
- * Usha's revenue, like a subscription. No third-party seller's gross passes
- * through Usha here, so no destination charge / beta-gate applies. The webhook
- * credits the token_ledger on checkout.session.completed (type=token_purchase).
+ * Nycklar (tokens för att låsa upp verktyg per event) säljs inte längre.
+ * Sedan en nivå (2026-11-13) ingår allt, så det finns inget att låsa upp.
+ * Routen ligger kvar så att en gammal klient får ett tydligt svar i stället
+ * för 404. Saldon i token_ledger rörs inte.
  */
-export async function POST(req: NextRequest) {
-  const rl = rateLimit(getRateLimitKey(req, "tokens-checkout"), 10, 60_000);
-  if (!rl.allowed) return NextResponse.json({ error: "rate_limited" }, { status: 429 });
-
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-
-  const { packageId } = await req.json().catch(() => ({}));
-  const pkg = getPackage(packageId);
-  if (!pkg) return NextResponse.json({ error: "invalid_package" }, { status: 400 });
-
-  try {
-    const session = await stripe.checkout.sessions.create({
-      customer_email: user.email,
-      mode: "payment",
-      line_items: [
-        {
-          price_data: {
-            currency: "sek",
-            product_data: { name: `${pkg.tokens} nycklar` },
-            unit_amount: pkg.priceSek * 100,
-          },
-          quantity: 1,
-        },
-      ],
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/app/settings?nycklar=success`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/app/settings`,
-      metadata: {
-        type: "token_purchase",
-        userId: user.id,
-        packageId: pkg.id,
-        tokens: String(pkg.tokens),
-      },
-    });
-
-    return NextResponse.json({ url: session.url });
-  } catch (error) {
-    console.error("Token checkout error:", error);
-    return NextResponse.json({ error: "checkout_failed" }, { status: 500 });
-  }
+export async function POST() {
+  return NextResponse.json(
+    { error: "tokens_retired", message: "Nycklar säljs inte längre – allt ingår." },
+    { status: 410 },
+  );
 }

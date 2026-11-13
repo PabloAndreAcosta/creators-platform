@@ -12,7 +12,7 @@ import {
 // "Nyhet" är reserverat för det som FAKTISKT är nytt. Crew och gage bar märket
 // sedan i juni; ett nyhetsmärke som aldrig går ut slutar betyda något, så det
 // sitter nu på lokalteam och lokalsidan i stället.
-type Item = { key: string; icon: LucideIcon; isNew?: boolean; tier?: "guld" };
+type Item = { key: string; icon: LucideIcon; isNew?: boolean };
 
 // BORTTAGET UR HERON 2026-10-06: "Betala ditt crew" (gage).
 //
@@ -39,8 +39,8 @@ const GROUPS: { heading: string; items: Item[] }[] = [
     items: [
       { key: "venueTeam", icon: KeyRound, isNew: true },
       { key: "crew", icon: Users },
-      { key: "delegateScan", icon: ScanLine, tier: "guld" },
-      { key: "live", icon: Radio, tier: "guld" },
+      { key: "delegateScan", icon: ScanLine },
+      { key: "live", icon: Radio },
     ],
   },
   // Det här blocket är skälet att stanna, inte bara att prova: fyra sätt att
@@ -98,14 +98,6 @@ export function Features() {
               {f.isNew && (
                 <span className="absolute right-3 top-3 rounded-full bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-black">
                   {t("features.newBadge")}
-                </span>
-              )}
-              {/* Kräver Guld. Att visa funktionen utan att säga det vore att
-                  sälja den två gånger — en gång som allmän förmån och en gång
-                  i prislistan. */}
-              {f.tier === "guld" && !f.isNew && (
-                <span className="absolute right-3 top-3 rounded-full border border-[var(--usha-gold)]/40 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[var(--usha-gold)]">
-                  {t("features.goldBadge")}
                 </span>
               )}
               <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--usha-gold)]/20 to-[var(--usha-accent)]/20">

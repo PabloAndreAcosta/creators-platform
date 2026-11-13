@@ -1,5 +1,3 @@
-import { DISCOUNT_RATES } from '@/lib/stripe/commission';
-
 /**
  * Returns the flat discount percentage (as a decimal 0–0.20) based on
  * the user's membership tier.
@@ -8,8 +6,9 @@ import { DISCOUNT_RATES } from '@/lib/stripe/commission';
 export function getDiscountPercentage(
   userTier: string | null
 ): number {
-  if (!userTier || userTier === 'gratis') return 0;
-  return DISCOUNT_RATES[userTier as 'guld' | 'premium'] ?? 0;
+  // Inga medlemsrabatter sedan en nivå (2026-11-13).
+  void userTier;
+  return 0;
 }
 
 /**

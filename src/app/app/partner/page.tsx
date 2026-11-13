@@ -6,7 +6,7 @@ import { Gift, MousePointerClick, UserPlus, Ticket, Coins, Crown } from "lucide-
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ensureReferralCode } from "@/lib/affiliate/attribution";
-import { summarizeRewards, COMMISSION_SHARE, FIRST_PURCHASE_CREDIT_ORE, PREMIUM_DAYS_PER_CREATOR } from "@/lib/affiliate/rewards";
+import { summarizeRewards, COMMISSION_SHARE, FIRST_PURCHASE_CREDIT_ORE, } from "@/lib/affiliate/rewards";
 import { PartnerLinkCard } from "./partner-link-card";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -51,7 +51,6 @@ export default async function PartnerPage() {
     { icon: Ticket, label: t("statPurchases"), value: String(purchases ?? 0) },
     { icon: Coins, label: t("statEarned"), value: t("kr", { amount: kr(sum.earnedOre) }) },
     { icon: Coins, label: t("statPaid"), value: t("kr", { amount: kr(sum.paidOre) }) },
-    { icon: Crown, label: t("statPremium"), value: t("days", { count: sum.premiumDays }) },
   ];
 
   return (
@@ -92,7 +91,6 @@ export default async function PartnerPage() {
         <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--usha-muted)]">{t("termsHeading")}</h2>
         <ul className="mt-3 space-y-2 text-sm">
           <li>• {t("terms1", { share: Math.round(COMMISSION_SHARE * 100) })}</li>
-          <li>• {t("terms2", { days: PREMIUM_DAYS_PER_CREATOR })}</li>
           <li>• {t("terms3", { amount: kr(FIRST_PURCHASE_CREDIT_ORE) })}</li>
           <li>• {t("terms4")}</li>
           <li>• {t("terms5")}</li>
@@ -115,7 +113,7 @@ export default async function PartnerPage() {
                   </p>
                 </div>
                 <p className="shrink-0 font-semibold tabular-nums">
-                  {r.kind === "premium_days" ? t("days", { count: r.premium_days }) : t("kr", { amount: kr(r.amount_ore) })}
+                  {t("kr", { amount: kr(r.amount_ore) })}
                 </p>
               </li>
             ))}

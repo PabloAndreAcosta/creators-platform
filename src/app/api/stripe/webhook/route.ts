@@ -12,7 +12,6 @@ import { PLANS, type PlanKey } from "@/lib/stripe/config";
 import { sendBookingConfirmationEmail } from "@/lib/email/send-booking";
 import { sendSubscriptionWelcomeEmail } from "@/lib/email/send-welcome";
 import { recordRefundDebt } from "@/lib/payouts/record-debt";
-import { sendTrialEndingEmail as sendTrialEndingEmailService } from "@/lib/email/send-trial-ending";
 import { createNotification } from "@/lib/notifications/create";
 import { notifyOwnerTicketSold, notifyOwnerSoldOut } from "@/lib/notifications/event-owner";
 import { clampQuantity, createTicketAttendees, attendeeNamesFromMeta } from "@/lib/tickets/attendees";
@@ -856,26 +855,8 @@ export async function POST(req: NextRequest) {
         break;
       }
 
-      case "customer.subscription.trial_will_end": {
-        // Stripe sends this 3 days before trial ends
-        const trialSub = event.data.object as Stripe.Subscription;
-
-        const { data: trialSubRecord } = await getSupabaseAdmin()
-          .from("subscriptions")
-          .select("user_id, plan")
-          .eq("stripe_subscription_id", trialSub.id)
-          .single();
-
-        if (trialSubRecord) {
-          sendTrialEndingEmail(
-            getSupabaseAdmin(),
-            trialSubRecord.user_id,
-            trialSub.trial_end ? new Date(trialSub.trial_end * 1000) : new Date(),
-            3
-          ).catch(err => console.error("Trial ending email failed:", err));
-        }
-        break;
-      }
+      // customer.subscription.trial_will_end hanteras inte längre: inga
+      // provperioder sedan en nivå (2026-11-13).
 
       case "customer.subscription.deleted": {
         const subscription = event.data.object as Stripe.Subscription;
@@ -1263,29 +1244,6 @@ async function sendWelcomeForPlan(
         ? subscription.current_period_end * 1000
         : subscription.current_period_end
     ),
-    memberId: userId,
-  });
-}
-
-async function sendTrialEndingEmail(
-  admin: ReturnType<typeof getSupabaseAdmin>,
-  userId: string,
-  trialEndDate: Date,
-  daysLeft: number,
-) {
-  const { data: profile } = await admin
-    .from("profiles")
-    .select("email, full_name")
-    .eq("id", userId)
-    .single();
-
-  if (!profile?.email) return;
-
-  await sendTrialEndingEmailService({
-    to: profile.email,
-    memberName: profile.full_name || "Medlem",
-    trialEndDate,
-    daysLeft,
     memberId: userId,
   });
 }

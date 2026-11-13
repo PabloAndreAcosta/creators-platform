@@ -75,13 +75,12 @@ export default async function AdminPartnersPage({
         <div className="mb-6 rounded-xl border border-green-500/20 bg-green-500/10 px-4 py-3 text-sm font-medium text-green-400">{notices[notice]}</div>
       )}
 
-      <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-5">
+      <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
           [t("pending"), kr(totals.pending)],
           [t("approved"), kr(totals.approved)],
           [t("paid"), kr(totals.paid)],
           [t("void"), kr(totals.void)],
-          [t("premiumDays"), String(totals.premiumDays)],
         ].map(([label, value]) => (
           <div key={label} className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
             <p className="text-xs text-[var(--usha-muted)]">{label}</p>
@@ -128,7 +127,7 @@ export default async function AdminPartnersPage({
                 <td className="px-4 py-2 whitespace-nowrap">{new Date(r.created_at).toLocaleDateString("sv-SE")}</td>
                 <td className="px-4 py-2">{name(r.partner)}</td>
                 <td className="px-4 py-2">{t(`kind_${r.kind}`)}</td>
-                <td className="px-4 py-2 text-right tabular-nums">{r.kind === "premium_days" ? `${r.premium_days} d` : kr(r.amount_ore)}</td>
+                <td className="px-4 py-2 text-right tabular-nums">{kr(r.amount_ore)}</td>
                 <td className="px-4 py-2">{t(`status_${r.status}`)}</td>
                 <td className="px-4 py-2 text-right whitespace-nowrap">
                   {r.status === "pending" && r.kind === "commission_share" && (

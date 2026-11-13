@@ -8,7 +8,6 @@ export const COMMISSION_SHARE = 0.3;
 /** Ushas egna event bär ingen provision – 10 % av biljettpriset räknas som Ushas intäkt. */
 export const PRINCIPAL_REVENUE_RATE = 0.1;
 export const FIRST_PURCHASE_CREDIT_ORE = 5000;
-export const PREMIUM_DAYS_PER_CREATOR = 30;
 
 export type PayeeFlowLike = "third_party" | "usha_principal" | string | null | undefined;
 

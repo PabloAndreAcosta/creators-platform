@@ -64,20 +64,10 @@ export async function applyPendingRewards(admin: SupabaseClient, now: Date = new
         await admin.from("affiliate_rewards").update({ status: "paid", paid_at: now.toISOString(), payout_ref: "credit_ledger" }).eq("id", rw.id);
         r.credited++;
       }
-    } else if (rw.kind === "premium_days" && rw.premium_days > 0) {
-      const { data: profile } = await admin.from("profiles").select("tier").eq("id", rw.profile_id).maybeSingle();
-      const ends = new Date(now.getTime() + rw.premium_days * DAY_MS).toISOString();
-      const { error } = await admin
-        .from("premium_grants")
-        .upsert(
-          { profile_id: rw.profile_id, days: rw.premium_days, source: "affiliate", ref: rw.ref, starts_at: now.toISOString(), ends_at: ends, tier_before: profile?.tier ?? "gratis" },
-          { onConflict: "ref", ignoreDuplicates: true }
-        );
-      if (!error) {
-        if (profile?.tier !== "premium") await admin.from("profiles").update({ tier: "premium" }).eq("id", rw.profile_id);
-        await admin.from("affiliate_rewards").update({ status: "paid", paid_at: now.toISOString(), payout_ref: "premium_grant" }).eq("id", rw.id);
-        r.premiumApplied++;
-      }
+    } else if (rw.kind === "premium_days") {
+      // Premium-tid finns inte längre (en nivå sedan 2026-11-13). En gammal
+      // rad av den sorten stängs som void i stället för att dela ut något.
+      await admin.from("affiliate_rewards").update({ status: "void" }).eq("id", rw.id);
     } else if (rw.kind === "commission_share") {
       if (now.getTime() - new Date(rw.created_at).getTime() >= APPROVAL_DELAY_DAYS * DAY_MS) {
         await admin.from("affiliate_rewards").update({ status: "approved" }).eq("id", rw.id).eq("status", "pending");
@@ -86,33 +76,6 @@ export async function applyPendingRewards(admin: SupabaseClient, now: Date = new
     }
   }
 
-  // Premium som gått ut: tillbaka till nivån innan, om inget abonnemang tagit över.
-  const { data: expiredGrants } = await admin
-    .from("premium_grants")
-    .select("id, profile_id, tier_before")
-    .is("reverted_at", null)
-    .lt("ends_at", now.toISOString())
-    .limit(200);
-  for (const g of expiredGrants ?? []) {
-    const { data: stillActive } = await admin
-      .from("premium_grants")
-      .select("id")
-      .eq("profile_id", g.profile_id)
-      .is("reverted_at", null)
-      .gte("ends_at", now.toISOString())
-      .limit(1);
-    const { data: sub } = await admin
-      .from("subscriptions")
-      .select("id")
-      .eq("user_id", g.profile_id)
-      .in("status", ["active", "trialing"])
-      .limit(1);
-    if (!(stillActive ?? []).length && !(sub ?? []).length) {
-      await admin.from("profiles").update({ tier: g.tier_before ?? "gratis" }).eq("id", g.profile_id);
-    }
-    await admin.from("premium_grants").update({ reverted_at: now.toISOString() }).eq("id", g.id);
-    r.expired++;
-  }
   return r;
 }
 
