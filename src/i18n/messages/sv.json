@@ -605,6 +605,7 @@
       "forAudience": "Publik",
       "shop": "Shop",
       "sellTickets": "Sälj biljetter",
+      "compare": "Jämför biljettbolag",
       "homeAriaLabel": "Usha Platform – hem",
       "calendar": "Kalender"
     },
@@ -5285,5 +5286,125 @@
     "recentHeading": "Senast hanterade",
     "statusConfirmed": "Bekräftad",
     "statusRejected": "Avvisad"
+  },
+  "compare": {
+    "metaTitle": "Usha jämfört med Tickster och Billetto – avgifter och funktioner",
+    "metaDescription": "Avgifter, betalsätt, incheckning, klippkort och BankID sida vid sida, hämtat från bolagens egna sidor med datum. Och när Usha inte passar.",
+    "ogTitle": "Usha jämfört med Tickster och Billetto",
+    "badge": "Jämförelse",
+    "heroTitle": "Usha jämfört med Tickster och Billetto",
+    "heroBody": "Den som ska välja biljettbolag ska inte behöva leta själv. Här står vi bredvid två av de vanligaste i Sverige, rad för rad. Allt om dem är hämtat från deras egna publika sidor, och vi säger lika tydligt när Usha inte är rätt val.",
+    "checkedDate": "13 november 2026",
+    "tableNote": "Uppgifterna om Tickster och Billetto är avskrivna från deras publika sidor den {date}. Hittar du något som inte stämmer, skriv till oss så rättar vi.",
+    "row": {
+      "buyerFee": {
+        "label": "Avgift som köparen betalar",
+        "usha": "Ingen. Köparen betalar biljettpriset.",
+        "tickster": "Bestäms per arrangör: per biljett, per köp eller ingen alls. Ingen publik taxa. I ett aktuellt exempel 30 kr på en biljett för 259 kr.",
+        "billetto": "3,99 % + 7,99 kr per biljett exklusive moms, inget tak angivet. Arrangören kan välja att bära avgiften själv."
+      },
+      "organiserFee": {
+        "label": "Avgift som arrangören betalar",
+        "usha": "8 % av varje såld biljett. 5 % på Guld, 3 % på Premium.",
+        "tickster": "Rörlig kostnad per såld biljett, pris på offert. Inga fasta kostnader, utom hyra av hårdvara.",
+        "billetto": "Ingen utöver köparens avgift. Swish kostar arrangören 5 kr per order exklusive moms."
+      },
+      "freeEvents": {
+        "label": "Gratis event",
+        "usha": "0 kr, alltid.",
+        "tickster": "Säljer du inget kostar det inget, enligt deras sida. Någon egen regel för gratis event hittar vi inte.",
+        "billetto": "Går att lägga upp, men köparen betalar en plattformsavgift vars belopp inte anges."
+      },
+      "monthly": {
+        "label": "Fast kostnad",
+        "usha": "Ingen. Guld och Premium är frivilliga abonnemang för lägre provision och fler verktyg.",
+        "tickster": "Inga fasta kostnader, enligt deras prissida.",
+        "billetto": "Ingen månadsavgift, ingen startkostnad."
+      },
+      "payment": {
+        "label": "Betalsätt för köparen",
+        "usha": "Kort, Apple Pay och Google Pay. Klarna från 1 000 kr. Swish på kvällar som Usha själv arrangerar.",
+        "tickster": "Kort, Swish, kreditfaktura, delbetalning och förskottsfaktura.",
+        "billetto": "Kort, Apple Pay, Google Pay, Swish, Klarna, PayPal och e-faktura, när arrangören aktiverat dem."
+      },
+      "payout": {
+        "label": "Utbetalning",
+        "usha": "Pengarna landar på ditt eget Stripe-konto vid köpet och går vidare till banken enligt Stripes schema.",
+        "tickster": "Ingen publik uppgift.",
+        "billetto": "3–5 arbetsdagar efter eventet. Kortköp löpande via Stripe Connect; Swish och PayPal efter eventet."
+      },
+      "door": {
+        "label": "Incheckning i dörren",
+        "usha": "Ingår. QR-biljett på mejl, skanning med vilken telefon som helst, och du kan ge andra rätt att skanna.",
+        "tickster": "Egen arrangörsapp som skannar QR med telefonen, plus skanningsutrustning för större insläpp.",
+        "billetto": "App för iOS och Android som skannar QR och visar gästlista, med försäljning i dörren."
+      },
+      "kiosk": {
+        "label": "Självinsläpp",
+        "usha": "Ja. En platta i dörren där gästen skannar sig själv, utan personal. Ingår i Premium.",
+        "tickster": "Ingen uppgift på deras sidor.",
+        "billetto": "Ingen uppgift på deras sidor."
+      },
+      "passes": {
+        "label": "Klippkort och säsongskort",
+        "usha": "Klippkort med giltighetstid och ett klipp per kväll, även på en hel serie.",
+        "tickster": "Säsongs- och årskort, biljettpotter och poäng. Klippkort nämns inte.",
+        "billetto": "Medlemskap per månad eller år och säsongskort. Biljettpaket ger separata biljetter. Klippkort nämns inte."
+      },
+      "venueShare": {
+        "label": "Delning med lokalen",
+        "usha": "Räknas ut per kväll, med underlag som går att exportera.",
+        "tickster": "Ingen uppgift.",
+        "billetto": "Ingen uppgift."
+      },
+      "bankid": {
+        "label": "BankID",
+        "usha": "Logga in och skapa konto med Mobilt BankID, utan lösenord. Ålderskontroll där det krävs.",
+        "tickster": "Konto skapas via e-post. BankID bara som bankens kontroll vid betalning. Legitimation visas i dörren.",
+        "billetto": "E-post, Facebook eller Google för arrangören. Köparen kan handla utan konto. Ingen BankID."
+      },
+      "marketing": {
+        "label": "Nå publiken",
+        "usha": "Egen sida för varje event och kreatör, publik kalender och följare med e-post. Inga SMS.",
+        "tickster": "E-post och SMS till köpare, målgrupper och eventsök över hela Sverige.",
+        "billetto": "E-post och SMS, marknadsplats och följare som blir kontakter. Annonsering är på som standard och kostar 33 % på biljetter den driver."
+      },
+      "fitFor": {
+        "label": "Passar bäst för",
+        "usha": "Återkommande kvällar, kurser och små lokaler där samma gäster kommer tillbaka.",
+        "tickster": "Festivaler, kultur, arenor och större lokaler. Kontakt med säljare för att komma igång.",
+        "billetto": "Självbetjäning för alla, även privatpersoner. Två nivåer, under och över 1 000 biljetter per år."
+      }
+    },
+    "fitTitle": "När Usha passar",
+    "fit1": "Återkommande kvällar, kurser och serier där samma gäster kommer tillbaka och ett klippkort gör skillnad.",
+    "fit2": "Små och medelstora lokaler som vill ha delningen med arrangören uträknad per kväll.",
+    "fit3": "Den som vill att gästerna checkar in sig själva i dörren, utan personal.",
+    "fit4": "Kreatörer som vill börja ikväll, utan säljmöte eller månadsavgift.",
+    "notFitTitle": "När Usha inte passar",
+    "notFit1": "Festivaler och arenor med tiotusentals biljetter och hårdvara i insläppet.",
+    "notFit2": "Om du behöver Swish på dina egna event redan nu. Swish finns idag bara på kvällar som Usha själv arrangerar.",
+    "notFit3": "Om du vill nå köparna med SMS, eller behöver faktura och delbetalning i kassan.",
+    "notFit4": "Om din publik redan hittar dig på Ticksters eller Billettos marknadsplats och det är där köpen sker.",
+    "notFitFootnote": "Vi säger hellre det här än att du upptäcker det efter första kvällen.",
+    "faqTitle": "Vanliga frågor",
+    "faq1Q": "Vad kostar det att sälja biljetter på Usha?",
+    "faq1A": "8 % av varje såld biljett, 5 % på Guld och 3 % på Premium. Gratis event kostar inget och det finns ingen månadsavgift för att sälja. Köparen betalar bara biljettpriset.",
+    "faq2Q": "Tar Usha någon avgift av köparen?",
+    "faq2A": "Nej, inte idag. Ändrar vi det kommer det att stå här och i kassan innan köpet.",
+    "faq3Q": "Varför jämför ni er med Tickster och Billetto?",
+    "faq3A": "För att det är dem de flesta frågar om. Vi skriver av deras publika sidor och anger datum, så att du kan kontrollera själv. Hittar du ett fel rättar vi det.",
+    "faq4Q": "Kan jag flytta mina event från Tickster eller Billetto till Usha?",
+    "faq4A": "Ja. Lägg upp eventet hos oss och dela länken, så köper gästerna här. Biljetter som redan sålts hos det gamla bolaget gäller där; kommande kvällar säljer du här.",
+    "sourcesTitle": "Källor",
+    "sourcesBody": "Lästa den {date}. Tickster publicerar inga belopp; deras avgift sätts per arrangör. Billetto publicerar sin prislista.",
+    "sources": {
+      "tickster": "Tickster",
+      "billetto": "Billetto"
+    },
+    "ctaTitle": "Prova med nästa kväll",
+    "ctaBody": "Skapa ett konto med Mobilt BankID, lägg upp eventet och dela länken. Det kostar inget förrän du sålt något.",
+    "ctaPrimary": "Kom igång gratis",
+    "ctaSecondary": "Så fungerar biljettförsäljningen"
   }
 }

@@ -74,6 +74,7 @@ En kreatör är inte bara en dansare. Det är alla som har något att lära ut e
 - [För platser](${BAS}/for-platser): för lokaler som vill ha ett program.
 - [För publik](${BAS}/for-publik): för den som vill gå på saker.
 - [Om Usha](${BAS}/om): bakgrund och vilka vi är.
+- [Usha jämfört med Tickster och Billetto](${BAS}/jamfor): avgifter, betalsätt, incheckning, klippkort och BankID sida vid sida, med källor och datum. Säger också när Usha inte passar.
 - [The Lab](${BAS}/series/the-lab-torsdag): Ushas egen practica i tarraxo och urban kizomba, varje torsdag 17–23 på Bacchi Syre, Järntorgsgatan 5 i Gamla stan, Stockholm. Teknikträning med instruktör på plats, socialdans tillåten, öppen nivå, ingen egen partner behövs. 130 kr för hela kvällen eller klippkort. Nästa kväll: ${BAS}/event/the-lab-torsdag.
 - [Instruktörer](${BAS}/instruktorer): kreatörer som undervisar, coachar eller tränar andra, med pris och format.
 - [Bli taxidansare](${BAS}/taxi): dansa som volontär på The Lab, med fri entré och matkupong. Kräver Mobilt BankID och 18 år.
