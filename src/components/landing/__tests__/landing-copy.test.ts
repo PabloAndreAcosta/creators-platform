@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "fs";
 import { join } from "path";
-import { COMMISSION_RATES } from "@/lib/stripe/commission";
+import { COMMISSION_RATES, PLATFORM_COMMISSION } from "@/lib/stripe/commission";
 import { PLANS, getPlanList } from "@/lib/stripe/config";
 
 /**
@@ -38,7 +38,8 @@ function varden(root: unknown, vag: string): string[] {
 }
 
 /** Procenttal tål både "8 %" och "8%", och engelskans/spanskans varianter. */
-const procent = (n: number) => new RegExp(`\\b${n}\\s?%`);
+// Flyttal: 0.035 * 100 blir 3.5000000000000004, så talet avrundas först.
+const procent = (n: number) => new RegExp(`\\b${Number(n.toFixed(2))}\\s?%`);
 
 describe("prisrutorna på landningssidan", () => {
   it("innehåller inga nycklar för avvecklade nivåer", () => {
@@ -73,20 +74,17 @@ describe("prisrutorna på landningssidan", () => {
 });
 
 describe("biljettsidan", () => {
-  it("prissätter provisionen, inte den avstängda serviceavgiften", () => {
-    // NEXT_PUBLIC_TICKET_SERVICE_FEE_ENABLED är inte satt i produktion, så
-    // serviceavgiften har aldrig tagits ut. Att ändå skylta med den som pris
-    // var det enskilt farligaste påståendet på sajten.
-    const avgiftPa = process.env.NEXT_PUBLIC_TICKET_SERVICE_FEE_ENABLED === "true";
-    if (avgiftPa) return;
-    expect(varden(msgs.sv, "sellTickets.pricingAmount").join(" ")).toMatch(
-      procent(COMMISSION_RATES.gratis * 100)
-    );
+  it("prissätter provisionen med både procent och fast del", () => {
+    // Sedan 2026-11-13: 3,5 % + 3,50 kr per biljett. Serviceavgiften för
+    // köparen är arrangörens val per event och får nämnas som just det —
+    // men priset som skyltas är provisionen.
+    const pris = varden(msgs.sv, "sellTickets.pricingAmount").join(" ");
+    expect(pris).toMatch(procent(PLATFORM_COMMISSION.rate * 100));
+    expect(pris).toContain((PLATFORM_COMMISSION.fixedOre / 100).toLocaleString("sv-SE", { minimumFractionDigits: 2 }));
+    // Och den gamla platta satsen ska inte stå kvar någonstans på sidan.
     for (const l of LOCALES) {
-      const text = varden(msgs[l], "sellTickets").join(" ").toLowerCase();
-      for (const ord of ["serviceavgift", "service fee", "tarifa de servicio"]) {
-        expect(text, `${l}.json nämner ${ord}`).not.toContain(ord);
-      }
+      const text = varden(msgs[l], "sellTickets").join(" ");
+      expect(text, `${l}.json`).not.toMatch(/\b8\s?%/);
     }
   });
 

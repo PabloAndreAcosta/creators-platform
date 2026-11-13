@@ -131,8 +131,9 @@ export default function EventForm({
   const [isPractica, setIsPractica] = useState(event?.is_practica ?? false);
   const [unlisted, setUnlisted] = useState(event?.is_public === false);
   // Tickster-style service fee: organizer chooses who pays Usha's per-ticket fee.
+  // Standard är "absorb": ingen avgift för köparen om arrangören inte valt det.
   const [serviceFeeMode, setServiceFeeMode] = useState<"buyer" | "absorb">(
-    event?.service_fee_mode === "absorb" ? "absorb" : "buyer"
+    event?.service_fee_mode === "buyer" ? "buyer" : "absorb"
   );
   // Ticket types (price tiers). Empty = single-price event (unchanged behaviour).
   const [types, setTypes] = useState<{ id?: string; name: string; price: string; capacity: string; pools: string }[]>(

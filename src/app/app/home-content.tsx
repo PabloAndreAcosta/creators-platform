@@ -35,7 +35,7 @@ import { FavoriteButton } from "@/components/favorite-button";
 import { BuyTicketCta } from "@/components/buy-ticket-cta";
 import { SearchBar } from "@/components/search-bar";
 import { GatedAction } from "@/components/subscription/GatedAction";
-import { COMMISSION_RATES } from "@/lib/stripe/commission";
+import { commissionLabel } from "@/lib/stripe/commission";
 import { Feed } from "@/components/feed/feed";
 import { CreatePostForm } from "@/components/feed/create-post-form";
 import { useTranslations } from "next-intl";
@@ -599,7 +599,7 @@ function KreatorHome({
   void tier;
   const isPremium = true;
   const isGuld = true;
-  const commission = Math.round(COMMISSION_RATES.gratis * 100);
+  const commission = commissionLabel();
 
   // Egna listningar, de tre närmaste. Raden renderas av OwnListingRow — den
   // fick tidigare en tillplattad kopia utan bild, pris eller status, vilket var
@@ -980,7 +980,7 @@ function UpplevelseHome({
   void tier;
   const isPremium = true;
   const isGuld = true;
-  const commission = Math.round(COMMISSION_RATES.gratis * 100);
+  const commission = commissionLabel();
 
   // The venue's OWN events (dedicated query), not the global feed.
   const activeEvents = ownServices.filter((l) => l.is_active);

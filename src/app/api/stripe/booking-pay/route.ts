@@ -3,7 +3,7 @@ import { getStripeLocale } from "@/lib/i18n/stripe-locale";
 import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from '@/lib/supabase/admin';
-import { calculateDiscountedPrice, getCreatorCommissionRate } from "@/lib/stripe/commission";
+import { calculateDiscountedPrice, getCreatorCommissionRate, platformCommissionOre } from "@/lib/stripe/commission";
 import { assignmentRoute, payrollRouteLive, ASSIGNMENT_PAYROLL_NOT_LIVE_MESSAGE } from "@/lib/assignments/route";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
 import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, buildTermsCustomText, type PayeeContext } from "@/lib/stripe/checkout";
@@ -172,7 +172,7 @@ export async function POST(req: NextRequest) {
     const amountInOre = Math.round(effectivePrice * 100);
     const creatorSubcategory = (creator as { creator_subcategory?: string | null }).creator_subcategory ?? null;
     const commissionRate = getCreatorCommissionRate(creator.tier ?? "gratis", creatorSubcategory);
-    const applicationFee = Math.round(amountInOre * commissionRate);
+    const applicationFee = platformCommissionOre(amountInOre, 1);
 
     const customText = buildTermsCustomText(creator.terms_url);
     const paymentIntentData = buildConnectPaymentIntentData({

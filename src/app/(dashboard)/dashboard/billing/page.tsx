@@ -3,14 +3,14 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { COMMISSION_RATES } from "@/lib/stripe/commission";
+import { commissionLabel } from "@/lib/stripe/commission";
 
 export const dynamic = "force-dynamic";
 
 /**
  * Förr prislistan med Guld och Premium, prenumerationsstatus och en
  * break-even-kalkylator. Sedan 2026-11-13 finns en nivå: gratis, allt ingår,
- * 8 % provision när man säljer. Sidan ligger kvar på sin adress eftersom
+ * provision när man säljer (3,5 % + 3,50 kr per biljett sedan samma dag). Sidan ligger kvar på sin adress eftersom
  * länkar och gamla mejl pekar hit, men den säger nu bara vad som gäller och
  * visar vägen till utbetalningarna.
  *
@@ -29,7 +29,7 @@ export default async function BillingPage() {
 
   const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
   const isSeller = profile?.role === "creator" || profile?.role === "venue";
-  const commission = Math.round(COMMISSION_RATES.gratis * 100);
+  const commission = commissionLabel();
 
   const included = [t("oneLevelItem1"), t("oneLevelItem2"), t("oneLevelItem3"), t("oneLevelItem4")];
 

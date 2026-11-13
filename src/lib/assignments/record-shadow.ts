@@ -1,5 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getCreatorCommissionRate } from "@/lib/stripe/commission";
+import { effectiveCommissionRate } from "@/lib/stripe/commission";
 import { assignmentRoute, payrollRouteLive } from "./route";
 import { buildShadowLine } from "./shadow-line";
 import { refundDebtOre } from "./underlag";
@@ -61,7 +61,7 @@ export async function recordAssignmentShadowLine(bookingId: string): Promise<"wr
     creatorId: booking.creator_id,
     scheduledAt: booking.scheduled_at,
     priceKr,
-    commissionRate: getCreatorCommissionRate(creator.tier ?? "gratis", creator.creator_subcategory),
+    commissionRate: effectiveCommissionRate(Math.round(priceKr * 100)),
   });
 
   const { error } = await db.from("payroll_shadow_lines").upsert({ ...row, live }, { onConflict: "booking_id" });

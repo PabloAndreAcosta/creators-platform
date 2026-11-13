@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
+import { PLATFORM_COMMISSION, commissionLabel } from '@/lib/stripe/commission';
 
 interface PayoutRecord {
   id: string;
@@ -40,11 +41,6 @@ const STATUS_META: Record<string, { labelKey: string; color: string }> = {
   failed: { labelKey: 'statusFailed', color: 'text-red-400' },
 };
 
-const COMMISSION_RATES: Record<string, number> = {
-  gratis: 0.08,
-  guld: 0.08,
-  premium: 0.08,
-};
 
 export default function PayoutDashboard({ creatorId }: PayoutDashboardProps) {
   const t = useTranslations('payouts');
@@ -72,7 +68,9 @@ export default function PayoutDashboard({ creatorId }: PayoutDashboardProps) {
     return () => document.removeEventListener('keydown', handleKey);
   }, [showModal]);
 
-  const commissionRate = COMMISSION_RATES[tier] ?? 0.08;
+  // Veckosumman är ett brutto utan biljettantal, så den fasta delen av
+  // provisionen kan inte räknas här; procentdelen får duga som uppskattning.
+  const commissionRate = PLATFORM_COMMISSION.rate;
   const weeklyCommission = Math.round(weeklyGross * commissionRate);
   const weeklyNet = weeklyGross - weeklyCommission;
   const instantFee = instantCount >= 1;
@@ -191,7 +189,7 @@ export default function PayoutDashboard({ creatorId }: PayoutDashboardProps) {
             {t("thisWeek")}
           </h3>
           <span className="text-xs px-2 py-0.5 rounded-full bg-[var(--usha-gold)]/10 text-[var(--usha-gold)]">
-            {t("commissionBadge", { percent: Math.round(commissionRate * 100) })}
+            {t("commissionBadge", { label: commissionLabel() })}
           </span>
         </div>
         <div className="space-y-2">
