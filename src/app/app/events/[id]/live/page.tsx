@@ -18,7 +18,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { UnlockGate } from "@/components/tokens/unlock-gate";
 import { FreeToggleButton, RefundButton } from "@/app/(dashboard)/dashboard/bookings/booking-actions";
 
 interface EventData {
@@ -125,26 +124,8 @@ export default function LiveEventPage() {
     return () => clearInterval(interval);
   }, [fetchData]);
 
-  // Access is enforced server-side (capability flag): the API returns 402 when
-  // the host lacks the event pack, which we render as the UnlockGate below. No
-  // client-side tier gate — it would shadow the token unlock path for gratis.
-
-  // Capability gate (only when enforcement is on server-side): offer the low-key
-  // token unlock with "or upgrade" as the alternative. Never blocks buyers.
-  if (locked) {
-    return (
-      <UnlockGate
-        listingId={id}
-        capability={locked.capability}
-        cost={locked.cost}
-        onUnlocked={() => {
-          setLocked(null);
-          setLoading(true);
-          fetchData();
-        }}
-      />
-    );
-  }
+  // Sedan en nivå (2026-11-13) finns inget att låsa upp: servern svarar
+  // aldrig 402 längre, så ingen upplåsningsruta renderas.
 
   if (loading) {
     return (

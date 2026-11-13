@@ -10,12 +10,12 @@ describe('getDiscountPercentage', () => {
     expect(getDiscountPercentage('gratis')).toBe(0);
   });
 
-  it('returns 10% for guld tier', () => {
-    expect(getDiscountPercentage('guld')).toBe(0.10);
+  it('returns 0 for guld tier (inga medlemsrabatter sedan 2026-11-13)', () => {
+    expect(getDiscountPercentage('guld')).toBe(0);
   });
 
-  it('returns 20% for premium tier', () => {
-    expect(getDiscountPercentage('premium')).toBe(0.20);
+  it('returns 0 for premium tier', () => {
+    expect(getDiscountPercentage('premium')).toBe(0);
   });
 
   it('returns 0 for invalid tier', () => {

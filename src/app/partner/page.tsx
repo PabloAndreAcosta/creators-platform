@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { Link2, Coins, Crown, Gift, ShieldCheck } from "lucide-react";
+import { Link2, Coins, Gift, ShieldCheck } from "lucide-react";
 import { SiteNav } from "@/components/landing/site-nav";
 import { Footer } from "@/components/landing/footer";
 import { createClient } from "@/lib/supabase/server";
-import { COMMISSION_SHARE, FIRST_PURCHASE_CREDIT_ORE, PREMIUM_DAYS_PER_CREATOR } from "@/lib/affiliate/rewards";
+import { COMMISSION_SHARE, FIRST_PURCHASE_CREDIT_ORE, } from "@/lib/affiliate/rewards";
 import { indexable } from "@/lib/seo/metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -29,7 +29,7 @@ export default async function PartnerPublicPage() {
   const steps = [
     { icon: Link2, title: t("step1Title"), body: t("step1Body") },
     { icon: Coins, title: t("step2Title", { share }), body: t("step2Body") },
-    { icon: Crown, title: t("step3Title", { days: PREMIUM_DAYS_PER_CREATOR }), body: t("step3Body", { amount: credit }) },
+    { icon: Coins, title: t("step3Title", { amount: credit }), body: t("step3Body", { amount: credit }) },
   ];
   const faq = [
     [t("faq1Q"), t("faq1A")],

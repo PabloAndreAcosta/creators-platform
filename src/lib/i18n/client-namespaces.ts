@@ -55,7 +55,7 @@ export const APP_NAMESPACES = [
   "profile", "quickBuy",
   "reachOut", "recommendations", "recommendationsPage", "rewards", "roleToggle",
   "roles", "scanPage", "search", "security", "serverNotifications", "settings",
-  "tokens", "toolsPage", "trainingBuddies",
+  "toolsPage", "trainingBuddies",
 ] as const;
 
 /** src/app/(dashboard)/ — kreatörens och lokalens verktyg. */

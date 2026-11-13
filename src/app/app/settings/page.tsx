@@ -4,7 +4,6 @@ import { Settings, Bell, Shield, HelpCircle, UserX, Lock, Link2, Languages, Chev
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { LogoModeSetting } from "@/components/logo-mode-setting";
-import { NyckelWallet } from "@/components/tokens/nyckel-wallet";
 
 export default function SettingsPage() {
   const t = useTranslations("settings");
@@ -82,7 +81,6 @@ export default function SettingsPage() {
 
       <LogoModeSetting />
 
-      <NyckelWallet />
     </div>
   );
 }

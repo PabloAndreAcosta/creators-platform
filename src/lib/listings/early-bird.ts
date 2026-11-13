@@ -1,89 +1,9 @@
-import { createAdminClient } from '@/lib/supabase/admin';
-import { getResend, getFromEmail } from '@/lib/email/resend';
-import { escapeHtml } from '@/lib/email/broadcast';
-import { getServerTranslator } from '@/lib/i18n/server';
-import { resolveRecipientLocale } from '@/lib/i18n/recipient';
-
 /**
- * Sets the Gold-exclusive release date for a listing and notifies
- * Gold/Platinum members about early access. Typically called when
- * a new listing is created, with releaseDate = now + 48 hours.
+ * Rester av Guld-exklusiv early bird. Knappen, mejlet till Guld-medlemmar och
+ * API-vägen togs bort 2026-11-13 (en nivå, ingen att ge förtur åt). Kolumnen
+ * release_to_gold_at ligger kvar och de här hjälparna läser den, så att ett
+ * enstaka gammalt värde inte kan dölja ett event för någon.
  */
-export async function releaseEventToGoldMembers(
-  listingId: string,
-  releaseDate: Date
-): Promise<void> {
-  const supabase = createAdminClient();
-
-  const { error: updateError } = await supabase
-    .from('listings')
-    .update({ release_to_gold_at: releaseDate.toISOString() })
-    .eq('id', listingId);
-
-  if (updateError) {
-    console.error('Failed to set Gold release date:', updateError);
-    throw new Error('Kunde inte sätta Gold-exklusiv release');
-  }
-
-  // Get listing title for notification
-  const { data: listing } = await supabase
-    .from('listings')
-    .select('title')
-    .eq('id', listingId)
-    .single();
-
-  // No title means nothing worth announcing; the email interpolates it raw.
-  const title = listing?.title ?? '';
-
-  // Get all Gold and Platinum members
-  const { data: goldMembers, error: membersError } = await supabase
-    .from('profiles')
-    .select('id, email, full_name, locale')
-    .in('tier', ['guld', 'premium']);
-
-  if (membersError) {
-    console.error('Failed to fetch Gold members:', membersError);
-    return;
-  }
-
-  console.log(
-    `Early bird: "${title}" released to ${goldMembers?.length ?? 0} Guld/Premium members, public at ${releaseDate.toISOString()}`
-  );
-
-  if (goldMembers && goldMembers.length > 0) {
-    try {
-      const resend = getResend();
-      const from = getFromEmail();
-
-      // Each member is written to in the language they read the app in, so one
-      // announcement doesn't go out in Swedish to everyone.
-      await Promise.allSettled(
-        goldMembers
-          .filter((m) => m.email)
-          .map(async (member) => {
-            const locale = await resolveRecipientLocale({ userId: member.id, email: member.email });
-            const t = await getServerTranslator('eventEmails', locale);
-            const name = member.full_name || t('earlyBirdFallbackName');
-            return resend.emails.send({
-              from,
-              to: member.email,
-              subject: t('earlyBirdSubject'),
-              html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px;">
-                <h2 style="color:#c8a445;">${escapeHtml(t('earlyBirdHeading'))}</h2>
-                <p>${escapeHtml(t('earlyBirdGreeting', { name }))}</p>
-                <p><strong>${escapeHtml(t('earlyBirdBody', { title }))}</strong></p>
-                <p>${escapeHtml(t('earlyBirdPerk'))}</p>
-                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://usha.se'}/app" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#c8a445;color:#000;text-decoration:none;border-radius:8px;font-weight:bold;">${escapeHtml(t('earlyBirdCta'))}</a>
-                <p style="margin-top:24px;color:#888;font-size:12px;">Usha Platform</p>
-              </div>`,
-            });
-          })
-      );
-    } catch (e) {
-      console.error('Failed to send early-bird emails:', e);
-    }
-  }
-}
 
 /**
  * Checks whether a listing is still in its Gold-exclusive window.

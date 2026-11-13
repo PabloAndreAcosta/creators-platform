@@ -5,7 +5,6 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Calendar, MapPin, Clock, QrCode, X, Ticket, User, CheckCircle2, Maximize2, ScanLine } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
-import { useSubscription } from "@/lib/subscription/context";
 import { trackEvent, trackPurchase } from "@/lib/analytics";
 import { ANALYTICS_EVENTS } from "@/lib/analytics/events";
 import Image from "next/image";
@@ -360,13 +359,9 @@ function TicketCard({
   used?: boolean;
   inlineQr?: boolean;
 }) {
-  const { tier } = useSubscription();
   const { toast } = useToast();
   const t = useTranslations("myTickets");
   const [paying, setPaying] = useState(false);
-  const tierBadge = tier === "premium" ? { label: t("tierVip"), className: "bg-purple-500/90 text-white" }
-    : tier === "guld" ? { label: t("tierGold"), className: "bg-[var(--usha-gold)]/90 text-black" }
-    : null;
 
   async function handlePay() {
     setPaying(true);
@@ -391,7 +386,7 @@ function TicketCard({
   }
 
   return (
-    <div className={`overflow-hidden rounded-xl border ${tierBadge ? "border-[var(--usha-gold)]/30" : "border-[var(--usha-border)]"} bg-[var(--usha-card)] ${used && !ticket.payable ? "opacity-60" : ""}`}>
+    <div className={`overflow-hidden rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] ${used && !ticket.payable ? "opacity-60" : ""}`}>
       {/* Event image */}
       {ticket.imageUrl && (
         <div className="relative h-32 w-full">
@@ -545,11 +540,6 @@ function TicketCard({
               <p className="font-mono text-xs text-[var(--usha-muted)]">
                 {ticket.code}
               </p>
-              {tierBadge && !used && (
-                <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold ${tierBadge.className}`}>
-                  {tierBadge.label}
-                </span>
-              )}
             </div>
             {ticket.amountPaid != null && ticket.bookingType === "ticket" && (
               <p className="mt-0.5 text-xs font-semibold text-[var(--usha-gold)]">

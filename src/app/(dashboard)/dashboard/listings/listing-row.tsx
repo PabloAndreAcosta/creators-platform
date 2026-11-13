@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { deleteListing, toggleListingActive, duplicateListing, moveListing } from "./actions";
 import { useToast } from "@/components/ui/toaster";
 import Link from "next/link";
-import { ArrowDown, ArrowUp, Calendar, Clock, Copy, Crown, MapPin, Pencil, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Calendar, Clock, Copy, MapPin, Pencil, Trash2 } from "lucide-react";
 import { CATEGORY_LABELS } from "@/lib/categories";
 import { SocialShareButton } from "@/components/social-share-button";
 import { eventShareUrl } from "@/lib/events/share";
@@ -80,26 +80,6 @@ export default function ListingRow({
     });
   }
 
-  function handleEarlyBird() {
-    if (!confirm(t("confirmEarlyBird"))) return;
-    startTransition(async () => {
-      try {
-        const res = await fetch("/api/listings/early-bird", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ listingId: listing.id }),
-        });
-        const data = await res.json();
-        if (data.success) {
-          toast.success(t("toastEarlyBirdSuccess"));
-        } else {
-          toast.error(t("toastEarlyBirdError"), data.error);
-        }
-      } catch {
-        toast.error(t("toastGenericError"));
-      }
-    });
-  }
 
   function handleMove(riktning: "upp" | "ner") {
     startTransition(async () => {
@@ -108,8 +88,6 @@ export default function ListingRow({
       else router.refresh();
     });
   }
-
-  const hasEarlyBird = listing.release_to_gold_at && new Date(listing.release_to_gold_at) > new Date();
 
   return (
     <div
@@ -172,22 +150,6 @@ export default function ListingRow({
           eventLocation={listing.event_location}
           price={listing.price}
         />
-        {listing.is_active && !hasEarlyBird && (
-          <button
-            onClick={handleEarlyBird}
-            className="flex items-center gap-1.5 rounded-lg border border-[var(--usha-gold)]/30 px-3 py-1.5 text-xs font-medium text-[var(--usha-gold)] transition-colors hover:bg-[var(--usha-gold)]/10"
-            title={t("earlyBirdButtonTitle")}
-          >
-            <Crown size={12} />
-            {t("earlyBirdButton")}
-          </button>
-        )}
-        {hasEarlyBird && (
-          <span className="flex items-center gap-1 rounded-full bg-[var(--usha-gold)]/10 px-2.5 py-1 text-[10px] font-medium text-[var(--usha-gold)]">
-            <Crown size={10} />
-            {t("goldExclusiveBadge")}
-          </span>
-        )}
         <button
           onClick={handleToggle}
           className="rounded-lg border border-[var(--usha-border)] px-3 py-1.5 text-xs font-medium transition-colors hover:bg-[var(--usha-card-hover)]"

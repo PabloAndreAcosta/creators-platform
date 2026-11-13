@@ -87,8 +87,8 @@ export async function GET(req: NextRequest) {
         recommendations,
         count,
         access,
-        // Launch badge: "Premium-funktion — fri under lansering"
-        launch: access === "open",
+        // Inget lanseringsmärke: matchningen är öppen för alla, inte "fri under lansering".
+        launch: false,
       },
       { headers: { "Cache-Control": "private, max-age=300" } }
     );
