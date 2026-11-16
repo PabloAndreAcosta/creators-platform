@@ -5383,5 +5383,22 @@
     "ctaBody": "Crea una cuenta con Mobilt BankID, publica el evento y comparte el enlace. No cuesta nada hasta que hayas vendido algo.",
     "ctaPrimary": "Empieza gratis",
     "ctaSecondary": "Cómo funciona la venta de entradas"
+  },
+  "linkHub": {
+    "metaTitle": "Usha – enlaces desde Instagram",
+    "metaDescription": "The Lab cada jueves, todo lo que pasa y cómo vender tus clases en Usha.",
+    "title": "Usha Platform",
+    "intro": "Donde quien tiene algo que enseñar se encuentra con un público que quiere hacer algo esta noche.",
+    "navLabel": "Enlaces",
+    "theLabTitle": "The Lab – práctica cada jueves",
+    "theLabBody": "Tarraxo y urban kizomba en Bacchi Syre, Gamla stan.",
+    "theLabNext": "Próxima: {date} · Bacchi Syre, Gamla stan",
+    "theLabMeta": "17–23 · {price} SEK toda la noche · no necesitas pareja",
+    "theLabMetaNoPrice": "17–23 · no necesitas pareja",
+    "calendarTitle": "Todo lo que pasa",
+    "calendarBody": "Noches, clases y cursos en el calendario.",
+    "creatorsTitle": "¿Tienes algo que enseñar?",
+    "creatorsBody": "Vende tus clases y noches en Usha: entradas, pagos y seguidores en un solo lugar.",
+    "about": "¿Qué es Usha?"
   }
 }

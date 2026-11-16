@@ -5383,5 +5383,22 @@
     "ctaBody": "Skapa ett konto med Mobilt BankID, lägg upp eventet och dela länken. Det kostar inget förrän du sålt något.",
     "ctaPrimary": "Kom igång gratis",
     "ctaSecondary": "Så fungerar biljettförsäljningen"
+  },
+  "linkHub": {
+    "metaTitle": "Usha – länkar från Instagram",
+    "metaDescription": "The Lab varje torsdag, allt som händer och hur du säljer dina klasser på Usha.",
+    "title": "Usha Platform",
+    "intro": "Där den som har något att lära ut möter en publik som vill göra något i kväll.",
+    "navLabel": "Länkar",
+    "theLabTitle": "The Lab – practica varje torsdag",
+    "theLabBody": "Tarraxo och urban kizomba på Bacchi Syre, Gamla stan.",
+    "theLabNext": "Nästa: {date} · Bacchi Syre, Gamla stan",
+    "theLabMeta": "17–23 · {price} kr hela kvällen · ingen partner behövs",
+    "theLabMetaNoPrice": "17–23 · ingen partner behövs",
+    "calendarTitle": "Allt som händer",
+    "calendarBody": "Kvällar, klasser och kurser i kalendern.",
+    "creatorsTitle": "Har du något att lära ut?",
+    "creatorsBody": "Sälj dina klasser och kvällar på Usha – biljetter, betalning och följare på ett ställe.",
+    "about": "Vad är Usha?"
   }
 }
