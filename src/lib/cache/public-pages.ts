@@ -38,6 +38,7 @@ export const CACHEABLE_PATHS: ReadonlySet<string> = new Set([
   "/om",
   "/platser",
   "/guide",
+  "/insta",
 ]);
 
 /** Parametrar som sidorna inte läser men som gör varje länk unik. */

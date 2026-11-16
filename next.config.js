@@ -85,7 +85,7 @@ const nextConfig = {
       // om exakt samma anrop, så den cachade posten har alltid språket i
       // nyckeln. Next skriver över Cache-Control för dynamiska sidor men
       // lämnar CDN-namnen ifred. Håll i synk med CACHEABLE_PATHS/decidePublicCache.
-      ...["/", "/(upplevelser|kalender|instruktorer|taxidansare|for-kreatorer|for-platser|for-publik|om|platser|guide)"].map(
+      ...["/", "/(upplevelser|kalender|instruktorer|taxidansare|for-kreatorer|for-platser|for-publik|om|platser|guide|insta)"].map(
         (source) => ({
           source,
           missing: ANON_CACHE_MISSING,
