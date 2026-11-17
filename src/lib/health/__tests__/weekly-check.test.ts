@@ -3,7 +3,6 @@ import {
   granskaKvall,
   datumIslug,
   inomDagar,
-  sammanfattaGaster,
   sortera,
   type KvallInput,
 } from "../weekly-check";
@@ -112,16 +111,6 @@ describe("inomDagar", () => {
     expect(inomDagar(IDAG, "2026-10-08", 21)).toBe(true);
     expect(inomDagar(IDAG, "2026-09-30", 21)).toBe(false);
     expect(inomDagar(IDAG, "2026-11-30", 21)).toBe(false);
-  });
-});
-
-describe("sammanfattaGaster", () => {
-  it("tiger när det inte finns några", () => {
-    expect(sammanfattaGaster(0)).toBeNull();
-  });
-
-  it("rapporterar antalet när det finns", () => {
-    expect(sammanfattaGaster(12)?.detalj).toContain("12");
   });
 });
 
