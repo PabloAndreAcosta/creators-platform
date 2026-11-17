@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyCronAuth } from "@/lib/cron/auth";
 import { getResend, getFromEmail } from "@/lib/email/resend";
 import { createClient } from "@supabase/supabase-js";
+import { adoptGuestBookings } from "@/lib/bookings/adopt-guest";
+import { isEmailProven } from "@/lib/auth/email-proven";
 import {
   granskaKvall,
-  sammanfattaGaster,
   sortera,
   type Avvikelse,
   type KvallInput,
@@ -16,7 +17,12 @@ import {
  * Se lib/health/weekly-check.ts för vad den letar efter och varför.
  */
 
-const HORISONT_DAGAR = 21;
+// Lika med LEAD_DAYS i cron/event-reminders: appen publicerar kvällens
+// Facebook-inlägg tre dagar före. Inom det fönstret SKA inlägget finnas, så
+// saknas det där har publiceringen fallerat. Längre fram är det bara för tidigt
+// — med 21 dagar larmade kontrollen varje vecka om kvällar som skulle publiceras
+// helt enligt plan.
+const HORISONT_DAGAR = 3;
 
 function getSupabaseAdmin() {
   return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
@@ -88,8 +94,14 @@ export async function GET(req: NextRequest) {
     avvikelser.push(...granskaKvall(k, idag, HORISONT_DAGAR));
   }
 
-  // Gästköp vars mejladress matchar ett konto: adoptionen sker vid inloggning,
-  // så de här ligger kvar tills personen loggar in igen.
+  // Gästköp vars mejladress matchar ett konto. Adoptionen sker vid inloggning,
+  // så den som köpte som gäst och sedan inte loggar in blir aldrig knuten till
+  // sitt konto. Kontrollen gör därför samma adoption själv — men bara för konton
+  // som BEVISAT att de äger adressen (isEmailProven), exakt som vid inloggning.
+  // Övriga rörs inte och larmas inte om: det finns inget att göra förrän
+  // personen själv bevisar adressen, och ett larm som inte går att åtgärda
+  // lär bara mottagaren att sluta läsa.
+  let adopterade = 0;
   const { data: gastRader } = await admin
     .from("bookings")
     .select("guest_email")
@@ -98,23 +110,23 @@ export async function GET(req: NextRequest) {
   const gastMejl = new Set(
     (gastRader ?? []).map((b) => (b.guest_email ?? "").trim().toLowerCase()).filter(Boolean)
   );
-  let adopterbara = 0;
   if (gastMejl.size) {
-    const { data: profiler } = await admin
-      .from("profiles")
-      .select("email")
-      .in("email", [...gastMejl]);
-    adopterbara = (profiler ?? []).length;
+    const { data: profiler } = await admin.from("profiles").select("id").in("email", [...gastMejl]);
+    for (const p of profiler ?? []) {
+      const { data } = await admin.auth.admin.getUserById(p.id);
+      if (!data?.user) continue;
+      adopterade += await adoptGuestBookings(admin, p.id, data.user.email, {
+        emailProven: isEmailProven(data.user),
+      });
+    }
   }
-  const gastRad = sammanfattaGaster(adopterbara);
-  if (gastRad) avvikelser.push(gastRad);
 
   const sorterade = sortera(avvikelser);
 
   // Tystnad när allt är som det ska. Ett veckomejl som alltid kommer slutar
   // läsas, och då är nästa riktiga avvikelse osynlig.
   if (sorterade.length === 0) {
-    return NextResponse.json({ ok: true, avvikelser: 0, mejl: "inget" });
+    return NextResponse.json({ ok: true, avvikelser: 0, adopterade, mejl: "inget" });
   }
 
   const rader = sorterade
@@ -149,5 +161,5 @@ export async function GET(req: NextRequest) {
     console.error("Veckokontroll: mejlet gick inte fram", e);
   }
 
-  return NextResponse.json({ ok: true, avvikelser: sorterade.length, blockerande, detaljer: sorterade });
+  return NextResponse.json({ ok: true, avvikelser: sorterade.length, blockerande, adopterade, detaljer: sorterade });
 }

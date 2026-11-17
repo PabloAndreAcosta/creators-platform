@@ -104,6 +104,10 @@ export function granskaKvall(k: KvallInput, idag: string, horisontDagar: number)
 
   // 4. Kväll utan inlägg publicerat FRÅN APPEN, inom horisonten.
   //
+  //    Horisonten ska vara appens publiceringsfönster (3 dagar, se
+  //    cron/event-reminders): då betyder larmet att publiceringen fallerat,
+  //    inte att den ännu inte skett.
+  //
   //    Formuleringen är viktig. Kolumnen vet bara om appen publicerat ett
   //    sidinlägg. Ett Facebook-evenemang som skapats för hand — vilket är hur
   //    The Labs torsdagar delas i dag, eftersom Facebook stängt sitt
@@ -115,7 +119,7 @@ export function granskaKvall(k: KvallInput, idag: string, horisontDagar: number)
       allvar: "bör_rättas",
       regel: "inget-inlägg-från-appen",
       kvall: namn,
-      detalj: "appen har inte publicerat något inlägg (ett FB-evenemang skapat för hand syns inte här)",
+      detalj: "appens Facebook-inlägg skulle ha publicerats men saknas (kolla fb_auto_post och Facebook-kopplingen)",
     });
   }
 
@@ -126,24 +130,6 @@ export function granskaKvall(k: KvallInput, idag: string, horisontDagar: number)
 export function inomDagar(idag: string, datum: string, dagar: number): boolean {
   const d = (Date.parse(datum) - Date.parse(idag)) / 86400000;
   return d >= 0 && d <= dagar;
-}
-
-/**
- * Gästköp som nu skulle kunna knytas till ett konto.
- *
- * Adoptionen sker vid inloggning, men den som köpte som gäst och aldrig loggar
- * in igen blir aldrig adopterad. Den här raden visar hur många som ligger kvar
- * — inte som ett fel att rätta automatiskt, utan som ett mått på hur stor den
- * osynliga halvan av publiken är.
- */
-export function sammanfattaGaster(antal: number): Avvikelse | null {
-  if (antal === 0) return null;
-  return {
-    allvar: "bör_rättas",
-    regel: "gästköp-utan-konto",
-    kvall: "—",
-    detalj: `${antal} gästköp har en mejladress som matchar ett konto men saknar ägare`,
-  };
 }
 
 /** Sorterar blockerande först; inom samma allvar efter regel och kväll. */
