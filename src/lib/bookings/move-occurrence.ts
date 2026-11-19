@@ -11,6 +11,8 @@
  * serien, och `ticket_type_id` till den kväll ens motsvarande biljettyp.
  */
 
+import { inomFonster } from "@/lib/settlements/supplement";
+
 export interface OccurrenceLike {
   id: string;
   event_date: string | null;
@@ -61,29 +63,38 @@ export function blockingReason(args: {
   fromSettled?: boolean;
   /** Har målkvällen redan betalats ut? */
   toSettled?: boolean;
+  /**
+   * Flyttar arrangören (inte gästen)? Arrangören får lägga en biljett på en
+   * kväll som redan varit — gästen köpte fel datum efter kvällen — så länge
+   * kvällen ligger inom kompletteringsfönstret, så att partnerns andel kommer
+   * fram. Gästen själv kan bara välja kommande kvällar.
+   */
+  byArranger?: boolean;
 }): MoveBlock | null {
-  const { from, to, today, ticketTypeName, targetTypes, quantity, fromSettled, toSettled } = args;
+  const { from, to, today, ticketTypeName, targetTypes, quantity, fromSettled, toSettled, byArranger } = args;
 
   if (to.id === from.id) return "same_occurrence";
 
   // Avräkningen räknar en kvälls intäkt genom att fråga bookings på
-  // listing_id, så pengarna följer med en flytt av sig själva — så länge
-  // ingen av kvällarna är stängd.
+  // listing_id, så pengarna följer med en flytt av sig själva.
   //
-  // En utbetald kväll räknas aldrig om (run-payouts hoppar över status
-  // "paid"). Därför:
+  // En utbetald kväll räknas inte om av run-payouts (den hoppar över status
+  // "paid"), men kompletteringen (run-supplements) räknar om den i
+  // KOMPLETTERING_FONSTER_DAGAR och för över mellanskillnaden. Därför:
   //   - flytt FRÅN en utbetald kväll = partnern har redan fått sin andel av
-  //     biljetten, och får den igen när målkvällen räknas. Dubbelbetalning.
-  //   - flytt TILL en utbetald kväll = biljetten landar i en stängd bok och
-  //     partnern får aldrig sin andel.
-  // Båda tyst, båda i riktiga pengar. Återbetala och sälj om i stället.
+  //     biljetten och får den igen när målkvällen räknas. Kompletteringen
+  //     rättar aldrig en överbetalning automatiskt. Dubbelbetalning — neka.
+  //   - flytt TILL en utbetald kväll = kvällen får en biljett till, och
+  //     kompletteringen betalar partnerns andel av den. Tillåtet så länge
+  //     kvällen ligger inom fönstret; utanför det kommer andelen aldrig fram.
   if (fromSettled) return "source_settled";
-  if (toSettled) return "target_settled";
+  if (toSettled && !(to.event_date && inomFonster(to.event_date, today))) return "target_settled";
   // Flytt sker inom en serie. Utan den gränsen vore det inte en ombokning utan
   // ett byte av vara: ett annat pris, en annan lokal, kanske en annan arrangör.
   if (!from.series_id || !to.series_id || from.series_id !== to.series_id) return "not_same_series";
   if (to.is_active === false || to.is_public === false) return "not_bookable";
-  if (!to.event_date || to.event_date < today) return "in_the_past";
+  if (!to.event_date) return "in_the_past";
+  if (to.event_date < today && !(byArranger && inomFonster(to.event_date, today))) return "in_the_past";
 
   if (ticketTypeName) {
     const match = matchTicketType(ticketTypeName, targetTypes);

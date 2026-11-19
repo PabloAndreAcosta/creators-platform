@@ -1,5 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
 import { stockholmToday } from "@/lib/time";
+import { KOMPLETTERING_FONSTER_DAGAR } from "@/lib/settlements/supplement";
+
+/** "YYYY-MM-DD" n dagar före ett annat "YYYY-MM-DD". */
+function daysBefore(ymd: string, n: number): string {
+  const d = new Date(`${ymd}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() - n);
+  return d.toISOString().slice(0, 10);
+}
 import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
@@ -148,7 +156,10 @@ export default async function BookingsPage() {
         .in("series_id", seriesIds)
         .eq("is_active", true)
         .eq("is_public", true)
-        .gte("event_date", stockholmToday())
+        // Arrangören får flytta till en kväll som redan varit, inom
+        // kompletteringsfönstret (se move-occurrence.ts). Gästen ser bara
+        // kommande kvällar — filtreras i occurrencesFor.
+        .gte("event_date", daysBefore(stockholmToday(), KOMPLETTERING_FONSTER_DAGAR))
         .order("event_date", { ascending: true })
     : { data: [] as { id: string; title: string; event_date: string | null; event_time: string | null; series_id: string | null }[] };
 
@@ -164,12 +175,15 @@ export default async function BookingsPage() {
   }
 
   /** Kvällar den här bokningen kan flyttas till, tom lista = inte en biljett. */
-  const occurrencesFor = (listingId: string) => {
+  const occurrencesFor = (listingId: string, includePast = false) => {
     const l = (listings ?? []).find((x) => x.id === listingId) as
       | { event_date?: string | null; series_id?: string | null }
       | undefined;
     if (!l?.event_date || !l.series_id) return [];
-    return occurrencesBySeries[l.series_id] ?? [];
+    const all = occurrencesBySeries[l.series_id] ?? [];
+    if (includePast) return all;
+    const today = stockholmToday();
+    return all.filter((o) => o.date >= today);
   };
 
   // Fetch existing reviews for outgoing completed bookings
@@ -378,7 +392,7 @@ export default async function BookingsPage() {
                         <RescheduleButton
                           bookingId={booking.id}
                           currentDate={booking.scheduled_at}
-                          occurrences={occurrencesFor(booking.listing_id)}
+                          occurrences={occurrencesFor(booking.listing_id, true)}
                           currentListingId={booking.listing_id}
                         />
                         {/* Comp a paid service/b2b booking (free intro etc.) — hides
