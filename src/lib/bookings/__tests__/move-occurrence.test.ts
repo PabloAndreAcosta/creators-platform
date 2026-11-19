@@ -101,6 +101,22 @@ describe("blockingReason", () => {
       expect(blockingReason({ ...bas, toSettled: true })).toBe("target_settled");
     });
 
+    it("arrangören får flytta TILL en utbetald kväll inom kompletteringsfönstret", () => {
+      // Gästen köpte fel kväll efter att kvällen betalats ut. Kompletteringen
+      // räknar om kvällen och för över partnerns andel av den nya biljetten.
+      const igar = { ...to, event_date: "2026-10-05" };
+      expect(blockingReason({ ...bas, to: igar, toSettled: true, byArranger: true })).toBeNull();
+    });
+
+    it("nekar flytt TILL en utbetald kväll utanför fönstret", () => {
+      const gammal = { ...to, event_date: "2026-08-01" };
+      expect(blockingReason({ ...bas, to: gammal, toSettled: true, byArranger: true })).toBe("target_settled");
+    });
+
+    it("FRÅN en utbetald kväll nekas även för arrangören", () => {
+      expect(blockingReason({ ...bas, fromSettled: true, byArranger: true })).toBe("source_settled");
+    });
+
     it("källan vägs före målet när båda är utbetalda", () => {
       expect(blockingReason({ ...bas, fromSettled: true, toSettled: true })).toBe("source_settled");
     });
@@ -118,5 +134,19 @@ describe("blockingReason", () => {
         })
       ).toBe("source_settled");
     });
+  });
+});
+
+describe("passerade kvällar", () => {
+  const igar = { ...to, event_date: "2026-10-05" };
+  it("gästen kan inte flytta till en kväll som varit", () => {
+    expect(blockingReason({ ...bas, to: igar })).toBe("in_the_past");
+  });
+  it("arrangören kan, inom 30 dagar", () => {
+    expect(blockingReason({ ...bas, to: igar, byArranger: true })).toBeNull();
+  });
+  it("men inte längre bak än fönstret", () => {
+    const gammal = { ...to, event_date: "2026-08-01" };
+    expect(blockingReason({ ...bas, to: gammal, byArranger: true })).toBe("in_the_past");
   });
 });

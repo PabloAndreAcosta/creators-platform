@@ -14,13 +14,13 @@ const MOVE_ERRORS: Record<MoveBlock, string> = {
   same_occurrence: "Biljetten ligger redan på den kvällen.",
   not_same_series: "Biljetten kan bara flyttas till en annan kväll i samma serie.",
   not_bookable: "Den kvällen är inte öppen för bokning.",
-  in_the_past: "Den kvällen har redan varit.",
+  in_the_past: "Den kvällen har redan varit. Arrangören kan flytta till en kväll upp till 30 dagar bakåt.",
   no_matching_type: "Biljettypen finns inte på den kvällen.",
   sold_out: "Den kvällen är slutsåld för den biljettypen.",
   source_settled:
     "Kvällen är redan avräknad och utbetald till lokalen. Återbetala biljetten och sälj en ny i stället — annars betalas lokalens andel två gånger.",
   target_settled:
-    "Den kvällen är redan avräknad och utbetald. En biljett som flyttas dit kommer aldrig med i lokalens andel.",
+    "Den kvällen avräknades för mer än 30 dagar sedan. En biljett som flyttas dit kommer aldrig med i lokalens andel.",
 };
 
 export async function POST(req: NextRequest) {
@@ -132,6 +132,7 @@ export async function POST(req: NextRequest) {
       const block = blockingReason({
         fromSettled: paidFor.has(booking.listing_id),
         toSettled: paidFor.has(target.id),
+        byArranger: isCreator,
         from: sourceListing!,
         to: target,
         today: stockholmToday(),
