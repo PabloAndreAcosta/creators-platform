@@ -126,7 +126,7 @@ const JOBS = [
   // biljetten gäller. Kl 03 när ingen handlar.
   // Volontären påminns att checka in när passet börjar. Varje timme: passen
   // börjar på hela och halva timmar, fönstret i rutten täcker båda.
-  { name: "taxi-checkin-reminders", desc: "Påminnelse till volontärer att checka in" },
+  // taxi-checkin-reminders körs som Vercel cron (vercel.json), inte härifrån.
   { name: "data-retention", desc: "Gallring av gästuppgifter och CSP-rapporter", atHour: 3 },
 ] as const;
 
