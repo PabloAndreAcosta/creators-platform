@@ -1012,6 +1012,8 @@
     "volunteerApplicationMsg": "{name} vill ta volontärpass på dina kvällar. Godkänn eller avslå under Volontärpass.",
     "volunteerApprovedTitle": "Du är godkänd som volontär",
     "volunteerApprovedMsg": "Välj dina pass för {title}. Godkännandet gäller hela serien.",
+    "volunteerCheckinTitle": "Dags att checka in",
+    "volunteerCheckinMsg": "Ditt volontärpass på {title} börjar. Checka in i appen, annars räknas passet som uteblivet.",
     "epassiRequestTitle": "Epassi-köp att bekräfta",
     "epassiRequestMsg": "{name} vill betala «{service}» med friskvårdsbidrag. Bekräfta när köpet syns i Epassi.",
     "epassiConfirmedTitle": "Klippkortet är aktiverat",
@@ -3512,6 +3514,7 @@
     "monthDec": "dec"
   },
   "eventStats": {
+    "pendingSwish": "{count, plural, one {# Swish-köp} other {# Swish-köp}} ({amount} kr) väntar på att bekräftas i entrén och räknas inte ovan än. Bekräfta →",
     "title": "Statistik",
     "back": "Tillbaka",
     "premiumFeatureTitle": "Statistik är en Premium-funktion",
@@ -4834,6 +4837,7 @@
     }
   },
   "entrance": {
+    "notToday": "Obs! Det här är entrén för {date}, inte i kväll. Det du säljer eller bekräftar här hamnar på den kvällen.",
     "swishToggle": "Swish",
     "swishShow": "Visa",
     "swishHide": "Dölj",

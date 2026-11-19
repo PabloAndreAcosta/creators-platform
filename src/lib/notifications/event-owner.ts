@@ -26,6 +26,48 @@ function kr(ore: number | null | undefined): string {
   return Math.round((ore ?? 0) / 100).toLocaleString("sv-SE");
 }
 
+// The people working the door: managers plus crew with can_scan. A Swish
+// payment from the event page waits for someone at the entrance to compare it
+// with the Swish app, so the one standing there must hear about it — not only
+// the owner, who may be at home (17 Nov: seven Swish buys sat unconfirmed all
+// evening while Christian ran the door without being told).
+async function entranceCrew(
+  admin: SupabaseClient,
+  listingId: string,
+  ownerId: string
+): Promise<string[]> {
+  const ids = new Set<string>([ownerId]);
+  const { data } = await admin
+    .from("listing_collaborators")
+    .select("user_id, can_manage, can_scan")
+    .eq("listing_id", listingId)
+    .eq("status", "accepted");
+  for (const r of (data ?? []) as { user_id: string | null; can_manage: boolean | null; can_scan: boolean | null }[]) {
+    if (r.user_id && (r.can_manage || r.can_scan)) ids.add(r.user_id);
+  }
+  return Array.from(ids);
+}
+
+/** A guest says they have paid with Swish; someone at the door must confirm it. */
+export async function notifyEntranceSwishRequest(
+  admin: SupabaseClient,
+  opts: { listingId: string; ownerId: string; name: string; service: string; amountOre: number }
+): Promise<void> {
+  const recipients = await entranceCrew(admin, opts.listingId, opts.ownerId);
+  await Promise.all(
+    recipients.map((userId) =>
+      createNotification({
+        userId,
+        type: "booking_new",
+        titleKey: "swishRequestTitle",
+        bodyKey: "swishRequestMsg",
+        params: { name: opts.name, service: opts.service, amount: Math.round(opts.amountOre / 100) },
+        link: `/app/events/${opts.listingId}/entre`,
+      })
+    )
+  );
+}
+
 /** New ticket sale on the owner's event. */
 export async function notifyOwnerTicketSold(
   admin: SupabaseClient,

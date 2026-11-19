@@ -1012,6 +1012,8 @@
     "volunteerApplicationMsg": "{name} quiere hacer turnos de voluntario en tus noches. Aprueba o rechaza en Turnos de voluntarios.",
     "volunteerApprovedTitle": "Te han aprobado como voluntario",
     "volunteerApprovedMsg": "Elige tus turnos para {title}. La aprobación vale para toda la serie.",
+    "volunteerCheckinTitle": "Hora de registrarte",
+    "volunteerCheckinMsg": "Tu turno de voluntario en {title} empieza ya. Regístrate en la app; si no, el turno cuenta como ausencia.",
     "epassiRequestTitle": "Compra de Epassi por confirmar",
     "epassiRequestMsg": "{name} quiere pagar «{service}» con su ayuda de bienestar. Confirma cuando la compra aparezca en Epassi.",
     "epassiConfirmedTitle": "Tu bono está activado",
@@ -3512,6 +3514,7 @@
     "monthDec": "dic"
   },
   "eventStats": {
+    "pendingSwish": "{count, plural, one {# compra con Swish} other {# compras con Swish}} ({amount} kr) pendiente de confirmar en la entrada; aún no se cuenta arriba. Confirmar →",
     "title": "Estadísticas",
     "back": "Volver",
     "premiumFeatureTitle": "Las estadísticas son una función Premium",
@@ -4834,6 +4837,7 @@
     }
   },
   "entrance": {
+    "notToday": "Atención: esta es la entrada del {date}, no la de esta noche. Lo que vendas o confirmes aquí se registra en esa fecha.",
     "swishToggle": "Swish",
     "swishShow": "Mostrar",
     "swishHide": "Ocultar",
