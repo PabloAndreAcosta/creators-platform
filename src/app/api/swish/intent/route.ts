@@ -3,7 +3,7 @@ import { getLocale } from "next-intl/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentUser } from "@/lib/supabase/current-user";
 import { rateLimit, getRateLimitKey } from "@/lib/rate-limit";
-import { createNotification } from "@/lib/notifications/create";
+import { notifyEntranceSwishRequest } from "@/lib/notifications/event-owner";
 import { swishOfferForListing } from "@/lib/swish/availability";
 import { swishPaymentUrl } from "@/lib/swish/config";
 import { sendSwishPendingEmail } from "@/lib/email/send-swish-pending";
@@ -133,13 +133,12 @@ export async function POST(req: NextRequest) {
     preferredLocale: await getLocale().catch(() => null),
   }).catch((e) => console.error("Swish pending email failed:", e));
 
-  await createNotification({
-    userId: listing.user_id,
-    type: "booking_new",
-    titleKey: "swishRequestTitle",
-    bodyKey: "swishRequestMsg",
-    params: { name: name || email, service, amount: Math.round(amountOre / 100) },
-    link: `/app/events/${listing.id}/entre`,
+  await notifyEntranceSwishRequest(admin, {
+    listingId: listing.id,
+    ownerId: listing.user_id,
+    name: name || email,
+    service,
+    amountOre,
   }).catch((e) => console.error("Swish intent notification failed:", e));
 
   return NextResponse.json({ bookingId: booking.id, amountOre, ticketUrl: `/biljett/${booking.id}` });

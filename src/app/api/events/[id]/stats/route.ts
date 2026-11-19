@@ -131,6 +131,20 @@ export async function GET(
   const revenue = eventBookings.reduce((s, b) => s + (b.amount_paid || 0), 0);
   const capacity = listing.max_guests ?? null;
 
+  // Swish från eventsidan är vilande tills någon i dörren bekräftar det mot
+  // Swish-appen. Utan den här raden såg ett obekräftat köp ut som ett köp som
+  // aldrig hänt (17 nov: statistiken visade 1 deltagare när 8 hade swishat).
+  const { data: pendingRows } = await admin
+    .from("bookings")
+    .select("guest_count, amount_paid")
+    .eq("listing_id", eventId)
+    .eq("status", "pending")
+    .eq("payment_method", "swish");
+  const pendingSwish = {
+    count: (pendingRows ?? []).reduce((n, b) => n + ((b.guest_count as number | null) || 1), 0),
+    amount: (pendingRows ?? []).reduce((n, b) => n + ((b.amount_paid as number | null) || 0), 0),
+  };
+
   // "No-show" only means something once the event is over — before then, nobody
   // has had the chance to check in, so every attendee would falsely count as a
   // no-show. Derive the end instant (Stockholm end-time if set, else end of the
@@ -152,6 +166,7 @@ export async function GET(
     noShows: eventEnded ? attendees - checkedIn : null,
     checkInRate: eventEnded && attendees > 0 ? Math.round((checkedIn / attendees) * 100) : null,
     revenue,
+    pendingSwish,
     fillRate: capacity ? Math.round((attendees / capacity) * 100) : null,
     // Siffrorna är evenemangets, namnen och mejladresserna är gästernas. Den
     // som bara fått läsa statistik får därför en tom lista — inte en kortad,

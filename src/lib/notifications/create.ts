@@ -31,6 +31,8 @@ export type NotificationType =
   | 'volunteer_application'
   // Arrangören har godkänt volontären — nu kan hen välja pass.
   | 'volunteer_approved'
+  // Passet börjar: checka in dig själv, annars räknas det som uteblivet.
+  | 'volunteer_checkin'
   // Avtal: skickat till mig att signera, signerat av motparten, avböjt, tillbakadraget.
   | 'agreement_sent'
   | 'agreement_signed'

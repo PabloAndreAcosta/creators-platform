@@ -50,11 +50,17 @@ interface PendingSwish {
 
 const POLL_MS = 5000;
 
+function fmtDay(date: string): string {
+  return new Date(date + "T12:00").toLocaleDateString("sv-SE", { weekday: "long", day: "numeric", month: "long" });
+}
+
 export default function EntrancePage() {
   const { id } = useParams<{ id: string }>();
   const t = useTranslations("entrance");
 
   const [title, setTitle] = useState("");
+  // Kvällens datum och om det är i dag, enligt servern.
+  const [day, setDay] = useState<{ date: string | null; isToday: boolean } | null>(null);
   const [types, setTypes] = useState<TicketType[]>([]);
   const [selected, setSelected] = useState<TicketType | null>(null);
   const [sales, setSales] = useState<Sale[]>([]);
@@ -101,6 +107,7 @@ export default function EntrancePage() {
         const data = await res.json();
         setError(null);
         setTitle(data.listing.title);
+        setDay({ date: data.listing.eventDate ?? null, isToday: data.listing.isToday !== false });
         setTypes(data.ticketTypes);
         if (data.efterkop) setEfterkop(data.efterkop);
         if (data.kiosk) setKiosk(data.kiosk);
@@ -236,7 +243,18 @@ export default function EntrancePage() {
       </Link>
 
       <h1 className="text-xl font-bold">{t("title")}</h1>
-      <p className="mt-1 text-sm text-[var(--usha-muted)]">{title}</p>
+      <p className="mt-1 text-sm text-[var(--usha-muted)]">
+        {title}
+        {day?.date && <> · {fmtDay(day.date)}</>}
+      </p>
+
+      {/* En serie har kvällar med identisk titel. Står entrén på en annan kväll
+          än i dag hamnar försäljningen på fel datum — säg det högt. */}
+      {day && !day.isToday && day.date && (
+        <p className="mt-3 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm font-medium text-amber-300">
+          {t("notToday", { date: fmtDay(day.date) })}
+        </p>
+      )}
 
       {error && (
         <p className="mt-4 rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-400">{error}</p>

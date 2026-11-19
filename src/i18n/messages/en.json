@@ -1012,6 +1012,8 @@
     "volunteerApplicationMsg": "{name} wants to take volunteer shifts at your evenings. Approve or decline under Volunteer shifts.",
     "volunteerApprovedTitle": "You are approved as a volunteer",
     "volunteerApprovedMsg": "Pick your shifts for {title}. The approval covers the whole series.",
+    "volunteerCheckinTitle": "Time to check in",
+    "volunteerCheckinMsg": "Your volunteer shift at {title} is starting. Check in in the app, otherwise the shift counts as missed.",
     "epassiRequestTitle": "Epassi purchase to confirm",
     "epassiRequestMsg": "{name} wants to pay for «{service}» with their wellness allowance. Confirm once the purchase shows in Epassi.",
     "epassiConfirmedTitle": "Your punch card is active",
@@ -3512,6 +3514,7 @@
     "monthDec": "Dec"
   },
   "eventStats": {
+    "pendingSwish": "{count, plural, one {# Swish purchase} other {# Swish purchases}} ({amount} kr) waiting to be confirmed at the entrance — not counted above yet. Confirm →",
     "title": "Statistics",
     "back": "Back",
     "premiumFeatureTitle": "Statistics is a Premium feature",
@@ -4834,6 +4837,7 @@
     }
   },
   "entrance": {
+    "notToday": "Note: this is the entrance for {date}, not tonight. Anything you sell or confirm here goes on that evening.",
     "swishToggle": "Swish",
     "swishShow": "Show",
     "swishHide": "Hide",

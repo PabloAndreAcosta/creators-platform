@@ -29,6 +29,8 @@ interface Stats {
   noShows: number | null;
   checkInRate: number | null;
   revenue: number;
+  /** Swish från eventsidan som ingen i dörren bekräftat än — räknas inte i siffrorna ovan. */
+  pendingSwish?: { count: number; amount: number };
   fillRate: number | null;
   list: Attendee[];
   /** Sant när betraktaren bara får läsa siffrorna — då är list tom med flit. */
@@ -201,6 +203,20 @@ export default function EventStatsPage() {
           </div>
         ))}
       </div>
+
+      {data.pendingSwish && data.pendingSwish.count > 0 && (
+        // Vilande Swish ingår inte i korten (de är inte bekräftade), men en
+        // tom statistik när folk faktiskt betalat läses som ett fel.
+        <Link
+          href={`/app/events/${id}/entre`}
+          className="block rounded-xl border border-[var(--usha-gold)]/40 bg-[var(--usha-gold)]/10 px-4 py-3 text-sm"
+        >
+          {t("pendingSwish", {
+            count: data.pendingSwish.count,
+            amount: Math.round(data.pendingSwish.amount / 100).toLocaleString("sv-SE"),
+          })}
+        </Link>
+      )}
 
       {data.listWithheld ? (
         // Läsbehörighet för statistik ger siffrorna, inte gästerna. Ett tomt

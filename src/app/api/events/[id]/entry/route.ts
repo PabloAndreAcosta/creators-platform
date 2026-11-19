@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { canOperateEntrance } from "@/lib/scan-access";
+import { stockholmToday } from "@/lib/time";
 import { kioskAccessForOwner } from "@/lib/tickets/kiosk-access";
 import { efterkopLage } from "@/lib/tickets/late-purchase";
 import { formatSwishNumber, getSwishNumber } from "@/lib/swish/config";
@@ -100,7 +101,17 @@ export async function GET(
   const lage = efterkopLage(listing.event_date, new Date());
 
   return NextResponse.json({
-    listing: { id: listing.id, title: listing.title, slug: listing.slug, isActive: listing.is_active },
+    // Datumet och om det är i dag avgörs här, inte av telefonens klocka. 17 nov
+    // registrerades ett Swish-köp i dörren på nästa veckas kväll — sidorna för
+    // en serie har samma titel och gick inte att skilja åt.
+    listing: {
+      id: listing.id,
+      title: listing.title,
+      slug: listing.slug,
+      isActive: listing.is_active,
+      eventDate: listing.event_date ?? null,
+      isToday: !listing.event_date || listing.event_date === stockholmToday(),
+    },
     efterkop: {
       oppet: lage.kind === "oppet",
       stangerVid: lage.kind === "oppet" ? lage.stangerVid.toISOString() : null,
