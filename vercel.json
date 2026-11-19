@@ -6,6 +6,10 @@
     {
       "path": "/api/cron/booking-reminders",
       "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/cron/taxi-checkin-reminders",
+      "schedule": "0 * * * *"
     }
   ]
 }
