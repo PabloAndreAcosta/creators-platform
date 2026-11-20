@@ -5,6 +5,7 @@ import { purgeAuthCookies } from "@/lib/supabase/auth-cookies";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { authUrlWithNext, callbackUrlWithNext } from "@/lib/auth/next-path";
+import { signInWithOAuthAnywhere } from "@/lib/native-oauth";
 import { createClient } from "@/lib/supabase/client";
 import { isRateLimitError } from "@/lib/auth/rate-limit-error";
 import { ShieldCheck, Eye, EyeOff } from "lucide-react";
@@ -188,12 +189,8 @@ export default function LoginPage() {
     // token refresh doesn't hold the auth lock and block the OAuth redirect.
     await supabase.auth.signOut({ scope: "local" }).catch(() => {});
     purgeAuthCookies();
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: callbackUrlWithNext(window.location.origin, rawNext),
-        queryParams: { prompt: "select_account" },
-      },
+    await signInWithOAuthAnywhere(supabase, "google", callbackUrlWithNext(window.location.origin, rawNext), {
+      prompt: "select_account",
     });
   }
 
@@ -225,10 +222,7 @@ export default function LoginPage() {
   async function handleFacebookLogin() {
     await supabase.auth.signOut({ scope: "local" }).catch(() => {});
     purgeAuthCookies();
-    await supabase.auth.signInWithOAuth({
-      provider: "facebook",
-      options: { redirectTo: callbackUrlWithNext(window.location.origin, rawNext) },
-    });
+    await signInWithOAuthAnywhere(supabase, "facebook", callbackUrlWithNext(window.location.origin, rawNext));
   }
 
   return (

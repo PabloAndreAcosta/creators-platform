@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { appPathFromUrl, getNativePlatform, nativePlugin } from "@/lib/native";
+import { closeOAuthBrowser } from "@/lib/native-oauth";
 
 interface SharePlugin {
   share(options: { title?: string; text?: string; url?: string }): Promise<unknown>;
@@ -56,7 +57,15 @@ export function NativeShellBridge() {
     const handles: Array<Promise<ListenerHandle> | ListenerHandle> = [
       app.addListener("appUrlOpen", ({ url }) => {
         const path = appPathFromUrl(url);
-        if (path) router.push(path);
+        if (!path) return;
+        if (path.startsWith("/callback")) {
+          // Tillbaka från Google/Facebook i webbläsarfliken: stäng fliken och
+          // låt servern växla in koden här, där PKCE-nyckeln och sessionen bor.
+          void closeOAuthBrowser();
+          window.location.assign(path);
+          return;
+        }
+        router.push(path);
       }),
       app.addListener("backButton", ({ canGoBack }) => {
         if (canGoBack) window.history.back();

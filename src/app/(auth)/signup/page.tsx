@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { AuthBrand } from "@/components/auth-brand";
 import { useLocale, useTranslations } from "next-intl";
 import { authUrlWithNext, callbackUrlWithNext } from "@/lib/auth/next-path";
+import { signInWithOAuthAnywhere } from "@/lib/native-oauth";
 import { createClient } from "@/lib/supabase/client";
 import { isPasswordPwned } from "@/lib/auth/password-strength";
 import { isRateLimitError } from "@/lib/auth/rate-limit-error";
@@ -345,22 +346,22 @@ export default function SignupPage() {
   async function handleGoogleSignup() {
     if (!selectedRole) return;
     storeRoleForOAuth();
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: callbackUrlWithNext(window.location.origin, searchParams.get("next")),
-        queryParams: { prompt: "select_account" },
-      },
-    });
+    await signInWithOAuthAnywhere(
+      supabase,
+      "google",
+      callbackUrlWithNext(window.location.origin, searchParams.get("next")),
+      { prompt: "select_account" },
+    );
   }
 
   async function handleFacebookSignup() {
     if (!selectedRole) return;
     storeRoleForOAuth();
-    await supabase.auth.signInWithOAuth({
-      provider: "facebook",
-      options: { redirectTo: callbackUrlWithNext(window.location.origin, searchParams.get("next")) },
-    });
+    await signInWithOAuthAnywhere(
+      supabase,
+      "facebook",
+      callbackUrlWithNext(window.location.origin, searchParams.get("next")),
+    );
   }
 
   if (success) {

@@ -7,6 +7,7 @@ android {
         applicationId "se.usha.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
+        // versionCode måste öka för varje uppladdning till Google Play.
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -16,8 +17,25 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    // Uppladdningsnyckeln ligger utanför repot (~/.usha-android/usha-upload.jks)
+    // och lösenordet i macOS-nyckelringen; scripts/android-release.sh lägger
+    // båda i miljön. Utan dem byggs release osignerad, och debug påverkas inte.
+    signingConfigs {
+        release {
+            def storePath = System.getenv("USHA_UPLOAD_STORE_FILE")
+            if (storePath) {
+                storeFile file(storePath)
+                storePassword System.getenv("USHA_UPLOAD_PASSWORD")
+                keyAlias "usha-upload"
+                keyPassword System.getenv("USHA_UPLOAD_PASSWORD")
+            }
+        }
+    }
     buildTypes {
         release {
+            if (System.getenv("USHA_UPLOAD_STORE_FILE")) {
+                signingConfig signingConfigs.release
+            }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
