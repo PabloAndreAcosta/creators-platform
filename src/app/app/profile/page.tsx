@@ -35,6 +35,8 @@ export default async function ProfilePage() {
           .select("*", { count: "exact", head: true })
           .eq("user_id", user.id),
       ]);
+      // Den hemliga kalenderadressen ska aldrig ut till klienten, inte ens till ägaren.
+      if (profileRes.data) delete (profileRes.data as Record<string, unknown>).external_calendar_ics_url;
       profile = profileRes.data;
       listingsCount = listingsRes.count ?? 0;
       bookingsCount = bookingsRes.count ?? 0;

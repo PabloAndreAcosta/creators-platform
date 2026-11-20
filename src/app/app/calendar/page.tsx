@@ -3,6 +3,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { CalendarContent } from "./calendar-content";
 import { CalendarSync } from "./calendar-sync";
 import { FollowedEvents, type FollowedEvent } from "./followed-events";
+import { COMMITMENT_COLUMNS, type Commitment } from "@/lib/calendar/commitments";
+import { maskCalendarUrl } from "@/lib/calendar/ics-import";
 
 export default async function CalendarPage() {
   let bookings: any[] = [];
@@ -12,6 +14,8 @@ export default async function CalendarPage() {
   let availableDates: string[] = [];
   let isCreator = false;
   let followedEvents: FollowedEvent[] = [];
+  let commitments: Commitment[] = [];
+  let importMaskedUrl: string | null = null;
 
   try {
     const supabase = await createClient();
@@ -30,7 +34,7 @@ export default async function CalendarPage() {
       // (revoked so a logged-in user can't read other users' feed tokens); read
       // the user's OWN row via service-role after the getUser() ownership check.
       const admin = createAdminClient();
-      const [{ data: bookingData }, { data: profile }, { data: availabilityData }] = await Promise.all([
+      const [{ data: bookingData }, { data: profile }, { data: availabilityData }, { data: commitmentData }] = await Promise.all([
         // Hämtar ett halvår bakåt och framåt: kalenderrutnätet ska gå att
         // bläddra i historiskt, så filtret på "kommande" hör hemma i listan och
         // inte här. Utan någon gräns alls växer frågan obegränsat med tiden.
@@ -53,7 +57,33 @@ export default async function CalendarPage() {
           .eq("user_id", user.id)
           .gte("available_date", startOfMonth)
           .lte("available_date", endOfMonth),
+        // Egna åtaganden: samma halvår bakåt som bokningarna, så att rutnätet
+        // går att bläddra i. Privata — RLS släpper bara ägarens egna rader.
+        supabase
+          .from("creator_commitments")
+          .select(COMMITMENT_COLUMNS)
+          .eq("user_id", user.id)
+          .gte("end_date", sixMonthsAgo.slice(0, 10))
+          .order("start_date", { ascending: true })
+          .limit(500),
       ]);
+
+      commitments = (commitmentData || []) as unknown as Commitment[];
+
+      // Den kopplade kalenderns hemliga adress: läses med service-role efter
+      // ägarkontrollen ovan (som calendar_sync_token) och lämnar servern bara
+      // maskerad. Egen fråga, så att ett fel här — t.ex. innan kolumnen finns —
+      // inte tar med sig resten av profilen.
+      const { data: importRow, error: importError } = await admin
+        .from("profiles")
+        .select("external_calendar_ics_url")
+        .eq("id", user.id)
+        .single();
+      if (importError) {
+        console.error("[calendar] kunde inte läsa kalenderimporten:", importError.message);
+      }
+      const importUrl = (importRow as { external_calendar_ics_url?: string | null } | null)?.external_calendar_ics_url;
+      importMaskedUrl = importUrl ? maskCalendarUrl(importUrl) : null;
 
       bookings = bookingData || [];
 
@@ -140,7 +170,13 @@ export default async function CalendarPage() {
     <div className="px-4 py-6 space-y-6">
       <h1 className="text-2xl font-bold">Kalender</h1>
       <CalendarSync initialFeedUrl={feedUrl} lastFetchedAt={lastFetchedAt} lastClient={lastClient} />
-      <CalendarContent bookings={bookings} initialAvailableDates={availableDates} isCreator={isCreator} />
+      <CalendarContent
+        bookings={bookings}
+        initialAvailableDates={availableDates}
+        isCreator={isCreator}
+        initialCommitments={commitments}
+        importMaskedUrl={importMaskedUrl}
+      />
       <FollowedEvents events={followedEvents} />
     </div>
   );

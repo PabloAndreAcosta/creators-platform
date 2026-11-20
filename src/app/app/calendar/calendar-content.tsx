@@ -3,10 +3,12 @@
 import TimeSelect from "@/components/time-select";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, User, Clock, Calendar, Check, Plus, Trash2, Loader2, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, User, Clock, Calendar, Check, Plus, Trash2, Loader2, X, Briefcase } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRole } from "@/components/mobile/role-context";
 import { toggleAvailability, getAvailability, addTimeSlot, removeTimeSlot } from "./actions";
+import { commitmentDaysInRange, formatCommitmentRange, type Commitment } from "@/lib/calendar/commitments";
+import { CommitmentsSection } from "./commitments-section";
 
 const EVENT_COLORS = [
   "border-l-[var(--usha-gold)]",
@@ -30,9 +32,19 @@ interface CalendarContentProps {
   bookings: CalendarBooking[];
   initialAvailableDates?: string[];
   isCreator?: boolean;
+  /** Användarens egna åtaganden (festivaler, jobb, kurser). Privata. */
+  initialCommitments?: Commitment[];
+  /** Maskerad visning av den kopplade Google-kalenderns adress, eller null. */
+  importMaskedUrl?: string | null;
 }
 
-export function CalendarContent({ bookings, initialAvailableDates = [], isCreator = false }: CalendarContentProps) {
+export function CalendarContent({
+  bookings,
+  initialAvailableDates = [],
+  isCreator = false,
+  initialCommitments = [],
+  importMaskedUrl = null,
+}: CalendarContentProps) {
   const t = useTranslations("calendarPage");
   const ta = useTranslations("a11y");
   const DAYS = [
@@ -56,6 +68,10 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
   // var annars ett klick per dag. Ett ensamt valt datum beter sig exakt som
   // förut, så den vanliga vägen blir inte krångligare av att flera är möjliga.
   const [editingDates, setEditingDates] = useState<string[]>([]);
+  const [commitments, setCommitments] = useState<Commitment[]>(initialCommitments);
+  // Visas när man i markeringsläget trycker på en dag med ett eget åtagande,
+  // eller när servern vägrar markera en sådan dag.
+  const [blockedNotice, setBlockedNotice] = useState<string | null>(null);
 
   const showCreatorTools = isCreator || role === "creator" || role === "venue";
 
@@ -84,6 +100,9 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
   const getDateKey = (day: number) =>
     `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 
+  // Dagar i den visade månaden som täcks av ett eget åtagande.
+  const commitmentDays = commitmentDaysInRange(commitments, getDateKey(1), getDateKey(lastDay.getDate()));
+
   // Transform bookings into date-keyed events
   // Fältet hette tidigare "location" men innehöll status, vilket ritade en
   // kartnål bredvid ordet "Bekräftad".
@@ -109,6 +128,9 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
   const hasEvents = (day: number) => !!eventsByDate[getDateKey(day)];
 
   const selectedEvents = selectedDate ? eventsByDate[selectedDate] || [] : [];
+  const selectedCommitments = selectedDate
+    ? commitments.filter((c) => c.start_date <= selectedDate && selectedDate <= c.end_date)
+    : [];
 
   // Rubriken lovar "kommande", så listan visar bara framtiden. Passerade
   // bokningar finns kvar i rutnätet ovan, som går att bläddra bakåt i.
@@ -148,6 +170,13 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
         setAvailableSet(new Set(res.dates));
       })();
     } else if (mode === "mark" && showCreatorTools && !isPast(day)) {
+      // En dag med ett eget åtagande går inte att göra bokningsbar. Servern
+      // vägrar också, men att säga det redan vid trycket sparar en omväg.
+      if (commitmentDays.has(dateKey) && !editingDates.includes(dateKey)) {
+        setBlockedNotice(t("commitmentDayBlocked"));
+        return;
+      }
+      setBlockedNotice(null);
       // Toggle this date in the selection
       setEditingDates((prev) =>
         prev.includes(dateKey) ? prev.filter((d) => d !== dateKey) : [...prev, dateKey]
@@ -167,11 +196,14 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
     if (!dateKeys.length) return;
     const turningOn = !availableSet.has(dateKeys[0]);
 
+    let blocked = false;
     for (const dateKey of dateKeys) {
       // Already in the target state — toggling would undo it.
       if (availableSet.has(dateKey) === turningOn) continue;
-      await toggleAvailability(dateKey);
+      const result = await toggleAvailability(dateKey);
+      if ("code" in result && result.code === "dayBlocked") blocked = true;
     }
+    setBlockedNotice(blocked ? t("commitmentDayBlocked") : null);
 
     const res = await getAvailability(year, month + 1);
     setSlotsMap(res.slots || {});
@@ -192,7 +224,10 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
 
     for (const dateKey of dateKeys) {
       const result = await addTimeSlot(dateKey, startTime, endTime);
-      if (result.error) failures.push(`${dateKey.slice(8)}/${dateKey.slice(5, 7)}: ${result.error}`);
+      if (result.error) {
+        const message = "code" in result && result.code === "dayBlocked" ? t("commitmentDayBlocked") : result.error;
+        failures.push(`${dateKey.slice(8)}/${dateKey.slice(5, 7)}: ${message}`);
+      }
     }
 
     const res = await getAvailability(year, month + 1);
@@ -253,6 +288,11 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
       {mode === "unmark" && (
         <p className="text-xs text-red-400/80">{t("availabilityUnmarkHint")}</p>
       )}
+      {mode === "mark" && blockedNotice && (
+        <p role="status" className="text-xs text-violet-500 dark:text-violet-300">
+          {blockedNotice}
+        </p>
+      )}
 
       {/* Calendar */}
       <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
@@ -288,6 +328,7 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
             const isAvailable = availableSet.has(dateKey);
             const past = isPast(day);
             const isEditing = editMode && editingDates.includes(dateKey);
+            const isCommitment = commitmentDays.has(dateKey);
 
             return (
               <button
@@ -301,6 +342,8 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
                     ? "bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)] font-bold text-black"
                     : isAvailable && !isSelected
                       ? "bg-emerald-500/15 font-medium text-emerald-400 ring-1 ring-emerald-500/25"
+                      : isCommitment
+                        ? `bg-violet-500/15 font-medium text-violet-600 ring-1 ring-violet-500/30 dark:text-violet-300 ${mode === "mark" ? "cursor-not-allowed" : ""}`
                       : todayDay
                         ? "bg-[var(--usha-gold)]/10 font-semibold text-[var(--usha-gold)]"
                         : editMode && (past || mode === "unmark")
@@ -309,6 +352,11 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
                 }`}
               >
                 {day}
+                {/* Eget åtagande: ett streck upptill, så att det syns även när
+                    dagen samtidigt är vald, idag eller har en bokning. */}
+                {isCommitment && (
+                  <div className="absolute top-1 h-0.5 w-4 rounded-full bg-violet-500 dark:bg-violet-400" />
+                )}
                 {/* Event dot */}
                 {eventDay && !isSelected && (
                   <div className="absolute bottom-1 flex gap-0.5">
@@ -343,16 +391,35 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
               <div className="h-2 w-2 rounded-full bg-emerald-400" /> {t("legendAvailable")}
             </span>
           )}
+          <span className="flex items-center gap-1">
+            <div className="h-0.5 w-3 rounded-full bg-violet-500 dark:bg-violet-400" /> {t("legendCommitment")}
+          </span>
         </div>
       </div>
 
       {/* Selected date events */}
-      {selectedDate && selectedEvents.length > 0 && (
+      {selectedDate && (selectedEvents.length > 0 || selectedCommitments.length > 0) && (
         <section>
           <h3 className="mb-3 text-sm font-semibold text-[var(--usha-muted)]">
             {selectedDate.split("-").reverse().join("/")}
           </h3>
           <div className="space-y-3 md:grid md:grid-cols-2 md:gap-3 md:space-y-0">
+            {selectedCommitments.map((c) => (
+              <div
+                key={c.id}
+                className="rounded-xl border border-[var(--usha-border)] border-l-4 border-l-violet-500 bg-[var(--usha-card)] p-4"
+              >
+                <h3 className="text-sm font-semibold">{c.title}</h3>
+                <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-[var(--usha-muted)]">
+                  <span className="flex items-center gap-1">
+                    <Briefcase size={10} />
+                    {t(`commitmentKind_${c.kind}`)}
+                    {c.role ? ` · ${c.role}` : ""}
+                  </span>
+                  <span>{formatCommitmentRange(c)}</span>
+                </div>
+              </div>
+            ))}
             {selectedEvents.map((event, i) => (
               <Link
                 key={i}
@@ -425,6 +492,12 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
           )}
         </div>
       </section>
+
+      <CommitmentsSection
+        commitments={commitments}
+        onChange={setCommitments}
+        importMaskedUrl={importMaskedUrl}
+      />
     </div>
   );
 }
