@@ -17,6 +17,8 @@ interface CapacitorBridge {
   isNativePlatform?: () => boolean;
   getPlatform?: () => string;
   registerPlugin?: <T>(name: string) => T;
+  /** Bryggan som skalet injicerar har bara Plugins, inte registerPlugin. */
+  Plugins?: Record<string, unknown>;
 }
 
 declare global {
@@ -37,12 +39,21 @@ export function isNativeApp(): boolean {
   return getNativePlatform() !== null;
 }
 
-/** Hämtar ett native-plugin via bryggan, eller null utanför skalet. */
+/**
+ * Hämtar ett native-plugin via bryggan, eller null utanför skalet.
+ *
+ * Skalet laddar usha.se som fjärrsida, och då injicerar Capacitor bara den
+ * native bryggan: pluginerna ligger i `Capacitor.Plugins`, medan
+ * `registerPlugin` hör till @capacitor/core och finns inte. Förut letade vi
+ * bara efter registerPlugin och fick null — webbläsarflik, djuplänkar och
+ * bakåtknappen var därför tysta i appen (upptäckt på S23 2026-11-20).
+ */
 export function nativePlugin<T>(name: string): T | null {
-  if (typeof window === "undefined") return null;
-  const register = window.Capacitor?.registerPlugin;
-  if (!isNativeApp() || !register) return null;
-  return register<T>(name);
+  if (typeof window === "undefined" || !isNativeApp()) return null;
+  const cap = window.Capacitor;
+  const fromPlugins = cap?.Plugins?.[name];
+  if (fromPlugins) return fromPlugins as T;
+  return cap?.registerPlugin ? cap.registerPlugin<T>(name) : null;
 }
 
 /** null tills komponenten monterats (SSR-säkert), sedan plattformen eller null. */
