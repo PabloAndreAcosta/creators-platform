@@ -20,6 +20,26 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!-- Applänkar: https://usha.se/... öppnar appen direkt när den är
+                 installerad (verifieras mot /.well-known/assetlinks.json).
+                 Bara sidor som är meningsfulla i appen — aldrig /callback,
+                 /login eller /api, så att inloggning i Chrome stannar i Chrome. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" />
+                <data android:host="usha.se" />
+                <data android:pathPrefix="/event/" />
+                <data android:pathPrefix="/series/" />
+                <data android:pathPrefix="/biljett/" />
+                <data android:pathPrefix="/listing/" />
+                <data android:pathPrefix="/creators/" />
+                <data android:pathPrefix="/kalender" />
+                <data android:pathPrefix="/app/" />
+                <data android:pathPrefix="/till-appen" />
+            </intent-filter>
+
             <!-- Djuplänkar: usha://app/... öppnar appen (se src/lib/native.ts) -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
