@@ -11,6 +11,7 @@ import { getCreatorCommissionRate, platformCommissionOre } from "@/lib/stripe/co
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
 import { stockholmLocalToUtcISO } from "@/lib/time";
 import { getSaleState } from "@/lib/listings/sale-state";
+import { isNativeAppRequest, viaAppReturn } from "@/lib/native-return";
 
 // Redeem an event access code for a ticket. Works for logged-in users and guests
 // (email required). Two kinds of code:
@@ -159,8 +160,8 @@ export async function POST(
         ...(tax.automatic_tax ? { automatic_tax: tax.automatic_tax } : {}),
         // Land buyers on a clear confirmation instead of the feed: logged-in users
         // see their tickets, guests get the login-free "thank you" page.
-        success_url: user ? `${baseUrl}/app/tickets?success=true` : `${baseUrl}/biljett/klar`,
-        cancel_url: `${baseUrl}/flode`,
+        success_url: viaAppReturn(user ? `${baseUrl}/app/tickets?success=true` : `${baseUrl}/biljett/klar`, isNativeAppRequest(req)),
+        cancel_url: viaAppReturn(`${baseUrl}/flode`, isNativeAppRequest(req)),
         metadata: {
           // Reuse the existing webhook ticket branches. accessCodeReserved tells the
           // webhook the use was ALREADY counted here, so it must not consume again.

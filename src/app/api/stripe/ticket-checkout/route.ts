@@ -23,6 +23,7 @@ import {
 import { isGoldExclusive } from '@/lib/listings/early-bird';
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from '@/lib/payments/beta-gate';
 import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, buildTermsCustomText, type PayeeContext } from '@/lib/stripe/checkout';
+import { isNativeAppRequest, viaAppReturn } from "@/lib/native-return";
 
 export async function POST(req: NextRequest) {
   const { rateLimit, getRateLimitKey } = await import('@/lib/rate-limit');
@@ -400,8 +401,8 @@ export async function POST(req: NextRequest) {
         ...(paymentIntentData ? { payment_intent_data: paymentIntentData } : {}),
         ...(customText ? { custom_text: customText } : {}),
         ...(tax.automatic_tax ? { automatic_tax: tax.automatic_tax } : {}),
-        success_url: `${process.env.NEXT_PUBLIC_APP_URL}/app/tickets?success=true`,
-        cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/creators/${listing.user_id}`,
+        success_url: viaAppReturn(`${process.env.NEXT_PUBLIC_APP_URL}/app/tickets?success=true`, isNativeAppRequest(req)),
+        cancel_url: viaAppReturn(`${process.env.NEXT_PUBLIC_APP_URL}/creators/${listing.user_id}`, isNativeAppRequest(req)),
         metadata: {
           type: 'ticket',
           flow,

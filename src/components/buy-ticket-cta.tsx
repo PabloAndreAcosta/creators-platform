@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Ticket, Loader2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useToast } from "@/components/ui/toaster";
+import { openCheckout } from "@/lib/native-oauth";
 
 /**
  * Compact "buy ticket / book" CTA for event cards in browse/discovery views
@@ -86,7 +87,7 @@ export function BuyTicketCta({
         setLoading(false);
         return;
       }
-      if (data.url) window.location.href = data.url;
+      if (data.url) openCheckout(data.url);
       else setLoading(false);
     } catch {
       toast.error(t("errorTitle"), t("errorRetry"));

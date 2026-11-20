@@ -7,6 +7,7 @@ import { calculateDiscountedPrice, getCreatorCommissionRate, platformCommissionO
 import { assignmentRoute, payrollRouteLive, ASSIGNMENT_PAYROLL_NOT_LIVE_MESSAGE } from "@/lib/assignments/route";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
 import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, buildTermsCustomText, type PayeeContext } from "@/lib/stripe/checkout";
+import { isNativeAppRequest, viaAppReturn } from "@/lib/native-return";
 
 const PAYABLE_AFTER_CONFIRM = new Set(["b2b_offering", "service"]);
 
@@ -204,8 +205,8 @@ export async function POST(req: NextRequest) {
       ...(paymentIntentData ? { payment_intent_data: paymentIntentData } : {}),
       ...(customText ? { custom_text: customText } : {}),
       automatic_tax: { enabled: true },
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/app/tickets?success=true`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/app/tickets`,
+      success_url: viaAppReturn(`${process.env.NEXT_PUBLIC_APP_URL}/app/tickets?success=true`, isNativeAppRequest(req)),
+      cancel_url: viaAppReturn(`${process.env.NEXT_PUBLIC_APP_URL}/app/tickets`, isNativeAppRequest(req)),
       metadata: {
         type: "b2b_payment",
         flow,

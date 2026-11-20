@@ -20,6 +20,7 @@ import {
 } from "@/lib/stripe/commission";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
 import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, buildTermsCustomText, type PayeeContext } from "@/lib/stripe/checkout";
+import { isNativeAppRequest, viaAppReturn } from "@/lib/native-return";
 
 export async function POST(req: NextRequest) {
   // Rate limit: 5 guest checkouts per minute per IP
@@ -337,8 +338,8 @@ export async function POST(req: NextRequest) {
         // Sessions-id:t följer med så kvittosidan kan slå upp den bokning som
         // faktiskt skapades och rapportera köpet med rätt belopp — gästen har
         // inget konto att läsa historik från.
-        success_url: `${baseUrl}/biljett/klar?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${baseUrl}/flode`,
+        success_url: viaAppReturn(`${baseUrl}/biljett/klar?session_id={CHECKOUT_SESSION_ID}`, isNativeAppRequest(req)),
+        cancel_url: viaAppReturn(`${baseUrl}/flode`, isNativeAppRequest(req)),
         metadata: {
           type: "guest_ticket",
           flow,

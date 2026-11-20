@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Loader2, Banknote, Check, X } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
 import { gageKr, gageStatusLabel, GAGE_MIN_SEK, type GageStatus, type GageProposedBy } from "@/lib/gage";
+import { openCheckout } from "@/lib/native-oauth";
 
 export interface GageView {
   id: string;
@@ -92,7 +93,7 @@ export function GagePanel({
   }
   async function pay() {
     const data = await call(`/api/gage/${agreement!.id}/pay`);
-    if (data?.url) window.location.href = data.url;
+    if (data?.url) openCheckout(data.url);
   }
 
   // ---- render ----

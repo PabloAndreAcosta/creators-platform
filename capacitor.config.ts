@@ -13,8 +13,18 @@ const config: CapacitorConfig = {
     cleartext: false,
     errorPath: "offline.html",
     // Värdar som får öppnas inne i appen i stället för i systemets webbläsare:
-    // kortkassan (Stripe Checkout) måste komma tillbaka till usha.se i samma vy.
-    allowNavigation: ["*.usha.se", "checkout.stripe.com", "*.stripe.com", "*.stripe.network"],
+    // kortkassan (Stripe Checkout) och BankID/Freja via Signicat måste komma
+    // tillbaka till usha.se i samma vy — annars hamnar sessionen i Chrome.
+    // Capacitors jokertecken täcker exakt en nivå, därav en rad per djup.
+    allowNavigation: [
+      "*.usha.se",
+      "checkout.stripe.com",
+      "*.stripe.com",
+      "*.stripe.network",
+      "*.signicat.com",
+      "*.app.signicat.com",
+      "*.sandbox.signicat.com",
+    ],
   },
   // Låter servern känna igen skalet (analys, dölja PWA-installationsrutor).
   appendUserAgent: "UshaPlatformApp",

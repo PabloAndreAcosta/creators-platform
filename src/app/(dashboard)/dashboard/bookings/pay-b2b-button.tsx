@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useToast } from "@/components/ui/toaster";
 import { CreditCard, Loader2 } from "lucide-react";
+import { openCheckout } from "@/lib/native-oauth";
 
 export function PayB2BButton({ bookingId, price }: { bookingId: string; price: number | null }) {
   const { toast } = useToast();
@@ -25,7 +26,7 @@ export function PayB2BButton({ bookingId, price }: { bookingId: string; price: n
         return;
       }
       if (data.url) {
-        window.location.href = data.url;
+        openCheckout(data.url);
       }
     } catch {
       toast.error(t("payB2BError"), t("payB2BErrorRetry"));

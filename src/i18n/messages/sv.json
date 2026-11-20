@@ -5404,5 +5404,10 @@
     "creatorsTitle": "Har du något att lära ut?",
     "creatorsBody": "Sälj dina klasser och kvällar på Usha – biljetter, betalning och följare på ett ställe.",
     "about": "Vad är Usha?"
+  },
+  "nativeReturn": {
+    "title": "Klart!",
+    "body": "Du skickas tillbaka till Usha-appen.",
+    "button": "Öppna Usha-appen"
   }
 }

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Ticket } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
+import { openCheckout } from "@/lib/native-oauth";
 
 interface BuyTicketButtonProps {
   listingId: string;
@@ -88,7 +89,7 @@ export function BuyTicketButton({
       }
 
       if (data.url) {
-        window.location.href = data.url;
+        openCheckout(data.url);
       }
     } catch {
       toast.error(t("buyTicket.errorCouldNotStartPurchase"));
