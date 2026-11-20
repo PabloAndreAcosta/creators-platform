@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "se.usha.app",
+      "sha256_cert_fingerprints": [
+        "4E:2F:60:15:60:3D:05:F1:FD:70:51:D9:0D:8C:6E:B7:3C:63:56:55:6E:46:EB:48:72:22:4C:15:E8:45:76:C0"
+      ]
+    }
+  }
+]

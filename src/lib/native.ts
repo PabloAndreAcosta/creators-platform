@@ -94,5 +94,12 @@ export function appPathFromUrl(raw: string): string | null {
 
 function normalise(path: string, url: URL): string {
   const clean = path.replace(/\/{2,}/g, "/");
-  return `${clean.startsWith("/") ? clean : `/${clean}`}${url.search}${url.hash}`;
+  const full = clean.startsWith("/") ? clean : `/${clean}`;
+  // Återhoppet från kortkassan (/till-appen?till=/x) kan öppna appen direkt
+  // som applänk; gå då raka vägen till målet i stället för via mellansidan.
+  if (full === "/till-appen") {
+    const till = url.searchParams.get("till");
+    return till && till.startsWith("/") && !till.startsWith("//") ? till : "/app";
+  }
+  return `${full}${url.search}${url.hash}`;
 }

@@ -21,3 +21,17 @@ describe("nativeRedirectFor", () => {
     expect(appPathFromUrl("usha://callback?code=abc&next=%2Fapp")).toBe("/callback?code=abc&next=%2Fapp");
   });
 });
+
+describe("appPathFromUrl och återhoppet från kortkassan", () => {
+  it("går direkt till målet när /till-appen öppnar appen som applänk", () => {
+    expect(appPathFromUrl("https://usha.se/till-appen?till=%2Fapp%2Ftickets%3Fsuccess%3Dtrue")).toBe(
+      "/app/tickets?success=true",
+    );
+  });
+  it("samma via usha://", () => {
+    expect(appPathFromUrl("usha:///till-appen?till=%2Fbiljett%2Fklar")).toBe("/biljett/klar");
+  });
+  it("släpper inte igenom externa mål", () => {
+    expect(appPathFromUrl("https://usha.se/till-appen?till=%2F%2Fevil.com")).toBe("/app");
+  });
+});
