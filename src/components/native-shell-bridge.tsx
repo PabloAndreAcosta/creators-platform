@@ -65,6 +65,8 @@ export function NativeShellBridge() {
           window.location.assign(path);
           return;
         }
+        // Tillbaka från kortkassan i webbläsarfliken (/till-appen): stäng fliken.
+        void closeOAuthBrowser();
         router.push(path);
       }),
       app.addListener("backButton", ({ canGoBack }) => {

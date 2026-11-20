@@ -5404,5 +5404,10 @@
     "creatorsTitle": "Got something to teach?",
     "creatorsBody": "Sell your classes and evenings on Usha – tickets, payments and followers in one place.",
     "about": "What is Usha?"
+  },
+  "nativeReturn": {
+    "title": "Done!",
+    "body": "Taking you back to the Usha app.",
+    "button": "Open the Usha app"
   }
 }

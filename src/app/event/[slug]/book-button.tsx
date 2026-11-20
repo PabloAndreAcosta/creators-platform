@@ -9,6 +9,7 @@ import type { SwishOffer } from "@/lib/swish/availability";
 import { applicableCredit, SIGNUP_CREDIT_MIN_SPEND_ORE } from "@/lib/credits/signup";
 import { trackEvent } from "@/lib/analytics";
 import { ANALYTICS_EVENTS } from "@/lib/analytics/events";
+import { openCheckout } from "@/lib/native-oauth";
 
 interface TicketType {
   id: string;
@@ -182,7 +183,7 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
         toast.error(t("errorTitle"), data.error ?? t("errorRetry"));
         return;
       }
-      if (data.url) window.location.href = data.url;
+      if (data.url) openCheckout(data.url);
     } catch {
       toast.error(t("errorTitle"), t("errorRetry"));
     } finally {

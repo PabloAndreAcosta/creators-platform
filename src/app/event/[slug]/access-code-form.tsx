@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { openCheckout } from "@/lib/native-oauth";
 
 export function AccessCodeForm({ listingId, isLoggedIn }: { listingId: string; isLoggedIn: boolean }) {
   const t = useTranslations("eventPage");
@@ -30,7 +31,7 @@ export function AccessCodeForm({ listingId, isLoggedIn }: { listingId: string; i
       }
       // Discount code → server returns a Stripe Checkout URL. Free code → { ok }.
       if (data?.url) {
-        window.location.href = data.url;
+        openCheckout(data.url);
         return;
       }
       setStatus("done");

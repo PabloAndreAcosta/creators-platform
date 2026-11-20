@@ -5404,5 +5404,10 @@
     "creatorsTitle": "¿Tienes algo que enseñar?",
     "creatorsBody": "Vende tus clases y noches en Usha: entradas, pagos y seguidores en un solo lugar.",
     "about": "¿Qué es Usha?"
+  },
+  "nativeReturn": {
+    "title": "¡Listo!",
+    "body": "Te llevamos de vuelta a la app de Usha.",
+    "button": "Abrir la app de Usha"
   }
 }

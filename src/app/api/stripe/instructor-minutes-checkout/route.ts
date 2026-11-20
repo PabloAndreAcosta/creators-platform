@@ -9,6 +9,7 @@ import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payment
 import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, buildTermsCustomText, type PayeeContext } from "@/lib/stripe/checkout";
 import { assignmentRoute, payrollRouteLive } from "@/lib/assignments/route";
 import { MINUTES_PAYROLL_NOT_LIVE_MESSAGE } from "@/lib/coaching/minutes-payroll";
+import { isNativeAppRequest, viaAppReturn } from "@/lib/native-return";
 
 /**
  * Creates a Stripe Checkout session for buying a block of instructor minutes
@@ -158,8 +159,8 @@ export async function POST(req: NextRequest) {
       ...(paymentIntentData ? { payment_intent_data: paymentIntentData } : {}),
       ...(customText ? { custom_text: customText } : {}),
       automatic_tax: { enabled: true },
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/app/tickets?success=true`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/listing/${listing.slug || listing.id}`,
+      success_url: viaAppReturn(`${process.env.NEXT_PUBLIC_APP_URL}/app/tickets?success=true`, isNativeAppRequest(req)),
+      cancel_url: viaAppReturn(`${process.env.NEXT_PUBLIC_APP_URL}/listing/${listing.slug || listing.id}`, isNativeAppRequest(req)),
       metadata: {
         type: "instructor_minutes",
         flow,

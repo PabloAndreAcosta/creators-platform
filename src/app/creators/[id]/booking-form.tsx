@@ -9,6 +9,7 @@ import { useToast } from "@/components/ui/toaster";
 import { CalendarPlus, X, Users, UserPlus, Minus, Plus, ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import { PromoCodeInput } from "@/components/promo-code-input";
 import type { ListingType, ExperienceDetails } from "@/types/database";
+import { openCheckout } from "@/lib/native-oauth";
 
 interface Listing {
   id: string;
@@ -404,7 +405,7 @@ export default function BookingForm({
           return;
         }
         if (data.url) {
-          window.location.href = data.url;
+          openCheckout(data.url);
         }
       } catch {
         toast.error(t("booking.errorCouldNotStartPayment"), t("booking.errorTryAgain"));

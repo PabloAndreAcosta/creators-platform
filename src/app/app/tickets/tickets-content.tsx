@@ -10,6 +10,7 @@ import { ANALYTICS_EVENTS } from "@/lib/analytics/events";
 import Image from "next/image";
 import QRCode from "qrcode";
 import { ShareEventButton } from "@/components/share-event-button";
+import { openCheckout } from "@/lib/native-oauth";
 
 interface TicketData {
   id: string;
@@ -377,7 +378,7 @@ function TicketCard({
         setPaying(false);
         return;
       }
-      if (data.url) window.location.href = data.url;
+      if (data.url) openCheckout(data.url);
       else setPaying(false);
     } catch {
       toast.error(t("errorTitle"), t("payStartError"));

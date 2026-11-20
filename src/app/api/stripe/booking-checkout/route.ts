@@ -11,6 +11,7 @@ import {
 } from "@/lib/stripe/commission";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
 import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, buildTermsCustomText, type PayeeContext } from "@/lib/stripe/checkout";
+import { isNativeAppRequest, viaAppReturn } from "@/lib/native-return";
 
 /**
  * Creates a Stripe Checkout session for a paid manual booking.
@@ -221,8 +222,8 @@ export async function POST(req: NextRequest) {
       ...(paymentIntentData ? { payment_intent_data: paymentIntentData } : {}),
       ...(customText ? { custom_text: customText } : {}),
       automatic_tax: { enabled: true },
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/app/tickets?success=true`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/creators/${listing.user_id}`,
+      success_url: viaAppReturn(`${process.env.NEXT_PUBLIC_APP_URL}/app/tickets?success=true`, isNativeAppRequest(req)),
+      cancel_url: viaAppReturn(`${process.env.NEXT_PUBLIC_APP_URL}/creators/${listing.user_id}`, isNativeAppRequest(req)),
       metadata: {
         type: "paid_booking",
         flow,

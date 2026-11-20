@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { Film, BookOpen, Download, Package, ShoppingCart } from "lucide-react";
+import { openCheckout } from "@/lib/native-oauth";
 
 interface Product {
   id: string;
@@ -45,7 +46,7 @@ export function CreatorProducts({
       });
       const data = await res.json();
       if (data.url) {
-        window.location.href = data.url;
+        openCheckout(data.url);
       } else {
         alert(data.error || t("products.errorSomethingWrong"));
       }

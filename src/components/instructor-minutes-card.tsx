@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { User, Clock, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
 import { MINUTE_OPTIONS, priceForMinutes, durationParts, type MinuteOption } from "@/lib/coaching/minute-pricing";
+import { openCheckout } from "@/lib/native-oauth";
 
 interface Props {
   listingId: string;
@@ -54,7 +55,7 @@ export function InstructorMinutesCard({
         toast.error(data.error || t("errorCheckout"));
         return;
       }
-      if (data.url) window.location.href = data.url;
+      if (data.url) openCheckout(data.url);
     } catch {
       toast.error(t("errorCheckoutRetry"));
     } finally {

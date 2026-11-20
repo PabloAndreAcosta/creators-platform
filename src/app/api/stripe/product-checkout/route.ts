@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getCreatorCommissionRate, platformCommissionOre } from "@/lib/stripe/commission";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
 import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, buildTermsCustomText, type PayeeContext } from "@/lib/stripe/checkout";
+import { isNativeAppRequest, viaAppReturn } from "@/lib/native-return";
 
 export async function POST(req: NextRequest) {
   const { rateLimit, getRateLimitKey } = await import('@/lib/rate-limit');
@@ -194,8 +195,8 @@ export async function POST(req: NextRequest) {
         creator_promo_id: creatorPromoId || "",
       },
       automatic_tax: { enabled: true },
-      success_url: `${baseUrl}/app/library?purchased=${productId}`,
-      cancel_url: `${baseUrl}/creators/${product.creator_id}`,
+      success_url: viaAppReturn(`${baseUrl}/app/library?purchased=${productId}`, isNativeAppRequest(req)),
+      cancel_url: viaAppReturn(`${baseUrl}/creators/${product.creator_id}`, isNativeAppRequest(req)),
     });
 
     return NextResponse.json({ url: session.url });

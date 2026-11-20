@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { authUrlWithNext } from "@/lib/auth/next-path";
 import { useTranslations } from "next-intl";
 import { Loader2, ShoppingBag, Ticket, Calendar, Mail, X } from "lucide-react";
+import { openCheckout } from "@/lib/native-oauth";
 
 interface QuickBuyButtonProps {
   listingId: string;
@@ -73,7 +74,7 @@ export function QuickBuyButton({
       const data = await res.json();
 
       if (data.url) {
-        window.location.href = data.url;
+        openCheckout(data.url);
       } else if (data.error) {
         alert(data.error);
         setLoading(false);

@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
 import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, type PayeeContext } from "@/lib/stripe/checkout";
+import { isNativeAppRequest, viaAppReturn } from "@/lib/native-return";
 
 // Host pays an agreed gage: a destination charge transferring the full amount
 // to the crew member's Stripe Connect account. The webhook marks it paid.
@@ -116,8 +117,8 @@ export async function POST(
       ],
       mode: "payment",
       ...(paymentIntentData ? { payment_intent_data: paymentIntentData } : {}),
-      success_url: `${appUrl}/app/events/${g.listing_id}/crew?gage=paid`,
-      cancel_url: `${appUrl}/app/events/${g.listing_id}/crew?gage=canceled`,
+      success_url: viaAppReturn(`${appUrl}/app/events/${g.listing_id}/crew?gage=paid`, isNativeAppRequest(_req)),
+      cancel_url: viaAppReturn(`${appUrl}/app/events/${g.listing_id}/crew?gage=canceled`, isNativeAppRequest(_req)),
       metadata: {
         type: "crew_gage",
         flow,

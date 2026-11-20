@@ -52,3 +52,17 @@ export async function closeOAuthBrowser(): Promise<void> {
   const browser = nativePlugin<BrowserPlugin>("Browser");
   await browser?.close().catch(() => {});
 }
+
+/**
+ * Öppnar en betalsida (Stripe Checkout). I appen sker det i en webbläsarflik,
+ * där Google Pay finns; på webben som vanligt i samma flik. Återvägen går via
+ * /till-appen (src/lib/native-return.ts) och stängs av bryggan.
+ */
+export function openCheckout(url: string): void {
+  const browser = nativePlugin<BrowserPlugin>("Browser");
+  if (browser && /^https:\/\/checkout\.stripe\.com\//.test(url)) {
+    void browser.open({ url, presentationStyle: "popover" });
+    return;
+  }
+  window.location.href = url;
+}
