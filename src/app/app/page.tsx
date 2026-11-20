@@ -196,6 +196,8 @@ export default async function AppHomePage() {
           .limit(3),
       ]);
 
+      // Den hemliga kalenderadressen ska aldrig ut till klienten, inte ens till ägaren.
+      if (profileRes.data) delete (profileRes.data as Record<string, unknown>).external_calendar_ics_url;
       profile = profileRes.data as Profile | null;
       listings = (listingsRes.data || []) as Listing[];
       // Kommande först i datumordning, sedan passerade och odaterade. Samma
