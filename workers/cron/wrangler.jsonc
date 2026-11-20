@@ -1,6 +1,9 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "usha-cron",
+  // Bolagets konto (pablo.acosta@usha.se). Det gamla gmail-kontot
+  // (usha-korjournal.workers.dev) går inte att logga in på sedan 2026-10-27.
+  "account_id": "8565b50b1ae92c826fcd25ada1b15b14",
   "main": "src/index.ts",
   "compatibility_date": "2026-09-01",
   "observability": { "enabled": true },
