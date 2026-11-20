@@ -101,7 +101,11 @@ export default async function AppHomePage() {
           .select("*, profiles!user_id(full_name, avatar_url), ticket_types(id)")
           .eq("is_active", true)
           .eq("is_public", true)
-          .order("created_at", { ascending: false })
+          // Bara det som ligger framför oss (tjänster utan datum räknas med),
+          // närmast först — förut nyast skapade, så passerade kvällar kunde
+          // hamna överst som "Trending".
+          .or(`event_date.gte.${today},event_date.is.null`)
+          .order("event_date", { ascending: true, nullsFirst: false })
           .limit(6),
         supabase
           .from("bookings")
