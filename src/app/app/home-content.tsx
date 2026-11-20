@@ -38,7 +38,7 @@ import { GatedAction } from "@/components/subscription/GatedAction";
 import { commissionLabel } from "@/lib/stripe/commission";
 import { Feed } from "@/components/feed/feed";
 import { CreatePostForm } from "@/components/feed/create-post-form";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import type { FeedPost } from "@/types/database";
 
 interface Profile {
@@ -193,6 +193,7 @@ function PublikHome({
 }) {
   const t = useTranslations("home");
   const tc = useTranslations("common");
+  const locale = useLocale();
 
   // "What do you want to do today?" quick actions — the user's primary jobs.
   const quickActions = [
@@ -210,17 +211,24 @@ function PublikHome({
     "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop",
   ];
 
+  // Kategorin är ett enum i databasen ("venue", "dance") — visa den översatta etiketten.
+  const tCat = useTranslations("categories");
+  const categoryLabel = (c: string | null) => (!c ? tCat("other") : tCat.has(c) ? tCat(c) : c);
+
   const events = listings.map((listing) => ({
     id: listing.id,
     title: listing.title,
-    date: listing.created_at
-      ? new Date(listing.created_at).toLocaleDateString("sv-SE", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })
+    // Evenemangets datum och tid, inte när annonsen skapades.
+    date: listing.event_date
+      ? `${new Date(`${listing.event_date}T12:00:00`).toLocaleDateString(locale, { weekday: "short", day: "numeric", month: "short" })}${
+          listing.event_time ? ` ${listing.event_time.slice(0, 5)}` : ""
+        }`
       : "",
     price: listing.price ? `${listing.price} kr` : t("free"),
     priceNum: listing.price ?? null,
     slug: (listing as { slug?: string | null }).slug ?? null,
     image: (listing as { image_url?: string | null }).image_url ?? null,
-    category: listing.category || "Övrigt",
+    category: categoryLabel(listing.category),
     hasTicketTypes:
       ((listing as { ticket_types?: unknown[] }).ticket_types?.length ?? 0) > 0,
   }));
@@ -247,7 +255,7 @@ function PublikHome({
     .slice(0, 4)
     .map((l) => ({
       name: l.title,
-      type: l.category,
+      type: categoryLabel(l.category),
       icon: categoryIconMap[l.category?.toLowerCase()] || Ticket,
     }));
 
