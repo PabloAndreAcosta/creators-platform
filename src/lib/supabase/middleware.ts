@@ -1,6 +1,7 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { sharedCookieOptions } from "./cookie-options";
+import { AUTH_COOKIE_NAME, sharedCookieOptions } from "./cookie-options";
+import { guardSessionCookies } from "./session-cookie";
 import { authCookieNamesFrom } from "./auth-cookies";
 
 function isValidBase64URL(str: string): boolean {
@@ -38,6 +39,14 @@ export async function updateSession(
     return { response, clearHostOnly };
   }
 
+  // Trasig ihopsatt session (chunkar från olika refresh-varv) → läs som ingen
+  // session. getUser ger då fel med cookien kvar, och clearAuthCookies nedan
+  // rensar den så att nästa sidladdning är ren (se session-cookie.ts).
+  const readCookie = guardSessionCookies(
+    (name) => request.cookies.get(name)?.value,
+    AUTH_COOKIE_NAME
+  );
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
@@ -45,7 +54,7 @@ export async function updateSession(
       cookieOptions: sharedCookieOptions,
       cookies: {
         get(name: string) {
-          const value = request.cookies.get(name)?.value;
+          const value = readCookie(name);
           // Skip corrupt cookies to prevent Invalid UTF-8 sequence errors.
           // Only validate the UNCHUNKED, base64-prefixed session cookie:
           //  - the "base64-" prefix is not itself base64, so validate value.slice(7)

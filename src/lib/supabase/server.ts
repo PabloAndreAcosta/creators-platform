@@ -1,9 +1,17 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { sharedCookieOptions } from "./cookie-options";
+import { AUTH_COOKIE_NAME, sharedCookieOptions } from "./cookie-options";
+import { guardSessionCookies } from "./session-cookie";
 
 export async function createClient() {
   const cookieStore = await cookies();
+  // En session vars chunkar inte går att sätta ihop till ett objekt läses som
+  // saknad — annars kraschar auth-js med "Cannot create property 'user' on
+  // string" (se session-cookie.ts).
+  const readCookie = guardSessionCookies(
+    (name) => cookieStore.get(name)?.value,
+    AUTH_COOKIE_NAME
+  );
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -12,7 +20,7 @@ export async function createClient() {
       cookieOptions: sharedCookieOptions,
       cookies: {
         get(name: string) {
-          const value = cookieStore.get(name)?.value;
+          const value = readCookie(name);
           // Skip corrupt cookies to prevent Invalid UTF-8 sequence errors.
           // Only validate the UNCHUNKED, base64-prefixed session cookie:
           //  - the "base64-" prefix is not itself base64, so validate value.slice(7)
