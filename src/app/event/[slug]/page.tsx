@@ -21,14 +21,12 @@ import { cache } from "react";
 import { safeJsonLd } from "@/lib/json-ld";
 import {
   availabilityFromSale,
-  eventImage,
-  eventOffer,
-  eventOrganizer,
+  eventJsonLd,
   plainDescription,
   saleValidFrom,
+  serviceJsonLd,
 } from "@/lib/seo/event-json-ld";
 import { pickMessages, PUBLIC_NAMESPACES } from "@/lib/i18n/client-namespaces";
-import { stockholmEventISO } from "@/lib/time";
 import { loadShifts } from "@/lib/taxi/data";
 import { loadEveningCrew } from "@/lib/taxi/crew";
 import { EveningCrew } from "@/components/evening-crew";
@@ -632,11 +630,7 @@ export default async function EventPage(props: Params) {
   // offset tolkas tiden som UTC, och en kväll 17:00 i Stockholm presenteras
   // som 19:00. Regeln bor i lib/time så att kalendern och seriesidan använder
   // exakt samma — de hade var sin naiv variant och visade fel tid.
-  const isoStart = stockholmEventISO(listing.event_date, listing.event_time);
-  const isoEnd = listing.event_end_time
-    ? stockholmEventISO(listing.event_date, listing.event_end_time)
-    : undefined;
-
+  //
   // En Offer per biljettyp. Det är hela poängen för en aggregator: "från 50 kr"
   // går att härleda, och practica/workshop/social syns var för sig. Utan
   // biljettyper ett Offer på grundpriset — 0 för en gratiskväll, samma regel
@@ -644,77 +638,55 @@ export default async function EventPage(props: Params) {
   const offerAvailability = sellable
     ? availabilityFromSale(sale)
     : "https://schema.org/SoldOut" as const;
-  const offerValidFrom = saleValidFrom(listing);
-  const offers = ticketTypesForSale.length
-    ? ticketTypesForSale.map((tt) =>
-        eventOffer({
-          name: tt.name,
-          price: tt.price,
-          url: `/event/${slug}`,
-          availability: offerAvailability,
-          validFrom: offerValidFrom,
-        })
-      )
-    : [
-        eventOffer({
-          price: sale.price,
-          url: `/event/${slug}`,
-          availability: offerAvailability,
-          validFrom: offerValidFrom,
-        }),
-      ];
   const jsonLdDescription =
     plainDescription(beskrivning.primary) ??
     plainDescription((listing.tldr ?? "").trim()) ??
     plainDescription([listing.title, listing.event_venue || listing.event_location].filter(Boolean).join(" – "));
-  const jsonLdOrganizer =
-    eventOrganizer({ organizerName: listing.organizer_name, profile: host ?? null }) ?? {
-      "@type": "Organization",
-      name: "Usha Platform",
-      url: appUrl,
-    };
+  const jsonLdPlace = {
+    location: listing.event_location,
+    venue: listing.event_venue,
+    city: listing.event_city,
+    lat: listing.event_lat,
+    lng: listing.event_lng,
+  };
 
-  const eventJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "DanceEvent",
+  // Hela objektet byggs i lib/seo/event-json-ld, samma som kalendern och
+  // seriesidan. En rad utan event_date är en tjänst — då Service, aldrig ett
+  // Event utan startDate (kritiskt fel i Search Console).
+  const eventObject = eventJsonLd({
+    type: "DanceEvent",
     name: listing.title,
-    url: `${appUrl}/event/${slug}`,
-    // Radbrytningar fyller ingen funktion i en maskinläst beskrivning, och att
-    // inte ha dem tar bort en hel klass av escapningsproblem.
-    ...(jsonLdDescription ? { description: jsonLdDescription } : {}),
-    image: [eventImage(listing.image_url)],
-    startDate: isoStart,
-    ...(isoEnd ? { endDate: isoEnd } : {}),
-    eventStatus: "https://schema.org/EventScheduled",
-    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
-    ...(listing.event_location
-      ? {
-          location: {
-            "@type": "Place",
-            name: listing.event_venue || listing.event_location.split(",")[0]?.trim(),
-            address: {
-              "@type": "PostalAddress",
-              streetAddress: listing.event_location,
-              ...(listing.event_city ? { addressLocality: listing.event_city } : {}),
-              addressCountry: "SE",
-            },
-            ...(typeof listing.event_lat === "number" && typeof listing.event_lng === "number"
-              ? {
-                  geo: {
-                    "@type": "GeoCoordinates",
-                    latitude: listing.event_lat,
-                    longitude: listing.event_lng,
-                  },
-                }
-              : {}),
-          },
-        }
-      : {}),
-    offers,
-    organizer: jsonLdOrganizer,
-    ...(listing.series_slug
-      ? { superEvent: { "@type": "EventSeries", url: `${appUrl}/series/${listing.series_slug}` } }
-      : {}),
+    path: `/event/${slug}`,
+    event_date: listing.event_date,
+    event_time: listing.event_time,
+    event_end_time: listing.event_end_time,
+    is_active: listing.is_active,
+    description: jsonLdDescription,
+    imageUrl: listing.image_url,
+    place: jsonLdPlace,
+    organizerName: listing.organizer_name,
+    profile: host ?? null,
+    fallbackOrganizer: { "@type": "Organization", name: "Usha Platform", url: appUrl },
+    offers: ticketTypesForSale.length
+      ? ticketTypesForSale.map((tt) => ({ name: tt.name, price: tt.price }))
+      : [{ price: sale.price }],
+    availability: offerAvailability,
+    validFrom: saleValidFrom(listing),
+    superEventPath: listing.series_slug ? `/series/${listing.series_slug}` : undefined,
+  });
+  const eventJsonLdObject = {
+    "@context": "https://schema.org",
+    ...(eventObject ??
+      serviceJsonLd({
+        name: listing.title,
+        path: `/event/${slug}`,
+        description: jsonLdDescription,
+        imageUrl: listing.image_url,
+        serviceType: categoryLabel,
+        price: listing.price,
+        place: jsonLdPlace,
+        profile: host ?? null,
+      })),
   };
 
   return (
@@ -728,7 +700,7 @@ export default async function EventPage(props: Params) {
         sitt skript. */}
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: safeJsonLd(eventJsonLd) }}
+      dangerouslySetInnerHTML={{ __html: safeJsonLd(eventJsonLdObject) }}
     />
     <NextIntlClientProvider locale={eventLocale} messages={messages}>
     <main className="min-h-screen bg-[var(--usha-black)] text-[var(--usha-white)]">

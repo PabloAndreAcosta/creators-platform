@@ -24,6 +24,7 @@ import { CATEGORY_LABELS } from "@/lib/categories";
 import { calculateDiscountedPrice } from "@/lib/stripe/commission";
 import { canReceivePayments } from "@/lib/payments/beta-gate";
 import { indexable } from "@/lib/seo/metadata";
+import { plainDescription, serviceJsonLd } from "@/lib/seo/event-json-ld";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -84,7 +85,7 @@ export default async function ListingDetailPage(props: Props) {
     supabase
       .from("listings")
       .select(
-        "id, title, description, category, price, duration_minutes, event_date, event_time, event_end_time, event_location, event_lat, event_lng, event_place_id, image_url, listing_type, min_guests, max_guests, experience_details, user_id, is_active, slug, series_id, series_slug, open_to_instructors"
+        "id, title, description, category, price, duration_minutes, event_date, event_time, event_end_time, event_location, event_venue, event_city, event_lat, event_lng, event_place_id, image_url, listing_type, min_guests, max_guests, experience_details, user_id, is_active, slug, series_id, series_slug, open_to_instructors"
       )
       .eq(column, params.id)
       .eq("is_active", true)
@@ -186,46 +187,30 @@ export default async function ListingDetailPage(props: Props) {
   const details = listing.experience_details as ExperienceDetails | null;
   const creatorUrl = creator.slug ? `/${creator.slug}` : `/creators/${creator.id}`;
 
-  const jsonLd: Record<string, any> = {
+  // Hit kommer bara annonser UTAN event_date — daterade omdirigeras till
+  // /event ovan. Alltså en tjänst, oavsett listing_type: fältet går inte att
+  // lita på, och /listing/foretagsevent och /listing/pt-small-group (typ
+  // "event", inget datum) gav "Fältet startDate saknas" i Search Console när
+  // de märktes upp som Event. Byggaren delas med eventsidan.
+  const jsonLd = {
     "@context": "https://schema.org",
-    "@type": listing.listing_type === "event" ? "Event" : "Service",
-    name: listing.title,
-    url: `https://usha.se/listing/${listing.slug || listing.id}`,
-    ...(listing.description ? { description: listing.description.slice(0, 300) } : {}),
-    ...(listing.image_url ? { image: listing.image_url } : {}),
-    ...(listing.price != null ? {
-      offers: {
-        "@type": "Offer",
-        price: listing.price,
-        priceCurrency: "SEK",
-        availability: "https://schema.org/InStock",
+    ...serviceJsonLd({
+      name: listing.title,
+      path: `/listing/${listing.slug || listing.id}`,
+      description: plainDescription(listing.description, 300),
+      imageUrl: listing.image_url,
+      serviceType: CATEGORY_LABELS[listing.category] ?? null,
+      price: listing.price,
+      place: {
+        location: listing.event_location,
+        venue: listing.event_venue,
+        city: listing.event_city,
+        lat: listing.event_lat,
+        lng: listing.event_lng,
       },
-    } : {}),
-    ...(creator ? {
-      organizer: {
-        "@type": "Person",
-        name: creator.full_name || "Creator",
-        url: `https://usha.se/creators/${creator.slug || creator.id}`,
-      },
-    } : {}),
+      profile: creator,
+    }),
   };
-
-  if (listing.listing_type === "event") {
-    if (listing.event_date) {
-      jsonLd.startDate = listing.event_time
-        ? `${listing.event_date}T${listing.event_time}`
-        : listing.event_date;
-    }
-    if (listing.event_location) {
-      jsonLd.location = {
-        "@type": "Place",
-        name: listing.event_location,
-        ...(listing.event_lat && listing.event_lng ? {
-          geo: { "@type": "GeoCoordinates", latitude: listing.event_lat, longitude: listing.event_lng },
-        } : {}),
-      };
-    }
-  }
 
   return (
     <div className="min-h-screen">

@@ -20,6 +20,8 @@ export type CalendarListing = {
   event_venue: string | null;
   image_url: string | null;
   price: number | null;
+  event_lat?: number | null;
+  event_lng?: number | null;
   // För kalenderns JSON-LD (description, organizer, offers). Valfria så att
   // ytor som bara listar programmet (llms.txt, tester) inte behöver dem.
   description?: string | null;
