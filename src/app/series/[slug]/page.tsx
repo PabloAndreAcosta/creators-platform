@@ -2,6 +2,15 @@ export const revalidate = 60; // ISR: revalidate every 60 seconds
 
 import { createClient } from "@/lib/supabase/server";
 import { safeJsonLd } from "@/lib/json-ld";
+import { getSaleState } from "@/lib/listings/sale-state";
+import {
+  availabilityFromSale,
+  eventImage,
+  eventOffer,
+  eventOrganizer,
+  plainDescription,
+  saleValidFrom,
+} from "@/lib/seo/event-json-ld";
 import { stockholmEventISO } from "@/lib/time";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -44,10 +53,18 @@ type Occurrence = {
   user_id: string;
   content_language: string | null;
   ticket_types?: { price: number | null }[] | null;
+  organizer_name?: string | null;
+  created_at?: string | null;
+  capacity?: number | null;
+  tickets_sold?: number | null;
+  early_bird_start?: string | null;
+  early_bird_end?: string | null;
+  early_bird_price?: number | null;
+  public_sale_at?: string | null;
 };
 
 const SERIES_COLUMNS =
-  "id, slug, title, description, tldr, category, price, event_date, event_time, event_end_time, event_location, event_lat, event_lng, image_url, user_id, content_language, ticket_types(price)";
+  "id, slug, title, description, tldr, category, price, event_date, event_time, event_end_time, event_location, event_lat, event_lng, image_url, user_id, content_language, organizer_name, created_at, capacity, tickets_sold, early_bird_start, early_bird_end, early_bird_price, public_sale_at, ticket_types(price)";
 
 async function fetchBySeriesSlug(slug: string): Promise<Occurrence[]> {
   const supabase = await createClient();
@@ -251,6 +268,8 @@ export default async function SeriesPage(props: Props) {
   const crewLabels = { taxi_dancer: tc("taxi_dancer"), instructor: tc("instructor"), collaborator: tc("collaborator") };
   const past = occurrences.filter((o) => o.event_date && o.event_date < today).reverse();
 
+  const now = new Date();
+  const seriesOrganizer = eventOrganizer({ organizerName: series.organizer_name, profile: creator ?? null });
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "EventSeries",
@@ -260,24 +279,45 @@ export default async function SeriesPage(props: Props) {
       ? { description: splitBilingualDescription(series.description).primary.slice(0, 300) }
       : {}),
     ...(series.image_url ? { image: series.image_url } : {}),
-    ...(creator
-      ? {
-          organizer: {
-            "@type": "Person",
-            name: creator.full_name || t("creator"),
-            url: `${appUrl()}${creatorUrl}`,
-          },
-        }
-      : {}),
+    // Seriens eget arrangörsnamn vinner, precis som på varje kväll. Utan det
+    // föll organizer bort helt när kreatörens profil inte är publik.
+    ...(seriesOrganizer ? { organizer: seriesOrganizer } : {}),
     subEvent: occurrences
       .filter((o): o is typeof o & { event_date: string } => !!o.event_date)
-      .map((o) => ({
-        "@type": "Event",
-        name: o.title,
-        startDate: stockholmEventISO(o.event_date, o.event_time),
-        url: `${appUrl()}/listing/${o.slug || o.id}`,
-        ...(o.event_location ? { location: { "@type": "Place", name: o.event_location } } : {}),
-      })),
+      .map((o) => {
+        // Search Console räknar varje subEvent som ett eget Event och flaggade
+        // dem för att sakna image, description, organizer och offers. Samma
+        // byggstenar som eventsidan och kalendern.
+        const sale = getSaleState(o, now);
+        const tiers = (o.ticket_types ?? [])
+          .map((tt) => tt.price)
+          .filter((p): p is number => typeof p === "number");
+        const href = `/event/${o.slug || o.id}`;
+        const description =
+          plainDescription(splitBilingualDescription(o.description).primary) ??
+          plainDescription([o.title, o.event_location].filter(Boolean).join(" – "));
+        const organizer = eventOrganizer({ organizerName: o.organizer_name, profile: creator ?? null });
+        return {
+          "@type": "Event",
+          name: o.title,
+          startDate: stockholmEventISO(o.event_date, o.event_time),
+          ...(o.event_end_time ? { endDate: stockholmEventISO(o.event_date, o.event_end_time) } : {}),
+          eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+          eventStatus: "https://schema.org/EventScheduled",
+          // Daterade tillfällen omdirigeras från /listing till /event — peka dit direkt.
+          url: `${appUrl()}${href}`,
+          image: eventImage(o.image_url),
+          ...(description ? { description } : {}),
+          ...(o.event_location ? { location: { "@type": "Place", name: o.event_location } } : {}),
+          ...(organizer ? { organizer } : {}),
+          offers: eventOffer({
+            price: tiers.length ? Math.min(...tiers) : sale.price,
+            url: href,
+            availability: availabilityFromSale(sale),
+            validFrom: saleValidFrom(o),
+          }),
+        };
+      }),
   };
 
   return (

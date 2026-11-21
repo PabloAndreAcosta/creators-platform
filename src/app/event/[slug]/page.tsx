@@ -19,6 +19,14 @@ import { buildMapsHref } from "@/lib/listings/maps";
 import { canReceivePayments } from "@/lib/payments/beta-gate";
 import { cache } from "react";
 import { safeJsonLd } from "@/lib/json-ld";
+import {
+  availabilityFromSale,
+  eventImage,
+  eventOffer,
+  eventOrganizer,
+  plainDescription,
+  saleValidFrom,
+} from "@/lib/seo/event-json-ld";
 import { pickMessages, PUBLIC_NAMESPACES } from "@/lib/i18n/client-namespaces";
 import { stockholmEventISO } from "@/lib/time";
 import { loadShifts } from "@/lib/taxi/data";
@@ -115,7 +123,7 @@ const getListing = cache(async (slug: string) => {
   const { data: listing } = await supabase
     .from("listings")
     .select(
-      "id, user_id, title, description, tldr, category, price, duration_minutes, image_url, image_url_square, series_id, is_practica, event_date, event_time, event_end_time, event_location, event_place_id, event_lat, event_lng, event_city, event_venue, slug, series_slug, is_active, content_language, organizer_name, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, venue_profile_id, venue_confirmed_at, is_wellness_eligible"
+      "id, user_id, title, description, tldr, category, price, duration_minutes, image_url, image_url_square, series_id, is_practica, event_date, event_time, event_end_time, event_location, event_place_id, event_lat, event_lng, event_city, event_venue, slug, series_slug, is_active, content_language, organizer_name, early_bird_start, early_bird_end, early_bird_price, public_sale_at, created_at, capacity, tickets_sold, venue_profile_id, venue_confirmed_at, is_wellness_eligible"
     )
     .eq(isUUID(slug) ? "id" : "slug", slug)
     .eq("is_active", true)
@@ -630,29 +638,41 @@ export default async function EventPage(props: Params) {
     : undefined;
 
   // En Offer per biljettyp. Det är hela poängen för en aggregator: "från 50 kr"
-  // går att härleda, och practica/workshop/social syns var för sig.
+  // går att härleda, och practica/workshop/social syns var för sig. Utan
+  // biljettyper ett Offer på grundpriset — 0 för en gratiskväll, samma regel
+  // som knappen (getSaleState räknar ett saknat pris som gratis).
+  const offerAvailability = sellable
+    ? availabilityFromSale(sale)
+    : "https://schema.org/SoldOut" as const;
+  const offerValidFrom = saleValidFrom(listing);
   const offers = ticketTypesForSale.length
-    ? ticketTypesForSale.map((tt) => ({
-        "@type": "Offer",
-        name: tt.name,
-        price: tt.price,
-        priceCurrency: "SEK",
-        url: `${appUrl}/event/${slug}`,
-        availability: sale.buyable && sellable
-          ? "https://schema.org/InStock"
-          : "https://schema.org/SoldOut",
-      }))
-    : listing.price != null
-      ? [{
-          "@type": "Offer",
-          price: listing.price,
-          priceCurrency: "SEK",
-          url: `${appUrl}/event/${slug}`,
-          availability: sale.buyable && sellable
-            ? "https://schema.org/InStock"
-            : "https://schema.org/SoldOut",
-        }]
-      : [];
+    ? ticketTypesForSale.map((tt) =>
+        eventOffer({
+          name: tt.name,
+          price: tt.price,
+          url: `/event/${slug}`,
+          availability: offerAvailability,
+          validFrom: offerValidFrom,
+        })
+      )
+    : [
+        eventOffer({
+          price: sale.price,
+          url: `/event/${slug}`,
+          availability: offerAvailability,
+          validFrom: offerValidFrom,
+        }),
+      ];
+  const jsonLdDescription =
+    plainDescription(beskrivning.primary) ??
+    plainDescription((listing.tldr ?? "").trim()) ??
+    plainDescription([listing.title, listing.event_venue || listing.event_location].filter(Boolean).join(" – "));
+  const jsonLdOrganizer =
+    eventOrganizer({ organizerName: listing.organizer_name, profile: host ?? null }) ?? {
+      "@type": "Organization",
+      name: "Usha Platform",
+      url: appUrl,
+    };
 
   const eventJsonLd = {
     "@context": "https://schema.org",
@@ -661,10 +681,8 @@ export default async function EventPage(props: Params) {
     url: `${appUrl}/event/${slug}`,
     // Radbrytningar fyller ingen funktion i en maskinläst beskrivning, och att
     // inte ha dem tar bort en hel klass av escapningsproblem.
-    ...(beskrivning.primary
-      ? { description: beskrivning.primary.replace(/\s+/g, " ").trim().slice(0, 500) }
-      : {}),
-    ...(listing.image_url ? { image: [listing.image_url] } : {}),
+    ...(jsonLdDescription ? { description: jsonLdDescription } : {}),
+    image: [eventImage(listing.image_url)],
     startDate: isoStart,
     ...(isoEnd ? { endDate: isoEnd } : {}),
     eventStatus: "https://schema.org/EventScheduled",
@@ -692,12 +710,8 @@ export default async function EventPage(props: Params) {
           },
         }
       : {}),
-    ...(offers.length ? { offers } : {}),
-    organizer: {
-      "@type": "Organization",
-      name: listing.organizer_name || host?.full_name || "Usha Platform",
-      url: host ? `${appUrl}/creators/${host.slug || host.id}` : appUrl,
-    },
+    offers,
+    organizer: jsonLdOrganizer,
     ...(listing.series_slug
       ? { superEvent: { "@type": "EventSeries", url: `${appUrl}/series/${listing.series_slug}` } }
       : {}),

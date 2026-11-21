@@ -20,6 +20,17 @@ export type CalendarListing = {
   event_venue: string | null;
   image_url: string | null;
   price: number | null;
+  // För kalenderns JSON-LD (description, organizer, offers). Valfria så att
+  // ytor som bara listar programmet (llms.txt, tester) inte behöver dem.
+  description?: string | null;
+  organizer_name?: string | null;
+  created_at?: string | null;
+  capacity?: number | null;
+  tickets_sold?: number | null;
+  early_bird_start?: string | null;
+  early_bird_end?: string | null;
+  early_bird_price?: number | null;
+  public_sale_at?: string | null;
 };
 
 export type CalendarEntry = {
@@ -40,6 +51,8 @@ export type CalendarEntry = {
   occurrences: number;
   /** 0–6 (sön–lör) när alla tillfällen faller på samma veckodag, annars null. */
   recurringWeekday: number | null;
+  /** Raden för nästa tillfälle, oförändrad (pris, försäljningsläge, text). */
+  next: CalendarListing;
 };
 
 export type CalendarBucket = "today" | "thisWeek" | "nextWeek" | "later";
@@ -114,6 +127,7 @@ export function groupUpcoming(listings: CalendarListing[], today: string): Calen
       price: l.price,
       occurrences: 1,
       recurringWeekday: null,
+      next: l,
     });
   }
 
