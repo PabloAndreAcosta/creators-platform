@@ -10,15 +10,11 @@ import { fetchUpcomingListings } from "@/lib/calendar/visibility";
 import { bucketFor, groupUpcoming, type CalendarBucket, type CalendarEntry } from "@/lib/calendar/upcoming";
 import { createClient } from "@/lib/supabase/server";
 import { safeJsonLd } from "@/lib/json-ld";
-import { stockholmEventISO } from "@/lib/time";
-import { absoluteUrl } from "@/lib/seo/metadata";
 import { getSaleState } from "@/lib/listings/sale-state";
 import { splitBilingualDescription } from "@/lib/listings/description";
 import {
   availabilityFromSale,
-  eventImage,
-  eventOffer,
-  eventOrganizer,
+  eventJsonLd,
   plainDescription,
   saleValidFrom,
 } from "@/lib/seo/event-json-ld";
@@ -95,11 +91,14 @@ export default async function KalenderPage() {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: t("title"),
-    itemListElement: entries.slice(0, 30).map((e, i) => ({
-      "@type": "ListItem",
-      position: i + 1,
-      item: calendarEventJsonLd(e),
-    })),
+    // Kalendern har bara daterade rader (groupUpcoming släpper inga utan
+    // datum), men filtret står kvar så att ett Event utan startDate aldrig
+    // kan slinka ut härifrån.
+    itemListElement: entries
+      .slice(0, 30)
+      .map((e) => calendarEventJsonLd(e))
+      .filter((item): item is Record<string, unknown> => !!item)
+      .map((item, i) => ({ "@type": "ListItem", position: i + 1, item })),
   };
 
   // Samma fyra fält som eventsidan (image, description, organizer, offers) —
@@ -111,29 +110,27 @@ export default async function KalenderPage() {
     const description =
       plainDescription(splitBilingualDescription(e.next.description ?? null).primary) ??
       plainDescription([e.title, e.location].filter(Boolean).join(" – "));
-    const organizer = eventOrganizer({
+    return eventJsonLd({
+      name: e.title,
+      path: e.href,
+      event_date: e.next.event_date,
+      event_time: e.next.event_time,
+      event_end_time: e.next.event_end_time,
+      description,
+      imageUrl: e.imageUrl,
+      place: {
+        location: e.next.event_location,
+        venue: e.next.event_venue,
+        city: e.next.event_city,
+        lat: e.next.event_lat,
+        lng: e.next.event_lng,
+      },
       organizerName: e.next.organizer_name,
       profile: e.organizerId ? profileById.get(e.organizerId) ?? null : null,
+      offers: [{ price: sale.price }],
+      availability: availabilityFromSale(sale),
+      validFrom: saleValidFrom(e.next),
     });
-    return {
-      "@type": "Event",
-      name: e.title,
-      startDate: stockholmEventISO(e.date, e.time),
-      ...(e.endTime ? { endDate: stockholmEventISO(e.date, e.endTime) } : {}),
-      eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
-      eventStatus: "https://schema.org/EventScheduled",
-      url: absoluteUrl(e.href),
-      image: eventImage(e.imageUrl),
-      ...(description ? { description } : {}),
-      ...(e.location ? { location: { "@type": "Place", name: e.location } } : {}),
-      ...(organizer ? { organizer } : {}),
-      offers: eventOffer({
-        price: sale.price,
-        url: e.href,
-        availability: availabilityFromSale(sale),
-        validFrom: saleValidFrom(e.next),
-      }),
-    };
   }
 
   const dayFmt = new Intl.DateTimeFormat(locale, { weekday: "short", day: "numeric", month: "short", timeZone: TZ });

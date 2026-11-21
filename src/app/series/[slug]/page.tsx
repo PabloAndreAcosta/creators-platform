@@ -5,13 +5,11 @@ import { safeJsonLd } from "@/lib/json-ld";
 import { getSaleState } from "@/lib/listings/sale-state";
 import {
   availabilityFromSale,
-  eventImage,
-  eventOffer,
+  eventJsonLd,
   eventOrganizer,
   plainDescription,
   saleValidFrom,
 } from "@/lib/seo/event-json-ld";
-import { stockholmEventISO } from "@/lib/time";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -47,6 +45,8 @@ type Occurrence = {
   event_time: string | null;
   event_end_time: string | null;
   event_location: string | null;
+  event_venue?: string | null;
+  event_city?: string | null;
   event_lat: number | null;
   event_lng: number | null;
   image_url: string | null;
@@ -64,7 +64,7 @@ type Occurrence = {
 };
 
 const SERIES_COLUMNS =
-  "id, slug, title, description, tldr, category, price, event_date, event_time, event_end_time, event_location, event_lat, event_lng, image_url, user_id, content_language, organizer_name, created_at, capacity, tickets_sold, early_bird_start, early_bird_end, early_bird_price, public_sale_at, ticket_types(price)";
+  "id, slug, title, description, tldr, category, price, event_date, event_time, event_end_time, event_location, event_venue, event_city, event_lat, event_lng, image_url, user_id, content_language, organizer_name, created_at, capacity, tickets_sold, early_bird_start, early_bird_end, early_bird_price, public_sale_at, ticket_types(price)";
 
 async function fetchBySeriesSlug(slug: string): Promise<Occurrence[]> {
   const supabase = await createClient();
@@ -283,41 +283,41 @@ export default async function SeriesPage(props: Props) {
     // föll organizer bort helt när kreatörens profil inte är publik.
     ...(seriesOrganizer ? { organizer: seriesOrganizer } : {}),
     subEvent: occurrences
-      .filter((o): o is typeof o & { event_date: string } => !!o.event_date)
       .map((o) => {
-        // Search Console räknar varje subEvent som ett eget Event och flaggade
-        // dem för att sakna image, description, organizer och offers. Samma
-        // byggstenar som eventsidan och kalendern.
+        // Search Console räknar varje subEvent som ett eget Event. Samma
+        // byggare som eventsidan och kalendern; tillfällen utan datum ger
+        // null och faller bort (ett Event utan startDate är ett kritiskt fel).
         const sale = getSaleState(o, now);
         const tiers = (o.ticket_types ?? [])
           .map((tt) => tt.price)
           .filter((p): p is number => typeof p === "number");
-        const href = `/event/${o.slug || o.id}`;
         const description =
           plainDescription(splitBilingualDescription(o.description).primary) ??
-          plainDescription([o.title, o.event_location].filter(Boolean).join(" – "));
-        const organizer = eventOrganizer({ organizerName: o.organizer_name, profile: creator ?? null });
-        return {
-          "@type": "Event",
+          plainDescription([o.title, o.event_venue || o.event_location].filter(Boolean).join(" – "));
+        return eventJsonLd({
           name: o.title,
-          startDate: stockholmEventISO(o.event_date, o.event_time),
-          ...(o.event_end_time ? { endDate: stockholmEventISO(o.event_date, o.event_end_time) } : {}),
-          eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
-          eventStatus: "https://schema.org/EventScheduled",
           // Daterade tillfällen omdirigeras från /listing till /event — peka dit direkt.
-          url: `${appUrl()}${href}`,
-          image: eventImage(o.image_url),
-          ...(description ? { description } : {}),
-          ...(o.event_location ? { location: { "@type": "Place", name: o.event_location } } : {}),
-          ...(organizer ? { organizer } : {}),
-          offers: eventOffer({
-            price: tiers.length ? Math.min(...tiers) : sale.price,
-            url: href,
-            availability: availabilityFromSale(sale),
-            validFrom: saleValidFrom(o),
-          }),
-        };
-      }),
+          path: `/event/${o.slug || o.id}`,
+          event_date: o.event_date,
+          event_time: o.event_time,
+          event_end_time: o.event_end_time,
+          description,
+          imageUrl: o.image_url,
+          place: {
+            location: o.event_location,
+            venue: o.event_venue,
+            city: o.event_city,
+            lat: o.event_lat,
+            lng: o.event_lng,
+          },
+          organizerName: o.organizer_name,
+          profile: creator ?? null,
+          offers: [{ price: tiers.length ? Math.min(...tiers) : sale.price }],
+          availability: availabilityFromSale(sale),
+          validFrom: saleValidFrom(o),
+        });
+      })
+      .filter((ev): ev is Record<string, unknown> => !!ev),
   };
 
   return (

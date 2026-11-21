@@ -4,7 +4,7 @@ import { getCalendarMinSupply } from "./flag";
 import { groupUpcoming, hasEnoughSupply, type CalendarListing } from "./upcoming";
 
 export const CALENDAR_COLUMNS =
-  "id, user_id, slug, series_id, series_slug, title, event_date, event_time, event_end_time, event_location, event_city, event_venue, image_url, price, description, organizer_name, created_at, capacity, tickets_sold, early_bird_start, early_bird_end, early_bird_price, public_sale_at";
+  "id, user_id, slug, series_id, series_slug, title, event_date, event_time, event_end_time, event_location, event_city, event_venue, event_lat, event_lng, image_url, price, description, organizer_name, created_at, capacity, tickets_sold, early_bird_start, early_bird_end, early_bird_price, public_sale_at";
 
 /** Alla publika, aktiva annonser med datum från i dag och framåt. */
 export async function fetchUpcomingListings(): Promise<CalendarListing[]> {
