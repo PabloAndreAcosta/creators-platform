@@ -12,6 +12,16 @@ import { createClient } from "@/lib/supabase/server";
 import { safeJsonLd } from "@/lib/json-ld";
 import { stockholmEventISO } from "@/lib/time";
 import { absoluteUrl } from "@/lib/seo/metadata";
+import { getSaleState } from "@/lib/listings/sale-state";
+import { splitBilingualDescription } from "@/lib/listings/description";
+import {
+  availabilityFromSale,
+  eventImage,
+  eventOffer,
+  eventOrganizer,
+  plainDescription,
+  saleValidFrom,
+} from "@/lib/seo/event-json-ld";
 import { FollowButton } from "@/components/follow-button";
 import { loadEveningCrew } from "@/lib/taxi/crew";
 import { EveningCrew } from "@/components/evening-crew";
@@ -64,10 +74,19 @@ export default async function KalenderPage() {
   const crewByListing = await loadEveningCrew(entries.map((e) => e.listingId));
   const tc = await getTranslations("eveningCrew");
   const crewLabels = { taxi_dancer: tc("taxi_dancer"), instructor: tc("instructor"), collaborator: tc("collaborator") };
-  const { data: myFollows } = user && organizerIds.length
-    ? await supabase.from("follows").select("followed_id").eq("follower_id", user.id).in("followed_id", organizerIds)
-    : { data: [] as { followed_id: string }[] };
+  const [{ data: myFollows }, { data: organizerProfiles }] = await Promise.all([
+    user && organizerIds.length
+      ? supabase.from("follows").select("followed_id").eq("follower_id", user.id).in("followed_id", organizerIds)
+      : Promise.resolve({ data: [] as { followed_id: string }[] }),
+    // Arrangörens namn och profil-URL till JSON-LD. id, full_name och slug är
+    // läsbara för anon (kolumn-lockdownen rör inte dem).
+    organizerIds.length
+      ? supabase.from("profiles").select("id, full_name, slug").in("id", organizerIds)
+      : Promise.resolve({ data: [] as { id: string; full_name: string | null; slug: string | null }[] }),
+  ]);
   const followingIds = new Set((myFollows ?? []).map((f) => f.followed_id));
+  const profileById = new Map((organizerProfiles ?? []).map((p) => [p.id, p]));
+  const now = new Date();
 
   // Kalendern som en lista av evenemang, så en sökmotor ser vad som faktiskt
   // står på programmet i stället för en sida med datum i löptext. En serie
@@ -79,22 +98,43 @@ export default async function KalenderPage() {
     itemListElement: entries.slice(0, 30).map((e, i) => ({
       "@type": "ListItem",
       position: i + 1,
-      item: {
-        "@type": "Event",
-        name: e.title,
-        startDate: stockholmEventISO(e.date, e.time),
-        ...(e.endTime ? { endDate: stockholmEventISO(e.date, e.endTime) } : {}),
-        eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
-        eventStatus: "https://schema.org/EventScheduled",
-        url: absoluteUrl(e.href),
-        ...(e.imageUrl ? { image: e.imageUrl } : {}),
-        ...(e.location ? { location: { "@type": "Place", name: e.location } } : {}),
-        ...(e.price
-          ? { offers: { "@type": "Offer", price: e.price, priceCurrency: "SEK", url: absoluteUrl(e.href), availability: "https://schema.org/InStock" } }
-          : {}),
-      },
+      item: calendarEventJsonLd(e),
     })),
   };
+
+  // Samma fyra fält som eventsidan (image, description, organizer, offers) —
+  // Search Console räknar kalenderns Event för sig och flaggade dem som
+  // ofullständiga. Priset och biljettläget kommer ur samma getSaleState som
+  // eventsidan, så en slutsåld kväll inte står som InStock här.
+  function calendarEventJsonLd(e: CalendarEntry) {
+    const sale = getSaleState(e.next, now);
+    const description =
+      plainDescription(splitBilingualDescription(e.next.description ?? null).primary) ??
+      plainDescription([e.title, e.location].filter(Boolean).join(" – "));
+    const organizer = eventOrganizer({
+      organizerName: e.next.organizer_name,
+      profile: e.organizerId ? profileById.get(e.organizerId) ?? null : null,
+    });
+    return {
+      "@type": "Event",
+      name: e.title,
+      startDate: stockholmEventISO(e.date, e.time),
+      ...(e.endTime ? { endDate: stockholmEventISO(e.date, e.endTime) } : {}),
+      eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+      eventStatus: "https://schema.org/EventScheduled",
+      url: absoluteUrl(e.href),
+      image: eventImage(e.imageUrl),
+      ...(description ? { description } : {}),
+      ...(e.location ? { location: { "@type": "Place", name: e.location } } : {}),
+      ...(organizer ? { organizer } : {}),
+      offers: eventOffer({
+        price: sale.price,
+        url: e.href,
+        availability: availabilityFromSale(sale),
+        validFrom: saleValidFrom(e.next),
+      }),
+    };
+  }
 
   const dayFmt = new Intl.DateTimeFormat(locale, { weekday: "short", day: "numeric", month: "short", timeZone: TZ });
   const weekdayFmt = new Intl.DateTimeFormat(locale, { weekday: "long", timeZone: TZ });
