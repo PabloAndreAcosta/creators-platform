@@ -24,6 +24,7 @@
 | Volontärer/taxipass | Namn, pass, varningar | Avtal | 6 månader efter sista pass | Supabase |
 | Felrapporter | Tekniska data, ev. användar-id | Berättigat intresse | 90 dagar | Sentry (EU) |
 | Analys | Pseudonyma händelser | Samtycke | 14 månader | Google Analytics |
+| Säkerhetskopia av databasen | Allt i databasen utom sessioner, tokens och hemligheter | Berättigat intresse (art. 6.1 f, återställning; art. 32.1 c–d) | 14 dagar, sedan gallras den | Hjärnan (Ushas dator, FileVault), Google Drive (krypterad med rclone crypt, nyckeln bara hos Usha) |
 
 ## Rättigheter
 Registerutdrag, rättelse, export och radering via appen (Mitt konto) eller privacy@usha.se. Radering = mjuk radering + anonymisering; bokföringsunderlag behålls lagstadgad tid utan koppling till person.

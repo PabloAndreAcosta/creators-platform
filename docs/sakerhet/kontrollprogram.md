@@ -47,6 +47,11 @@ Varje kvartal (molnrutinen påminner):
 3. **Leverantörer.** `leverantorer.md` stämmer: vilka behandlar personuppgifter,
    var finns deras intyg (SOC 2 / ISO 27001) och personuppgiftsbiträdesavtal.
 4. **Risker.** `risker.md` genomgånget: nya risker, ändrade bedömningar.
+5. **Hjärnan** (Ushas Mac mini hemma hos Pablo, kör Ekonomen, Kroppen och den
+   nattliga säkerhetskopian av databasen). Kontrollera: `fdesetup status` säger
+   `FileVault is On.`, bara Pablos nycklar i `~/.ssh/authorized_keys` (inte
+   Ludvig), `PasswordAuthentication no`, och att återställningsprovet
+   (`kroppen-cli run-list --kind plattform-test`) har gått igenom varje vecka.
 
 Vid incident: `incidenter/` får en fil per händelse enligt mallen i
 `incidenter/README.md`. Personuppgiftsincident som kan medföra risk anmäls till
