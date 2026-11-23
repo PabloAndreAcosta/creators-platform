@@ -1,7 +1,7 @@
 /**
  * Egna åtaganden i bokningskalendern: festivaler, dansjobb, kurser och annat
  * som användaren själv går på eller jobbar på. Rena funktioner — samma regler
- * som CHECK-villkoren i supabase/migrations/20261120_egna_ataganden.sql, så
+ * som CHECK-villkoren i supabase/migrations-historik/20261120_egna_ataganden.sql, så
  * att ett fel fångas med ett begripligt meddelande innan databasen säger nej.
  */
 

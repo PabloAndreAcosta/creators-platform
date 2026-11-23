@@ -45,7 +45,7 @@ npm test           # Vitest
 ### Deploy & git
 - Vercel auto-deployar från **usha-ab/creators-platform** (prod → usha.se).
 - **Dual push:** `git push origin main` går till BÅDE `usha-ab/creators-platform` (prod) och `PabloAndreAcosta/creators-platform` (privat backup). Radera aldrig den privata.
-- Migrationer i `supabase/migrations/` appliceras mot prod manuellt (t.ex. via Supabase-MCP `apply_migration` eller CLI) — de körs **inte** automatiskt vid deploy.
+- Migrationer i `supabase/migrations/` (namn `ÅÅÅÅMMDDttmmss_namn.sql`; allt före 2026-11-23 är hopslaget i baslinjen, se `supabase/BRANCHING.md`) appliceras mot prod manuellt (t.ex. via Supabase-MCP `apply_migration` eller CLI) — de körs **inte** automatiskt vid deploy.
 
 ### Cron & schemaläggning ⚠️
 Vercel-planen är **Hobby** → cron-jobb får köra **högst en gång per dygn**. En tätare `vercel.json`-cron (t.ex. timme) gör att hela deployen tyst avvisas.

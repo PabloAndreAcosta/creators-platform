@@ -42,13 +42,13 @@ inspektera på riktigt, utan att någon mottagare får det.
 
 ## Sätta upp från noll
 
-**1. Schemat.** Migrationerna kan *inte* bygga databasen — se avsnittet nedan.
-Använd baslinjen i stället:
+**1. Schemat och testkontona.** Migrationerna bygger hela databasen sedan
+2026-11-23 (baslinjen, se `supabase/BRANCHING.md`), och `supabase/seed.sql` lägger
+in testkontona och eventet nedan:
 
 ```bash
 supabase start
-docker exec -i supabase_db_creators-platform \
-  psql -U postgres -d postgres < supabase/sandbox-baseline.sql
+supabase db reset
 ```
 
 **2. Stripe-testobjekt.** Produktionsdatabasen refererar live-ID:n som inte
@@ -85,37 +85,12 @@ Eventet hamnar på `/event/sandbox-event` med en biljett på 100 kr.
 **4. Webhook-hemligheten.** `npm run stripe:listen` skriver ut ett `whsec_…` när
 den startar. Lägg det som `STRIPE_WEBHOOK_SECRET` i `.env.development.local`.
 
-## Migrationerna bygger inte schemat
+## Schemat
 
-Detta är känt och avsiktligt inte lagat här — det förtjänar ett eget ingrepp.
-
-Två separata fel:
-
-**Filnamn som verktyget ignorerar.** Ett tjugotal migrationer heter saker som
-`20260722b_buddy_adult_attestation.sql`. Supabase kräver mönstret
-`<timestamp>_name.sql`, och bokstaven efter datumet bryter det. CLI:t skriver
-`Skipping migration …` och går vidare. Det förklarar varför databasen har 95
-registrerade migrationer medan repot har 115 filer — de överhoppade måste ha
-applicerats för hand.
-
-**Kedjan saknar sin början.** Första migrationen kör `ALTER TABLE public.profiles`
-utan att något skapat tabellen. Grundschemat ligger i `supabase/migration.sql`
-och `full-migration.sql` i rotkatalogen, utanför migrationsmappen.
-
-Följden: schemat existerar bara i produktionsdatabasen, och `supabase db reset`
-fungerar inte. Därför baslinjefilen.
-
-**Baslinjen driver isär över tid.** Regenerera vid behov:
-
-```bash
-supabase link --project-ref hiurrvorwqfihtdfhbhv
-supabase db dump -f supabase/sandbox-baseline.sql --schema public
-```
-
-Lägg tillbaka `on_auth_user_created`-triggern sist i filen efteråt — den hänger
-på `auth.users` och följer därför inte med en dump av `public`. Utan den får en
-nyskapad användare ingen profilrad, och varje främmande nyckel mot `profiles`
-fallerar.
+Migrationerna och seeden är desamma som varje PR:s Supabase-gren byggs från,
+se `supabase/BRANCHING.md`. Seeden innehåller inget Stripe-konto; kör steg 2 och
+`scripts/seed-sandbox.mjs` med `SANDBOX_STRIPE_ACCOUNT` för att göra arrangören
+betalbar.
 
 ## Testkort
 

@@ -11,7 +11,8 @@
 // destructive-ish (it upserts profiles and creates listings) and must never be
 // pointed at production by accident — so the guard is a hard exit.
 //
-// Usage (after `supabase start` and applying supabase/sandbox-baseline.sql):
+// Usage (after `supabase start` and `supabase db reset`, which already seeds the
+// two accounts from supabase/seed.sql; this script then adds the Stripe account):
 //   NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321 \
 //   SUPABASE_SERVICE_ROLE_KEY=<local secret key> \
 //   SANDBOX_STRIPE_ACCOUNT=acct_… \
