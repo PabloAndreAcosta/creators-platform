@@ -22,6 +22,10 @@ const ANON_CACHE_MISSING = [
 ];
 if (ANON_CACHE_MISSING.length > 16) throw new Error("Vercel tillåter högst 16 has/missing-villkor per regel");
 
+// Förhandsbygge mot produktionsdatabasen stoppas när grenar per PR är på (supabase/BRANCHING.md).
+const previewFel = require("./scripts/db/preview-vakt.cjs").previewVakt(process.env);
+if (previewFel) throw new Error(previewFel);
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   async redirects() {
