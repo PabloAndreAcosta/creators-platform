@@ -50,38 +50,41 @@ Postgres skriver ut typomvandlingen i `ANY (ARRAY[…])`; innebörden är densam
 node scripts/db/bygg-baslinje.mjs <pg_dump --schema-only --schema=public>.sql --kalla "<varifrån>"
 ```
 
-## Klicklista för Pablo (en gång)
+## Klicklista för Pablo (en gång) – gjord 2026-11-23
 
 Ordningen spelar roll: Vercel-kopplingen före GitHub-kopplingen, så att den första
 grenen genast får sina värden i Vercel.
 
-**A. Vercel-integrationen (bara Preview)**
-1. https://vercel.com/marketplace/supabase → *Connect Account* → välj teamet
-   (`team_ssuhhfNoi9tKLMbWX3PmjnaI`) → välj Supabase-organisationen
-   `gxagnhobrewgqsiskbbg`.
-2. I Supabase: *Organization settings → Integrations → Vercel → Add project
-   connection*: Supabase-projektet `hiurrvorwqfihtdfhbhv` ↔ Vercel-projektet
-   `creators-platform`.
-3. I samma koppling, *Environment variables*: kryssa **bara Preview**. Ta bort
-   krysset för **Production** och **Development**. (Produktionens
-   `NEXT_PUBLIC_SUPABASE_URL` är den egna auth-domänen och får inte skrivas över.)
+**A. Vercel-integrationen (inga produktionsnycklar)**
+1. Börja i Supabase, inte på Vercels marknadsplats (där kan *Install* skapa ett nytt
+   projekt): *Organization → Integrations → Vercel → Install Vercel integration* →
+   välj teamet (`team_ssuhhfNoi9tKLMbWX3PmjnaI`) och bara projektet `creators-platform`.
+2. Kopplingen Supabase-projektet `hiurrvorwqfihtdfhbhv` ↔ Vercel-projektet
+   `creators-platform` (*Add project connection*).
+3. *Project Settings → Integrations → Vercel → Edit* vid kopplingen: **alla tre
+   (Production, Preview, Development) AV**, spara. Knapparna styr var *produktionens*
+   nycklar skrivs; grenarnas nycklar skickas till Preview oberoende av dem. Med
+   Production på skriver integrationen tolv extra variabler (bl.a. `POSTGRES_PASSWORD`,
+   `SUPABASE_SECRET_KEY`) i Vercels Production och kan skriva över den egna
+   auth-domänen i `NEXT_PUBLIC_SUPABASE_URL`. Det hände vid installationen 2026-11-23;
+   variablerna togs bort direkt.
 
 **B. GitHub-integrationen och grenarna**
-4. Supabase → projektet → *Project Settings → Integrations → GitHub → Authorize
-   GitHub* → repo `usha-ab/creators-platform`.
+4. Supabase → projektet → *Project Settings → Integrations → GitHub → Connect GitHub*;
+   ge åtkomst bara till repot `usha-ab/creators-platform`.
 5. Inställningar i kopplingen:
-   - *Supabase directory*: `supabase`
-   - *Production branch*: `main`
+   - *Working directory*: `.` (mappen som innehåller `supabase/`)
    - *Deploy to production*: **AV** (produktionen migreras som förut, för hand)
    - *Automatic branching*: **PÅ**
+   - *Branch limit*: 3
    - *Supabase changes only*: **AV** (varje PR får en gren)
-   - *Branch limit*: 5
-6. Spara. Branching är därmed på; ingen gren skapas förrän en PR öppnas eller uppdateras.
+6. *Enable integration*. Ingen gren skapas förrän en PR öppnas eller uppdateras.
+   Grenarnas beräkningskostnad omfattas inte av organisationens Spend Cap.
 
 **C. Spärren i Vercel**
 7. Vercel → creators-platform → *Settings → Environment Variables → Add*:
    namn `SUPABASE_PREVIEW_KRAV_GREN`, värde `1`, miljö **Preview** (alla grenar).
-   Inte hemlig. Gör det först när steg 8 visat att grenarna får sina värden.
+   Inte hemlig. Gör det först när verifieringen nedan visat att grenarna får sina värden.
 
 **D. Säg till**, så verifierar utvecklaren (se nedan).
 
