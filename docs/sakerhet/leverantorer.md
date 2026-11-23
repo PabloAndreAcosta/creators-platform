@@ -12,7 +12,7 @@ trust-sidorna: 2026-11-09 (Vercel, Supabase, Resend, Signicat, Sentry).
 | Stripe | Betalningar, utbetalningar, KYC för säljare | Köpare, säljare (Connect), kortuppgifter (bara hos Stripe) | EU/USA | PCI DSS nivå 1, SOC 2 | DPA i villkoren |
 | Resend | Transaktionsmejl | E-postadresser, namn, innehåll i mejl | USA | SOC 2 Type II (period feb 2025–feb 2026); ingen ISO 27001 | DPA i villkoren, standardavtalsklausuler |
 | Signicat | BankID-inloggning och -verifiering | Namn, personnummer vid verifiering | Norge/EU | ISO 27001, eIDAS-kvalificerad | Avtal (se minne project_signicat_contract) |
-| Google Workspace | E-post, dokument, kalender för bolaget | Kundkorrespondens | EU-datalagring valbar | ISO 27001, SOC 2 | DPA i villkoren |
+| Google Workspace | E-post, dokument, kalender för bolaget; säkerhetskopior (krypterat) | Kundkorrespondens; krypterade säkerhetskopior av databasen (Google kan inte läsa dem) | EU-datalagring valbar | ISO 27001, SOC 2 | DPA i villkoren |
 | Cloudflare | Workers (cron, CRM, körjournal), R2 (storage-backup) | Backup-kopior av uppladdade filer | EU | SOC 2 Type II, ISO 27001 | DPA i villkoren |
 | Sentry | Felrapporter | Tekniska fel, ev. användar-id | EU-region (Frankfurt) | SOC 2 Type II, ISO 27001 | DPA i villkoren |
 | GitHub | Källkod, CI, säkerhetskontroll | Inga kunduppgifter (bara kod) | USA | SOC 2 Type II | Villkor |
