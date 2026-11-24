@@ -1393,7 +1393,7 @@
     "services": {
       "heading": "Tjänster",
       "empty": "Inga tjänster publicerade ännu.",
-      "priceSek": "{price} SEK",
+      "priceSek": "{price} kr",
       "durationMin": "{minutes} min",
       "guests": "{min}–{max} gäster"
     },
@@ -1438,7 +1438,7 @@
       "perksLabel": "Förmåner: {perks}",
       "openButton": "Boka",
       "modalTitle": "Boka: {title}",
-      "priceSek": "{price} SEK",
+      "priceSek": "{price} kr",
       "durationMin": "{minutes} min",
       "queueInQueueTitle": "Du är i kön!",
       "queuePosition": "Plats {position}",
@@ -1507,7 +1507,7 @@
       "loading": "Laddar...",
       "buy": "Köp biljett",
       "discountedPriceSek": "{discounted} SEK",
-      "priceSek": "{price} SEK",
+      "priceSek": "{price} kr",
       "chooseTicket": "Välj biljett"
     },
     "report": {
@@ -1542,7 +1542,7 @@
       "heading": "Digitalt innehåll",
       "errorSomethingWrong": "Något gick fel",
       "errorCouldNotStartPurchase": "Kunde inte starta köp",
-      "priceSek": "{price} SEK",
+      "priceSek": "{price} kr",
       "buy": "Köp"
     },
     "promo": {
@@ -4364,17 +4364,18 @@
       "seeAll": "Se alla upplevelser"
     },
     "meta": {
-      "title": "Platser – Usha Platform",
-      "description": "Utforska lokaler, studior, klubbar och platser där kreativa upplevelser händer.",
-      "ogTitle": "Platser – Usha Platform",
-      "ogDescription": "Lokaler och platser för kreativa upplevelser."
+      "title": "Lokaler – Usha Platform",
+      "description": "Lokaler med kommande kvällar på Usha: dans, musik och upplevelser.",
+      "ogTitle": "Lokaler – Usha Platform",
+      "ogDescription": "Lokaler med kommande kvällar på Usha."
     },
-    "title": "Platser",
-    "subtitle": "Lokaler, studior och platser där upplevelser händer",
-    "searchPlaceholder": "Sök plats eller stad...",
-    "eventCount": "{count, plural, =1 {# upplevelse} other {# upplevelser}}",
-    "emptySearch": "Inga platser hittade.",
-    "empty": "Inga platser ännu."
+    "title": "Lokaler",
+    "subtitle": "Lokaler med kommande kvällar hos oss",
+    "searchPlaceholder": "Sök lokal eller stad...",
+    "emptySearch": "Inga lokaler hittade.",
+    "empty": "Inga lokaler med kommande kvällar just nu.",
+    "upcomingCount": "{count, plural, =1 {# kommande kväll} other {# kommande kvällar}}",
+    "registryHeading": "Fler platser med kommande evenemang"
   },
   "taxidansarePage": {
     "meta": {

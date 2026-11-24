@@ -4365,16 +4365,17 @@
     },
     "meta": {
       "title": "Venues – Usha Platform",
-      "description": "Explore venues, studios, clubs and places where creative experiences happen.",
+      "description": "Venues with upcoming nights on Usha: dance, music and experiences.",
       "ogTitle": "Venues – Usha Platform",
-      "ogDescription": "Venues and places for creative experiences."
+      "ogDescription": "Venues with upcoming nights on Usha."
     },
     "title": "Venues",
-    "subtitle": "Venues, studios and places where experiences happen",
+    "subtitle": "Venues with upcoming nights on Usha",
     "searchPlaceholder": "Search venue or city...",
-    "eventCount": "{count, plural, =1 {# experience} other {# experiences}}",
     "emptySearch": "No venues found.",
-    "empty": "No venues yet."
+    "empty": "No venues with upcoming nights right now.",
+    "upcomingCount": "{count, plural, =1 {# upcoming night} other {# upcoming nights}}",
+    "registryHeading": "More places with upcoming events"
   },
   "taxidansarePage": {
     "meta": {
