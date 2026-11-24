@@ -49,10 +49,20 @@ export default async function TermsPage() {
         )}
 
         <div className="space-y-8 text-sm leading-relaxed text-[var(--usha-muted)]">
-          {sections.map((s) => (
+          {sections.map((s, i) => (
             <section key={s.title}>
               <h2 className="mb-3 text-lg font-semibold text-[var(--usha-white)]">{s.title}</h2>
-              <p>{s.body}</p>
+              <p className="whitespace-pre-line">{s.body}</p>
+              {/* Punkt 5 (avbokning) länkar till den praktiska förklaringen. */}
+              {i === 4 && (
+                <p className="mt-3">
+                  {t("refundLinkPre")}
+                  <Link href="/refund-policy" className="text-[var(--usha-gold)] hover:underline">
+                    {t("refundLinkLabel")}
+                  </Link>
+                  .
+                </p>
+              )}
             </section>
           ))}
 

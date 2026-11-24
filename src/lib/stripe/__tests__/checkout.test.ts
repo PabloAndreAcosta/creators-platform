@@ -169,16 +169,23 @@ describe("buildPaymentMetadata", () => {
 });
 
 describe("buildTermsCustomText", () => {
-  it("returns undefined when the organizer has no terms", () => {
-    expect(buildTermsCustomText(null)).toBeUndefined();
-    expect(buildTermsCustomText("")).toBeUndefined();
+  const msg = (url: string | null | undefined) =>
+    (buildTermsCustomText(url).after_submit as { message: string }).message;
+
+  it("without organizer terms still links Ushas villkor and the refund policy", () => {
+    for (const url of [null, undefined, ""]) {
+      const message = msg(url);
+      expect(message).toContain("/terms)");
+      expect(message).toContain("/refund-policy)");
+      expect(message).not.toContain("köpvillkor");
+    }
   });
 
-  it("builds an after_submit message linking the organizer's terms", () => {
-    const ct = buildTermsCustomText("https://joynation.se/villkor")!;
-    const message = (ct.after_submit as { message: string }).message;
+  it("builds an after_submit message linking the organizer's terms and the refund policy", () => {
+    const message = msg("https://joynation.se/villkor");
     expect(message).toContain("https://joynation.se/villkor");
     expect(message).toContain("köpvillkor");
+    expect(message).toContain("/refund-policy)");
     expect(message.length).toBeLessThanOrEqual(1200);
   });
 });
