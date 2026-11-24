@@ -109,16 +109,21 @@ export function buildPaymentMetadata(args: {
  * Checkout `custom_text` surfacing the organizer's purchase terms (and Usha's)
  * near the pay button. Completing the purchase accepts them; the accepted URL is
  * also stamped on the charge (buildPaymentMetadata.terms_url) as the audit record.
- * Returns undefined when the organizer has no terms set.
+ * Always links Ushas villkor and the refund policy (avbokning/återbetalning);
+ * the organizer's terms are added when set.
  */
 export function buildTermsCustomText(
   termsUrl: string | null | undefined
-): Stripe.Checkout.SessionCreateParams.CustomText | undefined {
-  if (!termsUrl) return undefined;
-  const ushaTerms = `${process.env.NEXT_PUBLIC_APP_URL || "https://usha.se"}/terms`;
+): Stripe.Checkout.SessionCreateParams.CustomText {
+  const base = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";
+  const ushaTerms = `${base}/terms`;
+  const refundPolicy = `${base}/refund-policy`;
+  const accept = termsUrl
+    ? `Genom att slutföra köpet godkänner du arrangörens [köpvillkor](${termsUrl}) och Ushas [villkor](${ushaTerms}).`
+    : `Genom att slutföra köpet godkänner du Ushas [villkor](${ushaTerms}).`;
   return {
     after_submit: {
-      message: `Genom att slutföra köpet godkänner du arrangörens [köpvillkor](${termsUrl}) och Ushas [villkor](${ushaTerms}).`,
+      message: `${accept} Så fungerar [avbokning och återbetalning](${refundPolicy}).`,
     },
   };
 }
