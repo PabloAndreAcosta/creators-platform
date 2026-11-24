@@ -4364,17 +4364,18 @@
       "seeAll": "Ver todas las experiencias"
     },
     "meta": {
-      "title": "Espacios – Usha Platform",
-      "description": "Explora locales, estudios, clubes y espacios donde suceden las experiencias creativas.",
-      "ogTitle": "Espacios – Usha Platform",
-      "ogDescription": "Locales y espacios para experiencias creativas."
+      "title": "Locales – Usha Platform",
+      "description": "Locales con próximas noches en Usha: baile, música y experiencias.",
+      "ogTitle": "Locales – Usha Platform",
+      "ogDescription": "Locales con próximas noches en Usha."
     },
-    "title": "Espacios",
-    "subtitle": "Locales, estudios y espacios donde suceden las experiencias",
-    "searchPlaceholder": "Busca un espacio o una ciudad...",
-    "eventCount": "{count, plural, =1 {# experiencia} other {# experiencias}}",
-    "emptySearch": "No se encontraron espacios.",
-    "empty": "Todavía no hay espacios."
+    "title": "Locales",
+    "subtitle": "Locales con próximas noches en Usha",
+    "searchPlaceholder": "Busca un local o una ciudad...",
+    "emptySearch": "No se encontraron locales.",
+    "empty": "No hay locales con próximas noches ahora mismo.",
+    "upcomingCount": "{count, plural, =1 {# próxima noche} other {# próximas noches}}",
+    "registryHeading": "Más lugares con próximos eventos"
   },
   "taxidansarePage": {
     "meta": {
