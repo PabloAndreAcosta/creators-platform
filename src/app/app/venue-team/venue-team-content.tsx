@@ -24,6 +24,8 @@ interface Member {
 interface Labels {
   heading: string; intro: string; ownerNote: string; empty: string;
   invite: string; inviteEmail: string; inviteSubmit: string;
+  /** Innehåller {email}. */
+  inviteSent: string; inviteNotSent: string;
   pending: string; copyLink: string; copied: string;
   remove: string; save: string; saved: string; failed: string; customPreset: string;
 }
@@ -42,6 +44,8 @@ export default function VenueTeamContent({
   const [email, setEmail] = useState("");
   const [newCaps, setNewCaps] = useState<string[]>([]);
   const [inviting, setInviting] = useState(false);
+  // Gick inbjudan iväg som mejl? Annars måste ägaren dela länken själv.
+  const [sent, setSent] = useState<{ email: string; emailed: boolean } | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
   const [savedId, setSavedId] = useState<string | null>(null);
@@ -75,6 +79,8 @@ export default function VenueTeamContent({
         body: JSON.stringify({ email, capabilities: newCaps }),
       });
       if (!r.ok) throw new Error();
+      const d = await r.json().catch(() => ({}));
+      setSent({ email: email.trim(), emailed: d.emailed === true });
       setEmail("");
       setNewCaps([]);
       await load();
@@ -209,6 +215,15 @@ export default function VenueTeamContent({
             {inviting ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
             {labels.inviteSubmit}
           </button>
+
+          {sent && (
+            <p
+              role="status"
+              className={`mt-3 text-xs ${sent.emailed ? "text-[var(--usha-muted)]" : "text-amber-300"}`}
+            >
+              {(sent.emailed ? labels.inviteSent : labels.inviteNotSent).replace("{email}", sent.email)}
+            </p>
+          )}
         </section>
 
         {/* Medlemmar */}

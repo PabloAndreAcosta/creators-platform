@@ -17,6 +17,8 @@ import SubscriptionWelcome, { getSubscriptionWelcomeSubject } from "@/components
 import NewMessage, { getNewMessageSubject } from "@/components/emails/NewMessage";
 import PayoutConfirmation, { getPayoutSubject } from "@/components/emails/PayoutConfirmation";
 import SettlementStatement, { getSettlementStatementSubject } from "@/components/emails/SettlementStatement";
+import VenueTeamInvite, { getVenueTeamInviteSubject } from "@/components/emails/VenueTeamInvite";
+import { VENUE_CAPABILITIES } from "@/lib/venues/members";
 import { buildMonthlyStatement } from "@/lib/settlements/monthly-statement";
 
 const LOCALES = ["sv", "en", "es"] as const;
@@ -95,8 +97,38 @@ function templates(t: Translate, locale: Locale) {
           refundedOre: 0, vatOre: 0, basisOre: 0, status: "paid", paidAt: "2026-10-05T08:00:00Z", transferId: "tr_k" },
       ]),
     }),
+    VenueTeamInvite: createElement(VenueTeamInvite, {
+      venueName: "Joy Nation", recipientName: "Pau",
+      capabilities: ["events", "bookings", "scan"], token: "tok_abc", t,
+    }),
+    VenueTeamInviteNoCaps: createElement(VenueTeamInvite, {
+      venueName: "Joy Nation", recipientName: null, capabilities: [], token: "tok_abc", t,
+    }),
   };
 }
+
+describe("venue team invite", () => {
+  for (const locale of LOCALES) {
+    const t = translatorFor(locale);
+    it(`${locale}: lists every chosen capability, the money note and the join link`, () => {
+      const html = renderToStaticMarkup(templates(t, locale).VenueTeamInvite);
+      expect(html).toContain("/app/venue-team/join/tok_abc");
+      for (const c of ["events", "bookings", "scan"]) {
+        expect(html).toContain(t(`venueTeamInvite.caps.${c}`).replace(/'/g, "&#x27;"));
+      }
+      // Ekonomin delas aldrig ut — det ska stå innan personen tackar ja.
+      expect(html).toContain("Stripe");
+      expect(html).not.toContain(t("venueTeamInvite.caps.messages"));
+    });
+
+    it(`${locale}: has a translation for every capability that exists`, () => {
+      // En sjunde behörighet utan text skulle synas som en nyckel i mejlet.
+      for (const c of VENUE_CAPABILITIES) {
+        expect(t(`venueTeamInvite.caps.${c}`)).not.toContain("venueTeamInvite");
+      }
+    });
+  }
+});
 
 // Words that only exist in one language. If one shows up in another language's
 // render, some string was left hardcoded instead of going through a key.
@@ -141,6 +173,7 @@ describe("email templates render in the reader's language", () => {
         getPayoutSubject(t, "batch", 1234),
         getPayoutSubject(t, "instant", 1234),
         getSettlementStatementSubject(t, "Joy Nation", "2026-10", "sv"),
+        getVenueTeamInviteSubject(t, "Bacchi Syre"),
       ];
     };
 

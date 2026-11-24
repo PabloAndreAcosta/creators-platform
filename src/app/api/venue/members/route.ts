@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isVenueRole } from "@/lib/roles";
 import { sanitizeCapabilities, expandPreset } from "@/lib/venues/members";
+import { sendVenueTeamInviteEmail } from "@/lib/email/send-venue-team-invite";
 
 /**
  * Lokalens team.
@@ -56,8 +57,8 @@ export async function GET() {
       email: m.invited_email,
       capabilities: sanitizeCapabilities(m.capabilities),
       accepted: !!m.accepted_at,
-      // Länken delas av ägaren själv i fas 1. Den visas bara så länge
-      // inbjudan är obesvarad.
+      // Inbjudan mejlas, men länken visas också så länge den är obesvarad —
+      // för när mejlet fastnat i skräpposten eller ägaren vill skicka den själv.
       inviteToken: m.accepted_at ? null : m.token,
     };
   });
@@ -89,7 +90,7 @@ export async function POST(req: NextRequest) {
   // den inte behöver acceptera en inbjudan till en adress hen redan bevisat.
   const { data: existingProfile } = await ctx.admin
     .from("profiles")
-    .select("id")
+    .select("id, full_name")
     .eq("email", email)
     .maybeSingle();
 
@@ -123,5 +124,24 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Kunde inte skapa inbjudan." }, { status: 500 });
   }
 
-  return NextResponse.json({ id: row.id, token });
+  // Mejlet går till adressen ägaren skrev, även när personen redan har konto:
+  // det är den adressen ägaren menade, och kontots adress är densamma enligt
+  // uppslaget ovan. Går det inte iväg finns länken kvar att kopiera.
+  const { data: venue } = await ctx.admin
+    .from("profiles")
+    .select("full_name, company_name")
+    .eq("id", ctx.user.id)
+    .maybeSingle();
+  const venueName = (venue?.company_name || venue?.full_name || "").trim() || "Usha";
+
+  const emailed = await sendVenueTeamInviteEmail({
+    to: email,
+    recipientId: existingProfile?.id ?? null,
+    recipientName: existingProfile?.full_name ?? null,
+    venueName,
+    capabilities,
+    token,
+  });
+
+  return NextResponse.json({ id: row.id, token, emailed });
 }
