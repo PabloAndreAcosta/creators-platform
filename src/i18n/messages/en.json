@@ -4493,6 +4493,23 @@
     "refundedAmount": "Refunded {amount} kr"
   },
   "emails": {
+    "venueTeamInvite": {
+      "subject": "{venue} is inviting you to their team on Usha",
+      "intro": "{venue} would like you on their team on Usha Platform. If you accept, you can help run the venue in the app with your own account.",
+      "capsHeading": "What you'll be able to do:",
+      "caps": {
+        "events": "Create and publish events on the venue's behalf",
+        "bookings": "See bookings and guest lists",
+        "scan": "Check guests in at the door",
+        "messages": "Send messages to followers and attendees",
+        "stats": "See statistics and export reports",
+        "page": "Edit the venue's page and answer requests"
+      },
+      "noCaps": "No permissions have been chosen yet. You'll join the team, but won't see anything until {venue} ticks a box.",
+      "moneyNote": "The finances stay with {venue}: payouts, Stripe and company details can't be shared. Revenue from events you create goes to the venue, not to you.",
+      "cta": "Answer the invitation",
+      "footer": "Sign in with this email address to accept. The invitation is valid for 30 days. If you weren't expecting this email you can ignore it – nothing happens until you accept."
+    },
     "statementTotalSwish": "Swish sales incl. VAT",
     "statementTotalSwishShare": "Your share of Swish, by bank transfer",
     "statementSwishNote": "Swish payments at the door go outside Stripe. Your share of them is paid by bank transfer instead of the automatic transfer – the total is above and per night in the file.",
@@ -4792,6 +4809,8 @@
     "invite": "Invite someone",
     "inviteEmail": "Email address",
     "inviteSubmit": "Send invitation",
+    "inviteSent": "The invitation has been emailed to {email}. The link is also below if you want to send it yourself.",
+    "inviteNotSent": "The invitation was created, but the email to {email} didn't go out. Copy the link below and send it yourself.",
     "pending": "Awaiting reply",
     "copyLink": "Copy invitation link",
     "copied": "Copied",

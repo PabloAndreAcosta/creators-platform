@@ -4493,6 +4493,23 @@
     "refundedAmount": "Reembolsada {amount} kr"
   },
   "emails": {
+    "venueTeamInvite": {
+      "subject": "{venue} te invita a su equipo en Usha",
+      "intro": "{venue} quiere contar contigo en su equipo en Usha Platform. Si aceptas, podrás ayudar con el local en la app, con tu propia cuenta.",
+      "capsHeading": "Esto es lo que podrás hacer:",
+      "caps": {
+        "events": "Crear y publicar eventos en nombre del local",
+        "bookings": "Ver reservas y listas de invitados",
+        "scan": "Registrar la entrada de los invitados en la puerta",
+        "messages": "Enviar mensajes a seguidores y asistentes",
+        "stats": "Ver estadísticas y exportar informes",
+        "page": "Editar la página del local y responder solicitudes"
+      },
+      "noCaps": "Todavía no se ha elegido ningún permiso. Entrarás en el equipo, pero no verás nada hasta que {venue} marque alguno.",
+      "moneyNote": "Las finanzas se quedan con {venue}: los cobros, Stripe y los datos de la empresa no se pueden delegar. Los ingresos de los eventos que crees van al local, no a ti.",
+      "cta": "Responder a la invitación",
+      "footer": "Inicia sesión con esta dirección de correo para aceptar. La invitación es válida durante 30 días. Si no esperabas este correo, puedes ignorarlo: no pasa nada hasta que aceptes."
+    },
     "statementTotalSwish": "Ventas con Swish IVA incl.",
     "statementTotalSwishShare": "Vuestra parte de Swish, por transferencia",
     "statementSwishNote": "Los pagos con Swish en la puerta van fuera de Stripe. Vuestra parte se paga por transferencia bancaria en lugar de la transferencia automática: el total está arriba y por noche en el archivo.",
@@ -4792,6 +4809,8 @@
     "invite": "Invitar a alguien",
     "inviteEmail": "Correo electrónico",
     "inviteSubmit": "Enviar invitación",
+    "inviteSent": "La invitación se ha enviado por correo a {email}. El enlace también está abajo si quieres mandarlo tú.",
+    "inviteNotSent": "La invitación se ha creado, pero el correo a {email} no se envió. Copia el enlace de abajo y mándalo tú.",
     "pending": "Esperando respuesta",
     "copyLink": "Copiar enlace de invitación",
     "copied": "Copiado",

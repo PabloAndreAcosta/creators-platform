@@ -53,6 +53,9 @@ export default async function VenueTeamPage() {
         invite: t("invite"),
         inviteEmail: t("inviteEmail"),
         inviteSubmit: t("inviteSubmit"),
+        // {email} fylls i på klienten, där adressen finns.
+        inviteSent: t.raw("inviteSent") as string,
+        inviteNotSent: t.raw("inviteNotSent") as string,
         pending: t("pending"),
         copyLink: t("copyLink"),
         copied: t("copied"),

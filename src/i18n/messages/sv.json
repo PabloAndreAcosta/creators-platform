@@ -4493,6 +4493,23 @@
     "refundedAmount": "Återbetald {amount} kr"
   },
   "emails": {
+    "venueTeamInvite": {
+      "subject": "{venue} bjuder in dig till sitt team på Usha",
+      "intro": "{venue} vill ha med dig i sitt team på Usha Platform. Tackar du ja kan du hjälpa till med lokalen i appen, med ditt eget konto.",
+      "capsHeading": "Det här får du göra:",
+      "caps": {
+        "events": "Skapa och publicera evenemang i lokalens namn",
+        "bookings": "Se bokningar och gästlistor",
+        "scan": "Checka in gäster i dörren",
+        "messages": "Skicka utskick till följare och deltagare",
+        "stats": "Se statistik och exportera underlag",
+        "page": "Redigera lokalens sida och svara på förfrågningar"
+      },
+      "noCaps": "Inga behörigheter är valda ännu. Du kommer med i teamet, men ser inget förrän {venue} kryssar i något.",
+      "moneyNote": "Ekonomin stannar hos {venue}: utbetalningar, Stripe och bolagsuppgifter går inte att dela ut. Intäkterna från evenemang du skapar går till lokalen, inte till dig.",
+      "cta": "Svara på inbjudan",
+      "footer": "Du loggar in med den här mejladressen för att tacka ja. Inbjudan gäller i 30 dagar. Väntade du dig inte det här mejlet kan du strunta i det – inget händer förrän du tackat ja."
+    },
     "statementTotalSwish": "Swish-försäljning inkl. moms",
     "statementTotalSwishShare": "Er andel av Swish, via bank",
     "statementSwishNote": "Swish-betalningar i dörren går utanför Stripe. Er andel av dem betalas via bank i stället för att föras över automatiskt – summan står ovan och per kväll i filen.",
@@ -4792,6 +4809,8 @@
     "invite": "Bjud in någon",
     "inviteEmail": "Mejladress",
     "inviteSubmit": "Skicka inbjudan",
+    "inviteSent": "Inbjudan är mejlad till {email}. Länken finns också nedan om du vill skicka den själv.",
+    "inviteNotSent": "Inbjudan är skapad, men mejlet till {email} gick inte iväg. Kopiera länken nedan och skicka den själv.",
     "pending": "Väntar på svar",
     "copyLink": "Kopiera inbjudningslänk",
     "copied": "Kopierad",

@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { canManageListing } from "@/lib/listings/manage-access";
 import { venuesUserCanCreateFor } from "@/lib/venues/members";
+import { listingWriterFor } from "@/lib/venues/create-as-venue";
 import { resolvePools, ownCapacityFor, parsePoolNames } from "@/lib/tickets/pools";
 import { revalidatePath } from "next/cache";
 import { syncListingPost, touchesPost } from "@/lib/facebook/auto-sync";
@@ -370,6 +371,11 @@ export async function createEvent(formData: FormData) {
     createdBy = user.id;
   }
 
+  // Raden ägs av lokalen, så medlemmens egen session kan inte skriva den
+  // (RLS: auth.uid() = user_id). Medlemskapet är prövat ovan; härifrån går
+  // lokalens rader genom service-role. Se listingWriterFor.
+  const db = listingWriterFor(supabase, createdBy, createAdminClient);
+
   // BankID-grinden gäller den som PUBLICERAS, inte den som klickar. Annars
   // skulle en lokal inte kunna delegera till sin personal utan att köra var och
   // en genom BankID, vilket vore att bygga in det problem delegeringen ska lösa.
@@ -420,7 +426,7 @@ export async function createEvent(formData: FormData) {
   // A series shares one series_id + series_slug so the occurrences can be
   // grouped on a /series/<slug> landing page.
   const seriesId = isSeries ? crypto.randomUUID() : null;
-  const seriesSlug = isSeries ? await generateUniqueSeriesSlug(supabase, parsed.data.title) : null;
+  const seriesSlug = isSeries ? await generateUniqueSeriesSlug(db, parsed.data.title) : null;
 
   // Opt-in: auto-publish each occurrence to Facebook ~3 days before its date.
   const fbAutoPost = formData.get("fb_auto_post") === "on";
@@ -457,7 +463,7 @@ export async function createEvent(formData: FormData) {
       is_active: !locked,
       is_public: isPublic,
       ...automation,
-      slug: await generateUniqueListingSlug(supabase, parsed.data.title, {
+      slug: await generateUniqueListingSlug(db, parsed.data.title, {
         dateSuffix: d ?? undefined,
         taken,
       }),
@@ -467,7 +473,7 @@ export async function createEvent(formData: FormData) {
     });
   }
 
-  const { data: created, error } = await supabase
+  const { data: created, error } = await db
     .from("listings")
     .insert(rows)
     .select("id, title, event_date, event_location, image_url");
@@ -477,7 +483,7 @@ export async function createEvent(formData: FormData) {
   // Persist ticket types for every created occurrence.
   if (ticketTypes.length > 0) {
     for (const l of created) {
-      await reconcileTicketTypes(supabase, l.id, ticketTypes);
+      await reconcileTicketTypes(db, l.id, ticketTypes);
     }
   }
 
@@ -498,8 +504,10 @@ export async function createEvent(formData: FormData) {
     ? `Nytt event: ${first.title} — ${dateLabel}${seriesNote}${first.event_location ? ` i ${first.event_location}` : ""}. Välkommen!`
     : `Nytt event: ${first.title}${first.event_location ? ` i ${first.event_location}` : ""}. Välkommen!`;
 
-  await supabase.from("posts").insert({
-    user_id: user.id,
+  // Inlägget är lokalens, precis som evenemanget: det är lokalen som står som
+  // arrangör utåt, inte personen som fyllde i formuläret.
+  await db.from("posts").insert({
+    user_id: ownerId,
     text,
     image_url: first.image_url,
     listing_id: first.id,
