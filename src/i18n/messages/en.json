@@ -2488,6 +2488,14 @@
     }
   },
   "eventPage": {
+    "wasThereLink": "Were you there {weekday} {date}? Pay for that evening here",
+    "wasThereButtonDated": "Were you there {weekday} {date}?",
+    "wasThereButton": "Were you there?",
+    "wasThereLead": "Were you here {weekday} {date} without a ticket? Pay for the evening afterwards, within 24 hours after the evening ended.",
+    "wasThereConfirmText": "You pay {price} SEK for {name} {weekday} {date}, {time}. Only if you were there.",
+    "wasThereConfirmButton": "I was there – pay {price} SEK",
+    "wasThereCancel": "Cancel",
+    "wasThereEmailLabel": "Your email address",
     "epassiTitle": "Pay with your wellness allowance",
     "epassiBody": "The Lab is on Epassi for punch cards. Choose a punch card among the tickets and tap Pay with wellness allowance to get the instructions. Bring ID on your first evening. A single evening can also be paid with Swish, here on the page or at the door.",
     "singleTicket": "Ticket for the night",
@@ -2607,6 +2615,10 @@
     "swishContinue": "Continue to"
   },
   "eventErrors": {
+    "wasThereClosed": "It is no longer possible to pay for that evening afterwards.",
+    "wasThereNoPass": "After midnight you can only pay for the evening, not for a multi-pass.",
+    "wasThereEmail": "Enter your email address.",
+    "wasThereAlreadyPaid": "You have already paid for this evening.",
     "notReleased": "Tickets have not been released yet.",
     "soldOut": "This event is sold out.",
     "past": "This event has already taken place.",
@@ -4294,6 +4306,8 @@
     "counter": "{redeemed}/{total} min"
   },
   "refundPolicy": {
+    "wasThereTitle": "Paying for the evening afterwards",
+    "wasThereBody": "If you attended an event without a ticket, you can pay for the evening afterwards, within 24 hours after the evening ended. The purchase concerns an evening that has already taken place and is not covered by the right of withdrawal (Swedish Distance Contracts Act (2005:59), chapter 2, section 11, point 12).",
     "back": "Back",
     "heading": "Refund Policy",
     "lastUpdated": "Last updated: 2026-05-01",
@@ -5647,5 +5661,41 @@
     "error_too_old": "The check is too old. Do a new check with the Swedish Tax Agency.",
     "error_invalid_source": "Invalid source.",
     "error_save_failed": "Could not save."
+  },
+  "selfCheckin": {
+    "button": "Check in",
+    "buttonParty": "Check in {n}",
+    "choose": "Who is checking in now?",
+    "working": "Checking in…",
+    "hint": "From 30 minutes before start you can check yourself in here. The ticket turns green and you walk straight in.",
+    "opensAt": "Check-in opens at {time}",
+    "tooEarly": "Too early – check-in opens at {time}.",
+    "eveningOver": "Check-in has closed for tonight. Show the QR code at the door if you need to come in.",
+    "tooMany": "Too many attempts. Wait a minute and try again.",
+    "failed": "Check-in failed. Show the QR code at the door instead.",
+    "network": "No connection to the server. Try again.",
+    "liveTitle": "Checked in {time}",
+    "liveHint": "Show this screen at the door and walk in.",
+    "liveNow": "Time now",
+    "colorLabel": "Tonight's colour",
+    "showLive": "Show live ticket",
+    "party": "{in} of {total} checked in",
+    "countsSold": "Sold",
+    "countsIn": "Checked in",
+    "countsWaiting": "Not arrived",
+    "colors": {
+      "red": "Red",
+      "orange": "Orange",
+      "amber": "Amber",
+      "yellow": "Yellow",
+      "lime": "Lime",
+      "teal": "Teal",
+      "cyan": "Cyan",
+      "blue": "Blue",
+      "indigo": "Indigo",
+      "violet": "Purple",
+      "pink": "Pink",
+      "white": "White"
+    }
   }
 }
