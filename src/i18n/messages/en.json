@@ -454,7 +454,7 @@
     "payoutsMovedHint": "Connect your bank account and see your payouts",
     "noPlansTitle": "No subscription to buy",
     "noPlansCustomer": "Your account is free and already has everything you need to buy tickets, keep them in the app and follow what you like. If you come often, the class pass is what lowers the price — you buy it on the night's own page, not here.",
-    "noPlansVenue": "Venues don't subscribe with us. The profile is free, and whoever sells tickets pays 3.5% + SEK 3.50 per ticket. Everything else is set in a separate agreement with each venue. Write to pablo.acosta@usha.se.",
+    "noPlansVenue": "Venues don't subscribe with us. The profile is free, and whoever sells tickets pays 3.5% + SEK 3.50 per ticket. Everything else is set in a separate agreement with each venue. Write to support@usha.se.",
     "subtitle": "Manage your plan and payments.",
     "paymentSuccess": "Payment successful! Your plan is now active.",
     "betaNotice": "Beta period — all features are unlocked for free for all users.",
@@ -5030,7 +5030,7 @@
     },
     "help": {
       "title": "Stuck?",
-      "body": "Write to us at pablo.acosta@usha.se and we will help. The platform is new and your feedback shapes it."
+      "body": "Write to us at support@usha.se and we will help. The platform is new and your feedback shapes it."
     }
   },
   "entrance": {
