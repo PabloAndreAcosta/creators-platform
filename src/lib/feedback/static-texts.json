@@ -14,7 +14,12 @@
       "close": "Stäng",
       "thanks": "Tack! Vi tittar på det.",
       "failed": "Rapporten kunde inte skickas. Försök igen om en stund.",
-      "empty": "Skriv några ord om vad som hände."
+      "empty": "Skriv några ord om vad som hände.",
+      "shareShot": "Skicka med en bild av sidan",
+      "shotHint": "All text, alla bilder och QR-koder är dolda på bilden. Bara sidans form syns.",
+      "shotWorking": "Tar bilden…",
+      "shotFailed": "Bilden gick inte att ta. Rapporten kan skickas utan den.",
+      "shotAlt": "Bild av sidan med dold text"
     },
     "errorPage": {
       "title": "Något gick fel",
@@ -42,7 +47,12 @@
       "close": "Close",
       "thanks": "Thanks! We'll look into it.",
       "failed": "The report couldn't be sent. Please try again in a moment.",
-      "empty": "Write a few words about what happened."
+      "empty": "Write a few words about what happened.",
+      "shareShot": "Include a picture of the page",
+      "shotHint": "All text, images and QR codes are hidden in the picture. Only the layout of the page shows.",
+      "shotWorking": "Taking the picture…",
+      "shotFailed": "The picture could not be taken. You can send the report without it.",
+      "shotAlt": "Picture of the page with hidden text"
     },
     "errorPage": {
       "title": "Something went wrong",
@@ -70,7 +80,12 @@
       "close": "Cerrar",
       "thanks": "¡Gracias! Lo revisaremos.",
       "failed": "No se pudo enviar el informe. Inténtalo de nuevo en un momento.",
-      "empty": "Escribe unas palabras sobre lo que pasó."
+      "empty": "Escribe unas palabras sobre lo que pasó.",
+      "shareShot": "Incluir una imagen de la página",
+      "shotHint": "Todo el texto, las imágenes y los códigos QR están ocultos en la imagen. Solo se ve la estructura de la página.",
+      "shotWorking": "Tomando la imagen…",
+      "shotFailed": "No se pudo tomar la imagen. Puedes enviar el informe sin ella.",
+      "shotAlt": "Imagen de la página con el texto oculto"
     },
     "errorPage": {
       "title": "Algo salió mal",

@@ -3189,7 +3189,7 @@
   "privacy": {
     "back": "Atrás",
     "title": "Política de privacidad",
-    "lastUpdated": "Última actualización: 23 de noviembre de 2026",
+    "lastUpdated": "Última actualización: 25 de noviembre de 2026",
     "disclaimer": "Esta es una traducción de la política de privacidad en sueco. En caso de discrepancia, prevalece la versión sueca. Esto no limita los derechos que te correspondan como consumidor según la legislación imperativa.",
     "s1Title": "1. Responsable del tratamiento",
     "s1Body": "Usha AB es la responsable del tratamiento de tus datos personales. Tratamos tus datos de acuerdo con el Reglamento General de Protección de Datos de la UE (RGPD) y la legislación sueca.",
@@ -3200,9 +3200,9 @@
     "s4Title": "4. Base jurídica",
     "s4Body": "Tratamos tus datos con base en: la ejecución de un contrato (para prestar el servicio), el interés legítimo (para mejorar la plataforma), el consentimiento (para marketing) y una obligación legal (contabilidad).",
     "s5Title": "5. Compartición de datos",
-    "s5Body": "Compartimos tus datos con: Stripe (procesamiento de pagos), Supabase (almacenamiento de datos), Vercel (alojamiento del sitio web), Cloudflare (tareas programadas y copias de seguridad de los archivos subidos), Resend (envío de correos), Signicat (inicio de sesión e identificación con BankID), Sentry (informes de errores), Google (estadísticas de visitas mediante Google Analytics, con cookies solo si las has aceptado, y almacenamiento cifrado de copias de seguridad; Google no puede leer su contenido). Nunca vendemos tus datos personales a terceros. Los datos pueden compartirse con las autoridades si la ley lo exige.",
+    "s5Body": "Compartimos tus datos con: Stripe (procesamiento de pagos), Supabase (almacenamiento de datos), Vercel (alojamiento del sitio web), Cloudflare (tareas programadas y copias de seguridad de los archivos subidos), Resend (envío de correos), Signicat (inicio de sesión e identificación con BankID), Sentry (informes de errores: cuando tú mismo envías un informe con el botón «¿Algo no funciona?», Sentry recibe tu descripción, la dirección de la página e información técnica sobre tu dispositivo, y una imagen de la página si marcas esa casilla. En la imagen, todo el texto, las imágenes y los códigos QR están ocultos. Los datos se almacenan en la UE; Sentry es una empresa estadounidense y cualquier transferencia a EE. UU. se realiza conforme al Marco de Privacidad de Datos UE-EE. UU. y las cláusulas contractuales tipo de la Comisión Europea. Tratamos los informes sobre la base de nuestro interés legítimo en encontrar y corregir errores), Google (estadísticas de visitas mediante Google Analytics, con cookies solo si las has aceptado, y almacenamiento cifrado de copias de seguridad; Google no puede leer su contenido). Nunca vendemos tus datos personales a terceros. Los datos pueden compartirse con las autoridades si la ley lo exige.",
     "s6Title": "6. Plazo de conservación",
-    "s6Body": "Conservamos tus datos mientras tu cuenta esté activa. Cuando eliminas tu cuenta, tus datos personales se anonimizan y ocultan de inmediato: tu perfil se retira de todas las áreas públicas, tu acceso se bloquea y se libera el vínculo con tu correo electrónico y tu BankID para que puedas registrarte de nuevo. Los datos que estamos legalmente obligados a conservar (p. ej., registros de pago y contables durante 7 años) se conservan durante el periodo legal y luego se eliminan. Esta acción no se puede deshacer. Las copias de seguridad de la base de datos se guardan cifradas durante un máximo de 14 días y después se sobrescriben. Por eso, un dato que hayas eliminado puede seguir en una copia de seguridad hasta 14 días, pero no se utiliza ni se recupera al restaurar una copia.",
+    "s6Body": "Conservamos tus datos mientras tu cuenta esté activa. Cuando eliminas tu cuenta, tus datos personales se anonimizan y ocultan de inmediato: tu perfil se retira de todas las áreas públicas, tu acceso se bloquea y se libera el vínculo con tu correo electrónico y tu BankID para que puedas registrarte de nuevo. Los datos que estamos legalmente obligados a conservar (p. ej., registros de pago y contables durante 7 años) se conservan durante el periodo legal y luego se eliminan. Esta acción no se puede deshacer. Las copias de seguridad de la base de datos se guardan cifradas durante un máximo de 14 días y después se sobrescriben. Por eso, un dato que hayas eliminado puede seguir en una copia de seguridad hasta 14 días, pero no se utiliza ni se recupera al restaurar una copia. Los informes de errores y las imágenes enviados con el botón «¿Algo no funciona?» se borran automáticamente a los 30 días.",
     "s7Title": "7. Tus derechos",
     "s7Intro": "Según el RGPD, tienes derecho a:",
     "s7Items": "Solicitar el acceso a tus datos\nSolicitar la rectificación de datos incorrectos\nSolicitar la supresión (“el derecho al olvido”)\nLimitar el tratamiento de tus datos\nOponerte al tratamiento\nSolicitar la portabilidad de los datos\nRetirar el consentimiento",
@@ -5735,7 +5735,12 @@
     "close": "Cerrar",
     "thanks": "¡Gracias! Lo revisaremos.",
     "failed": "No se pudo enviar el informe. Inténtalo de nuevo en un momento.",
-    "empty": "Escribe unas palabras sobre lo que pasó."
+    "empty": "Escribe unas palabras sobre lo que pasó.",
+    "shareShot": "Incluir una imagen de la página",
+    "shotHint": "Todo el texto, las imágenes y los códigos QR están ocultos en la imagen. Solo se ve la estructura de la página.",
+    "shotWorking": "Tomando la imagen…",
+    "shotFailed": "No se pudo tomar la imagen. Puedes enviar el informe sin ella.",
+    "shotAlt": "Imagen de la página con el texto oculto"
   },
   "errorPage": {
     "title": "Algo salió mal",

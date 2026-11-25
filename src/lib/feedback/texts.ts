@@ -10,6 +10,7 @@
 export const FEEDBACK_KEYS = [
   "button", "title", "label", "placeholder", "shareUser", "notice", "errorAttached",
   "send", "sending", "cancel", "close", "thanks", "failed", "empty",
+  "shareShot", "shotHint", "shotWorking", "shotFailed", "shotAlt",
 ] as const;
 
 export const ERROR_PAGE_KEYS = [
