@@ -1,5 +1,7 @@
+import { eveningPassesAt, type EveningLike } from "./evening";
+
 /**
- * Är biljettens eventdatum samma dag som "nu", räknat i Stockholm?
+ * Gäller biljetten i dörren just nu, räknat i Stockholm?
  *
  * Skannern godkände en biljett för den 21:a på kvällen den 7:e — grön ruta,
  * "Giltig biljett". Bokningen var bekräftad och oanvänd, så statusen stämde;
@@ -20,20 +22,36 @@ export function stockholmDay(at: Date): string {
 }
 
 /**
- * Kvällar som pågår efter midnatt: en biljett räknas som "i dag" även
- * strax efter tolvslaget, fram till EARLY_HOURS. Ingen dörr är öppen kl. 04.
+ * Marginal efter kvällens slut då dörren fortfarande släpper in på biljetten.
+ *
+ * Kvällens slut är samma gräns som köpen och självincheckningen använder
+ * (eveningPassesAt i evening.ts): midnatt, eller sluttiden om kvällen pågår
+ * efter midnatt. Dörren får en timme till för kön vid stängning och för en
+ * telefon vars klocka går fel. Tidigare gällde biljetten till kl. 04 natten
+ * efter oavsett sluttid (beslut Pablo 2026-11-25: konsekvent med #619).
  */
-const EARLY_HOURS = 4;
+export const DOOR_MARGIN_MINUTES = 60;
 
-export function isEventDay(eventDate: string | null | undefined, at: Date = new Date()): boolean {
+/** När dörren slutar släppa in på kvällens biljetter. Null utan datum. */
+export function doorClosesAt(ev: EveningLike): Date | null {
+  const passes = eveningPassesAt(ev);
+  return passes ? new Date(passes.getTime() + DOOR_MARGIN_MINUTES * 60_000) : null;
+}
+
+/**
+ * Gäller en biljett för `eventDate` i dörren vid `at`? Från eventdagens
+ * början (Stockholm) till doorClosesAt. Skicka med tiderna: utan sluttid
+ * räknas kvällen som slut vid midnatt, och då stänger dörren kl. 01.
+ * Datumlösa poster släpps igenom som förut.
+ */
+export function isEventDay(
+  eventDate: string | null | undefined,
+  at: Date = new Date(),
+  times?: Omit<EveningLike, "event_date"> | null
+): boolean {
   if (!eventDate) return true; // inget datum att jämföra mot — släpp igenom som förut
-  if (stockholmDay(at) === eventDate) return true;
-  const hour = Number(
-    new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Stockholm", hour: "2-digit", hour12: false }).format(at)
-  );
-  if (hour < EARLY_HOURS) {
-    const yesterday = new Date(at.getTime() - 24 * 60 * 60 * 1000);
-    return stockholmDay(yesterday) === eventDate;
-  }
-  return false;
+  const day = eventDate.slice(0, 10);
+  if (stockholmDay(at) < day) return false;
+  const closes = doorClosesAt({ event_date: day, event_time: times?.event_time, event_end_time: times?.event_end_time });
+  return !!closes && at < closes;
 }
