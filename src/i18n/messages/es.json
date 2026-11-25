@@ -5721,6 +5721,32 @@
     "error_invalid_source": "Fuente no válida.",
     "error_save_failed": "No se pudo guardar."
   },
+  "feedback": {
+    "button": "¿Algo no funciona?",
+    "title": "Cuéntanos qué pasó",
+    "label": "¿Qué intentabas hacer y qué pasó?",
+    "placeholder": "Por ejemplo: pulsé Comprar y la página se quedó en blanco.",
+    "shareUser": "Incluir mi ID de usuario para que podáis revisar mi cuenta",
+    "notice": "Tu descripción e información técnica sobre la página se envían a Usha a través de Sentry (UE).",
+    "errorAttached": "Se incluye el código de error.",
+    "send": "Enviar",
+    "sending": "Enviando…",
+    "cancel": "Cancelar",
+    "close": "Cerrar",
+    "thanks": "¡Gracias! Lo revisaremos.",
+    "failed": "No se pudo enviar el informe. Inténtalo de nuevo en un momento.",
+    "empty": "Escribe unas palabras sobre lo que pasó."
+  },
+  "errorPage": {
+    "title": "Algo salió mal",
+    "fallback": "Se produjo un error inesperado. Inténtalo de nuevo en un momento.",
+    "reloadFallback": "Se produjo un error inesperado. Recarga la página e inténtalo de nuevo.",
+    "retry": "Intentar de nuevo",
+    "home": "Ir a la página de inicio",
+    "toApp": "Volver a la app",
+    "code": "Código de error: {code}",
+    "report": "Informar del problema"
+  },
   "selfCheckin": {
     "button": "Hacer check-in",
     "buttonParty": "Check-in de {n}",

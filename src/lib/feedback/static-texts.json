@@ -1,0 +1,86 @@
+{
+  "sv": {
+    "feedback": {
+      "button": "Något fungerar inte?",
+      "title": "Berätta vad som hände",
+      "label": "Vad försökte du göra, och vad hände?",
+      "placeholder": "Till exempel: jag tryckte på Köp och sidan blev vit.",
+      "shareUser": "Skicka med mitt användar-id, så att ni kan titta på mitt konto",
+      "notice": "Din beskrivning och teknisk info om sidan skickas till Usha via Sentry (EU).",
+      "errorAttached": "Felkoden skickas med.",
+      "send": "Skicka",
+      "sending": "Skickar…",
+      "cancel": "Avbryt",
+      "close": "Stäng",
+      "thanks": "Tack! Vi tittar på det.",
+      "failed": "Rapporten kunde inte skickas. Försök igen om en stund.",
+      "empty": "Skriv några ord om vad som hände."
+    },
+    "errorPage": {
+      "title": "Något gick fel",
+      "fallback": "Ett oväntat fel uppstod. Försök igen om en stund.",
+      "reloadFallback": "Ett oväntat fel uppstod. Ladda om sidan och försök igen.",
+      "retry": "Försök igen",
+      "home": "Till startsidan",
+      "toApp": "Till appen",
+      "code": "Felkod: {code}",
+      "report": "Rapportera felet"
+    }
+  },
+  "en": {
+    "feedback": {
+      "button": "Something not working?",
+      "title": "Tell us what happened",
+      "label": "What were you trying to do, and what happened?",
+      "placeholder": "For example: I tapped Buy and the page went blank.",
+      "shareUser": "Include my user ID so you can look at my account",
+      "notice": "Your description and technical info about the page are sent to Usha via Sentry (EU).",
+      "errorAttached": "The error code is included.",
+      "send": "Send",
+      "sending": "Sending…",
+      "cancel": "Cancel",
+      "close": "Close",
+      "thanks": "Thanks! We'll look into it.",
+      "failed": "The report couldn't be sent. Please try again in a moment.",
+      "empty": "Write a few words about what happened."
+    },
+    "errorPage": {
+      "title": "Something went wrong",
+      "fallback": "An unexpected error occurred. Please try again in a moment.",
+      "reloadFallback": "An unexpected error occurred. Reload the page and try again.",
+      "retry": "Try again",
+      "home": "Go to the home page",
+      "toApp": "Back to the app",
+      "code": "Error code: {code}",
+      "report": "Report the problem"
+    }
+  },
+  "es": {
+    "feedback": {
+      "button": "¿Algo no funciona?",
+      "title": "Cuéntanos qué pasó",
+      "label": "¿Qué intentabas hacer y qué pasó?",
+      "placeholder": "Por ejemplo: pulsé Comprar y la página se quedó en blanco.",
+      "shareUser": "Incluir mi ID de usuario para que podáis revisar mi cuenta",
+      "notice": "Tu descripción e información técnica sobre la página se envían a Usha a través de Sentry (UE).",
+      "errorAttached": "Se incluye el código de error.",
+      "send": "Enviar",
+      "sending": "Enviando…",
+      "cancel": "Cancelar",
+      "close": "Cerrar",
+      "thanks": "¡Gracias! Lo revisaremos.",
+      "failed": "No se pudo enviar el informe. Inténtalo de nuevo en un momento.",
+      "empty": "Escribe unas palabras sobre lo que pasó."
+    },
+    "errorPage": {
+      "title": "Algo salió mal",
+      "fallback": "Se produjo un error inesperado. Inténtalo de nuevo en un momento.",
+      "reloadFallback": "Se produjo un error inesperado. Recarga la página e inténtalo de nuevo.",
+      "retry": "Intentar de nuevo",
+      "home": "Ir a la página de inicio",
+      "toApp": "Volver a la app",
+      "code": "Código de error: {code}",
+      "report": "Informar del problema"
+    }
+  }
+}

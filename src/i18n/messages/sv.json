@@ -5721,6 +5721,32 @@
     "error_invalid_source": "Ogiltig källa.",
     "error_save_failed": "Kunde inte spara."
   },
+  "feedback": {
+    "button": "Något fungerar inte?",
+    "title": "Berätta vad som hände",
+    "label": "Vad försökte du göra, och vad hände?",
+    "placeholder": "Till exempel: jag tryckte på Köp och sidan blev vit.",
+    "shareUser": "Skicka med mitt användar-id, så att ni kan titta på mitt konto",
+    "notice": "Din beskrivning och teknisk info om sidan skickas till Usha via Sentry (EU).",
+    "errorAttached": "Felkoden skickas med.",
+    "send": "Skicka",
+    "sending": "Skickar…",
+    "cancel": "Avbryt",
+    "close": "Stäng",
+    "thanks": "Tack! Vi tittar på det.",
+    "failed": "Rapporten kunde inte skickas. Försök igen om en stund.",
+    "empty": "Skriv några ord om vad som hände."
+  },
+  "errorPage": {
+    "title": "Något gick fel",
+    "fallback": "Ett oväntat fel uppstod. Försök igen om en stund.",
+    "reloadFallback": "Ett oväntat fel uppstod. Ladda om sidan och försök igen.",
+    "retry": "Försök igen",
+    "home": "Till startsidan",
+    "toApp": "Till appen",
+    "code": "Felkod: {code}",
+    "report": "Rapportera felet"
+  },
   "selfCheckin": {
     "button": "Checka in",
     "buttonParty": "Checka in {n} st",
