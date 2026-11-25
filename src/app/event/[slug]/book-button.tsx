@@ -472,7 +472,7 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.ticketUrl) {
-        toast.error(t("errorTitle"), data.error === "invalidEmail" ? t("swishInvalidEmail") : t("errorRetry"));
+        toast.error(t("errorTitle"), data.error === "invalidEmail" ? t("swishInvalidEmail") : typeof data.message === "string" ? data.message : t("errorRetry"));
         setSwishLoading(false);
         return;
       }

@@ -126,7 +126,7 @@ export async function GET(request: NextRequest) {
   // Fetch listing details
   const { data: listing } = await admin
     .from("listings")
-    .select("title, event_date, event_time, event_location")
+    .select("title, event_date, event_time, event_end_time, event_location")
     .eq("id", booking.listing_id)
     .single();
 
@@ -231,7 +231,9 @@ export async function GET(request: NextRequest) {
   // den 7:e. Statusen var korrekt — datumet var det ingen jämförde. En biljett
   // på fel dag är inte giltig; vill arrangören ändå släppa in kan det göras i
   // efterhand från bokningslistan.
-  if (valid && !isEventDay(listing?.event_date)) {
+  // Gränsen är kvällens slut + marginal (event-day.ts), samma kväll som köpen
+  // och självincheckningen räknar med. Därefter gäller efterköpet.
+  if (valid && !isEventDay(listing?.event_date, new Date(), listing)) {
     valid = false;
     status = "wrong_date";
   }
