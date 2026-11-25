@@ -2490,6 +2490,14 @@
     }
   },
   "eventPage": {
+    "wasThereLink": "Var du där {weekday} {date}? Betala för den kvällen här",
+    "wasThereButtonDated": "Var du där {weekday} {date}?",
+    "wasThereButton": "Var du där?",
+    "wasThereLead": "Var du här {weekday} {date} utan biljett? Betala för kvällen i efterhand, inom 24 timmar efter att kvällen slutat.",
+    "wasThereConfirmText": "Du betalar {price} kr för {name} {weekday} {date}, {time}. Bara om du var där.",
+    "wasThereConfirmButton": "Jag var där – betala {price} kr",
+    "wasThereCancel": "Avbryt",
+    "wasThereEmailLabel": "Din e-postadress",
     "epassiTitle": "Betala med friskvårdsbidrag",
     "epassiBody": "The Lab finns i Epassi för klippkort. Välj ett klippkort bland biljetterna och tryck Betala med friskvårdsbidrag, så får du instruktionerna. Ta med legitimation första kvällen. En enstaka kväll kan du också betala med Swish, här på sidan eller i dörren.",
     "singleTicket": "Biljett till kvällen",
@@ -2609,6 +2617,10 @@
     "swishContinue": "Fortsätt till"
   },
   "eventErrors": {
+    "wasThereClosed": "Det går inte längre att betala för den kvällen i efterhand.",
+    "wasThereNoPass": "Efter midnatt går det bara att betala för kvällen, inte för klippkort.",
+    "wasThereEmail": "Ange din e-postadress.",
+    "wasThereAlreadyPaid": "Du har redan betalat för den här kvällen.",
     "notReleased": "Biljetterna har inte släppts än.",
     "soldOut": "Eventet är slutsålt.",
     "past": "Eventet har redan varit.",
@@ -4298,6 +4310,8 @@
     "counter": "{redeemed}/{total} min"
   },
   "refundPolicy": {
+    "wasThereTitle": "Betala för kvällen i efterhand",
+    "wasThereBody": "Var du på ett evenemang utan biljett kan du betala för kvällen i efterhand, inom 24 timmar efter att kvällen slutat. Köpet gäller en kväll som redan har ägt rum och omfattas inte av ångerrätt (lag (2005:59) 2 kap. 11 § p. 12).",
     "back": "Tillbaka",
     "heading": "Återbetalningspolicy",
     "lastUpdated": "Senast uppdaterad: 2026-05-01",
@@ -5651,5 +5665,41 @@
     "error_too_old": "Kontrollen är för gammal. Gör en ny kontroll hos Skatteverket.",
     "error_invalid_source": "Ogiltig källa.",
     "error_save_failed": "Kunde inte spara."
+  },
+  "selfCheckin": {
+    "button": "Checka in",
+    "buttonParty": "Checka in {n} st",
+    "choose": "Vilka checkar in nu?",
+    "working": "Checkar in…",
+    "hint": "Från 30 minuter före start kan du checka in själv här. Då blir biljetten grön och du går rakt in.",
+    "opensAt": "Incheckningen öppnar kl. {time}",
+    "tooEarly": "För tidigt – incheckningen öppnar kl. {time}.",
+    "eveningOver": "Incheckningen har stängt för i kväll. Visa QR-koden i dörren om du behöver komma in.",
+    "tooMany": "För många försök. Vänta en minut och försök igen.",
+    "failed": "Det gick inte att checka in. Visa QR-koden i dörren i stället.",
+    "network": "Ingen kontakt med servern. Försök igen.",
+    "liveTitle": "Incheckad {time}",
+    "liveHint": "Visa skärmen i dörren och gå in.",
+    "liveNow": "Klockan nu",
+    "colorLabel": "Kvällens färg",
+    "showLive": "Visa levande biljett",
+    "party": "{in} av {total} incheckade",
+    "countsSold": "Sålda",
+    "countsIn": "Incheckade",
+    "countsWaiting": "Ej kommit",
+    "colors": {
+      "red": "Röd",
+      "orange": "Orange",
+      "amber": "Bärnsten",
+      "yellow": "Gul",
+      "lime": "Limegrön",
+      "teal": "Blågrön",
+      "cyan": "Turkos",
+      "blue": "Blå",
+      "indigo": "Indigo",
+      "violet": "Lila",
+      "pink": "Rosa",
+      "white": "Vit"
+    }
   }
 }
