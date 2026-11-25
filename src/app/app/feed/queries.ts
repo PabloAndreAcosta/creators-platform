@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type { FeedPost } from "@/types/database";
+import { isFeedPostVisible } from "@/lib/feed/visible-author";
 
 export async function getFeedPosts(
   userId?: string,
@@ -9,7 +10,7 @@ export async function getFeedPosts(
   const supabase = await createClient();
   const offset = page * pageSize;
 
-  const { data: posts } = await supabase
+  const { data: rawPosts } = await supabase
     .from("posts")
     .select(`
       *,
@@ -19,7 +20,11 @@ export async function getFeedPosts(
     .order("created_at", { ascending: false })
     .range(offset, offset + pageSize - 1);
 
-  if (!posts || posts.length === 0) return [];
+  // Dolda och raderade författare syns inte (samma villkor som /creators/[id]).
+  const posts = (rawPosts ?? []).filter((p) =>
+    isFeedPostVisible(p as unknown as Parameters<typeof isFeedPostVisible>[0], userId)
+  );
+  if (posts.length === 0) return [];
 
   const postIds = posts.map((p) => p.id);
 

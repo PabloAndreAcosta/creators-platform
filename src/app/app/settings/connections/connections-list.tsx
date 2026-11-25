@@ -15,6 +15,8 @@ export interface ConnectionView extends ConnectionState {
   accountLabel: string | null;
   /** Vad kopplingen används till, så valet blir begripligt. */
   purpose: string;
+  /** false = kopplingen är inte påslagen än: knappen gråmarkeras, göms aldrig. */
+  available?: boolean;
 }
 
 const ICONS = {
@@ -57,6 +59,7 @@ export function ConnectionsList({ connections }: { connections: ConnectionView[]
       {states.map((c) => {
         const Icon = ICONS[c.provider];
         const isConnected = c.status !== "disconnected";
+        const available = c.available !== false;
 
         return (
           <section
@@ -94,6 +97,15 @@ export function ConnectionsList({ connections }: { connections: ConnectionView[]
             <div className="flex flex-wrap items-center gap-2">
               {/* Omkoppling är samma OAuth-väg som förstagångskoppling — svaret
                   skriver över raden. Ingen behöver koppla från först. */}
+              {!available ? (
+                <span
+                  aria-disabled="true"
+                  className="inline-flex cursor-not-allowed items-center gap-2 rounded-xl border border-[var(--usha-border)] px-4 py-2 text-sm text-[var(--usha-muted)] opacity-60"
+                >
+                  <Icon size={14} />
+                  {t("comingSoon")}
+                </span>
+              ) : (
               <a
                 href={`/api/${c.provider}/connect`}
                 className={
@@ -105,6 +117,7 @@ export function ConnectionsList({ connections }: { connections: ConnectionView[]
                 <Icon size={14} />
                 {isConnected ? t("reconnect") : t("connect")}
               </a>
+              )}
 
               {isConnected && (
                 <button

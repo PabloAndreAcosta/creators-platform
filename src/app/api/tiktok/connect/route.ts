@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { createClient } from "@/lib/supabase/server";
 import { setOAuthStateCookie } from "@/lib/oauth/state";
+import { isTikTokConfigured, TIKTOK_UNAVAILABLE_PATH } from "@/lib/social/tiktok-config";
 
 const CLIENT_KEY = process.env.TIKTOK_CLIENT_KEY!;
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL!;
@@ -17,8 +18,10 @@ export async function GET() {
     return NextResponse.redirect(`${APP_URL}/login`);
   }
 
-  if (!CLIENT_KEY) {
-    return NextResponse.json({ error: "TikTok Client Key not configured" }, { status: 500 });
+  // Nycklarna saknas än. Tidigare 500 med ett tekniskt fel; nu tillbaka till
+  // kopplingssidan, där knappen står gråmarkerad som "Kommer snart".
+  if (!CLIENT_KEY || !isTikTokConfigured()) {
+    return NextResponse.redirect(`${APP_URL}${TIKTOK_UNAVAILABLE_PATH}`);
   }
 
   const csrfToken = crypto.randomBytes(16).toString("hex");

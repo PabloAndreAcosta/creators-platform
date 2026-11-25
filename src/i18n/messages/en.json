@@ -1453,7 +1453,7 @@
       "queueFullyBookedBody": "All spots are taken. Join the queue and you'll be booked automatically.",
       "joining": "Joining...",
       "joinQueue": "Join the queue",
-      "dancePackageTitle": "Prepaid dance package",
+      "dancePackageTitle": "Prepaid punch card",
       "dancePackageBody": "You pay in advance. No date or time is required when booking — you and the dancer decide together when to redeem the dances, e.g. at an event.",
       "b2bInfo": "Send a request with date, time and venue. The taxi dancer gets a message and can accept or decline. Payment is handled separately after acceptance.",
       "dateLabel": "Date",
@@ -1751,6 +1751,7 @@
       "importSuccess": "{count} photos imported"
     },
     "tiktok": {
+      "comingSoon": "Coming soon",
       "title": "TikTok import",
       "connectIntro": "Connect your TikTok account to import videos into your portfolio.",
       "connect": "Connect TikTok",
@@ -2346,6 +2347,10 @@
     "saveChanges": "Save changes",
     "create": "Create event",
     "categories": {
+      "dance": "Dance",
+      "music": "Music",
+      "performance": "Performance",
+      "yoga": "Yoga",
       "restaurant": "Restaurant",
       "concert": "Concert",
       "nightclub": "Nightclub",
@@ -2492,6 +2497,8 @@
     }
   },
   "eventPage": {
+    "draftBannerTitle": "Draft – not published",
+    "draftBannerBody": "Only you and those who can edit the event see this page. Publish it in My events when it is ready.",
     "wasThereLink": "Were you there {weekday} {date}? Pay for that evening here",
     "wasThereButtonDated": "Were you there {weekday} {date}?",
     "wasThereButton": "Were you there?",
@@ -4575,6 +4582,8 @@
     "viewProfile": "View profile"
   },
   "connections": {
+    "comingSoon": "Coming soon",
+    "tiktokUnavailable": "The TikTok connection is not open yet. The button becomes clickable when it is.",
     "title": "Connections",
     "subtitle": "Accounts you have connected to Usha, and their status.",
     "creatorOnly": "Connections are for creator and venue accounts. Change your role under Settings → Account to connect accounts.",

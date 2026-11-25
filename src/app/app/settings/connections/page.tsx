@@ -3,13 +3,17 @@ import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { isVenueRole } from "@/lib/roles";
 import { getConnectionState } from "@/lib/social/connection-state";
+import { isTikTokConfigured } from "@/lib/social/tiktok-config";
 import { ConnectionsList, type ConnectionView } from "./connections-list";
 
 // Kanonisk plats för alla externa kopplingar. Låg tidigare utspritt: Instagram,
 // Facebook och TikTok i botten av /dashboard/profile, plus en andra
 // Facebook-yta i /app/events. Featureytor får fortsatt visa en inline-knapp,
 // men statusen bor här.
-export default async function ConnectionsSettingsPage() {
+export default async function ConnectionsSettingsPage(props: {
+  searchParams?: Promise<{ tiktok_error?: string }>;
+}) {
+  const tiktokError = (await props.searchParams)?.tiktok_error ?? null;
   const t = await getTranslations("connections");
   const supabase = await createClient();
   const {
@@ -68,6 +72,7 @@ export default async function ConnectionsSettingsPage() {
       name: "TikTok",
       accountLabel: conn?.tiktok_username ? `@${conn.tiktok_username}` : null,
       purpose: t("tiktokPurpose"),
+      available: isTikTokConfigured(),
       // TikToks access token lever bara 24h men förnyas automatiskt när media
       // hämtas. Det är refresh-tokenet (~365 dagar) som avgör om kopplingen
       // lever — dömde vi på access-tokenet skulle sidan visa "utgången" dagen
@@ -91,6 +96,12 @@ export default async function ConnectionsSettingsPage() {
         <h1 className="text-2xl font-semibold">{t("title")}</h1>
         <p className="text-[var(--usha-muted)] mt-1">{t("subtitle")}</p>
       </div>
+
+      {tiktokError === "unavailable" && (
+        <p role="status" className="rounded-lg bg-amber-500/10 px-3 py-2 text-sm text-amber-300">
+          {t("tiktokUnavailable")}
+        </p>
+      )}
 
       {isCreator ? (
         <ConnectionsList connections={connections} />

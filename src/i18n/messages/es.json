@@ -1453,7 +1453,7 @@
       "queueFullyBookedBody": "Todos los lugares están ocupados. Únete a la lista de espera y se te reservará automáticamente.",
       "joining": "Uniéndote...",
       "joinQueue": "Unirse a la lista de espera",
-      "dancePackageTitle": "Paquete de baile prepagado",
+      "dancePackageTitle": "Bono prepagado",
       "dancePackageBody": "Pagas por adelantado. No se requiere fecha ni hora al reservar: tú y el bailarín decidís juntos cuándo canjear los bailes, por ejemplo en un evento.",
       "b2bInfo": "Envía una solicitud con fecha, hora y local. El taxi dancer recibe un mensaje y puede aceptar o rechazar. El pago se gestiona por separado tras la aceptación.",
       "dateLabel": "Fecha",
@@ -1751,6 +1751,7 @@
       "importSuccess": "{count} fotos importadas"
     },
     "tiktok": {
+      "comingSoon": "Próximamente",
       "title": "Importar de TikTok",
       "connectIntro": "Conecta tu cuenta de TikTok para importar vídeos a tu portafolio.",
       "connect": "Conectar TikTok",
@@ -2346,6 +2347,10 @@
     "saveChanges": "Guardar cambios",
     "create": "Crear evento",
     "categories": {
+      "dance": "Baile",
+      "music": "Música",
+      "performance": "Espectáculo",
+      "yoga": "Yoga",
       "restaurant": "Restaurante",
       "concert": "Concierto",
       "nightclub": "Discoteca",
@@ -2492,6 +2497,8 @@
     }
   },
   "eventPage": {
+    "draftBannerTitle": "Borrador – no publicado",
+    "draftBannerBody": "Solo tú y quienes pueden editar el evento ven esta página. Publícala en Mis eventos cuando esté lista.",
     "wasThereLink": "¿Estuviste allí el {weekday} {date}? Paga esa noche aquí",
     "wasThereButtonDated": "¿Estuviste allí el {weekday} {date}?",
     "wasThereButton": "¿Estuviste allí?",
@@ -4575,6 +4582,8 @@
     "viewProfile": "Ver perfil"
   },
   "connections": {
+    "comingSoon": "Próximamente",
+    "tiktokUnavailable": "La conexión con TikTok aún no está abierta. El botón se activará cuando lo esté.",
     "title": "Conexiones",
     "subtitle": "Cuentas que has conectado a Usha y su estado.",
     "creatorOnly": "Las conexiones son para cuentas de creador y de local. Cambia tu rol en Ajustes → Cuenta para conectar cuentas.",

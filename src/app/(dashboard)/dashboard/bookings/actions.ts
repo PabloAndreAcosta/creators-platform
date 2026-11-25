@@ -547,7 +547,7 @@ export async function redeemSession(bookingId: string) {
   const redeemed = (booking as { sessions_redeemed?: number | null }).sessions_redeemed ?? 0;
 
   if (total === null || total <= 0) {
-    return { error: "Den här bokningen har inte ett danspaket." };
+    return { error: "Den här bokningen har inte ett klippkort." };
   }
 
   if (redeemed >= total) {

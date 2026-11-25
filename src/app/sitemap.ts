@@ -3,6 +3,7 @@ import { todayStockholm } from "@/lib/listings/time-window";
 import { SELLER_ROLE_VALUES } from "@/lib/roles";
 import type { MetadataRoute } from "next";
 import { languageAlternates } from "@/lib/seo/metadata";
+import { filterSitemapListings } from "@/lib/seo/sitemap-listings";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://usha.se";
@@ -54,13 +55,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // /listing omdirigerar dit. Att lista omdirigeringar i en sitemap är att be
   // Google indexera en vidarekoppling i stället för sidan, så vi pekar direkt.
   // Tjänster och klippkort saknar datum och bor kvar på /listing.
-  const { data: listings } = await supabase
+  const { data: activeListings } = await supabase
     .from("listings")
     .select("id, slug, updated_at, event_date, series_slug, user_id, category, event_city")
     .eq("is_active", true)
     .eq("is_public", true)
     .order("updated_at", { ascending: false })
     .limit(1000);
+
+  // Samma villkor som /listing/[id]: utan läsbar säljarprofil blir det 404.
+  // Bara ägarna till odaterade annonser behöver slås upp (evenemangen klarar
+  // sig utan), och det är få — ingen risk för en för lång .in()-lista.
+  const ownerIds = Array.from(
+    new Set((activeListings || []).filter((l) => !l.event_date).map((l) => l.user_id))
+  );
+  const { data: publicOwners } = ownerIds.length
+    ? await supabase.from("profiles").select("id").in("id", ownerIds).eq("is_public", true)
+    : { data: [] as { id: string }[] };
+  const listings = filterSitemapListings(
+    activeListings || [],
+    new Set((publicOwners || []).map((p) => p.id))
+  );
 
   const listingPages: MetadataRoute.Sitemap = (listings || []).map((l) => ({
     url: `${baseUrl}/${l.event_date ? "event" : "listing"}/${l.slug || l.id}`,

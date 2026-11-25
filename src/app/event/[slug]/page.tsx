@@ -1,5 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
-import { createClient as createAdminClient } from "@supabase/supabase-js";
+import { getCurrentUser } from "@/lib/supabase/current-user";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { loadPreviewableDraft } from "@/lib/listings/draft-preview";
 import { collabRoleLabel } from "@/lib/collaborators";
 import { applyPoolLimits } from "@/lib/tickets/pools";
 import { passSavings } from "@/lib/passes/series-pass";
@@ -126,16 +129,43 @@ const resolveSlugToOccurrence = cache(async (slug: string): Promise<string | nul
  * cache() ligger i Nexts react-server-build och nollställs mellan requests, så
  * en besökare kan aldrig få en annans data.
  */
-const getListing = cache(async (slug: string) => {
+const LISTING_COLUMNS =
+  "id, user_id, title, description, tldr, category, price, duration_minutes, image_url, image_url_square, series_id, is_practica, event_date, event_time, event_end_time, event_location, event_place_id, event_lat, event_lng, event_city, event_venue, slug, series_slug, is_active, content_language, organizer_name, early_bird_start, early_bird_end, early_bird_price, public_sale_at, created_at, capacity, tickets_sold, venue_profile_id, venue_confirmed_at, is_wellness_eligible";
+
+/**
+ * `draftViewerId`: den inloggade besökaren, när den aktiva raden saknas. Då
+ * får ägaren och den som får redigera evenemanget se sitt utkast
+ * ("Förhandsgranska" i /app/events). Alla andra får fortfarande null → 404.
+ * Sidan är dynamisk (cookies) och ligger inte i edge-cachens allowlist, så
+ * ett utkast kan aldrig hamna i en delad cache.
+ */
+const getListing = cache(async (slug: string, draftViewerId: string | null = null) => {
   const supabase = await createClient();
-  const { data: listing } = await supabase
+  const column = isUUID(slug) ? "id" : "slug";
+  const { data: active } = await supabase
     .from("listings")
-    .select(
-      "id, user_id, title, description, tldr, category, price, duration_minutes, image_url, image_url_square, series_id, is_practica, event_date, event_time, event_end_time, event_location, event_place_id, event_lat, event_lng, event_city, event_venue, slug, series_slug, is_active, content_language, organizer_name, early_bird_start, early_bird_end, early_bird_price, public_sale_at, created_at, capacity, tickets_sold, venue_profile_id, venue_confirmed_at, is_wellness_eligible"
-    )
-    .eq(isUUID(slug) ? "id" : "slug", slug)
+    .select(LISTING_COLUMNS)
+    .eq(column, slug)
     .eq("is_active", true)
     .maybeSingle();
+
+  let listing = active;
+  let isDraft = false;
+  if (!listing && draftViewerId) {
+    // Utkastet läses med service role: RLS släpper bara igenom aktiva rader
+    // (och ägarens egna bara när hen är BankID-godkänd), och en medarrangör
+    // äger inte raden alls. Behörigheten avgörs här i stället.
+    const draft = await loadPreviewableDraft(createAdminClient(), {
+      column,
+      value: slug,
+      viewerId: draftViewerId,
+      columns: LISTING_COLUMNS,
+    });
+    if (draft) {
+      listing = draft as unknown as typeof active;
+      isDraft = true;
+    }
+  }
 
   if (!listing) return null;
 
@@ -207,11 +237,11 @@ const getListing = cache(async (slug: string) => {
     .filter((m) => !seriesSlug || m.series_slug !== seriesSlug)
     .slice(0, 3);
 
-  return { listing, host, venue: venueLink, more, moreDates: (moreDatesRows ?? []) as EventCard[] };
+  return { listing, host, venue: venueLink, more, moreDates: (moreDatesRows ?? []) as EventCard[], isDraft };
 });
 
 async function getCrew(listingId: string) {
-  const admin = createAdminClient(
+  const admin = createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
@@ -249,7 +279,13 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     const resolved = await resolveSlugToOccurrence(slug);
     if (resolved) data = await getListing(resolved);
   }
-  if (!data) return { title: "Event hittades inte" };
+  if (!data) {
+    // Utkast: bara ägaren/redigeraren kommer hit, och sidan ska aldrig indexeras.
+    const viewer = await getCurrentUser();
+    const draft = viewer ? await getListing(slug, viewer.id) : null;
+    if (draft) return { title: draft.listing.title, robots: { index: false, follow: false } };
+    return { title: "Event hittades inte", robots: { index: false } };
+  }
 
   const { listing, host } = data;
   const eventLocale = listing.content_language ?? (await getLocale());
@@ -371,10 +407,13 @@ export default async function EventPage(props: Params) {
   // grupperade efter vad de faktiskt beror på: först användare och annons
   // samtidigt, sedan allt som bara behöver annonsen i ett enda steg.
   const supabase = await createClient();
-  const [{ data: { user } }, data] = await Promise.all([
+  const [{ data: { user } }, activeData] = await Promise.all([
     supabase.auth.getUser(),
     getListing(slug),
   ]);
+  // Bara när den aktiva raden saknas och någon är inloggad: ett utkast som
+  // besökaren själv får redigera. Vanliga besök får ingen extra tur.
+  const data = activeData ?? (user ? await getListing(slug, user.id) : null);
 
   if (!data) {
     const resolved = await resolveSlugToOccurrence(slug);
@@ -382,7 +421,7 @@ export default async function EventPage(props: Params) {
     notFound();
   }
 
-  const { listing, host, venue, more, moreDates } = data;
+  const { listing, host, venue, more, moreDates, isDraft } = data;
 
   // Klippkort på serien ("5 kvällar") säljs som ett alternativ bredvid
   // kvällens biljetter. Kortet är en egen annons (package) kopplad till en
@@ -590,7 +629,8 @@ export default async function EventPage(props: Params) {
   const egenTldr = (listing.tldr ?? "").trim();
   const sammanfattning = egenTldr ? [egenTldr] : kort.punkter;
   // Gratis biljetter rör inga pengar och berörs inte av spärren.
-  const sellable = payeeCanReceive || isFree;
+  // Ett utkast säljs aldrig, inte heller i förhandsgranskningen.
+  const sellable = !isDraft && (payeeCanReceive || isFree);
   const salePrices = ticketTypesForSale.map((tt) => tt.price);
   const lowestPrice = salePrices.length ? Math.min(...salePrices) : sale.price;
   const hasPriceRange = new Set(salePrices).size > 1;
@@ -617,7 +657,7 @@ export default async function EventPage(props: Params) {
   const swishOffer =
     sale.buyable && sellable
       ? await swishOfferForListing(
-          createAdminClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!),
+          createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!),
           listing
         )
       : null;
@@ -739,12 +779,23 @@ export default async function EventPage(props: Params) {
         JSON som varken Google eller en aggregator kunde läsa. /series och
         /listing har alltid fungerat just för att de saknar klientgräns runt
         sitt skript. */}
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: safeJsonLd(eventJsonLdObject) }}
-    />
+    {!isDraft && (
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(eventJsonLdObject) }}
+      />
+    )}
     <NextIntlClientProvider locale={eventLocale} messages={messages}>
     <main className="min-h-screen bg-[var(--usha-black)] text-[var(--usha-white)]">
+      {isDraft && (
+        <div
+          role="status"
+          className="sticky top-0 z-20 border-b border-amber-400/40 bg-amber-400/15 px-4 py-3 text-center text-sm text-amber-100 backdrop-blur"
+        >
+          <p className="font-semibold">{t("draftBannerTitle")}</p>
+          <p className="text-xs opacity-80">{t("draftBannerBody")}</p>
+        </div>
+      )}
       <TrackEvent
         name="listing_view"
         params={{

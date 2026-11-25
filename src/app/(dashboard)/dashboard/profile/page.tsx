@@ -8,6 +8,7 @@ import { MediaGallery } from "./media-gallery";
 import { InstagramConnect } from "./instagram-connect";
 import { FacebookMediaConnect } from "./facebook-media-connect";
 import { TikTokConnect } from "./tiktok-connect";
+import { isTikTokConfigured } from "@/lib/social/tiktok-config";
 import { ProfileQR } from "./profile-qr";
 import { BankIdStatus } from "./bankid-status";
 import { CompanyStatus } from "./company-status";
@@ -161,6 +162,7 @@ export default async function ProfilePage() {
                   : socialConn?.tiktok_token_expires_at
               )}
               tiktokUsername={socialConn?.tiktok_username}
+              available={isTikTokConfigured()}
             />
           </div>
           <div className="mt-4 text-center">
