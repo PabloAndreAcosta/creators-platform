@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { getTranslations, getLocale } from "next-intl/server";
+import { TERMS_S7_BUSINESS_EFFECTIVE_DATE } from "@/lib/legal/terms-effective";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("terms");
@@ -23,9 +24,13 @@ export default async function TermsPage() {
   const locale = await getLocale();
   const disclaimer = locale !== "sv" ? t("disclaimer") : "";
 
+  // Punkt 7 har ett ikraftträdandedatum för näringsidkare (P2B art. 3.2).
   const sections = Array.from({ length: 10 }, (_, i) => ({
     title: t(`s${i + 1}Title`),
-    body: t(`s${i + 1}Body`),
+    body:
+      i === 6
+        ? t("s7Body", { date: TERMS_S7_BUSINESS_EFFECTIVE_DATE })
+        : t(`s${i + 1}Body`),
   }));
 
   return (
