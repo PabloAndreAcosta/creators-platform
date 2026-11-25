@@ -15,6 +15,7 @@ import { clearAttention, flagAttention, getFeedbackState, subscribeFeedback } fr
 import { installFetchWatch } from "@/lib/feedback/fetch-watch";
 import { lastSentryEventId } from "@/lib/feedback/sentry-adapter";
 import { useFeedbackTexts } from "./use-feedback-texts";
+import { EXCLUDE_ATTR } from "@/lib/feedback/mask";
 
 const FeedbackDialog = dynamic(() => import("./feedback-dialog"), { ssr: false });
 
@@ -46,6 +47,7 @@ export function FeedbackLauncher() {
       {!open && (
         <button
           type="button"
+          {...{ [EXCLUDE_ATTR]: "" }}
           onClick={() => {
             setOpen({ eventId: lastSentryEventId() });
             clearAttention();

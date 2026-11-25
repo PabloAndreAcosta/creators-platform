@@ -4,7 +4,8 @@
  * Med följer: beskrivningen, sidans adress utan frågesträng (där kan det stå
  * koder och biljett-id), språket, skal (app/webb) och id för senaste felet om
  * det finns. Användar-id följer bara med när användaren är inloggad OCH har
- * kryssat i rutan. Ingen e-post, inget namn, ingen skärmdump, ingen Replay.
+ * kryssat i rutan. Skärmbilden (maskerad, se mask.ts) följer bara med när
+ * användaren har kryssat i den rutan. Ingen e-post, inget namn, ingen Replay.
  *
  * Sentry hålls bakom ett litet gränssnitt så att logiken kan testas utan SDK:n.
  */
@@ -29,7 +30,11 @@ export type FeedbackInput = {
   userId?: string;
   /** Rutan "skicka med mitt användar-id". Av som standard. */
   shareUserId: boolean;
+  /** Maskerad skärmbild (JPEG). Bara när rutan för bilden är ikryssad. */
+  screenshot?: Uint8Array;
 };
+
+export type FeedbackAttachment = { filename: string; data: Uint8Array; contentType: string };
 
 export type SentryLike = {
   hasClient: () => boolean;
@@ -43,6 +48,7 @@ export type SentryLike = {
       tags: Record<string, string>;
     },
     user: { id: string } | undefined,
+    attachments?: FeedbackAttachment[],
   ) => string;
   flush: (timeoutMs: number) => Promise<boolean>;
 };
@@ -75,15 +81,21 @@ export function buildFeedback(input: FeedbackInput) {
     tags,
   };
   const user = input.shareUserId && input.userId ? { id: input.userId } : undefined;
-  return { params, user };
+  const attachments: FeedbackAttachment[] =
+    input.screenshot && input.screenshot.byteLength > 0
+      ? [{ filename: "skarmbild.jpg", data: input.screenshot, contentType: "image/jpeg" }]
+      : [];
+  if (attachments.length) params.tags.skarmbild = "ja";
+  return { params, user, attachments };
 }
 
 export async function sendFeedback(input: FeedbackInput, sentry: SentryLike, timeoutMs = 8000): Promise<SendResult> {
-  const { params, user } = buildFeedback(input);
+  const { params, user, attachments } = buildFeedback(input);
   if (!params.message) return "empty";
   if (!sentry.hasClient()) return "unavailable";
   try {
-    sentry.capture(params, user);
+    if (attachments.length) sentry.capture(params, user, attachments);
+    else sentry.capture(params, user);
     const ok = await sentry.flush(timeoutMs);
     return ok ? "sent" : "failed";
   } catch {

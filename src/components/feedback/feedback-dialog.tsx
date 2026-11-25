@@ -2,7 +2,8 @@
 
 // Formuläret bakom felknappen. Laddas först när någon trycker (next/dynamic i
 // feedback-launcher och felsidorna), så det kostar inget på vanliga sidvisningar.
-// Ingen skärmdump och ingen Replay i steg 1.
+// Skärmbilden (steg 2) tas bara när rutan kryssas i, maskerad (lib/feedback/mask.ts),
+// och skickas först med Skicka. Ingen Replay.
 import { useEffect, useId, useRef, useState } from "react";
 import { X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -10,6 +11,8 @@ import { appSkalTaggar } from "@/lib/sentry-app";
 import { MAX_MESSAGE_LENGTH, sendFeedback, type FeedbackSource, type SendResult } from "@/lib/feedback/send";
 import { sentryAdapter } from "@/lib/feedback/sentry-adapter";
 import type { FeedbackTexts } from "@/lib/feedback/texts";
+import { EXCLUDE_ATTR } from "@/lib/feedback/mask";
+import { captureMaskedScreenshot, type Screenshot } from "@/lib/feedback/screenshot";
 
 type Props = {
   texts: FeedbackTexts;
@@ -27,6 +30,10 @@ export default function FeedbackDialog({ texts, locale, source, associatedEventI
   const [shareUserId, setShareUserId] = useState(false);
   const [userId, setUserId] = useState<string | undefined>();
   const [phase, setPhase] = useState<Phase>("edit");
+  const [shareShot, setShareShot] = useState(false);
+  const [shot, setShot] = useState<Screenshot | null>(null);
+  const [shotState, setShotState] = useState<"idle" | "working" | "failed">("idle");
+  const shotId = useId();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const titleId = useId();
   const shareId = useId();
@@ -58,6 +65,24 @@ export default function FeedbackDialog({ texts, locale, source, associatedEventI
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
+  async function toggleShot(on: boolean) {
+    setShareShot(on);
+    if (!on) {
+      setShot(null);
+      setShotState("idle");
+      return;
+    }
+    setShotState("working");
+    const taken = await captureMaskedScreenshot(window);
+    if (taken) {
+      setShot(taken);
+      setShotState("idle");
+    } else {
+      setShareShot(false);
+      setShotState("failed");
+    }
+  }
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (phase === "sending") return;
@@ -73,6 +98,7 @@ export default function FeedbackDialog({ texts, locale, source, associatedEventI
         digest,
         userId,
         shareUserId,
+        screenshot: shareShot && shot ? shot.bytes : undefined,
       },
       sentryAdapter,
     );
@@ -83,6 +109,7 @@ export default function FeedbackDialog({ texts, locale, source, associatedEventI
 
   return (
     <div
+      {...{ [EXCLUDE_ATTR]: "" }}
       className="fixed inset-0 z-[150] flex items-end justify-center bg-black/60 p-0 sm:items-center sm:p-4"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
@@ -150,6 +177,33 @@ export default function FeedbackDialog({ texts, locale, source, associatedEventI
                 <label htmlFor={shareId} className="text-sm">
                   {texts.shareUser}
                 </label>
+              </div>
+            )}
+
+            <div className="mt-3 flex items-start gap-2">
+              <input
+                id={shotId}
+                type="checkbox"
+                checked={shareShot}
+                disabled={shotState === "working"}
+                onChange={(e) => toggleShot(e.target.checked)}
+                className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--usha-gold)]"
+              />
+              <label htmlFor={shotId} className="text-sm">
+                {texts.shareShot}
+              </label>
+            </div>
+            {shotState === "working" && <p className="mt-2 text-xs text-[var(--usha-muted)]">{texts.shotWorking}</p>}
+            {shotState === "failed" && <p className="mt-2 text-xs text-red-400">{texts.shotFailed}</p>}
+            {shareShot && shot && (
+              <div className="mt-2 flex items-start gap-3">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={shot.dataUrl}
+                  alt={texts.shotAlt}
+                  className="h-24 w-auto rounded border border-[var(--usha-border)]"
+                />
+                <p className="text-xs text-[var(--usha-muted)]">{texts.shotHint}</p>
               </div>
             )}
 

@@ -228,3 +228,25 @@ describe("global-errors språk", () => {
     expect(fillCode("Felkod: {code}", "abc")).toBe("Felkod: abc");
   });
 });
+
+describe("skärmbilden", () => {
+  it("följer med som bilaga och tagg bara när den finns", async () => {
+    const { buildFeedback } = await import("../send");
+    const base = {
+      message: "Sidan blev vit",
+      href: "https://usha.se/kalender?kod=HEMLIG",
+      locale: "sv",
+      shellTags: {},
+      source: "felknapp" as const,
+      shareUserId: false,
+    };
+    const without = buildFeedback(base);
+    expect(without.attachments).toEqual([]);
+    expect(without.params.tags.skarmbild).toBeUndefined();
+    const withShot = buildFeedback({ ...base, screenshot: new Uint8Array([1, 2, 3]) });
+    expect(withShot.attachments).toEqual([
+      { filename: "skarmbild.jpg", data: new Uint8Array([1, 2, 3]), contentType: "image/jpeg" },
+    ]);
+    expect(withShot.params.tags.skarmbild).toBe("ja");
+  });
+});
