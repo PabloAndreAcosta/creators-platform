@@ -42,6 +42,19 @@ describe("klippkort på serie", () => {
     expect(tue.today).toBeNull();
     expect(tue.next?.id).toBe("b");
   });
+
+  it("klipper inte på gårdagens kväll efter dörrens stängning (kl. 01 utan sluttid)", () => {
+    const list = [occ("a", "2026-09-14"), occ("b", "2026-09-21")];
+    // 02:00 svensk tid tisdag 15 sep = 00:00Z. Förr gällde måndagen till 04.
+    expect(pickOccurrence(list, new Date("2026-09-15T00:00:00Z")).today).toBeNull();
+  });
+
+  it("följer sluttiden när kvällen går över midnatt", () => {
+    const list = [{ ...occ("a", "2026-09-14"), event_time: "21:00", event_end_time: "02:00" }];
+    // 02:30 svensk tid: kvällen slutade 02:00, dörren håller till 03:00.
+    expect(pickOccurrence(list, new Date("2026-09-15T00:30:00Z")).today?.id).toBe("a");
+    expect(pickOccurrence(list, new Date("2026-09-15T01:00:00Z")).today).toBeNull();
+  });
 });
 
 describe("kort som gäller flera serier", () => {

@@ -73,6 +73,18 @@ export function passBookingFields(
   };
 }
 
+/**
+ * Köparens begäran i kassan om att få börja använda kortet inom ångerfristen
+ * (2 kap. 15 § p. 3), från Stripe-sessionens metadata. Bara "true" räknas.
+ */
+export function passEarlyStartFields(
+  metadata: Record<string, string> | null | undefined,
+  at: Date = new Date()
+): { pass_early_start_requested_at?: string } {
+  if (metadata?.passEarlyStart !== "true" || !(Number(metadata?.sessionsTotal) > 0)) return {};
+  return { pass_early_start_requested_at: at.toISOString() };
+}
+
 export interface PassMoney {
   amount_paid: number | null;
   platform_fee_amount: number | null;
@@ -168,16 +180,21 @@ export interface Occurrence {
   title: string;
   event_date: string;
   event_time: string | null;
+  /** Sluttid, för kvällens slut (lib/tickets/evening.ts). */
+  event_end_time?: string | null;
   event_location: string | null;
 }
 
-/** Kvällens tillfälle (Stockholmstid, med nattmarginal) och nästa kommande. */
+/**
+ * Kvällens tillfälle och nästa kommande. "Kvällens" = det dörren släpper in
+ * på just nu (isEventDay: eventdagen till kvällens slut + marginal).
+ */
 export function pickOccurrence(
   occurrences: readonly Occurrence[],
   now: Date = new Date()
 ): { today: Occurrence | null; next: Occurrence | null } {
   const sorted = [...occurrences].sort((a, b) => a.event_date.localeCompare(b.event_date));
-  const today = sorted.find((o) => isEventDay(o.event_date, now)) ?? null;
+  const today = sorted.find((o) => isEventDay(o.event_date, now, o)) ?? null;
   const day = stockholmDay(now);
   const next = sorted.find((o) => o.event_date > day && o.id !== today?.id) ?? null;
   return { today, next };
@@ -207,7 +224,7 @@ export async function seriesOccurrences(
   if (ids.length === 0) return [];
   const { data } = await admin
     .from("listings")
-    .select("id, title, event_date, event_time, event_location")
+    .select("id, title, event_date, event_time, event_end_time, event_location")
     .in("series_id", ids as string[])
     .eq("is_active", true)
     .not("event_date", "is", null)
