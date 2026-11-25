@@ -12,6 +12,7 @@ export function Footer() {
     [t("footer.discover")]: [
       { label: t("nav.experiences"), href: "/upplevelser" },
       { label: t("nav.calendar"), href: "/kalender" },
+      { label: t("footer.perks"), href: "/formaner" },
       { label: t("footer.marketplace"), href: "/marketplace" },
       { label: t("nav.feed"), href: "/flode" },
       { label: t("footer.haveYourSay"), href: "/tyck-till" },

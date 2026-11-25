@@ -1,4 +1,64 @@
 {
+  "perks": {
+    "meta": {
+      "title": "Ventajas para quienes tienen cuenta en Usha",
+      "description": "Experiencias gratis o a precio preferente para quienes tienen una cuenta en Usha. Estamos invitando a los primeros proveedores."
+    },
+    "hero": {
+      "eyebrow": "Ventajas",
+      "title": "Experiencias gratis o a precio preferente",
+      "body": "Las ventajas son para quienes tienen una cuenta en Usha: experiencias que los proveedores ofrecen gratis o a un precio más bajo. Tener una cuenta no cuesta nada.",
+      "ctaSignup": "Crear cuenta",
+      "ctaLogin": "Iniciar sesión",
+      "ctaApp": "Ver las ventajas en la app"
+    },
+    "how": {
+      "title": "Cómo funciona",
+      "s1Title": "Consigue una cuenta",
+      "s1Body": "Inicia sesión o crea una cuenta. Es gratis.",
+      "s2Title": "Elige una ventaja",
+      "s2Body": "En la app ves las ventajas y el código de cada una.",
+      "s3Title": "Reserva con el código",
+      "s3Body": "Introduce el código al reservar con el proveedor en Usha. Así es gratis o a precio preferente."
+    },
+    "listTitle": "Ventajas actuales",
+    "free": "Gratis",
+    "discount": "Precio preferente {price} kr",
+    "locked": "Inicia sesión para ver el código",
+    "bookWithCode": "Reservar con el código",
+    "finePrint": "Las ventajas se aplican a experiencias en el local del proveedor, no a viajes ni alojamiento. Cada ventaja tiene sus propias condiciones y es válida mientras aparezca aquí y queden plazas.",
+    "empty": {
+      "title": "Aún no hay ventajas",
+      "body": "Estamos invitando a los primeros proveedores de experiencias. Cuando alguien diga que sí, la ventaja aparecerá aquí y, con una cuenta, verás el código directamente en la app."
+    },
+    "providers": {
+      "eyebrow": "Para proveedores",
+      "title": "¿Tienes una experiencia que ofrecer?",
+      "body": "Dale al público de Usha un motivo para encontrarte. Tú decides qué es la ventaja, si es gratis o a precio preferente, cuántas plazas incluye y durante cuánto tiempo.",
+      "forVenues": "Cómo funciona Usha para locales",
+      "mailSubject": "Ventaja en Usha"
+    },
+    "teaser": {
+      "title": "Ventajas para quienes tienen cuenta",
+      "body": "Experiencias que los proveedores ofrecen gratis o a precio preferente, para quienes tienen una cuenta en Usha."
+    },
+    "categories": {
+      "sauna": "Sauna",
+      "climbing": "Escalada",
+      "ceramics": "Cerámica",
+      "cooking": "Cocina",
+      "dance": "Baile",
+      "wellness": "Salud y recuperación",
+      "other": "Experiencia"
+    },
+    "app": {
+      "metaTitle": "Ventajas",
+      "title": "Ventajas",
+      "intro": "Experiencias que los proveedores te ofrecen por tener una cuenta en Usha, gratis o a precio preferente.",
+      "notEligible": "Las ventajas no están disponibles para tu cuenta en este momento.",
+      "howToUse": "Introduce el código al reservar. Es válido mientras la ventaja aparezca aquí y queden plazas."
+    }
+  },
   "common": {
     "home": "Inicio",
     "profile": "Perfil",
@@ -46,6 +106,7 @@
     "switchToDark": "Cambiar a modo oscuro"
   },
   "nav": {
+    "perks": "Ventajas",
     "partner": "Partner",
     "tools": "Herramientas",
     "favorites": "Favoritos",
@@ -922,7 +983,8 @@
       "builtWith": "Hecho con cariño en Suecia",
       "instructors": "Instructores",
       "haveYourSay": "Opina",
-      "guide": "Guía: cómo funciona Usha"
+      "guide": "Guía: cómo funciona Usha",
+      "perks": "Ventajas"
     },
     "doors": {
       "heading": "¿Por dónde empiezas?",
@@ -3363,6 +3425,8 @@
     "feedDesc": "Publicaciones",
     "favoritesLabel": "Favoritos",
     "favoritesDesc": "Guardados",
+    "perksLabel": "Ventajas",
+    "perksDesc": "Gratis o precio preferente",
     "leaderboardLabel": "Clasificación",
     "leaderboardDesc": "Ranking",
     "ticketsLabel": "Entradas",

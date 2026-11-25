@@ -1,4 +1,64 @@
 {
+  "perks": {
+    "meta": {
+      "title": "Perks for Usha account holders",
+      "description": "Experiences for free or at a member price for anyone with an Usha account. We are inviting the first providers now."
+    },
+    "hero": {
+      "eyebrow": "Perks",
+      "title": "Experiences for free or at a member price",
+      "body": "Perks are for anyone with an account on Usha: experiences that providers offer for free or at a lower price. Having an account costs nothing.",
+      "ctaSignup": "Create account",
+      "ctaLogin": "Log in",
+      "ctaApp": "See the perks in the app"
+    },
+    "how": {
+      "title": "How it works",
+      "s1Title": "Get an account",
+      "s1Body": "Log in or create an account. It is free.",
+      "s2Title": "Pick a perk",
+      "s2Body": "In the app you see the perks and the code for each one.",
+      "s3Title": "Book with the code",
+      "s3Body": "Enter the code when you book with the provider on Usha. It is then free or at the member price."
+    },
+    "listTitle": "Current perks",
+    "free": "Free",
+    "discount": "Member price {price} kr",
+    "locked": "Log in to see the code",
+    "bookWithCode": "Book with the code",
+    "finePrint": "Perks apply to experiences on site at the provider, not travel or accommodation. Each perk has its own terms and is valid as long as it is listed here and places remain.",
+    "empty": {
+      "title": "No perks yet",
+      "body": "We are inviting the first experience providers right now. When someone says yes, the perk appears here, and with an account you see the code straight away in the app."
+    },
+    "providers": {
+      "eyebrow": "For providers",
+      "title": "Do you have an experience to offer?",
+      "body": "Give Usha's audience a reason to find you. You decide what the perk is, whether it is free or at a member price, how many places it covers and for how long.",
+      "forVenues": "How Usha works for venues",
+      "mailSubject": "Perk on Usha"
+    },
+    "teaser": {
+      "title": "Perks for account holders",
+      "body": "Experiences that providers offer for free or at a member price, for anyone with an Usha account."
+    },
+    "categories": {
+      "sauna": "Sauna",
+      "climbing": "Climbing",
+      "ceramics": "Ceramics",
+      "cooking": "Cooking",
+      "dance": "Dance",
+      "wellness": "Health and recovery",
+      "other": "Experience"
+    },
+    "app": {
+      "metaTitle": "Perks",
+      "title": "Perks",
+      "intro": "Experiences that providers offer you as an Usha account holder, for free or at a member price.",
+      "notEligible": "Perks are not available for your account right now.",
+      "howToUse": "Enter the code when you book. It is valid as long as the perk is listed here and places remain."
+    }
+  },
   "common": {
     "home": "Home",
     "profile": "Profile",
@@ -46,6 +106,7 @@
     "switchToDark": "Switch to dark mode"
   },
   "nav": {
+    "perks": "Perks",
     "partner": "Partner",
     "tools": "Tools",
     "favorites": "Favorites",
@@ -922,7 +983,8 @@
       "builtWith": "Built with love in Sweden",
       "instructors": "Instructors",
       "haveYourSay": "Have your say",
-      "guide": "Guide: how Usha works"
+      "guide": "Guide: how Usha works",
+      "perks": "Perks"
     },
     "doors": {
       "heading": "Where do you start?",
@@ -3363,6 +3425,8 @@
     "feedDesc": "Posts",
     "favoritesLabel": "Favorites",
     "favoritesDesc": "Saved",
+    "perksLabel": "Perks",
+    "perksDesc": "Free or member price",
     "leaderboardLabel": "Leaderboard",
     "leaderboardDesc": "Ranking",
     "ticketsLabel": "Tickets",

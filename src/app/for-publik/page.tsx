@@ -9,6 +9,7 @@ import { PerspectiveLinks } from "@/components/landing/perspective-links";
 import { Trust } from "@/components/landing/trust";
 import { Footer } from "@/components/landing/footer";
 import { RedirectIfAuthed } from "@/components/landing/redirect-if-authed";
+import { PerksTeaser } from "@/components/perks/perk-list";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("forAudience");
@@ -32,6 +33,7 @@ export default async function ForAudiencePage() {
       <PerspectiveHero ns="forAudience" ctaHref="/upplevelser" wedge />
       <LoopSection ns="forAudience" />
       <AudienceFeatures />
+      <PerksTeaser />
       <Pricing role="customer" />
       <PerspectiveLinks exclude="audience" />
       <Trust />

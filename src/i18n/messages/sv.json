@@ -1,4 +1,64 @@
 {
+  "perks": {
+    "meta": {
+      "title": "Förmåner för dig med konto på Usha",
+      "description": "Upplevelser gratis eller till förmånspris för dig som har ett konto på Usha. Vi bjuder in de första leverantörerna nu."
+    },
+    "hero": {
+      "eyebrow": "Förmåner",
+      "title": "Upplevelser gratis eller till förmånspris",
+      "body": "Förmånerna är till för dig som har ett konto på Usha: upplevelser som leverantörer ger gratis eller till ett lägre pris. Det kostar ingenting att ha konto.",
+      "ctaSignup": "Skapa konto",
+      "ctaLogin": "Logga in",
+      "ctaApp": "Se förmånerna i appen"
+    },
+    "how": {
+      "title": "Så fungerar det",
+      "s1Title": "Skaffa konto",
+      "s1Body": "Logga in eller skapa ett konto. Det är gratis.",
+      "s2Title": "Välj en förmån",
+      "s2Body": "I appen ser du förmånerna och koden till var och en.",
+      "s3Title": "Boka med koden",
+      "s3Body": "Ange koden när du bokar hos leverantören på Usha. Då blir det gratis eller förmånspriset."
+    },
+    "listTitle": "Förmåner just nu",
+    "free": "Gratis",
+    "discount": "Förmånspris {price} kr",
+    "locked": "Logga in för att se koden",
+    "bookWithCode": "Boka med koden",
+    "finePrint": "Förmånerna gäller upplevelser på plats hos leverantören, inte resor eller boende. Varje förmån har sina egna villkor och gäller så länge den står här och det finns platser kvar.",
+    "empty": {
+      "title": "Inga förmåner ännu",
+      "body": "Vi bjuder in de första upplevelseleverantörerna just nu. När någon har sagt ja visas förmånen här, och med ett konto ser du koden direkt i appen."
+    },
+    "providers": {
+      "eyebrow": "För leverantörer",
+      "title": "Har du en upplevelse att erbjuda?",
+      "body": "Ge Ushas publik ett skäl att hitta till dig. Du bestämmer själv vad förmånen är, om den är gratis eller till förmånspris, hur många platser den gäller och hur länge.",
+      "forVenues": "Så fungerar Usha för platser",
+      "mailSubject": "Förmån på Usha"
+    },
+    "teaser": {
+      "title": "Förmåner för dig med konto",
+      "body": "Upplevelser som leverantörer ger gratis eller till förmånspris, för dig som har ett konto på Usha."
+    },
+    "categories": {
+      "sauna": "Bastu",
+      "climbing": "Klättring",
+      "ceramics": "Keramik",
+      "cooking": "Matlagning",
+      "dance": "Dans",
+      "wellness": "Hälsa och återhämtning",
+      "other": "Upplevelse"
+    },
+    "app": {
+      "metaTitle": "Förmåner",
+      "title": "Förmåner",
+      "intro": "Upplevelser som leverantörer ger dig som har ett konto på Usha, gratis eller till förmånspris.",
+      "notEligible": "Förmånerna är inte tillgängliga för ditt konto just nu.",
+      "howToUse": "Ange koden när du bokar. Den gäller så länge förmånen står här och det finns platser kvar."
+    }
+  },
   "common": {
     "home": "Hem",
     "profile": "Profil",
@@ -46,6 +106,7 @@
     "switchToDark": "Byt till mörkt läge"
   },
   "nav": {
+    "perks": "Förmåner",
     "partner": "Partner",
     "tools": "Verktyg",
     "favorites": "Favoriter",
@@ -922,7 +983,8 @@
       "builtWith": "Byggd med kärlek i Sverige",
       "instructors": "Instruktörer",
       "haveYourSay": "Tyck till",
-      "guide": "Guide: så fungerar Usha"
+      "guide": "Guide: så fungerar Usha",
+      "perks": "Förmåner"
     },
     "doors": {
       "heading": "Var börjar du?",
@@ -3363,6 +3425,8 @@
     "feedDesc": "Inlägg",
     "favoritesLabel": "Favoriter",
     "favoritesDesc": "Sparade",
+    "perksLabel": "Förmåner",
+    "perksDesc": "Gratis eller förmånspris",
     "leaderboardLabel": "Topplista",
     "leaderboardDesc": "Ranking",
     "ticketsLabel": "Biljetter",
