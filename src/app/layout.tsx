@@ -8,6 +8,7 @@ import { ToastProvider } from "@/components/ui/toaster";
 import { ConnectionStatus } from "@/components/ConnectionStatus";
 import { GoogleAnalytics } from "@/components/google-analytics";
 import { ConsentBanner } from "@/components/consent-banner";
+import { FeedbackLauncher } from "@/components/feedback/feedback-launcher";
 import { NativeShellBridge } from "@/components/native-shell-bridge";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -167,6 +168,7 @@ export default async function RootLayout({
           <NativeShellBridge />
           <ToastProvider>{children}</ToastProvider>
           <ConsentBanner />
+          <FeedbackLauncher />
         </IntlProvider>
         <Script id="sw-register" strategy="afterInteractive">{`
           if ('serviceWorker' in navigator) {

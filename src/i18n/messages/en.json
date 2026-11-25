@@ -5651,5 +5651,31 @@
     "error_too_old": "The check is too old. Do a new check with the Swedish Tax Agency.",
     "error_invalid_source": "Invalid source.",
     "error_save_failed": "Could not save."
+  },
+  "feedback": {
+    "button": "Something not working?",
+    "title": "Tell us what happened",
+    "label": "What were you trying to do, and what happened?",
+    "placeholder": "For example: I tapped Buy and the page went blank.",
+    "shareUser": "Include my user ID so you can look at my account",
+    "notice": "Your description and technical info about the page are sent to Usha via Sentry (EU).",
+    "errorAttached": "The error code is included.",
+    "send": "Send",
+    "sending": "Sending…",
+    "cancel": "Cancel",
+    "close": "Close",
+    "thanks": "Thanks! We'll look into it.",
+    "failed": "The report couldn't be sent. Please try again in a moment.",
+    "empty": "Write a few words about what happened."
+  },
+  "errorPage": {
+    "title": "Something went wrong",
+    "fallback": "An unexpected error occurred. Please try again in a moment.",
+    "reloadFallback": "An unexpected error occurred. Reload the page and try again.",
+    "retry": "Try again",
+    "home": "Go to the home page",
+    "toApp": "Back to the app",
+    "code": "Error code: {code}",
+    "report": "Report the problem"
   }
 }

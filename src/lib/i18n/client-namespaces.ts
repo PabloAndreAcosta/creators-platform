@@ -31,8 +31,10 @@ export const PUBLIC_NAMESPACES = [
   "connection",
   "consent",
   "creatorProfile",
+  "errorPage",
   "eventPage",
   "feed",
+  "feedback",
   "instructorMinutesCard",
   "landing",
   "listingCard",
@@ -46,8 +48,8 @@ export const PUBLIC_NAMESPACES = [
 export const APP_NAMESPACES = [
   "a11y", "account", "adminPage", "agreements", "appProfile", "bookingsPage", "calendarPage",
   "categories", "common", "connections", "courses", "entrance", "eventBookings", "eventCrew",
-  "eventForm", "eventInsights", "eventLive", "eventPage", "eventStats",
-  "favorites", "feed", "gagePanel", "gigsApply", "help", "home", "hostEvent",
+  "errorPage", "eventForm", "eventInsights", "eventLive", "eventPage", "eventStats",
+  "favorites", "feed", "feedback", "gagePanel", "gigsApply", "help", "home", "hostEvent",
   "invites", "joinEvent", "landing", "languageSettings", "leaderboard",
   "libraryPage", "listen", "listingCard", "matching", "messages", "myEvents",
   "myPosts", "myTickets", "nav", "notifSettings", "notifications",
@@ -63,13 +65,13 @@ export const DASHBOARD_NAMESPACES = [
   "a11y", "adminPage", "adminPromoForm", "adminPromoTable", "analytics",
   "bankidToast", "billingConnect", "bookingCalendar", "bookingsPage",
   "categories", "common", "companyVerify",
-  "dashProfile", "gigApplicationActions", "gigForm",
+  "dashProfile", "errorPage", "feedback", "gigApplicationActions", "gigForm",
   "listingCard", "listingForm", "listingsPage", "payouts", "promoCodes",
   "redeemMinutes", "reviewForm",
 ] as const;
 
 /** src/app/(auth)/ — inloggning, registrering, lösenord. */
-export const AUTH_NAMESPACES = ["auth", "forgotPassword", "resetPassword"] as const;
+export const AUTH_NAMESPACES = ["auth", "errorPage", "feedback", "forgotPassword", "resetPassword"] as const;
 
 /**
  * Plocka ut de angivna namespacen. Okända hoppas tyst över — en lista som
