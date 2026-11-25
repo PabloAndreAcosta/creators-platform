@@ -2623,6 +2623,7 @@
     "wasThereAlreadyPaid": "Ya has pagado esta noche.",
     "notReleased": "Las entradas aún no están disponibles.",
     "soldOut": "Este evento está agotado.",
+    "notEnoughSeats": "{left, plural, one {Solo queda # plaza.} other {Solo quedan # plazas.}}",
     "past": "Este evento ya ha tenido lugar.",
     "invalidEmail": "Introduce una dirección de email válida.",
     "consentRequired": "Se requiere tu consentimiento.",
