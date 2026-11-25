@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
+import { swishIntentGate } from "@/lib/swish/intent-gate";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentUser } from "@/lib/supabase/current-user";
 import { rateLimit, getRateLimitKey } from "@/lib/rate-limit";
@@ -50,10 +51,20 @@ export async function POST(req: NextRequest) {
   const admin = createAdminClient();
   const { data: listing } = await admin
     .from("listings")
-    .select("id, user_id, title, price, event_date, event_time, is_active, is_public, capacity, tickets_sold")
+    .select(
+      "id, user_id, title, price, event_date, event_time, event_end_time, is_active, is_public, capacity, tickets_sold, early_bird_start, early_bird_end, early_bird_price, public_sale_at"
+    )
     .eq("id", listingId)
     .maybeSingle();
   if (!listing || !listing.is_active || !listing.is_public) return NextResponse.json({ error: "notFound" }, { status: 404 });
+
+  // Samma köpgräns som kortkassan: aldrig en passerad kväll, inte före
+  // släppet, inte slutsålt. Efterköp ("Var du där?") går bara med kort.
+  const gate = swishIntentGate(listing, new Date());
+  if (!gate.ok) {
+    const te = await getTranslations("eventErrors");
+    return NextResponse.json({ error: gate.code, message: te(gate.code) }, { status: gate.status });
+  }
 
   const offer = await swishOfferForListing(admin, listing);
   if (!offer) return NextResponse.json({ error: "swishUnavailable" }, { status: 400 });
@@ -70,7 +81,8 @@ export async function POST(req: NextRequest) {
     if (!tt) return NextResponse.json({ error: "badRequest" }, { status: 400 });
     ticketType = tt as { id: string; name: string; price: number };
   }
-  const unit = ticketType ? Number(ticketType.price) : Number(listing.price) || 0;
+  // Som kortkassan: biljettypens pris, annars sale-states (förköpspris under fönstret).
+  const unit = ticketType ? Number(ticketType.price) : gate.price;
   if (unit <= 0) return NextResponse.json({ error: "noPrice" }, { status: 400 });
   const amountOre = Math.round(unit * 100) * quantity;
 
