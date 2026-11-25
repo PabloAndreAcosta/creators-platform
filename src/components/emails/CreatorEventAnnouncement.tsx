@@ -9,6 +9,11 @@ interface CreatorEventAnnouncementProps {
   eventDate?: Date;
   location?: string;
   eventUrl: string;
+  /**
+   * Antal kvällar mejlet gäller. Över 1 = en serie: rubriken och datumraden
+   * säger hur många och när den första är, i stället för ett mejl per kväll.
+   */
+  occurrenceCount?: number;
   /** Avslutalänk för följare utan konto. Kontoföljare styr i inställningarna. */
   unsubscribeUrl?: string;
   /** Translator for the `emails` namespace, in the recipient's language. */
@@ -25,8 +30,12 @@ const DATE_FORMAT: Intl.DateTimeFormatOptions = {
 export function getCreatorEventSubject(
   t: Translate,
   creatorName: string,
-  eventTitle: string
+  eventTitle: string,
+  occurrenceCount = 1
 ): string {
+  if (occurrenceCount > 1) {
+    return t("creatorEventSeriesSubject", { creator: creatorName, event: eventTitle, count: occurrenceCount });
+  }
   return t("creatorEventSubject", { creator: creatorName, event: eventTitle });
 }
 
@@ -37,10 +46,12 @@ export default function CreatorEventAnnouncement({
   eventDate,
   location,
   eventUrl,
+  occurrenceCount = 1,
   t,
   locale,
   unsubscribeUrl,
 }: CreatorEventAnnouncementProps) {
+  const isSeries = occurrenceCount > 1;
   return (
     <html>
       <head>
@@ -72,7 +83,9 @@ export default function CreatorEventAnnouncement({
                           {followerName ? t("greetingExcited", { name: followerName }) : t("greetingNoName")}
                         </p>
                         <p style={{ fontSize: 14, color: "#6b6b6b", margin: "0 0 24px", lineHeight: 1.6 }}>
-                          {t("creatorEventIntro", { creator: creatorName })}
+                          {isSeries
+                            ? t("creatorEventSeriesIntro", { creator: creatorName })
+                            : t("creatorEventIntro", { creator: creatorName })}
                         </p>
 
                         <table width="100%" cellPadding={0} cellSpacing={0} style={{ marginBottom: 24 }}>
@@ -82,7 +95,16 @@ export default function CreatorEventAnnouncement({
                                 <p style={{ fontSize: 15, fontWeight: 600, color: "#c8a445", margin: "0 0 8px" }}>
                                   {eventTitle}
                                 </p>
-                                {eventDate && (
+                                {isSeries ? (
+                                  <p style={{ fontSize: 13, color: "#fafaf9", margin: "0 0 4px" }}>
+                                    {eventDate
+                                      ? t("creatorEventSeriesDates", {
+                                          count: occurrenceCount,
+                                          first: formatEmailDate(eventDate, locale, DATE_FORMAT),
+                                        })
+                                      : t("creatorEventSeriesCount", { count: occurrenceCount })}
+                                  </p>
+                                ) : eventDate && (
                                   <p style={{ fontSize: 13, color: "#fafaf9", margin: "0 0 4px" }}>
                                     {t("labelDate", { value: formatEmailDate(eventDate, locale, DATE_FORMAT) })}
                                   </p>
@@ -114,7 +136,7 @@ export default function CreatorEventAnnouncement({
                                     textDecoration: "none",
                                   }}
                                 >
-                                  {t("creatorEventCta")}
+                                  {isSeries ? t("creatorEventSeriesCta") : t("creatorEventCta")}
                                 </a>
                               </td>
                             </tr>

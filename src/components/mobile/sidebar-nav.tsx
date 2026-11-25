@@ -28,7 +28,7 @@ import UschjaLogo from "@/components/UschjaLogo";
 
 export function SidebarNav() {
   const pathname = usePathname();
-  const { role, hasAdminAccess } = useRole();
+  const { role, hasAdminAccess, extraNavPaths } = useRole();
   const { tier, hasActiveSubscription } = useSubscription();
   const t = useTranslations("nav");
   const tAdmin = useTranslations("adminPage");
@@ -44,13 +44,13 @@ export function SidebarNav() {
   // Mer-griden använder dem; sidomenyn gjorde det inte.
   const navRole: NavRole =
     role === "creator" ? "creator" : role === "venue" ? "venue" : "customer";
-  const groups = groupedDestinationsFor(navRole, "sidebar").map((g) => ({
+  const groups = groupedDestinationsFor(navRole, "sidebar", extraNavPaths).map((g) => ({
     group: g.group,
     // Hem hör inte under någon rubrik. Den ligger i createSell i registret för
     // att den måste ligga någonstans, men "Skapa & sälj: Hem" vore fel.
     items: g.items.filter((d) => d.path !== "/app"),
   }));
-  const home = groupedDestinationsFor(navRole, "sidebar")
+  const home = groupedDestinationsFor(navRole, "sidebar", extraNavPaths)
     .flatMap((g) => g.items)
     .find((d) => d.path === "/app");
   const GROUP_LABEL_KEY: Record<string, string> = {

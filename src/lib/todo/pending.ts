@@ -14,7 +14,7 @@
  * inte händer förrän du svarar. Samma sak på båda ställena vore brus.
  */
 
-export type TodoKey = "venueRequests" | "awaitingVenue";
+export type TodoKey = "venueRequests" | "venueDeclined" | "awaitingVenue";
 
 export interface TodoItem {
   key: TodoKey;
@@ -26,6 +26,8 @@ export interface TodoItem {
 export interface TodoInput {
   /** Förfrågningar till lokaler jag ansvarar för, obesvarade. */
   venueRequestsPending?: number | null;
+  /** Mina kommande evenemang som lokalen tackat nej till. */
+  listingsVenueDeclined?: number | null;
   /** Mina egna evenemang som väntar på en lokals ja. */
   listingsAwaitingVenue?: number | null;
 }
@@ -44,6 +46,13 @@ export function pendingTodos(input: TodoInput): TodoItem[] {
   const requests = antal(input.venueRequestsPending);
   if (requests > 0) {
     items.push({ key: "venueRequests", count: requests, href: "/app/venue-requests" });
+  }
+
+  // Ett nej kräver mitt beslut (välj en annan lokal), så det går före det som
+  // fortfarande väntar på lokalen.
+  const declined = antal(input.listingsVenueDeclined);
+  if (declined > 0) {
+    items.push({ key: "venueDeclined", count: declined, href: "/app/events" });
   }
 
   const awaiting = antal(input.listingsAwaitingVenue);

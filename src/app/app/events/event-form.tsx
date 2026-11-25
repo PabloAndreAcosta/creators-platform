@@ -1,5 +1,6 @@
 "use client";
 
+import { venueResponseState } from "@/lib/venues/venue-response";
 import { useRef, useState, useTransition } from "react";
 import { utcToStockholmLocal } from "@/lib/time";
 import { useRouter } from "next/navigation";
@@ -34,6 +35,8 @@ interface EventData {
   event_venue?: string | null;
   venue_profile_id?: string | null;
   venue_confirmed_at?: string | null;
+  venue_declined_at?: string | null;
+  user_id?: string;
   listing_type: ListingType | null;
   open_to_instructors: boolean | null;
   is_practica?: boolean | null;
@@ -626,9 +629,14 @@ export default function EventForm({
               ))}
             </select>
             <p className="text-xs text-[var(--usha-muted)]">
-              {event?.venue_profile_id && !event?.venue_confirmed_at
-                ? t("venueProfilePending")
-                : t("venueProfileHint")}
+              {(() => {
+                // Tre lägen, inte två: ett nej såg förr ut som "väntar".
+                const state = event ? venueResponseState(event) : "none";
+                if (state === "declined") return t("venueProfileDeclined");
+                if (state === "pending") return t("venueProfilePending");
+                if (state === "confirmed" && event?.user_id && event.venue_profile_id !== event.user_id) return t("venueProfileConfirmed");
+                return t("venueProfileHint");
+              })()}
             </p>
           </div>
         )}

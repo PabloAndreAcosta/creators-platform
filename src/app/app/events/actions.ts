@@ -697,6 +697,8 @@ export async function updateEvent(id: string, formData: FormData) {
       parsed.data.venue_profile_id && parsed.data.venue_profile_id === user.id
         ? new Date().toISOString()
         : null;
+    // Ett nej gällde den förra lokalen. Den nya har inte svarat än.
+    updateData.venue_declined_at = null;
   }
   if (priceOverride !== null) updateData.price = priceOverride;
   updateData.is_public = formData.get("unlisted") !== "on";

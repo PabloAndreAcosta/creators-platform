@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import JoinContent from "./join-content";
+import { memberLandingPath } from "@/lib/navigation/venue-member";
 
 /**
  * Sidan där en inbjuden säger ja.
@@ -43,6 +44,7 @@ export default async function JoinVenuePage(props: { params: Promise<{ token: st
       token={token}
       gone={gone}
       venueName={venueName}
+      landingPath={memberLandingPath(invite?.capabilities ?? [])}
       capabilities={(invite?.capabilities ?? []).map((c: string) => tc(`${c}.label`))}
       labels={{
         heading: venueName ? t("heading", { venue: venueName }) : t("headingGeneric"),

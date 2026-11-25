@@ -18,14 +18,16 @@ interface AppShellProps {
   userName: string;
   /** Rollen som layouten redan läst ur databasen — hindrar rollflimmer. */
   initialRole?: UserRole;
+  /** Menyval ett lokalteam låser upp utöver rollen. */
+  extraNavPaths?: string[];
 }
 
-export function AppShell({ children, userName, initialRole }: AppShellProps) {
+export function AppShell({ children, userName, initialRole, extraNavPaths }: AppShellProps) {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const t = useTranslations("search");
 
   return (
-    <RoleProvider initialRole={initialRole}>
+    <RoleProvider initialRole={initialRole} extraNavPaths={extraNavPaths}>
       <div className="flex min-h-screen bg-[var(--usha-black)]">
         {/* Sidebar – desktop only */}
         <SidebarNav />

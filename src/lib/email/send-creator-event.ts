@@ -13,6 +13,8 @@ interface SendCreatorEventParams {
   eventDate?: Date;
   location?: string;
   eventUrl: string;
+  /** Antal kvällar i utskicket. Över 1 = en serie, mejlet säger hur många. */
+  occurrenceCount?: number;
   /** Follower's account, so the mail matches the language they read the app in. */
   followerId?: string | null;
   /** Följare utan konto: avslutalänk i mejlet. */
@@ -29,6 +31,7 @@ export async function sendCreatorEventEmail({
   eventDate,
   location,
   eventUrl,
+  occurrenceCount,
   followerId,
   unsubscribeUrl,
   preferredLocale,
@@ -37,13 +40,13 @@ export async function sendCreatorEventEmail({
     const resend = getResend();
     const { t, locale } = await getEmailIntl(await resolveRecipientLocale({ userId: followerId, email: to, preferred: preferredLocale }));
     const html = await renderEmailToHtml(
-      createElement(CreatorEventAnnouncement, { followerName, creatorName, eventTitle, eventDate, location, eventUrl, unsubscribeUrl, t, locale })
+      createElement(CreatorEventAnnouncement, { followerName, creatorName, eventTitle, eventDate, location, eventUrl, occurrenceCount, unsubscribeUrl, t, locale })
     );
 
     const { error } = await resend.emails.send({
       from: getFromEmail(),
       to,
-      subject: getCreatorEventSubject(t, creatorName, eventTitle),
+      subject: getCreatorEventSubject(t, creatorName, eventTitle, occurrenceCount),
       html,
     });
 

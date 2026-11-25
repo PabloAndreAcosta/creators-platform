@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { ArrowRight, Inbox, Clock } from "lucide-react";
+import { ArrowRight, Inbox, Clock, XCircle } from "lucide-react";
 import type { TodoItem, TodoKey } from "@/lib/todo/pending";
 
 const ICONS: Record<TodoKey, typeof Inbox> = {
   venueRequests: Inbox,
+  venueDeclined: XCircle,
   awaitingVenue: Clock,
 };
 

@@ -184,3 +184,18 @@ export async function venuesUserHasCapability(
     .filter((r: { capabilities: unknown }) => sanitizeCapabilities(r.capabilities).includes(capability))
     .map((r: { venue_profile_id: string }) => r.venue_profile_id);
 }
+
+/**
+ * Behörigheterna per lokal där personen är accepterad medlem. Underlaget för
+ * menyvalen ett lokalteam låser upp (lib/navigation/venue-member.ts).
+ */
+export async function venueCapabilitiesForUser(userId: string): Promise<VenueCapability[][]> {
+  const { data } = await createAdminClient()
+    .from("venue_members")
+    .select("capabilities")
+    .eq("user_id", userId)
+    .not("accepted_at", "is", null)
+    .is("removed_at", null);
+
+  return (data ?? []).map((r: { capabilities: unknown }) => sanitizeCapabilities(r.capabilities));
+}

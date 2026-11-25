@@ -81,6 +81,10 @@
       "text": "{count, plural, one {# evenemang vill hållas hos er} other {# evenemang vill hållas hos er}}",
       "action": "Svara"
     },
+    "venueDeclined": {
+      "text": "{count, plural, one {Lokalen har tackat nej till # evenemang} other {Lokalen har tackat nej till # evenemang}}",
+      "action": "Visa"
+    },
     "awaitingVenue": {
       "text": "{count, plural, one {# evenemang väntar på lokalens ja} other {# evenemang väntar på lokalens ja}}",
       "action": "Visa"
@@ -1009,6 +1013,10 @@
     "levelNameGeneric": "Nivå {level}",
     "venueRequestTitle": "Förfrågan om er lokal",
     "venueRequestMsg": "{organiser} vill hålla {count, plural, one {ett evenemang} other {# evenemang}} hos er. Det händer inget förrän ni svarar.",
+    "venueConfirmedTitle": "Lokalen har sagt ja",
+    "venueConfirmedMsg": "{venue} har godkänt {event}. Det syns nu på lokalens sida.",
+    "venueDeclinedTitle": "Lokalen har tackat nej",
+    "venueDeclinedMsg": "{venue} har tackat nej till {event}. Välj en annan lokal om du vill.",
     "instructorApplicationTitle": "Ny instruktörsansökan",
     "instructorApplicationMsg": "{name} vill undervisa på dina öppna kvällar. Godkänn eller avslå under Volontärpass.",
     "volunteerApplicationTitle": "Ny volontäransökan",
@@ -2379,6 +2387,8 @@
     "venueProfileNone": "Ingen kopplad lokal",
     "venueProfileHint": "Kopplar du evenemanget till en lokal får deras följare veta, och det syns på lokalens sida. Lokalen behöver godkänna kopplingen först.",
     "venueProfilePending": "Väntar på att lokalen ska godkänna kopplingen. Tills dess syns evenemanget inte på deras sida.",
+    "venueProfileDeclined": "Lokalen har tackat nej. Evenemanget syns inte på deras sida. Välj en annan lokal eller ingen.",
+    "venueProfileConfirmed": "Lokalen har godkänt kopplingen. Evenemanget syns på deras sida.",
     "organiser": "Vem lägger upp evenemanget?",
     "organiserSelf": "Jag själv",
     "organiserHint": "Väljer du en lokal blir det lokalen som äger evenemanget och tar emot intäkten. Ditt namn sparas som den som skapade det.",
@@ -4702,6 +4712,20 @@
     "creatorEventIntro": "{creator}, som du följer, har lagt upp ett nytt event:",
     "creatorEventCta": "Se eventet",
     "creatorEventFooter": "Du får detta för att du följer {creator} på Usha Platform.",
+    "creatorEventSeriesSubject": "{creator} har lagt upp {count} kvällar: {event}",
+    "creatorEventSeriesIntro": "{creator}, som du följer, har lagt upp en ny serie:",
+    "creatorEventSeriesDates": "{count} kvällar, första {first}",
+    "creatorEventSeriesCount": "{count} kvällar",
+    "creatorEventSeriesCta": "Se alla kvällar",
+    "venueResponse": {
+      "confirmedSubject": "{venue} har sagt ja till {event}",
+      "declinedSubject": "{venue} har tackat nej till {event}",
+      "confirmedBody": "{venue} har godkänt att {event} ({date}) hålls hos dem. Evenemanget syns nu på lokalens sida och lokalens följare får veta.",
+      "declinedBody": "{venue} har tackat nej till att {event} ({date}) kopplas till lokalen. Evenemanget ligger kvar hos dig, men syns inte på lokalens sida. Du kan välja en annan lokal i evenemanget.",
+      "noDate": "utan datum",
+      "cta": "Öppna evenemanget",
+      "footer": "Du får det här för att du har kopplat ett evenemang till en lokal på Usha Platform."
+    },
     "newMessageSubject": "Nytt meddelande från {sender} — Usha Platform",
     "newMessageIntro": "{sender} har skickat dig ett meddelande:",
     "newMessageCta": "Svara på meddelandet",
@@ -4945,6 +4969,7 @@
     "deciding": "Sparar…",
     "decline": "Neka",
     "withdraw": "Ta bort godkännande",
+    "declined": "Nekad",
     "by": "Arrangeras av {name}",
     "failed": "Det gick inte att spara svaret. Försök igen."
   },

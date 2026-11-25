@@ -11,6 +11,8 @@ import { SubscriptionProvider } from "@/lib/subscription/context";
 import type { MemberTier, MemberRole } from "@/types/database";
 import { normalizeRole } from "@/lib/roles";
 import type { UserRole } from "@/components/mobile/role-context";
+import { venueCapabilitiesForUser } from "@/lib/venues/members";
+import { navPathsForVenueCapabilities } from "@/lib/navigation/venue-member";
 
 export const metadata = {
   title: "Usha Platform App",
@@ -52,10 +54,13 @@ export default async function MobileAppLayout({
   // redan i serverrenderingen. Utan det startade rollkontexten på "customer" och
   // bytte meny under fingret efter hydrering.
   let initialRole: UserRole = "customer";
+  // Menyval som ett lokalteam låser upp. Rollen ändras inte: en medlem med
+  // rollen publik ska ändå hitta Evenemang och Skanna för lokalen.
+  let extraNavPaths: string[] = [];
 
   try {
     // Profil och prenumeration beror inte på varandra: en tur, inte två.
-    const [{ data: profile }, { data: sub }] = await Promise.all([
+    const [{ data: profile }, { data: sub }, venueCaps] = await Promise.all([
       supabase.from("profiles").select("full_name, tier, role").eq("id", user.id).single(),
       supabase
         .from("subscriptions")
@@ -63,7 +68,9 @@ export default async function MobileAppLayout({
         .eq("user_id", user.id)
         .in("status", ["active", "trialing"])
         .single(),
+      venueCapabilitiesForUser(user.id).catch(() => [] as string[][]),
     ]);
+    extraNavPaths = navPathsForVenueCapabilities(venueCaps);
     userName = profile?.full_name || user.email || "Användare";
     tier = (profile?.tier as MemberTier) ?? "gratis";
     role = (profile?.role as MemberRole) ?? "customer";
@@ -91,7 +98,7 @@ export default async function MobileAppLayout({
   return (
     <IntlProvider locale={await getLocale()} messages={messages}>
       <SubscriptionProvider value={{ tier, role, hasActiveSubscription, plan }}>
-        <AppShell userName={userName} initialRole={initialRole}>
+        <AppShell userName={userName} initialRole={initialRole} extraNavPaths={extraNavPaths}>
           {children}
         </AppShell>
       </SubscriptionProvider>
