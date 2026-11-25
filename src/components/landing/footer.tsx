@@ -31,7 +31,10 @@ export function Footer() {
     [t("footer.legal")]: [
       { label: t("footer.terms"), href: "/terms" },
       { label: t("footer.privacy"), href: "/privacy" },
+      { label: t("footer.refundPolicy"), href: "/refund-policy" },
       { label: t("footer.cookies"), href: "/cookies" },
+      // Köparen ska hitta återbetalningsreglerna utan att leta i sitemapen.
+      { label: t("footer.refund"), href: "/refund-policy" },
       { label: t("footer.security"), href: "/sakerhet" },
     ],
   };
