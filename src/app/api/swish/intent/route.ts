@@ -9,7 +9,7 @@ import { swishOfferForListing } from "@/lib/swish/availability";
 import { swishPaymentUrl } from "@/lib/swish/config";
 import { sendSwishPendingEmail } from "@/lib/email/send-swish-pending";
 import { stockholmLocalToUtcISO } from "@/lib/time";
-import { pendingSwishSeats, swishSeatsLeft, type SeatResult } from "@/lib/swish/seats";
+import { loadSeatCounts, pendingSwishSeats, swishSeatsLeft, type SeatResult } from "@/lib/swish/seats";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -103,8 +103,13 @@ export async function POST(req: NextRequest) {
   // Platser kvar, som kortkassan: kapacitet minus sålda och reserverade
   // (tickets_sold) — och här även de vilande Swish-köpen, som inte finns i
   // tickets_sold förrän entrén bekräftar dem. Se lib/swish/seats.ts.
-  const seatsFor = async (ownBookingId?: string): Promise<SeatResult> =>
-    swishSeatsLeft({ listing, ticketType, pending: await pendingSwishSeats(admin, listing.id), quantity, ownBookingId });
+  const seatsFor = async (ownBookingId?: string): Promise<SeatResult> => {
+    const [counts, pending] = await Promise.all([
+      loadSeatCounts(admin, listing.id, ticketType?.id ?? null),
+      pendingSwishSeats(admin, listing.id),
+    ]);
+    return swishSeatsLeft({ ...counts, pending, quantity, ownBookingId });
+  };
   const seatsDenied = async (left: number) => {
     const te = await getTranslations("eventErrors");
     return left > 0

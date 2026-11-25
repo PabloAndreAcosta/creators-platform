@@ -76,4 +76,21 @@ describe("swishSeatsLeft — platser kvar för ett Swish-köp", () => {
       expect(swishSeatsLeft({ listing: tight, pending, quantity: 1, ownBookingId: "x" })).toEqual({ ok: true, left: 1 });
     });
   });
+
+  describe("biljettpooler", () => {
+    const open = { capacity: null, tickets_sold: 0 };
+    const ticketType = { id: "tt", capacity: null, tickets_sold: 0 };
+    const pool = { capacity: 5, sold: 3, ticketTypeIds: ["tt", "tt2"] };
+
+    it("poolens gräns gäller, med vilande Swish i poolens andra biljettyp", () => {
+      const pending = [pend("x", 1, "2026-11-25T10:00:00Z", "tt2")];
+      expect(swishSeatsLeft({ listing: open, ticketType, pools: [pool], pending, quantity: 1 })).toEqual({ ok: true, left: 1 });
+      expect(swishSeatsLeft({ listing: open, ticketType, pools: [pool], pending, quantity: 2 })).toEqual({ ok: false, left: 1 });
+    });
+
+    it("vilande Swish utanför poolen räknas inte mot poolen", () => {
+      const pending = [pend("x", 2, "2026-11-25T10:00:00Z", "annan")];
+      expect(swishSeatsLeft({ listing: open, ticketType, pools: [pool], pending, quantity: 2 })).toEqual({ ok: true, left: 2 });
+    });
+  });
 });
