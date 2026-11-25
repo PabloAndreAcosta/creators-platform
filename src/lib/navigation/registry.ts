@@ -195,6 +195,11 @@ export const APP_DESTINATIONS: AppDestination[] = [
     group: "explore", roles: "all", surfaces: ["more", "sidebar"] },
   { path: "/app/favorites", labelKey: "favoritesLabel", descKey: "favoritesDesc", navLabelKey: "favorites", icon: Heart,
     group: "explore", roles: "all", surfaces: ["more", "sidebar"] },
+  // Förmåner från upplevelseleverantörer. Alla roller: behörigheten avgörs av
+  // isPerkEligible (lib/perks/eligibility.ts), inte av rollen. Tomt läge med
+  // förklaring tills den första leverantören sagt ja.
+  { path: "/app/formaner", labelKey: "perksLabel", descKey: "perksDesc", navLabelKey: "perks", icon: Gift,
+    group: "explore", roles: "all", surfaces: ["more", "sidebar"] },
   // Poängsystemet är gömt sedan 2026-11-13 tills belöningarna byggts om till
   // något som går att lösa in (Pablo: "nice att ha kvar"). Sidorna finns,
   // men ingen meny pekar dit. surfaces: [] = registrerad men osynlig.
