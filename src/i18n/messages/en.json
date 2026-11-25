@@ -2629,6 +2629,7 @@
     "wasThereAlreadyPaid": "You have already paid for this evening.",
     "notReleased": "Tickets have not been released yet.",
     "soldOut": "This event is sold out.",
+    "notEnoughSeats": "{left, plural, one {Only # seat left.} other {Only # seats left.}}",
     "past": "This event has already taken place.",
     "invalidEmail": "Enter a valid email address.",
     "consentRequired": "Consent is required.",

@@ -2629,6 +2629,7 @@
     "wasThereAlreadyPaid": "Du har redan betalat för den här kvällen.",
     "notReleased": "Biljetterna har inte släppts än.",
     "soldOut": "Eventet är slutsålt.",
+    "notEnoughSeats": "{left, plural, one {Det finns bara # plats kvar.} other {Det finns bara # platser kvar.}}",
     "past": "Eventet har redan varit.",
     "invalidEmail": "Ange en giltig e-postadress.",
     "consentRequired": "Samtycke krävs.",
