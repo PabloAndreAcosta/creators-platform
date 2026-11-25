@@ -118,8 +118,20 @@ self.addEventListener('push', (event) => {
     badge: '/badge-96.png',
     tag: data.tag || undefined,
     renotify: !!data.tag,
-    data: { url: data.url || '/app/notifications' },
+    data: { url: data.url || '/app/notifications', actions: {} },
   };
+  // Knappar på själva notisen (Android/Chrome; iPhone visar dem inte).
+  // En knapp gör aldrig något själv — den öppnar bara en sida bakom
+  // inloggningen, där den som är inloggad trycker en gång till.
+  if (Array.isArray(data.actions) && data.actions.length) {
+    options.actions = data.actions
+      .filter((a) => a && a.action && a.title && a.url)
+      .slice(0, 2)
+      .map((a) => {
+        options.data.actions[a.action] = a.url;
+        return { action: a.action, title: a.title };
+      });
+  }
   // Siffran på appikonen. Servern räknar olästa och skickar med talet, för
   // service workern kan inte fråga sessionen. Saknas stödet (vanlig flik,
   // äldre Safari) händer ingenting — notisen visas ändå.
@@ -138,7 +150,8 @@ self.addEventListener('push', (event) => {
 // Tapping a push opens (or focuses) the linked page.
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const target = (event.notification.data && event.notification.data.url) || '/app/notifications';
+  const d = event.notification.data || {};
+  const target = (event.action && d.actions && d.actions[event.action]) || d.url || '/app/notifications';
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
       for (const client of list) {

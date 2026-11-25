@@ -88,7 +88,11 @@ export default function EntrancePage() {
   // Swish-appen och avgöra. Raden med pågående anrop får inte tryckas igen.
   const [pendingSwish, setPendingSwish] = useState<PendingSwish[]>([]);
   const [pendingBusy, setPendingBusy] = useState<string | null>(null);
-  const [pendingCheckIn, setPendingCheckIn] = useState(true);
+  // "Gästen står här": förval PÅ bara medan kvällen pågår (servern avgör).
+  // Ett köp kvällen innan checkade annars in gästen av misstag. Har den som
+  // står i dörren själv ändrat rutan rör pollningen den inte.
+  const [pendingCheckIn, setPendingCheckIn] = useState(false);
+  const checkInTouched = useRef(false);
 
   // Tidsstämpeln kommer från servern, inte från telefonen. En entrémobil med
   // några minuters klockfel hade annars antingen missat betalningar eller
@@ -113,6 +117,7 @@ export default function EntrancePage() {
         if (data.kiosk) setKiosk(data.kiosk);
         if (data.swish) setSwish(data.swish);
         if (Array.isArray(data.pendingSwish)) setPendingSwish(data.pendingSwish);
+        if (!checkInTouched.current && typeof data.eveningInProgress === "boolean") setPendingCheckIn(data.eveningInProgress);
         if (poll) {
           if (data.sales.length > 0) setSales((prev) => [...data.sales, ...prev].slice(0, 8));
         } else {
@@ -432,7 +437,10 @@ export default function EntrancePage() {
           </p>
           <p className="mt-1 text-xs text-[var(--usha-muted)]">{t("swishPendingHint")}</p>
           <label className="mt-2 flex cursor-pointer items-center gap-2 text-xs text-[var(--usha-muted)]">
-            <input type="checkbox" checked={pendingCheckIn} onChange={(e) => setPendingCheckIn(e.target.checked)} className="h-4 w-4 accent-[var(--usha-gold)]" />
+            <input type="checkbox" checked={pendingCheckIn} onChange={(e) => {
+              checkInTouched.current = true;
+              setPendingCheckIn(e.target.checked);
+            }} className="h-4 w-4 accent-[var(--usha-gold)]" />
             {t("swishPendingCheckIn")}
           </label>
           <ul className="mt-3 space-y-2">
