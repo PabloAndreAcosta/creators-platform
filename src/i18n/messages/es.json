@@ -835,6 +835,17 @@
         "desc": "Invita a tu equipo, delega el escaneo de entradas a personas de confianza y paga los cachés de forma segura a través de Stripe: mantienes el control total."
       }
     },
+    "payoutCalc": {
+      "title": "Haz las cuentas de tu noche",
+      "priceLabel": "Precio por entrada (SEK)",
+      "qtyLabel": "Entradas vendidas",
+      "result": "Si vendes {qty, plural, one {# entrada} other {# entradas}} a {price}, recibes <b>{net}</b>.",
+      "grossLabel": "Ingresos por entradas",
+      "commissionLabel": "Comisión de Usha ({rate} + {fixed} por entrada)",
+      "netLabel": "Para ti",
+      "buyerNote": "El comprador paga solo el precio que tú fijas, {price} por entrada. No se añade nada al pagar, salvo que tú elijas la tarifa de servicio para el comprador.",
+      "freeNote": "Las entradas gratuitas no cuestan nada, ni a ti ni al comprador."
+    },
     "pricing": {
       "title": "Precios",
       "subtitle": "Sin coste mensual y sin niveles que comprar. Pagas 3,5 % + 3,50 kr por entrada vendida, y todo está incluido desde el primer día.",
@@ -2324,6 +2335,7 @@
     "serviceFeeBuyerHint": "Se añade al precio de la entrada en la caja y cubre el coste de la tarjeta. La misma tarifa sea cual sea el método de pago.",
     "serviceFeeAbsorbTitle": "Sin tarifa",
     "serviceFeeAbsorbHint": "El comprador paga solo el precio de la entrada. La comisión del 3,5 % + 3,50 kr lo cubre todo.",
+    "netPerTicketHint": "Recibes {net} por entrada después de la comisión de Usha de {commission}.",
     "ticketTypesLabel": "Tipos de entrada (opcional)",
     "ticketTypesOverridePrice": "El precio base se reemplaza por los tipos de entrada de abajo.",
     "ticketTypeNamePlaceholder": "p. ej. General",

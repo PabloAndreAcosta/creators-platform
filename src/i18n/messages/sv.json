@@ -835,6 +835,17 @@
         "desc": "Bjud in ditt crew, delegera biljettskanning till betrodda och betala gage tryggt via Stripe — du har full kontroll."
       }
     },
+    "payoutCalc": {
+      "title": "Räkna på din kväll",
+      "priceLabel": "Pris per biljett (kr)",
+      "qtyLabel": "Sålda biljetter",
+      "result": "Säljer du {qty, plural, one {# biljett} other {# biljetter}} à {price} får du <b>{net}</b>.",
+      "grossLabel": "Biljettintäkter",
+      "commissionLabel": "Ushas provision ({rate} + {fixed} per biljett)",
+      "netLabel": "Till dig",
+      "buyerNote": "Köparen betalar bara det pris du satt, {price} per biljett. Inget läggs på i kassan om du inte själv väljer serviceavgiften för köparen.",
+      "freeNote": "Gratis biljetter kostar ingenting, varken för dig eller köparen."
+    },
     "pricing": {
       "title": "Priser",
       "subtitle": "Ingen månadskostnad och ingen nivå att köpa. Du betalar 3,5 % + 3,50 kr per såld biljett, och allt ingår från första dagen.",
@@ -2324,6 +2335,7 @@
     "serviceFeeBuyerHint": "Läggs ovanpå biljettpriset i kassan och täcker kortkostnaden. Samma avgift oavsett betalsätt.",
     "serviceFeeAbsorbTitle": "Ingen avgift",
     "serviceFeeAbsorbHint": "Köparen betalar bara biljettpriset. Provisionen på 3,5 % + 3,50 kr täcker allt.",
+    "netPerTicketHint": "Du får {net} per biljett efter Ushas provision på {commission}.",
     "ticketTypesLabel": "Biljettyper (valfritt)",
     "ticketTypesOverridePrice": "Grundpriset ersätts av biljettyperna nedan.",
     "ticketTypeNamePlaceholder": "t.ex. Ordinarie",
