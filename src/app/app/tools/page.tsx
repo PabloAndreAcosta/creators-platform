@@ -4,7 +4,8 @@ import Link from "next/link";
 import { LayoutGrid, ShieldCheck, Lock } from "lucide-react";
 import { BETA_MODE } from "@/lib/beta";
 import { isVenueRole } from "@/lib/roles";
-import { venuesUserHasCapability } from "@/lib/venues/members";
+import { venueCapabilitiesForUser } from "@/lib/venues/members";
+import { navPathsForVenueCapabilities } from "@/lib/navigation/venue-member";
 import {
   groupedDestinationsFor,
   tierUnlocks,
@@ -50,9 +51,8 @@ export default async function ToolsPage() {
       // Behörigheter kan låsa upp sidor som rollen inte ger. Den som sköter en
       // lokals sida ska hitta Förfrågningar även om det egna kontot har
       // besökarrollen — annars är behörigheten en kryssruta utan verkan.
-      if ((await venuesUserHasCapability(user.id, "page")).length > 0) {
-        extra.push("/app/venue-requests");
-      }
+      // Samma regel som sidomenyn (lib/navigation/venue-member.ts).
+      extra.push(...navPathsForVenueCapabilities(await venueCapabilitiesForUser(user.id)));
     }
   } catch {
     // Faller tillbaka på kundvyn — hellre färre verktyg än en trasig sida.

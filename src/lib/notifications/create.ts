@@ -25,6 +25,10 @@ export type NotificationType =
   // En arrangör vill hålla sitt evenemang hos en lokal. Kopplingen händer inte
   // förrän lokalen svarar ja, så lokalen måste få veta att den ligger och väntar.
   | 'venue_request'
+  // Lokalen har svarat på arrangörens förfrågan. Ett nej syntes förr inte alls:
+  // arrangören såg "väntar på lokalens ja" för evigt.
+  | 'venue_confirmed'
+  | 'venue_declined'
   // En instruktör vill undervisa på en öppen kväll och väntar på arrangörens ja.
   | 'instructor_application'
   // En volontär (taxidansare, dörrvärd m.fl.) har ansökt och väntar på arrangörens ja.

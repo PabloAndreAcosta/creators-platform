@@ -163,6 +163,7 @@ export default async function AppHomePage() {
           .not("venue_profile_id", "is", null)
           .neq("venue_profile_id", user.id)
           .is("venue_confirmed_at", null)
+          .is("venue_declined_at", null)
           .eq("is_active", true),
         supabase
           .from("profiles")
@@ -216,15 +217,31 @@ export default async function AppHomePage() {
       // nu. Egna lokaler plus dem man sköter sidan åt, annars ser en
       // teammedlem en siffra hen inte kan agera på.
       const lokaler = [user.id, ...venuesManaged];
-      const inkomna = await supabase
-        .from("listings")
-        .select("id", { count: "exact", head: true })
-        .in("venue_profile_id", lokaler)
-        .neq("user_id", user.id)
-        .is("venue_confirmed_at", null)
-        .eq("is_active", true);
+      const [inkomna, nekade] = await Promise.all([
+        supabase
+          .from("listings")
+          .select("id", { count: "exact", head: true })
+          .in("venue_profile_id", lokaler)
+          .neq("user_id", user.id)
+          .is("venue_confirmed_at", null)
+          .is("venue_declined_at", null)
+          .eq("is_active", true),
+        // Egna kommande evenemang som lokalen tackat nej till. Ett nej såg förr
+        // ut som "väntar på lokalens ja", för evigt.
+        supabase
+          .from("listings")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", user.id)
+          .not("venue_profile_id", "is", null)
+          .neq("venue_profile_id", user.id)
+          .is("venue_confirmed_at", null)
+          .not("venue_declined_at", "is", null)
+          .gte("event_date", today)
+          .eq("is_active", true),
+      ]);
       todos = pendingTodos({
         venueRequestsPending: inkomna.count,
+        listingsVenueDeclined: nekade.count,
         listingsAwaitingVenue: utgaende.count,
       });
 

@@ -15,12 +15,15 @@ import { useSubscription } from "@/lib/subscription/context";
 
 export function BottomNav() {
   const pathname = usePathname();
-  const { role } = useRole();
+  const { role, extraNavPaths } = useRole();
+  // En publik-roll som fått skapa evenemang åt en lokal ska ha egna
+  // evenemang i fliken, inte marknadsplatsen.
+  const hostTabs = role !== "customer" || extraNavPaths.includes("/app/events");
   const { tier } = useSubscription();
   const t = useTranslations("nav");
 
   const tabs =
-    role === "customer"
+    !hostTabs
       ? [
           { href: "/app", label: t("home"), icon: Home },
           { href: "/app/tickets", label: t("tickets"), icon: Ticket },

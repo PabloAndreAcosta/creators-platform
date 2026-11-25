@@ -19,6 +19,13 @@ describe("pendingTodos", () => {
     expect(keys).toEqual(["venueRequests", "awaitingVenue"]);
   });
 
+  it("visar lokalens nej före det som fortfarande väntar", () => {
+    // Ett nej såg förr ut som "väntar på lokalens ja", för evigt.
+    const items = pendingTodos({ listingsVenueDeclined: 2, listingsAwaitingVenue: 3 });
+    expect(items.map((i) => i.key)).toEqual(["venueDeclined", "awaitingVenue"]);
+    expect(items[0]).toEqual({ key: "venueDeclined", count: 2, href: "/app/events" });
+  });
+
   it("ger ingen post när ingenting väntar", () => {
     // Panelen ska försvinna helt, inte stå tom och säga "inget att göra".
     expect(pendingTodos({})).toEqual([]);

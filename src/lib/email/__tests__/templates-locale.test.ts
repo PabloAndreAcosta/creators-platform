@@ -18,6 +18,7 @@ import NewMessage, { getNewMessageSubject } from "@/components/emails/NewMessage
 import PayoutConfirmation, { getPayoutSubject } from "@/components/emails/PayoutConfirmation";
 import SettlementStatement, { getSettlementStatementSubject } from "@/components/emails/SettlementStatement";
 import VenueTeamInvite, { getVenueTeamInviteSubject } from "@/components/emails/VenueTeamInvite";
+import VenueResponse, { getVenueResponseSubject } from "@/components/emails/VenueResponse";
 import PassExpiryReminder, { getPassExpirySubject } from "@/components/emails/PassExpiryReminder";
 import { WithdrawalReceipt, WithdrawalSellerNotice, getWithdrawalReceiptSubject, getWithdrawalSellerSubject } from "@/components/emails/Withdrawal";
 import { VENUE_CAPABILITIES } from "@/lib/venues/members";
@@ -68,6 +69,18 @@ function templates(t: Translate, locale: Locale) {
     CreatorEventAnnouncement: createElement(CreatorEventAnnouncement, {
       followerName: "Pau", creatorName: "Joy Nation", eventTitle: "Sparkle Day Party",
       eventDate: WHEN, location: "Hornsberg", eventUrl: "https://usha.se/listing/1", t, locale,
+    }),
+    CreatorEventAnnouncementSeries: createElement(CreatorEventAnnouncement, {
+      followerName: "Pau", creatorName: "Joy Nation", eventTitle: "Sparkle Day Party",
+      eventDate: WHEN, location: "Hornsberg", eventUrl: "https://usha.se/series/sparkle", occurrenceCount: 8, t, locale,
+    }),
+    VenueResponseConfirmed: createElement(VenueResponse, {
+      organiserName: "Pau", venueName: "Joy Nation", eventTitle: "Sparkle Day Party", eventDate: WHEN,
+      confirmed: true, eventUrl: "https://usha.se/app/events/1/edit", t, locale,
+    }),
+    VenueResponseDeclined: createElement(VenueResponse, {
+      organiserName: null, venueName: "Joy Nation", eventTitle: "Sparkle Day Party",
+      confirmed: false, eventUrl: "https://usha.se/app/events/1/edit", t, locale,
     }),
     SubscriptionWelcome: createElement(SubscriptionWelcome, {
       memberName: "Pau", planName: "Guld", expiryDate: WHEN, t, locale,
@@ -189,6 +202,9 @@ describe("email templates render in the reader's language", () => {
         getBookingReminderSubject(t, "Salsa 101", "soon"),
         getBookingReminderSubject(t, "Salsa 101", "day"),
         getCreatorEventSubject(t, "Joy", "Sparkle"),
+        getCreatorEventSubject(t, "Joy", "Sparkle", 8),
+        getVenueResponseSubject(t, "Bacchi Syre", "Sparkle", true),
+        getVenueResponseSubject(t, "Bacchi Syre", "Sparkle", false),
         getSubscriptionWelcomeSubject(t, "Guld"),
         getNewMessageSubject(t, "Joy"),
         getPayoutSubject(t, "batch", 1234),
@@ -284,6 +300,32 @@ describe("punch card terms on the receipt and the reminder", () => {
       const html = renderToStaticMarkup(templates(t, locale).PassExpiryReminder);
       expect(html).toContain("/biljett/b-1");
       expect(html).toContain(esc(t("passExpiryLapse")));
+    });
+  }
+});
+
+describe("follower mail for a series", () => {
+  for (const locale of LOCALES) {
+    it(`${locale}: one mail says how many evenings and links to the series`, () => {
+      const t = translatorFor(locale);
+      const html = renderToStaticMarkup(templates(t, locale).CreatorEventAnnouncementSeries);
+      expect(html).toContain("8");
+      expect(html).toContain("https://usha.se/series/sparkle");
+      expect(html).toContain(t("creatorEventSeriesCta"));
+      expect(getCreatorEventSubject(t, "Joy", "Sparkle", 8)).not.toBe(getCreatorEventSubject(t, "Joy", "Sparkle"));
+    });
+  }
+});
+
+describe("venue response to the organiser", () => {
+  for (const locale of LOCALES) {
+    it(`${locale}: yes and no read differently and link to the event`, () => {
+      const t = translatorFor(locale);
+      const yes = renderToStaticMarkup(templates(t, locale).VenueResponseConfirmed);
+      const no = renderToStaticMarkup(templates(t, locale).VenueResponseDeclined);
+      expect(yes).not.toEqual(no);
+      expect(no).toContain("/app/events/1/edit");
+      expect(no).toContain(t("venueResponse.noDate"));
     });
   }
 });

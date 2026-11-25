@@ -25,7 +25,7 @@ export default async function VenueRequestsPage() {
 
   const { data: rows } = await supabase
     .from("listings")
-    .select("id, title, event_date, event_time, event_location, venue_confirmed_at, profiles!user_id(full_name)")
+    .select("id, title, event_date, event_time, event_location, venue_confirmed_at, venue_declined_at, profiles!user_id(full_name)")
     .in("venue_profile_id", lokaler)
     .neq("user_id", user.id)
     .eq("is_active", true)
@@ -49,6 +49,7 @@ export default async function VenueRequestsPage() {
       // lokal hade någon förfrågan att visa.
       byLabel: organiser?.full_name ? t("by", { name: organiser.full_name }) : null,
       confirmed: !!r.venue_confirmed_at,
+      declined: !r.venue_confirmed_at && !!r.venue_declined_at,
     };
   });
 
@@ -61,6 +62,7 @@ export default async function VenueRequestsPage() {
         empty: t("empty"),
         pending: t("pending"),
         confirmed: t("confirmed"),
+        declined: t("declined"),
         approve: t("approve"),
         decline: t("decline"),
         withdraw: t("withdraw"),

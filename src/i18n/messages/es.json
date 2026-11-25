@@ -81,6 +81,10 @@
       "text": "{count, plural, one {# evento quiere celebrarse en tu local} other {# eventos quieren celebrarse en tu local}}",
       "action": "Responder"
     },
+    "venueDeclined": {
+      "text": "{count, plural, one {El local ha rechazado # evento} other {El local ha rechazado # eventos}}",
+      "action": "Ver"
+    },
     "awaitingVenue": {
       "text": "{count, plural, one {# evento espera la aceptación del local} other {# eventos esperan la aceptación del local}}",
       "action": "Ver"
@@ -1009,6 +1013,10 @@
     "levelNameGeneric": "Nivel {level}",
     "venueRequestTitle": "Solicitud para tu local",
     "venueRequestMsg": "{organiser} quiere celebrar {count, plural, one {un evento} other {# eventos}} en tu local. No pasa nada hasta que respondas.",
+    "venueConfirmedTitle": "El local ha aceptado",
+    "venueConfirmedMsg": "{venue} ha aprobado {event}. Ya aparece en la página del local.",
+    "venueDeclinedTitle": "El local ha rechazado",
+    "venueDeclinedMsg": "{venue} ha rechazado {event}. Elige otro local si quieres.",
     "instructorApplicationTitle": "Nueva solicitud de instructor",
     "instructorApplicationMsg": "{name} quiere enseñar en tus noches abiertas. Aprueba o rechaza en Turnos de voluntarios.",
     "volunteerApplicationTitle": "Nueva solicitud de voluntario",
@@ -2374,6 +2382,8 @@
     "venueProfileNone": "Sin local vinculado",
     "venueProfileHint": "Vincular el evento a un local avisa a sus seguidores y lo muestra en su página. El local debe aprobar el vínculo primero.",
     "venueProfilePending": "Esperando que el local apruebe el vínculo. Hasta entonces el evento no aparece en su página.",
+    "venueProfileDeclined": "El local ha rechazado. El evento no aparece en su página. Elige otro local o ninguno.",
+    "venueProfileConfirmed": "El local ha aprobado el vínculo. El evento aparece en su página.",
     "organiser": "¿Quién publica este evento?",
     "organiserSelf": "Yo mismo",
     "organiserHint": "Si eliges un local, el local será el propietario del evento y recibirá los ingresos. Tu nombre queda registrado como creador.",
@@ -4693,6 +4703,20 @@
     "creatorEventIntro": "{creator}, a quien sigues, ha publicado un evento nuevo:",
     "creatorEventCta": "Ver el evento",
     "creatorEventFooter": "Recibes esto porque sigues a {creator} en Usha Platform.",
+    "creatorEventSeriesSubject": "{creator} ha publicado {count} noches: {event}",
+    "creatorEventSeriesIntro": "{creator}, a quien sigues, ha publicado una serie nueva:",
+    "creatorEventSeriesDates": "{count} noches, la primera el {first}",
+    "creatorEventSeriesCount": "{count} noches",
+    "creatorEventSeriesCta": "Ver todas las noches",
+    "venueResponse": {
+      "confirmedSubject": "{venue} ha aceptado {event}",
+      "declinedSubject": "{venue} ha rechazado {event}",
+      "confirmedBody": "{venue} ha aprobado que {event} ({date}) se celebre en su local. El evento aparece ahora en la página del local y sus seguidores se enterarán.",
+      "declinedBody": "{venue} ha rechazado vincular {event} ({date}) a su local. El evento sigue siendo tuyo, pero no aparece en la página del local. Puedes elegir otro local en el evento.",
+      "noDate": "sin fecha",
+      "cta": "Abrir el evento",
+      "footer": "Recibes esto porque vinculaste un evento a un local en Usha Platform."
+    },
     "newMessageSubject": "Nuevo mensaje de {sender} — Usha Platform",
     "newMessageIntro": "{sender} te ha enviado un mensaje:",
     "newMessageCta": "Responder al mensaje",
@@ -4936,6 +4960,7 @@
     "deciding": "Guardando…",
     "decline": "Rechazar",
     "withdraw": "Retirar aprobación",
+    "declined": "Rechazada",
     "by": "Organizado por {name}",
     "failed": "No se pudo guardar la respuesta. Inténtalo de nuevo."
   },

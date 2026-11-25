@@ -5,6 +5,7 @@ import { createClient } from "@supabase/supabase-js";
 import { sendCreatorEventEmail } from "@/lib/email/send-creator-event";
 import { shouldSendEmail } from "@/lib/email/check-preferences";
 import { buildNotifyAudience } from "@/lib/venues/audience";
+import { groupForAnnouncement, announcementUrl, type AnnounceGroup, type AnnounceListing } from "@/lib/follows/announce-groups";
 
 function getSupabaseAdmin() {
   return createClient(
@@ -15,10 +16,15 @@ function getSupabaseAdmin() {
 
 /**
  * Cron job: when a creator posts a new event, email their followers.
- * Scans active event listings created in the last 3 days (recency guard so the
- * first run doesn't blast historical events), not yet announced. Idempotent via
- * listings.followers_notified_at. Triggered hourly by GitHub Actions (Vercel
- * Hobby caps crons at once/day).
+ * Scans active event listings PUBLISHED in the last 3 days (published_at, set
+ * by a trigger when is_active becomes true — a draft activated a week after it
+ * was created is still news). Rows with no published_at predate the column and
+ * are skipped, so historical events are never blasted. Idempotent via
+ * listings.followers_notified_at. Triggered hourly by GitHub Actions.
+ *
+ * One mail per series, not per evening: evenings sharing series_id are grouped
+ * (lib/follows/announce-groups.ts) and announced together with the count and
+ * first date. Standalone evenings are one mail each, as before.
  */
 export async function GET(req: NextRequest) {
   if (!verifyCronAuth(req)) {
@@ -31,29 +37,30 @@ export async function GET(req: NextRequest) {
 
   const { data: listings } = await admin
     .from("listings")
-    .select("id, user_id, title, event_date, event_location, venue_profile_id, venue_confirmed_at")
+    .select("id, user_id, title, event_date, event_location, series_id, series_slug, venue_profile_id, venue_confirmed_at")
     .eq("listing_type", "event")
     .eq("is_active", true)
     .is("followers_notified_at", null)
-    .gte("created_at", cutoff);
+    .gte("published_at", cutoff);
 
   if (!listings?.length) return NextResponse.json({ listings: 0, notified: 0 });
 
   let notified = 0;
   let emailNotified = 0;
 
-  for (const listing of listings) {
-    // Claim the listing up front (mark BEFORE emailing) so a function timeout or
-    // an overlapping cron run can't re-scan it and email the whole follower list
-    // twice. Only the run that flips followers_notified_at from NULL proceeds.
-    const { data: claimed } = await admin
+  for (const candidate of groupForAnnouncement(listings)) {
+    // Claim the evenings up front (mark BEFORE emailing) so a function timeout
+    // or an overlapping cron run can't re-scan them and email the whole
+    // follower list twice. Only the evenings this run flipped from NULL count.
+    const { data: claimedRows } = await admin
       .from("listings")
       .update({ followers_notified_at: new Date().toISOString() })
-      .eq("id", listing.id)
+      .in("id", candidate.listings.map((l) => l.id))
       .is("followers_notified_at", null)
-      .select("id")
-      .maybeSingle();
-    if (!claimed) continue;
+      .select("id");
+    const group = reclaim(candidate, claimedRows);
+    if (!group) continue;
+    const listing = group.first;
 
     const { data: creator } = await admin
       .from("profiles")
@@ -87,10 +94,7 @@ export async function GET(req: NextRequest) {
           to: fp.email,
           followerName: fp.full_name || "där",
           creatorName: creator?.full_name || "En kreatör",
-          eventTitle: listing.title || "Nytt event",
-          eventDate: listing.event_date ? new Date(listing.event_date) : undefined,
-          location: listing.event_location || undefined,
-          eventUrl: `${appUrl}/listing/${listing.id}`,
+          ...mailFields(group, appUrl),
           followerId,
         });
         notified++;
@@ -105,11 +109,9 @@ export async function GET(req: NextRequest) {
       followedId: listing.user_id,
       skipEmails: accountEmails,
       creatorName: creator?.full_name || "En kreatör",
-      listing,
+      group,
       appUrl,
     });
-
-    // (Already marked notified up front — the claim above prevents re-scan.)
   }
 
   // ---- Andra omgången: lokalens följare ------------------------------------
@@ -120,7 +122,7 @@ export async function GET(req: NextRequest) {
   // veta något — vilket var hela poängen med kopplingen.
   const { data: venueListings } = await admin
     .from("listings")
-    .select("id, user_id, title, event_date, event_location, venue_profile_id")
+    .select("id, user_id, title, event_date, event_location, series_id, series_slug, venue_profile_id")
     .eq("listing_type", "event")
     .eq("is_active", true)
     .not("venue_profile_id", "is", null)
@@ -130,17 +132,21 @@ export async function GET(req: NextRequest) {
   let venueNotified = 0;
   let venueEmailNotified = 0;
 
-  for (const listing of venueListings ?? []) {
+  // Ett mejl per serie och lokal, som ovan. Lokalen säger ja kväll för kväll,
+  // så kvällar som bekräftas i olika körningar blir olika utskick — men allt
+  // som bekräftats sedan förra körningen går ut som ett.
+  for (const candidate of groupForAnnouncement(venueListings ?? [], (l) => l.venue_profile_id)) {
     // Claima före utskick, som ovan: en timeout eller överlappande körning ska
     // inte kunna mejla samma följarlista två gånger.
-    const { data: claimed } = await admin
+    const { data: claimedRows } = await admin
       .from("listings")
       .update({ venue_followers_notified_at: new Date().toISOString() })
-      .eq("id", listing.id)
+      .in("id", candidate.listings.map((l) => l.id))
       .is("venue_followers_notified_at", null)
-      .select("id")
-      .maybeSingle();
-    if (!claimed) continue;
+      .select("id");
+    const group = reclaim(candidate, claimedRows);
+    if (!group) continue;
+    const listing = group.first;
 
     const [{ data: venue }, { data: creator }, { data: vf }] = await Promise.all([
       admin.from("profiles").select("full_name, company_name").eq("id", listing.venue_profile_id).maybeSingle(),
@@ -183,10 +189,7 @@ export async function GET(req: NextRequest) {
           // Mejlet kommer för att man följer LOKALEN, så det är lokalens namn
           // mottagaren känner igen. Arrangören står i texten via titeln.
           creatorName: venueName || creator?.full_name || "En lokal",
-          eventTitle: listing.title || "Nytt event",
-          eventDate: listing.event_date ? new Date(listing.event_date) : undefined,
-          location: listing.event_location || undefined,
-          eventUrl: `${appUrl}/listing/${listing.id}`,
+          ...mailFields(group, appUrl),
           followerId,
         });
         venueNotified++;
@@ -202,7 +205,7 @@ export async function GET(req: NextRequest) {
       followedId: listing.venue_profile_id,
       skipEmails: accountEmails,
       creatorName: venueName || creator?.full_name || "En lokal",
-      listing,
+      group,
       appUrl,
     });
   }
@@ -218,6 +221,32 @@ export async function GET(req: NextRequest) {
 }
 
 /**
+ * Gruppen som den här körningen faktiskt äger: bara kvällarna vars stämpel den
+ * själv satte. En överlappande körning som hann före tar resten.
+ */
+function reclaim<L extends AnnounceListing>(
+  group: AnnounceGroup<L>,
+  claimedRows: { id: string }[] | null
+): AnnounceGroup<L> | null {
+  const claimed = new Set((claimedRows ?? []).map((r) => r.id));
+  const listings = group.listings.filter((l) => claimed.has(l.id));
+  if (listings.length === 0) return null;
+  return { key: group.key, listings, first: listings[0], count: listings.length };
+}
+
+/** Det mejlet säger om kvällen eller serien. */
+function mailFields(group: AnnounceGroup, appUrl: string) {
+  const first = group.first;
+  return {
+    eventTitle: first.title || "Nytt event",
+    eventDate: first.event_date ? new Date(first.event_date) : undefined,
+    location: first.event_location || undefined,
+    eventUrl: announcementUrl(group, appUrl),
+    occurrenceCount: group.count,
+  };
+}
+
+/**
  * Mejlar de som följer utan konto. Hoppar över adresser som redan fått
  * kvällen som kontoföljare, så ingen får samma mejl två gånger. Varje mejl
  * bär sin egen avslutalänk.
@@ -227,10 +256,10 @@ async function notifyEmailFollowers(opts: {
   followedId: string;
   skipEmails: Set<string>;
   creatorName: string;
-  listing: { id: string; title: string | null; event_date: string | null; event_location: string | null };
+  group: AnnounceGroup;
   appUrl: string;
 }): Promise<number> {
-  const { admin, followedId, skipEmails, creatorName, listing, appUrl } = opts;
+  const { admin, followedId, skipEmails, creatorName, group, appUrl } = opts;
   let sent = 0;
   for (const ef of await activeEmailFollowers(admin, followedId)) {
     if (skipEmails.has(ef.email)) continue;
@@ -239,10 +268,7 @@ async function notifyEmailFollowers(opts: {
         to: ef.email,
         followerName: "",
         creatorName,
-        eventTitle: listing.title || "Nytt event",
-        eventDate: listing.event_date ? new Date(listing.event_date) : undefined,
-        location: listing.event_location || undefined,
-        eventUrl: `${appUrl}/listing/${listing.id}`,
+        ...mailFields(group, appUrl),
         followerId: null,
         unsubscribeUrl: `${appUrl}/folj/avsluta/${ef.unsubscribe_token}`,
         preferredLocale: ef.locale,

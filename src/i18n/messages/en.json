@@ -81,6 +81,10 @@
       "text": "{count, plural, one {# event wants to be held at your venue} other {# events want to be held at your venue}}",
       "action": "Respond"
     },
+    "venueDeclined": {
+      "text": "{count, plural, one {The venue declined # event} other {The venue declined # events}}",
+      "action": "View"
+    },
     "awaitingVenue": {
       "text": "{count, plural, one {# event is waiting for the venue to accept} other {# events are waiting for the venue to accept}}",
       "action": "View"
@@ -1009,6 +1013,10 @@
     "levelNameGeneric": "Level {level}",
     "venueRequestTitle": "Request for your venue",
     "venueRequestMsg": "{organiser} wants to hold {count, plural, one {an event} other {# events}} at your venue. Nothing happens until you respond.",
+    "venueConfirmedTitle": "The venue said yes",
+    "venueConfirmedMsg": "{venue} approved {event}. It now shows on the venue page.",
+    "venueDeclinedTitle": "The venue declined",
+    "venueDeclinedMsg": "{venue} declined {event}. Pick another venue if you like.",
     "instructorApplicationTitle": "New instructor application",
     "instructorApplicationMsg": "{name} wants to teach at your open evenings. Approve or decline under Volunteer shifts.",
     "volunteerApplicationTitle": "New volunteer application",
@@ -2374,6 +2382,8 @@
     "venueProfileNone": "No linked venue",
     "venueProfileHint": "Linking the event to a venue lets their followers know, and shows it on the venue's page. The venue has to approve the link first.",
     "venueProfilePending": "Waiting for the venue to approve the link. Until then the event does not appear on their page.",
+    "venueProfileDeclined": "The venue declined. The event does not show on their page. Pick another venue or none.",
+    "venueProfileConfirmed": "The venue approved the link. The event shows on their page.",
     "organiser": "Who is posting this event?",
     "organiserSelf": "Myself",
     "organiserHint": "Choosing a venue makes the venue the owner of the event and the recipient of the revenue. Your name is recorded as the one who created it.",
@@ -4693,6 +4703,20 @@
     "creatorEventIntro": "{creator}, who you follow, has posted a new event:",
     "creatorEventCta": "See the event",
     "creatorEventFooter": "You're getting this because you follow {creator} on Usha Platform.",
+    "creatorEventSeriesSubject": "{creator} posted {count} evenings: {event}",
+    "creatorEventSeriesIntro": "{creator}, who you follow, has posted a new series:",
+    "creatorEventSeriesDates": "{count} evenings, starting {first}",
+    "creatorEventSeriesCount": "{count} evenings",
+    "creatorEventSeriesCta": "See all evenings",
+    "venueResponse": {
+      "confirmedSubject": "{venue} said yes to {event}",
+      "declinedSubject": "{venue} declined {event}",
+      "confirmedBody": "{venue} has approved holding {event} ({date}) at their venue. The event now shows on the venue page and the venue followers will hear about it.",
+      "declinedBody": "{venue} has declined linking {event} ({date}) to their venue. The event stays with you but does not show on the venue page. You can pick another venue in the event.",
+      "noDate": "no date",
+      "cta": "Open the event",
+      "footer": "You are getting this because you linked an event to a venue on Usha Platform."
+    },
     "newMessageSubject": "New message from {sender} — Usha Platform",
     "newMessageIntro": "{sender} has sent you a message:",
     "newMessageCta": "Reply to the message",
@@ -4936,6 +4960,7 @@
     "deciding": "Saving…",
     "decline": "Decline",
     "withdraw": "Withdraw approval",
+    "declined": "Declined",
     "by": "Hosted by {name}",
     "failed": "The reply could not be saved. Please try again."
   },

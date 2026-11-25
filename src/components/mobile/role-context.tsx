@@ -29,6 +29,11 @@ interface RoleContextType {
    * which each page checks on the server.
    */
   hasAdminAccess: boolean;
+  /**
+   * Menyval som ett lokalteam låser upp utöver rollen (Evenemang, Skanna,
+   * Förfrågningar). Läses på servern i layouten. Rollen ändras inte.
+   */
+  extraNavPaths: readonly string[];
   setRole: (role: UserRole) => void;
 }
 
@@ -37,6 +42,7 @@ const RoleContext = createContext<RoleContextType>({
   dbRole: "customer",
   isAdmin: false,
   hasAdminAccess: false,
+  extraNavPaths: [],
   setRole: () => {},
 });
 
@@ -56,9 +62,11 @@ const RoleContext = createContext<RoleContextType>({
 export function RoleProvider({
   children,
   initialRole = "customer",
+  extraNavPaths = [],
 }: {
   children: ReactNode;
   initialRole?: UserRole;
+  extraNavPaths?: readonly string[];
 }) {
   const [role, setRole] = useState<UserRole>(initialRole);
   const [dbRole, setDbRole] = useState<UserRole>(initialRole);
@@ -109,7 +117,7 @@ export function RoleProvider({
   };
 
   return (
-    <RoleContext.Provider value={{ role, dbRole, isAdmin, hasAdminAccess, setRole: handleSetRole }}>
+    <RoleContext.Provider value={{ role, dbRole, isAdmin, hasAdminAccess, extraNavPaths, setRole: handleSetRole }}>
       {children}
     </RoleContext.Provider>
   );

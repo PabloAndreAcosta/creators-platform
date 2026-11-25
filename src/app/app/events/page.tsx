@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { venuesUserHasCapability } from "@/lib/venues/members";
 import { sortEventsForOwner, todayInStockholm } from "@/lib/events/sort";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { EventsContent, type PendingVolunteers } from "./events-content";
@@ -43,7 +44,12 @@ export default async function EventsPage(
         (coRows ?? []).filter((r) => !r.can_manage).map((r) => r.listing_id)
       );
 
-      const [listingsRes, coRes, profileRes] = await Promise.all([
+      // Lokaler där användaren är teammedlem med rätt att sköta evenemangen.
+      // Medlemmen kan redigera dem (canManageListing), men listan visade dem
+      // inte — så det fanns ingen väg in utom en direktlänk.
+      const lokaler = await venuesUserHasCapability(user.id, "events");
+
+      const [listingsRes, coRes, profileRes, venueRes] = await Promise.all([
         supabase
           .from("listings")
           .select("*")
@@ -58,12 +64,24 @@ export default async function EventsPage(
           .select("facebook_page_id, facebook_page_name")
           .eq("id", user.id)
           .single(),
+        lokaler.length
+          ? admin
+              .from("listings")
+              .select("*")
+              .in("user_id", lokaler)
+              .eq("from_gig", false)
+              .order("created_at", { ascending: false })
+          : Promise.resolve({ data: [] as any[] }),
       ]);
 
       // Own events first, then co-organized (deduped in case of overlap).
       const own = listingsRes.data || [];
       const ownIds = new Set(own.map((l) => l.id));
-      const co = (coRes.data || [])
+      const coIdSet = new Set(coIds);
+      const co = [
+        ...(coRes.data || []),
+        ...(venueRes.data || []).filter((l: { id: string }) => !coIdSet.has(l.id)),
+      ]
         .filter((l) => !ownIds.has(l.id))
         .map((l) => ({ ...l, co_organized: true, stats_only: endastStatistik.has(l.id) }));
 

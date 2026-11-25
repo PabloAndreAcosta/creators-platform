@@ -1,22 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Loader2, Check } from "lucide-react";
 
 export default function JoinContent({
-  token, gone, venueName, capabilities, labels,
+  token, gone, venueName, landingPath, capabilities, labels,
 }: {
   token: string;
   gone: boolean;
   venueName: string | null;
+  /** Sidan behörigheten gäller (lib/navigation/venue-member.ts). */
+  landingPath: string;
   capabilities: string[];
   labels: {
     heading: string; intro: string; goneTitle: string; goneBody: string;
     accept: string; accepted: string; failed: string; nothing: string;
   };
 }) {
-  const router = useRouter();
   const [state, setState] = useState<"idle" | "busy" | "done" | "error">("idle");
 
   async function accept() {
@@ -29,7 +29,10 @@ export default function JoinContent({
       });
       if (!r.ok) throw new Error();
       setState("done");
-      setTimeout(() => router.push("/app"), 1500);
+      // Hel sidladdning, inte router.push: layouten läser medlemskapet på
+      // servern, och först då syns lokalens menyval. Förut skickades man till
+      // /app, där ingenting pekade vidare.
+      setTimeout(() => window.location.assign(landingPath), 1500);
     } catch {
       setState("error");
     }

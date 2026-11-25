@@ -14,6 +14,8 @@ interface Item {
   /** Färdigöversatt "Arrangeras av X" — översätts på servern, se page.tsx. */
   byLabel: string | null;
   confirmed: boolean;
+  /** Lokalen har sagt nej (eller dragit tillbaka sitt ja). */
+  declined: boolean;
 }
 
 interface Labels {
@@ -22,6 +24,7 @@ interface Labels {
   empty: string;
   pending: string;
   confirmed: string;
+  declined: string;
   approve: string;
   decline: string;
   withdraw: string;
@@ -45,7 +48,7 @@ export default function VenueRequestsContent({ items, labels }: { items: Item[];
         // Optimistiskt: raden byter läge direkt. Ett nej tar bort kopplingens
         // verkan men behåller raden, så lokalen kan ångra sig utan att
         // arrangören måste lägga upp evenemanget på nytt.
-        setRows((prev) => prev.map((r) => (r.id === id ? { ...r, confirmed: confirm } : r)));
+        setRows((prev) => prev.map((r) => (r.id === id ? { ...r, confirmed: confirm, declined: !confirm } : r)));
       }
       setPendingId(null);
     });
@@ -78,10 +81,12 @@ export default function VenueRequestsContent({ items, labels }: { items: Item[];
                     className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium ${
                       r.confirmed
                         ? "bg-emerald-500/15 text-emerald-300"
-                        : "bg-amber-500/15 text-amber-300"
+                        : r.declined
+                          ? "bg-red-500/15 text-red-300"
+                          : "bg-amber-500/15 text-amber-300"
                     }`}
                   >
-                    {r.confirmed ? labels.confirmed : labels.pending}
+                    {r.confirmed ? labels.confirmed : r.declined ? labels.declined : labels.pending}
                   </span>
                 </div>
 
@@ -118,14 +123,16 @@ export default function VenueRequestsContent({ items, labels }: { items: Item[];
                         <Check size={13} />
                         {labels.approve}
                       </button>
-                      <button
-                        onClick={() => respond(r.id, false)}
-                        disabled={pendingId === r.id}
-                        className="inline-flex items-center gap-1.5 rounded-full border border-[var(--usha-border)] px-4 py-2 text-xs font-medium transition hover:border-red-500/40 hover:text-red-300 disabled:opacity-50"
-                      >
-                        <X size={13} />
-                        {labels.decline}
-                      </button>
+                      {!r.declined && (
+                        <button
+                          onClick={() => respond(r.id, false)}
+                          disabled={pendingId === r.id}
+                          className="inline-flex items-center gap-1.5 rounded-full border border-[var(--usha-border)] px-4 py-2 text-xs font-medium transition hover:border-red-500/40 hover:text-red-300 disabled:opacity-50"
+                        >
+                          <X size={13} />
+                          {labels.decline}
+                        </button>
+                      )}
                     </>
                   )}
                 </div>
