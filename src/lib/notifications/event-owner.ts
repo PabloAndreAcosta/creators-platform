@@ -48,21 +48,52 @@ async function entranceCrew(
   return Array.from(ids);
 }
 
-/** A guest says they have paid with Swish; someone at the door must confirm it. */
+/** "26/11" ur "2026-11-26" — siffror läses likadant på alla tre språken. */
+export function shortEventDate(date: string | null | undefined): string | null {
+  const m = date?.match(/^\d{4}-(\d{2})-(\d{2})/);
+  return m ? `${Number(m[2])}/${Number(m[1])}` : null;
+}
+
+/**
+ * A guest says they have paid with Swish; someone at the door must confirm it.
+ *
+ * The notice opens the confirmation page for that one booking, where one tap
+ * confirms. On Android/Chrome the push also carries a "Confirm" button — it
+ * only opens the same page with Confirm highlighted, never confirms by itself:
+ * the page needs a session and the same entrance rights as the door. Each
+ * booking gets its own push tag so seven purchases are seven notices, not one.
+ */
 export async function notifyEntranceSwishRequest(
   admin: SupabaseClient,
-  opts: { listingId: string; ownerId: string; name: string; service: string; amountOre: number }
+  opts: {
+    listingId: string;
+    ownerId: string;
+    bookingId: string;
+    name: string;
+    service: string;
+    amountOre: number;
+    eventDate?: string | null;
+  }
 ): Promise<void> {
   const recipients = await entranceCrew(admin, opts.listingId, opts.ownerId);
+  const link = `/app/swish/bekrafta/${opts.bookingId}`;
+  const date = shortEventDate(opts.eventDate);
   await Promise.all(
     recipients.map((userId) =>
       createNotification({
         userId,
         type: "booking_new",
         titleKey: "swishRequestTitle",
-        bodyKey: "swishRequestMsg",
-        params: { name: opts.name, service: opts.service, amount: Math.round(opts.amountOre / 100) },
-        link: `/app/events/${opts.listingId}/entre`,
+        bodyKey: date ? "swishToConfirmMsg" : "swishToConfirmMsgNoDate",
+        params: {
+          name: opts.name,
+          service: opts.service,
+          amount: Math.round(opts.amountOre / 100),
+          ...(date ? { date } : {}),
+        },
+        link,
+        pushTag: `swish-${opts.bookingId}`,
+        pushActions: [{ action: "swish-confirm", titleKey: "swishActionConfirm", url: `${link}?val=bekrafta` }],
       })
     )
   );

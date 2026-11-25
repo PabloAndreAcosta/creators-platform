@@ -193,6 +193,8 @@ export async function POST(req: NextRequest) {
   await notifyEntranceSwishRequest(admin, {
     listingId: listing.id,
     ownerId: listing.user_id,
+    bookingId: booking.id,
+    eventDate: listing.event_date,
     name: name || email,
     service,
     amountOre,

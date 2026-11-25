@@ -1,4 +1,5 @@
 import { stockholmToday } from "@/lib/time";
+import { eveningInProgress } from "@/lib/tickets/evening";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -120,6 +121,9 @@ export async function GET(
     ticketTypes: ticketTypes ?? [],
     sales: sales ?? [],
     pendingSwish: pendingSwish ?? [],
+    // Förvalet för "Gästen står här": på bara medan kvällen pågår, räknat på
+    // servern. Ett köp kvällen innan ska inte checka in gästen av misstag.
+    eveningInProgress: eveningInProgress(listing, new Date()),
     kiosk,
     swish,
     now: new Date().toISOString(),

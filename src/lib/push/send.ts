@@ -4,6 +4,20 @@ import { NOTIFICATION_NS, renderNotification, type NotificationParams } from "@/
 import { locales, type Locale } from "@/i18n/config";
 import { getWebPush } from "./vapid";
 
+/**
+ * A button on the notification itself (Android/Chrome; iOS ignores them and
+ * only the tap on the notification counts). The button never does anything
+ * on its own — it only opens `url`, a page behind login that does the work.
+ * Never put a secret in `url` that would let it act without a session.
+ */
+export interface PushAction {
+  /** Identifier the service worker sees in notificationclick. */
+  action: string;
+  /** Key under `serverNotifications`, rendered per device language. */
+  titleKey: string;
+  url: string;
+}
+
 export interface PushPayload {
   /** Pre-rendered text, used when there is no key or the device has no locale. */
   title: string;
@@ -20,6 +34,7 @@ export interface PushPayload {
   url?: string;
   /** Collapse key so repeat notes for the same thing replace each other. */
   tag?: string;
+  actions?: PushAction[];
 }
 
 interface SubRow {
@@ -76,9 +91,9 @@ export async function sendPushToUser(userId: string, payload: PushPayload): Prom
       const cached = bodyByLocale.get(cacheKey);
       if (cached) return cached;
 
-      const { title, body } = locale
+      const t = payload.actions?.length || locale ? await getServerTranslator(NOTIFICATION_NS, locale ?? "en") : null;
+      const { title, body } = locale && t
         ? await (async () => {
-            const t = await getServerTranslator(NOTIFICATION_NS, locale);
             const r = renderNotification(
               {
                 title: payload.title,
@@ -99,6 +114,15 @@ export async function sendPushToUser(userId: string, payload: PushPayload): Prom
         url: payload.url ?? "/app/notifications",
         tag: payload.tag,
         badge,
+        ...(payload.actions?.length && t
+          ? {
+              actions: payload.actions.map((a) => ({
+                action: a.action,
+                title: t.has(a.titleKey) ? t(a.titleKey) : a.action,
+                url: a.url,
+              })),
+            }
+          : {}),
       });
       bodyByLocale.set(cacheKey, json);
       return json;

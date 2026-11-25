@@ -1,6 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getServerTranslator } from '@/lib/i18n/server';
-import { sendPushToUser } from '@/lib/push/send';
+import { sendPushToUser, type PushAction } from '@/lib/push/send';
 import { NOTIFICATION_NS, renderNotification, type NotificationParams } from './text';
 
 export type NotificationType =
@@ -62,6 +62,14 @@ interface CreateNotificationParams {
   title?: string;
   message?: string;
   link?: string;
+  /**
+   * Push only: collapse key. Defaults to the type, so repeat notes of the same
+   * kind replace each other. Give a per-item tag when every one must stay
+   * visible (one Swish purchase to confirm per booking).
+   */
+  pushTag?: string;
+  /** Push only: action buttons (Android/Chrome). Titles are message keys. */
+  pushActions?: PushAction[];
 }
 
 /**
@@ -117,7 +125,8 @@ export async function createNotification(params: CreateNotificationParams) {
     bodyKey: params.bodyKey,
     params: params.params,
     url: params.link,
-    tag: params.type,
+    tag: params.pushTag ?? params.type,
+    actions: params.pushActions,
   });
 }
 

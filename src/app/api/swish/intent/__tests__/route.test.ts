@@ -107,6 +107,7 @@ vi.mock("next-intl/server", () => ({
 
 import { POST } from "../route";
 import { sendSwishPendingEmail } from "@/lib/email/send-swish-pending";
+import { notifyEntranceSwishRequest } from "@/lib/notifications/event-owner";
 
 const LISTING = "11111111-1111-4111-8111-111111111111";
 const TT = "22222222-2222-4222-8222-222222222222";
@@ -159,6 +160,7 @@ beforeEach(() => {
   db.poolLinks = [];
   db.afterInsert = null;
   vi.mocked(sendSwishPendingEmail).mockClear();
+  vi.mocked(notifyEntranceSwishRequest).mockClear();
 });
 
 describe("POST /api/swish/intent — platser kvar", () => {
@@ -238,5 +240,34 @@ describe("POST /api/swish/intent — platser kvar", () => {
     expect(res.status).toBe(409);
     expect(db.bookings.find((b) => b.guest_email === "gast@example.com")?.status).toBe("canceled");
     expect(sendSwishPendingEmail).not.toHaveBeenCalled();
+  });
+});
+
+describe("POST /api/swish/intent — notisen till dörren", () => {
+  it("skapar en notis om just den vilande bokningen, med belopp och kväll", async () => {
+    const res = await POST(req({ quantity: 2, name: "Ana" }));
+    expect(res.status).toBe(200);
+    const { bookingId } = await res.json();
+    expect(notifyEntranceSwishRequest).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(notifyEntranceSwishRequest).mock.calls[0][1]).toMatchObject({
+      listingId: LISTING,
+      ownerId: "owner",
+      bookingId,
+      name: "Ana",
+      amountOre: 40000,
+      eventDate: "2099-01-01",
+    });
+  });
+
+  it("ingen notis när köpet nekas", async () => {
+    const res = await POST(req({ quantity: 5 }));
+    expect(res.status).toBe(409);
+    expect(notifyEntranceSwishRequest).not.toHaveBeenCalled();
+  });
+
+  it("ingen ny notis när samma adress trycker igen", async () => {
+    await POST(req({}));
+    await POST(req({}));
+    expect(notifyEntranceSwishRequest).toHaveBeenCalledTimes(1);
   });
 });

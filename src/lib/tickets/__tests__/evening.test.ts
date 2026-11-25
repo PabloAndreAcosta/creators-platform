@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   checkinButtonMode,
+  eveningInProgress,
   eventEndsAt,
   eveningIsOver,
   eveningPassesAt,
@@ -152,5 +153,29 @@ describe("köp och efterköp med två kvällar tätt", () => {
 
   it("efter fönstret: ingen efterköpskväll", () => {
     expect(pickWasThereOccurrence([yesterday], u("2026-11-27T22:00:00Z"))).toBeNull();
+  });
+});
+
+describe("eveningInProgress — förvalet för Gästen står här", () => {
+  const at = (iso: string) => new Date(iso);
+  it("kvällen innan: av", () => {
+    expect(eveningInProgress(LAB, at("2026-11-25T20:00:00Z"))).toBe(false);
+  });
+  it("samma dag men före dörröppning (start − 30 min): av", () => {
+    expect(eveningInProgress(LAB, at("2026-11-26T15:29:00Z"))).toBe(false);
+  });
+  it("från dörröppning: på", () => {
+    expect(eveningInProgress(LAB, at("2026-11-26T15:30:00Z"))).toBe(true);
+    expect(eveningInProgress(LAB, at("2026-11-26T21:59:00Z"))).toBe(true);
+  });
+  it("vid sluttiden: av", () => {
+    expect(eveningInProgress(LAB, at("2026-11-26T22:00:00Z"))).toBe(false);
+  });
+  it("kväll över midnatt pågår till sluttiden natten efter", () => {
+    expect(eveningInProgress(NIGHT, at("2026-11-27T00:30:00Z"))).toBe(true);
+    expect(eveningInProgress(NIGHT, at("2026-11-27T01:00:00Z"))).toBe(false);
+  });
+  it("datumlös post pågår aldrig", () => {
+    expect(eveningInProgress({ event_date: null }, at("2026-11-26T18:00:00Z"))).toBe(false);
   });
 });

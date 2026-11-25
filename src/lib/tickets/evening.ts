@@ -95,6 +95,23 @@ export function eveningIsOver(ev: EveningLike, now: Date): boolean {
   return !!passes && now >= passes;
 }
 
+/**
+ * Pågår kvällen just nu — från dörröppning till sluttid?
+ *
+ * Dörröppningen är samma ögonblick som självincheckningen öppnar (start − 30
+ * min); det finns ingen egen dörrtid på evenemanget. Slutet är sluttiden
+ * (eventEndsAt). Avgör förvalet för "Gästen står här" när ett Swish-köp
+ * bekräftas: ett köp kvällen innan får inte checka in gästen av misstag.
+ * Datumlösa poster pågår aldrig.
+ */
+export function eveningInProgress(ev: EveningLike, now: Date): boolean {
+  const start = eveningStartsAt(ev);
+  const end = eventEndsAt(ev);
+  if (!start || !end) return false;
+  const doorsOpen = start.getTime() - SELF_CHECKIN_LEAD_MINUTES * 60_000;
+  return now.getTime() >= doorsOpen && now < end;
+}
+
 export type CheckinButtonMode =
   /** Datumlös post — ingen kväll. */
   | "none"
