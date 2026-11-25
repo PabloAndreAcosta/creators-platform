@@ -835,6 +835,17 @@
         "desc": "Invite your crew, delegate ticket scanning to trusted people, and pay fees securely via Stripe — you stay in full control."
       }
     },
+    "payoutCalc": {
+      "title": "Do the maths on your night",
+      "priceLabel": "Price per ticket (SEK)",
+      "qtyLabel": "Tickets sold",
+      "result": "Sell {qty, plural, one {# ticket} other {# tickets}} at {price} and you get <b>{net}</b>.",
+      "grossLabel": "Ticket revenue",
+      "commissionLabel": "Usha's commission ({rate} + {fixed} per ticket)",
+      "netLabel": "To you",
+      "buyerNote": "The buyer pays only the price you set, {price} per ticket. Nothing is added at checkout unless you choose the buyer service fee yourself.",
+      "freeNote": "Free tickets cost nothing, for you or the buyer."
+    },
     "pricing": {
       "title": "Pricing",
       "subtitle": "No monthly cost and no tier to buy. You pay 3.5% + SEK 3.50 per sold ticket, and everything is included from day one.",
@@ -2324,6 +2335,7 @@
     "serviceFeeBuyerHint": "Added on top of the ticket price at checkout and covers the card cost. The same fee whatever the payment method.",
     "serviceFeeAbsorbTitle": "No fee",
     "serviceFeeAbsorbHint": "The buyer pays only the ticket price. The 3.5% + SEK 3.50 commission covers everything.",
+    "netPerTicketHint": "You get {net} per ticket after Usha's commission of {commission}.",
     "ticketTypesLabel": "Ticket types (optional)",
     "ticketTypesOverridePrice": "The base price is replaced by the ticket types below.",
     "ticketTypeNamePlaceholder": "e.g. Standard",

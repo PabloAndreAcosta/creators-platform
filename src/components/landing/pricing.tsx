@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { PayoutCalculator } from "./payout-calculator";
 
 type PricingRole = "customer" | "creator" | "venue";
 
@@ -145,6 +146,13 @@ export function Pricing({ role = "creator" }: { role?: PricingRole } = {}) {
             </a>
           </div>
         </div>
+
+        {/* Kreatören ser vad en kväll ger, räknat som kassan räknar. */}
+        {activeRole === "creator" && (
+          <div className="mx-auto mt-6 max-w-md">
+            <PayoutCalculator />
+          </div>
+        )}
 
         {/* Vad rollen faktiskt betalar, i klartext under rutan. */}
         <p className="mx-auto mt-8 max-w-2xl text-center text-sm text-[var(--usha-muted)]">

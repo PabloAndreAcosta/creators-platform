@@ -4,7 +4,8 @@ import { venueResponseState } from "@/lib/venues/venue-response";
 import { useRef, useState, useTransition } from "react";
 import { utcToStockholmLocal } from "@/lib/time";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { formatKrFromOre, ticketPayoutExample } from "@/lib/stripe/payout-example";
 import { ArrowLeft, ImagePlus, X, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
 import { uploadImage } from "@/lib/storage/upload-client";
@@ -113,6 +114,9 @@ export default function EventForm({
   const [uploading, setUploading] = useState(false);
   // Free-ticket option: an existing event with no/zero price is treated as free.
   const [isFree, setIsFree] = useState<boolean>(event ? !event.price : false);
+  // Priset spåras bara för raden "du får X kr per biljett" under fältet.
+  const [priceDraft, setPriceDraft] = useState<string>(event?.price != null ? String(event.price) : "");
+  const locale = useLocale();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [listingType, setListingType] = useState<ListingType>(
     event?.listing_type ?? suggestListingType(event?.category ?? "")
@@ -687,6 +691,7 @@ export default function EventForm({
                   type="number"
                   min={0}
                   defaultValue={event?.price ?? ""}
+                  onChange={(e) => setPriceDraft(e.target.value)}
                   placeholder={t("pricePlaceholder")}
                   disabled={hasTypes}
                   className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40 disabled:opacity-40"
@@ -694,6 +699,19 @@ export default function EventForm({
                 {hasTypes && (
                   <p className="mt-1 text-xs text-[var(--usha-muted)]">{t("ticketTypesOverridePrice")}</p>
                 )}
+                {!hasTypes && (() => {
+                  // Samma uträkning som kassan: provision per biljett.
+                  const one = ticketPayoutExample(Number(priceDraft.replace(",", ".")), 1);
+                  if (one.grossOre <= 0) return null;
+                  return (
+                    <p className="mt-1 text-xs text-[var(--usha-muted)]" data-testid="net-per-ticket">
+                      {t("netPerTicketHint", {
+                        net: formatKrFromOre(one.netOre, locale),
+                        commission: formatKrFromOre(one.commissionOre, locale),
+                      })}
+                    </p>
+                  );
+                })()}
               </>
             )}
 

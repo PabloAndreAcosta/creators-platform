@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { Check, Ticket, QrCode, Layers, Users, BellRing, Receipt, ArrowRight } from "lucide-react";
 import { SiteNav } from "@/components/landing/site-nav";
 import { Footer } from "@/components/landing/footer";
+import { PayoutCalculator } from "@/components/landing/payout-calculator";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("sellTickets");
@@ -106,6 +107,10 @@ export default async function SellTicketsPage() {
               </li>
             ))}
           </ul>
+        </div>
+        {/* Räkneexemplet: samma uträkning som kassan (lib/stripe/payout-example). */}
+        <div className="mt-6">
+          <PayoutCalculator />
         </div>
       </section>
 
