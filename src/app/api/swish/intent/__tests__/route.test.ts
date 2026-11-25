@@ -25,7 +25,11 @@ const db: {
   seq: number;
   /** Bokningar som "någon annan" lägger in samtidigt, precis efter vår insert. */
   racer: Booking | null;
-} = { listing: {}, ticketTypes: [], bookings: [], seq: 0, racer: null };
+  pools: Record<string, unknown>[];
+  poolLinks: Record<string, unknown>[];
+  /** Körs precis efter vår insert, t.ex. ett kortköp som hinner reservera. */
+  afterInsert: (() => void) | null;
+} = { listing: {}, ticketTypes: [], bookings: [], seq: 0, racer: null, pools: [], poolLinks: [], afterInsert: null };
 
 function query(table: string) {
   const filters: [string, unknown][] = [];
@@ -35,9 +39,15 @@ function query(table: string) {
     if (table === "listings") return [db.listing];
     if (table === "ticket_types") return db.ticketTypes;
     if (table === "bookings") return db.bookings as unknown as Record<string, unknown>[];
+    if (table === "ticket_pools") return db.pools;
+    if (table === "ticket_type_pools") return db.poolLinks;
     return [];
   };
-  const match = () => rows().filter((r) => filters.every(([c, v]) => r[c] === v));
+  const inFilters: [string, unknown[]][] = [];
+  const match = () =>
+    rows().filter(
+      (r) => filters.every(([c, v]) => r[c] === v) && inFilters.every(([c, vs]) => vs.includes(r[c])),
+    );
   const run = () => {
     if (op === "insert") {
       const row = {
@@ -49,6 +59,10 @@ function query(table: string) {
       if (db.racer) {
         db.bookings.push(db.racer);
         db.racer = null;
+      }
+      if (db.afterInsert) {
+        db.afterInsert();
+        db.afterInsert = null;
       }
       return { data: row, error: null };
     }
@@ -63,6 +77,7 @@ function query(table: string) {
     insert: (p: Record<string, unknown>) => ((op = "insert"), (payload = p), b),
     update: (p: Record<string, unknown>) => ((op = "update"), (payload = p), b),
     eq: (c: string, v: unknown) => (filters.push([c, v]), b),
+    in: (c: string, vs: unknown[]) => (inFilters.push([c, vs]), b),
     maybeSingle: async () => {
       const r = run();
       return { data: Array.isArray(r.data) ? r.data[0] ?? null : r.data, error: null };
@@ -140,6 +155,9 @@ beforeEach(() => {
   db.bookings = [];
   db.seq = 0;
   db.racer = null;
+  db.pools = [];
+  db.poolLinks = [];
+  db.afterInsert = null;
   vi.mocked(sendSwishPendingEmail).mockClear();
 });
 
@@ -190,6 +208,35 @@ describe("POST /api/swish/intent — platser kvar", () => {
     expect(res.status).toBe(409);
     const own = db.bookings.find((b) => b.guest_email === "gast@example.com");
     expect(own?.status).toBe("canceled");
+    expect(sendSwishPendingEmail).not.toHaveBeenCalled();
+  });
+
+  it("biljettpoolen räknas: en annan biljettyp i samma pool har tagit platserna", async () => {
+    const TT2 = "33333333-3333-4333-8333-333333333333";
+    db.ticketTypes = [
+      { id: TT, listing_id: LISTING, name: "Fest", price: 150, capacity: null, tickets_sold: 0 },
+      { id: TT2, listing_id: LISTING, name: "Fest sen", price: 200, capacity: null, tickets_sold: 2 },
+    ];
+    db.pools = [{ id: "pool1", capacity: 3 }];
+    db.poolLinks = [
+      { pool_id: "pool1", ticket_type_id: TT },
+      { pool_id: "pool1", ticket_type_id: TT2 },
+    ];
+    const nej = await POST(req({ quantity: 2, ticketTypeId: TT }));
+    expect(nej.status).toBe(409);
+    expect(await nej.json()).toMatchObject({ error: "notEnoughSeats", left: 1 });
+    const ok = await POST(req({ quantity: 1, ticketTypeId: TT }));
+    expect(ok.status).toBe(200);
+  });
+
+  it("ett kortköp som reserverar under Swish-köpet syns vid omkontrollen", async () => {
+    db.listing.tickets_sold = 9;
+    db.afterInsert = () => {
+      db.listing.tickets_sold = 10;
+    };
+    const res = await POST(req({ quantity: 1 }));
+    expect(res.status).toBe(409);
+    expect(db.bookings.find((b) => b.guest_email === "gast@example.com")?.status).toBe("canceled");
     expect(sendSwishPendingEmail).not.toHaveBeenCalled();
   });
 });

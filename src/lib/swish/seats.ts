@@ -9,7 +9,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
  *
  *   kvar = kapacitet − tickets_sold − platser i VILANDE Swish-bokningar
  *
- * både för kvällen och för biljettypen när en sådan är vald. Det minsta av
+ * för kvällen, för biljettypen när en sådan är vald och för varje biljettpool
+ * biljettypen ingår i. Det minsta av
  * de två gäller. Ingen kapacitet (null) betyder ingen gräns.
  *
  * Kapplöpningen (två "Jag har swishat" samtidigt) löses utan lås: bokningen
@@ -29,11 +30,19 @@ export interface SeatPending {
 export interface SeatInput {
   listing: { capacity: number | null; tickets_sold: number | null };
   ticketType?: { id: string; capacity: number | null; tickets_sold: number | null } | null;
+  /** Biljettpooler som biljettypen ingår i: kapacitet, sålda i poolen och poolens biljettyper. */
+  pools?: SeatPool[];
   /** Vilande Swish-bokningar på kvällen. */
   pending: SeatPending[];
   quantity: number;
   /** Efter insert: räkna bara de vilande som kom före den här bokningen. */
   ownBookingId?: string | null;
+}
+
+export interface SeatPool {
+  capacity: number | null;
+  sold: number;
+  ticketTypeIds: string[];
 }
 
 export type SeatResult = { ok: true; left: number | null } | { ok: false; left: number };
@@ -60,6 +69,13 @@ export function swishSeatsLeft(input: SeatInput): SeatResult {
     const held = counted.filter((b) => b.ticket_type_id === tt.id).reduce((s, b) => s + seats(b), 0);
     limits.push(tt.capacity - (tt.tickets_sold ?? 0) - held);
   }
+  for (const pool of input.pools ?? []) {
+    if (pool.capacity == null) continue;
+    const held = counted
+      .filter((b) => b.ticket_type_id != null && pool.ticketTypeIds.includes(b.ticket_type_id))
+      .reduce((s, b) => s + seats(b), 0);
+    limits.push(pool.capacity - pool.sold - held);
+  }
   if (limits.length === 0) return { ok: true, left: null };
   const left = Math.max(0, Math.min(...limits));
   return input.quantity <= left ? { ok: true, left } : { ok: false, left };
@@ -75,4 +91,59 @@ export async function pendingSwishSeats(admin: SupabaseClient, listingId: string
     .eq("status", "pending");
   if (error) throw error;
   return (data ?? []) as SeatPending[];
+}
+
+/**
+ * Färska siffror för kvällen, biljettypen och dess pooler. Läses om vid varje
+ * kontroll, så att omkontrollen efter insert ser kortköp som hunnit reservera
+ * under tiden (reserve_ticket räknar i sin tur med de vilande Swish-köpen).
+ */
+export async function loadSeatCounts(
+  admin: SupabaseClient,
+  listingId: string,
+  ticketTypeId: string | null,
+): Promise<Pick<SeatInput, "listing" | "ticketType" | "pools">> {
+  const { data: listing, error } = await admin
+    .from("listings")
+    .select("capacity, tickets_sold")
+    .eq("id", listingId)
+    .single();
+  if (error || !listing) throw error ?? new Error("listing missing");
+  if (!ticketTypeId) return { listing, ticketType: null, pools: [] };
+
+  const { data: tt, error: ttError } = await admin
+    .from("ticket_types")
+    .select("id, capacity, tickets_sold")
+    .eq("id", ticketTypeId)
+    .single();
+  if (ttError || !tt) throw ttError ?? new Error("ticket type missing");
+
+  const { data: links, error: linkError } = await admin
+    .from("ticket_type_pools")
+    .select("pool_id")
+    .eq("ticket_type_id", ticketTypeId);
+  if (linkError) throw linkError;
+  const poolIds = (links ?? []).map((l: { pool_id: string }) => l.pool_id);
+  if (poolIds.length === 0) return { listing, ticketType: tt, pools: [] };
+
+  const [{ data: poolRows, error: poolError }, { data: members, error: memberError }] = await Promise.all([
+    admin.from("ticket_pools").select("id, capacity").in("id", poolIds),
+    admin.from("ticket_type_pools").select("pool_id, ticket_type_id").in("pool_id", poolIds),
+  ]);
+  if (poolError) throw poolError;
+  if (memberError) throw memberError;
+  const memberRows = (members ?? []) as { pool_id: string; ticket_type_id: string }[];
+  const typeIds = [...new Set(memberRows.map((m) => m.ticket_type_id))];
+  const { data: types, error: typesError } = await admin
+    .from("ticket_types")
+    .select("id, tickets_sold")
+    .in("id", typeIds);
+  if (typesError) throw typesError;
+  const soldBy = new Map(((types ?? []) as { id: string; tickets_sold: number | null }[]).map((t) => [t.id, t.tickets_sold ?? 0]));
+
+  const pools: SeatPool[] = ((poolRows ?? []) as { id: string; capacity: number | null }[]).map((p) => {
+    const ids = memberRows.filter((m) => m.pool_id === p.id).map((m) => m.ticket_type_id);
+    return { capacity: p.capacity, sold: ids.reduce((s, id) => s + (soldBy.get(id) ?? 0), 0), ticketTypeIds: ids };
+  });
+  return { listing, ticketType: tt, pools };
 }
