@@ -180,6 +180,7 @@ export default async function GuestTicketPage({
     doneBody: tW("doneBody", { when: "{when}" }),
     refundStripe: tW("refundStripe"),
     refundManual: tW("refundManual"),
+    refundNone: tW("refundNone"),
     policyLink: tW("policyLink"),
     errors: {
       emailMismatch: tW("errors.emailMismatch"),
@@ -533,7 +534,10 @@ export default async function GuestTicketPage({
               initialName=""
               initialEmail=""
               labels={withdrawalLabels}
-              done={{ receivedAt: withdrawn.received_at, refundMethod: withdrawn.refund_method === "stripe" ? "stripe" : "manual" }}
+              done={{
+                receivedAt: withdrawn.received_at,
+                refundMethod: withdrawn.refund_method === "stripe" || withdrawn.refund_method === "none" ? withdrawn.refund_method : "manual",
+              }}
             />
           ) : withdrawal.kind === "open" ? (
             <WithdrawalCard
