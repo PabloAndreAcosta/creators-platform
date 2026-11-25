@@ -9,4 +9,4 @@
  * Byt "[DATUM]" mot ett datum, till exempel "2026-12-15", när mejlet till
  * säljarna har gått ut. Samma sträng visas på sv, en och es, så använd ÅÅÅÅ-MM-DD.
  */
-export const TERMS_S7_BUSINESS_EFFECTIVE_DATE = "[DATUM]";
+export const TERMS_S7_BUSINESS_EFFECTIVE_DATE = "2026-12-11";
