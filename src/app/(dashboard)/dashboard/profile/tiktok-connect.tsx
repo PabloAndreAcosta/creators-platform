@@ -19,9 +19,12 @@ interface TikTokMediaItem {
 export function TikTokConnect({
   isConnected,
   tiktokUsername,
+  available = true,
 }: {
   isConnected: boolean;
   tiktokUsername: string | null;
+  /** false när nycklarna saknas: knappen gråmarkeras med "Kommer snart". Avgörs på servern. */
+  available?: boolean;
 }) {
   const t = useTranslations("dashProfile.tiktok");
   const { toast } = useToast();
@@ -123,13 +126,23 @@ export function TikTokConnect({
         <p className="text-xs text-[var(--usha-muted)]">
           {t("connectIntro")}
         </p>
-        <a
-          href="/api/tiktok/connect"
-          className="inline-flex items-center gap-2 rounded-xl bg-black px-4 py-2.5 text-sm font-medium text-white ring-1 ring-white/20 transition hover:ring-white/40"
-        >
-          <Music size={16} />
-          {t("connect")}
-        </a>
+        {available ? (
+          <a
+            href="/api/tiktok/connect"
+            className="inline-flex items-center gap-2 rounded-xl bg-black px-4 py-2.5 text-sm font-medium text-white ring-1 ring-white/20 transition hover:ring-white/40"
+          >
+            <Music size={16} />
+            {t("connect")}
+          </a>
+        ) : (
+          <span
+            aria-disabled="true"
+            className="inline-flex cursor-not-allowed items-center gap-2 rounded-xl bg-black/40 px-4 py-2.5 text-sm font-medium text-[var(--usha-muted)] opacity-60 ring-1 ring-white/10"
+          >
+            <Music size={16} />
+            {t("comingSoon")}
+          </span>
+        )}
       </div>
     );
   }

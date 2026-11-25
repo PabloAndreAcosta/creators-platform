@@ -1,6 +1,8 @@
 export const revalidate = 60; // ISR: revalidate every 60 seconds
 
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { loadPreviewableDraft } from "@/lib/listings/draft-preview";
 import { getTranslations, getLocale } from "next-intl/server";
 import { safeJsonLd } from "@/lib/json-ld";
 import { notFound, redirect } from "next/navigation";
@@ -26,6 +28,9 @@ import { canReceivePayments } from "@/lib/payments/beta-gate";
 import { loadPayeeEligibility } from "@/lib/payments/load-payee";
 import { indexable } from "@/lib/seo/metadata";
 import { plainDescription, serviceJsonLd } from "@/lib/seo/event-json-ld";
+
+const LISTING_COLUMNS =
+  "id, title, description, category, price, duration_minutes, event_date, event_time, event_end_time, event_location, event_venue, event_city, event_lat, event_lng, event_place_id, image_url, listing_type, min_guests, max_guests, experience_details, user_id, is_active, slug, series_id, series_slug, open_to_instructors";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -82,17 +87,29 @@ export default async function ListingDetailPage(props: Props) {
   const dateLocale = ({ sv: "sv-SE", en: "en-GB", es: "es-ES" } as Record<string, string>)[
     await getLocale()
   ] ?? "en-GB";
-  const [{ data: listing }, { data: { user } }] = await Promise.all([
+  const [{ data: activeListing }, { data: { user } }] = await Promise.all([
     supabase
       .from("listings")
-      .select(
-        "id, title, description, category, price, duration_minutes, event_date, event_time, event_end_time, event_location, event_venue, event_city, event_lat, event_lng, event_place_id, image_url, listing_type, min_guests, max_guests, experience_details, user_id, is_active, slug, series_id, series_slug, open_to_instructors"
-      )
+      .select(LISTING_COLUMNS)
       .eq(column, params.id)
       .eq("is_active", true)
       .single(),
     supabase.auth.getUser(),
   ]);
+
+  // Ägaren (eller den som får redigera) ser sitt utkast i förhandsgranskningen
+  // från /dashboard/listings. Alla andra får 404 som förut.
+  const draftRow =
+    !activeListing && user
+      ? await loadPreviewableDraft(createAdminClient(), {
+          column,
+          value: params.id,
+          viewerId: user.id,
+          columns: LISTING_COLUMNS,
+        })
+      : null;
+  const listing = activeListing ?? (draftRow as unknown as typeof activeListing);
+  const isDraft = !activeListing && !!draftRow;
 
   if (!listing) {
     // A bare series slug (e.g. "the-kiz-lab") has no listing of its own —
@@ -212,10 +229,21 @@ export default async function ListingDetailPage(props: Props) {
 
   return (
     <div className="min-h-screen">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }}
-      />
+      {!isDraft && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }}
+        />
+      )}
+      {isDraft && (
+        <div
+          role="status"
+          className="border-b border-amber-400/40 bg-amber-400/15 px-4 py-3 text-center text-sm text-amber-100"
+        >
+          <p className="font-semibold">{tEvent("draftBannerTitle")}</p>
+          <p className="text-xs opacity-80">{tEvent("draftBannerBody")}</p>
+        </div>
+      )}
       {/* Header */}
       <header className="border-b border-[var(--usha-border)]">
         <div className="mx-auto flex h-16 max-w-4xl items-center justify-between px-4 md:px-6">
@@ -415,6 +443,7 @@ export default async function ListingDetailPage(props: Props) {
                 )}
               </div>
 
+              {!isDraft && (
               <div className="flex flex-col gap-3">
                 {/* Tickets are only for events. Services (e.g. private lessons)
                     are booked via BookingForm, not sold as tickets. */}
@@ -445,6 +474,7 @@ export default async function ListingDetailPage(props: Props) {
                     : t("cancellationNoteAnytime")}
                 </p>
               </div>
+              )}
             </div>
 
             {/* Creator card */}

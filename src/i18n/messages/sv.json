@@ -1453,7 +1453,7 @@
       "queueFullyBookedBody": "Alla platser är tagna. Ställ dig i kö så bokas du automatiskt.",
       "joining": "Ansluter...",
       "joinQueue": "Ställ dig i kön",
-      "dancePackageTitle": "Förbetalt danspaket",
+      "dancePackageTitle": "Förbetalt klippkort",
       "dancePackageBody": "Du betalar i förväg. Inget datum eller tid krävs vid bokning — du och dansaren bestämmer själva när danserna ska inlösas, t.ex. vid ett event.",
       "b2bInfo": "Skicka en förfrågan med datum, tid och lokal. Taxidansaren får meddelande och kan acceptera eller avböja. Betalning hanteras separat efter acceptans.",
       "dateLabel": "Datum",
@@ -1751,6 +1751,7 @@
       "importSuccess": "{count} bilder importerade"
     },
     "tiktok": {
+      "comingSoon": "Kommer snart",
       "title": "TikTok-import",
       "connectIntro": "Koppla ditt TikTok-konto för att importera videos till din portfolio.",
       "connect": "Koppla TikTok",
@@ -2346,6 +2347,10 @@
     "saveChanges": "Spara ändringar",
     "create": "Skapa evenemang",
     "categories": {
+      "dance": "Dans",
+      "music": "Musik",
+      "performance": "Performance",
+      "yoga": "Yoga",
       "restaurant": "Restaurang",
       "concert": "Konsert",
       "nightclub": "Nattklubb",
@@ -2492,6 +2497,8 @@
     }
   },
   "eventPage": {
+    "draftBannerTitle": "Utkast – inte publicerat",
+    "draftBannerBody": "Bara du och de som får redigera evenemanget ser sidan. Publicera den i Mina evenemang när den är klar.",
     "wasThereLink": "Var du där {weekday} {date}? Betala för den kvällen här",
     "wasThereButtonDated": "Var du där {weekday} {date}?",
     "wasThereButton": "Var du där?",
@@ -4575,6 +4582,8 @@
     "viewProfile": "Visa profil"
   },
   "connections": {
+    "comingSoon": "Kommer snart",
+    "tiktokUnavailable": "TikTok-kopplingen är inte öppen än. Knappen blir klickbar när den är det.",
     "title": "Kopplingar",
     "subtitle": "Konton du kopplat till Usha, och deras status.",
     "creatorOnly": "Kopplingar är till för kreatörs- och lokalkonton. Byt roll under Inställningar → Konto för att koppla konton.",

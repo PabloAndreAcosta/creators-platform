@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { createNotification } from "@/lib/notifications/create";
 import { awardPoints } from "@/lib/points/award";
 import { POINT_VALUES } from "@/lib/points/constants";
+import { isFeedPostVisible } from "@/lib/feed/visible-author";
 
 export async function createPost(formData: FormData) {
   const supabase = await createClient();
@@ -160,7 +161,7 @@ export async function getMorePosts(page: number) {
   const pageSize = 20;
   const offset = page * pageSize;
 
-  const { data: posts } = await supabase
+  const { data: rawPosts } = await supabase
     .from("posts")
     .select(`
       *,
@@ -170,7 +171,13 @@ export async function getMorePosts(page: number) {
     .order("created_at", { ascending: false })
     .range(offset, offset + pageSize - 1);
 
-  if (!posts || posts.length === 0) return { posts: [], hasMore: false };
+  if (!rawPosts || rawPosts.length === 0) return { posts: [], hasMore: false };
+  // Samma filter som getFeedPosts. hasMore räknas på den ofiltrerade sidan, så
+  // att en sida full av dolda inlägg inte stoppar "visa fler".
+  const posts = rawPosts.filter((p) =>
+    isFeedPostVisible(p as unknown as Parameters<typeof isFeedPostVisible>[0], user?.id)
+  );
+  if (posts.length === 0) return { posts: [], hasMore: rawPosts.length === pageSize };
 
   const postIds = posts.map((p) => p.id);
 
@@ -223,5 +230,5 @@ export async function getMorePosts(page: number) {
     };
   });
 
-  return { posts: enrichedPosts, hasMore: posts.length === pageSize };
+  return { posts: enrichedPosts, hasMore: rawPosts.length === pageSize };
 }

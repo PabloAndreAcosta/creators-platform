@@ -41,7 +41,6 @@ export const PUBLIC_NAMESPACES = [
   "quickBuy",
   "roles",
   "serverNotifications",
-  "signupOnboarding",
 ] as const;
 
 /** src/app/app/ — den inloggade appen. */

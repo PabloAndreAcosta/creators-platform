@@ -46,6 +46,11 @@ const nextConfig = {
       { source: "/app/samarbeten", destination: "/app/my-collaborations", permanent: false },
       { source: "/samarbeten", destination: "/app/my-collaborations", permanent: false },
       { source: "/join", destination: "/signup?role=customer", permanent: false },
+      // /onboarding var en demo med låtsas-BankID (onboarding-routern, §9).
+      // Sidan är borttagen; den riktiga registreringen är /signup. Permanent
+      // med flit: adressen ska aldrig komma tillbaka som demo.
+      { source: "/onboarding", destination: "/signup", permanent: true },
+      { source: "/onboarding/:path*", destination: "/signup", permanent: true },
       { source: "/konto", destination: "/signup?role=customer", permanent: false },
       { source: "/konto/insta", destination: "/signup?role=customer&utm_source=instagram&utm_medium=social&utm_campaign=konto&utm_content=reel", permanent: false },
       { source: "/konto/chatt", destination: "/signup?role=customer&utm_source=chatt&utm_medium=dm&utm_campaign=konto", permanent: false },
