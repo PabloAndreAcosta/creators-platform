@@ -15,6 +15,8 @@ import { BankIdVerifyButton } from "@/app/(dashboard)/dashboard/profile/bankid-v
 import { signUpForShifts, cancelShift, checkIn, redeemVoucher, applyForRole } from "../actions";
 import { shiftRoleName } from "@/lib/taxi/roles";
 import { ConfirmButton, PendingButton, ScrollIntoViewNotice } from "@/components/form-feedback";
+import { volunteerJourney } from "@/lib/taxi/journey";
+import { NextStepCard, VolunteerSteps } from "@/components/taxi/volunteer-guide";
 
 export const dynamic = "force-dynamic";
 
@@ -122,6 +124,19 @@ export default async function TaxiEveningPage(props: {
       !(s.role === "taxi_dancer" && taxiFull),
   );
   const anyCheckedIn = booked.some((m) => m.checked_in_at);
+  // Var volontären står: 1 Ansök, 2 Välj pass, 3 Checka in — och nästa steg.
+  const journey = volunteerJourney({
+    loggedIn: !!user,
+    eligibility,
+    blocked,
+    roleStatuses: eveningRoles.map((r) => statusOf.get(r)),
+    booked: booked.map((m) => {
+      const s = shifts.find((x) => x.id === m.shift_id)!;
+      return { signupId: m.id, starts_at: s.starts_at, ends_at: s.ends_at, checked_in_at: m.checked_in_at };
+    }),
+    hasOpenShifts: open.length > 0,
+    now,
+  });
 
   // Pengar nämns bara på betalda pass.
   const payNote = (s: { pay_ore: number }) =>
@@ -161,6 +176,13 @@ export default async function TaxiEveningPage(props: {
         <ScrollIntoViewNotice key={notice} className="mt-4 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm font-medium">
           {t(`notice_${notice}`)}
         </ScrollIntoViewNotice>
+      )}
+
+      {shifts.length > 0 && (
+        <div className="mt-5 space-y-3">
+          <VolunteerSteps journey={journey} />
+          <NextStepCard journey={journey} listingId={id} />
+        </div>
       )}
 
       <div className="mt-5 rounded-xl border border-[var(--usha-gold)]/30 bg-[var(--usha-gold)]/5 p-4 text-sm">
@@ -248,7 +270,8 @@ export default async function TaxiEveningPage(props: {
         </section>
       )}
 
-      <section className="mt-6">
+      {/* Hit leder "Välj pass" och "Ansök" i nästa-steg-rutan. */}
+      <section id="valj-pass" className="mt-6 scroll-mt-20">
         <h2 className="mb-3 text-lg font-semibold">{t("signUpTitle")}</h2>
         {user && strikes > 0 && (
           <p className="mb-3 text-sm text-[var(--usha-muted)]">{t("strikes", { n: strikes, limit: STRIKE_LIMIT })}</p>
