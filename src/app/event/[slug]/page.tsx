@@ -1387,7 +1387,7 @@ export default async function EventPage(props: Params) {
         <EventCardSection
           eyebrow={t("sameSeries")}
           heading={t("moreDates")}
-          viewAllHref={listing.series_slug ? `/series/${listing.series_slug}` : "/marketplace"}
+          viewAllHref={listing.series_slug ? `/series/${listing.series_slug}` : "/upplevelser"}
           viewAllLabel={tRoot("common.viewAll")}
           cards={prepareCards(moreDates)}
           fallbackLabel={t("production")}
@@ -1398,7 +1398,7 @@ export default async function EventPage(props: Params) {
         <EventCardSection
           eyebrow={t("discoverMore")}
           heading={t("moreProductions")}
-          viewAllHref="/marketplace"
+          viewAllHref="/upplevelser"
           viewAllLabel={tRoot("common.viewAll")}
           cards={prepareCards(more)}
           fallbackLabel={t("production")}
