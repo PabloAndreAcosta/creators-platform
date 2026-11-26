@@ -12,6 +12,7 @@
  */
 
 import { inomFonster } from "@/lib/settlements/supplement";
+import { stockholmLocalToUtcISO } from "@/lib/time";
 
 export interface OccurrenceLike {
   id: string;
@@ -123,4 +124,38 @@ export function matchTicketType(
 export function hasRoom(type: TicketTypeLike, quantity: number): boolean {
   if (type.capacity == null) return true;
   return (type.tickets_sold ?? 0) + quantity <= type.capacity;
+}
+
+/**
+ * Fälten en biljett får när den flyttas till en annan kväll.
+ *
+ * `scheduled_at` MÅSTE följa med. Dörren läser `listing_id`, men påminnelserna
+ * (dagen före och "snart"), bekräftelsemejlet, kalendersynken, "Var du där?"
+ * och statistiken läser `scheduled_at`. Flytten skrev förut bara listing_id,
+ * så en biljett flyttad från 26 nov till 19 nov fick påminnelser om 26 nov —
+ * en kväll den inte längre gällde (bokning 970cbd73, nov 2026).
+ *
+ * Påminnelsestämplarna nollas: de gällde den gamla kvällen, och utan nollning
+ * får gästen aldrig någon påminnelse om den nya. Ligger den nya kvällen bakåt
+ * i tiden plockar cron-jobben ändå aldrig upp den (de tittar bara framåt).
+ */
+export function movedBookingFields(
+  target: { id: string; event_date: string; event_time?: string | null },
+  newTypeId: string | null
+): {
+  listing_id: string;
+  ticket_type_id?: string;
+  scheduled_at?: string;
+  reminder_sent_at: null;
+  reminder_soon_sent_at: null;
+} {
+  const time = (target.event_time ?? "").slice(0, 5) || "00:00";
+  const scheduledAt = stockholmLocalToUtcISO(`${target.event_date}T${time}`);
+  return {
+    listing_id: target.id,
+    ...(newTypeId ? { ticket_type_id: newTypeId } : {}),
+    ...(scheduledAt ? { scheduled_at: scheduledAt } : {}),
+    reminder_sent_at: null,
+    reminder_soon_sent_at: null,
+  };
 }

@@ -4,6 +4,7 @@ import {
   blockingReason,
   matchTicketType,
   hasRoom,
+  movedBookingFields,
 } from "@/lib/bookings/move-occurrence";
 
 const SERIE = "serie-1";
@@ -148,5 +149,26 @@ describe("passerade kvällar", () => {
   it("men inte längre bak än fönstret", () => {
     const gammal = { ...to, event_date: "2026-08-01" };
     expect(blockingReason({ ...bas, to: gammal, byArranger: true })).toBe("in_the_past");
+  });
+});
+
+describe("movedBookingFields", () => {
+  it("flyttar scheduled_at till målkvällens tid (svensk vintertid)", () => {
+    // Fallet 970cbd73: köpt till 26 nov, flyttad till 19 nov kl. 17.
+    const f = movedBookingFields({ id: "kv19", event_date: "2026-11-19", event_time: "17:00:00" }, "tt19");
+    expect(f.listing_id).toBe("kv19");
+    expect(f.ticket_type_id).toBe("tt19");
+    expect(f.scheduled_at).toBe("2026-11-19T16:00:00.000Z");
+  });
+  it("räknar sommartid rätt", () => {
+    const f = movedBookingFields({ id: "x", event_date: "2026-07-09", event_time: "18:30" }, null);
+    expect(f.scheduled_at).toBe("2026-07-09T16:30:00.000Z");
+    expect("ticket_type_id" in f).toBe(false);
+  });
+  it("nollar påminnelserna så att gästen påminns om den nya kvällen", () => {
+    const f = movedBookingFields({ id: "x", event_date: "2026-12-03", event_time: null }, null);
+    expect(f.reminder_sent_at).toBeNull();
+    expect(f.reminder_soon_sent_at).toBeNull();
+    expect(f.scheduled_at).toBe("2026-12-02T23:00:00.000Z");
   });
 });
