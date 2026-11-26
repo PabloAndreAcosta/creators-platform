@@ -1597,7 +1597,6 @@
       "errorCouldNotStartPurchase": "No se pudo iniciar la compra",
       "loading": "Cargando...",
       "buy": "Comprar entrada",
-      "discountedPriceSek": "{discounted} SEK",
       "priceSek": "{price} SEK",
       "chooseTicket": "Elegir entrada"
     },

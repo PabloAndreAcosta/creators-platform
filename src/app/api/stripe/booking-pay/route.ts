@@ -3,7 +3,7 @@ import { getStripeLocale } from "@/lib/i18n/stripe-locale";
 import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from '@/lib/supabase/admin';
-import { calculateDiscountedPrice, getCreatorCommissionRate, platformCommissionOre } from "@/lib/stripe/commission";
+import { getCreatorCommissionRate, platformCommissionOre } from "@/lib/stripe/commission";
 import { assignmentRoute, payrollRouteLive, ASSIGNMENT_PAYROLL_NOT_LIVE_MESSAGE } from "@/lib/assignments/route";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
 import { loadPayeeEligibility } from "@/lib/payments/load-payee";
@@ -44,13 +44,6 @@ export async function POST(req: NextRequest) {
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    const { data: userProfile } = await supabase
-      .from("profiles")
-      .select("tier")
-      .eq("id", user.id)
-      .single();
-    const userTier = userProfile?.tier ?? null;
 
     const { data: booking } = await supabase
       .from("bookings")
@@ -105,13 +98,13 @@ export async function POST(req: NextRequest) {
     }
 
     // Resolve effective price: prefer the negotiated agreed_price on the booking
-    // (B2B), otherwise the listing price with the buyer's membership discount
-    // applied — matching what they were shown when booking.
+    // (B2B), otherwise the listing price (no membership
+    // discount since one tier, 2026-11-13).
     const agreedPrice = (booking as { agreed_price?: number | null }).agreed_price ?? null;
     const effectivePrice =
       agreedPrice != null && agreedPrice > 0
         ? agreedPrice
-        : calculateDiscountedPrice(listing.price ?? 0, userTier);
+        : (listing.price ?? 0);
 
     if (!effectivePrice || effectivePrice <= 0) {
       return NextResponse.json(

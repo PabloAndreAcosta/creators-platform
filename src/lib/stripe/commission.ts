@@ -116,14 +116,3 @@ export function calculateCreatorPayout(
     commissionRate: rate,
   };
 }
-
-/**
- * Medlemsrabatten (10 % Guld, 20 % Premium) är borta sedan en nivå
- * (2026-11-13). Funktionen finns kvar för anropsställena och ger alltid
- * fullt pris — profiles.tier kan fortfarande bära gamla värden, och de ska
- * inte ge någon rabatt den dag någon råkar sätta en flagga.
- */
-export function calculateDiscountedPrice(originalPrice: number, userTier: string | null): number {
-  void userTier;
-  return originalPrice;
-}

@@ -17,7 +17,6 @@ import { ReportUserButton } from "@/components/report-user-button";
 import { AvailabilityCalendar } from "@/components/availability-calendar";
 import { CreatorGallery } from "@/components/creator-gallery";
 import { CreatorProducts } from "@/components/creator-products";
-import { calculateDiscountedPrice } from "@/lib/stripe/commission";
 import { canReceivePayments } from "@/lib/payments/beta-gate";
 import { loadPayeeEligibility } from "@/lib/payments/load-payee";
 import { filterByGoldExclusivity } from "@/lib/listings/early-bird";
@@ -687,7 +686,6 @@ export default async function CreatorProfilePage(props: Props) {
                               <BuyTicketButton
                                 listingId={listing.id}
                                 originalPrice={listing.price}
-                                discountedPrice={calculateDiscountedPrice(listing.price, visitorTier)}
                                 isLoggedIn={isLoggedIn}
                                 hasConnect={hasConnect}
                               />

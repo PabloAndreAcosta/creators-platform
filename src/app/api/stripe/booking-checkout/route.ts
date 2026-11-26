@@ -6,7 +6,6 @@ import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from '@/lib/supabase/admin';
 import {
-  calculateDiscountedPrice,
   getCreatorCommissionRate, platformCommissionOre,
 } from "@/lib/stripe/commission";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
@@ -60,14 +59,6 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-
-    // Get user tier
-    const { data: userProfile } = await supabase
-      .from("profiles")
-      .select("tier")
-      .eq("id", user.id)
-      .single();
-    const userTier = userProfile?.tier ?? null;
 
     // Get listing
     const { data: listing } = await supabase
@@ -159,8 +150,7 @@ export async function POST(req: NextRequest) {
 
     // Calculate pricing
     const originalPrice = listing.price;
-    const discountedPrice = calculateDiscountedPrice(originalPrice, userTier);
-    const amountInOre = Math.round(discountedPrice * 100);
+    const amountInOre = Math.round(originalPrice * 100);
     const creatorSubcategory = (creator as { creator_subcategory?: string | null }).creator_subcategory ?? null;
     const commissionRate = getCreatorCommissionRate(creator.tier ?? "gratis", creatorSubcategory);
     // Ushas egna arrangemang (usha_principal) bär ingen provision: pengarna är
@@ -177,7 +167,7 @@ export async function POST(req: NextRequest) {
       const validation = await validatePromoCode(promoCode, user.id, "ticket");
       if (validation.valid && validation.promo) {
         const result = applyPromoDiscount(
-          discountedPrice,
+          originalPrice,
           validation.promo.discount_type,
           validation.promo.discount_value
         );
@@ -187,7 +177,7 @@ export async function POST(req: NextRequest) {
     }
 
     const finalAmount = promoDiscountAmount
-      ? Math.round((discountedPrice - promoDiscountAmount) * 100)
+      ? Math.round((originalPrice - promoDiscountAmount) * 100)
       : amountInOre;
     const finalFee = Math.round(finalAmount * commissionRate);
 
@@ -243,7 +233,7 @@ export async function POST(req: NextRequest) {
           return json.length > 490 ? "[]" : json; // Stripe metadata limit: 500 chars
         })(),
         originalPrice: String(originalPrice),
-        discountedPrice: String(discountedPrice),
+        discountedPrice: String(originalPrice),
         ...(listing.listing_type === "package" && (listing as { session_count?: number | null }).session_count
           ? { danceCount: String((listing as { session_count?: number | null }).session_count) }
           : {}),

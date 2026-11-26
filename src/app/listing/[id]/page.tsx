@@ -23,7 +23,6 @@ import { BuyTicketButton } from "@/components/buy-ticket-button";
 import { InstructorMinutesCard } from "@/components/instructor-minutes-card";
 import { EventMap } from "@/components/event-map";
 import { CATEGORY_LABELS } from "@/lib/categories";
-import { calculateDiscountedPrice } from "@/lib/stripe/commission";
 import { canReceivePayments } from "@/lib/payments/beta-gate";
 import { loadPayeeEligibility } from "@/lib/payments/load-payee";
 import { indexable } from "@/lib/seo/metadata";
@@ -179,17 +178,6 @@ export default async function ListingDetailPage(props: Props) {
       candidates.map((p) => supabase.rpc("has_stripe_connect", { p_id: p.id }))
     );
     eventInstructors = candidates.filter((_, i) => !!connected[i]?.data);
-  }
-
-  // Get visitor tier for discounts
-  let visitorTier: string | null = null;
-  if (user) {
-    const { data: vp } = await supabase
-      .from("profiles")
-      .select("tier")
-      .eq("id", user.id)
-      .single();
-    visitorTier = vp?.tier ?? null;
   }
 
   const isLoggedIn = !!user;
@@ -453,7 +441,6 @@ export default async function ListingDetailPage(props: Props) {
                     <BuyTicketButton
                       listingId={listing.id}
                       originalPrice={listing.price}
-                      discountedPrice={calculateDiscountedPrice(listing.price, visitorTier)}
                       isLoggedIn={isLoggedIn}
                       hasConnect={hasConnect}
                       hasTicketTypes={hasTicketTypes}
