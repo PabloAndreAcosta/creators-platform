@@ -10,6 +10,10 @@
     {
       "path": "/api/cron/taxi-checkin-reminders",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/taxi-series-shifts",
+      "schedule": "30 4 * * *"
     }
   ]
 }
