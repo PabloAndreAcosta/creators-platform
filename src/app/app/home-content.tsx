@@ -402,7 +402,7 @@ function PublikHome({
                 <Sparkles size={16} className="text-[var(--usha-gold)]" />
                 <h2 className="text-lg font-bold">{t("popularEvents")}</h2>
               </div>
-              <Link href="/marketplace" className="text-xs text-[var(--usha-gold)]">
+              <Link href="/upplevelser" className="text-xs text-[var(--usha-gold)]">
                 {tc("viewAll")}
               </Link>
             </div>

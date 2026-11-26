@@ -17,7 +17,7 @@ export function BottomNav() {
   const pathname = usePathname();
   const { role, extraNavPaths } = useRole();
   // En publik-roll som fått skapa evenemang åt en lokal ska ha egna
-  // evenemang i fliken, inte marknadsplatsen.
+  // evenemang i fliken, inte publikens evenemangslista.
   const hostTabs = role !== "customer" || extraNavPaths.includes("/app/events");
   const { tier } = useSubscription();
   const t = useTranslations("nav");
@@ -27,7 +27,10 @@ export function BottomNav() {
       ? [
           { href: "/app", label: t("home"), icon: Home },
           { href: "/app/tickets", label: t("tickets"), icon: Ticket },
-          { href: "/marketplace", label: t("events"), icon: Building2 },
+          // Publikens Evenemang-flik går till evenemangslistan. Den pekade på
+          // /marketplace (kreatörer och lokaler), så den som tryckte på
+          // Evenemang hamnade bland profiler i stället för kvällar.
+          { href: "/upplevelser", label: t("events"), icon: Building2 },
           { href: "/app/tools", label: t("more"), icon: LayoutGrid },
           { href: "/app/profile", label: t("profile"), icon: User },
         ]

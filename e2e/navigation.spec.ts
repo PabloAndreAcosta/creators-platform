@@ -43,7 +43,8 @@ test.describe("rollen är rätt redan i serverrenderingen", () => {
     await signIn(context, baseURL!);
     await page.goto("/app");
 
-    // Kundens Evenemang-flik går till /marketplace, kreatörens till /app/events.
+    // Ingen Evenemang-flik pekar längre på /marketplace: publikens går till
+    // /upplevelser, kreatörens till /app/events.
     // Under flimret fick kreatören kundens flik och hamnade utanför appskalet.
     await expect(page.locator('nav a[href="/marketplace"]')).toHaveCount(0);
   });
