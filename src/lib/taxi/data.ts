@@ -108,3 +108,54 @@ export async function loadUpcomingEvenings(today: string): Promise<(Evening & { 
     })),
   );
 }
+
+export interface MyShift {
+  signupId: string;
+  listing_id: string;
+  title: string;
+  event_date: string;
+  starts_at: string;
+  ends_at: string;
+  role: VolunteerRole;
+  role_label: string | null;
+  checked_in_at: string | null;
+}
+
+/**
+ * Personens bokade pass som inte är slut, tidigast först. Visas på /taxi och
+ * /app/taxi så att den som står i dörren hittar incheckningen direkt.
+ */
+export async function loadMyUpcomingShifts(userId: string, now: Date = new Date()): Promise<MyShift[]> {
+  const { data } = await createAdminClient()
+    .from("taxi_signups")
+    .select("id, checked_in_at, shift:taxi_shifts!inner(listing_id, starts_at, ends_at, role, role_label, listing:listings(title, event_date))")
+    .eq("dancer_id", userId)
+    .eq("status", "booked")
+    .gt("shift.ends_at", now.toISOString());
+  type Row = {
+    id: string;
+    checked_in_at: string | null;
+    shift: {
+      listing_id: string;
+      starts_at: string;
+      ends_at: string;
+      role: string;
+      role_label: string | null;
+      listing: { title: string; event_date: string | null } | null;
+    } | null;
+  };
+  return ((data ?? []) as unknown as Row[])
+    .filter((r) => r.shift)
+    .map((r) => ({
+      signupId: r.id,
+      listing_id: r.shift!.listing_id,
+      title: r.shift!.listing?.title ?? "",
+      event_date: String(r.shift!.listing?.event_date ?? "").slice(0, 10),
+      starts_at: r.shift!.starts_at,
+      ends_at: r.shift!.ends_at,
+      role: r.shift!.role as VolunteerRole,
+      role_label: r.shift!.role_label,
+      checked_in_at: r.checked_in_at,
+    }))
+    .sort((a, b) => Date.parse(a.starts_at) - Date.parse(b.starts_at));
+}

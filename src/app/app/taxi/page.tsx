@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { HeartHandshake } from "lucide-react";
-import { loadUpcomingEvenings } from "@/lib/taxi/data";
+import { loadMyUpcomingShifts, loadUpcomingEvenings } from "@/lib/taxi/data";
+import { createClient } from "@/lib/supabase/server";
+import { MyUpcomingShifts, VolunteerSteps } from "@/components/taxi/volunteer-guide";
 import { stockholmToday } from "@/lib/time";
 import { shiftRoleName } from "@/lib/taxi/roles";
 
@@ -13,7 +15,14 @@ const time = (iso: string) =>
 /** Kommande kvällar som söker volontärer (taxidansare, dörrvärdar …). Länken i inläggen kan peka hit. */
 export default async function TaxiEveningsPage() {
   const t = await getTranslations("taxiPass");
-  const evenings = await loadUpcomingEvenings(stockholmToday());
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const [evenings, mine] = await Promise.all([
+    loadUpcomingEvenings(stockholmToday()),
+    user ? loadMyUpcomingShifts(user.id) : Promise.resolve([]),
+  ]);
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6 md:px-8">
@@ -22,6 +31,12 @@ export default async function TaxiEveningsPage() {
         {t("listTitle")}
       </h1>
       <p className="mt-1 text-sm text-[var(--usha-muted)]">{t("listIntro")}</p>
+
+      {/* Egna pass först: på kvällen ska incheckningen ligga överst. */}
+      <div className="mt-6 space-y-4">
+        <MyUpcomingShifts shifts={mine} />
+        {mine.length === 0 && <VolunteerSteps withHelp />}
+      </div>
 
       {evenings.length === 0 ? (
         <div className="mt-6 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-10 text-center text-sm text-[var(--usha-muted)]">

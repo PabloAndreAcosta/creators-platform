@@ -5,7 +5,8 @@ import { HeartHandshake, UserPlus } from "lucide-react";
 import { SiteNav } from "@/components/landing/site-nav";
 import { Footer } from "@/components/landing/footer";
 import { createClient } from "@/lib/supabase/server";
-import { loadUpcomingEvenings } from "@/lib/taxi/data";
+import { loadMyUpcomingShifts, loadUpcomingEvenings } from "@/lib/taxi/data";
+import { MyUpcomingShifts, VolunteerSteps } from "@/components/taxi/volunteer-guide";
 import { stockholmToday } from "@/lib/time";
 import { shiftRoleName } from "@/lib/taxi/roles";
 
@@ -44,7 +45,10 @@ export default async function TaxiLandingPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const evenings = await loadUpcomingEvenings(stockholmToday());
+  const [evenings, mine] = await Promise.all([
+    loadUpcomingEvenings(stockholmToday()),
+    user ? loadMyUpcomingShifts(user.id) : Promise.resolve([]),
+  ]);
 
   // Utloggade skickas via registreringen; den som redan har konto går rakt in.
   const to = (path: string) => (user ? path : `/signup?role=customer&next=${encodeURIComponent(path)}`);
@@ -60,6 +64,17 @@ export default async function TaxiLandingPage() {
         </div>
         <h1 className="text-center text-4xl font-bold leading-tight">{t("landingTitle")}</h1>
         <p className="mx-auto mt-4 max-w-2xl text-center text-[var(--usha-muted)]">{t("landingIntro")}</p>
+
+        {/* Inloggad med bokade pass: passen och incheckningen överst. */}
+        {mine.length > 0 && (
+          <div className="mt-10">
+            <MyUpcomingShifts shifts={mine} />
+          </div>
+        )}
+
+        <div className="mt-10">
+          <VolunteerSteps withHelp />
+        </div>
 
         <section className="mt-10 rounded-2xl border border-[var(--usha-gold)]/30 bg-[var(--usha-gold)]/5 p-6">
           <h2 className="font-semibold">{t("volunteerTitle")}</h2>
