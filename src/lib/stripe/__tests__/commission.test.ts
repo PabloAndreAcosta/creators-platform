@@ -1,8 +1,7 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import {
   getCreatorCommissionRate,
   calculateCreatorPayout,
-  calculateDiscountedPrice,
   platformCommissionOre,
   effectiveCommissionRate,
   commissionLabel,
@@ -80,24 +79,5 @@ describe('calculateCreatorPayout (procentdelen, för gamla anrop)', () => {
       expect(p.net).toBe(p.gross - p.commission);
       expect(p.commissionRate).toBe(0.035);
     }
-  });
-});
-
-describe('calculateDiscountedPrice', () => {
-  // Medlemsrabatterna är avstängda via env och nivåerna borta; funktionen
-  // ska ge fullt pris så länge flaggan inte är satt.
-  const prev = process.env.NEXT_PUBLIC_DISCOUNTS_ENABLED;
-  beforeEach(() => {
-    vi.unstubAllEnvs();
-  });
-  afterEach(() => {
-    process.env.NEXT_PUBLIC_DISCOUNTS_ENABLED = prev;
-  });
-
-  it('ger fullt pris när flaggan är av', () => {
-    delete process.env.NEXT_PUBLIC_DISCOUNTS_ENABLED;
-    expect(calculateDiscountedPrice(1000, 'premium')).toBe(1000);
-    expect(calculateDiscountedPrice(1000, 'gratis')).toBe(1000);
-    expect(calculateDiscountedPrice(1000, null)).toBe(1000);
   });
 });

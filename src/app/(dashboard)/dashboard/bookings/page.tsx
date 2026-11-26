@@ -25,7 +25,6 @@ import { BookingsViewToggle } from "./bookings-view-toggle";
 import { PayB2BButton } from "./pay-b2b-button";
 import { RedeemSessionButton, DanceCounter } from "./redeem-session-button";
 import { RedeemMinutesButton, MinutesCounter } from "./redeem-minutes-button";
-import { calculateDiscountedPrice } from "@/lib/stripe/commission";
 import { bookingStartsAt, cancellationDeadline, customerCancelBlock } from "@/lib/bookings/cancellation";
 import { loadAssignmentRoutes } from "@/lib/assignments/load";
 import { payrollRouteLive } from "@/lib/assignments/route";
@@ -235,10 +234,9 @@ export default async function BookingsPage() {
   // Check if user is a creator and fetch availability
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role, tier")
+    .select("role")
     .eq("id", user.id)
     .single();
-  const userTier = profile?.tier ?? null;
 
   const userIsCreator = profile?.role === "creator" || profile?.role === "venue" || profile?.role === "creator" || profile?.role === "venue";
 
@@ -508,10 +506,7 @@ export default async function BookingsPage() {
                           bookingId={booking.id}
                           price={
                             (booking as { agreed_price?: number | null }).agreed_price ??
-                            calculateDiscountedPrice(
-                              listingMetaMap[booking.listing_id]?.price ?? 0,
-                              userTier
-                            )
+                            (listingMetaMap[booking.listing_id]?.price ?? 0)
                           }
                         />
                       )}

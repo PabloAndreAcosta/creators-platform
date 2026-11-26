@@ -9,7 +9,6 @@ import { openCheckout } from "@/lib/native-oauth";
 interface BuyTicketButtonProps {
   listingId: string;
   originalPrice: number;
-  discountedPrice: number;
   isLoggedIn: boolean;
   hasConnect: boolean;
   /** Event has ticket types (price tiers) — send the buyer to the event page to pick one. */
@@ -20,7 +19,6 @@ interface BuyTicketButtonProps {
 export function BuyTicketButton({
   listingId,
   originalPrice,
-  discountedPrice,
   isLoggedIn,
   hasConnect,
   hasTicketTypes = false,
@@ -70,8 +68,6 @@ export function BuyTicketButton({
     );
   }
 
-  const hasDiscount = discountedPrice < originalPrice;
-
   async function handleBuy() {
     setLoading(true);
     try {
@@ -108,15 +104,7 @@ export function BuyTicketButton({
       {loading ? t("buyTicket.loading") : (
         <>
           {t("buyTicket.buy")}
-          {hasDiscount ? (
-            <span className="ml-1">
-              <span className="line-through opacity-60">{originalPrice}</span>
-              {" "}
-              {t("buyTicket.discountedPriceSek", { discounted: discountedPrice })}
-            </span>
-          ) : (
-            <span className="ml-1">{t("buyTicket.priceSek", { price: originalPrice })}</span>
-          )}
+          <span className="ml-1">{t("buyTicket.priceSek", { price: originalPrice })}</span>
         </>
       )}
     </button>

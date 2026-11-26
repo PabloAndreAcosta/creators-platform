@@ -19,7 +19,6 @@ import { normalizeEmail } from '@/lib/email/normalize';
 import { stockholmLocalToUtcISO } from '@/lib/time';
 import { getTranslations } from 'next-intl/server';
 import {
-  calculateDiscountedPrice,
   getCreatorCommissionRate, platformCommissionOre,
 } from "@/lib/stripe/commission";
 import { isGoldExclusive } from '@/lib/listings/early-bird';
@@ -59,15 +58,6 @@ export async function POST(req: NextRequest) {
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
-    // Get user's tier from profile
-    const { data: userProfile } = await supabase
-      .from('profiles')
-      .select('tier')
-      .eq('id', user.id)
-      .single();
-
-    const userTier = userProfile?.tier ?? null;
 
     // Get listing details
     const { data: listing, error: listingError } = await supabase
@@ -298,8 +288,7 @@ export async function POST(req: NextRequest) {
 
     // Calculate pricing — the ticket type's price, else the early-bird price.
     const originalPrice = effectivePrice;
-    const discountedPrice = calculateDiscountedPrice(originalPrice, userTier);
-    const amountInOre = Math.round(discountedPrice * 100);
+    const amountInOre = Math.round(originalPrice * 100);
     const commissionRate = getCreatorCommissionRate(
       creator.tier ?? 'gratis',
       (creator as { creator_subcategory?: string | null }).creator_subcategory ?? null
@@ -438,7 +427,7 @@ export async function POST(req: NextRequest) {
           userId: user.id,
           creatorId: listing.user_id,
           originalPrice: String(originalPrice),
-          discountedPrice: String(discountedPrice),
+          discountedPrice: String(originalPrice),
           serviceFeeOre: String(serviceFee),
           serviceFeeMode: feeMode,
           platformFeeOre: String(Math.max(0, applicationFee * qty + serviceFee - creditOre)),
