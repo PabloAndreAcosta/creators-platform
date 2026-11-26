@@ -6,6 +6,7 @@ import {
   isDatedEvent,
   blockingReason,
   matchTicketType,
+  movedBookingFields,
   type MoveBlock,
 } from "@/lib/bookings/move-occurrence";
 import { stockholmToday } from "@/lib/time";
@@ -152,8 +153,11 @@ export async function POST(req: NextRequest) {
       const { error: moveError } = await admin
         .from("bookings")
         .update({
-          listing_id: target.id,
-          ...(newType ? { ticket_type_id: newType.id } : {}),
+          // scheduled_at följer med: påminnelser och mejl läser det fältet.
+          ...movedBookingFields(
+            { id: target.id, event_date: target.event_date!, event_time: target.event_time },
+            newType?.id ?? null
+          ),
           updated_at: new Date().toISOString(),
         })
         .eq("id", bookingId)
