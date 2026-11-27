@@ -37,6 +37,8 @@ export type NotificationType =
   | 'volunteer_approved'
   // Passet börjar: checka in dig själv, annars räknas det som uteblivet.
   | 'volunteer_checkin'
+  // Godkänd men inget pass valt på en kväll i dag med lediga pass.
+  | 'volunteer_choose_shift'
   // Avtal: skickat till mig att signera, signerat av motparten, avböjt, tillbakadraget.
   | 'agreement_sent'
   | 'agreement_signed'

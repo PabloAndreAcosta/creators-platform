@@ -9,7 +9,11 @@
     },
     {
       "path": "/api/cron/taxi-checkin-reminders",
-      "schedule": "0 * * * *"
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cron/taxi-choose-reminders",
+      "schedule": "0 9 * * *"
     },
     {
       "path": "/api/cron/taxi-series-shifts",
