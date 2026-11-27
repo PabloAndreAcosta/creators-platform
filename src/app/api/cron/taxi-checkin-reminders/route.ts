@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyCronAuth } from "@/lib/cron/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createNotification } from "@/lib/notifications/create";
+import { checkinReminderRange, isCheckinReminderDue, stockholmClock } from "@/lib/taxi/reminders";
 
 /**
- * Cron (varje hel timme): påminn volontären om att checka in när passet börjar.
+ * Cron (varje kvart): påminn volontären om att checka in när incheckningen
+ * öppnar, 30 minuter före passet.
  *
  * Volontären checkar in sig själv på /app/taxi/[kväll] från 30 minuter före
  * passet till dess slut. Ett pass utan incheckning blir en varning när det tar
@@ -12,9 +14,9 @@ import { createNotification } from "@/lib/notifications/create";
  * fick en varning (Sammy, 12 nov). Notisen går som push och leder rakt till
  * knappen.
  *
- * Fönster: pass som börjar inom 40 minuter eller började för högst en timme
- * sedan och inte är slut. Med en körning varje hel timme fångas varje pass
- * en gång; checkin_reminded_at hindrar dubbletter om jobbet körs oftare.
+ * Förr kom påminnelsen när passet redan börjat (The Lab 26 nov: Sammy
+ * checkade aldrig in). Fönstret och skälen står i lib/taxi/reminders.ts;
+ * checkin_reminded_at hindrar dubbletter.
  */
 export async function GET(req: NextRequest) {
   if (!verifyCronAuth(req)) {
@@ -23,12 +25,11 @@ export async function GET(req: NextRequest) {
 
   const admin = createAdminClient();
   const now = new Date();
-  const from = new Date(now.getTime() - 60 * 60 * 1000).toISOString();
-  const to = new Date(now.getTime() + 40 * 60 * 1000).toISOString();
+  const { startsFrom: from, startsTo: to } = checkinReminderRange(now);
 
   const { data, error } = await admin
     .from("taxi_signups")
-    .select("id, dancer_id, shift:taxi_shifts!inner(listing_id, starts_at, ends_at, listing:listings(title))")
+    .select("id, dancer_id, status, checked_in_at, checkin_reminded_at, shift:taxi_shifts!inner(listing_id, starts_at, ends_at, listing:listings(title))")
     .eq("status", "booked")
     .is("checked_in_at", null)
     .is("checkin_reminded_at", null)
@@ -43,12 +44,15 @@ export async function GET(req: NextRequest) {
   type Row = {
     id: string;
     dancer_id: string;
+    status: string;
+    checked_in_at: string | null;
+    checkin_reminded_at: string | null;
     shift: { listing_id: string; starts_at: string; ends_at: string; listing: { title: string } | null } | null;
   };
 
   let sent = 0;
   for (const r of (data ?? []) as unknown as Row[]) {
-    if (!r.shift) continue;
+    if (!r.shift || !isCheckinReminderDue({ ...r, starts_at: r.shift.starts_at, ends_at: r.shift.ends_at }, now)) continue;
     // Markera först: hellre en missad påminnelse än två.
     const { data: marked } = await admin
       .from("taxi_signups")
@@ -61,8 +65,8 @@ export async function GET(req: NextRequest) {
       userId: r.dancer_id,
       type: "volunteer_checkin",
       titleKey: "volunteerCheckinTitle",
-      bodyKey: "volunteerCheckinMsg",
-      params: { title: r.shift.listing?.title ?? "" },
+      bodyKey: "volunteerCheckinOpenMsg",
+      params: { title: r.shift.listing?.title ?? "", time: stockholmClock(r.shift.starts_at) },
       link: `/app/taxi/${r.shift.listing_id}`,
     }).catch((e) => console.error("volunteer check-in notification failed:", e));
     sent++;
